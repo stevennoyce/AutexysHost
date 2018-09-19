@@ -92,7 +92,7 @@ plt.rcParams['ps.fonttype'] = 42
 default_mode_parameters = {
 	'showFigures': True,
 	'saveFigures': True,
-	'plotSaveFolder': 'CurrentPlots/',
+	'plotSaveFolder': '../../AutexysPlots/',
 	'plotSaveName': '',
 	'plotSaveExtension': '.png',
 	

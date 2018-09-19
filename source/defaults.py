@@ -109,7 +109,7 @@ default_parameters = {
 		},
 		'deviceRange': []
 	},
-	'dataFolder': '../AutexysData/',
+	'dataFolder': '../../AutexysData/',
 	'ParametersFormatVersion': 4
 }
 

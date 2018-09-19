@@ -12,8 +12,8 @@ from utilities import PlotPostingUtility as plotPoster
 
 # === Defaults ===
 default_dh_parameters = {
-	'dataFolder': 'data/',
-	'postFolder': 'CurrentPlots/',
+	'dataFolder': '../../AutexysData/',
+	'postFolder': '../../AutexysPlots/',
 	'showFiguresGenerated': True,
 	'saveFiguresGenerated': True,
 	'postFiguresGenerated': False,
