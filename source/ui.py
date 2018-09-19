@@ -223,7 +223,42 @@ def defaultParameters():
 #		# response.headers['Cache-Control'] = 'no-store'
 #	return response
 
+
+import socket
+
+def findFirstOpenPort(startPort=1):
+	for port in range(startPort, 8081):
+		with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+			try:
+				print('Trying port {}'.format(port))
+				sock.bind(('127.0.0.1', port))
+				sock.close()
+				return port
+			except Exception as e:
+				print('Port {} is not available'.format(port))
+
+
 if __name__ == '__main__':
-	url = 'http://127.0.0.1:5000/ui/index.html'
-	# webbrowser.open_new(url)
-	app.run(debug=True, threaded=False)
+	
+	if 'AutexysUIRunning' in os.environ:
+		print('Reload detected. Not opening browser.')
+		print('Still running on port {}'.format(os.environ['AutexysUIPort']))
+		
+	else:
+		port = findFirstOpenPort(startPort=5000)
+		print('Using port {}'.format(port))
+		
+		url = 'http://127.0.0.1:{}/ui/index.html'.format(port)
+		
+		os.environ['AutexysUIRunning'] = 'True'
+		os.environ['AutexysUIPort'] = str(port)
+		
+		print('Opening browser...')
+		webbrowser.open_new(url)
+	
+	app.run(debug=True, threaded=False, port=int(os.environ['AutexysUIPort']))
+
+
+
+
+
