@@ -116,7 +116,7 @@
 		<v-app v-cloak>
 				<v-navigation-drawer clipped fixed v-model="drawer" class="blue-grey lighten-1" dark app>
 					<v-list dense>
-						<v-list-tile @click="">
+						<v-list-tile @click="setTopLevelPage('dashboard')">
 							<v-list-tile-action>
 								<v-icon>dashboard</v-icon>
 							</v-list-tile-action>
@@ -140,7 +140,7 @@
 								<v-list-tile-title>Schedule Creator</v-list-tile-title>
 							</v-list-tile-content>
 						</v-list-tile>
-						<v-list-tile @click="">
+						<v-list-tile @click="setTopLevelPage('settings')">
 							<v-list-tile-action>
 								<v-icon>settings</v-icon>
 							</v-list-tile-action>
@@ -148,11 +148,19 @@
 								<v-list-tile-title>Settings</v-list-tile-title>
 							</v-list-tile-content>
 						</v-list-tile>
+						<v-list-tile @click="setTopLevelPage('about')">
+							<v-list-tile-action>
+								<v-icon>info</v-icon>
+							</v-list-tile-action>
+							<v-list-tile-content>
+								<v-list-tile-title>About</v-list-tile-title>
+							</v-list-tile-content>
+						</v-list-tile>
 					</v-list>
 				</v-navigation-drawer>
 				<v-toolbar app fixed clipped-left dark color="blue-grey darken-1">
 					<v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
-					<v-toolbar-title>User Interface</v-toolbar-title>
+					<v-toolbar-title>Autexys User Interface</v-toolbar-title>
 					<v-spacer></v-spacer>
 					<v-toolbar-items>
 						<v-menu attach bottom left offset-y :close-on-content-click="false" :nudge-width="200">
@@ -541,9 +549,50 @@
 						</v-card>
 					</v-flex>
 					
-					<div>
-						 <!-- <img src="/plots/C127/X/15-16/3/FullSubthresholdCurveHistory" alt="Can't display the image"> -->
-					</div>
+					<v-flex xs12 ma-4 v-if="topLevelPage == 'settings'">
+						<v-card>
+							<v-toolbar dark class="blue-grey darken-1">
+								<v-toolbar-title>
+									Settings
+								</v-toolbar-title>
+							</v-toolbar>
+							<v-container>
+								<p>
+									Settings page coming soon.
+								</p>
+							</v-container>
+						</v-card>
+					</v-flex>
+					
+					<v-flex xs12 ma-4 v-if="topLevelPage == 'dashboard'">
+						<v-card>
+							<v-toolbar dark class="blue-grey darken-1">
+								<v-toolbar-title>
+									Dashboard
+								</v-toolbar-title>
+							</v-toolbar>
+							<v-container>
+								<p>
+									Dashboard page coming soon.
+								</p>
+							</v-container>
+						</v-card>
+					</v-flex>
+					
+					<v-flex xs12 ma-4 v-if="topLevelPage == 'about'">
+						<v-card>
+							<v-toolbar dark class="blue-grey darken-1">
+								<v-toolbar-title>
+									About
+								</v-toolbar-title>
+							</v-toolbar>
+							<v-container>
+								<p>
+									Autexys - the Automated Experimentation System
+								</p>
+							</v-container>
+						</v-card>
+					</v-flex>
 					
 				</v-content>
 				<v-footer inset>
