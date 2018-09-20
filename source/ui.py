@@ -68,6 +68,8 @@ default_makePlot_parameters = {
 	'plot_mode_parameters': None
 }
 
+default_data_path = '../../AutexysData/'
+
 @app.route('/plots/<user>/<project>/<wafer>/<chip>/<device>/<experiment>/<plotType>')
 def sendPlot(user, project, wafer, chip, device, experiment, plotType):
 	experiment = int(experiment)
@@ -101,13 +103,13 @@ def sendPlot(user, project, wafer, chip, device, experiment, plotType):
 
 @app.route('/users.json')
 def users():
-	paths = glob.glob('data/*/')
+	paths = glob.glob(os.path.join(default_data_path, '*/'))
 	names = [os.path.basename(os.path.dirname(p)) for p in paths]
 	return json.dumps(names)
 
 @app.route('/<user>/projects.json')
 def projects(user):
-	paths = glob.glob('data/' + user + '/*/')
+	paths = glob.glob(os.path.join(default_data_path, user, '*/'))
 	names = [os.path.basename(os.path.dirname(p)) for p in paths]
 	
 	projects = [{'name': n} for n in names]
@@ -118,7 +120,7 @@ def projects(user):
 def indexes(user, project):
 	indexObject = {}
 	
-	waferPaths = glob.glob('data/' + user + '/' + project + '/*/')
+	waferPaths = glob.glob(os.path.join(default_data_path, user, project, '*/'))
 	waferNames = [os.path.basename(os.path.dirname(p)) for p in waferPaths]
 	
 	for waferPath, waferName in zip(waferPaths, waferNames):
@@ -138,7 +140,7 @@ def indexes(user, project):
 
 @app.route('/<user>/<project>/wafers.json')
 def wafers(user, project):
-	paths = glob.glob('data/' + user + '/' + project + '/*/')
+	paths = glob.glob(os.path.join(default_data_path, user, project, '*/'))
 	names = [os.path.basename(os.path.dirname(p)) for p in paths]
 	modificationTimes = [os.path.getmtime(p) for p in paths]
 	sizes = [os.path.getsize(p) for p in paths]
@@ -155,7 +157,7 @@ def wafers(user, project):
 
 @app.route('/<user>/<project>/<wafer>/chips.json')
 def chips(user, project, wafer):
-	paths = glob.glob('data/' + user + '/' + project + '/' + wafer + '/*/')
+	paths = glob.glob(os.path.join(default_data_path, user, project, wafer, '*/'))
 	names = [os.path.basename(os.path.dirname(p)) for p in paths]
 	modificationTimes = [os.path.getmtime(p) for p in paths]
 	sizes = [os.path.getsize(p) for p in paths]
@@ -173,7 +175,7 @@ def chips(user, project, wafer):
 
 @app.route('/<user>/<project>/<wafer>/<chip>/devices.json')
 def devices(user, project, wafer, chip):
-	paths = glob.glob('data/' + user + '/' + project + '/' + wafer + '/' + chip + '/*/')
+	paths = glob.glob(os.path.join(default_data_path, user, project, wafer, chip, '*/'))
 	names = [os.path.basename(os.path.dirname(p)) for p in paths]
 	# modificationTimes = [os.path.getmtime(p) for p in paths]
 	modificationTimes = [os.path.getmtime(p+'ParametersHistory.json') if os.path.exists(p+'ParametersHistory.json') else os.path.getmtime(p) for p in paths]
@@ -190,7 +192,7 @@ def devices(user, project, wafer, chip):
 
 @app.route('/<user>/<project>/<wafer>/<chip>/<device>/experiments.json')
 def experiments(user, project, wafer, chip, device):
-	folder = 'data/' + user + '/' + project + '/' + wafer + '/' + chip + '/' + device + '/'
+	folder = os.path.join(default_data_path, user, project, wafer, chip, device)
 	files = glob.glob(folder + '*.json')
 	fileNames = [os.path.basename(f) for f in files]
 	
