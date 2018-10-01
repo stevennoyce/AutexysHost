@@ -107,7 +107,7 @@ default_parameters = {
 		
 	},
 	'MeasurementSystem':{
-		'systemType': ['single', 'standalone', 'double'][0],
+		'systemType': ['single', 'standalone', 'double'][1],
 		'systems': {
 			
 		},
