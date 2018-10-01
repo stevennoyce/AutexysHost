@@ -13,6 +13,7 @@ from procedures import Static_Bias as staticBiasScript
 from procedures import Auto_Gate_Sweep as autoGateScript
 from procedures import Auto_Static_Bias as autoBiasScript
 from procedures import AFM_Control as afmControlScript
+from procedures import Delay as delayScript
 
 from utilities import DataLoggerUtility as dlu
 from utilities import PlotPostingUtility as plotPoster
@@ -101,6 +102,8 @@ def runAction(parameters, schedule_parameters, smu_systems, arduino_instance):
 			autoBiasScript.run(parameters, smu_default_instance, arduino_instance)
 		elif(parameters['runType'] == 'AFMControl'):
 			afmControlScript.run(parameters, smu_systems)
+		elif(parameters['runType'] == 'Delay'):
+			delayScript.run(parameters)
 		else:
 			raise NotImplementedError("Invalid action for the Source Measure Unit")
 	except Exception as e:

@@ -88,6 +88,10 @@ default_parameters = {
 			'complianceCurrent': 1e-6,
 			'complianceVoltage': 10,
 			'deviceMeasurementSpeed': 60
+		},
+		'Delay':{
+			'message': "",
+			'delayTime': 240,
 		}
 	},
 	'Results':{
@@ -182,6 +186,11 @@ default_parameters_description = {
 			'incrementDrainVoltageWhenDone': {'type':'float', 'units':'V'},
 			'incrementDelayBeforeReapplyingVoltage': {'type':'float', 'units':'s'},
 			'shuffleDelaysBeforeReapplyingVoltage': {'type':'bool'}
+		},
+		'Delay':{
+			'dependencies':[],
+			'message':{'type':'string'},
+			'delayTime':{'type':'int', 'units':'s'}
 		}
 	},
 	'Identifiers':{
