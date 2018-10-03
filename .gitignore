@@ -10,6 +10,7 @@
 #ignore data files
 *.json
 data/
+AutexysData/
 
 #ignore generated plots
 *.png
