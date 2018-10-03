@@ -52,7 +52,7 @@ def fitTriangleWave(times, values):
 	return optParams
 
 def getStartTime(timestamps, Vxs):
-	fitParams = fitTriangleWave(timestamps, values)
+	fitParams = fitTriangleWave(timestamps, Vxs)
 	
 	periodsMeasured = (max(timestamps) - min(timestamps))/fitParams['period']
 	passesMeasured = periodsMeasured
@@ -61,7 +61,11 @@ def getStartTime(timestamps, Vxs):
 	lineTime = 2*passTime # Multiply by 2 if nap enabled
 	
 	startTime = min(timestamps) + fitParams['phase']
-	startTime += lineTime*2*math.ceil(linesMeasured)
+	startTime += lineTime*4*math.ceil(linesMeasured)
+	
+	print('Determined line time to be {}'.format(lineTime))
+	print('Determined startTime to be {}'.format(startTime))
+	print('Curent time is {}'.format(time.time()))
 	
 	return startTime
 
@@ -130,6 +134,7 @@ def runAFM(parameters, smu_systems, isSavingResults, isPlottingResults):
 	smu_secondary.takeMeasurement()
 	
 	# input('Press enter to begin the measurement...')
+	time.sleep(300)
 	
 	# for line in range(afm_parameters['lines']):
 	# 	print('Line {} of {}'.format(line, afm_parameters['lines']))
@@ -177,9 +182,9 @@ def runAFM(parameters, smu_systems, isSavingResults, isPlottingResults):
 	sleep_time2 = smu_secondary.setupSweep(0, 0, 0, 0, passPoints, triggerInterval=interval)
 	
 	
-	results = runAFMline(parameters, smu_systems, isSavingResults, isPlottingResults, sleep_time1, sleep_time2)
+	results = runAFMline(parameters, smu_systems, False, isPlottingResults, sleep_time1, sleep_time2)
 	
-	runStartTime = getStartTime(results['timestamps_smu2'], results['smu2_v2_data'])
+	runStartTime = getStartTime(results['Raw']['timestamps_smu2'], results['Raw']['smu2_v2_data'])
 	sleepUntil(runStartTime)
 	
 	for line in range(afm_parameters['lines']):
