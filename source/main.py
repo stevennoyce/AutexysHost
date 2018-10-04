@@ -9,6 +9,12 @@ import launcher
 if __name__ == '__main__':
 	os.chdir(sys.path[0])
 
+pathParents = os.getcwd().split('/')
+if 'AutexysHost' in pathParents:
+	os.chdir(os.path.join(*pathParents[0:pathParents.index('AutexysHost')+1], 'source'))
+
+
+
 if platform.node() == 'noyce-dell':
 	waferID = 'C127'
 	chipID = 'X'
