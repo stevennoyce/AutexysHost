@@ -9,8 +9,8 @@ plotDefinitions = {}
 for importer, packageName, isPackage in pkgutil.iter_modules(['plotDefinitions']):
 	module = importer.find_module(packageName).load_module(packageName)
 	plotDefinitions[packageName]['module'] = module
-	plotDefinitions[packageName]['function'] = module.plotCreator()
 	plotDefinitions[packageName]['description'] = module.plotDescription
+	plotDefinitions[packageName]['function'] = module.plot()
 
 
 # === Plot Parameters ===
@@ -61,7 +61,7 @@ def makeDevicePlot(plotType, deviceHistory, identifiers, mode_parameters=None):
 		updated_mode_parameters.update(mode_parameters)
 	
 	if(plotType == 'SubthresholdCurve'):
-		fig, axes = dpd.plotFullSubthresholdCurveHistory(deviceHistory, identifiers, mode_parameters=updated_mode_parameters)
+		fig, axes = plotDefinitions['SubthresholdCurve']['function'](deviceHistory, identifiers, mode_parameters=updated_mode_parameters)
 	elif(plotType == 'TransferCurve'):
 		fig, axes = dpd.plotFullTransferCurveHistory(deviceHistory, identifiers, mode_parameters=updated_mode_parameters)
 	elif(plotType == 'GateCurrent'):
