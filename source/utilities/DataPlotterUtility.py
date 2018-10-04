@@ -1,4 +1,4 @@
-from . import PlotDefinitions as dpd
+from .PlotDefinitions import PlotDefinitions as dpd
 from . import MatplotlibUtility as mplu
 
 

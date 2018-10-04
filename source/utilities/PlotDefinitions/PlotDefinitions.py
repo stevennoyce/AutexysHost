@@ -1,126 +1,20 @@
-from .MatplotlibUtility import *
+from ..MatplotlibUtility import *
 
 plot_parameters = {
-	'SubthresholdCurve': {
-		'figsize':(2.8,3.2),#(2*1.4,2*1.6),#(4.2,4.9),
-		'colorMap':'hot',
-		'colorDefault': plt.rcParams['axes.prop_cycle'].by_key()['color'][0],
-		'xlabel':'$V_{{GS}}^{{Sweep}}$ [V]',
-		'ylabel':'$I_{{D}}$ [A]',
-		'leg_vds_label':'$V_{{DS}}^{{Sweep}}$\n  = {:}V',
-		'leg_vds_range_label':'$V_{{DS}}^{{min}} = $ {:}V\n'+'$V_{{DS}}^{{max}} = $ {:}V'
-	},
-	'TransferCurve':{
-		'figsize':(2.8,3.2),#(2*1.4,2*1.6),#(4.2,4.9),
-		'includeOrigin':True,
-		'colorMap':'hot',
-		'colorDefault': plt.rcParams['axes.prop_cycle'].by_key()['color'][1],
-		'xlabel':'$V_{{GS}}^{{Sweep}}$ [V]',
-		'ylabel':'$I_{{D}}$ [$\\mu$A]',
-		'neg_label':'$-I_{{D}}$ [$\\mu$A]',
-		'ii_label':'$I_{{D}}$, $I_{{G}}$ [$\\mu$A]',
-		'neg_ii_label':'$-I_{{D}}$, $I_{{G}}$ [$\\mu$A]',
-		'leg_vds_label':'$V_{{DS}}^{{Sweep}}$\n  = {:}V',
-		'leg_vds_range_label':'$V_{{DS}}^{{min}} = $ {:}V\n'+'$V_{{DS}}^{{max}} = $ {:}V',
-	},
-	'GateCurrent':{
-		'figsize':(2.8,3.2),#(2*1.4,2*1.6),#(4.2,4.9),
-		'includeOrigin':False,
-		'colorMap':'hot',
-		'colorDefault': plt.rcParams['axes.prop_cycle'].by_key()['color'][2],
-		'xlabel':'$V_{{GS}}^{{Sweep}}$ [V]',
-		'ylabel':'$I_{{G}}$ [A]',
-		'leg_vds_label':'$V_{{DS}}^{{Sweep}} = ${:}V',
-		'leg_vds_range_label':'$V_{{DS}}^{{min}} = $ {:}V\n'+'$V_{{DS}}^{{max}} = $ {:}V'
-	},
-	'OutputCurve':{
-		'figsize':(2.8,3.2),
-		'colorMap':'plasma',
-		'colorDefault': plt.rcParams['axes.prop_cycle'].by_key()['color'][0],
-		'xlabel':'$V_{{DS}}^{{Sweep}}$ [V]',
-		'ylabel':'$I_{{D}}$ [$\\mu$A]',
-		'neg_label':'$-I_{{D}}$ [$\\mu$A]',
-		'leg_vgs_label':'$V_{{GS}}^{{Sweep}}$\n  = {:}V',
-		'leg_vgs_range_label':'$V_{{GS}}^{{min}} = $ {:}V\n'+'$V_{{GS}}^{{max}} = $ {:}V'
-	},
-	'BurnOut':{
-		'figsize':(8,4.5),
-		'subplot_height_ratio':[1],
-		'subplot_width_ratio':[1,1],
-		'colorMap':'hot',
-		'colorDefault': plt.rcParams['axes.prop_cycle'].by_key()['color'][0],
-		'vds_label':'$V_{{DS}}$ [V]',
-		'id_micro_label':'$I_{{D}}$ [$\\mu$A]',
-		'time_label':'Time [sec]',
-		'id_annotation':'burn current',
-		'legend_title':'$V_{{GS}}$ = {:}V'
-	},
-	'StaticBias':{
-		'figsize':(4.4,3.2),#(2*2.2,2*1.6),#(5,4),
-		'mainIncludeOrigin':True,
-		'dualIncludeOrigin':False,
-		'colorMap':'plasma',
-		'colorDefault': plt.rcParams['axes.prop_cycle'].by_key()['color'][4],
-		'xlabel':'Time [{:}]',
-		'ylabel':'$I_{{D}}$ [$\\mu$A]',
-		'neg_label':'$-I_{{D}}$ [$\\mu$A]',
-		'vds_label': '$V_{{DS}}^{{Hold}}$ [V]',
-		'vgs_label': '$V_{{GS}}^{{Hold}}$ [V]',
-		'vds_legend': '$V_{{DS}}^{{Hold}}$ = {:.2f}V',
-		'vgs_legend': '$V_{{GS}}^{{Hold}}$ = {:.1f}V',
-		't_legend': '$t_{{Hold}}$ = {:}',
-		'subplot_height_ratio':[3,1],
-		'subplot_width_ratio': [1],
-		'subplot_spacing': 0.03
-	},
-	'OnCurrent':{
-		'figsize':(4.4,3.4),#(2*2.2,2*1.7),#(5,4),
-		'time_label':'Time [{:}]',
-		'index_label':'Time Index of Gate Sweep [#]',
-		'ylabel':'$I_{{ON}}$ [$\\mu$A]',
-		'ylabel_dual_axis':'$I_{{OFF}}$ [nA]',
-		'vds_label': '$V_{{DS}}^{{Hold}}$ [V]',
-		'vgs_label': '$V_{{GS}}^{{Hold}}$ [V]',
-		'subplot_height_ratio':[3,1],
-		'subplot_width_ratio': [1],
-		'subplot_spacing': 0.03
-	},
-	'ChipHistogram':{
-		'figsize':(5,4),
-		'xlabel':'Device',
-		'ylabel':'Experiments'
-	},
-	'ChipOnOffRatios':{
-		'figsize':(5,4),
-		'xlabel':'Device',
-		'ylabel':'On/Off Ratio, (Order of Mag)'
-	},
-	'ChipOnOffCurrents':{
-		'figsize':(5,4),
-		'xlabel':'Device',
-		'ylabel':'$I_{{ON}}$ [$\\mu$A]',
-		'ylabel_dual_axis':'$I_{{OFF}}$ [$\\mu$A]'
-	},
-	'ChipTransferCurves':{
-		'figsize':(2.8,3.2),
-		'colorMap':'plasma',
-		'xlabel':'$V_{{GS}}^{{Sweep}}$ [V]',
-		'ylabel':'$I_{{D}}$ [$\\mu$A]',
-		'neg_label':'$-I_{{D}}$ [$\\mu$A]',
-	},
-	'AFMSignalsOverTime':{
-		'figsize':(5,4),
-		'xlabel':'Time',
-		'ylabel':'Current'
-	},
-	'AFMdeviationsVsX':{
-		'figsize':(5,4),
-		'colorMap':'plasma'
-	},
-	'AFMdeviationsVsXY':{
-		'figsize':(5,4),
-		'colorMap':'plasma'
-	}
+	
+}
+
+
+
+
+plot_parameters['SubthresholdCurve'] = {
+	'figsize':(2.8,3.2),
+	'colorMap':'hot',
+	'colorDefault': plt.rcParams['axes.prop_cycle'].by_key()['color'][0],
+	'xlabel':'$V_{{GS}}^{{Sweep}}$ [V]',
+	'ylabel':'$I_{{D}}$ [A]',
+	'leg_vds_label':'$V_{{DS}}^{{Sweep}}$\n  = {:}V',
+	'leg_vds_range_label':'$V_{{DS}}^{{min}} = $ {:}V\n'+'$V_{{DS}}^{{max}} = $ {:}V'
 }
 
 def plotFullSubthresholdCurveHistory(deviceHistory, identifiers, mode_parameters=None):
@@ -148,6 +42,22 @@ def plotFullSubthresholdCurveHistory(deviceHistory, identifiers, mode_parameters
 	adjustAndSaveFigure(fig, 'FullSubthresholdCurves', mode_parameters)
 
 	return (fig, ax)
+
+
+
+plot_parameters['TransferCurve'] = {
+	'figsize':(2.8,3.2),
+	'includeOrigin':True,
+	'colorMap':'hot',
+	'colorDefault': plt.rcParams['axes.prop_cycle'].by_key()['color'][1],
+	'xlabel':'$V_{{GS}}^{{Sweep}}$ [V]',
+	'ylabel':'$I_{{D}}$ [$\\mu$A]',
+	'neg_label':'$-I_{{D}}$ [$\\mu$A]',
+	'ii_label':'$I_{{D}}$, $I_{{G}}$ [$\\mu$A]',
+	'neg_ii_label':'$-I_{{D}}$, $I_{{G}}$ [$\\mu$A]',
+	'leg_vds_label':'$V_{{DS}}^{{Sweep}}$\n  = {:}V',
+	'leg_vds_range_label':'$V_{{DS}}^{{min}} = $ {:}V\n'+'$V_{{DS}}^{{max}} = $ {:}V',
+}
 
 def plotFullTransferCurveHistory(deviceHistory, identifiers, mode_parameters=None):
 	# Init Figure
@@ -198,6 +108,19 @@ def plotFullTransferCurveHistory(deviceHistory, identifiers, mode_parameters=Non
 
 	return (fig, ax)
 
+
+
+plot_parameters['GateCurrent'] = {
+	'figsize':(2.8,3.2),
+	'includeOrigin':False,
+	'colorMap':'hot',
+	'colorDefault': plt.rcParams['axes.prop_cycle'].by_key()['color'][2],
+	'xlabel':'$V_{{GS}}^{{Sweep}}$ [V]',
+	'ylabel':'$I_{{G}}$ [A]',
+	'leg_vds_label':'$V_{{DS}}^{{Sweep}} = ${:}V',
+	'leg_vds_range_label':'$V_{{DS}}^{{min}} = $ {:}V\n'+'$V_{{DS}}^{{max}} = $ {:}V'
+}
+
 def plotFullGateCurrentHistory(deviceHistory, identifiers, mode_parameters=None):
 	# Init Figure
 	fig, ax = initFigure(1, 1, plot_parameters['GateCurrent']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
@@ -225,6 +148,19 @@ def plotFullGateCurrentHistory(deviceHistory, identifiers, mode_parameters=None)
 	adjustAndSaveFigure(fig, 'FullGateCurrents', mode_parameters)
 
 	return (fig, ax)
+
+
+
+plot_parameters['OutputCurve'] = {
+	'figsize':(2.8,3.2),
+	'colorMap':'plasma',
+	'colorDefault': plt.rcParams['axes.prop_cycle'].by_key()['color'][0],
+	'xlabel':'$V_{{DS}}^{{Sweep}}$ [V]',
+	'ylabel':'$I_{{D}}$ [$\\mu$A]',
+	'neg_label':'$-I_{{D}}$ [$\\mu$A]',
+	'leg_vgs_label':'$V_{{GS}}^{{Sweep}}$\n  = {:}V',
+	'leg_vgs_range_label':'$V_{{GS}}^{{min}} = $ {:}V\n'+'$V_{{GS}}^{{max}} = $ {:}V'
+}
 
 def plotFullOutputCurveHistory(deviceHistory, identifiers, mode_parameters=None):
 	# Init Figure
@@ -256,6 +192,21 @@ def plotFullOutputCurveHistory(deviceHistory, identifiers, mode_parameters=None)
 
 	return (fig, ax)
 
+
+
+plot_parameters['BurnOut'] = {
+	'figsize':(8,4.5),
+	'subplot_height_ratio':[1],
+	'subplot_width_ratio':[1,1],
+	'colorMap':'hot',
+	'colorDefault': plt.rcParams['axes.prop_cycle'].by_key()['color'][0],
+	'vds_label':'$V_{{DS}}$ [V]',
+	'id_micro_label':'$I_{{D}}$ [$\\mu$A]',
+	'time_label':'Time [sec]',
+	'id_annotation':'burn current',
+	'legend_title':'$V_{{GS}}$ = {:}V'
+}
+
 def plotFullBurnOutHistory(deviceHistory, identifiers, mode_parameters=None):
 	# Init Figure	
 	fig, (ax1, ax2) = initFigure(1, 2, plot_parameters['BurnOut']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'], shareX=False, subplotWidthRatio=plot_parameters['BurnOut']['subplot_width_ratio'], subplotHeightRatio=plot_parameters['BurnOut']['subplot_height_ratio'])
@@ -283,6 +234,27 @@ def plotFullBurnOutHistory(deviceHistory, identifiers, mode_parameters=None):
 	adjustAndSaveFigure(fig, 'FullBurnOut', mode_parameters, subplotWidthPad=0.25, subplotHeightPad=0.8)
 
 	return (fig, (ax1, ax2, ax3))
+
+
+
+plot_parameters['StaticBias'] = {
+	'figsize':(4.4,3.2),#(2*2.2,2*1.6),#(5,4),
+	'mainIncludeOrigin':True,
+	'dualIncludeOrigin':False,
+	'colorMap':'plasma',
+	'colorDefault': plt.rcParams['axes.prop_cycle'].by_key()['color'][4],
+	'xlabel':'Time [{:}]',
+	'ylabel':'$I_{{D}}$ [$\\mu$A]',
+	'neg_label':'$-I_{{D}}$ [$\\mu$A]',
+	'vds_label': '$V_{{DS}}^{{Hold}}$ [V]',
+	'vgs_label': '$V_{{GS}}^{{Hold}}$ [V]',
+	'vds_legend': '$V_{{DS}}^{{Hold}}$ = {:.2f}V',
+	'vgs_legend': '$V_{{GS}}^{{Hold}}$ = {:.1f}V',
+	't_legend': '$t_{{Hold}}$ = {:}',
+	'subplot_height_ratio':[3,1],
+	'subplot_width_ratio': [1],
+	'subplot_spacing': 0.03
+}
 
 def plotFullStaticBiasHistory(deviceHistory, identifiers, mode_parameters=None):
 	timescale = mode_parameters['timescale']
@@ -428,6 +400,21 @@ def plotFullStaticBiasHistory(deviceHistory, identifiers, mode_parameters=None):
 
 	return (fig, (ax1, ax2, ax3))
 
+
+
+plot_parameters['OnOffCurrent'] = {
+	'figsize':(4.4,3.4),#(2*2.2,2*1.7),#(5,4),
+	'time_label':'Time [{:}]',
+	'index_label':'Time Index of Gate Sweep [#]',
+	'ylabel':'$I_{{ON}}$ [$\\mu$A]',
+	'ylabel_dual_axis':'$I_{{OFF}}$ [nA]',
+	'vds_label': '$V_{{DS}}^{{Hold}}$ [V]',
+	'vgs_label': '$V_{{GS}}^{{Hold}}$ [V]',
+	'subplot_height_ratio':[3,1],
+	'subplot_width_ratio': [1],
+	'subplot_spacing': 0.03
+}
+
 def plotOnAndOffCurrentHistory(deviceHistory, identifiers, mode_parameters=None):
 	timescale = mode_parameters['timescale']
 	plotInRealTime = mode_parameters['plotInRealTime']
@@ -443,13 +430,13 @@ def plotOnAndOffCurrentHistory(deviceHistory, identifiers, mode_parameters=None)
 	
 	# Init Figure
 	if(includeDualAxis):
-		fig, (ax1, ax3) = initFigure(2, 1, plot_parameters['OnCurrent']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'], shareX=True, subplotWidthRatio=plot_parameters['OnCurrent']['subplot_width_ratio'], subplotHeightRatio=plot_parameters['OnCurrent']['subplot_height_ratio'])
+		fig, (ax1, ax3) = initFigure(2, 1, plot_parameters['OnOffCurrent']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'], shareX=True, subplotWidthRatio=plot_parameters['OnOffCurrent']['subplot_width_ratio'], subplotHeightRatio=plot_parameters['OnOffCurrent']['subplot_height_ratio'])
 		ax4 = ax3.twinx() if(vds_setpoint_changes and vgs_setpoint_changes) else None
 
 		vds_ax = ax3
 		vgs_ax = ax4 if(vds_setpoint_changes) else ax3
 	else:
-		fig, ax1 = initFigure(1, 1, plot_parameters['OnCurrent']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
+		fig, ax1 = initFigure(1, 1, plot_parameters['OnOffCurrent']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
 		ax3, ax4 = None, None
 	ax2 = ax1.twinx() if(mode_parameters['includeOffCurrent']) else None
 	if(not mode_parameters['publication_mode']):
@@ -485,7 +472,7 @@ def plotOnAndOffCurrentHistory(deviceHistory, identifiers, mode_parameters=None)
 		line = ax1.plot(range(len(onCurrents)), onCurrents, color=plt.rcParams['axes.prop_cycle'].by_key()['color'][3], marker='o', markersize=3, linewidth=0, linestyle=None)[0]
 	setLabel(line, 'On-Currents')
 	ax1.set_ylim(bottom=0)
-	axisLabels(ax1, y_label=plot_parameters['OnCurrent']['ylabel'])
+	axisLabels(ax1, y_label=plot_parameters['OnOffCurrent']['ylabel'])
 	
 	# Plot Off Current
 	if(mode_parameters['includeOffCurrent']):
@@ -495,7 +482,7 @@ def plotOnAndOffCurrentHistory(deviceHistory, identifiers, mode_parameters=None)
 			line = ax2.plot(range(len(offCurrents)), offCurrents, color=plt.rcParams['axes.prop_cycle'].by_key()['color'][1], marker='o', markersize=2, linewidth=0, linestyle=None)
 		setLabel(line, 'Off-Currents')
 		ax2.set_ylim(top=max(10, max(offCurrents)))
-		axisLabels(ax2, y_label=plot_parameters['OnCurrent']['ylabel_dual_axis'])
+		axisLabels(ax2, y_label=plot_parameters['OnOffCurrent']['ylabel_dual_axis'])
 	
 	# Plot in Dual Axis
 	if(includeDualAxis):
@@ -522,9 +509,9 @@ def plotOnAndOffCurrentHistory(deviceHistory, identifiers, mode_parameters=None)
 
 	if(includeDualAxis):
 		if(plotInRealTime):
-			ax3.set_xlabel(plot_parameters['OnCurrent']['time_label'].format(timescale))
+			ax3.set_xlabel(plot_parameters['OnOffCurrent']['time_label'].format(timescale))
 		else:
-			ax3.set_xlabel(plot_parameters['OnCurrent']['index_label'])
+			ax3.set_xlabel(plot_parameters['OnOffCurrent']['index_label'])
 		if(vds_setpoint_changes):
 			vds_ax.set_ylabel(plot_parameters['StaticBias']['vds_label'])
 		if(vgs_setpoint_changes):
@@ -532,12 +519,20 @@ def plotOnAndOffCurrentHistory(deviceHistory, identifiers, mode_parameters=None)
 		adjustAndSaveFigure(fig, 'OnAndOffCurrents', mode_parameters, subplotHeightPad=plot_parameters['StaticBias']['subplot_spacing'])
 	else:
 		if(plotInRealTime):
-			ax1.set_xlabel(plot_parameters['OnCurrent']['time_label'].format(timescale))
+			ax1.set_xlabel(plot_parameters['OnOffCurrent']['time_label'].format(timescale))
 		else:
-			ax1.set_xlabel(plot_parameters['OnCurrent']['index_label'])
+			ax1.set_xlabel(plot_parameters['OnOffCurrent']['index_label'])
 		adjustAndSaveFigure(fig, 'OnAndOffCurrents', mode_parameters)
 	
 	return (fig, (ax1, ax2, ax3, ax4))
+	
+	
+	
+plot_parameters['AFMSignalsOverTime'] = {
+	'figsize':(5,4),
+	'xlabel':'Time',
+	'ylabel':'Current'
+}
 
 def plotAFMSignalsOverTime(deviceHistory, identifiers, mode_parameters=None):
 	# Init Figure
@@ -568,6 +563,13 @@ def plotAFMSignalsOverTime(deviceHistory, identifiers, mode_parameters=None):
 	adjustAndSaveFigure(fig, 'FullSubthresholdCurves', mode_parameters)
 	
 	return (fig, ax)
+
+
+
+plot_parameters['AFMdeviationsVsX'] = {
+	'figsize':(5,4),
+	'colorMap':'plasma'
+}
 
 def plotAFMdeviationsVsX(deviceHistory, identifiers, mode_parameters=None):
 	# Init Figure
@@ -603,6 +605,13 @@ def plotAFMdeviationsVsX(deviceHistory, identifiers, mode_parameters=None):
 	adjustAndSaveFigure(fig, 'AFMdeviationsVsX', mode_parameters)
 	
 	return (fig, ax)
+
+
+
+plot_parameters['AFMdeviationsVsXY'] = {
+	'figsize':(5,4),
+	'colorMap':'plasma'
+}
 
 def plotAFMdeviationsVsXY(deviceHistory, identifiers, mode_parameters=None):
 	# Init Figure
@@ -656,6 +665,14 @@ def plotAFMdeviationsVsXY(deviceHistory, identifiers, mode_parameters=None):
 	
 	return (fig, ax)
 
+
+
+plot_parameters['ChipHistogram'] = {
+	'figsize':(5,4),
+	'xlabel':'Device',
+	'ylabel':'Experiments'
+}
+
 def plotChipHistogram(chipIndexes, mode_parameters=None):
 	# Init Figure
 	fig, ax = initFigure(1, 1, plot_parameters['ChipHistogram']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
@@ -678,6 +695,14 @@ def plotChipHistogram(chipIndexes, mode_parameters=None):
 	# Save figure
 	adjustAndSaveFigure(fig, 'ChipHistogram', mode_parameters)
 	return (fig, ax)
+
+
+
+plot_parameters['ChipOnOffRatios'] = {
+	'figsize':(5,4),
+	'xlabel':'Device',
+	'ylabel':'On/Off Ratio, (Order of Mag)'
+}
 
 def plotChipOnOffRatios(firstRunChipHistory, recentRunChipHistory, mode_parameters=None):
 	# Init Figure
@@ -709,6 +734,15 @@ def plotChipOnOffRatios(firstRunChipHistory, recentRunChipHistory, mode_paramete
 	ax.legend(loc=mode_parameters['legendLoc'])
 	adjustAndSaveFigure(fig, 'ChipOnOffRatios', mode_parameters)
 	return (fig, ax)
+	
+
+
+plot_parameters['ChipOnOffCurrents'] = {
+	'figsize':(5,4),
+	'xlabel':'Device',
+	'ylabel':'$I_{{ON}}$ [$\\mu$A]',
+	'ylabel_dual_axis':'$I_{{OFF}}$ [$\\mu$A]'
+}	
 	
 def plotChipOnOffCurrents(recentRunChipHistory, mode_parameters=None):
 	# Init Figure
@@ -742,6 +776,16 @@ def plotChipOnOffCurrents(recentRunChipHistory, mode_parameters=None):
 	# Save Figure
 	adjustAndSaveFigure(fig, 'ChipOnOffCurrents', mode_parameters)
 	return (fig, ax)
+
+
+
+plot_parameters['plotChipTransferCurves'] = {
+	'figsize':(2.8,3.2),
+	'colorMap':'plasma',
+	'xlabel':'$V_{{GS}}^{{Sweep}}$ [V]',
+	'ylabel':'$I_{{D}}$ [$\\mu$A]',
+	'neg_label':'$-I_{{D}}$ [$\\mu$A]',
+}
 
 def plotChipTransferCurves(recentRunChipHistory, identifiers, mode_parameters=None):
 	# Init Figure
