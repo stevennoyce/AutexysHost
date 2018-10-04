@@ -2,6 +2,11 @@
 if(__name__ == '__main__'):
 	import sys
 	sys.path.append(sys.path[0] + '/..')
+	
+	import os
+	pathParents = os.getcwd().split('/')
+	if 'AutexysHost' in pathParents:
+		os.chdir(os.path.join(os.path.abspath(os.sep), *pathParents[0:pathParents.index('AutexysHost')+1], 'source'))
 
 # === Imports ===
 from utilities import DataPlotterUtility as dpu
@@ -20,7 +25,7 @@ default_ch_parameters = {
 
 
 # === Optional External Interface ===
-def makePlots(userID, projectID, waferID, chipID, dataFolder=None, specificPlot='', saveFolder=None, plotSaveName='', showFigures=True, saveFigures=True, plot_mode_parameters=None):
+def makePlots(userID, projectID, waferID, chipID, dataFolder=None, specificPlot='', saveFolder=None, plotSaveName='', showFigures=True, saveFigures=False, plot_mode_parameters=None):
 	parameters = {}	
 	mode_parameters = {}
 	if(plot_mode_parameters is not None):
@@ -57,23 +62,23 @@ def run(additional_parameters, plot_mode_parameters={}):
 
 	if(parameters['specificPlotToCreate'] in ['', 'ChipHistogram']):
 		chipIndexes = dlu.loadChipIndexes(dlu.getChipDirectory(parameters))
-		plot = dpu.plotChipHistogram(chipIndexes, mode_params=plot_mode_parameters)
+		plot = dpu.makeChipPlot('ChipHistogram', parameters['Identifiers'], chipIndexes=chipIndexes, mode_parameters=plot_mode_parameters)
 		plotList.append(plot)
 
 	if(parameters['specificPlotToCreate'] in ['', 'ChipOnOffRatios']):
 		firstRunChipHistory = dlu.loadFirstRunChipHistory(dlu.getChipDirectory(parameters), 'GateSweep.json')
 		recentRunChipHistory = dlu.loadMostRecentRunChipHistory(dlu.getChipDirectory(parameters), 'GateSweep.json')
-		plot = dpu.plotChipOnOffRatios(firstRunChipHistory, recentRunChipHistory, mode_params=plot_mode_parameters)
+		plot = dpu.makeChipPlot('ChipOnOffRatios', parameters['Identifiers'], firstRunChipHistory=firstRunChipHistory, recentRunChipHistory=recentRunChipHistory, mode_parameters=plot_mode_parameters)
 		plotList.append(plot)
 	
 	if(parameters['specificPlotToCreate'] in ['', 'ChipOnOffCurrents']):
 		recentRunChipHistory = dlu.loadMostRecentRunChipHistory(dlu.getChipDirectory(parameters), 'GateSweep.json')
-		plot = dpu.plotChipOnOffCurrents(recentRunChipHistory, mode_params=plot_mode_parameters)
+		plot = dpu.makeChipPlot('ChipOnOffCurrents', parameters['Identifiers'], recentRunChipHistory=recentRunChipHistory, mode_parameters=plot_mode_parameters)
 		plotList.append(plot)
 	
 	if(parameters['specificPlotToCreate'] in ['', 'ChipTransferCurves']):
 		recentRunChipHistory = dlu.loadMostRecentRunChipHistory(dlu.getChipDirectory(parameters), 'GateSweep.json')
-		plot = dpu.plotChipTransferCurves(recentRunChipHistory, parameters['Identifiers'], sweepDirection='both', mode_params=plot_mode_parameters)
+		plot = dpu.makeChipPlot('ChipTransferCurves', parameters['Identifiers'], recentRunChipHistory=recentRunChipHistory, mode_parameters=plot_mode_parameters)
 		plotList.append(plot)
 
 	if(parameters['showFiguresGenerated']):
@@ -86,6 +91,6 @@ def run(additional_parameters, plot_mode_parameters={}):
 
 
 if(__name__ == '__main__'):
-	makePlots('stevenjay', 'RedBoard', 'C127', 'D', dataFolder='../'+default_ch_parameters['dataFolder'], saveFolder='../../../AutexysPlots')
+	makePlots('stevenjay', 'RedBoard', 'C127', 'D')
 
 

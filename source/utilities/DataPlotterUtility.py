@@ -1,4 +1,3 @@
-from utilities.PlotDefinitions import PlotDefinitions
 from utilities import MatplotlibUtility as mplu
 
 import pkgutil
@@ -69,31 +68,25 @@ def makeDevicePlot(plotType, deviceHistory, identifiers, mode_parameters=None):
 	
 	return fig, axes
 
-def makeChipPlot(plotType, identifiers=None, chipIndexes=None, firstRunChipHistory=None, recentRunChipHistory=None, mode_parameters=None):	
-	if(plotType is 'ChipHistogram' and ((chipIndexes is None) or len(chipIndexes) <= 0)):
-		print('No chip histogram to plot.')
-		return
+def makeChipPlot(plotType, identifiers, chipIndexes=None, firstRunChipHistory=None, recentRunChipHistory=None, mode_parameters=None):	
+	if(plotType is 'ChipHistogram'):
+		if((chipIndexes is None) or len(chipIndexes) <= 0):
+			print('No chip histogram to plot.')
+			return
 	elif((recentRunChipHistory is None) or len(recentRunChipHistory) <= 0):
 		print('No ' + str(plotType) + ' chip history to plot.')
-	
-	if((recentRunChipHistory is None) or len(recentRunChipHistory) <= 0):
-			print('No  ratios to plot.')
-			return
+		return
 	
 	updated_mode_parameters = default_mode_parameters.copy()
 	if(mode_parameters is not None):
 		updated_mode_parameters.update(mode_parameters)
 
-	if(plotType == 'ChipHistogram'):			
-		return plotChipHistogram(chipIndexes, mode_parameters=updated_mode_parameters)
-	elif(plotType == 'ChipOnOffRatios'):
-		return plotChipOnOffRatios(firstRunChipHistory, recentRunChipHistory, mode_parameters=updated_mode_parameters)
-	elif(plotType == 'ChipOnOffCurrents'):
-		return plotChipOnOffCurrents(recentRunChipHistory, mode_parameters=updated_mode_parameters)
-	elif(plotType == 'ChipTransferCurves'):
-		return plotChipTransferCurves(recentRunChipHistory, identifiers, mode_parameters=updated_mode_parameters)
-	else:
+	try:
+		fig, axes = plotDefinitions[plotType]['function'](identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, mode_parameters=updated_mode_parameters)
+	except:
 		raise NotImplementedError('Unrecognized "plotType": ' + str(plotType))
+
+	return fig, axes
 
 def show():
 	mplu.show()
