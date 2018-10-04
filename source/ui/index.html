@@ -401,6 +401,7 @@
 														<v-toolbar-title>
 															{{ possiblePlot }}
 														</v-toolbar-title>
+														<v-btn icon @click="copyHTMLImageToClip('/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings)))"><v-icon>photo</v-icon></v-btn>
 													</v-toolbar>
 													<div class="text-xs-center">
 														<!-- <img :src="'/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust" @click="console.log('clicked image')"> -->
@@ -637,7 +638,6 @@
 	<script src="/ui/vue.js"></script>
 	<script src="/ui/vuetify.js"></script>
 	<script type="text/javascript">
-		
 		
 		function groupBy(elements, groupKey) {
 			return elements.reduce(function(rv, x) {
@@ -934,6 +934,22 @@
 				setTopLevelPage: function(name) {
 					this.topLevelPage = name;
 					localStorage.topLevelPage = name;
+				},
+				
+				copyHTMLStringToClip: function (str) {
+					function listener(e) {
+						e.clipboardData.setData("text/html", str);
+						e.clipboardData.setData("text/plain", str);
+						e.preventDefault();
+					}
+					document.addEventListener("copy", listener);
+					document.execCommand("copy");
+					document.removeEventListener("copy", listener);
+				},
+				
+				copyHTMLImageToClip: function (path) {
+					path = window.location.origin + path;
+					this.copyHTMLStringToClip('<img src="' + path + '" width="200">');
 				}
 			},
 			watch: {
