@@ -1,6 +1,16 @@
 from .PlotDefinitions import PlotDefinitions as dpd
 from . import MatplotlibUtility as mplu
+import pkgutil
+import glob
 
+plotDefinitions = {}
+# plotDefinitionDirectories = glob.glob()
+
+for importer, packageName, isPackage in pkgutil.iter_modules(['plotDefinitions']):
+	module = importer.find_module(packageName).load_module(packageName)
+	plotDefinitions[packageName]['module'] = module
+	plotDefinitions[packageName]['function'] = module.plotCreator()
+	plotDefinitions[packageName]['description'] = module.plotDescription
 
 
 # === Plot Parameters ===
