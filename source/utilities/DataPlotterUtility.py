@@ -1,16 +1,18 @@
-from .PlotDefinitions import PlotDefinitions as dpd
-from . import MatplotlibUtility as mplu
+from utilities.PlotDefinitions import PlotDefinitions
+from utilities import MatplotlibUtility as mplu
+
 import pkgutil
-import glob
+import os
 
+# Import all Plot Definitions and save a reference to run their 'plot' function
 plotDefinitions = {}
-# plotDefinitionDirectories = glob.glob()
-
-for importer, packageName, isPackage in pkgutil.iter_modules(['plotDefinitions']):
+for importer, packageName, isPackage in pkgutil.iter_modules([os.path.join(os.path.dirname(os.path.realpath(__file__)), 'PlotDefinitions')]):
 	module = importer.find_module(packageName).load_module(packageName)
+	plotDefinitions[packageName] = {}
 	plotDefinitions[packageName]['module'] = module
 	plotDefinitions[packageName]['description'] = module.plotDescription
-	plotDefinitions[packageName]['function'] = module.plot()
+	plotDefinitions[packageName]['function'] = module.plot
+
 
 
 # === Plot Parameters ===
@@ -60,27 +62,9 @@ def makeDevicePlot(plotType, deviceHistory, identifiers, mode_parameters=None):
 	if(mode_parameters is not None):
 		updated_mode_parameters.update(mode_parameters)
 	
-	if(plotType == 'SubthresholdCurve'):
-		fig, axes = plotDefinitions['SubthresholdCurve']['function'](deviceHistory, identifiers, mode_parameters=updated_mode_parameters)
-	elif(plotType == 'TransferCurve'):
-		fig, axes = dpd.plotFullTransferCurveHistory(deviceHistory, identifiers, mode_parameters=updated_mode_parameters)
-	elif(plotType == 'GateCurrent'):
-		fig, axes = dpd.plotFullGateCurrentHistory(deviceHistory, identifiers, mode_parameters=updated_mode_parameters)
-	elif(plotType == 'OutputCurve'):
-		fig, axes = dpd.plotFullOutputCurveHistory(deviceHistory, identifiers, mode_parameters=updated_mode_parameters)
-	elif(plotType == 'BurnOut'):
-		fig, axes = dpd.plotFullBurnOutHistory(deviceHistory, identifiers, mode_parameters=updated_mode_parameters)
-	elif(plotType == 'StaticBias'):
-		fig, axes = dpd.plotFullStaticBiasHistory(deviceHistory, identifiers, mode_parameters=updated_mode_parameters)
-	elif(plotType == 'OnCurrent'):
-		fig, axes = dpd.plotOnAndOffCurrentHistory(deviceHistory, identifiers, mode_parameters=updated_mode_parameters)
-	elif(plotType == 'AFMSignalsOverTime'):
-		fig, axes = dpd.plotAFMSignalsOverTime(deviceHistory, identifiers, mode_parameters=updated_mode_parameters)
-	elif(plotType == 'AFMdeviationsVsX'):
-		fig, axes = dpd.plotAFMdeviationsVsX(deviceHistory, identifiers, mode_parameters=updated_mode_parameters)
-	elif(plotType == 'AFMdeviationsVsXY'):
-		fig, axes = dpd.plotAFMdeviationsVsXY(deviceHistory, identifiers, mode_parameters=updated_mode_parameters)
-	else:
+	try:
+		fig, axes = plotDefinitions[plotType]['function'](deviceHistory, identifiers, mode_parameters=updated_mode_parameters)
+	except:
 		raise NotImplementedError('Unrecognized "plotType": ' + str(plotType))
 	
 	return fig, axes
