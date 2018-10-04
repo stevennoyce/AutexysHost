@@ -18,9 +18,9 @@ default_additional_parameters = {
 	'Identifiers': {
 		'user':'stevenjay',
 		'project':'BiasStress1',
-		'wafer':waferID,
-		'chip':chipID,
-		'device':deviceID,
+		'wafer':'UnspecifiedWafer',
+		'chip':'UnspecifiedChip',
+		'device':'UnspecifiedDevice',
 		'step':0
 	}
 }
