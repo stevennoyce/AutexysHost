@@ -204,7 +204,7 @@ def experiments(user, project, wafer, chip, device):
 	parameter_identifiers = {'dataFolder':default_data_path, 'Identifiers':{'user':user,'project':project,'wafer':wafer,'chip':chip,'device':device}}
 	
 	for i in range(len(parameters)):
-		possiblePlots = DH.plotsForExperiments(parameter_identifiers, minExperiment=parameters[i]['experimentNumber'], maxExperiment=parameters[i]['experimentNumber'])
+		possiblePlots = DH.plotsForExperiments(parameter_identifiers, minExperiment=parameters[i]['startIndexes']['experimentNumber'], maxExperiment=parameters[i]['startIndexes']['experimentNumber'])
 		parameters[i]['possiblePlots'] = possiblePlots
 	
 	# experiments = [{'name': n, 'path': p, 'modificationTime': m, 'size': s} for n, p, m, s in zip(names, paths, modificationTimes, sizes)]

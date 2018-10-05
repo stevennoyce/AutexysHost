@@ -85,7 +85,8 @@ def incrementJSONExperiementNumber(directory):
 	return indexData['experimentNumber']
 
 def loadIndexesOfExperiementRange(directory, startExperimentNumber, endExperimentNumber):
-	# TODO: for experimentSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and (name[0] == 'E' and name[1:].isdigit()) and (int(name[1:]) >= minExperiment) and (int(name[:1]) <= maxExperiment))]:	indexes = []
+	# TODO: for experimentSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and (name[0:2] == 'Ex' and name[2:].isdigit()) and (int(name[1:]) >= minExperiment) and (int(name[:1]) <= maxExperiment))]:	
+	indexes = []
 	for filePath in glob.glob(directory + '/*.json'):
 		if(not os.path.basename(filePath) in ['BurnOut.json', 'GateSweep.json', 'DrainSweep.json', 'StaticBias.json', 'AFMControl.json']):
 			continue
@@ -103,13 +104,14 @@ def getDeviceDirectory(parameters):
 	return os.path.join(parameters['dataFolder'], parameters['Identifiers']['user'], parameters['Identifiers']['project'], parameters['Identifiers']['wafer'], parameters['Identifiers']['chip'], parameters['Identifiers']['device']) + os.sep
 
 def loadSpecificDeviceHistory(directory, fileName, minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf')):
-	# TODO: for experimentSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and (name[0] == 'E' and name[1:].isdigit()) and (int(name[1:]) >= minExperiment) and (int(name[:1]) <= maxExperiment))]:
+	# TODO: for experimentSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and (name[0:2] == 'Ex' and name[2:].isdigit()) and (int(name[1:]) >= minExperiment) and (int(name[:1]) <= maxExperiment))]:
 	filteredHistory = []
 	filteredHistory += loadJSON_fast(directory, fileName, minIndex, maxIndex, minExperiment, maxExperiment, minRelativeIndex, maxRelativeIndex)
 	return filteredHistory
 
 def getDataFilesForExperiments(directory, minExperiment=0, maxExperiment=float('inf')):
-	# TODO: for experimentSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and (name[0] == 'E' and name[1:].isdigit()) and (int(name[1:]) >= minExperiment) and (int(name[:1]) <= maxExperiment))]:	dataFileNames = []
+	# TODO: for experimentSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and (name[0:2] == 'Ex' and name[2:].isdigit()) and (int(name[1:]) >= minExperiment) and (int(name[:1]) <= maxExperiment))]:
+	dataFileNames = []
 	for filePath in glob.glob(directory + '/*.json'):
 		dataFileName = os.path.basename(filePath)
 		if(dataFileName not in dataFileNames):
