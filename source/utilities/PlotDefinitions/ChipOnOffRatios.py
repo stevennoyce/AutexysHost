@@ -8,7 +8,7 @@ plotDescription = {
 		'xlabel':'Device',
 		'ylabel':'On/Off Ratio, (Order of Mag)'
 	},
-	'dataFileNames': []
+	'dataFileNames': ['chipSomething.json']
 }
 
 def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, mode_parameters=None):

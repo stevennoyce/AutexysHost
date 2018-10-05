@@ -9,7 +9,7 @@ plotDescription = {
 		'ylabel':'$I_{{ON}}$ [$\\mu$A]',
 		'ylabel_dual_axis':'$I_{{OFF}}$ [$\\mu$A]'
 	},
-	'dataFileNames': []
+	'dataFileNames': ['chipSomething.json']
 }
 	
 def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, mode_parameters=None):
