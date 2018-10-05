@@ -7,7 +7,8 @@ plotDescription = {
 		'figsize':(5,4),
 		'xlabel':'Device',
 		'ylabel':'On/Off Ratio, (Order of Mag)'
-	}
+	},
+	'dataFileNames': []
 }
 
 def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, mode_parameters=None):

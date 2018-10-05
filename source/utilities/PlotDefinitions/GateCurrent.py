@@ -12,7 +12,8 @@ plotDescription = {
 		'ylabel':'$I_{{G}}$ [A]',
 		'leg_vds_label':'$V_{{DS}}^{{Sweep}} = ${:}V',
 		'leg_vds_range_label':'$V_{{DS}}^{{min}} = $ {:}V\n'+'$V_{{DS}}^{{max}} = $ {:}V'
-	}
+	},
+	'dataFileNames': ['GateSweep.json']
 }
 
 def plot(deviceHistory, identifiers, mode_parameters=None):

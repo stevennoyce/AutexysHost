@@ -14,7 +14,8 @@ plotDescription = {
 		'time_label':'Time [sec]',
 		'id_annotation':'burn current',
 		'legend_title':'$V_{{GS}}$ = {:}V'
-	}
+	},
+	'dataFileNames': ['BurnOut.json']
 }
 
 def plot(deviceHistory, identifiers, mode_parameters=None):

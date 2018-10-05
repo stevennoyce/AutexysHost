@@ -6,7 +6,8 @@ plotDescription = {
 	'plotDefaults': {
 		'figsize':(5,4),
 		'colorMap':'plasma'
-	}
+	},
+	'dataFileNames': ['AFMControl.json']
 }
 
 def plot(deviceHistory, identifiers, mode_parameters=None):

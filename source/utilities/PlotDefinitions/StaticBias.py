@@ -20,7 +20,8 @@ plotDescription = {
 		'subplot_height_ratio':[3,1],
 		'subplot_width_ratio': [1],
 		'subplot_spacing': 0.03
-	}
+	},
+	'dataFileNames': ['StaticBias.json']
 }
 
 def plot(deviceHistory, identifiers, mode_parameters=None):
