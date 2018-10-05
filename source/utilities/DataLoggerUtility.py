@@ -28,7 +28,10 @@ def saveJSON(directory, saveFileName, jsonData, subDirectory=None, incrementInde
 		savePath = os.path.join(directory, subDirectory)
 	makeFolder(savePath)
 	
-	with open(os.path.join(savePath, saveFileName + '.json'), 'a') as file:
+	if '.json' not in saveFileName:
+		saveFileName += '.json'
+	
+	with open(os.path.join(savePath, saveFileName), 'a') as file:
 		if(incrementIndex):
 			indexData = loadJSONIndex(directory)
 			jsonData['index'] = indexData['index']

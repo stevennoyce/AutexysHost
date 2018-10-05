@@ -3,210 +3,64 @@ import os
 import sys
 import numpy as np
 
-if(__name__ == '__main__'):
-	sys.path.append(sys.path[0] + '/..')
+import os
+pathParents = os.getcwd().split('/')
+if('AutexysHost' in pathParents):
+	rootPath = os.path.join(os.path.abspath(os.sep), *pathParents[0:pathParents.index('AutexysHost')+1], 'source')
+	os.chdir(rootPath)
+	sys.path.append(rootPath)
+
+from utilities import DataLoggerUtility as dlu
+
+load_directory = '../../AutexysData/stevenjay/BiasStress1/C127'
+save_directory = '../../AutexysDataReformatted/stevenjay/BiasStress1/C127'
+
+load_directory = '../../AutexysData/'
+save_directory = '../../AutexysDataReformatted/'
+
+dataFileNames = ['DrainSweep.json', 'StaticBias.json', 'GateSweep.json', 'AFMControl.json', 'BurnOut.json']
+
+# for dataFileName in dataFileNames:
+# 	dataFiles = glob.glob(load_directory + '/**/' + dataFileName, recursive=True)
 	
-	import os
-	pathParents = os.getcwd().split('/')
-	if('AutexysHost' in pathParents):
-		os.chdir(os.path.join(os.path.abspath(os.sep), *pathParents[0:pathParents.index('AutexysHost')+1], 'source'))
-
-
-import DataLoggerUtility as dlu
-
-load_directory = '../AutexysData/stevenjay/BiasStress1/C127'
-save_directory = '../AutexysDataReformatted/stevenjay/BiasStress1/C127'
-
-def reformat_wafer(load_directory, save_directory):
-	for chipSubdirectory in [name for name in os.listdir(load_directory) if os.path.isdir(os.path.join(load_directory, name))]:
-		chipLoadDirectory = os.path.join(load_directory, chipSubdirectory)
-		chipSaveDirectory = os.path.join(save_directory, chipSubdirectory)
-		reformat_chip(chipLoadDirectory, chipSaveDirectory)
-
-	# Copy wafer.json
-	try:
-		waferData = dlu.loadJSON(load_directory, 'wafer.json')[0]
-		dlu.saveJSON(save_directory, 'wafer', waferData, incrementIndex=False)
-	except:
-		print('no wafer.json')
-	
-
-
-def reformat_chip(load_directory, save_directory):
-	for deviceSubdirectory in [name for name in os.listdir(load_directory) if os.path.isdir(os.path.join(load_directory, name))]:
-		deviceLoadDirectory = os.path.join(load_directory, deviceSubdirectory)
-		deviceSaveDirectory = os.path.join(save_directory, deviceSubdirectory)
-		reformat_device(deviceLoadDirectory, deviceSaveDirectory)
-
-def reformat_device(load_directory, save_directory):
-		device = load_directory.split('/')[-1]
-
-		# Load device history for GateSweep, BurnOut, and StaticBias
-		gateSweepHistory = dlu.loadJSON(load_directory, 'GateSweep.json')
-		try:
-			burnOutHistory = dlu.loadJSON(load_directory, 'BurnOut.json')
-			burnedout = True
-		except:
-			print('Device: ' + device + ' no burn-out')
-			burnedout = False
-		try:
-			staticBiasHistory = dlu.loadJSON(load_directory, 'StaticBias.json')
-			staticed = True
-		except:
-			print('Device: ' + device + ' no static bias')
-			staticed = False
-		try:
-			parametersHistory = dlu.loadJSON(load_directory, 'ParametersHistory.json')
-			paramhist = True
-		except:
-			print('Device: ' + device + ' no ParametersHistory.json')
-			paramhist = False
-		# *************************************************************
-
-
+# 	for dataFile in dataFiles:
+# 		dataLines = dlu.loadJSON(os.path.dirname(dataFile), os.path.basename(dataFile))
 		
+# 		for dataLine in dataLines:
+# 			experimentNumber = dataLine['startIndexes']['experimentNumber']
+			
+# 			print(dataFile)
+			
+# 			# dlu.saveJSON(directory, saveFileName, jsonData, incrementIndex=False)
 
-		# *************************************************************
-		# ****************** BEGIN DATA MODIFICATION ******************
-		# *************************************************************
+def getSubDirectories(directory):
+	return [os.path.basename(os.path.dirname(g)) for g in glob.glob(directory + '/*/')]
 
-		# GATE SWEEP
-		for deviceRun in gateSweepHistory:
-			if(deviceRun['ParametersFormatVersion'] > 4):
-				continue
-
-			if('BurnOut' not in deviceRun['runConfigs']):
-				deviceRun['runConfigs']['BurnOut'] = {}
-			if('AutoBurnOut' not in deviceRun['runConfigs']):
-				deviceRun['runConfigs']['AutoBurnOut'] = {}
-			if('StaticBias' not in deviceRun['runConfigs']):
-				deviceRun['runConfigs']['StaticBias'] = {}
-			if('AutoStaticBias' not in deviceRun['runConfigs']):
-				deviceRun['runConfigs']['AutoStaticBias'] = {}
-			deviceRun['runConfigs']['StaticBias']['delayWhenDone'] = 0
-			deviceRun['runConfigs']['StaticBias']['floatChannelsWhenDone'] = False
-			if('delayBeforeApplyingVoltage'  in deviceRun['runConfigs']['StaticBias']):
-				deviceRun['runConfigs']['StaticBias']['delayWhenDone'] = deviceRun['runConfigs']['StaticBias']['delayBeforeApplyingVoltage']
-				del deviceRun['runConfigs']['StaticBias']['delayBeforeApplyingVoltage']
-			if('channelsOffTime' in deviceRun['runConfigs']['AutoStaticBias']):
-				deviceRun['runConfigs']['StaticBias']['delayWhenDone'] = deviceRun['runConfigs']['AutoStaticBias']['channelsOffTime']
-				del deviceRun['runConfigs']['AutoStaticBias']['channelsOffTime']
-			if('turnChannelsOffBetweenBiases' in deviceRun['runConfigs']['AutoStaticBias']):
-				deviceRun['runConfigs']['StaticBias']['delayWhenDone'] = deviceRun['runConfigs']['AutoStaticBias']['turnChannelsOffBetweenBiases']
-				del deviceRun['runConfigs']['AutoStaticBias']['turnChannelsOffBetweenBiases']
-
-		# BURN OUT
-		if(burnedout):
-			for deviceRun in burnOutHistory:
-				if(deviceRun['ParametersFormatVersion'] > 4):
-					continue
-
-				if('BurnOut' not in deviceRun['runConfigs']):
-					deviceRun['runConfigs']['BurnOut'] = {}
-				if('AutoBurnOut' not in deviceRun['runConfigs']):
-					deviceRun['runConfigs']['AutoBurnOut'] = {}
-				if('StaticBias' not in deviceRun['runConfigs']):
-					deviceRun['runConfigs']['StaticBias'] = {}
-				if('AutoStaticBias' not in deviceRun['runConfigs']):
-					deviceRun['runConfigs']['AutoStaticBias'] = {}
-				deviceRun['runConfigs']['StaticBias']['delayWhenDone'] = 0
-				deviceRun['runConfigs']['StaticBias']['floatChannelsWhenDone'] = False
-				if('delayBeforeApplyingVoltage'  in deviceRun['runConfigs']['StaticBias']):
-					deviceRun['runConfigs']['StaticBias']['delayWhenDone'] = deviceRun['runConfigs']['StaticBias']['delayBeforeApplyingVoltage']
-					del deviceRun['runConfigs']['StaticBias']['delayBeforeApplyingVoltage']
-				if('channelsOffTime' in deviceRun['runConfigs']['AutoStaticBias']):
-					deviceRun['runConfigs']['StaticBias']['delayWhenDone'] = deviceRun['runConfigs']['AutoStaticBias']['channelsOffTime']
-					del deviceRun['runConfigs']['AutoStaticBias']['channelsOffTime']
-				if('turnChannelsOffBetweenBiases' in deviceRun['runConfigs']['AutoStaticBias']):
-					deviceRun['runConfigs']['StaticBias']['delayWhenDone'] = deviceRun['runConfigs']['AutoStaticBias']['turnChannelsOffBetweenBiases']
-					del deviceRun['runConfigs']['AutoStaticBias']['turnChannelsOffBetweenBiases']
-
-
-		# STATIC BIAS
-		if(staticed):			
-			for deviceRun in staticBiasHistory:
-				if(deviceRun['ParametersFormatVersion'] > 4):
-					continue
-
-				if('BurnOut' not in deviceRun['runConfigs']):
-					deviceRun['runConfigs']['BurnOut'] = {}
-				if('AutoBurnOut' not in deviceRun['runConfigs']):
-					deviceRun['runConfigs']['AutoBurnOut'] = {}
-				if('StaticBias' not in deviceRun['runConfigs']):
-					deviceRun['runConfigs']['StaticBias'] = {}
-				if('AutoStaticBias' not in deviceRun['runConfigs']):
-					deviceRun['runConfigs']['AutoStaticBias'] = {}
-				deviceRun['runConfigs']['StaticBias']['delayWhenDone'] = 0
-				deviceRun['runConfigs']['StaticBias']['floatChannelsWhenDone'] = False
-				if('delayBeforeApplyingVoltage'  in deviceRun['runConfigs']['StaticBias']):
-					deviceRun['runConfigs']['StaticBias']['delayWhenDone'] = deviceRun['runConfigs']['StaticBias']['delayBeforeApplyingVoltage']
-					del deviceRun['runConfigs']['StaticBias']['delayBeforeApplyingVoltage']
-				if('channelsOffTime' in deviceRun['runConfigs']['AutoStaticBias']):
-					deviceRun['runConfigs']['StaticBias']['delayWhenDone'] = deviceRun['runConfigs']['AutoStaticBias']['channelsOffTime']
-					del deviceRun['runConfigs']['AutoStaticBias']['channelsOffTime']
-				if('turnChannelsOffBetweenBiases' in deviceRun['runConfigs']['AutoStaticBias']):
-					deviceRun['runConfigs']['StaticBias']['delayWhenDone'] = deviceRun['runConfigs']['AutoStaticBias']['turnChannelsOffBetweenBiases']
-					del deviceRun['runConfigs']['AutoStaticBias']['turnChannelsOffBetweenBiases']
-
-
-		# PARAMETERS HISTORY
-		if(paramhist):
-			for deviceRun in parametersHistory:
-
-				if('BurnOut' not in deviceRun['runConfigs']):
-					deviceRun['runConfigs']['BurnOut'] = {}
-				if('AutoBurnOut' not in deviceRun['runConfigs']):
-					deviceRun['runConfigs']['AutoBurnOut'] = {}
-				if('StaticBias' not in deviceRun['runConfigs']):
-					deviceRun['runConfigs']['StaticBias'] = {}
-				if('AutoStaticBias' not in deviceRun['runConfigs']):
-					deviceRun['runConfigs']['AutoStaticBias'] = {}
-				deviceRun['runConfigs']['StaticBias']['delayWhenDone'] = 0
-				deviceRun['runConfigs']['StaticBias']['floatChannelsWhenDone'] = False
-				if('delayBeforeApplyingVoltage'  in deviceRun['runConfigs']['StaticBias']):
-					deviceRun['runConfigs']['StaticBias']['delayWhenDone'] = deviceRun['runConfigs']['StaticBias']['delayBeforeApplyingVoltage']
-					del deviceRun['runConfigs']['StaticBias']['delayBeforeApplyingVoltage']
-				if('channelsOffTime' in deviceRun['runConfigs']['AutoStaticBias']):
-					deviceRun['runConfigs']['StaticBias']['delayWhenDone'] = deviceRun['runConfigs']['AutoStaticBias']['channelsOffTime']
-					del deviceRun['runConfigs']['AutoStaticBias']['channelsOffTime']
-				if('turnChannelsOffBetweenBiases' in deviceRun['runConfigs']['AutoStaticBias']):
-					deviceRun['runConfigs']['StaticBias']['delayWhenDone'] = deviceRun['runConfigs']['AutoStaticBias']['turnChannelsOffBetweenBiases']
-					del deviceRun['runConfigs']['AutoStaticBias']['turnChannelsOffBetweenBiases']
-
-
-
-
-		# *************************************************************
-		# ******************  END DATA MODIFICATION  ******************
-		# *************************************************************
-
-
-
-		# Save device history for GateSweep, BurnOut, and StaticBias
-		for deviceRun in gateSweepHistory:
-			dlu.saveJSON(save_directory, 'GateSweep', deviceRun, incrementIndex=False)
-		if(burnedout):
-			for deviceRun in burnOutHistory:
-				dlu.saveJSON(save_directory, 'BurnOut', deviceRun, incrementIndex=False)
-		if(staticed):
-			for deviceRun in staticBiasHistory:
-				dlu.saveJSON(save_directory, 'StaticBias', deviceRun, incrementIndex=False)
-		if(paramhist):
-			for deviceRun in parametersHistory:
-				dlu.saveJSON(save_directory, 'ParametersHistory', deviceRun, incrementIndex=False)
-
-		# Copy index.json
-		try:
-			indexData = dlu.loadJSON(load_directory, 'index.json')[0]
-			dlu.saveJSON(save_directory, 'index', indexData, incrementIndex=False)
-		except:
-			print('Device: ' + device + ' no index.json')
-		# *************************************************************
-
-
-if(__name__ == '__main__'):
-	reformat_wafer(load_directory, save_directory)
-
-
+for userName in getSubDirectories(load_directory):
+	userDirectory = userName
+	for projectName in getSubDirectories(os.path.join(load_directory, userDirectory)):
+		projectDirectory = os.path.join(userDirectory, projectName)
+		for waferName in getSubDirectories(os.path.join(load_directory, projectDirectory)):
+			waferDirectory = os.path.join(projectDirectory, waferName)
+			for chipName in getSubDirectories(os.path.join(load_directory, waferDirectory)):
+				chipDirectory = os.path.join(waferDirectory, chipName)
+				for deviceName in getSubDirectories(os.path.join(load_directory, chipDirectory)):
+					deviceDirectory = os.path.join(chipDirectory, deviceName)
+					
+					for dataFileName in dataFileNames:
+						dataFile = os.path.join(load_directory, deviceDirectory, dataFileName)
+						
+						if not os.path.exists(dataFile):
+							continue
+						
+						dataLines = dlu.loadJSON(os.path.join(load_directory, deviceDirectory), dataFileName)
+						
+						for dataLine in dataLines:
+							experimentNumber = dataLine['startIndexes']['experimentNumber']
+							
+							print(experimentNumber)
+							
+							experimentSaveDirectory = os.path.join(save_directory, deviceDirectory, 'E' + str(experimentNumber))
+							dlu.saveJSON(experimentSaveDirectory, dataFileName, dataLine, incrementIndex=False)
 
 
