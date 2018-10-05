@@ -318,7 +318,38 @@
 										</template>
 									</v-data-table>
 								</v-card>
+
+								<v-card v-if="stepperPage > 3 ">
+									<v-toolbar dark class="blue-grey darken-1">
+										<v-toolbar-title>
+											{{ wafer }}{{ chip }} Chip Summary Plots
+										</v-toolbar-title>
+									</v-toolbar>
+									
+									<!-- container gives a couple chip summary plots that present data from all experiments on this chip for comparisson (sn)-->
+									
+									<v-container fluid grid-list-sm>
+											<v-layout row wrap>
+												<v-flex xs12 sm6 md4 lg3 xl2 d-flex v-for="possiblePlot in experiment.possiblePlots">
+													<v-card class="ma-1" tile>
+														<v-toolbar dark class="blue-grey lighten-1">
+															<v-toolbar-title>
+																 {{ possiblePlot }}
+															</v-toolbar-title>
+														</v-toolbar> 
+														<div class="text-xs-center">
+															<zoomable-image :src="'/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(deviceSummaryPlotSettings))"></zoomable-image>
+														</div>
+													</v-card>
+												</v-flex>
+											</v-layout>
+									</v-container>
+
+								</v-card>
+
 							</v-stepper-content>
+
+
 							
 							<v-stepper-content step="5">
 								<v-card v-if="stepperPage > 4">
@@ -367,9 +398,9 @@
 															<v-toolbar-title>
 																 {{ possiblePlot }}
 															</v-toolbar-title>
-														</v-toolbar>
+														</v-toolbar> 
 														<div class="text-xs-center">
-															<zoomable-image :src="'/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></zoomable-image>
+															<zoomable-image :src="'/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(deviceSummaryPlotSettings))"></zoomable-image>
 														</div>
 													</v-card>
 												</v-flex>
@@ -967,6 +998,18 @@
 				},
 				plotSettings: function() {
 					return _.omitBy(this.setPlotSettings, (v,k) => ((this.defaultPlotSettings[k] == v) || v == '') );
+					// return this.setPlotSettings;
+				},
+				chipSummaryPlotSettings: function(){
+
+					return null;
+
+				},
+				deviceSummaryPlotSettings: function() {
+					var settings = _.omitBy(this.setPlotSettings, (v,k) => ((this.defaultPlotSettings[k] == v) || v == '') );
+					settings['startExperimentNumber'] = 1;
+					settings['endExperimentNumber'] = 1e10;
+					return settings;
 					// return this.setPlotSettings;
 				},
 				defaultRunConfigs: function() {
