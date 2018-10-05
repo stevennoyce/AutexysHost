@@ -3,6 +3,8 @@ from utilities.MatplotlibUtility import *
 
 
 plotDescription = {
+	'plotCategory': 'device',
+	'dataFileNames': ['BurnOut.json'],
 	'plotDefaults': {
 		'figsize':(8,4.5),
 		'subplot_height_ratio':[1],
@@ -15,7 +17,6 @@ plotDescription = {
 		'id_annotation':'burn current',
 		'legend_title':'$V_{{GS}}$ = {:}V'
 	},
-	'dataFileNames': ['BurnOut.json']
 }
 
 def plot(deviceHistory, identifiers, mode_parameters=None):

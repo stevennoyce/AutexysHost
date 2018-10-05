@@ -94,11 +94,12 @@ def getDataFileDependencies(plotType):
 	except:
 		raise NotImplementedError('Unrecognized "plotType": ' + str(plotType))
 		
-def getPlotTypesFromDependencies(dataFileNames):
+def getPlotTypesFromDependencies(dataFileNames, plotCategory):
 	plotTypes = list(plotDefinitions.keys())
 	for plotType, definition in plotDefinitions.items():
+		print(plotType)
 		for dataFileName in definition['description']['dataFileNames']:
-			if(dataFileName not in dataFileNames):
+			if((dataFileName not in dataFileNames) or (plotCategory != definition['description']['plotCategory'])):
 				if(plotType in plotTypes):
 					plotTypes.remove(plotType)
 	return plotTypes

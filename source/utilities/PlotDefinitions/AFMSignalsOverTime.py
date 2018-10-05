@@ -3,12 +3,13 @@ from utilities.MatplotlibUtility import *
 
 
 plotDescription = {
+	'plotCategory': 'device',
+	'dataFileNames': ['AFMControl.json'],
 	'plotDefaults': {
 		'figsize':(5,4),
 		'xlabel':'Time',
 		'ylabel':'Current'
 	},
-	'dataFileNames': ['AFMControl.json']
 }
 
 def plot(deviceHistory, identifiers, mode_parameters=None):

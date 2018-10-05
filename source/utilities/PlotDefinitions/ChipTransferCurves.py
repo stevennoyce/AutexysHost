@@ -3,6 +3,8 @@ from utilities.MatplotlibUtility import *
 
 
 plotDescription = {
+	'plotCategory': 'chip',
+	'dataFileNames': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(2.8,3.2),
 		'colorMap':'plasma',
@@ -10,7 +12,6 @@ plotDescription = {
 		'ylabel':'$I_{{D}}$ [$\\mu$A]',
 		'neg_label':'$-I_{{D}}$ [$\\mu$A]',
 	},
-	'dataFileNames': ['GateSweep.json']
 }
 
 def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, mode_parameters=None):

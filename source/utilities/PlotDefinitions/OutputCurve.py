@@ -3,6 +3,8 @@ from utilities.MatplotlibUtility import *
 
 
 plotDescription = {
+	'plotCategory': 'device',
+	'dataFileNames': ['DrainSweep.json'],
 	'plotDefaults': {
 		'figsize':(2.8,3.2),
 		'colorMap':'plasma',
@@ -13,7 +15,6 @@ plotDescription = {
 		'leg_vgs_label':'$V_{{GS}}^{{Sweep}}$\n  = {:}V',
 		'leg_vgs_range_label':'$V_{{GS}}^{{min}} = $ {:}V\n'+'$V_{{GS}}^{{max}} = $ {:}V'
 	},
-	'dataFileNames': ['DrainSweep.json']
 }
 
 def plot(deviceHistory, identifiers, mode_parameters=None):

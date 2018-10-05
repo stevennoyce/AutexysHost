@@ -3,11 +3,12 @@ from utilities.MatplotlibUtility import *
 
 
 plotDescription = {
+	'plotCategroy': 'device',
+	'dataFileNames': ['AFMControl.json'],
 	'plotDefaults': {
 		'figsize':(5,4),
 		'colorMap':'plasma'
 	},
-	'dataFileNames': ['AFMControl.json']
 }
 
 def plot(deviceHistory, identifiers, mode_parameters=None):

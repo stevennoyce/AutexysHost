@@ -3,6 +3,8 @@ from utilities.MatplotlibUtility import *
 
 
 plotDescription = {
+	'plotCategory': 'device',
+	'dataFileNames': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(2.8,3.2),
 		'includeOrigin':False,
@@ -13,7 +15,6 @@ plotDescription = {
 		'leg_vds_label':'$V_{{DS}}^{{Sweep}} = ${:}V',
 		'leg_vds_range_label':'$V_{{DS}}^{{min}} = $ {:}V\n'+'$V_{{DS}}^{{max}} = $ {:}V'
 	},
-	'dataFileNames': ['GateSweep.json']
 }
 
 def plot(deviceHistory, identifiers, mode_parameters=None):

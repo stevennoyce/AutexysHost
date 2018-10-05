@@ -222,7 +222,7 @@ def run(additional_parameters, plot_mode_parameters=None):
 	return plotList
 
 def plotsForExperiments(parameters, minExperiment=0, maxExperiment=float('inf')):
-	return dpu.getPlotTypesFromDependencies(dlu.getDataFilesForExperiments(dlu.getDeviceDirectory(parameters), minExperiment=minExperiment, maxExperiment=maxExperiment))
+	return dpu.getPlotTypesFromDependencies(dlu.getDataFilesForExperiments(dlu.getDeviceDirectory(parameters), minExperiment=minExperiment, maxExperiment=maxExperiment), plotCategory='device')
 
 
 

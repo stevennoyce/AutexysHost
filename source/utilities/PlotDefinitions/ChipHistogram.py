@@ -3,12 +3,13 @@ from utilities.MatplotlibUtility import *
 
 
 plotDescription = {
+	'plotCategory': 'chip',
+	'dataFileNames': ['index.json'],
 	'plotDefaults': {
 		'figsize':(5,4),
 		'xlabel':'Device',
 		'ylabel':'Experiments'
 	},
-	'dataFileNames': []
 }
 
 def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, mode_parameters=None):

@@ -3,6 +3,8 @@ from utilities.MatplotlibUtility import *
 
 
 plotDescription = {
+	'plotCategory': 'device',
+	'dataFileNames': ['StaticBias.json'],
 	'plotDefaults': {
 		'figsize':(4.4,3.2),#(2*2.2,2*1.6),#(5,4),
 		'mainIncludeOrigin':True,
@@ -21,7 +23,6 @@ plotDescription = {
 		'subplot_width_ratio': [1],
 		'subplot_spacing': 0.03
 	},
-	'dataFileNames': ['StaticBias.json']
 }
 
 def plot(deviceHistory, identifiers, mode_parameters=None):
