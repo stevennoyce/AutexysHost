@@ -61,7 +61,7 @@ def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False)
 	# Save results as a JSON object
 	if(isSavingResults):
 		print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
-		dlu.saveJSON(dlu.getDeviceDirectory(parameters), gs_parameters['saveFileName'], jsonData)
+		dlu.saveJSON(dlu.getDeviceDirectory(parameters), gs_parameters['saveFileName'], jsonData, subDirectory='Ex'+str(parameters['startIndexes']['experimentNumber']))
 
 	# Show plots to the user
 	if(isPlottingResults):

@@ -205,7 +205,7 @@ def runAFM(parameters, smu_systems, isSavingResults, isPlottingResults):
 			print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
 			# _thread.start_new_thread(dlu.saveJSON, (dlu.getDeviceDirectory(parameters), afm_parameters['saveFileName'], jsonData))
 			threading.Thread(target=dlu.saveJSON,
-				args=(dlu.getDeviceDirectory(parameters), afm_parameters['saveFileName'], jsonData)
+				args=(dlu.getDeviceDirectory(parameters), afm_parameters['saveFileName'], jsonData, 'Ex'+str(parameters['startIndexes']['experimentNumber']))
 			).start()
 			# dlu.saveJSON(dlu.getDeviceDirectory(parameters), afm_parameters['saveFileName'], jsonData)
 		
