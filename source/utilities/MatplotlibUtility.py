@@ -278,7 +278,9 @@ def setupColors(fig, numberOfColors, colorOverride=[], colorDefault=plt.rcParams
 	if(numberOfColors == 1):
 		colors = [colorDefault]
 	elif(numberOfColors == 2):
-		colors = [plt.rcParams['axes.prop_cycle'].by_key()['color'][1], plt.rcParams['axes.prop_cycle'].by_key()['color'][0]]
+		colors = [plt.rcParams['axes.prop_cycle'].by_key()['color'][0], plt.rcParams['axes.prop_cycle'].by_key()['color'][1]]
+	elif(numberOfColors == 3):
+		colors = [plt.rcParams['axes.prop_cycle'].by_key()['color'][0], plt.rcParams['axes.prop_cycle'].by_key()['color'][1], plt.rcParams['axes.prop_cycle'].by_key()['color'][2]]
 	else:
 		colorMap = colorsFromMap(colorMapName, colorMapStart, colorMapEnd, numberOfColors)
 		colors = colorMap['colors']
