@@ -32,91 +32,91 @@ default_dh_parameters = {
 	'showOnlySuccessfulBurns': False,
 }
 
-plots_for_experiment = {
-	'GateSweep' : {
-		'primary':[	
-			'FullSubthresholdCurveHistory',
-			'FullTransferCurveHistory',
-			'FullGateCurrentHistory'
-		]
-	},
-	'DrainSweep': {
-		'primary':[
-			'FullOutputCurveHistory'
-		]
-	},
-	'BurnOut' : {	
-		'primary':[	
-			'FullBurnOutHistory'
-		]
-	},
-	'AutoBurnOut' : {
-		'primary':[
-			'FullBurnOutHistory',
-			'FullSubthresholdCurveHistory',
-			'FullTransferCurveHistory',
-			'FullGateCurrentHistory',
-			'OnAndOffCurrentHistory'
-		]
-	},
-	'StaticBias' : {
-		'primary':[
-			'FullStaticBiasHistory'
-		]
-	},
-	'AutoGateSweep' : {
-		'primary':[
-			'FullSubthresholdCurveHistory',
-			'FullTransferCurveHistory',
-			'FullGateCurrentHistory',
-			'OnAndOffCurrentHistory',
-			'FullStaticBiasHistory'
-		],
-	},
-	'AutoStaticBias' : {
-		'primary':[
-			'FullStaticBiasHistory',
+# plots_for_experiment = {
+# 	'GateSweep' : {
+# 		'primary':[	
+# 			'FullSubthresholdCurveHistory',
+# 			'FullTransferCurveHistory',
+# 			'FullGateCurrentHistory'
+# 		]
+# 	},
+# 	'DrainSweep': {
+# 		'primary':[
+# 			'FullOutputCurveHistory'
+# 		]
+# 	},
+# 	'BurnOut' : {	
+# 		'primary':[	
+# 			'FullBurnOutHistory'
+# 		]
+# 	},
+# 	'AutoBurnOut' : {
+# 		'primary':[
+# 			'FullBurnOutHistory',
+# 			'FullSubthresholdCurveHistory',
+# 			'FullTransferCurveHistory',
+# 			'FullGateCurrentHistory',
+# 			'OnAndOffCurrentHistory'
+# 		]
+# 	},
+# 	'StaticBias' : {
+# 		'primary':[
+# 			'FullStaticBiasHistory'
+# 		]
+# 	},
+# 	'AutoGateSweep' : {
+# 		'primary':[
+# 			'FullSubthresholdCurveHistory',
+# 			'FullTransferCurveHistory',
+# 			'FullGateCurrentHistory',
+# 			'OnAndOffCurrentHistory',
+# 			'FullStaticBiasHistory'
+# 		],
+# 	},
+# 	'AutoStaticBias' : {
+# 		'primary':[
+# 			'FullStaticBiasHistory',
 			
-		],
-		'secondary':[
-			'FullStaticBiasHistory',
-			'FullSubthresholdCurveHistory',
-			'FullTransferCurveHistory',
-			'FullGateCurrentHistory',
-			'OnAndOffCurrentHistory'
-		]
-	},
-	'AFMControl' : {
-		'primary':[
-			'AFMSignalsOverTime',
-			'AFMdeviationsVsX',
-			'AFMdeviationsVsXY'
-		]
-	}
-}
+# 		],
+# 		'secondary':[
+# 			'FullStaticBiasHistory',
+# 			'FullSubthresholdCurveHistory',
+# 			'FullTransferCurveHistory',
+# 			'FullGateCurrentHistory',
+# 			'OnAndOffCurrentHistory'
+# 		]
+# 	},
+# 	'AFMControl' : {
+# 		'primary':[
+# 			'AFMSignalsOverTime',
+# 			'AFMdeviationsVsX',
+# 			'AFMdeviationsVsXY'
+# 		]
+# 	}
+# }
 
-def getPossiblePlotNames(parameters):
-	try:
-		p = parameters
-		asb_parameters = parameters['runConfigs']['AutoStaticBias']
-		ags_parameters = parameters['runConfigs']['AutoGateSweep']
+# def getPossiblePlotNames(parameters):
+# 	try:
+# 		p = parameters
+# 		asb_parameters = parameters['runConfigs']['AutoStaticBias']
+# 		ags_parameters = parameters['runConfigs']['AutoGateSweep']
 		
-		plotsType = 'primary'
-		if(p['runType'] == 'AutoStaticBias'):
-			plotsType = 'secondary' if((('doInitialGateSweep' in asb_parameters) and asb_parameters['doInitialGateSweep']) or asb_parameters['applyGateSweepBetweenBiases']) else 'primary' 
+# 		plotsType = 'primary'
+# 		if(p['runType'] == 'AutoStaticBias'):
+# 			plotsType = 'secondary' if((('doInitialGateSweep' in asb_parameters) and asb_parameters['doInitialGateSweep']) or asb_parameters['applyGateSweepBetweenBiases']) else 'primary' 
 		
-		return plots_for_experiment[p['runType']][plotsType]
-	except Exception as e:
-		print('Exception raised in getPossiblePlotNames')
-		print(e)
-		return [
-			'FullStaticBiasHistory',
-			'FullSubthresholdCurveHistory',
-			'FullTransferCurveHistory',
-			'FullGateCurrentHistory',
-			'OnAndOffCurrentHistory',
-			'FullBurnOutHistory'
-		]
+# 		return plots_for_experiment[p['runType']][plotsType]
+# 	except Exception as e:
+# 		print('Exception raised in getPossiblePlotNames')
+# 		print(e)
+# 		return [
+# 			'FullStaticBiasHistory',
+# 			'FullSubthresholdCurveHistory',
+# 			'FullTransferCurveHistory',
+# 			'FullGateCurrentHistory',
+# 			'OnAndOffCurrentHistory',
+# 			'FullBurnOutHistory'
+# 		]
 
 
 
