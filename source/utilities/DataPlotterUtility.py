@@ -102,6 +102,7 @@ def getPlotTypesFromDependencies(dataFileNames, plotCategory):
 			if((dataFileName not in dataFileNames) or (plotCategory != definition['description']['plotCategory'])):
 				if(plotType in plotTypes):
 					plotTypes.remove(plotType)
+	plotTypes.sort(reverse=True)
 	return plotTypes
 				 
 def show():
