@@ -22,9 +22,13 @@ def emptyFolder(folderPath):
 
 
 # === JSON ===
-def saveJSON(directory, saveFileName, jsonData, incrementIndex=True):
-	makeFolder(directory)
-	with open(os.path.join(directory, saveFileName + '.json'), 'a') as file:
+def saveJSON(directory, saveFileName, jsonData, subDirectory=None, incrementIndex=True):
+	savePath = directory
+	if(subDirectory is not None):
+		savePath = os.path.join(directory, subDirectory)
+	makeFolder(savePath)
+	
+	with open(os.path.join(savePath, saveFileName + '.json'), 'a') as file:
 		if(incrementIndex):
 			indexData = loadJSONIndex(directory)
 			jsonData['index'] = indexData['index']
@@ -81,7 +85,7 @@ def incrementJSONExperiementNumber(directory):
 	return indexData['experimentNumber']
 
 def loadIndexesOfExperiementRange(directory, startExperimentNumber, endExperimentNumber):
-	indexes = []
+	# TODO: for experimentSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and (name[0] == 'E' and name[1:].isdigit()) and (int(name[1:]) >= minExperiment) and (int(name[:1]) <= maxExperiment))]:	indexes = []
 	for filePath in glob.glob(directory + '/*.json'):
 		if(not os.path.basename(filePath) in ['BurnOut.json', 'GateSweep.json', 'DrainSweep.json', 'StaticBias.json', 'AFMControl.json']):
 			continue
@@ -99,9 +103,19 @@ def getDeviceDirectory(parameters):
 	return os.path.join(parameters['dataFolder'], parameters['Identifiers']['user'], parameters['Identifiers']['project'], parameters['Identifiers']['wafer'], parameters['Identifiers']['chip'], parameters['Identifiers']['device']) + os.sep
 
 def loadSpecificDeviceHistory(directory, fileName, minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf')):
-	filteredHistory = loadJSON_fast(directory, fileName, minIndex, maxIndex, minExperiment, maxExperiment, minRelativeIndex, maxRelativeIndex)
+	# TODO: for experimentSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and (name[0] == 'E' and name[1:].isdigit()) and (int(name[1:]) >= minExperiment) and (int(name[:1]) <= maxExperiment))]:
+	filteredHistory = []
+	filteredHistory += loadJSON_fast(directory, fileName, minIndex, maxIndex, minExperiment, maxExperiment, minRelativeIndex, maxRelativeIndex)
 	return filteredHistory
 
+def getDataFilesForExperiments(directory, minExperiment=0, maxExperiment=float('inf')):
+	# TODO: for experimentSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and (name[0] == 'E' and name[1:].isdigit()) and (int(name[1:]) >= minExperiment) and (int(name[:1]) <= maxExperiment))]:	dataFileNames = []
+	for filePath in glob.glob(directory + '/*.json'):
+		dataFileName = os.path.basename(filePath)
+		if(dataFileName not in dataFileNames):
+			dataFileNames.append(dataFileName)
+	return dataFileNames
+		
 
 
 # === Chip History API ===
@@ -118,7 +132,7 @@ def loadChipIndexes(directory):
 def loadFullChipHistory(directory, fileName):
 	chipHistory = []
 	for deviceSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and os.path.exists(os.path.join(directory, name, fileName)))]:
-		jsonData = loadJSON(os.path.join(directory, deviceSubdirectory), fileName)
+		jsonData = loadSpecificDeviceHistory(os.path.join(directory, deviceSubdirectory), fileName)
 		for deviceRun in jsonData:
 			chipHistory.append(deviceRun)
 	return chipHistory

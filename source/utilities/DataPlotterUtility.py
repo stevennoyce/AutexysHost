@@ -93,7 +93,16 @@ def getDataFileDependencies(plotType):
 		return plotDefinitions[plotType]['description']['dataFileNames']
 	except:
 		raise NotImplementedError('Unrecognized "plotType": ' + str(plotType))
-
+		
+def getPlotTypesFromDependencies(dataFileNames):
+	plotTypes = list(plotDefinitions.keys())
+	for plotType, definition in plotDefinitions.items():
+		for dataFileName in definition['description']['dataFileNames']:
+			if(dataFileName not in dataFileNames):
+				if(plotType in plotTypes):
+					plotTypes.remove(plotType)
+	return plotTypes
+				 
 def show():
 	mplu.show()
 

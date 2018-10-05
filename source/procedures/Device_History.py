@@ -185,108 +185,24 @@ def run(additional_parameters, plot_mode_parameters=None):
 		except:
 			print('Error: no information in wafer.json for this device.')
 	
-	# From DPU given a plot type, tell me the data file to load
-	# Given a data file, which plot types are possible
-	
-	if(p['specificPlotToCreate'] == ''):
-		# Find all plots that are possible, and execute data load + makeDevicePlot for each one
-	else:
-		# execute data load + makeDevicePlot for this plot
-		dataFileNames = dpu.getDataFileDependencies(p['specificPlotToCreate'])
+	# Determine which plots are being requested and make them all
+	plotsToCreate = [p['specificPlotToCreate']] if(p['specificPlotToCreate'] != '') else plotsForExperiments(parameters, minExperiment=p['excludeDataBeforeJSONExperimentNumber'], maxExperiment=p['excludeDataAfterJSONExperimentNumber'])
+	for plotType in plotsToCreate:
+		dataFileNames = dpu.getDataFileDependencies(plotType)
 		deviceHistory = []
 		try:
 			for dataFile in dataFileNames:
 				deviceHistory += dlu.loadSpecificDeviceHistory(dlu.getDeviceDirectory(parameters), dataFile, minIndex=p['excludeDataBeforeJSONIndex'], maxIndex=p['excludeDataAfterJSONIndex'], minExperiment=p['excludeDataBeforeJSONExperimentNumber'], maxExperiment=p['excludeDataAfterJSONExperimentNumber'], minRelativeIndex=p['excludeDataBeforeJSONRelativeIndex'], maxRelativeIndex=p['excludeDataAfterJSONRelativeIndex'])
-			plot = dpu.makeDevicePlot(p['specificPlotToCreate'], deviceHistory, parameters['Identifiers'], mode_parameters=mode_parameters)
+			plot = dpu.makeDevicePlot(plotType, deviceHistory, parameters['Identifiers'], mode_parameters=mode_parameters)
 			plotList.append(plot)
 		except FileNotFoundError:
-			print("Error: Unable to find data files for '" + str(p['specificPlotToCreate']) + "' plot.")
+			print("Error: Unable to find data files for '" + str(plotType) + "' plot.")
 	
-	# if((p['specificPlotToCreate'] in ['FullSubthresholdCurveHistory','FullTransferCurveHistory','FullGateCurrentHistory','OnAndOffCurrentHistory',''])):
-	# 	try:			
-	# 		gateSweepHistory = dlu.loadSpecificDeviceHistory(dlu.getDeviceDirectory(parameters), 'GateSweep.json', minIndex=p['excludeDataBeforeJSONIndex'], maxIndex=p['excludeDataAfterJSONIndex'], minExperiment=p['excludeDataBeforeJSONExperimentNumber'], maxExperiment=p['excludeDataAfterJSONExperimentNumber'], minRelativeIndex=p['excludeDataBeforeJSONRelativeIndex'], maxRelativeIndex=p['excludeDataAfterJSONRelativeIndex'])
-
-	# 		if p['specificPlotToCreate'] in ['FullSubthresholdCurveHistory','']:
-	# 			plot1 = dpu.makeDevicePlot('SubthresholdCurve', gateSweepHistory, parameters['Identifiers'], mode_parameters=mode_parameters)
-	# 			plotList.append(plot1)
-	# 		if p['specificPlotToCreate'] in ['FullTransferCurveHistory','']:
-	# 			plot2 = dpu.makeDevicePlot('TransferCurve', gateSweepHistory, parameters['Identifiers'], mode_parameters=mode_parameters)
-	# 			plotList.append(plot2)
-	# 		if p['specificPlotToCreate'] in ['FullGateCurrentHistory','']:
-	# 			plot3 = dpu.makeDevicePlot('GateCurrent', gateSweepHistory, parameters['Identifiers'], mode_parameters=mode_parameters)
-	# 			plotList.append(plot3)
-	# 		if p['specificPlotToCreate'] in ['OnAndOffCurrentHistory','']:
-	# 			plot4 = dpu.makeDevicePlot('OnOffCurrent', gateSweepHistory, parameters['Identifiers'], mode_parameters=mode_parameters)
-	# 			plotList.append(plot4)
-	# 	except FileNotFoundError:
-	# 		print("Error: Unable to find Gate Sweep history.")
-
-	# if(p['specificPlotToCreate'] in ['', 'FullOutputCurveHistory']):
-	# 	try:
-	# 		drainSweepHistory = dlu.loadSpecificDeviceHistory(dlu.getDeviceDirectory(parameters), 'DrainSweep.json', minIndex=p['excludeDataBeforeJSONIndex'], maxIndex=p['excludeDataAfterJSONIndex'], minExperiment=p['excludeDataBeforeJSONExperimentNumber'], maxExperiment=p['excludeDataAfterJSONExperimentNumber'], minRelativeIndex=p['excludeDataBeforeJSONRelativeIndex'], maxRelativeIndex=p['excludeDataAfterJSONRelativeIndex'])
-
-	# 		if p['specificPlotToCreate'] in ['FullOutputCurveHistory','']:
-	# 			plot = dpu.makeDevicePlot('OutputCurve', drainSweepHistory, parameters['Identifiers'], mode_parameters=mode_parameters)
-	# 			plotList.append(plot)
-	# 	except FileNotFoundError:
-	# 		print("Error: Unable to find Drain Sweep history.")
-
-	# if((p['specificPlotToCreate'] in ['FullBurnOutHistory',''])):
-	# 	try:
-	# 		burnOutHistory = dlu.loadSpecificDeviceHistory(dlu.getDeviceDirectory(parameters), 'BurnOut.json', minIndex=p['excludeDataBeforeJSONIndex'], maxIndex=p['excludeDataAfterJSONIndex'], minExperiment=p['excludeDataBeforeJSONExperimentNumber'], maxExperiment=p['excludeDataAfterJSONExperimentNumber'], minRelativeIndex=p['excludeDataBeforeJSONRelativeIndex'], maxRelativeIndex=p['excludeDataAfterJSONRelativeIndex'])
-
-	# 		if(p['showOnlySuccessfulBurns']):
-	# 			burnOutHistory = dlu.filterHistory(burnOutHistory, 'didBurnOut', True, ['Computed'])
-			
-	# 		if p['specificPlotToCreate'] in ['FullBurnOutHistory','']:
-	# 			plot = dpu.makeDevicePlot('BurnOut', burnOutHistory, parameters['Identifiers'], mode_parameters=mode_parameters)
-	# 			plotList.append(plot)
-	# 	except FileNotFoundError:
-	# 		print("Error: Unable to find Burnout history.")
-
-	# if((p['specificPlotToCreate'] in ['FullStaticBiasHistory',''])):
-	# 	try:
-	# 		staticBiasHistory = dlu.loadSpecificDeviceHistory(dlu.getDeviceDirectory(parameters), 'StaticBias.json', minIndex=p['excludeDataBeforeJSONIndex'], maxIndex=p['excludeDataAfterJSONIndex'], minExperiment=p['excludeDataBeforeJSONExperimentNumber'], maxExperiment=p['excludeDataAfterJSONExperimentNumber'], minRelativeIndex=p['excludeDataBeforeJSONRelativeIndex'], maxRelativeIndex=p['excludeDataAfterJSONRelativeIndex'])
-			
-	# 		if p['specificPlotToCreate'] in ['FullStaticBiasHistory','']:
-	# 			plot = dpu.makeDevicePlot('StaticBias', staticBiasHistory, parameters['Identifiers'], mode_parameters=mode_parameters)
-	# 			plotList.append(plot)
-	# 	except FileNotFoundError:
-	# 		print("Error: Unable to find Static Bias history.")
-	
-	# if( (p['specificPlotToCreate'] in ['AFMSignalsOverTime',''])):
-	# 	try:
-	# 		AFMHistory = dlu.loadSpecificDeviceHistory(dlu.getDeviceDirectory(parameters), 'AFMControl.json', minIndex=p['excludeDataBeforeJSONIndex'], maxIndex=p['excludeDataAfterJSONIndex'], minExperiment=p['excludeDataBeforeJSONExperimentNumber'], maxExperiment=p['excludeDataAfterJSONExperimentNumber'], minRelativeIndex=p['excludeDataBeforeJSONRelativeIndex'], maxRelativeIndex=p['excludeDataAfterJSONRelativeIndex'])
-			
-	# 		if p['specificPlotToCreate'] in ['AFMSignalsOverTime','']:
-	# 			plot = dpu.makeDevicePlot('AFMSignalsOverTime', AFMHistory, parameters['Identifiers'], mode_parameters=mode_parameters)
-	# 			plotList.append(plot)
-	# 	except FileNotFoundError:
-	# 		print("Error: Unable to find AFM history.")
-	
-	# if( (p['specificPlotToCreate'] in ['AFMdeviationsVsX',''])):
-	# 	try:
-	# 		AFMHistory = dlu.loadSpecificDeviceHistory(dlu.getDeviceDirectory(parameters), 'AFMControl.json', minIndex=p['excludeDataBeforeJSONIndex'], maxIndex=p['excludeDataAfterJSONIndex'], minExperiment=p['excludeDataBeforeJSONExperimentNumber'], maxExperiment=p['excludeDataAfterJSONExperimentNumber'], minRelativeIndex=p['excludeDataBeforeJSONRelativeIndex'], maxRelativeIndex=p['excludeDataAfterJSONRelativeIndex'])
-			
-	# 		if p['specificPlotToCreate'] in ['AFMdeviationsVsX','']:
-	# 			plot = dpu.makeDevicePlot('AFMdeviationsVsX', AFMHistory, parameters['Identifiers'], mode_parameters=mode_parameters)
-	# 			plotList.append(plot)
-	# 	except FileNotFoundError:
-	# 		print("Error: Unable to find AFM history.")
-	
-	# if( (p['specificPlotToCreate'] in ['AFMdeviationsVsXY',''])):
-	# 	try:
-	# 		AFMHistory = dlu.loadSpecificDeviceHistory(dlu.getDeviceDirectory(parameters), 'AFMControl.json', minIndex=p['excludeDataBeforeJSONIndex'], maxIndex=p['excludeDataAfterJSONIndex'], minExperiment=p['excludeDataBeforeJSONExperimentNumber'], maxExperiment=p['excludeDataAfterJSONExperimentNumber'], minRelativeIndex=p['excludeDataBeforeJSONRelativeIndex'], maxRelativeIndex=p['excludeDataAfterJSONRelativeIndex'])
-			
-	# 		if p['specificPlotToCreate'] in ['AFMdeviationsVsXY','']:
-	# 			plot = dpu.makeDevicePlot('AFMdeviationsVsXY', AFMHistory, parameters['Identifiers'], mode_parameters=mode_parameters)
-	# 			plotList.append(plot)
-	# 	except FileNotFoundError:
-	# 		print("Error: Unable to find AFM history.")
-
+	# Show figures if desired		
 	if(p['showFiguresGenerated']):
 		dpu.show()
 	
+	# Post figures if desired
 	if(p['postFiguresGenerated']):
 		parameters['startIndexes'] = {
 			'index': max( parameters['excludeDataBeforeJSONIndex'], min(loadIndexesOfExperiementRange(directory, parameters['excludeDataBeforeJSONExperimentNumber'], parameters['excludeDataAfterJSONExperimentNumber'])) ),
@@ -305,7 +221,8 @@ def run(additional_parameters, plot_mode_parameters=None):
 
 	return plotList
 
-
+def plotsForExperiments(parameters, minExperiment=0, maxExperiment=float('inf')):
+	return dpu.getPlotTypesFromDependencies(dlu.getDataFilesForExperiments(dlu.getDeviceDirectory(parameters), minExperiment=minExperiment, maxExperiment=maxExperiment))
 
 
 
@@ -337,7 +254,7 @@ if __name__ == '__main__':
 	#makePlots('stevenjay', 'BiasStress1', 'C127', 'X', '15-16', 80, 168, 'OnAndOffCurrentHistory', (2.2 *5.78/2.2,1.408 *3.5/2.2), dataFolder='../../../AutexysData', saveFolder='../../../AutexysPlots/', plotSaveName='Figure S17b full - ', saveFigures=False, showFigures=True, plotInRealTime=True, plot_mode_parameters={'publication_mode':True, 'staticBiasChangeDividers':False, 'enableGradient':False, 'legendLoc':'lower left'})
 	#makePlots('stevenjay', 'BiasStress1', 'C127', 'P', '15-16', 0, 500, '', None, dataFolder='../../../AutexysData', saveFolder='../../../AutexysPlots/', plotSaveName='Figure S17b full - ', saveFigures=False, showFigures=True, plotInRealTime=True, plot_mode_parameters={'publication_mode':False, 'staticBiasChangeDividers':False, 'enableGradient':False, 'legendLoc':'best'})
 	#makePlots('stevenjay', 'SolutionBias1', 'C127', 'V', '2-3', 0, 500, 'FullOutputCurveHistory', None, dataFolder='../../../AutexysData', saveFolder='../../../AutexysPlots/', plotSaveName='Figure S17b full - ', saveFigures=False, showFigures=True, plotInRealTime=True, plot_mode_parameters={'publication_mode':False, 'staticBiasChangeDividers':False, 'enableGradient':False, 'legendLoc':'best'})
-	#makePlots('stevenjay', 'BiasStress1', 'C127', 'P', '1-2', 5, 7, 'FullTransferCurveHistory', None, plotSaveName='Figure S17b full - ', saveFigures=False, showFigures=True, plotInRealTime=True, plot_mode_parameters={'publication_mode':False, 'staticBiasChangeDividers':False, 'enableGradient':False, 'legendLoc':'best'})	
+	makePlots('stevenjay', 'BiasStress1', 'C127', 'P', '1-2', 5, 7, 'SubthresholdCurve', None, plotSaveName='Figure S17b full - ', saveFigures=False, showFigures=True, plotInRealTime=True, plot_mode_parameters={'publication_mode':False, 'staticBiasChangeDividers':False, 'enableGradient':False, 'legendLoc':'best'})	
 	#makePlots('stevenjay', 'BiasStress1', 'C127', 'E', '15-16', 10, 18, 'OnAndOffCurrentHistory', None, dataFolder='../../AutexysData', saveFolder='../../../AutexysPlots/', plotSaveName='Figure S17b full - ', saveFigures=False, showFigures=True, plotInRealTime=True, plot_mode_parameters={'publication_mode':False, 'staticBiasChangeDividers':False, 'enableGradient':False, 'legendLoc':'best'})	
 	#makePlots('steven', 'SGM1', 'F1', 'E', 'E08N_10000', 51, 51, 'AFMdeviationsVsX', None, dataFolder='../data', showFigures=True)
 	pass
