@@ -2,14 +2,11 @@ import ast
 import serial as pySerial
 import serial.tools.list_ports as pySerialPorts
 import glob
-import visa
-
 import time
 import re
 import random as rand
 import numpy as np
 import json
-
 import copy
 
 smu_system_configurations = {
@@ -60,6 +57,8 @@ def getSystemConfiguration(systemType):
 	return copy.deepcopy(smu_system_configurations[systemType])
 
 def getConnectionToVisaResource(uniqueIdentifier='', system_settings=None, defaultComplianceCurrent=100e-6, smuTimeout=60000):
+	import visa
+	
 	rm = visa.ResourceManager()
 	if(uniqueIdentifier == ''):
 		uniqueIdentifier = rm.list_resources()[0]
