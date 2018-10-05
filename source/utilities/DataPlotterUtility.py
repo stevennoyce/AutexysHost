@@ -88,6 +88,12 @@ def makeChipPlot(plotType, identifiers, chipIndexes=None, firstRunChipHistory=No
 
 	return fig, axes
 
+def getDataFileDependencies(plotType):
+	try:
+		return plotDefinitions[plotType]['description']['dataFileNames']
+	except:
+		raise NotImplementedError('Unrecognized "plotType": ' + str(plotType))
+
 def show():
 	mplu.show()
 
