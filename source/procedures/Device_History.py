@@ -205,11 +205,11 @@ def run(additional_parameters, plot_mode_parameters=None):
 	# Post figures if desired
 	if(p['postFiguresGenerated']):
 		parameters['startIndexes'] = {
-			'index': max( parameters['excludeDataBeforeJSONIndex'], min(loadIndexesOfExperiementRange(directory, parameters['excludeDataBeforeJSONExperimentNumber'], parameters['excludeDataAfterJSONExperimentNumber'])) ),
+			'index': max( parameters['excludeDataBeforeJSONIndex'], min(getIndexesForExperiments(directory, minExperiment=parameters['excludeDataBeforeJSONExperimentNumber'], maxExperiment=parameters['excludeDataAfterJSONExperimentNumber'])) ),
 			'experimentNumber': parameters['excludeDataBeforeJSONExperimentNumber']
 		}
 		parameters['endIndexes'] = {
-			'index': min( parameters['excludeDataAfterJSONIndex'], max(loadIndexesOfExperiementRange(directory, parameters['excludeDataBeforeJSONExperimentNumber'], parameters['excludeDataAfterJSONExperimentNumber'])) ),
+			'index': min( parameters['excludeDataAfterJSONIndex'], max(getIndexesForExperiments(directory, minExperiment=parameters['excludeDataBeforeJSONExperimentNumber'], maxExperiment=parameters['excludeDataAfterJSONExperimentNumber'])) ),
 			'experimentNumber': min(parameters['excludeDataAfterJSONExperimentNumber'], dlu.loadJSONIndex(dlu.getDeviceDirectory(parameters))['experimentNumber'])
 		} 
 

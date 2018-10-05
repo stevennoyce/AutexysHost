@@ -71,7 +71,7 @@ def runAction(parameters, schedule_parameters, smu_systems, arduino_instance):
 	print('Checking that save folder exists.')
 	dlu.makeFolder(dlu.getDeviceDirectory(parameters))
 
-	experiment = dlu.incrementJSONExperiementNumber(dlu.getDeviceDirectory(parameters))
+	experiment = dlu.incrementJSONExperimentNumber(dlu.getDeviceDirectory(parameters))
 	print('About to begin experiment #' + str(experiment))
 	parameters['startIndexes'] = dlu.loadJSONIndex(dlu.getDeviceDirectory(parameters))
 	parameters['startIndexes']['timestamp'] = time.time()

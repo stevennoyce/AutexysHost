@@ -78,7 +78,7 @@ def incrementJSONIndex(directory):
 		file.write('\n')
 	return indexData['index']
 
-def incrementJSONExperiementNumber(directory):
+def incrementJSONExperimentNumber(directory):
 	indexData = loadJSONIndex(directory)
 	with open(os.path.join(directory, 'index.json'), 'w') as file:
 		indexData['experimentNumber'] += 1
@@ -87,19 +87,6 @@ def incrementJSONExperiementNumber(directory):
 		file.write('\n')
 	return indexData['experimentNumber']
 
-def loadIndexesOfExperiementRange(directory, startExperimentNumber, endExperimentNumber):
-	# TODO: for experimentSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and (name[0:2] == 'Ex' and name[2:].isdigit()) and (int(name[1:]) >= minExperiment) and (int(name[:1]) <= maxExperiment))]:	
-	indexes = []
-	for filePath in glob.glob(directory + '/*.json'):
-		if(not os.path.basename(filePath) in ['BurnOut.json', 'GateSweep.json', 'DrainSweep.json', 'StaticBias.json', 'AFMControl.json']):
-			continue
-		jsonData = loadJSON_fast('', filePath, minExperiment=startExperimentNumber, maxExperiment=endExperimentNumber)
-		for deviceRun in jsonData:
-			if(deviceRun['experimentNumber'] >= startExperimentNumber) and (deviceRun['experimentNumber'] <= endExperimentNumber):
-				indexes.append(deviceRun['index'])
-	indexes.sort()
-	return indexes
-
 
 
 # === Device History API ===
@@ -107,19 +94,30 @@ def getDeviceDirectory(parameters):
 	return os.path.join(parameters['dataFolder'], parameters['Identifiers']['user'], parameters['Identifiers']['project'], parameters['Identifiers']['wafer'], parameters['Identifiers']['chip'], parameters['Identifiers']['device']) + os.sep
 
 def loadSpecificDeviceHistory(directory, fileName, minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf')):
-	# TODO: for experimentSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and (name[0:2] == 'Ex' and name[2:].isdigit()) and (int(name[1:]) >= minExperiment) and (int(name[:1]) <= maxExperiment))]:
 	filteredHistory = []
-	filteredHistory += loadJSON_fast(directory, fileName, minIndex, maxIndex, minExperiment, maxExperiment, minRelativeIndex, maxRelativeIndex)
+	for experimentSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and (name[0:2] == 'Ex' and name[2:].isdigit()) and (int(name[1:]) >= minExperiment) and (int(name[:1]) <= maxExperiment))]:
+		filteredHistory += loadJSON_fast(os.path.join(directory, experimentSubdirectory), fileName, minIndex, maxIndex, minExperiment, maxExperiment, minRelativeIndex, maxRelativeIndex)
 	return filteredHistory
 
 def getDataFilesForExperiments(directory, minExperiment=0, maxExperiment=float('inf')):
-	# TODO: for experimentSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and (name[0:2] == 'Ex' and name[2:].isdigit()) and (int(name[1:]) >= minExperiment) and (int(name[:1]) <= maxExperiment))]:
 	dataFileNames = []
-	for filePath in glob.glob(directory + '/*.json'):
-		dataFileName = os.path.basename(filePath)
-		if(dataFileName not in dataFileNames):
-			dataFileNames.append(dataFileName)
+	for experimentSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and (name[0:2] == 'Ex' and name[2:].isdigit()) and (int(name[1:]) >= minExperiment) and (int(name[:1]) <= maxExperiment))]:
+		for filePath in glob.glob(os.path.join(directory, experimentSubdirectory) + '/*.json'):
+			dataFileName = os.path.basename(filePath)
+			if(dataFileName not in dataFileNames):
+				dataFileNames.append(dataFileName)
 	return dataFileNames
+
+def getIndexesForExperiments(directory, minExperiment, maxExperiment):
+	indexes = []
+	for experimentSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and (name[0:2] == 'Ex' and name[2:].isdigit()) and (int(name[1:]) >= minExperiment) and (int(name[:1]) <= maxExperiment))]:	
+		for filePath in glob.glob(os.path.join(directory, experimentSubdirectory) + '/*.json'):
+			jsonData = loadJSON_fast('', filePath, minExperiment=minExperiment, maxExperiment=maxExperiment)
+			for deviceRun in jsonData:
+				if(deviceRun['experimentNumber'] >= minExperiment) and (deviceRun['experimentNumber'] <= maxExperiment):
+					indexes.append(deviceRun['index'])
+	indexes.sort()
+	return indexes
 		
 
 
@@ -200,7 +198,7 @@ def filterStringArrayByIndexAndExperiment(directory, fileLines, minIndex=0, maxI
 			filteredFileLines = filterFileLinesLessThan(filteredFileLines, 'index', maxIndex)
 	
 	if(minRelativeIndex > 0 or maxRelativeIndex < 1e10):
-		experimentBaseIndex = min(loadIndexesOfExperiementRange(directory, minExperiment, maxExperiment))
+		experimentBaseIndex = min(getIndexesForExperiments(directory, minExperiment, maxExperiment))
 		if(minRelativeIndex > 0):
 			filteredFileLines = filterFileLinesGreaterThan(filteredFileLines, 'index', experimentBaseIndex + minRelativeIndex)
 		if(maxRelativeIndex < float('inf')):
