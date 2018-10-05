@@ -12,26 +12,13 @@ if('AutexysHost' in pathParents):
 
 from utilities import DataLoggerUtility as dlu
 
-load_directory = '../../AutexysData/stevenjay/BiasStress1/C127'
-save_directory = '../../AutexysDataReformatted/stevenjay/BiasStress1/C127'
+# load_directory = '../../AutexysData/stevenjay/BiasStress1/C127'
+# save_directory = '../../AutexysDataReformatted/stevenjay/BiasStress1/C127'
 
-load_directory = '../../AutexysData/'
-save_directory = '../../AutexysDataReformatted/'
+# load_directory = '../../AutexysData/'
+# save_directory = '../../AutexysDataReformatted/'
 
 dataFileNames = ['DrainSweep.json', 'StaticBias.json', 'GateSweep.json', 'AFMControl.json', 'BurnOut.json']
-
-# for dataFileName in dataFileNames:
-# 	dataFiles = glob.glob(load_directory + '/**/' + dataFileName, recursive=True)
-	
-# 	for dataFile in dataFiles:
-# 		dataLines = dlu.loadJSON(os.path.dirname(dataFile), os.path.basename(dataFile))
-		
-# 		for dataLine in dataLines:
-# 			experimentNumber = dataLine['startIndexes']['experimentNumber']
-			
-# 			print(dataFile)
-			
-# 			# dlu.saveJSON(directory, saveFileName, jsonData, incrementIndex=False)
 
 def getSubDirectories(directory):
 	return [os.path.basename(os.path.dirname(g)) for g in glob.glob(directory + '/*/')]
@@ -60,7 +47,24 @@ for userName in getSubDirectories(load_directory):
 							
 							print(experimentNumber)
 							
-							experimentSaveDirectory = os.path.join(save_directory, deviceDirectory, 'E' + str(experimentNumber))
+							experimentSaveDirectory = os.path.join(save_directory, deviceDirectory, 'Ex' + str(experimentNumber))
 							dlu.saveJSON(experimentSaveDirectory, dataFileName, dataLine, incrementIndex=False)
+
+
+import shutil
+
+otherFiles = glob.glob(load_directory + '/**/*.json', recursive=True)
+
+for otherFile in otherFiles:
+	if os.path.basename(otherFile) not in dataFileNames:
+		print(otherFile)
+		destination = otherFile.replace(load_directory, save_directory)
+		print(destination)
+		print(os.path.dirname(destination))
+		if not os.path.exists(os.path.dirname(destination)):
+		    os.makedirs(os.path.dirname(destination))
+		
+		shutil.copyfile(otherFile, destination)
+	
 
 
