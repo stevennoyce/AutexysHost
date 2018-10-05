@@ -95,13 +95,13 @@ def getDeviceDirectory(parameters):
 
 def loadSpecificDeviceHistory(directory, fileName, minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf')):
 	filteredHistory = []
-	for experimentSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and (name[0:2] == 'Ex' and name[2:].isdigit()) and (int(name[1:]) >= minExperiment) and (int(name[:1]) <= maxExperiment))]:
+	for experimentSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and (name[0:2] == 'Ex' and name[2:].isdigit()) and (int(name[2:]) >= minExperiment) and (int(name[2:]) <= maxExperiment))]:
 		filteredHistory += loadJSON_fast(os.path.join(directory, experimentSubdirectory), fileName, minIndex, maxIndex, minExperiment, maxExperiment, minRelativeIndex, maxRelativeIndex)
 	return filteredHistory
 
 def getDataFilesForExperiments(directory, minExperiment=0, maxExperiment=float('inf')):
 	dataFileNames = []
-	for experimentSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and (name[0:2] == 'Ex' and name[2:].isdigit()) and (int(name[1:]) >= minExperiment) and (int(name[:1]) <= maxExperiment))]:
+	for experimentSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and (name[0:2] == 'Ex' and name[2:].isdigit()) and (int(name[2:]) >= minExperiment) and (int(name[2:]) <= maxExperiment))]:
 		for filePath in glob.glob(os.path.join(directory, experimentSubdirectory) + '/*.json'):
 			dataFileName = os.path.basename(filePath)
 			if(dataFileName not in dataFileNames):
@@ -110,7 +110,7 @@ def getDataFilesForExperiments(directory, minExperiment=0, maxExperiment=float('
 
 def getIndexesForExperiments(directory, minExperiment, maxExperiment):
 	indexes = []
-	for experimentSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and (name[0:2] == 'Ex' and name[2:].isdigit()) and (int(name[1:]) >= minExperiment) and (int(name[:1]) <= maxExperiment))]:	
+	for experimentSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and (name[0:2] == 'Ex' and name[2:].isdigit()) and (int(name[2:]) >= minExperiment) and (int(name[2:]) <= maxExperiment))]:	
 		for filePath in glob.glob(os.path.join(directory, experimentSubdirectory) + '/*.json'):
 			jsonData = loadJSON_fast('', filePath, minExperiment=minExperiment, maxExperiment=maxExperiment)
 			for deviceRun in jsonData:
