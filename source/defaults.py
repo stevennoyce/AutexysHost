@@ -213,7 +213,7 @@ default_parameters_combined = {
 			'drainVoltageSetPoint': {'type':'float', 'units':'V', 'default': 0.01},
 			'gateVoltageSetPoint': {'type':'float', 'units':'V', 'default': 0},
 			'complianceCurrent': {'type':'float', 'units':'A', 'default': 1e-6},
-			'complianceVoltage': {'type':'float', 'units':'V', 'default': 10},,
+			'complianceVoltage': {'type':'float', 'units':'V', 'default': 10},
 			'deviceMeasurementSpeed': {'type':'float', 'units':'Hz', 'default': 60},  # what are the units for this?
 		},
 		'Delay':{
@@ -233,13 +233,12 @@ default_parameters_combined = {
 		'default':{}
 	},
 	'Identifiers':{
-		'user':{'type':'string'},
-		'project':{'type':'string'},
-		'wafer':{'type':'string'},
-		'chip':{'type':'string'},
-		'device':{'type':'string'},
+		'user':{'type':'string', 'default':'unknown'},
+		'project':{'type':'string', 'default':'unknown'},
+		'wafer':{'type':'string', 'default':'unknown'},
+		'chip':{'type':'string', 'default':'unknown'},
+		'device':{'type':'string', 'default':'unknown'},
 		'step':{'type':'int'},
-		'default':{}
 	},
 	'MeasurementSystem':{
 		'system': {'type':'choice','choices':['B2912A','PCB2v14'], 'default':['single', 'standalone', 'double'][1]},
@@ -349,6 +348,16 @@ import copy
 def get():
 	return copy.deepcopy(default_parameters)
 
+def getDefaults():
+	return extractDefaults(default_parameters_combined)
+
+def extractDefaults(d):
+	if not isinstance(d, dict):
+		return d
+	if 'default' in d:
+		return d['default']
+	return {k:extractDefaults(v) for (k,v) in d.items()}
+
 def with_added(additional_parameters):
 	default = get()
 	combined = merge(default, additional_parameters)
@@ -361,4 +370,10 @@ def merge(a, b):
 		else:
 			a[key] = b[key]
 	return a
+
+
+if __name__ == '__main__':
+	print(getDefaults())
+
+
 

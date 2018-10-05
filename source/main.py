@@ -14,16 +14,7 @@ if __name__ == '__main__':
 		os.chdir(os.path.join(os.path.abspath(os.sep), *pathParents[0:pathParents.index('AutexysHost')+1], 'source'))
 
 
-default_additional_parameters = {
-	'Identifiers': {
-		'user':'stevenjay',
-		'project':'BiasStress1',
-		'wafer':'UnspecifiedWafer',
-		'chip':'UnspecifiedChip',
-		'device':'UnspecifiedDevice',
-		'step':0
-	}
-}
+default_additional_parameters = {}
 
 
 import requests
