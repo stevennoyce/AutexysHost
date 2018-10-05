@@ -201,9 +201,10 @@ def experiments(user, project, wafer, chip, device):
 	fileNames = [os.path.basename(f) for f in files]
 	
 	parameters = dlu.loadJSON(folder, 'ParametersHistory.json')
+	parameter_identifiers = {'dataFolder':default_data_path, 'Identifiers':{'user':user,'project':project,'wafer':wafer,'chip':chip,'device':device}}
 	
 	for i in range(len(parameters)):
-		possiblePlots = DH.getPossiblePlotNames(parameters[i])
+		possiblePlots = DH.plotsForExperiments(parameter_identifiers, minExperiment=parameters[i]['experimentNumber'], maxExperiment=parameters[i]['experimentNumber'])
 		parameters[i]['possiblePlots'] = possiblePlots
 	
 	# experiments = [{'name': n, 'path': p, 'modificationTime': m, 'size': s} for n, p, m, s in zip(names, paths, modificationTimes, sizes)]
