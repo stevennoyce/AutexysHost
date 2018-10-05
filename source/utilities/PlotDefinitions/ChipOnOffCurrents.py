@@ -8,7 +8,8 @@ plotDescription = {
 		'xlabel':'Device',
 		'ylabel':'$I_{{ON}}$ [$\\mu$A]',
 		'ylabel_dual_axis':'$I_{{OFF}}$ [$\\mu$A]'
-	}
+	},
+	'dataFileNames': []
 }
 	
 def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, mode_parameters=None):

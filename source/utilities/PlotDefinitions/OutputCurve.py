@@ -12,7 +12,8 @@ plotDescription = {
 		'neg_label':'$-I_{{D}}$ [$\\mu$A]',
 		'leg_vgs_label':'$V_{{GS}}^{{Sweep}}$\n  = {:}V',
 		'leg_vgs_range_label':'$V_{{GS}}^{{min}} = $ {:}V\n'+'$V_{{GS}}^{{max}} = $ {:}V'
-	}
+	},
+	'dataFileNames': ['DrainSweep.json']
 }
 
 def plot(deviceHistory, identifiers, mode_parameters=None):

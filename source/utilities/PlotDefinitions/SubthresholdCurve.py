@@ -11,7 +11,8 @@ plotDescription = {
 		'ylabel':'$I_{{D}}$ [A]',
 		'leg_vds_label':'$V_{{DS}}^{{Sweep}}$\n  = {:}V',
 		'leg_vds_range_label':'$V_{{DS}}^{{min}} = $ {:}V\n'+'$V_{{DS}}^{{max}} = $ {:}V'
-	}
+	},
+	'dataFileNames': ['GateSweep.json']
 }
 
 
