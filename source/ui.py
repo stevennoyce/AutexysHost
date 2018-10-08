@@ -222,9 +222,10 @@ def parametersDescription():
 def defaultParameters():
 	return jsonvalid(defaults.get())
 
-@app.route('/saveSchedule/<user>/<project>/<fileName>')
+@app.route('/saveSchedule/<user>/<project>/<fileName>', methods=['POST'])
 def saveSchedule(user, project, fileName):
-	receivedJobs = json.loads(flask.request.args.get('jobs'))
+	# receivedJobs = json.loads(flask.request.args.get('jobs'))
+	receivedJobs = flask.request.get_json(force=True)
 	
 	dlu.emptyFile(os.path.join(default_data_path, user, project, 'schedules/'), fileName)
 	for job in scheduleObjects:

@@ -600,6 +600,7 @@
 									</v-container>
 								</v-expansion-panel-content>
 							</v-expansion-panel>
+							<v-btn fab small dark bottom right absolute @click="addScheduleJob()"><v-icon>add</v-icon></v-btn>
 						</v-card>
 						
 						<v-card ma-1 tile>
@@ -630,7 +631,7 @@
 								</v-list>
 							</v-menu> -->
 							
-							<v-form>
+							<v-form :action="'/saveSchedule/' + scheduleSaveUser + '/' + scheduleSaveProject + '/' + scheduleSaveFileName" method="post">
 								<v-container>
 									<v-layout row wrap>
 										<v-flex xs12 sm6 md4 lg3 outline><v-text-field v-model="scheduleSaveUser" label="User"></v-text-field></v-flex>
@@ -638,9 +639,8 @@
 										<v-flex xs12 sm6 md4 lg3 solo><v-text-field v-model="scheduleSaveFileName" label="File Name"></v-text-field></v-flex>
 									</v-layout>
 								</v-container>
+								<v-btn type="submit">Save Schedule File</v-btn>
 							</v-form>
-							
-							<v-btn @click="saveSchedule()">Save Schedule File</v-btn>
 						</v-card>
 					</v-flex>
 					
@@ -961,7 +961,7 @@
 					}).fail(() => {console.log("Error getting parameters description")});
 				},
 				
-				saveSchedule() {
+				saveSchedule: function() {
 					var url = '/saveSchedule/' + this.scheduleSaveUser + '/' + this.scheduleSaveProject + '/' + this.scheduleSaveFileName;
 					url += this.cacheBust;
 					url += '&jobs=' + encodeURI(JSON.stringify(this.scheduleObjectDefault));
@@ -1044,6 +1044,10 @@
 				copyHTMLImageToClip: function (path) {
 					path = window.location.origin + path;
 					this.copyHTMLStringToClip('<img src="' + path + '" width="200">');
+				},
+				
+				addScheduleJob: function() {
+					this.scheduleObjects.push(this.scheduleObjects.slice(-1)[0])
 				}
 			},
 			watch: {
