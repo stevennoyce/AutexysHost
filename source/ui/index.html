@@ -564,7 +564,7 @@
 										</v-card>
 									</v-flex>
 									
-									<v-flex xs12 sm6 md4 lg3 xl2 d-flex v-for="dependency in _.get(parametersDescription, ['runConfigs', runType, 'dependencies'])">
+									<v-flex xs12 sm6 md4 lg3 xl2 d-flex v-for="dependency in _.get(parametersDescription, ['runConfigs', runType, 'dependencies', 'value'])">
 										<v-card ma-1 tile>
 											<v-toolbar dark class="blue-grey lighten-1">
 												<v-toolbar-title>
