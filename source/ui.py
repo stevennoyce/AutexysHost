@@ -222,11 +222,15 @@ def parametersDescription():
 def defaultParameters():
 	return jsonvalid(defaults.get())
 
-@app.route('/<user>/<project>/<fileName>/<scheduleObjects>')
-def saveSchedule(user, project, fileName, scheduleObjects):
+@app.route('/saveSchedule/<user>/<project>/<fileName>')
+def saveSchedule(user, project, fileName):
+	receivedJobs = json.loads(flask.request.args.get('jobs'))
+	
 	dlu.emptyFile(os.path.join(default_data_path, user, project, 'schedules/'), fileName)
 	for job in scheduleObjects:
 		dlu.saveJSON(os.path.join(default_data_path, user, project, 'schedules/'), fileName, job, incrementIndex=False)
+		
+	return jsonvalid({'success':True})
 
 # @app.after_request
 # def add_header(response):

@@ -596,51 +596,52 @@
 													</v-list>
 												</v-card>
 											</v-flex>
-											
-											<v-flex xs12>
-												<v-card ma-1 tile style="display: flex; flex-direction: column;">
-													<v-toolbar dark class="blue-grey lighten-1">
-														<v-toolbar-title>
-															Schedule File
-														</v-toolbar-title>
-													</v-toolbar>
-													<v-card-text class="grow">
-														{{ scheduleLines }}
-													</v-card-text>
-													<v-card-actions>
-														<v-btn>Save</v-btn>
-													</v-card-actions>
-												</v-card>
-											</v-flex>
-											
 										</v-layout>
 									</v-container>
 								</v-expansion-panel-content>
 							</v-expansion-panel>
 						</v-card>
 						
+						<v-card ma-1 tile>
+							<v-toolbar dark class="blue-grey darken-1">
+								<v-toolbar-title>
+									Schedule File
+								</v-toolbar-title>
+							</v-toolbar>
+							<v-card-text class="grow">
+								{{ scheduleLines }}
+							</v-card-text>
+						</v-card>
+						
+						
 						<v-card>
-								<v-toolbar dark class="blue-grey darken-1">
-									<v-toolbar-title>
-										Schedule File Save Location
-									</v-toolbar-title>
-								</v-toolbar>
-								<!-- <v-menu attach bottom left offset-y>
-									<v-btn slot="activator" flat>{{ scheduleSaveUser }}<v-icon right>people</v-icon></v-btn>
-									<v-list light>
-										<v-list-tile v-for="u in users" @click="scheduleSaveUser = u">
-											<v-list-tile-avatar color="blue-grey lighten-2"><v-icon dark>account_circle</v-icon></v-list-tile-avatar>
-											<v-list-tile-content><v-list-tile-title>{{ u }}</v-list-tile-title></v-list-tile-content>
-										</v-list-tile>
-									</v-list>
-								</v-menu> -->
-								
-								<v-text-field v-model="scheduleSaveUser" label="User"></v-text-field>
-								<v-text-field v-model="scheduleSaveProject" label="Project"></v-text-field>
-								<v-text-field v-model="scheduleSaveFileName" label="File Name"></v-text-field>
-								
-								<v-btn>Save Schedule File</v-btn>
-							</v-card>
+							<v-toolbar dark class="blue-grey darken-1">
+								<v-toolbar-title>
+									Schedule File Save Location
+								</v-toolbar-title>
+							</v-toolbar>
+							<!-- <v-menu attach bottom left offset-y>
+								<v-btn slot="activator" flat>{{ scheduleSaveUser }}<v-icon right>people</v-icon></v-btn>
+								<v-list light>
+									<v-list-tile v-for="u in users" @click="scheduleSaveUser = u">
+										<v-list-tile-avatar color="blue-grey lighten-2"><v-icon dark>account_circle</v-icon></v-list-tile-avatar>
+										<v-list-tile-content><v-list-tile-title>{{ u }}</v-list-tile-title></v-list-tile-content>
+									</v-list-tile>
+								</v-list>
+							</v-menu> -->
+							
+							<v-form>
+								<v-container>
+									<v-layout row wrap>
+										<v-flex xs12 sm6 md4 lg3 outline><v-text-field v-model="scheduleSaveUser" label="User"></v-text-field></v-flex>
+										<v-flex xs12 sm6 md4 lg3 solo><v-text-field v-model="scheduleSaveProject" label="Project"></v-text-field></v-flex>
+										<v-flex xs12 sm6 md4 lg3 solo><v-text-field v-model="scheduleSaveFileName" label="File Name"></v-text-field></v-flex>
+									</v-layout>
+								</v-container>
+							</v-form>
+							
+							<v-btn @click="saveSchedule()">Save Schedule File</v-btn>
+						</v-card>
 					</v-flex>
 					
 					<v-flex xs12 ma-4 v-if="topLevelPage == 'settings'">
@@ -845,7 +846,8 @@
 				scheduleObjectDefault: {},
 				scheduleSaveUser: '',
 				scheduleSaveProject: '',
-				scheduleSaveFileName: ''
+				scheduleSaveFileName: '',
+				saveScheduleSuccessCode: {}
 			},
 			methods: {
 				
@@ -957,6 +959,16 @@
 						this.$data.scheduleObjectDefault = JSON.parse(JSON.stringify(response));
 						this.$data.scheduleObjects = [JSON.parse(JSON.stringify(response))];
 					}).fail(() => {console.log("Error getting parameters description")});
+				},
+				
+				saveSchedule() {
+					var url = '/saveSchedule/' + this.scheduleSaveUser + '/' + this.scheduleSaveProject + '/' + this.scheduleSaveFileName;
+					url += this.cacheBust;
+					url += '&jobs=' + encodeURI(JSON.stringify(this.scheduleObjectDefault));
+					
+					$.getJSON(url, response => {
+						this.saveScheduleSuccessCode = response;
+					}).fail(() => {console.log("Error saving schedule file")});
 				},
 				
 				goToUser: function(userName) {
