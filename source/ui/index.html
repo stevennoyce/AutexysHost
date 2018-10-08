@@ -967,7 +967,7 @@
 					url += this.cacheBust;
 					// url += '&jobs=' + encodeURI(JSON.stringify(this.scheduleObjectDefault));
 					
-					$.post(url, JSON.stringify(this.scheduleObjects), response => {
+					$.post(url, JSON.stringify(this.scheduleLines), response => {
 						this.saveScheduleSuccessCode = response;
 					}).fail(() => {console.log("Error saving schedule file")});
 					
