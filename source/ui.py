@@ -232,7 +232,7 @@ def saveSchedule(user, project, fileName):
 	
 	dlu.emptyFile(os.path.join(default_data_path, user, project, 'schedules/'), fileName)
 	for job in receivedJobs:
-		dlu.saveJSON(os.path.join(default_data_path, user, project, 'schedules/'), fileName, job, incrementIndex=False)
+		dlu.saveJSON(os.path.join(default_data_path, user, project, 'schedules/'), fileName, defaults.extractDefaults(job), incrementIndex=False)
 	
 	return jsonvalid({'success':True})
 
