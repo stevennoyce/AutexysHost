@@ -593,15 +593,18 @@
 									</v-flex>
 									
 									<v-flex xs12 sm6 md4 lg3 xl2 d-flex>
-										<v-card ma-1 tile>
+										<v-card ma-1 tile style="display: flex; flex-direction: column;">
 											<v-toolbar dark class="blue-grey lighten-1">
 												<v-toolbar-title>
 													Schedule File
 												</v-toolbar-title>
 											</v-toolbar>
-											<p>
+											<v-card-text class="grow">
 												{{ scheduleLine }}
-											</p>
+											</v-card-text>
+											<v-card-actions>
+												<v-btn>Save</v-btn>
+											</v-card-actions>
 										</v-card>
 									</v-flex>
 									
@@ -818,6 +821,7 @@
 					this.getChips();
 					this.getDevices();
 					this.getExperiments();
+					this.getDefaultParameters();
 					
 					this.pageLoading = false;
 					this.newCacheBust();
@@ -946,6 +950,16 @@
 					this.getExperiment();
 					this.stepperPage++;
 				},
+				getDefaultParameters() {
+					$.getJSON("/defaultParameters.json" + this.$data.cacheBust, response => {
+						this.$data.defaultParameters = response;
+						this.$data.parameters = JSON.parse(JSON.stringify(response));
+					}).fail(() => {console.log("Error getting default parameters")});
+					
+					$.getJSON("/parametersDescription.json" + this.$data.cacheBust, response => {
+						this.$data.parametersDescription = response
+					}).fail(() => {console.log("Error getting parameters description")});
+				},
 				
 				customVDataTableFilter: function(items, search, filter, headers) {
 					search = search.toString().toLowerCase();
@@ -1049,12 +1063,6 @@
 		}
 		
 		app.getAll();
-		
-		$.getJSON("/defaultParameters.json" + app.$data.cacheBust, response => {
-			app.$data.defaultParameters = response;
-			app.$data.parameters = JSON.parse(JSON.stringify(response));
-		}).fail(() => {console.log("Error getting default parameters")});
-		$.getJSON("/parametersDescription.json" + app.$data.cacheBust, response => {app.$data.parametersDescription = response}).fail(() => {console.log("Error getting parameters description")});
 		
 	</script>
 </body>
