@@ -236,6 +236,16 @@ def saveSchedule(user, project, fileName):
 	
 	return jsonvalid({'success':True})
 
+def loadSchedule(user, project, fileName):
+	scheduleData = dlu.loadJSON(os.path.join(default_data_path, user, project, 'schedules/'), fileName)
+	
+	expandedScheduleData = []
+	for job in scheduleData:
+		expandedScheduleData.append(defaults.full_with_added(job))
+		
+	return expandedScheduleData
+		
+
 # @app.after_request
 # def add_header(response):
 # 	# response.cache_control.max_age = 300

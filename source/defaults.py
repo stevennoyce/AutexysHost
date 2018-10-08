@@ -137,14 +137,7 @@ default_parameters = {
 import copy
 
 def get():
-	return extractDefaults(default_parameters)
-
-def extractDefaults(d):
-	if not isinstance(d, dict):
-		return d
-	if 'default' in d:
-		return d['default']
-	return {k:extractDefaults(v) for (k,v) in d.items() if not isinstance(v, dict) or 'ignore' not in v}
+	return extractDefaults(copy.deepcopy(default_parameters))
 
 def with_added(additional_parameters):
 	default = get()
@@ -158,6 +151,30 @@ def merge(a, b):
 		else:
 			a[key] = b[key]
 	return a
+
+def extractDefaults(d):
+	if not isinstance(d, dict):
+		return d
+	if 'default' in d:
+		return d['default']
+	return {k:extractDefaults(v) for (k,v) in d.items() if not isinstance(v, dict) or 'ignore' not in v}
+
+def mergeDefaults(a, b):
+	for key in b:
+		if( (key in a) and (isinstance(a[key], dict)) and (isinstance(b[key], dict)) ):
+			mergeDefaults(a[key], b[key])
+		elif( (key in a) and (isinstance(a[key], dict)) and not (isinstance(b[key], dict)) ): 
+			if('default' in a):
+				a['default'] = b
+		else:
+			a[key] = b[key]
+	return a
+
+def full_with_added(additional_parameters):
+	full_defaults = copy.deepcopy(default_parameters)
+	combined = mergeDefaults(full_defaults, additional_parameters)
+	return combined
+	
 
 
 if __name__ == '__main__':
