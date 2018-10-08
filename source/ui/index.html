@@ -498,7 +498,7 @@
 							
 							
 							<v-expansion-panel>
-								<v-expansion-panel-content v-for="scheduleObjectIndex in scheduleObjects.length">
+								<v-expansion-panel-content v-for="scheduleObject, scheduleObjectIndex in scheduleObjects">
 									<div slot="header">Job #{{ scheduleObjectIndex }}</div>
 									<v-container fluid grid-list-md>
 										<v-layout row wrap>
@@ -625,7 +625,7 @@
 										Schedule File Save Location
 									</v-toolbar-title>
 								</v-toolbar>
-								<v-menu attach bottom left offset-y>
+								<!-- <v-menu attach bottom left offset-y>
 									<v-btn slot="activator" flat>{{ scheduleSaveUser }}<v-icon right>people</v-icon></v-btn>
 									<v-list light>
 										<v-list-tile v-for="u in users" @click="scheduleSaveUser = u">
@@ -633,7 +633,7 @@
 											<v-list-tile-content><v-list-tile-title>{{ u }}</v-list-tile-title></v-list-tile-content>
 										</v-list-tile>
 									</v-list>
-								</v-menu>
+								</v-menu> -->
 								
 								<v-text-field v-model="scheduleSaveUser" label="User"></v-text-field>
 								<v-text-field v-model="scheduleSaveProject" label="Project"></v-text-field>
