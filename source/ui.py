@@ -227,10 +227,13 @@ def saveSchedule(user, project, fileName):
 	# receivedJobs = json.loads(flask.request.args.get('jobs'))
 	receivedJobs = flask.request.get_json(force=True)
 	
+	# with open(os.path.join(default_data_path, user, project, 'schedules/', fileName + '.json'), 'w') as f:
+	# 	f.write(json.dumps(receivedJobs))
+	
 	dlu.emptyFile(os.path.join(default_data_path, user, project, 'schedules/'), fileName)
-	for job in scheduleObjects:
+	for job in receivedJobs:
 		dlu.saveJSON(os.path.join(default_data_path, user, project, 'schedules/'), fileName, job, incrementIndex=False)
-		
+	
 	return jsonvalid({'success':True})
 
 # @app.after_request
