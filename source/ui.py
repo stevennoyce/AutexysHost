@@ -222,9 +222,10 @@ def parametersDescription():
 def defaultParameters():
 	return jsonvalid(defaults.get())
 
-def saveSchedule(user, project, fileName, scheduleParameters):
+@app.route('/<user>/<project>/<fileName>/<scheduleObjects>')
+def saveSchedule(user, project, fileName, scheduleObjects):
 	dlu.emptyFile(os.path.join(default_data_path, user, project, 'schedules/'), fileName)
-	for job in scheduleParameters:
+	for job in scheduleObjects:
 		dlu.saveJSON(os.path.join(default_data_path, user, project, 'schedules/'), fileName, job, incrementIndex=False)
 
 # @app.after_request

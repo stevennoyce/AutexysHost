@@ -495,122 +495,152 @@
 									<v-icon>settings_backup_restore</v-icon>
 								</v-btn>
 							</v-toolbar>
-							<v-container fluid grid-list-md>
-								<v-layout row wrap>
-									
-									<v-flex xs12 sm6 md4 lg3 xl2 d-flex>
-										<v-card ma-1 tile>
-											<v-toolbar dark class="blue-grey lighten-1">
-												<v-toolbar-title>
-													Parameters
-												</v-toolbar-title>
-											</v-toolbar>
+							
+							
+							<v-expansion-panel>
+								<v-expansion-panel-content v-for="scheduleObjectIndex in scheduleObjects.length">
+									<div slot="header">Job #{{ scheduleObjectIndex }}</div>
+									<v-container fluid grid-list-md>
+										<v-layout row wrap>
 											
-											<v-list>
-												<v-select box class="ma-3" label="Run Type" v-model="parameters['runType']" :items="Object.keys(parametersDescription['runConfigs'])"></v-select>
-												<v-subheader>Identifiers</v-subheader>
-												<v-list-tile v-for="(settingDescription, settingName) in parametersDescription['Identifiers']" v-if="['bool','float','int','string','choice'].includes(settingDescription.type)">
-													<v-switch v-if="settingDescription.type == 'bool'" :label="settingName" v-model="parameters['Identifiers'][settingName]"></v-switch>
-													<v-text-field v-if="settingDescription.type == 'float'" :label="settingName" v-model.number="parameters['Identifiers'][settingName]"></v-text-field>
-													<v-text-field v-if="settingDescription.type == 'int'" :label="settingName" v-model.number="parameters['Identifiers'][settingName]"></v-text-field>
-													<v-text-field v-if="settingDescription.type == 'string'" :label="settingName" v-model="parameters['Identifiers'][settingName]"></v-text-field>
-													<v-select v-if="settingDescription.type == 'choice'" :label="settingName"  v-model="parameters['Identifiers'][settingName]" :items="settingDescription.choices"></v-select>
-												</v-list-tile>
-												
-												<v-subheader>Measurement System</v-subheader>
-												<v-list-tile v-for="(settingDescription, settingName) in parametersDescription['MeasurementSystem']" v-if="['bool','float','int','string','choice'].includes(settingDescription.type)">
-													<v-switch v-if="settingDescription.type == 'bool'" :label="settingName"
-														v-model="defaultParameters['MeasurementSystem'][settingName]"></v-switch>
-													<v-text-field v-if="settingDescription.type == 'float'" :label="settingName"
-														v-model="defaultParameters['MeasurementSystem'][settingName]"></v-text-field>
-													<v-text-field v-if="settingDescription.type == 'int'" :label="settingName"
-														v-model="defaultParameters['MeasurementSystem'][settingName]"></v-text-field>
-													<v-text-field v-if="settingDescription.type == 'string'" :label="settingName"
-														v-model="defaultParameters['MeasurementSystem'][settingName]"></v-text-field>
-													<v-select v-if="settingDescription.type == 'choice'" :label="settingName" :items="settingDescription.choices"
-														v-model="defaultParameters['MeasurementSystem'][settingName]"></v-select>
-												</v-list-tile>
-											</v-list>
-										</v-card>
-									</v-flex>
-									
-									<v-flex xs12 sm6 md4 lg3 xl2 d-flex v-if="runType">
-										<v-card ma-1 tile>
-											<v-toolbar dark class="blue-grey lighten-1">
-												<v-toolbar-title>
-													{{ runType }}
-												</v-toolbar-title>
-												<v-spacer></v-spacer>
-												<v-btn icon @click="parameters['runConfigs'][runType] = JSON.parse(JSON.stringify(defaultParameters['runConfigs'][runType]))">
-													<v-icon>settings_backup_restore</v-icon>
-												</v-btn>
-											</v-toolbar>
-											<v-list>
-												<v-list-tile v-for="(settingDescription, settingName) in parametersDescription['runConfigs'][runType]" v-if="['bool','float','int','string','choice'].includes(settingDescription.type)">
-													<v-switch v-if="settingDescription.type == 'bool'" :label="settingName"
-														v-model="parameters['runConfigs'][runType][settingName]"></v-switch>
-													<v-text-field v-if="settingDescription.type == 'float'" :label="settingName" :suffix="' ('+_.get(settingDescription,['units'])+')'"
-														v-model.number="parameters['runConfigs'][runType][settingName]"></v-text-field>
-													<v-text-field v-if="settingDescription.type == 'int'" :label="settingName + ' ('+_.get(settingDescription,['units'])+')'"
-														v-model.number="parameters['runConfigs'][runType][settingName]" clearable>
-															<v-icon slot="append" @click="parameters['runConfigs'][runType][settingName] = JSON.parse(JSON.stringify(defaultParameters['runConfigs'][runType][settingName]))" v-if="JSON.parse(JSON.stringify(parameters['runConfigs'][runType][settingName])) != JSON.parse(JSON.stringify(defaultParameters['runConfigs'][runType][settingName]))">settings_backup_restore</v-icon>
-														</v-text-field>
-													<v-text-field v-if="settingDescription.type == 'string'" :label="settingName"
-														v-model="parameters['runConfigs'][runType][settingName]"></v-text-field>
-													<v-select v-if="settingDescription.type == 'choice'" :label="settingName" :items="settingDescription.choices"
-														v-model="parameters['runConfigs'][runType][settingName]"></v-select>
-												</v-list-tile>
-											</v-list>
-										</v-card>
-									</v-flex>
-									
-									<v-flex xs12 sm6 md4 lg3 xl2 d-flex v-for="dependency in _.get(parametersDescription, ['runConfigs', runType, 'dependencies', 'value'])">
-										<v-card ma-1 tile>
-											<v-toolbar dark class="blue-grey lighten-1">
-												<v-toolbar-title>
-													{{ dependency }}
-												</v-toolbar-title>
-												<v-spacer></v-spacer>
-												<v-btn icon @click="parameters['runConfigs'][dependency] = JSON.parse(JSON.stringify(defaultParameters['runConfigs'][dependency]))">
-													<v-icon>settings_backup_restore</v-icon>
-												</v-btn>
-											</v-toolbar>
-											<v-list>
-												<v-list-tile v-for="(settingDescription, settingName) in parametersDescription['runConfigs'][dependency]" v-if="['bool','float','int','string','choice'].includes(settingDescription.type)">
-													<v-switch v-if="settingDescription.type == 'bool'" :label="settingName"
-														v-model="parameters['runConfigs'][dependency][settingName]"></v-switch>
-													<v-text-field v-if="settingDescription.type == 'float'" :label="settingName" :suffix="' ('+_.get(settingDescription,['units'])+')'"
-														v-model.number="parameters['runConfigs'][dependency][settingName]"></v-text-field>
-													<v-text-field v-if="settingDescription.type == 'int'" :label="settingName" :suffix="' ('+_.get(settingDescription,['units'])+')'"
-														v-model.number="parameters['runConfigs'][dependency][settingName]"></v-text-field>
-													<v-text-field v-if="settingDescription.type == 'string'" :label="settingName"
-														v-model="parameters['runConfigs'][dependency][settingName]"></v-text-field>
-													<v-select v-if="settingDescription.type == 'choice'" :label="settingName" :items="settingDescription.choices"
-														v-model="parameters['runConfigs'][dependency][settingName]"></v-select>
-												</v-list-tile>
-											</v-list>
-										</v-card>
-									</v-flex>
-									
-									<v-flex xs12 sm6 md4 lg3 xl2 d-flex>
-										<v-card ma-1 tile style="display: flex; flex-direction: column;">
-											<v-toolbar dark class="blue-grey lighten-1">
-												<v-toolbar-title>
-													Schedule File
-												</v-toolbar-title>
-											</v-toolbar>
-											<v-card-text class="grow">
-												{{ scheduleLine }}
-											</v-card-text>
-											<v-card-actions>
-												<v-btn>Save</v-btn>
-											</v-card-actions>
-										</v-card>
-									</v-flex>
-									
-								</v-layout>
-							</v-container>
+											<v-flex xs12 sm6 md4 lg3 xl2 d-flex>
+												<v-card ma-1 tile>
+													<v-toolbar dark class="blue-grey lighten-1">
+														<v-toolbar-title>
+															Parameters
+														</v-toolbar-title>
+													</v-toolbar>
+													
+													<v-list>
+														<v-select box class="ma-3" label="Run Type" v-model="parameters['runType']" :items="Object.keys(parametersDescription['runConfigs'])"></v-select>
+														<v-subheader>Identifiers</v-subheader>
+														<v-list-tile v-for="(settingDescription, settingName) in parametersDescription['Identifiers']" v-if="['bool','float','int','string','choice'].includes(settingDescription.type)">
+															<v-switch v-if="settingDescription.type == 'bool'" :label="settingName" v-model="parameters['Identifiers'][settingName]"></v-switch>
+															<v-text-field v-if="settingDescription.type == 'float'" :label="settingName" v-model.number="parameters['Identifiers'][settingName]"></v-text-field>
+															<v-text-field v-if="settingDescription.type == 'int'" :label="settingName" v-model.number="parameters['Identifiers'][settingName]"></v-text-field>
+															<v-text-field v-if="settingDescription.type == 'string'" :label="settingName" v-model="parameters['Identifiers'][settingName]"></v-text-field>
+															<v-select v-if="settingDescription.type == 'choice'" :label="settingName"  v-model="parameters['Identifiers'][settingName]" :items="settingDescription.choices"></v-select>
+														</v-list-tile>
+														
+														<v-subheader>Measurement System</v-subheader>
+														<v-list-tile v-for="(settingDescription, settingName) in parametersDescription['MeasurementSystem']" v-if="['bool','float','int','string','choice'].includes(settingDescription.type)">
+															<v-switch v-if="settingDescription.type == 'bool'" :label="settingName"
+																v-model="parameters['MeasurementSystem'][settingName]"></v-switch>
+															<v-text-field v-if="settingDescription.type == 'float'" :label="settingName"
+																v-model="parameters['MeasurementSystem'][settingName]"></v-text-field>
+															<v-text-field v-if="settingDescription.type == 'int'" :label="settingName"
+																v-model="parameters['MeasurementSystem'][settingName]"></v-text-field>
+															<v-text-field v-if="settingDescription.type == 'string'" :label="settingName"
+																v-model="parameters['MeasurementSystem'][settingName]"></v-text-field>
+															<v-select v-if="settingDescription.type == 'choice'" :label="settingName" :items="settingDescription.choices"
+																v-model="parameters['MeasurementSystem'][settingName]"></v-select>
+														</v-list-tile>
+													</v-list>
+												</v-card>
+											</v-flex>
+											
+											<v-flex xs12 sm6 md4 lg3 xl2 d-flex v-if="runType">
+												<v-card ma-1 tile>
+													<v-toolbar dark class="blue-grey lighten-1">
+														<v-toolbar-title>
+															{{ runType }}
+														</v-toolbar-title>
+														<v-spacer></v-spacer>
+														<v-btn icon @click="parameters['runConfigs'][runType] = JSON.parse(JSON.stringify(defaultParameters['runConfigs'][runType]))">
+															<v-icon>settings_backup_restore</v-icon>
+														</v-btn>
+													</v-toolbar>
+													<v-list>
+														<v-list-tile v-for="(settingDescription, settingName) in parametersDescription['runConfigs'][runType]" v-if="['bool','float','int','string','choice'].includes(settingDescription.type)">
+															<v-switch v-if="settingDescription.type == 'bool'" :label="settingName"
+																v-model="parameters['runConfigs'][runType][settingName]"></v-switch>
+															<v-text-field v-if="settingDescription.type == 'float'" :label="settingName" :suffix="' ('+_.get(settingDescription,['units'])+')'"
+																v-model.number="parameters['runConfigs'][runType][settingName]"></v-text-field>
+															<v-text-field v-if="settingDescription.type == 'int'" :label="settingName + ' ('+_.get(settingDescription,['units'])+')'"
+																v-model.number="parameters['runConfigs'][runType][settingName]" clearable>
+																	<v-icon slot="append" @click="parameters['runConfigs'][runType][settingName] = JSON.parse(JSON.stringify(defaultParameters['runConfigs'][runType][settingName]))" v-if="JSON.parse(JSON.stringify(parameters['runConfigs'][runType][settingName])) != JSON.parse(JSON.stringify(defaultParameters['runConfigs'][runType][settingName]))">settings_backup_restore</v-icon>
+																</v-text-field>
+															<v-text-field v-if="settingDescription.type == 'string'" :label="settingName"
+																v-model="parameters['runConfigs'][runType][settingName]"></v-text-field>
+															<v-select v-if="settingDescription.type == 'choice'" :label="settingName" :items="settingDescription.choices"
+																v-model="parameters['runConfigs'][runType][settingName]"></v-select>
+														</v-list-tile>
+													</v-list>
+												</v-card>
+											</v-flex>
+											
+											<v-flex xs12 sm6 md4 lg3 xl2 d-flex v-for="dependency in _.get(parametersDescription, ['runConfigs', runType, 'dependencies', 'value'])">
+												<v-card ma-1 tile>
+													<v-toolbar dark class="blue-grey lighten-1">
+														<v-toolbar-title>
+															{{ dependency }}
+														</v-toolbar-title>
+														<v-spacer></v-spacer>
+														<v-btn icon @click="parameters['runConfigs'][dependency] = JSON.parse(JSON.stringify(defaultParameters['runConfigs'][dependency]))">
+															<v-icon>settings_backup_restore</v-icon>
+														</v-btn>
+													</v-toolbar>
+													<v-list>
+														<v-list-tile v-for="(settingDescription, settingName) in parametersDescription['runConfigs'][dependency]" v-if="['bool','float','int','string','choice'].includes(settingDescription.type)">
+															<v-switch v-if="settingDescription.type == 'bool'" :label="settingName"
+																v-model="parameters['runConfigs'][dependency][settingName]"></v-switch>
+															<v-text-field v-if="settingDescription.type == 'float'" :label="settingName" :suffix="' ('+_.get(settingDescription,['units'])+')'"
+																v-model.number="parameters['runConfigs'][dependency][settingName]"></v-text-field>
+															<v-text-field v-if="settingDescription.type == 'int'" :label="settingName" :suffix="' ('+_.get(settingDescription,['units'])+')'"
+																v-model.number="parameters['runConfigs'][dependency][settingName]"></v-text-field>
+															<v-text-field v-if="settingDescription.type == 'string'" :label="settingName"
+																v-model="parameters['runConfigs'][dependency][settingName]"></v-text-field>
+															<v-select v-if="settingDescription.type == 'choice'" :label="settingName" :items="settingDescription.choices"
+																v-model="parameters['runConfigs'][dependency][settingName]"></v-select>
+														</v-list-tile>
+													</v-list>
+												</v-card>
+											</v-flex>
+											
+											<v-flex xs12>
+												<v-card ma-1 tile style="display: flex; flex-direction: column;">
+													<v-toolbar dark class="blue-grey lighten-1">
+														<v-toolbar-title>
+															Schedule File
+														</v-toolbar-title>
+													</v-toolbar>
+													<v-card-text class="grow">
+														{{ scheduleLines }}
+													</v-card-text>
+													<v-card-actions>
+														<v-btn>Save</v-btn>
+													</v-card-actions>
+												</v-card>
+											</v-flex>
+											
+										</v-layout>
+									</v-container>
+								</v-expansion-panel-content>
+							</v-expansion-panel>
 						</v-card>
+						
+						<v-card>
+								<v-toolbar dark class="blue-grey darken-1">
+									<v-toolbar-title>
+										Schedule File Save Location
+									</v-toolbar-title>
+								</v-toolbar>
+								<v-menu attach bottom left offset-y>
+									<v-btn slot="activator" flat>{{ scheduleSaveUser }}<v-icon right>people</v-icon></v-btn>
+									<v-list light>
+										<v-list-tile v-for="u in users" @click="scheduleSaveUser = u">
+											<v-list-tile-avatar color="blue-grey lighten-2"><v-icon dark>account_circle</v-icon></v-list-tile-avatar>
+											<v-list-tile-content><v-list-tile-title>{{ u }}</v-list-tile-title></v-list-tile-content>
+										</v-list-tile>
+									</v-list>
+								</v-menu>
+								
+								<v-text-field v-model="scheduleSaveUser" label="User"></v-text-field>
+								<v-text-field v-model="scheduleSaveProject" label="Project"></v-text-field>
+								<v-text-field v-model="scheduleSaveFileName" label="File Name"></v-text-field>
+								
+								<v-btn>Save Schedule File</v-btn>
+							</v-card>
 					</v-flex>
 					
 					<v-flex xs12 ma-4 v-if="topLevelPage == 'settings'">
@@ -810,7 +840,12 @@
 				possibleRunTypes: ['GateSweep', 'AutoGateSweep', 'StaticBias', 'AutoStaticBias'],
 				defaultParameters: {},
 				parameters: {},
-				parametersDescription: {}
+				parametersDescription: {},
+				scheduleObjects: localStorage.scheduleObjects || {},
+				scheduleObjectDefault: {},
+				scheduleSaveUser: '',
+				scheduleSaveProject: '',
+				scheduleSaveFileName: ''
 			},
 			methods: {
 				
@@ -911,6 +946,18 @@
 						.fail(() => {console.log("Error getting indexes")});
 					}
 				},
+				getDefaultParameters() {
+					$.getJSON("/defaultParameters.json" + this.$data.cacheBust, response => {
+						this.$data.defaultParameters = response;
+						this.$data.parameters = JSON.parse(JSON.stringify(response));
+					}).fail(() => {console.log("Error getting default parameters")});
+					
+					$.getJSON("/parametersDescription.json" + this.$data.cacheBust, response => {
+						this.$data.parametersDescription = response;
+						this.$data.scheduleObjectDefault = JSON.parse(JSON.stringify(response));
+						this.$data.scheduleObjects = [JSON.parse(JSON.stringify(response))];
+					}).fail(() => {console.log("Error getting parameters description")});
+				},
 				
 				goToUser: function(userName) {
 					this.user = userName;
@@ -950,16 +997,6 @@
 					this.getExperiment();
 					this.stepperPage++;
 				},
-				getDefaultParameters() {
-					$.getJSON("/defaultParameters.json" + this.$data.cacheBust, response => {
-						this.$data.defaultParameters = response;
-						this.$data.parameters = JSON.parse(JSON.stringify(response));
-					}).fail(() => {console.log("Error getting default parameters")});
-					
-					$.getJSON("/parametersDescription.json" + this.$data.cacheBust, response => {
-						this.$data.parametersDescription = response
-					}).fail(() => {console.log("Error getting parameters description")});
-				},
 				
 				customVDataTableFilter: function(items, search, filter, headers) {
 					search = search.toString().toLowerCase();
@@ -998,7 +1035,8 @@
 				}
 			},
 			watch: {
-				stepperPage: function(val) { localStorage.stepperPage = val; }
+				stepperPage: function(val) { localStorage.stepperPage = val; },
+				scheduleObjects: function(val) { localStorage.scheduleObjects = val; }
 			},
 			computed: {
 				experiment: function() {
@@ -1031,6 +1069,9 @@
 				},
 				scheduleLine: function() {
 					return objectDeepDiff(this.parameters, this.defaultParameters);
+				},
+				scheduleLines: function() {
+					return this.scheduleObjects.map(obj => objectDeepDiff(obj, this.scheduleObjectDefault));
 				},
 				runType: function() {
 					return this.parameters['runType'];
