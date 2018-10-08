@@ -1052,7 +1052,7 @@
 				},
 				
 				addScheduleJob: function() {
-					this.scheduleObjects.push(this.scheduleObjects.slice(-1)[0])
+					this.scheduleObjects.push(JSON.parse(JSON.stringify(this.scheduleObjects.slice(-1)[0])));
 				}
 			},
 			watch: {
