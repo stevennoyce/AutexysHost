@@ -612,6 +612,15 @@
 							<v-card-text class="grow">
 								{{ scheduleLines }}
 							</v-card-text>
+							
+							<v-card v-for="scheduleObject, scheduleObjectIndex in scheduleObjects">
+								<v-chip color="secondary" text-color="white" v-if="scheduleObject['runType']['default'] != ''">
+									{{ scheduleObject['runType']['default'] }}
+								</v-chip>
+								<v-chip color="primary" text-color="white" v-for="(settingDescription, settingName) in scheduleObjectDefault['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']]" v-if="scheduleObjects[scheduleObjectIndex]['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]['default'] != scheduleObjectDefault['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]['default']">
+									{{ settingName }}
+								</v-chip>
+							</v-card>
 						</v-card>
 						
 						
