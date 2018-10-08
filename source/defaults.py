@@ -122,7 +122,7 @@ default_parameters_combined = {
 	'runType': {'type': 'keyChoice', 'ChoiceFrom': 'runConfigs', 'default':''},
 	'runConfigs': {
 		'GateSweep':{
-			'dependencies':[],
+			'dependencies':{'ignore':True, 'value':[]},
 			'saveFileName': {'type':'constant', 'default': 'GateSweep'},
 			'isFastSweep': {'type':'bool', 'default': False},
 			'isAlternatingSweep': {'type':'bool', 'default': False},
@@ -136,6 +136,7 @@ default_parameters_combined = {
 			'gateVoltageMaximum': 	{'type':'float', 'units':'V', 'default': 15}
 		},
 		'DrainSweep':{
+			'dependencies': {'ignore':True, 'value':[]},
 			'saveFileName': 'DrainSweep',
 			'isFastSweep': {'type':'bool', 'default':False},
 			'stepsInVDSPerDirection': {'type':'int', 'units':'#', 'default':100},
@@ -146,7 +147,7 @@ default_parameters_combined = {
 			'drainVoltageMaximum': 	{'type':'float', 'units':'V', 'default':0.5}
 		},
 		'BurnOut':{
-			'dependencies':[],
+			'dependencies':{'ignore':True, 'value':[]},
 			'saveFileName': {'type:': 'constant', 'default': 'BurnOut'},
 			'pointsPerRamp': {'type:': 'int', 'units':'#', 'default':50},
 			'pointsPerHold': {'type':'int', 'units':'#', 'default': 50},
@@ -158,7 +159,7 @@ default_parameters_combined = {
 			'drainVoltagePlateaus': {'type':'int', 'units':'#', 'default': 5}
 		},
 		'StaticBias':{
-			'dependencies':[],
+			'dependencies':{'ignore':True, 'value':[]},
 			'saveFileName': {'type':'constant', 'default':'StaticBias'},
 			'totalBiasTime': {'type':'float', 'units':'s', 'default': 60},
 			'measurementTime': {'type':'float', 'units':'s', 'default': 10},
@@ -172,25 +173,26 @@ default_parameters_combined = {
 			'delayWhenDone': {'default': 0}
 		},
 		'AutoBurnOut':{
-			'dependencies':['BurnOut'],
+			'dependencies':{'ignore':True, 'value':['BurnOut']},
 			'targetOnOffRatio': {'type':'float', 'units':'', 'default': 80},
 			'limitBurnOutsAllowed': {'type':'int', 'units':'#', 'default': 8},
 			'limitOnOffRatioDegradation': {'type':'float', 'units':'V', 'default': 0.7}
 		},
 		'AutoGateSweep':{
-			'dependencies':['GateSweep'],
+			'dependencies':{'ignore':True, 'value':['GateSweep']},
 			'sweepsPerVDS': {'type':'int', 'units':'#', 'default': 1},
 			'drainVoltageSetPoints': {'default': [-0.100, -0.010]},
 			'delayBetweenSweeps': {'type':'float', 'units':'s', 'default': 0},
 			'timedSweepStarts': {'type':'bool', 'default': False}
 		},
 		'AutoDrainSweep':{
+			'dependencies': {'ignore':True, 'value':[]},
 			'gateVoltageSetPoints':	{'type':'array', 'units':'V', 'default':[-10.0, -5.0, 0]},
 			'sweepsPerVGS': {'type':'int', 'units':'#', 'default': 1},
 			'delayBetweenSweeps': {'type':'float', 'units':'s', 'default': 0}
 		},
 		'AutoStaticBias':{
-			'dependencies':['StaticBias','GateSweep'],
+			'dependencies': {'ignore':True, 'value':['StaticBias','GateSweep']},
 			'numberOfStaticBiases': {'type':'int', 'units':'#', 'default': 1},
 			'doInitialGateSweep': {'type':'bool', 'default': True},
 			'applyGateSweepBetweenBiases': {'type':'bool', 'default': False},
@@ -204,6 +206,7 @@ default_parameters_combined = {
 			'shuffleDelaysBeforeReapplyingVoltage': {'type':'bool', 'default': False}
 		},
 		'AFMControl':{
+			'dependencies': {'ignore':True, 'value':[]},
 			'saveFileName': {'type':'constant', 'default':'AFMControl'},
 			'lines': {'type':'int', 'units':'#', 'default':3},
 			'scanRate': {'type':'int', 'units':'#', 'default':1},
@@ -215,20 +218,20 @@ default_parameters_combined = {
 			'deviceMeasurementSpeed': {'type':'float', 'units':'Hz', 'default': 60},  # what are the units for this?
 		},
 		'Delay':{
-			'dependencies':[],
+			'dependencies': {'ignore':True, 'value':[]},
 			'message':{'type':'string', 'default': ""},
 			'delayTime':{'type':'int', 'units':'s', 'default': 240}
 		}
 
 	},
 	'Results':{
-		'default':{}
+		
 	},
 	'Computed':{
-		'default':{}
+		
 	},
 	'SensorData':{
-		'default':{}
+		
 	},
 	'Identifiers':{
 		'user':{'type':'string', 'default':'unknown'},
@@ -354,7 +357,7 @@ def extractDefaults(d):
 		return d
 	if 'default' in d:
 		return d['default']
-	return {k:extractDefaults(v) for (k,v) in d.items()}
+	return {k:extractDefaults(v) for (k,v) in d.items() if 'ignore' not in v}
 
 def with_added(additional_parameters):
 	default = get()
