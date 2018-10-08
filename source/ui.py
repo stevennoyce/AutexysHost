@@ -222,6 +222,11 @@ def parametersDescription():
 def defaultParameters():
 	return jsonvalid(defaults.get())
 
+def saveSchedule(user, project, fileName, scheduleParameters):
+	dlu.emptyFile(os.path.join(default_data_path, user, project, 'schedules/'), fileName)
+	for job in scheduleParameters:
+		dlu.saveJSON(os.path.join(default_data_path, user, project, 'schedules/'), fileName, job, incrementIndex=False)
+
 # @app.after_request
 # def add_header(response):
 # 	# response.cache_control.max_age = 300

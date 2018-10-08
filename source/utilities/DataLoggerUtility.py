@@ -19,6 +19,15 @@ def emptyFolder(folderPath):
 		for fileName in fileNames:
 			os.remove(fileName)
 
+def emptyFile(folderPath, fileName):
+	makeFolder(folderPath)
+	
+	if '.json' not in fileName:
+		fileName += '.json'
+	
+	with open(os.path.join(folderPath, fileName), 'w') as file:
+		file.write('')
+	
 
 
 # === JSON ===
@@ -39,7 +48,7 @@ def saveJSON(directory, saveFileName, jsonData, subDirectory=None, incrementInde
 			jsonData['timestamp'] = time.time()
 			incrementJSONIndex(directory)
 		json.dump(jsonData, file)
-		file.write('\n')
+		file.write('\n')	
 
 def loadJSON(directory, loadFileName):
 	return loadJSON_slow(directory, loadFileName)
