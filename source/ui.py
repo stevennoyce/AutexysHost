@@ -216,7 +216,7 @@ def experiments(user, project, wafer, chip, device):
 @app.route('/parametersDescription.json')
 def parametersDescription():
 	# return flask.jsonify(defaults.default_parameters_description)
-	return jsonvalid(defaults.default_parameters_combined)
+	return jsonvalid(defaults.default_parameters)
 
 @app.route('/defaultParameters.json')
 def defaultParameters():
