@@ -119,12 +119,13 @@ default_parameters = {
 
 
 default_parameters_combined = {
+	'runType': {'type': 'keyChoice', 'ChoiceFrom': 'runConfigs', 'default':''},
 	'runConfigs': {
 		'GateSweep':{
 			'dependencies':[],
 			'saveFileName': {'type':'constant', 'default': 'GateSweep'},
-			'isFastSweep': {'type':'bool', 'default': 'False'},
-			'isAlternatingSweep': {'type':'bool', 'default': 'False'},
+			'isFastSweep': {'type':'bool', 'default': False},
+			'isAlternatingSweep': {'type':'bool', 'default': False},
 			'pulsedMeasurementOnTime': {'type':'float', 'units':'s', 'default': 0},
 			'pulsedMeasurementOffTime': {'type':'float', 'units':'s', 'default': 0},
 			'stepsInVGSPerDirection': {'type':'int', 'units':'#', 'default': 100},
@@ -180,12 +181,11 @@ default_parameters_combined = {
 			'dependencies':['GateSweep'],
 			'sweepsPerVDS': {'type':'int', 'units':'#', 'default': 1},
 			'drainVoltageSetPoints': {'default': [-0.100, -0.010]},
-			'applyStaticBiasBetweenSweeps': {'type':'bool'},
 			'delayBetweenSweeps': {'type':'float', 'units':'s', 'default': 0},
 			'timedSweepStarts': {'type':'bool', 'default': False}
 		},
 		'AutoDrainSweep':{
-			'gateVoltageSetPoint':	{'type':'float', 'units':'V', 'default':[-10.0, -5.0, 0]},
+			'gateVoltageSetPoints':	{'type':'array', 'units':'V', 'default':[-10.0, -5.0, 0]},
 			'sweepsPerVGS': {'type':'int', 'units':'#', 'default': 1},
 			'delayBetweenSweeps': {'type':'float', 'units':'s', 'default': 0}
 		},
@@ -194,8 +194,6 @@ default_parameters_combined = {
 			'numberOfStaticBiases': {'type':'int', 'units':'#', 'default': 1},
 			'doInitialGateSweep': {'type':'bool', 'default': True},
 			'applyGateSweepBetweenBiases': {'type':'bool', 'default': False},
-			'turnChannelsOffBetweenBiases': {'type':'bool'},
-			'channelsOffTime': {'type':'float', 'units':'V'},
 			'firstDelayBeforeMeasurementsBegin': {'type':'float', 'units':'s', 'default': 0},
 			'numberOfBiasesBetweenIncrements': {'type':'int', 'units':'#', 'default': 1},
 			'incrementStaticGateVoltage': {'type':'float', 'units':'V', 'default': 0},
@@ -241,11 +239,11 @@ default_parameters_combined = {
 		'step':{'type':'int'},
 	},
 	'MeasurementSystem':{
-		'system': {'type':'choice','choices':['B2912A','PCB2v14'], 'default':['single', 'standalone', 'double'][1]},
-		'NPLC': {'type':'float', 'units':'V'},
+		'systemType': {'type':'choice','choices':['B2912A','PCB2v14'], 'default':['single', 'standalone', 'double'][1]},
+		'systems': {},
 		'deviceRange': {'type':'array', 'default':[]}
 	},
-	'dataFolder': {'type':'string', 'default':'../../AutexysData'},
+	'dataFolder': {'type':'string', 'default':'../../AutexysData/'},
 	'ParametersFormatVersion': {'default': 4}	
 }
 
@@ -373,7 +371,11 @@ def merge(a, b):
 
 
 if __name__ == '__main__':
-	print(getDefaults())
+	import pprint
+	# pprint.pprint(getDefaults())
+	
+	import deepdiff
+	pprint.pprint(deepdiff.DeepDiff(default_parameters, getDefaults()))
 
 
 
