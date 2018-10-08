@@ -532,11 +532,11 @@
 									<div slot="header" class="d-flex">
 										<p>Job #{{ scheduleObjectIndex }}</p>
 										<v-spacer></v-spacer>
-										<v-btn icon style="flex-shrink: 1 !important; flex-grow: 0 !important;"><v-icon>arrow_upward</v-icon></v-btn>
-										<v-btn icon style="flex-shrink: 1 !important; flex-grow: 0 !important;"><v-icon>arrow_downward</v-icon></v-btn>
-										<v-btn icon style="flex-shrink: 1 !important; flex-grow: 0 !important;"><v-icon>file_copy</v-icon></v-btn>
-										<v-btn icon style="flex-shrink: 1 !important; flex-grow: 0 !important;"><v-icon>add_circle</v-icon></v-btn>
-										<v-btn icon style="flex-shrink: 1 !important; flex-grow: 0 !important;"><v-icon>cancel</v-icon></v-btn>
+										<v-btn icon style="flex-shrink: 1 !important; flex-grow: 0 !important;" @click=""><v-icon>arrow_upward</v-icon></v-btn>
+										<v-btn icon style="flex-shrink: 1 !important; flex-grow: 0 !important;" @click=""><v-icon>arrow_downward</v-icon></v-btn>
+										<v-btn icon style="flex-shrink: 1 !important; flex-grow: 0 !important;" @click=""><v-icon>file_copy</v-icon></v-btn>
+										<v-btn icon style="flex-shrink: 1 !important; flex-grow: 0 !important;" @click="addScheduleJob(scheduleObjectIndex)"><v-icon>add_circle</v-icon></v-btn>
+										<v-btn icon style="flex-shrink: 1 !important; flex-grow: 0 !important;" @click="removeScheduleJob(scheduleObjectIndex)"><v-icon>cancel</v-icon></v-btn>
 									</div>
 									<v-container fluid grid-list-md>
 										<v-layout row wrap>
@@ -1060,8 +1060,14 @@
 					this.copyHTMLStringToClip('<img src="' + path + '" width="200">');
 				},
 				
-				addScheduleJob: function() {
-					this.scheduleObjects.push(JSON.parse(JSON.stringify(this.scheduleObjects.slice(-1)[0])));
+				addScheduleJob: function(index) {
+					this.scheduleObjects.splice(index, 0, JSON.parse(JSON.stringify(this.scheduleObjects[index])));
+					// this.scheduleObjects.push(JSON.parse(JSON.stringify(this.scheduleObjects.slice(-1)[0])));
+				},
+				
+				removeScheduleJob: function(index) {
+					// this.scheduleObjects.splice(index, 0, JSON.parse(JSON.stringify(this.scheduleObjects[index])));
+					// this.scheduleObjects.push(JSON.parse(JSON.stringify(this.scheduleObjects.slice(-1)[0])));
 				}
 			},
 			watch: {
