@@ -490,6 +490,36 @@
 								<v-toolbar-title>
 									Schedule Creator
 								</v-toolbar-title>
+							</v-toolbar>
+							<!-- <v-menu attach bottom left offset-y>
+								<v-btn slot="activator" flat>{{ scheduleSaveUser }}<v-icon right>people</v-icon></v-btn>
+								<v-list light>
+									<v-list-tile v-for="u in users" @click="scheduleSaveUser = u">
+										<v-list-tile-avatar color="blue-grey lighten-2"><v-icon dark>account_circle</v-icon></v-list-tile-avatar>
+										<v-list-tile-content><v-list-tile-title>{{ u }}</v-list-tile-title></v-list-tile-content>
+									</v-list-tile>
+								</v-list>
+							</v-menu> -->
+							
+							<v-form>
+								<v-container>
+									<v-layout row wrap>
+										<v-flex xs12 sm6 md4 lg3 outline><v-text-field v-model="scheduleSaveUser" label="User"></v-text-field></v-flex>
+										<v-flex xs12 sm6 md4 lg3 solo><v-text-field v-model="scheduleSaveProject" label="Project"></v-text-field></v-flex>
+										<v-flex xs12 sm6 md4 lg3 solo><v-text-field v-model="scheduleSaveFileName" label="File Name"></v-text-field></v-flex>
+									</v-layout>
+								</v-container>
+							</v-form>
+							
+							<v-btn @click="saveSchedule()">Save Schedule File</v-btn>
+						</v-card>
+						
+						
+						<v-card>
+							<v-toolbar dark class="blue-grey darken-1">
+								<v-toolbar-title>
+									Job Definitions
+								</v-toolbar-title>
 								<v-spacer></v-spacer>
 								<v-btn icon @click="scheduleObjects = [JSON.parse(JSON.stringify(scheduleObjectDefault))]">
 									<v-icon>settings_backup_restore</v-icon>
@@ -497,9 +527,17 @@
 							</v-toolbar>
 							
 							
-							<v-expansion-panel>
+							<v-expansion-panel expand>
 								<v-expansion-panel-content v-for="scheduleObject, scheduleObjectIndex in scheduleObjects">
-									<div slot="header">Job #{{ scheduleObjectIndex }}</div>
+									<div slot="header" class="d-flex">
+										<p>Job #{{ scheduleObjectIndex }}</p>
+										<v-spacer></v-spacer>
+										<v-btn icon style="flex-shrink: 1 !important; flex-grow: 0 !important;" @click=""><v-icon>arrow_upward</v-icon></v-btn>
+										<v-btn icon style="flex-shrink: 1 !important; flex-grow: 0 !important;" @click=""><v-icon>arrow_downward</v-icon></v-btn>
+										<v-btn icon style="flex-shrink: 1 !important; flex-grow: 0 !important;" @click=""><v-icon>file_copy</v-icon></v-btn>
+										<v-btn icon style="flex-shrink: 1 !important; flex-grow: 0 !important;" @click="addScheduleJob(scheduleObjectIndex)"><v-icon>add_circle</v-icon></v-btn>
+										<v-btn icon style="flex-shrink: 1 !important; flex-grow: 0 !important;" @click="removeScheduleJob(scheduleObjectIndex)"><v-icon>cancel</v-icon></v-btn>
+									</div>
 									<v-container fluid grid-list-md>
 										<v-layout row wrap>
 											
@@ -600,13 +638,13 @@
 									</v-container>
 								</v-expansion-panel-content>
 							</v-expansion-panel>
-							<v-btn fab small dark bottom right absolute @click="addScheduleJob()"><v-icon>add</v-icon></v-btn>
+							<!-- <v-btn fab small dark bottom right absolute @click="addScheduleJob()"><v-icon>add</v-icon></v-btn> -->
 						</v-card>
 						
 						<v-card ma-1 tile>
 							<v-toolbar dark class="blue-grey darken-1">
 								<v-toolbar-title>
-									Schedule File
+									Resulting Schedule File
 								</v-toolbar-title>
 							</v-toolbar>
 							<v-card-text class="grow">
@@ -623,35 +661,6 @@
 							</v-card>
 						</v-card>
 						
-						
-						<v-card>
-							<v-toolbar dark class="blue-grey darken-1">
-								<v-toolbar-title>
-									Schedule File Save Location
-								</v-toolbar-title>
-							</v-toolbar>
-							<!-- <v-menu attach bottom left offset-y>
-								<v-btn slot="activator" flat>{{ scheduleSaveUser }}<v-icon right>people</v-icon></v-btn>
-								<v-list light>
-									<v-list-tile v-for="u in users" @click="scheduleSaveUser = u">
-										<v-list-tile-avatar color="blue-grey lighten-2"><v-icon dark>account_circle</v-icon></v-list-tile-avatar>
-										<v-list-tile-content><v-list-tile-title>{{ u }}</v-list-tile-title></v-list-tile-content>
-									</v-list-tile>
-								</v-list>
-							</v-menu> -->
-							
-							<v-form>
-								<v-container>
-									<v-layout row wrap>
-										<v-flex xs12 sm6 md4 lg3 outline><v-text-field v-model="scheduleSaveUser" label="User"></v-text-field></v-flex>
-										<v-flex xs12 sm6 md4 lg3 solo><v-text-field v-model="scheduleSaveProject" label="Project"></v-text-field></v-flex>
-										<v-flex xs12 sm6 md4 lg3 solo><v-text-field v-model="scheduleSaveFileName" label="File Name"></v-text-field></v-flex>
-									</v-layout>
-								</v-container>
-							</v-form>
-							
-							<v-btn @click="saveSchedule()">Save Schedule File</v-btn>
-						</v-card>
 					</v-flex>
 					
 					<v-flex xs12 ma-4 v-if="topLevelPage == 'settings'">
@@ -1060,8 +1069,14 @@
 					this.copyHTMLStringToClip('<img src="' + path + '" width="200">');
 				},
 				
-				addScheduleJob: function() {
-					this.scheduleObjects.push(JSON.parse(JSON.stringify(this.scheduleObjects.slice(-1)[0])));
+				addScheduleJob: function(index) {
+					this.scheduleObjects.splice(index, 0, JSON.parse(JSON.stringify(this.scheduleObjects[index])));
+					// this.scheduleObjects.push(JSON.parse(JSON.stringify(this.scheduleObjects.slice(-1)[0])));
+				},
+				
+				removeScheduleJob: function(index) {
+					// this.scheduleObjects.splice(index, 0, JSON.parse(JSON.stringify(this.scheduleObjects[index])));
+					// this.scheduleObjects.push(JSON.parse(JSON.stringify(this.scheduleObjects.slice(-1)[0])));
 				}
 			},
 			watch: {
