@@ -347,9 +347,10 @@ default_parameters_description = {
 import copy
 
 def get():
-	return copy.deepcopy(default_parameters)
+	# return copy.deepcopy(default_parameters)
+	return extractDefaults(default_parameters_combined)
 
-def getDefaults():
+def getDefaultsFromCombined():
 	return extractDefaults(default_parameters_combined)
 
 def extractDefaults(d):
@@ -375,10 +376,8 @@ def merge(a, b):
 
 if __name__ == '__main__':
 	import pprint
-	# pprint.pprint(getDefaults())
-	
 	import deepdiff
-	pprint.pprint(deepdiff.DeepDiff(default_parameters, getDefaults()))
+	pprint.pprint(deepdiff.DeepDiff(default_parameters, getDefaultsFromCombined()))
 
 
 
