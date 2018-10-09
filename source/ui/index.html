@@ -532,7 +532,7 @@
 									<v-list-tile slot="activator">
 										<v-list-tile-content>
 											<v-list-tile-title>
-												Job {{ scheduleObjectIndex + 1 }}
+												Job {{ scheduleObjectIndex + 1 }}: {{ _.get(scheduleObjects[scheduleObjectIndex], 'runType.default') }}
 											</v-list-tile-title>
 										</v-list-tile-content>
 										<v-list-tile-action>
