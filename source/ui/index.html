@@ -529,26 +529,47 @@
 							
 							<v-list expand>
 								<v-list-group v-for="scheduleObject, scheduleObjectIndex in scheduleObjects">
-									<v-list-tile slot="activator" class="d-flex">
+									<v-list-tile slot="activator">
 										<v-list-tile-content>
 											<v-list-tile-title>
 												Job {{ scheduleObjectIndex + 1 }}
 											</v-list-tile-title>
 										</v-list-tile-content>
 										<v-list-tile-action>
-											<v-btn icon style="flex-shrink: 1 !important; flex-grow: 0 !important;" @click.stop=""><v-icon>arrow_upward</v-icon></v-btn>
+											<v-tooltip top>
+												<v-btn icon @click.stop="moveScheduleJobUp(scheduleObjectIndex)" slot="activator"><v-icon>arrow_upward</v-icon></v-btn>
+												<span>Move job up</span>
+											</v-tooltip>
 										</v-list-tile-action>
 										<v-list-tile-action>
-											<v-btn icon style="flex-shrink: 1 !important; flex-grow: 0 !important;" @click.stop=""><v-icon>arrow_downward</v-icon></v-btn>
+											<v-tooltip top>
+												<v-btn icon @click.stop="moveScheduleJobDown(scheduleObjectIndex)" slot="activator"><v-icon>arrow_downward</v-icon></v-btn>
+												<span>Move job down</span>
+											</v-tooltip>
 										</v-list-tile-action>
 										<v-list-tile-action>
-											<v-btn icon style="flex-shrink: 1 !important; flex-grow: 0 !important;" @click.stop=""><v-icon>file_copy</v-icon></v-btn>
+											<v-tooltip top>
+												<v-btn icon @click.stop="" slot="activator"><v-icon>file_copy</v-icon></v-btn>
+												<span>Copy job (not implemented)</span>
+											</v-tooltip>
 										</v-list-tile-action>
 										<v-list-tile-action>
-											<v-btn icon style="flex-shrink: 1 !important; flex-grow: 0 !important;" @click.stop="addScheduleJob(scheduleObjectIndex)"><v-icon>add_circle</v-icon></v-btn>
+											<v-tooltip top>
+												<v-btn icon @click.stop="" slot="activator"><v-icon>save_alt</v-icon></v-btn>
+												<span>Paste job (not implemented)</span>
+											</v-tooltip>
 										</v-list-tile-action>
 										<v-list-tile-action>
-											<v-btn icon style="flex-shrink: 1 !important; flex-grow: 0 !important;" @click.stop="removeScheduleJob(scheduleObjectIndex)"><v-icon>cancel</v-icon></v-btn>
+											<v-tooltip top>
+												<v-btn icon @click.stop="addScheduleJob(scheduleObjectIndex)" slot="activator"><v-icon>add_circle</v-icon></v-btn>
+												<span>Add new job after</span>
+											</v-tooltip>
+										</v-list-tile-action>
+										<v-list-tile-action>
+											<v-tooltip top>
+												<v-btn icon @click.stop="removeScheduleJob(scheduleObjectIndex)" slot="activator"><v-icon>cancel</v-icon></v-btn>
+												<span>Delete job</span>
+											</v-tooltip>
 										</v-list-tile-action>
 									</v-list-tile>
 									<v-container fluid grid-list-md>
@@ -1088,9 +1109,22 @@
 				},
 				
 				removeScheduleJob: function(index) {
+					this.scheduleObjects.splice(index, 1);
 					// this.scheduleObjects.splice(index, 0, JSON.parse(JSON.stringify(this.scheduleObjects[index])));
 					// this.scheduleObjects.push(JSON.parse(JSON.stringify(this.scheduleObjects.slice(-1)[0])));
-				}
+				},
+				
+				moveScheduleJobUp: function(index) {
+					var job = this.scheduleObjects[index];
+					this.scheduleObjects[index] = this.scheduleObjects[index-1];
+					this.scheduleObjects[index-1] = job;
+				},
+				
+				moveScheduleJobDown: function(index) {
+					var job = this.scheduleObjects[index];
+					this.scheduleObjects[index] = this.scheduleObjects[index+1];
+					this.scheduleObjects[index+1] = job;
+				},
 			},
 			watch: {
 				stepperPage: function(val) { localStorage.stepperPage = val; },
