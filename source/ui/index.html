@@ -549,13 +549,13 @@
 										</v-list-tile-action>
 										<v-list-tile-action>
 											<v-tooltip top>
-												<v-btn icon @click.stop="" slot="activator"><v-icon>file_copy</v-icon></v-btn>
+												<v-btn icon @click.stop="scheduleObjectClipboard = JSON.parse(JSON.stringify(scheduleObject))" slot="activator"><v-icon>file_copy</v-icon></v-btn>
 												<span>Copy job (not implemented)</span>
 											</v-tooltip>
 										</v-list-tile-action>
 										<v-list-tile-action>
 											<v-tooltip top>
-												<v-btn icon @click.stop="" slot="activator"><v-icon>save_alt</v-icon></v-btn>
+												<v-btn icon @click.stop="scheduleObjects.splice(scheduleObjectIndex, 1, JSON.parse(JSON.stringify(scheduleObjectClipboard)))" slot="activator"><v-icon>save_alt</v-icon></v-btn>
 												<span>Paste job (not implemented)</span>
 											</v-tooltip>
 										</v-list-tile-action>
@@ -900,6 +900,7 @@
 				parametersDescription: {},
 				scheduleObjects: localStorage.scheduleObjects || {},
 				scheduleObjectDefault: {},
+				scheduleObjectClipboard: {},
 				scheduleSaveUser: '',
 				scheduleSaveProject: '',
 				scheduleSaveFileName: '',
