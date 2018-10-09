@@ -484,8 +484,8 @@
 					</v-stepper>
 					
 					
-					<v-flex xs12 ma-4 v-if="topLevelPage == 'scheduleCreator'">
-						<v-card>
+					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'scheduleCreator'">
+						<v-card class="mb-3">
 							<v-toolbar dark class="blue-grey darken-1">
 								<v-toolbar-title>
 									Schedule Creator
@@ -515,7 +515,7 @@
 						</v-card>
 						
 						
-						<v-card>
+						<v-card class="mb-3">
 							<v-toolbar dark class="blue-grey darken-1">
 								<v-toolbar-title>
 									Job Definitions
@@ -563,6 +563,12 @@
 											<v-tooltip top>
 												<v-btn icon @click.stop="addScheduleJob(scheduleObjectIndex)" slot="activator"><v-icon>add_circle</v-icon></v-btn>
 												<span>Add new job after</span>
+											</v-tooltip>
+										</v-list-tile-action>
+										<v-list-tile-action>
+											<v-tooltip top>
+												<v-btn icon @click.stop="resetScheduleJob(scheduleObjectIndex)" slot="activator"><v-icon>settings_backup_restore</v-icon></v-btn>
+												<span>Reset job settings to defaults</span>
 											</v-tooltip>
 										</v-list-tile-action>
 										<v-list-tile-action>
@@ -675,7 +681,7 @@
 							<!-- <v-btn fab small dark bottom right absolute @click="addScheduleJob()"><v-icon>add</v-icon></v-btn> -->
 						</v-card>
 						
-						<v-card ma-1 tile>
+						<v-card class="mb-3" tile>
 							<v-toolbar dark class="blue-grey darken-1">
 								<v-toolbar-title>
 									Resulting Schedule File
@@ -699,7 +705,7 @@
 						
 					</v-flex>
 					
-					<v-flex xs12 ma-4 v-if="topLevelPage == 'settings'">
+					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'settings'">
 						<v-card>
 							<v-toolbar dark class="blue-grey darken-1">
 								<v-toolbar-title>
@@ -714,7 +720,7 @@
 						</v-card>
 					</v-flex>
 					
-					<v-flex xs12 ma-4 v-if="topLevelPage == 'dashboard'">
+					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'dashboard'">
 						<v-card>
 							<v-toolbar dark class="blue-grey darken-1">
 								<v-toolbar-title>
@@ -729,7 +735,7 @@
 						</v-card>
 					</v-flex>
 					
-					<v-flex xs12 ma-4 v-if="topLevelPage == 'about'">
+					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'about'">
 						<v-card>
 							<v-toolbar dark class="blue-grey darken-1">
 								<v-toolbar-title>
@@ -1133,6 +1139,10 @@
 					this.scheduleObjects.splice(index, 1);
 					// this.scheduleObjects.splice(index, 0, JSON.parse(JSON.stringify(this.scheduleObjects[index])));
 					// this.scheduleObjects.push(JSON.parse(JSON.stringify(this.scheduleObjects.slice(-1)[0])));
+				},
+				
+				resetScheduleJob: function(index) {
+					this.scheduleObjects.splice(index, 1, JSON.parse(JSON.stringify(this.scheduleObjectDefault)));
 				},
 				
 				moveScheduleJobUp: function(index) {
