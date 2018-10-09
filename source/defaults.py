@@ -164,8 +164,8 @@ def mergeDefaults(a, b):
 		if( (key in a) and (isinstance(a[key], dict)) and (isinstance(b[key], dict)) ):
 			mergeDefaults(a[key], b[key])
 		elif( (key in a) and (isinstance(a[key], dict)) and not (isinstance(b[key], dict)) ): 
-			if('default' in a):
-				a['default'] = b
+			if('default' in a[key]):
+				a[key]['default'] = b[key]
 		else:
 			a[key] = b[key]
 	return a

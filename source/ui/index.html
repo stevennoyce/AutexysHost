@@ -1134,6 +1134,10 @@
 						$.getJSON(path, response => {app.$data.scheduleObjects = response})
 						.fail(() => {console.log("Error loading schedule file")});
 					}
+					
+					if (this.scheduleSaveUser == '') this.scheduleSaveUser = this.scheduleLoadUser;
+					if (this.scheduleSaveProject == '') this.scheduleSaveProject = this.scheduleLoadProject;
+					if (this.scheduleSaveFileName == '') this.scheduleSaveFileName = this.scheduleLoadFileName;
 				},
 				
 				goToUser: function(userName) {
