@@ -527,17 +527,30 @@
 							</v-toolbar>
 							
 							
-							<v-expansion-panel expand>
-								<v-expansion-panel-content v-for="scheduleObject, scheduleObjectIndex in scheduleObjects">
-									<div slot="header" class="d-flex">
-										<p>Job #{{ scheduleObjectIndex }}</p>
-										<v-spacer></v-spacer>
-										<v-btn icon style="flex-shrink: 1 !important; flex-grow: 0 !important;" @click=""><v-icon>arrow_upward</v-icon></v-btn>
-										<v-btn icon style="flex-shrink: 1 !important; flex-grow: 0 !important;" @click=""><v-icon>arrow_downward</v-icon></v-btn>
-										<v-btn icon style="flex-shrink: 1 !important; flex-grow: 0 !important;" @click=""><v-icon>file_copy</v-icon></v-btn>
-										<v-btn icon style="flex-shrink: 1 !important; flex-grow: 0 !important;" @click="addScheduleJob(scheduleObjectIndex)"><v-icon>add_circle</v-icon></v-btn>
-										<v-btn icon style="flex-shrink: 1 !important; flex-grow: 0 !important;" @click="removeScheduleJob(scheduleObjectIndex)"><v-icon>cancel</v-icon></v-btn>
-									</div>
+							<v-list expand>
+								<v-list-group v-for="scheduleObject, scheduleObjectIndex in scheduleObjects">
+									<v-list-tile slot="activator" class="d-flex">
+										<v-list-tile-content>
+											<v-list-tile-title>
+												Job {{ scheduleObjectIndex + 1 }}
+											</v-list-tile-title>
+										</v-list-tile-content>
+										<v-list-tile-action>
+											<v-btn icon style="flex-shrink: 1 !important; flex-grow: 0 !important;" @click.stop=""><v-icon>arrow_upward</v-icon></v-btn>
+										</v-list-tile-action>
+										<v-list-tile-action>
+											<v-btn icon style="flex-shrink: 1 !important; flex-grow: 0 !important;" @click.stop=""><v-icon>arrow_downward</v-icon></v-btn>
+										</v-list-tile-action>
+										<v-list-tile-action>
+											<v-btn icon style="flex-shrink: 1 !important; flex-grow: 0 !important;" @click.stop=""><v-icon>file_copy</v-icon></v-btn>
+										</v-list-tile-action>
+										<v-list-tile-action>
+											<v-btn icon style="flex-shrink: 1 !important; flex-grow: 0 !important;" @click.stop="addScheduleJob(scheduleObjectIndex)"><v-icon>add_circle</v-icon></v-btn>
+										</v-list-tile-action>
+										<v-list-tile-action>
+											<v-btn icon style="flex-shrink: 1 !important; flex-grow: 0 !important;" @click.stop="removeScheduleJob(scheduleObjectIndex)"><v-icon>cancel</v-icon></v-btn>
+										</v-list-tile-action>
+									</v-list-tile>
 									<v-container fluid grid-list-md>
 										<v-layout row wrap>
 											
@@ -636,8 +649,8 @@
 											</v-flex>
 										</v-layout>
 									</v-container>
-								</v-expansion-panel-content>
-							</v-expansion-panel>
+								</v-list-group>
+							</v-list>
 							<!-- <v-btn fab small dark bottom right absolute @click="addScheduleJob()"><v-icon>add</v-icon></v-btn> -->
 						</v-card>
 						
