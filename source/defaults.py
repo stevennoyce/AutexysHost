@@ -121,7 +121,7 @@ default_parameters = {
 		'wafer':{'type':'string', 'default':'unknown'},
 		'chip':{'type':'string', 'default':'unknown'},
 		'device':{'type':'string', 'default':'unknown'},
-		'step':{'type':'int'},
+		'step':{'type':'int', 'default': 0},
 	},
 	'MeasurementSystem':{
 		'systemType': {'type':'choice','choices':['B2912A','PCB2v14'], 'default':['single', 'standalone', 'double'][1]},

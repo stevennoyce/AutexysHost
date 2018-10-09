@@ -780,6 +780,24 @@
 			return changes(object, base);
 		}
 		
+		function extractDefaults(obj) {
+			var d = JSON.parse(JSON.stringify(obj));
+			
+			if (!_.isPlainObject(d)) {
+				return d;
+			}
+			if (Object.keys(d).includes('default')) {
+				console.log('returning the default');
+				return d['default'];
+			}
+			if (_.isPlainObject(d) && Object.keys(d).length > 0) {
+				return Object.assign(...Object.entries(d)
+					.filter(([k, v]) => (!Object.keys(v).includes('ignore')))
+					.map(([k, v]) => ({[k]: extractDefaults(v)})));
+			}
+			return d;
+		}
+		
 		Vue.component('zoomable-image', {
 			data: function() {
 				return {
@@ -1136,6 +1154,11 @@
 				
 				pasteScheduleObject: function(index) {
 					this.scheduleObjects.splice(index, 1, JSON.parse(JSON.stringify(this.scheduleObjectClipboard)))
+				},
+				
+				scheduleObjectDiffFromPrevTwin: function(index) {
+					var job = this.scheduleObjects[index];
+					// var twin = 
 				}
 			},
 			watch: {
@@ -1175,7 +1198,7 @@
 					return objectDeepDiff(this.parameters, this.defaultParameters);
 				},
 				scheduleLines: function() {
-					return this.scheduleObjects.map(obj => objectDeepDiff(obj, this.scheduleObjectDefault));
+					return this.scheduleObjects.map(obj => extractDefaults(objectDeepDiff(obj, this.scheduleObjectDefault)));
 				},
 				runType: function() {
 					return this.parameters['runType'];
