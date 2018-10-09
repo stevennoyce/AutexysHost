@@ -528,7 +528,7 @@
 							
 							
 							<v-list expand>
-								<v-list-group v-for="scheduleObject, scheduleObjectIndex in scheduleObjects">
+								<v-list-group v-for="scheduleObject, scheduleObjectIndex in scheduleObjects" :key="scheduleObjectIndex">
 									<v-list-tile slot="activator">
 										<v-list-tile-content>
 											<v-list-tile-title>
@@ -537,13 +537,13 @@
 										</v-list-tile-content>
 										<v-list-tile-action>
 											<v-tooltip top>
-												<v-btn icon @click.stop="moveScheduleJobUp(scheduleObjectIndex)" slot="activator"><v-icon>arrow_upward</v-icon></v-btn>
+												<v-btn icon @click.stop="moveScheduleJobUp(scheduleObjectIndex)" slot="activator" :disabled="scheduleObjectIndex == 0"><v-icon>arrow_upward</v-icon></v-btn>
 												<span>Move job up</span>
 											</v-tooltip>
 										</v-list-tile-action>
 										<v-list-tile-action>
 											<v-tooltip top>
-												<v-btn icon @click.stop="moveScheduleJobDown(scheduleObjectIndex)" slot="activator"><v-icon>arrow_downward</v-icon></v-btn>
+												<v-btn icon @click.stop="moveScheduleJobDown(scheduleObjectIndex)" slot="activator" :disabled="scheduleObjectIndex >= scheduleObjects.length - 1"><v-icon>arrow_downward</v-icon></v-btn>
 												<span>Move job down</span>
 											</v-tooltip>
 										</v-list-tile-action>
@@ -681,8 +681,11 @@
 									Resulting Schedule File
 								</v-toolbar-title>
 							</v-toolbar>
-							<v-card-text class="grow">
+							<v-card-text>
 								{{ scheduleLines }}
+							</v-card-text>
+							<v-card-text>
+								{{ scheduleObjects.map(({runType}) => (runType.default)) }}
 							</v-card-text>
 							
 							<v-card v-for="scheduleObject, scheduleObjectIndex in scheduleObjects">
@@ -1116,14 +1119,14 @@
 				
 				moveScheduleJobUp: function(index) {
 					var job = this.scheduleObjects[index];
-					this.scheduleObjects[index] = this.scheduleObjects[index-1];
-					this.scheduleObjects[index-1] = job;
+					this.scheduleObjects.splice(index, 1);
+					this.scheduleObjects.splice(index-1, 0, job);
 				},
 				
 				moveScheduleJobDown: function(index) {
 					var job = this.scheduleObjects[index];
-					this.scheduleObjects[index] = this.scheduleObjects[index+1];
-					this.scheduleObjects[index+1] = job;
+					this.scheduleObjects.splice(index, 1);
+					this.scheduleObjects.splice(index+1, 0, job);
 				},
 			},
 			watch: {
