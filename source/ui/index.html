@@ -549,14 +549,14 @@
 										</v-list-tile-action>
 										<v-list-tile-action>
 											<v-tooltip top>
-												<v-btn icon @click.stop="scheduleObjectClipboard = JSON.parse(JSON.stringify(scheduleObject))" slot="activator"><v-icon>file_copy</v-icon></v-btn>
-												<span>Copy job (not implemented)</span>
+												<v-btn icon @click.stop="copyScheduleObject(scheduleObjectIndex)" slot="activator"><v-icon>file_copy</v-icon></v-btn>
+												<span>Copy job</span>
 											</v-tooltip>
 										</v-list-tile-action>
 										<v-list-tile-action>
 											<v-tooltip top>
-												<v-btn icon @click.stop="scheduleObjects.splice(scheduleObjectIndex, 1, JSON.parse(JSON.stringify(scheduleObjectClipboard)))" slot="activator"><v-icon>save_alt</v-icon></v-btn>
-												<span>Paste job (not implemented)</span>
+												<v-btn icon @click.stop="pasteScheduleObject(scheduleObjectIndex)" slot="activator"><v-icon>save_alt</v-icon></v-btn>
+												<span>Paste job</span>
 											</v-tooltip>
 										</v-list-tile-action>
 										<v-list-tile-action>
@@ -1129,6 +1129,14 @@
 					this.scheduleObjects.splice(index, 1);
 					this.scheduleObjects.splice(index+1, 0, job);
 				},
+				
+				copyScheduleObject: function(index) {
+					this.scheduleObjectClipboard = JSON.parse(JSON.stringify(this.scheduleObjects[index]));
+				},
+				
+				pasteScheduleObject: function(index) {
+					this.scheduleObjects.splice(index, 1, JSON.parse(JSON.stringify(this.scheduleObjectClipboard)))
+				}
 			},
 			watch: {
 				stepperPage: function(val) { localStorage.stepperPage = val; },
