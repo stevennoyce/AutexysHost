@@ -681,11 +681,10 @@
 									Resulting Schedule File
 								</v-toolbar-title>
 							</v-toolbar>
-							<v-card-text>
-								{{ scheduleLines }}
-							</v-card-text>
-							<v-card-text>
-								{{ scheduleObjects.map(({runType}) => (runType.default)) }}
+							<v-card-text class="text-no-wrap" style="overflow-x: scroll">
+								<template v-for="schedLine in scheduleLines">
+									{{ schedLine }} <br>
+								</template>
 							</v-card-text>
 							
 							<v-card v-for="scheduleObject, scheduleObjectIndex in scheduleObjects">
@@ -918,7 +917,7 @@
 				parametersDescription: {},
 				scheduleObjects: localStorage.scheduleObjects || {},
 				scheduleObjectDefault: {},
-				scheduleObjectClipboard: {},
+				scheduleObjectClipboard: localStorage.scheduleObjectClipboard || {},
 				scheduleSaveUser: '',
 				scheduleSaveProject: '',
 				scheduleSaveFileName: '',
@@ -1163,7 +1162,8 @@
 			},
 			watch: {
 				stepperPage: function(val) { localStorage.stepperPage = val; },
-				scheduleObjects: function(val) { localStorage.scheduleObjects = val; }
+				scheduleObjects: function(val) { localStorage.scheduleObjects = val; },
+				scheduleObjectClipboard: function(val) { localStorage.scheduleObjectClipboard = val; }
 			},
 			computed: {
 				experiment: function() {
