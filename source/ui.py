@@ -244,7 +244,23 @@ def loadSchedule(user, project, fileName):
 		expandedScheduleData.append(defaults.full_with_added(job))
 		
 	return expandedScheduleData
-		
+
+def getSubDirectories(directory):
+		return [os.path.basename(os.path.dirname(g)) for g in glob.glob(directory + '/*/')]
+
+@app.route('/scheduleNames.json')
+def loadScheduleNames():
+	scheduleNames = {}
+	
+	for userName in getSubDirectories(default_data_path):
+		userDirectory = userName
+		scheduleNames[userName] = {}
+		for projectName in getSubDirectories(os.path.join(default_data_path, userDirectory)):
+			projectDirectory = os.path.join(userDirectory, projectName)
+			schedulePaths = glob.glob(os.path.join(default_data_path, userName, projectName, 'schedules/*.json'))
+			scheduleNames[userName][projectName] = [os.path.basename(schedule).split('.')[0] for schedule in schedulePaths]
+	
+	return jsonvalid(scheduleNames)
 
 # @app.after_request
 # def add_header(response):
