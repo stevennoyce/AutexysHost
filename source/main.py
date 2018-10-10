@@ -5,6 +5,8 @@ import platform
 import time
 
 import launcher
+from utilities import DataLoggerUtility as dlu
+
 
 if __name__ == '__main__':
 	os.chdir(sys.path[0])
@@ -61,13 +63,28 @@ def main():
 		# File must end in '.json'
 		file = choice if(choice[-5:] == '.json') else (choice + '.json')
 		
-		launcher.run_file(file)
+		run_file(file)
 	
 	send_notification_via_pushbullet(
 		'Completed Main at {}'.format(time.strftime('%I:%M %p on %a')), 
 		'Script has finished choice of: {}'.format(choice)
 	)
 
+def run_file(schedule_file_path):
+	schedule_index = 0
+
+	print('Opening schedule file: ' + schedule_file_path)
+
+	while( schedule_index < len(dlu.loadJSON(directory='', loadFileName=schedule_file_path)) ):
+		print('Loading line #' + str(schedule_index+1) + ' in schedule file ' + schedule_file_path)
+		parameter_list = dlu.loadJSON(directory='', loadFileName=schedule_file_path)
+
+		print('Launching job #' + str(schedule_index+1) + ' of ' + str(len(parameter_list)) + ' in schedule file ' + schedule_file_path)
+		print('Schedule contains ' + str(len(parameter_list) - schedule_index - 1) + ' other incomplete jobs.')
+		additional_parameters = parameter_list[schedule_index].copy()
+		launcher.run(additional_parameters)
+
+		schedule_index += 1
 
 
 # === User Interface ===
