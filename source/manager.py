@@ -6,12 +6,6 @@ import ui
 
 # Main could be called 'scheduler', 'dispatcher', etc.
 
-
-
-def f(conn):
-	conn.send([42, None, 'hello'])
-	conn.close()
-
 # Detect whether running on Windows or Posix
 def onPosix():
 	try:
