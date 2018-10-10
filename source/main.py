@@ -5,6 +5,7 @@ import platform
 import time
 import requests
 import json
+import time
 
 import launcher
 from utilities import DataLoggerUtility as dlu
@@ -17,11 +18,28 @@ if(__name__ == '__main__'):
 
 
 # === Main ===
-def main(schedulePath = None):
+def listen(pipe):
+	print('Dispatcher is ready to run jobs.')
+	
+	while(True):
+		command = pipe.recv()
+		print('Dispatcher recieved "' + str(command) + '"')
+		
+		if(command.startswith('RUN:')):
+			schedule_file_path = command[len('RUN:'):]
+			main(schedule_file_path)		
+		elif(command == 'EXIT'):
+			break
+		
+	print('Dispatcher is ending communication.')
+		
+	
+	
+def main(schedule_file_path=None):
 	if((__name__ == '__main__') and (len(sys.argv) > 1)):
 		choice = sys.argv[1]
-	elif(schedulePath is not None):
-		choice = schedulePath
+	elif(schedule_file_path is not None):
+		choice = schedule_file_path
 	else:
 		choice = input('Choose a schedule file to run: ')
 	
@@ -43,6 +61,7 @@ def run_file(schedule_file_path):
 	print('Opening schedule file: ' + schedule_file_path)
 
 	while( schedule_index < len(dlu.loadJSON(directory='', loadFileName=schedule_file_path)) ):
+		
 		print('Loading line #' + str(schedule_index+1) + ' in schedule file ' + schedule_file_path)
 		parameter_list = dlu.loadJSON(directory='', loadFileName=schedule_file_path)
 
