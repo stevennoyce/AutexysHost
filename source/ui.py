@@ -286,8 +286,7 @@ def findFirstOpenPort(startPort=1):
 				print('Port {} is not available'.format(port))
 
 
-if __name__ == '__main__':
-	
+def start():
 	if 'AutexysUIRunning' in os.environ:
 		print('Reload detected. Not opening browser.')
 		print('Still running on port {}'.format(os.environ['AutexysUIPort']))
@@ -306,6 +305,9 @@ if __name__ == '__main__':
 	
 	app.run(debug=True, threaded=False, port=int(os.environ['AutexysUIPort']))
 
+
+if __name__ == '__main__':
+	start()
 
 
 

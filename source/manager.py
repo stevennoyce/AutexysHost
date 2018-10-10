@@ -1,7 +1,12 @@
 import multiprocessing as mp
 import psutil
 
+import main
+import ui
+
 # Main could be called 'scheduler', 'dispatcher', etc.
+
+
 
 def f(conn):
 	conn.send([42, None, 'hello'])
@@ -49,12 +54,24 @@ def changePriorityOfProcessAndChildren(pid, priority):
 		child.nice(priorityCode)
 
 if __name__ == '__main__':
-	parent_conn, child_conn = mp.Pipe()
-	p = mp.Process(target=f, args=(child_conn,))
-	p.start()
+	# parent_conn, child_conn = mp.Pipe()
+	# p = mp.Process(target=f, args=(child_conn,))
+	# p.start()
 	
-	changePriorityOfProcessAndChildren(p.pid, 0)
+	pipeManagerToUI, pipeUIToManager = mp.Pipe()
+	pipeManagerToMain, pipeMainToManager = mp.Pipe()
+	pipeUIToMain, pipeMainToUI = mp.Pipe()
+	
+	uiProcess = mp.Process(target=ui.start, args=())
+	uiProcess.start()
+	
+	changePriorityOfProcessAndChildren(uiProcess.pid, 0)
+	
+	dispatcherProcess = mp.Process(target=main.main, args=())
+	dispatcherProcess.start()
+	
+	changePriorityOfProcessAndChildren(dispatcherProcess.pid, 0)
 	
 	print(parent_conn.recv())
-	p.join()
+	dispatcherProcess.join()
 	
