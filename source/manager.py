@@ -47,25 +47,57 @@ def changePriorityOfProcessAndChildren(pid, priority):
 	for child in parent.children():
 		child.nice(priorityCode)
 
-if __name__ == '__main__':
-	# parent_conn, child_conn = mp.Pipe()
-	# p = mp.Process(target=f, args=(child_conn,))
-	# p.start()
-	
-	pipeManagerToUI, pipeUIToManager = mp.Pipe()
-	pipeManagerToMain, pipeMainToManager = mp.Pipe()
-	pipeUIToMain, pipeMainToUI = mp.Pipe()
-	
+def startUI(priority=0):
+	pipeToUI, pipeForUI = mp.Pipe()
 	uiProcess = mp.Process(target=ui.start, args=())
 	uiProcess.start()
-	
-	changePriorityOfProcessAndChildren(uiProcess.pid, 0)
-	
-	dispatcherProcess = mp.Process(target=main.main, args=())
+	changePriorityOfProcessAndChildren(uiProcess.pid, priority)
+	return (uiProcess, pipeToUI)
+
+def startDispatcher(schedule_file_path, priority=0):
+	pipeToDispatcher, pipeForDispatcher = mp.Pipe()
+	dispatcherProcess = mp.Process(target=main.main, args=(schedule_file_path, pipeForDispatcher))
 	dispatcherProcess.start()
+	changePriorityOfProcessAndChildren(dispatcherProcess.pid, priority)
+	return (dispatcherProcess, pipeToDispatcher)
+
+def main():
+	#pipeManagerToUI, pipeUIToManager = mp.Pipe()
+	#pipeManagerToMain, pipeMainToManager = mp.Pipe()
+	#pipeUIToMain, pipeMainToUI = mp.Pipe()
 	
-	changePriorityOfProcessAndChildren(dispatcherProcess.pid, 0)
+	uiProcess, pipeToUI = startUI(priority=0)
+	dispatchers = []
 	
-	print(parent_conn.recv())
-	dispatcherProcess.join()
+	while(True):
+		# Listen to the UI pipe for 10 seconds, then yield to do other tasks
+		if(pipeToUI.poll(10)):
+			message = pipeToUI.recv()
+			
+			if(message.startswith('RUN:')):
+				schedule_file_path = message[len('RUN:'):]
+				dispatcherProcess, pipeToDispatcher = startDispatcher(schedule_file_path, priority=0)
+				dispatchers.append({'process':dispatcherProcess, 'pipe':pipeToDispatcher})
+			elif(message == 'STOP'):
+				for dispatcher in dispatchers:
+					dispatcher['pipe'].send('STOP')
+		
+		# Check if dispatchers are running, if not join them to explicitly end them
+		for dispatcher in dispatchers:
+			if(not dispatcher['process'].is_alive()):
+				dispatcher['process'].join()
+		
+		# Check that UI is still running, if not exit the event loop
+		if(not uiProcess.is_alive()):
+			break
+	
+	# Join to all of the child processes to clean them up
+	uiProcess.join()
+	for dispatcher in dispatchers:
+		dispatcher['process'].join()
+		
+	
+		
+if __name__ == '__main__':
+	main()
 	

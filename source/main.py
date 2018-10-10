@@ -21,21 +21,25 @@ if(__name__ == '__main__'):
 def listen(pipe):
 	print('Dispatcher is ready to run jobs.')
 	
-	while(True):
-		command = pipe.recv()
-		print('Dispatcher recieved "' + str(command) + '"')
+	#while(True):
+	
+	
+	message = pipe.recv()
+	print('Dispatcher recieved "' + str(message) + '"')
+	
+	if(message.startswith('RUN:')):
+		schedule_file_path = message[len('RUN:'):]
+		main(schedule_file_path)		
 		
-		if(command.startswith('RUN:')):
-			schedule_file_path = command[len('RUN:'):]
-			main(schedule_file_path)		
-		elif(command == 'EXIT'):
-			break
+		
+		#elif(message == 'EXIT'):
+		#	break
 		
 	print('Dispatcher is ending communication.')
 		
 	
 	
-def main(schedule_file_path=None):
+def main(schedule_file_path=None, pipe=None):
 	if((__name__ == '__main__') and (len(sys.argv) > 1)):
 		choice = sys.argv[1]
 	elif(schedule_file_path is not None):
@@ -46,7 +50,7 @@ def main(schedule_file_path=None):
 	# File must end in '.json'
 	file = choice if(choice[-5:] == '.json') else (choice + '.json')
 	
-	run_file(file)
+	run_file(file, pipe)
 	
 	send_notification_via_pushbullet(
 		'Completed Main at {}'.format(time.strftime('%I:%M %p on %a')), 
@@ -55,13 +59,18 @@ def main(schedule_file_path=None):
 
 
 
-def run_file(schedule_file_path):
+def run_file(schedule_file_path, pipe=None):
 	schedule_index = 0
 
 	print('Opening schedule file: ' + schedule_file_path)
 
 	while( schedule_index < len(dlu.loadJSON(directory='', loadFileName=schedule_file_path)) ):
-		
+		if(pipe is not None):
+			while(pipe.poll()):
+				message = pipe.recv()
+				if(message == 'STOP'):
+					print('Aborting schedule file: ' + schedule_file_path)
+					return
 		print('Loading line #' + str(schedule_index+1) + ' in schedule file ' + schedule_file_path)
 		parameter_list = dlu.loadJSON(directory='', loadFileName=schedule_file_path)
 
