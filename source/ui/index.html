@@ -517,7 +517,11 @@
 								</v-container>
 							</v-form>
 							
-							<v-btn @click="loadSchedule()">Load Schedule File</v-btn>
+							<v-card-actions>
+								<span v-if="scheduleLoadUser && scheduleLoadProject && scheduleLoadFileName">Loading from: AutexysData/{{ scheduleLoadUser }}/{{ scheduleLoadProject }}/schedules/{{ scheduleLoadFileName }}.json</span>
+								<v-spacer></v-spacer>
+								<v-btn @click="loadSchedule()">Load Schedule File</v-btn>
+							</v-card-actions>
 						</v-card>
 						
 						
@@ -762,7 +766,11 @@
 								</v-container>
 							</v-form>
 							
-							<v-btn @click="saveSchedule()">Save Schedule File</v-btn>
+							<v-card-actions>
+								<span v-if="scheduleSaveUser && scheduleSaveProject && scheduleSaveFileName">Saving to: AutexysData/{{ scheduleSaveUser }}/{{ scheduleSaveProject }}/schedules/{{ scheduleSaveFileName }}.json</span>
+								<v-spacer></v-spacer>
+								<v-btn @click="saveSchedule()">Save Schedule File</v-btn>
+							</v-card-actions>
 						</v-card>
 						
 					</v-flex>
