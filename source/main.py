@@ -35,9 +35,11 @@ def send_notification_via_pushbullet(title, body):
 
 
 # === Main ===
-def main():
+def main(argChoice = None):
 	if len(sys.argv) > 1:
 		choice = sys.argv[1]
+	elif argChoice is not None:
+		choice = argChoice
 	else:
 		# Get user's action selection
 		choice = selectFromDictionary('Actions: ', runTypes, 'Choose an action (0,1,2,...): ')
