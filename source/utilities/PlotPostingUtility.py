@@ -1,3 +1,5 @@
+"""A deprecated utility."""
+
 import base64
 import requests
 import glob

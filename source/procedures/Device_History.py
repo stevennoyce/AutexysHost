@@ -1,3 +1,5 @@
+"""This module provides a complete interface for generating plots for a particular device. The primary method is DeviceHistory.makePlots()."""
+
 # === Make this script runnable ===
 if(__name__ == '__main__'):
 	import sys
@@ -33,6 +35,8 @@ default_dh_parameters = {
 }
 
 def plotsForExperiments(parameters, minExperiment=0, maxExperiment=float('inf')):
+	"""Given the typical parameters used to run experiments, return a list of plots that could be made from the data that has been already collected."""
+	
 	return dpu.getPlotTypesFromDependencies(dlu.getDataFileNamesForExperiments(dlu.getDeviceDirectory(parameters), minExperiment=minExperiment, maxExperiment=maxExperiment), plotCategory='device')
 
 
@@ -40,6 +44,21 @@ def plotsForExperiments(parameters, minExperiment=0, maxExperiment=float('inf'))
 
 # === External Interface ===
 def makePlots(userID, projectID, waferID, chipID, deviceID, startExperimentNumber=0, endExperimentNumber=float('inf'), specificPlot='', figureSize=None, dataFolder=None, saveFolder=None, plotSaveName='', saveFigures=False, showFigures=True, sweepDirection='both', plotInRealTime=True, startRelativeIndex=0, endRelativeIndex=float('inf'), plot_mode_parameters=None):
+	"""Make plots for the device found in the userID/projectID/waferID/chipID/deviceID folder.
+	
+	startExperimentNumber and endExperimentNumber specify a range of experiments to include in the plot(s).
+	specificPlot can be specified to only make one specific plot found in the plotDefintions folder, or by default all available plots are made.
+	figureSize can be specified as (width,height) to set the size of the plot.
+	dataFolder and saveFolder can specify the paths for loading .json data and saving .png plots, but they should not be necessary by default.
+	plotSaveName can add extra characters to the .png saved by this function if that is desireable.
+	saveFigures and showFigures are booleans that specify if a plot should be shown with the matplotlib pyplot interface or saved as a .png
+	sweepDirection is a commonly used plot decorator (can be 'both', 'forward', or 'reverse').
+	plotInRealTime is not typically used, but see the StaticBias plotDefinition for more information.
+	startRelativeIndex and endRelativeIndex can be used to limit the number of data entries shown if all entries have the same experimentNumber
+	
+	plot_mode_parameters is a catch-all dictionary for parameters that affect the style of plots (but not the data shown!). See the DataPlotterUtility
+	for more information about available plot_mode_parameters."""
+	
 	parameters = {}	
 	mode_parameters = {}
 	if(plot_mode_parameters is not None):
@@ -77,6 +96,8 @@ def makePlots(userID, projectID, waferID, chipID, deviceID, startExperimentNumbe
 
 # === Main ===
 def run(additional_parameters, plot_mode_parameters=None):
+	"""Legacy 'run' function from when DeviceHistory was treated more like a typical procedure with parameters."""
+	
 	parameters = default_dh_parameters.copy()
 	parameters.update(additional_parameters)
 
@@ -142,6 +163,8 @@ def run(additional_parameters, plot_mode_parameters=None):
 
 
 if __name__ == '__main__':
+	"""Feel free to add your own makePlots function calls to try this out!"""
+	
 	#makePlots('stevenjay', 'BiasStress1', 'C127', 'X', '15-16', 145, 145, 'FullStaticBiasHistory', (3.5,2.24), dataFolder='../data', saveFolder='../CurrentPlots', plotSaveName='Figure S6 floating - ', saveFigures=True, showFigures=False, plot_mode_parameters={'publication_mode':True, 'staticBiasSegmentDividers':True, 'enableGradient':True})
 	#makePlots('stevenjay', 'BiasStress1', 'C127', 'X', '15-16', 118, 118, 'FullStaticBiasHistory', (3.5,2.24), dataFolder='../data', saveFolder='../CurrentPlots', plotSaveName='Figure S5 Grounded Between - ', saveFigures=True, showFigures=False, startRelativeIndex=9, endRelativeIndex=16, plot_mode_parameters={'publication_mode':True,'staticBiasSegmentDividers':True, 'enableGradient':True})
 	#makePlots('stevenjay', 'BiasStress1', 'C127', 'E', '27-28', 3, 4, 'FullTransferCurveHistory', (1.48 *2.24/1.74,1.74 *2.24/1.74), dataFolder='../data', saveFolder='../CurrentPlots', plotSaveName='Figure S1 Comparison - ', saveFigures=True, showFigures=False, plot_mode_parameters={'publication_mode':True, 'enableColorBar':False})

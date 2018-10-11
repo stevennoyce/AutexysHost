@@ -1,3 +1,5 @@
+"""A utility that generates sequences of numbers that represent a particular voltage waveform."""
+
 import numpy as np
 
 def constValues(value, points):
