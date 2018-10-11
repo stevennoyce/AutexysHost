@@ -22,6 +22,9 @@ if __name__ == '__main__':
 # Globals
 pipeToManager = None
 
+def eprint(*args, **kwargs):
+	print(*args, file=sys.stderr, **kwargs)
+
 
 from collections import Mapping, Sequence
 
@@ -256,9 +259,9 @@ def getSubDirectories(directory):
 @app.route('/runScheduleFile/<user>/<project>/<fileName>.json')
 def dispatchSchedule(user, project, fileName):
 	scheduleFilePath = os.path.join(default_data_path, user, project, 'schedules', fileName + '.json')
-	
+	eprint('UI Sending RUN:')
 	pipeToManager.send('RUN: ' + scheduleFilePath)
-	
+	eprint('UI Sent RUN:')
 	return jsonvalid({'success': True})
 
 
@@ -304,10 +307,6 @@ def findFirstOpenPort(startPort=1):
 
 def start(pipeToManager=None):
 	pipeToManager = pipeToManager
-	
-	print(os.getcwd())
-	
-	exit()
 	
 	if 'AutexysUIRunning' in os.environ:
 		print('Reload detected. Not opening browser.')

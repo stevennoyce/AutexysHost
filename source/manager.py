@@ -1,10 +1,20 @@
 import multiprocessing as mp
 import psutil
+import sys
+import os
 
 import main
 import ui
 
 # Main could be called 'scheduler', 'dispatcher', etc.
+
+if __name__ == '__main__':
+	os.chdir(sys.path[0])
+	
+	pathParents = os.getcwd().split('/')
+	if 'AutexysHost' in pathParents:
+		os.chdir(os.path.join(os.path.abspath(os.sep), *pathParents[0:pathParents.index('AutexysHost')+1], 'source'))
+
 
 # Detect whether running on Windows or Posix
 def onPosix():
@@ -71,10 +81,13 @@ def main():
 	
 	while(True):
 		# Listen to the UI pipe for 10 seconds, then yield to do other tasks
+		print('Hello from Manager')
 		if(pipeToUI.poll(10)):
 			message = pipeToUI.recv()
+			print('Manager received a message')
 			
 			if(message.startswith('RUN:')):
+				print('Manager message starts with RUN:')
 				schedule_file_path = message[len('RUN:'):]
 				dispatcherProcess, pipeToDispatcher = startDispatcher(schedule_file_path, priority=0)
 				dispatchers.append({'process':dispatcherProcess, 'pipe':pipeToDispatcher})
