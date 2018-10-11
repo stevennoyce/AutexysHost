@@ -1,4 +1,5 @@
 #!/bin/sh
 cd "$(dirname "$0")"
-python source/main.py
+cd source
+python manager.py
 # python -mwebbrowser https://stackoverflow.com
