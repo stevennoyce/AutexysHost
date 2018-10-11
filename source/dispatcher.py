@@ -1,3 +1,7 @@
+"""This module is used to 'dispatch' or execute a particular schedule file. When the schedule file completes, the dispatcher is finished.
+This module can be run from command line with an optional argument specifying the path to a schedule file. Alternatively, this module can
+be run as a multiprocessing.Process and given a multiprocessing.Pipe for communication to other processes."""
+
 # === Imports ===
 import os
 import sys
@@ -19,6 +23,8 @@ if(__name__ == '__main__'):
 
 # === Main entry point for dispatching a schedule file ===
 def dispatch(schedule_file_path=None, pipe=None):
+	"""Given a schedule file path, begin executing the experiments in the schedule file, otherwise prompt the user for a schedule file."""
+	
 	if(schedule_file_path is not None):
 		choice = schedule_file_path
 	else:
@@ -38,6 +44,8 @@ def dispatch(schedule_file_path=None, pipe=None):
 
 
 def run_file(schedule_file_path, pipe=None):
+	"""Given a shedule file path, open the file and step through each experiment."""
+
 	schedule_index = 0
 
 	print('Opening schedule file: ' + schedule_file_path)
@@ -79,17 +87,8 @@ def send_notification_via_pushbullet(title, body):
 
 
 # === User Interface ===
-# Print a nicely formatted dictionary.
-def print_dict(dictionary, numtabs):
-	keys = list(dictionary.keys())
-	for i in range(len(keys)):
-		if(isinstance(dictionary[keys[i]], dict)):
-			print(" '" + str(keys[i])+ "': {")
-			print_dict(dictionary[keys[i]], numtabs+1)
-		else:
-			print(numtabs*'\t'+'  ' + str(keys[i]) + ': ' + str(dictionary[keys[i]]))
-
 def devicesInRange(startContact, endContact, skip=True):
+	"""Deprecated function for generating a list of devices."""
 	contactList = set(range(startContact,endContact))
 	if(skip):
 		omitList = set(range(4,64+1,4))
