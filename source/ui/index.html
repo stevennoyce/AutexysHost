@@ -1195,7 +1195,7 @@
 					if (this.scheduleSaveFileName == '') this.scheduleSaveFileName = this.scheduleLoadFileName;
 				},
 				dispatchSchedule: function() {
-					var path = '/scheduleFiles/' + this.scheduleExperimentUser + '/' + this.scheduleExperimentProject + '/' + this.scheduleExperimentFileName + '.json' + this.cacheBust;
+					var path = '/dispatchSchedule/' + this.scheduleExperimentUser + '/' + this.scheduleExperimentProject + '/' + this.scheduleExperimentFileName + '.json' + this.cacheBust;
 					if (path) {
 						$.getJSON(path, response => {app.$data.scheduleExperimentSuccessCode = response})
 						.fail(() => {console.log("Error dispatching schedule file")});

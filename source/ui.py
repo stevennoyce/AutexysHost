@@ -254,9 +254,9 @@ def loadSchedule(user, project, fileName):
 	return jsonvalid(expandedScheduleData)
 
 def getSubDirectories(directory):
-		return [os.path.basename(os.path.dirname(g)) for g in glob.glob(directory + '/*/')]
+	return [os.path.basename(os.path.dirname(g)) for g in glob.glob(directory + '/*/')]
 
-@app.route('/runScheduleFile/<user>/<project>/<fileName>.json')
+@app.route('/dispatchSchedule/<user>/<project>/<fileName>.json')
 def dispatchSchedule(user, project, fileName):
 	scheduleFilePath = os.path.join(default_data_path, user, project, 'schedules', fileName + '.json')
 	eprint('UI Sending RUN:')
@@ -305,8 +305,11 @@ def findFirstOpenPort(startPort=1):
 				print('Port {} is not available'.format(port))
 
 
-def start(pipeToManager=None):
-	pipeToManager = pipeToManager
+def start(pipeToManagerIn=None):
+	global pipeToManager
+	pipeToManager = pipeToManagerIn
+	
+	return
 	
 	if 'AutexysUIRunning' in os.environ:
 		print('Reload detected. Not opening browser.')
