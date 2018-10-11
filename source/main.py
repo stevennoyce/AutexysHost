@@ -18,27 +18,6 @@ if(__name__ == '__main__'):
 
 
 # === Main ===
-def listen(pipe):
-	print('Dispatcher is ready to run jobs.')
-	
-	#while(True):
-	
-	
-	message = pipe.recv()
-	print('Dispatcher recieved "' + str(message) + '"')
-	
-	if(message.startswith('RUN:')):
-		schedule_file_path = message[len('RUN:'):]
-		main(schedule_file_path)		
-		
-		
-		#elif(message == 'EXIT'):
-		#	break
-		
-	print('Dispatcher is ending communication.')
-		
-	
-	
 def main(schedule_file_path=None, pipe=None):
 	if((__name__ == '__main__') and (len(sys.argv) > 1)):
 		choice = sys.argv[1]

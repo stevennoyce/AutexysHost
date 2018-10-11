@@ -16,7 +16,6 @@ from procedures import AFM_Control as afmControlScript
 from procedures import Delay as delayScript
 
 from utilities import DataLoggerUtility as dlu
-from utilities import PlotPostingUtility as plotPoster
 from drivers import SourceMeasureUnit as smu
 from drivers import ArduinoBoard as arduinoBoard
 
@@ -111,11 +110,6 @@ def runAction(parameters, schedule_parameters, smu_systems, arduino_instance):
 	
 	print('Saving to ParametersHistory...')
 	dlu.saveJSON(dlu.getDeviceDirectory(parameters), 'ParametersHistory', parameters, incrementIndex=False)
-
-	#print('Posting plots online...')
-	#plotPoster.postPlots(parameters)
-
-
 
 
 
