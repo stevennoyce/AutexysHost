@@ -76,31 +76,33 @@ def manage():
 	#pipeManagerToMain, pipeMainToManager = mp.Pipe()
 	#pipeUIToMain, pipeMainToUI = mp.Pipe()
 	
-	uiProcess, pipeToUI = startUI(priority=0)
-	dispatchers = []
+	uiProcess, pipeToUI = startUI(priority=0)	
+	dispatcher = None
 	
 	while(True):
 		# Listen to the UI pipe for 10 seconds, then yield to do other tasks
 		print('Hello from Manager')
 		if(pipeToUI.poll(10)):
-			print('Manager has something to read')
 			message = pipeToUI.recv()
-			print('Manager received a message')
-			
+			print('Manager received: "' + str(message) + '"')
+						
 			if(message.startswith('RUN: ')):
-				print('Manager message starts with RUN:')
-				schedule_file_path = message[len('RUN: '):]
-				dispatcherProcess, pipeToDispatcher = startDispatcher(schedule_file_path, priority=0)
-				dispatchers.append({'process':dispatcherProcess, 'pipe':pipeToDispatcher})
+				if(dispatcher is None):
+					schedule_file_path = message[len('RUN: '):]
+					dispatcherProcess, pipeToDispatcher = startDispatcher(schedule_file_path, priority=0)
+					dispatcher = {'process':dispatcherProcess, 'pipe':pipeToDispatcher}
+				else:
+					print('Error: dispatcher is already running; wait for it to finish before starting another job.')
 			elif(message == 'STOP'):
-				for dispatcher in dispatchers:
+				if(dispatcher is not None):
 					dispatcher['pipe'].send('STOP')
+				else:
+					print('Dispatcher has already stopped.')
 		
-		# Check if dispatchers are running, if not join them to explicitly end them
-		for dispatcher in dispatchers:
-			if(not dispatcher['process'].is_alive()):
-				dispatcher['process'].join()
-				# Do we want to remove the dispatcher from the list at this point?
+		# Check if dispatcher is running, if not join it to explicitly end
+		if((dispatcher is not None) and (not dispatcher['process'].is_alive())):
+			dispatcher['process'].join()
+			dispatcher = None
 		
 		# Check that UI is still running, if not exit the event loop
 		if(not uiProcess.is_alive()):
@@ -108,11 +110,10 @@ def manage():
 	
 	# Join to all of the child processes to clean them up
 	uiProcess.join()
-	for dispatcher in dispatchers:
+	if(dispatcher is not None):
 		dispatcher['process'].join()
-		
+
 	
 		
 if __name__ == '__main__':
 	manage()
-	

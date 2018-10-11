@@ -32,95 +32,13 @@ default_dh_parameters = {
 	'showOnlySuccessfulBurns': False,
 }
 
-# plots_for_experiment = {
-# 	'GateSweep' : {
-# 		'primary':[	
-# 			'FullSubthresholdCurveHistory',
-# 			'FullTransferCurveHistory',
-# 			'FullGateCurrentHistory'
-# 		]
-# 	},
-# 	'DrainSweep': {
-# 		'primary':[
-# 			'FullOutputCurveHistory'
-# 		]
-# 	},
-# 	'BurnOut' : {	
-# 		'primary':[	
-# 			'FullBurnOutHistory'
-# 		]
-# 	},
-# 	'AutoBurnOut' : {
-# 		'primary':[
-# 			'FullBurnOutHistory',
-# 			'FullSubthresholdCurveHistory',
-# 			'FullTransferCurveHistory',
-# 			'FullGateCurrentHistory',
-# 			'OnAndOffCurrentHistory'
-# 		]
-# 	},
-# 	'StaticBias' : {
-# 		'primary':[
-# 			'FullStaticBiasHistory'
-# 		]
-# 	},
-# 	'AutoGateSweep' : {
-# 		'primary':[
-# 			'FullSubthresholdCurveHistory',
-# 			'FullTransferCurveHistory',
-# 			'FullGateCurrentHistory',
-# 			'OnAndOffCurrentHistory',
-# 			'FullStaticBiasHistory'
-# 		],
-# 	},
-# 	'AutoStaticBias' : {
-# 		'primary':[
-# 			'FullStaticBiasHistory',
-			
-# 		],
-# 		'secondary':[
-# 			'FullStaticBiasHistory',
-# 			'FullSubthresholdCurveHistory',
-# 			'FullTransferCurveHistory',
-# 			'FullGateCurrentHistory',
-# 			'OnAndOffCurrentHistory'
-# 		]
-# 	},
-# 	'AFMControl' : {
-# 		'primary':[
-# 			'AFMSignalsOverTime',
-# 			'AFMdeviationsVsX',
-# 			'AFMdeviationsVsXY'
-# 		]
-# 	}
-# }
-
-# def getPossiblePlotNames(parameters):
-# 	try:
-# 		p = parameters
-# 		asb_parameters = parameters['runConfigs']['AutoStaticBias']
-# 		ags_parameters = parameters['runConfigs']['AutoGateSweep']
-		
-# 		plotsType = 'primary'
-# 		if(p['runType'] == 'AutoStaticBias'):
-# 			plotsType = 'secondary' if((('doInitialGateSweep' in asb_parameters) and asb_parameters['doInitialGateSweep']) or asb_parameters['applyGateSweepBetweenBiases']) else 'primary' 
-		
-# 		return plots_for_experiment[p['runType']][plotsType]
-# 	except Exception as e:
-# 		print('Exception raised in getPossiblePlotNames')
-# 		print(e)
-# 		return [
-# 			'FullStaticBiasHistory',
-# 			'FullSubthresholdCurveHistory',
-# 			'FullTransferCurveHistory',
-# 			'FullGateCurrentHistory',
-# 			'OnAndOffCurrentHistory',
-# 			'FullBurnOutHistory'
-# 		]
+def plotsForExperiments(parameters, minExperiment=0, maxExperiment=float('inf')):
+	return dpu.getPlotTypesFromDependencies(dlu.getDataFilesForExperiments(dlu.getDeviceDirectory(parameters), minExperiment=minExperiment, maxExperiment=maxExperiment), plotCategory='device')
 
 
 
-# === Optional External Interface ===
+
+# === External Interface ===
 def makePlots(userID, projectID, waferID, chipID, deviceID, startExperimentNumber=0, endExperimentNumber=float('inf'), specificPlot='', figureSize=None, dataFolder=None, saveFolder=None, plotSaveName='', saveFigures=False, showFigures=True, sweepDirection='both', plotInRealTime=True, startRelativeIndex=0, endRelativeIndex=float('inf'), plot_mode_parameters=None):
 	parameters = {}	
 	mode_parameters = {}
@@ -221,9 +139,6 @@ def run(additional_parameters, plot_mode_parameters=None):
 
 	return plotList
 
-def plotsForExperiments(parameters, minExperiment=0, maxExperiment=float('inf')):
-	return dpu.getPlotTypesFromDependencies(dlu.getDataFilesForExperiments(dlu.getDeviceDirectory(parameters), minExperiment=minExperiment, maxExperiment=maxExperiment), plotCategory='device')
-
 
 
 if __name__ == '__main__':
@@ -254,7 +169,7 @@ if __name__ == '__main__':
 	#makePlots('stevenjay', 'BiasStress1', 'C127', 'X', '15-16', 80, 168, 'OnAndOffCurrentHistory', (2.2 *5.78/2.2,1.408 *3.5/2.2), dataFolder='../../../AutexysData', saveFolder='../../../AutexysPlots/', plotSaveName='Figure S17b full - ', saveFigures=False, showFigures=True, plotInRealTime=True, plot_mode_parameters={'publication_mode':True, 'staticBiasChangeDividers':False, 'enableGradient':False, 'legendLoc':'lower left'})
 	#makePlots('stevenjay', 'BiasStress1', 'C127', 'P', '15-16', 0, 500, '', None, dataFolder='../../../AutexysData', saveFolder='../../../AutexysPlots/', plotSaveName='Figure S17b full - ', saveFigures=False, showFigures=True, plotInRealTime=True, plot_mode_parameters={'publication_mode':False, 'staticBiasChangeDividers':False, 'enableGradient':False, 'legendLoc':'best'})
 	#makePlots('stevenjay', 'SolutionBias1', 'C127', 'V', '2-3', 0, 500, 'FullOutputCurveHistory', None, dataFolder='../../../AutexysData', saveFolder='../../../AutexysPlots/', plotSaveName='Figure S17b full - ', saveFigures=False, showFigures=True, plotInRealTime=True, plot_mode_parameters={'publication_mode':False, 'staticBiasChangeDividers':False, 'enableGradient':False, 'legendLoc':'best'})
-	makePlots('stevenjay', 'BiasStress1', 'C127', 'P', '1-2', 5, 7, 'SubthresholdCurve', None, plotSaveName='Figure S17b full - ', saveFigures=False, showFigures=True, plotInRealTime=True, plot_mode_parameters={'publication_mode':False, 'staticBiasChangeDividers':False, 'enableGradient':False, 'legendLoc':'best'})	
+	#makePlots('stevenjay', 'BiasStress1', 'C127', 'P', '1-2', 5, 7, 'SubthresholdCurve', None, plotSaveName='Figure S17b full - ', saveFigures=False, showFigures=True, plotInRealTime=True, plot_mode_parameters={'publication_mode':False, 'staticBiasChangeDividers':False, 'enableGradient':False, 'legendLoc':'best'})	
 	#makePlots('stevenjay', 'BiasStress1', 'C127', 'E', '15-16', 10, 18, 'OnAndOffCurrentHistory', None, dataFolder='../../AutexysData', saveFolder='../../../AutexysPlots/', plotSaveName='Figure S17b full - ', saveFigures=False, showFigures=True, plotInRealTime=True, plot_mode_parameters={'publication_mode':False, 'staticBiasChangeDividers':False, 'enableGradient':False, 'legendLoc':'best'})	
 	#makePlots('steven', 'SGM1', 'F1', 'E', 'E08N_10000', 51, 51, 'AFMdeviationsVsX', None, dataFolder='../data', showFigures=True)
 	pass

@@ -97,7 +97,6 @@ def getDataFileDependencies(plotType):
 def getPlotTypesFromDependencies(dataFileNames, plotCategory):
 	plotTypes = list(plotDefinitions.keys())
 	for plotType, definition in plotDefinitions.items():
-		print(plotType)
 		for dataFileName in definition['description']['dataFileNames']:
 			if((dataFileName not in dataFileNames) or (plotCategory != definition['description']['plotCategory'])):
 				if(plotType in plotTypes):
