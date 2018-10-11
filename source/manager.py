@@ -49,7 +49,7 @@ def changePriorityOfProcessAndChildren(pid, priority):
 
 def startUI(priority=0):
 	pipeToUI, pipeForUI = mp.Pipe()
-	uiProcess = mp.Process(target=ui.start, args=())
+	uiProcess = mp.Process(target=ui.start, kwargs={'pipeToManager':pipeForUI})
 	uiProcess.start()
 	changePriorityOfProcessAndChildren(uiProcess.pid, priority)
 	return (uiProcess, pipeToUI)
@@ -86,6 +86,7 @@ def main():
 		for dispatcher in dispatchers:
 			if(not dispatcher['process'].is_alive()):
 				dispatcher['process'].join()
+				# Do we want to remove the dispatcher from the list at this point?
 		
 		# Check that UI is still running, if not exit the event loop
 		if(not uiProcess.is_alive()):

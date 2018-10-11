@@ -19,6 +19,10 @@ if __name__ == '__main__':
 		os.chdir(os.path.join(os.path.abspath(os.sep), *pathParents[0:pathParents.index('AutexysHost')+1], 'source'))
 
 
+# Globals
+pipeToManager = None
+
+
 from collections import Mapping, Sequence
 
 def replaceInfNan(obj):
@@ -249,6 +253,18 @@ def loadSchedule(user, project, fileName):
 def getSubDirectories(directory):
 		return [os.path.basename(os.path.dirname(g)) for g in glob.glob(directory + '/*/')]
 
+@app.route('/runScheduleFile/<user>/<project>/<fileName>.json')
+def dispatchSchedule(user, project, fileName):
+	scheduleFilePath = os.path.join(default_data_path, user, project, 'schedules', fileName + '.json')
+	
+	pipeToManager.send('RUN: ' + scheduleFilePath)
+	
+	return jsonvalid({'success': True})
+
+
+def getSubDirectories(directory):
+		return [os.path.basename(os.path.dirname(g)) for g in glob.glob(directory + '/*/')]
+
 @app.route('/scheduleNames.json')
 def loadScheduleNames():
 	scheduleNames = {}
@@ -286,7 +302,13 @@ def findFirstOpenPort(startPort=1):
 				print('Port {} is not available'.format(port))
 
 
-def start():
+def start(pipeToManager=None):
+	pipeToManager = pipeToManager
+	
+	print(os.getcwd())
+	
+	exit()
+	
 	if 'AutexysUIRunning' in os.environ:
 		print('Reload detected. Not opening browser.')
 		print('Still running on port {}'.format(os.environ['AutexysUIPort']))

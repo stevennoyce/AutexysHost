@@ -140,6 +140,14 @@
 								<v-list-tile-title>Schedule Creator</v-list-tile-title>
 							</v-list-tile-content>
 						</v-list-tile>
+						<v-list-tile @click="setTopLevelPage('experimentRunner')">
+							<v-list-tile-action>
+								<v-icon>play_circle_outline</v-icon>
+							</v-list-tile-action>
+							<v-list-tile-content>
+								<v-list-tile-title>Experiment Runner</v-list-tile-title>
+							</v-list-tile-content>
+						</v-list-tile>
 						<v-list-tile @click="setTopLevelPage('settings')">
 							<v-list-tile-action>
 								<v-icon>settings</v-icon>
@@ -150,7 +158,7 @@
 						</v-list-tile>
 						<v-list-tile @click="setTopLevelPage('about')">
 							<v-list-tile-action>
-								<v-icon>info</v-icon>
+								<v-icon>info_outline</v-icon>
 							</v-list-tile-action>
 							<v-list-tile-content>
 								<v-list-tile-title>About</v-list-tile-title>
@@ -820,6 +828,41 @@
 						</v-card>
 					</v-flex>
 					
+					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'experimentRunner'">
+						<v-card>
+							<v-toolbar dark class="blue-grey darken-1">
+								<v-toolbar-title>
+									Experiment Runner
+								</v-toolbar-title>
+							</v-toolbar>
+							<v-container>
+								
+								<v-form>
+									<v-container>
+										<v-layout row wrap>
+											<v-flex xs12 sm6 md4 lg3 outline>
+												<v-autocomplete clearable v-model="scheduleExperimentUser" label="User" :items="Object.keys(scheduleNames)"></v-autocomplete>
+											</v-flex>
+											<v-flex xs12 sm6 md4 lg3 solo>
+												<v-autocomplete clearable v-model="scheduleExperimentProject" label="Project" :items="_.keys(_.get(scheduleNames, [scheduleExperimentUser], {}))"></v-autocomplete>
+											</v-flex>
+											<v-flex xs12 sm6 md4 lg3 solo>
+												<v-autocomplete clearable v-model="scheduleExperimentFileName" label="File Name" :items="_.get(scheduleNames, [scheduleExperimentUser, scheduleExperimentProject], [])"></v-autocomplete>
+											</v-flex>
+										</v-layout>
+									</v-container>
+								</v-form>
+								
+								<v-card-actions>
+									<span v-if="scheduleLoadUser && scheduleLoadProject && scheduleLoadFileName">Launch file: AutexysData/{{ scheduleLoadUser }}/{{ scheduleLoadProject }}/schedules/{{ scheduleLoadFileName }}.json</span>
+									<v-spacer></v-spacer>
+									<v-btn @click="dispatchSchedule()">Launch Experiments in Schedule File</v-btn>
+								</v-card-actions>
+								
+							</v-container>
+						</v-card>
+					</v-flex>
+					
 				</v-content>
 				<v-footer inset>
 					<v-spacer></v-spacer><span class="pr-3">Created by Steven Noyce. Updated August 2018.</span>
@@ -1000,6 +1043,10 @@
 				scheduleLoadUser: '',
 				scheduleLoadProject: '',
 				scheduleLoadFileName: '',
+				scheduleExperimentUser: '',
+				scheduleExperimentProject: '',
+				scheduleExperimentFileName: '',
+				scheduleExperimentSuccessCode: {},
 				saveScheduleSuccessCode: {},
 				scheduleNames: {}
 			},
@@ -1146,6 +1193,13 @@
 					if (this.scheduleSaveUser == '') this.scheduleSaveUser = this.scheduleLoadUser;
 					if (this.scheduleSaveProject == '') this.scheduleSaveProject = this.scheduleLoadProject;
 					if (this.scheduleSaveFileName == '') this.scheduleSaveFileName = this.scheduleLoadFileName;
+				},
+				dispatchSchedule: function() {
+					var path = '/scheduleFiles/' + this.scheduleExperimentUser + '/' + this.scheduleExperimentProject + '/' + this.scheduleExperimentFileName + '.json' + this.cacheBust;
+					if (path) {
+						$.getJSON(path, response => {app.$data.scheduleExperimentSuccessCode = response})
+						.fail(() => {console.log("Error dispatching schedule file")});
+					}
 				},
 				
 				goToUser: function(userName) {
