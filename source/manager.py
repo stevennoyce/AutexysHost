@@ -87,9 +87,9 @@ def manage():
 			message = pipeToUI.recv()
 			print('Manager received a message')
 			
-			if(message.startswith('RUN:')):
+			if(message.startswith('RUN: ')):
 				print('Manager message starts with RUN:')
-				schedule_file_path = message[len('RUN:'):]
+				schedule_file_path = message[len('RUN: '):]
 				dispatcherProcess, pipeToDispatcher = startDispatcher(schedule_file_path, priority=0)
 				dispatchers.append({'process':dispatcherProcess, 'pipe':pipeToDispatcher})
 			elif(message == 'STOP'):

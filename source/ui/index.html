@@ -854,7 +854,7 @@
 								</v-form>
 								
 								<v-card-actions>
-									<span v-if="scheduleLoadUser && scheduleLoadProject && scheduleLoadFileName">Launch file: AutexysData/{{ scheduleLoadUser }}/{{ scheduleLoadProject }}/schedules/{{ scheduleLoadFileName }}.json</span>
+									<span v-if="scheduleExperimentUser && scheduleExperimentProject && scheduleExperimentFileName">Launch file: AutexysData/{{ scheduleExperimentUser }}/{{ scheduleExperimentProject }}/schedules/{{ scheduleExperimentFileName }}.json</span>
 									<v-spacer></v-spacer>
 									<v-btn @click="dispatchSchedule()">Launch Experiments in Schedule File</v-btn>
 								</v-card-actions>
