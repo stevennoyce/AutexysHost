@@ -6,8 +6,6 @@ import os
 import main
 import ui
 
-# Main could be called 'scheduler', 'dispatcher', etc.
-
 if __name__ == '__main__':
 	os.chdir(sys.path[0])
 	
@@ -62,35 +60,33 @@ def startUI(priority=0):
 	uiProcess = mp.Process(target=ui.start, kwargs={'managerPipe':pipeForUI})
 	uiProcess.start()
 	changePriorityOfProcessAndChildren(uiProcess.pid, priority)
-	return (uiProcess, pipeToUI)
+	return {'process':uiProcess, 'pipe':pipeToUI}
 
 def startDispatcher(schedule_file_path, priority=0):
 	pipeToDispatcher, pipeForDispatcher = mp.Pipe()
 	dispatcherProcess = mp.Process(target=main.main, args=(schedule_file_path, pipeForDispatcher))
 	dispatcherProcess.start()
 	changePriorityOfProcessAndChildren(dispatcherProcess.pid, priority)
-	return (dispatcherProcess, pipeToDispatcher)
+	return {'process':dispatcherProcess, 'pipe':pipeToDispatcher}
 
-def manage():
-	#pipeManagerToUI, pipeUIToManager = mp.Pipe()
-	#pipeManagerToMain, pipeMainToManager = mp.Pipe()
-	#pipeUIToMain, pipeMainToUI = mp.Pipe()
-	
-	uiProcess, pipeToUI = startUI(priority=0)	
+def manage(on_startup_schedule_file=None):
+	ui = startUI(priority=0)	
 	dispatcher = None
+	
+	if(on_startup_schedule_file is not None):
+		dispatcher = startDispatcher(on_startup_schedule_file, priority=0)
 	
 	while(True):
 		# Listen to the UI pipe for 10 seconds, then yield to do other tasks
 		print('Hello from Manager')
-		if(pipeToUI.poll(10)):
-			message = pipeToUI.recv()
+		if(ui['pipe'].poll(10)):
+			message = ui['pipe'].recv()
 			print('Manager received: "' + str(message) + '"')
 						
 			if(message.startswith('RUN: ')):
 				if(dispatcher is None):
 					schedule_file_path = message[len('RUN: '):]
-					dispatcherProcess, pipeToDispatcher = startDispatcher(schedule_file_path, priority=0)
-					dispatcher = {'process':dispatcherProcess, 'pipe':pipeToDispatcher}
+					dispatcher = startDispatcher(schedule_file_path, priority=0)
 				else:
 					print('Error: dispatcher is already running; wait for it to finish before starting another job.')
 			elif(message == 'STOP'):
@@ -105,15 +101,18 @@ def manage():
 			dispatcher = None
 		
 		# Check that UI is still running, if not exit the event loop
-		if(not uiProcess.is_alive()):
+		if(not ui['process'].is_alive()):
 			break
 	
 	# Join to all of the child processes to clean them up
-	uiProcess.join()
+	ui['process'].join()
 	if(dispatcher is not None):
 		dispatcher['process'].join()
 
 	
 		
 if __name__ == '__main__':
-	manage()
+	if(len(sys.argv) > 1):
+		manage(sys.argv[1])
+	else:
+		manage()

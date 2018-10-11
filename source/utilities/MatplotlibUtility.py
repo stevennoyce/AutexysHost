@@ -98,6 +98,8 @@ def show():
 
 
 # *********** Plot Helper Functions ***********
+"""Every method in this utility is intended to assist the creation of new plotDefintions in the plotDefinitions folder. None of these methods are
+intended to stand alone."""
 
 # === Device Plots ===
 def plotSweep(axis, jsonData, lineColor, direction='both', voltageData='gate', currentData='drain', logScale=True, scaleCurrentBy=1, lineStyle=None, errorBars=True, alphaForwardSweep=1):
