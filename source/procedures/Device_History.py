@@ -34,12 +34,6 @@ default_dh_parameters = {
 	'showOnlySuccessfulBurns': False,
 }
 
-def plotsForExperiments(parameters, minExperiment=0, maxExperiment=float('inf')):
-	"""Given the typical parameters used to run experiments, return a list of plots that could be made from the data that has been already collected."""
-	
-	return dpu.getPlotTypesFromDependencies(dlu.getDataFileNamesForExperiments(dlu.getDeviceDirectory(parameters), minExperiment=minExperiment, maxExperiment=maxExperiment), plotCategory='device')
-
-
 
 
 # === External Interface ===
@@ -135,7 +129,7 @@ def run(additional_parameters, plot_mode_parameters=None):
 			plot = dpu.makeDevicePlot(plotType, deviceHistory, parameters['Identifiers'], mode_parameters=mode_parameters)
 			plotList.append(plot)
 		except FileNotFoundError:
-			print("Error: Unable to find data files for '" + str(plotType) + "' plot.")
+			print("Error: Unable to load data files for '" + str(plotType) + "' plot.")
 	
 	# Show figures if desired		
 	if(p['showFiguresGenerated']):
@@ -159,6 +153,13 @@ def run(additional_parameters, plot_mode_parameters=None):
 		plotPoster.postPlots(parameters)
 
 	return plotList
+
+
+
+def plotsForExperiments(parameters, minExperiment=0, maxExperiment=float('inf')):
+	"""Given the typical parameters used to run experiments, return a list of plots that could be made from the data that has been already collected."""
+	
+	return dpu.getPlotTypesFromDependencies(dlu.getDataFileNamesForExperiments(dlu.getDeviceDirectory(parameters), minExperiment=minExperiment, maxExperiment=maxExperiment), plotCategory='device')
 
 
 

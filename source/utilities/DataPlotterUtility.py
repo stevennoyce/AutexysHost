@@ -80,7 +80,7 @@ def makeDevicePlot(plotType, deviceHistory, identifiers, mode_parameters=None):
 
 def makeChipPlot(plotType, identifiers, chipIndexes=None, firstRunChipHistory=None, recentRunChipHistory=None, mode_parameters=None):
 	"""Given a plotType that matches one of the plotDefinitions in the plotDefinitions folder, as well as a variety of chip data, 
-	and a dictionary containing the user/project/wafer/chip/device identifiers for this data, generate the requested plot. The plot can
+	and a dictionary containing the user/project/wafer/chip identifiers for this data, generate the requested plot. The plot can
 	be shown by a later call to show(). Given the complexity of different requirements for different plots, it is highly recommended
 	that Chip_History.makePlot() is used instead.
 

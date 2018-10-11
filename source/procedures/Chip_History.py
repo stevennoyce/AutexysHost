@@ -1,3 +1,5 @@
+"""This module provides an interface for generating plots for a particular chip. The primary method is ChipHistory.makePlots()."""
+
 # === Make this script runnable ===
 if(__name__ == '__main__'):
 	import sys
@@ -24,7 +26,7 @@ default_ch_parameters = {
 
 
 
-# === Optional External Interface ===
+# === External Interface ===
 def makePlots(userID, projectID, waferID, chipID, dataFolder=None, specificPlot='', saveFolder=None, plotSaveName='', showFigures=True, saveFigures=False, plot_mode_parameters=None):
 	parameters = {}	
 	mode_parameters = {}
@@ -50,8 +52,9 @@ def makePlots(userID, projectID, waferID, chipID, dataFolder=None, specificPlot=
 
 
 
-# === Main ===
 def run(additional_parameters, plot_mode_parameters={}):
+	"""Legacy 'run' function from when ChipHistory was treated more like a typical procedure with parameters."""
+	
 	parameters = default_ch_parameters.copy()
 	parameters.update(additional_parameters)
 
@@ -60,32 +63,42 @@ def run(additional_parameters, plot_mode_parameters={}):
 
 	plotList = []
 
-	if(parameters['specificPlotToCreate'] in ['', 'ChipHistogram']):
-		chipIndexes = dlu.loadChipIndexes(dlu.getChipDirectory(parameters))
-		plot = dpu.makeChipPlot('ChipHistogram', parameters['Identifiers'], chipIndexes=chipIndexes, mode_parameters=plot_mode_parameters)
-		plotList.append(plot)
+	# Determine which plots are being requested and make them all
+	plotsToCreate = [p['specificPlotToCreate']] if(p['specificPlotToCreate'] != '') else plotsForExperiments(parameters, minExperiment=p['excludeDataBeforeJSONExperimentNumber'], maxExperiment=p['excludeDataAfterJSONExperimentNumber'])
 
-	if(parameters['specificPlotToCreate'] in ['', 'ChipOnOffRatios']):
-		firstRunChipHistory = dlu.loadFirstRunChipHistory(dlu.getChipDirectory(parameters), 'GateSweep.json')
-		recentRunChipHistory = dlu.loadMostRecentRunChipHistory(dlu.getChipDirectory(parameters), 'GateSweep.json')
-		plot = dpu.makeChipPlot('ChipOnOffRatios', parameters['Identifiers'], firstRunChipHistory=firstRunChipHistory, recentRunChipHistory=recentRunChipHistory, mode_parameters=plot_mode_parameters)
+	for plotType in plotsToCreate:
+		if(plotType == 'ChipHistogram'):
+			chipIndexes = dlu.loadChipIndexes(dlu.getChipDirectory(parameters))
+			firstRunChipHistory = None
+			recentRunChipHistory = None
+		elif(plotType == 'ChipOnOffRatios'):
+			chipIndexes = None
+			firstRunChipHistory = dlu.loadFirstRunChipHistory(dlu.getChipDirectory(parameters), 'GateSweep.json')
+			recentRunChipHistory = dlu.loadMostRecentChipHistory(dlu.getChipDirectory(parameters), 'GateSweep.json', numberOfRecentExperiments=1)
+		elif(plotType == 'ChipOnOffCurrents'):
+			chipIndexes = None
+			firstRunChipHistory = None
+			recentRunChipHistory = dlu.loadMostRecentChipHistory(dlu.getChipDirectory(parameters), 'GateSweep.json', numberOfRecentExperiments=1)
+		elif(plotType == 'ChipTransferCurves'):
+			chipIndexes = None
+			firstRunChipHistory = None
+			recentRunChipHistory = dlu.loadMostRecentChipHistory(dlu.getChipDirectory(parameters), 'GateSweep.json', numberOfRecentExperiments=1)
+						
+		plot = dpu.makeChipPlot(plotType, parameters['Identifiers'], chipIndexes=chipIndexes, firstRunChipHistory=firstRunChipHistory, recentRunChipHistory=recentRunChipHistory, mode_parameters=plot_mode_parameters)
 		plotList.append(plot)
 	
-	if(parameters['specificPlotToCreate'] in ['', 'ChipOnOffCurrents']):
-		recentRunChipHistory = dlu.loadMostRecentRunChipHistory(dlu.getChipDirectory(parameters), 'GateSweep.json')
-		plot = dpu.makeChipPlot('ChipOnOffCurrents', parameters['Identifiers'], recentRunChipHistory=recentRunChipHistory, mode_parameters=plot_mode_parameters)
-		plotList.append(plot)
-	
-	if(parameters['specificPlotToCreate'] in ['', 'ChipTransferCurves']):
-		recentRunChipHistory = dlu.loadMostRecentRunChipHistory(dlu.getChipDirectory(parameters), 'GateSweep.json')
-		plot = dpu.makeChipPlot('ChipTransferCurves', parameters['Identifiers'], recentRunChipHistory=recentRunChipHistory, mode_parameters=plot_mode_parameters)
-		plotList.append(plot)
-
+	# Show figures if desired	
 	if(parameters['showFiguresGenerated']):
 		dpu.show()
 
 	return plotList
 
+
+
+def plotsForExperiments(parameters, minExperiment=0, maxExperiment=float('inf')):
+	"""Given the typical parameters used to run experiments, return a list of plots that could be made from the data that has been already collected."""
+	
+	return dpu.getPlotTypesFromDependencies(dlu.getDataFileNamesForExperiments(dlu.getDeviceDirectory(parameters), minExperiment=minExperiment, maxExperiment=maxExperiment), plotCategory='chip')
 
 
 
