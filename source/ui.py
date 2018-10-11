@@ -305,9 +305,9 @@ def findFirstOpenPort(startPort=1):
 				print('Port {} is not available'.format(port))
 
 
-def start(pipeToManagerIn=None):
-	global pipeToManager
-	pipeToManager = pipeToManagerIn
+def start(managerPipe=None):
+	# global pipeToManager
+	# pipeToManager = managerPipe
 	
 	return
 	

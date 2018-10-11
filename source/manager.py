@@ -59,7 +59,7 @@ def changePriorityOfProcessAndChildren(pid, priority):
 
 def startUI(priority=0):
 	pipeToUI, pipeForUI = mp.Pipe()
-	uiProcess = mp.Process(target=ui.start, kwargs={'pipeToManager':pipeForUI})
+	uiProcess = mp.Process(target=ui.start, kwargs={'managerPipe':pipeForUI})
 	uiProcess.start()
 	changePriorityOfProcessAndChildren(uiProcess.pid, priority)
 	return (uiProcess, pipeToUI)
