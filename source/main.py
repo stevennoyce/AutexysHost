@@ -49,6 +49,7 @@ def main(schedule_file_path=None, pipe=None):
 	
 	# File must end in '.json'
 	file = choice if(choice[-5:] == '.json') else (choice + '.json')
+	file = file.strip()
 	
 	run_file(file, pipe)
 	
