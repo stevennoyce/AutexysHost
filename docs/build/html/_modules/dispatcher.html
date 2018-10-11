@@ -1,0 +1,299 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dispatcher &mdash; Autexys 1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Autexys
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Autexys</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Module code</a> &raquo;</li>
+        
+      <li>dispatcher</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for dispatcher</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;This module is used to &#39;dispatch&#39; or execute a particular schedule file. When the schedule file completes, the dispatcher is finished.</span>
+<span class="sd">This module can be run from command line with an optional argument specifying the path to a schedule file. Alternatively, this module can</span>
+<span class="sd">be run as a multiprocessing.Process and given a multiprocessing.Pipe for communication to other processes.&quot;&quot;&quot;</span>
+
+<span class="c1"># === Imports ===</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">platform</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">launcher</span>
+<span class="kn">from</span> <span class="nn">utilities</span> <span class="k">import</span> <span class="n">DataLoggerUtility</span> <span class="k">as</span> <span class="n">dlu</span>
+
+<span class="k">if</span><span class="p">(</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">):</span>
+	<span class="n">pathParents</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+	<span class="k">if</span> <span class="s1">&#39;AutexysHost&#39;</span> <span class="ow">in</span> <span class="n">pathParents</span><span class="p">:</span>
+		<span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">),</span> <span class="o">*</span><span class="n">pathParents</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">pathParents</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;AutexysHost&#39;</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;source&#39;</span><span class="p">))</span>
+
+
+
+<span class="c1"># === Main entry point for dispatching a schedule file ===</span>
+<div class="viewcode-block" id="dispatch"><a class="viewcode-back" href="../dispatcher.html#dispatcher.dispatch">[docs]</a><span class="k">def</span> <span class="nf">dispatch</span><span class="p">(</span><span class="n">schedule_file_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pipe</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Given a schedule file path, begin executing the experiments in the schedule file, otherwise prompt the user for a schedule file.&quot;&quot;&quot;</span>
+	
+	<span class="k">if</span><span class="p">(</span><span class="n">schedule_file_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+		<span class="n">choice</span> <span class="o">=</span> <span class="n">schedule_file_path</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">choice</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Choose a schedule file to run: &#39;</span><span class="p">)</span>
+	
+	<span class="c1"># File must end in &#39;.json&#39;</span>
+	<span class="n">file</span> <span class="o">=</span> <span class="n">choice</span> <span class="k">if</span><span class="p">(</span><span class="n">choice</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">:]</span> <span class="o">==</span> <span class="s1">&#39;.json&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="p">(</span><span class="n">choice</span> <span class="o">+</span> <span class="s1">&#39;.json&#39;</span><span class="p">)</span>
+	<span class="n">file</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+	
+	<span class="n">run_file</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">pipe</span><span class="p">)</span>
+	
+	<span class="n">send_notification_via_pushbullet</span><span class="p">(</span>
+		<span class="s1">&#39;Completed Main at </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%I:%M %p on %a&#39;</span><span class="p">)),</span> 
+		<span class="s1">&#39;Script has finished choice of: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">choice</span><span class="p">)</span>
+	<span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="run_file"><a class="viewcode-back" href="../dispatcher.html#dispatcher.run_file">[docs]</a><span class="k">def</span> <span class="nf">run_file</span><span class="p">(</span><span class="n">schedule_file_path</span><span class="p">,</span> <span class="n">pipe</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Given a shedule file path, open the file and step through each experiment.&quot;&quot;&quot;</span>
+
+	<span class="n">schedule_index</span> <span class="o">=</span> <span class="mi">0</span>
+
+	<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Opening schedule file: &#39;</span> <span class="o">+</span> <span class="n">schedule_file_path</span><span class="p">)</span>
+
+	<span class="k">while</span><span class="p">(</span> <span class="n">schedule_index</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">dlu</span><span class="o">.</span><span class="n">loadJSON</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">loadFileName</span><span class="o">=</span><span class="n">schedule_file_path</span><span class="p">))</span> <span class="p">):</span>
+		<span class="k">if</span><span class="p">(</span><span class="n">pipe</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+			<span class="k">while</span><span class="p">(</span><span class="n">pipe</span><span class="o">.</span><span class="n">poll</span><span class="p">()):</span>
+				<span class="n">message</span> <span class="o">=</span> <span class="n">pipe</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
+				<span class="k">if</span><span class="p">(</span><span class="n">message</span> <span class="o">==</span> <span class="s1">&#39;STOP&#39;</span><span class="p">):</span>
+					<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Aborting schedule file: &#39;</span> <span class="o">+</span> <span class="n">schedule_file_path</span><span class="p">)</span>
+					<span class="k">return</span>
+		<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Loading line #&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">schedule_index</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; in schedule file &#39;</span> <span class="o">+</span> <span class="n">schedule_file_path</span><span class="p">)</span>
+		<span class="n">parameter_list</span> <span class="o">=</span> <span class="n">dlu</span><span class="o">.</span><span class="n">loadJSON</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">loadFileName</span><span class="o">=</span><span class="n">schedule_file_path</span><span class="p">)</span>
+
+		<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Launching job #&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">schedule_index</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; of &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">parameter_list</span><span class="p">))</span> <span class="o">+</span> <span class="s1">&#39; in schedule file &#39;</span> <span class="o">+</span> <span class="n">schedule_file_path</span><span class="p">)</span>
+		<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Schedule contains &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">parameter_list</span><span class="p">)</span> <span class="o">-</span> <span class="n">schedule_index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; other incomplete jobs.&#39;</span><span class="p">)</span>
+		<span class="n">additional_parameters</span> <span class="o">=</span> <span class="n">parameter_list</span><span class="p">[</span><span class="n">schedule_index</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+		<span class="n">launcher</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">additional_parameters</span><span class="p">,</span> <span class="n">pipe</span><span class="p">)</span>
+
+		<span class="n">schedule_index</span> <span class="o">+=</span> <span class="mi">1</span>
+	
+	<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Closing schedule file: &#39;</span> <span class="o">+</span> <span class="n">schedule_file_path</span><span class="p">)</span></div>
+		
+		
+
+<div class="viewcode-block" id="send_notification_via_pushbullet"><a class="viewcode-back" href="../dispatcher.html#dispatcher.send_notification_via_pushbullet">[docs]</a><span class="k">def</span> <span class="nf">send_notification_via_pushbullet</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">body</span><span class="p">):</span>
+	<span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;https://api.pushbullet.com/v2/pushes&#39;</span>
+	<span class="n">access_token</span> <span class="o">=</span> <span class="s1">&#39;o.jc84248QDFZCW8QJWu9DXpzaLbdwhoD7&#39;</span>
+	<span class="n">data_send</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;note&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">title</span><span class="p">,</span> <span class="s2">&quot;body&quot;</span><span class="p">:</span> <span class="n">body</span><span class="p">}</span>
+	<span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Authorization&#39;</span><span class="p">:</span> <span class="s1">&#39;Bearer &#39;</span> <span class="o">+</span> <span class="n">access_token</span><span class="p">,</span> <span class="s1">&#39;Content-Type&#39;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+ 	
+	<span class="n">resp</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data_send</span><span class="p">),</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
+	
+	<span class="k">if</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
+		<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Pushbullet Notification Failed&#39;</span><span class="p">)</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Pushbullet Notification Succeeded&#39;</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># === User Interface ===</span>
+<div class="viewcode-block" id="devicesInRange"><a class="viewcode-back" href="../dispatcher.html#dispatcher.devicesInRange">[docs]</a><span class="k">def</span> <span class="nf">devicesInRange</span><span class="p">(</span><span class="n">startContact</span><span class="p">,</span> <span class="n">endContact</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Deprecated function for generating a list of devices.&quot;&quot;&quot;</span>
+	<span class="n">contactList</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">startContact</span><span class="p">,</span><span class="n">endContact</span><span class="p">))</span>
+	<span class="k">if</span><span class="p">(</span><span class="n">skip</span><span class="p">):</span>
+		<span class="n">omitList</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">64</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span>
+		<span class="n">contactList</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">contactList</span><span class="o">-</span><span class="n">omitList</span><span class="p">)</span>
+	<span class="k">return</span> <span class="p">[</span><span class="s1">&#39;</span><span class="si">{0:}</span><span class="s1">-</span><span class="si">{1:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">c</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">contactList</span><span class="p">]</span></div>
+
+
+
+
+
+<span class="k">if</span><span class="p">(</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">):</span>
+	<span class="k">if</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)):</span>
+		<span class="n">dispatch</span><span class="p">(</span><span class="n">schedule_file_path</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">dispatch</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Steven Noyce
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
