@@ -17,11 +17,9 @@ if(__name__ == '__main__'):
 
 
 
-# === Main ===
-def main(schedule_file_path=None, pipe=None):
-	if((__name__ == '__main__') and (len(sys.argv) > 1)):
-		choice = sys.argv[1]
-	elif(schedule_file_path is not None):
+# === Main entry point for dispatching a schedule file ===
+def dispatch(schedule_file_path=None, pipe=None):
+	if(schedule_file_path is not None):
 		choice = schedule_file_path
 	else:
 		choice = input('Choose a schedule file to run: ')
@@ -103,4 +101,7 @@ def devicesInRange(startContact, endContact, skip=True):
 
 
 if(__name__ == '__main__'):
-	main()
+	if((len(sys.argv) > 1)):
+		dispatch(schedule_file_path=sys.argv[1])
+	else:
+		dispatch()
