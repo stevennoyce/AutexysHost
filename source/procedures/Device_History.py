@@ -33,7 +33,7 @@ default_dh_parameters = {
 }
 
 def plotsForExperiments(parameters, minExperiment=0, maxExperiment=float('inf')):
-	return dpu.getPlotTypesFromDependencies(dlu.getDataFilesForExperiments(dlu.getDeviceDirectory(parameters), minExperiment=minExperiment, maxExperiment=maxExperiment), plotCategory='device')
+	return dpu.getPlotTypesFromDependencies(dlu.getDataFileNamesForExperiments(dlu.getDeviceDirectory(parameters), minExperiment=minExperiment, maxExperiment=maxExperiment), plotCategory='device')
 
 
 

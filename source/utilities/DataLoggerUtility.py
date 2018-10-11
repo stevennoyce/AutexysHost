@@ -9,17 +9,20 @@ import time
 
 # === File System ===
 def makeFolder(folderPath):
+	"""Create all of the folders in folderPath if they do not already exist."""
 	if (not os.path.exists(folderPath)):
 		print('New Folder: ' + str(folderPath))
 		os.makedirs(folderPath)
 
 def emptyFolder(folderPath):
+	"""Remove all png files from a folder."""
 	if os.path.exists(folderPath):
 		fileNames = glob.glob(folderPath + '*.png')
 		for fileName in fileNames:
 			os.remove(fileName)
 
 def emptyFile(folderPath, fileName):
+	"""Make an empty file called fileName.json in the folderPath directory."""
 	makeFolder(folderPath)
 	
 	if '.json' not in fileName:
@@ -32,6 +35,9 @@ def emptyFile(folderPath, fileName):
 
 # === JSON ===
 def saveJSON(directory, saveFileName, jsonData, subDirectory=None, incrementIndex=True):
+	"""Save the jsonData dictionary to as saveFileName.json in directory. 
+	If incrementIndex is True, also create an index.json file that tracks the index and experimentNumber of this jsonData.
+	If subDirectory is not None, put saveFileName.json in a folder specified by directory + subDirectory. index.json is still put in directory."""
 	savePath = directory
 	if(subDirectory is not None):
 		savePath = os.path.join(directory, subDirectory)
@@ -51,9 +57,41 @@ def saveJSON(directory, saveFileName, jsonData, subDirectory=None, incrementInde
 		file.write('\n')	
 
 def loadJSON(directory, loadFileName):
+	"""Load loadFileName.json as a dictionary."""
 	return loadJSON_slow(directory, loadFileName)
 
+def loadJSONIndex(directory):
+	"""Load the first line of index.json in directory."""
+	indexData = {}
+	try:
+		with open(os.path.join(directory, 'index.json'), 'r') as file:
+			indexData = json.loads(file.readline())
+	except FileNotFoundError:	
+		indexData = {'index':0, 'experimentNumber':0, 'timestamp':0}
+	return indexData
+
+def incrementJSONIndex(directory):
+	"""Increase index in index.json by 1 and refresh the timestamp."""
+	indexData = loadJSONIndex(directory)
+	with open(os.path.join(directory, 'index.json'), 'w') as file:
+		indexData['index'] += 1
+		indexData['timestamp'] = time.time()
+		json.dump(indexData, file)
+		file.write('\n')
+	return indexData['index']
+
+def incrementJSONExperimentNumber(directory):
+	"""Increase experimentNumber in index.json by 1 and refresh the timestamp."""
+	indexData = loadJSONIndex(directory)
+	with open(os.path.join(directory, 'index.json'), 'w') as file:
+		indexData['experimentNumber'] += 1
+		indexData['timestamp'] = time.time()
+		json.dump(indexData, file)
+		file.write('\n')
+	return indexData['experimentNumber']
+	
 def loadJSON_slow(directory, loadFileName):
+	"""Private method. This is the traditional way of parsing json data files, but it can be slow if you only need to see one line in a large file."""
 	jsonData = []
 	with open(os.path.join(directory, loadFileName)) as file:
 		for line in file:
@@ -64,51 +102,30 @@ def loadJSON_slow(directory, loadFileName):
 	return jsonData
 
 def loadJSON_fast(directory, loadFileName, minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf')):
+	"""Private method. Given filters of min/max index, experimentNumber, and relativeIndex this loads individual file lines much faster."""
 	fileLines = loadJSONtoStringArray(directory, loadFileName)
 	filteredFileLines = filterStringArrayByIndexAndExperiment(directory, fileLines, minIndex, maxIndex, minExperiment, maxExperiment, minRelativeIndex, maxRelativeIndex)
 	jsonData = parseJSON(filteredFileLines)
 	return jsonData
 
-def loadJSONIndex(directory):
-	indexData = {}
-	try:
-		with open(os.path.join(directory, 'index.json'), 'r') as file:
-			indexData = json.loads(file.readline())
-	except FileNotFoundError:	
-		indexData = {'index':0, 'experimentNumber':0, 'timestamp':0}
-	return indexData
-
-def incrementJSONIndex(directory):
-	indexData = loadJSONIndex(directory)
-	with open(os.path.join(directory, 'index.json'), 'w') as file:
-		indexData['index'] += 1
-		indexData['timestamp'] = time.time()
-		json.dump(indexData, file)
-		file.write('\n')
-	return indexData['index']
-
-def incrementJSONExperimentNumber(directory):
-	indexData = loadJSONIndex(directory)
-	with open(os.path.join(directory, 'index.json'), 'w') as file:
-		indexData['experimentNumber'] += 1
-		indexData['timestamp'] = time.time()
-		json.dump(indexData, file)
-		file.write('\n')
-	return indexData['experimentNumber']
-
 
 
 # === Device History API ===
+"""These are the public methods used specifically to load device data."""
+
 def getDeviceDirectory(parameters):
+	"""Given the typical parameters used to run an experiment, return the path to the directory where data will be saved for this device."""
 	return os.path.join(parameters['dataFolder'], parameters['Identifiers']['user'], parameters['Identifiers']['project'], parameters['Identifiers']['wafer'], parameters['Identifiers']['chip'], parameters['Identifiers']['device']) + os.sep
 
 def loadSpecificDeviceHistory(directory, fileName, minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf')):
+	"""Given a folder path and fileName, load data for a device. Optional filters are used to only load specific range of index, experimentNumber, or experimentNumber with a relativeIndex offset."""
 	filteredHistory = []
 	for experimentSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and (name[0:2] == 'Ex' and name[2:].isdigit()) and (int(name[2:]) >= minExperiment) and (int(name[2:]) <= maxExperiment))]:
 		filteredHistory += loadJSON_fast(os.path.join(directory, experimentSubdirectory), fileName, minIndex, maxIndex, minExperiment, maxExperiment, minRelativeIndex, maxRelativeIndex)
 	return filteredHistory
 
-def getDataFilesForExperiments(directory, minExperiment=0, maxExperiment=float('inf')):
+def getDataFileNamesForExperiments(directory, minExperiment=0, maxExperiment=float('inf')):
+	"""Given a folder path and range of experiments, get all of the unique .json file names that hold data in that directory."""
 	dataFileNames = []
 	for experimentSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and (name[0:2] == 'Ex' and name[2:].isdigit()) and (int(name[2:]) >= minExperiment) and (int(name[2:]) <= maxExperiment))]:
 		for filePath in glob.glob(os.path.join(directory, experimentSubdirectory) + '/*.json'):
@@ -118,6 +135,7 @@ def getDataFilesForExperiments(directory, minExperiment=0, maxExperiment=float('
 	return dataFileNames
 
 def getIndexesForExperiments(directory, minExperiment, maxExperiment):
+	"""Given a folder path and range of experiments, get a list of the indices for the data in those experiments."""
 	indexes = []
 	for experimentSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and (name[0:2] == 'Ex' and name[2:].isdigit()) and (int(name[2:]) >= minExperiment) and (int(name[2:]) <= maxExperiment))]:	
 		for filePath in glob.glob(os.path.join(directory, experimentSubdirectory) + '/*.json'):
@@ -131,10 +149,14 @@ def getIndexesForExperiments(directory, minExperiment, maxExperiment):
 
 
 # === Chip History API ===
+"""These are the public methods used specifically to load data from multiple devices on the same chip."""
+
 def getChipDirectory(parameters):
+	"""Given the typical parameters used to run an experiment, return the path to the directory where data will be saved for this chip."""
 	return os.path.join(parameters['dataFolder'], parameters['Identifiers']['user'], parameters['Identifiers']['project'], parameters['Identifiers']['wafer'], parameters['Identifiers']['chip'])
 
 def loadChipIndexes(directory):
+	"""Given a chip's folder path, load the index.json data for every device."""
 	chipIndexes = {}
 	for deviceSubdirectory in [name for name in os.listdir(directory) if os.path.isdir(os.path.join(directory, name))]:
 		indexData = loadJSONIndex(os.path.join(directory, deviceSubdirectory))
@@ -142,6 +164,7 @@ def loadChipIndexes(directory):
 	return chipIndexes
 
 def loadFullChipHistory(directory, fileName):
+	"""Given a chip's folder path and a data fileName, load all data for all devices on that chip."""
 	chipHistory = []
 	for deviceSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and os.path.exists(os.path.join(directory, name, fileName)))]:
 		jsonData = loadSpecificDeviceHistory(os.path.join(directory, deviceSubdirectory), fileName)
@@ -150,6 +173,7 @@ def loadFullChipHistory(directory, fileName):
 	return chipHistory
 
 def loadFirstRunChipHistory(directory, fileName):
+	"""Given a chip's folder path and a data fileName, load the first saved jsonData for every device on that chip."""
 	fullChipHistory = loadFullChipHistory(directory, fileName)
 	firstRunsOnly = []
 	devicesLogged = []
@@ -161,6 +185,7 @@ def loadFirstRunChipHistory(directory, fileName):
 	return firstRunsOnly
 
 def loadMostRecentRunChipHistory(directory, fileName):
+	"""Given a chip's folder path and a data fileName, load the most recently saved jsonData for every device on that chip."""
 	fullChipHistory = list(reversed(loadFullChipHistory(directory, fileName)))
 	lastRunsOnly = []
 	devicesLogged = []
@@ -174,12 +199,17 @@ def loadMostRecentRunChipHistory(directory, fileName):
 
 
 # === Wafer History API ===
+"""These are the public methods used specifically to load data from multiple chips on the same wafer."""
+
 def getWaferDirectory(parameters):
+	"""Given the typical parameters used to run an experiment, return the path to the directory where data will be saved for this wafer."""
 	return os.path.join(parameters['dataFolder'], parameters['Identifiers']['user'], parameters['Identifiers']['project'], parameters['Identifiers']['wafer'])
 
 
 
 # === Faster JSON Loading ===
+"""Private methods used to load data faster when only a few lines are needed from a large file."""
+
 def loadJSONtoStringArray(directory, loadFileName):
 	fileLines = []
 	with open(os.path.join(directory, loadFileName)) as file:
@@ -227,6 +257,8 @@ def parseJSON(fileLines):
 
 
 # === Filtering ===
+"""Private methods used to filter either 1) arrays of parsed device data or 2) raw strings from files."""
+
 def filterHistory(deviceHistory, property, value, subproperties=[]):
 	filteredHistory = []
 	for deviceRun in deviceHistory:
