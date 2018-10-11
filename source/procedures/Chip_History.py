@@ -73,7 +73,7 @@ def run(additional_parameters, plot_mode_parameters={}):
 			recentRunChipHistory = None
 		elif(plotType == 'ChipOnOffRatios'):
 			chipIndexes = None
-			firstRunChipHistory = dlu.loadFirstRunChipHistory(dlu.getChipDirectory(parameters), 'GateSweep.json')
+			firstRunChipHistory = dlu.loadOldestChipHistory(dlu.getChipDirectory(parameters), 'GateSweep.json', numberOfOldestExperiments=1)
 			recentRunChipHistory = dlu.loadMostRecentChipHistory(dlu.getChipDirectory(parameters), 'GateSweep.json', numberOfRecentExperiments=1)
 		elif(plotType == 'ChipOnOffCurrents'):
 			chipIndexes = None

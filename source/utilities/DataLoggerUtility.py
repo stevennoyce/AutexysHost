@@ -118,11 +118,26 @@ def getDeviceDirectory(parameters):
 	return os.path.join(parameters['dataFolder'], parameters['Identifiers']['user'], parameters['Identifiers']['project'], parameters['Identifiers']['wafer'], parameters['Identifiers']['chip'], parameters['Identifiers']['device']) + os.sep
 
 def loadSpecificDeviceHistory(directory, fileName, minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf')):
-	"""Given a folder path and fileName, load data for a device. Optional filters are used to only load specific range of index, experimentNumber, or experimentNumber with a relativeIndex offset."""
+	"""Given a folder path and fileName, load data for a device over a range of indices or experiments. 
+	If minIndex/maxIndex or minExperiment/maxExperiment are negative, then index backwards (-1 == the most recent index/experiment)"""
+	indexData = loadJSONIndex(directory)
+	if(minExperiment < 0):
+		minExperiment = indexData['experimentNumber'] + (minExperiment+1)
+	if(maxExperiment < 0):
+		maxExperiment = indexData['experimentNumber'] + (maxExperiment+1)
+	if(minIndex < 0):
+		minIndex = indexData['index'] + minIndex
+	if(maxIndex < 0):
+		maxIndex = indexData['index'] + maxIndex
+	
 	filteredHistory = []
 	for experimentSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and (name[0:2] == 'Ex' and name[2:].isdigit()) and (int(name[2:]) >= minExperiment) and (int(name[2:]) <= maxExperiment))]:
 		filteredHistory += loadJSON_fast(os.path.join(directory, experimentSubdirectory), fileName, minIndex, maxIndex, minExperiment, maxExperiment, minRelativeIndex, maxRelativeIndex)
 	return filteredHistory
+
+def loadOldestDeviceHistory(directory, fileName, numberOfOldestExperiments=1):
+	"""Given a folder path and fileName, load oldest data for a device. Can specify the number of oldest experiments to include."""
+	return loadSpecificDeviceHistory(directory, fileName, minExperiment=1, maxExperiment=numberOfRecentExperiments)
 
 def loadMostRecentDeviceHistory(directory, fileName, numberOfRecentExperiments=1):
 	"""Given a folder path and fileName, load most recent data for a device. Can specify the number of recent experiments to include."""
@@ -168,27 +183,25 @@ def loadChipIndexes(directory):
 		chipIndexes[deviceSubdirectory] = indexData
 	return chipIndexes
 
-def loadFullChipHistory(directory, fileName, specificDeviceList=None):
-	"""Given a chip's folder path and a data fileName, load all data for all devices on that chip.
+def loadSpecificChipHistory(directory, fileName, specificDeviceList=None, minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf')):
+	"""Given a chip's folder path and a data fileName, load data over a range of indices or experiments for devices on that chip.
 	The default loads all devices on the chip but specific devices can also be specified."""
 	chipHistory = []
 	for deviceSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and os.path.exists(os.path.join(directory, name, fileName)) and (specificDeviceList is None or name in specificDeviceList))]:
-		jsonData = loadSpecificDeviceHistory(os.path.join(directory, deviceSubdirectory), fileName)
+		jsonData = loadSpecificDeviceHistory(os.path.join(directory, deviceSubdirectory), fileName, minIndex=minIndex, maxIndex=maxIndex, minExperiment=minExperiment, maxExperiment=maxExperiment, minRelativeIndex=minRelativeIndex, maxRelativeIndex=maxRelativeIndex)
 		for deviceRun in jsonData:
 			chipHistory.append(deviceRun)
 	return chipHistory
 
-def loadFirstRunChipHistory(directory, fileName):
-	"""Given a chip's folder path and a data fileName, load the first saved jsonData for every device on that chip."""
-	fullChipHistory = loadFullChipHistory(directory, fileName)
-	firstRunsOnly = []
-	devicesLogged = []
-	for i in range(len(fullChipHistory)):
-		deviceRun = fullChipHistory[i]
-		if(deviceRun['Identifiers']['device'] not in devicesLogged):
-			firstRunsOnly.append(deviceRun)
-			devicesLogged.append(deviceRun['Identifiers']['device'])
-	return firstRunsOnly
+def loadOldestChipHistory(directory, fileName, numberOfOldestExperiments=1, specificDeviceList=None):
+	"""Given a chip's folder path and a data fileName, load the oldest saved jsonData for devices on that chip. 
+	The default loads all devices on the chip but specific devices can also be specified."""
+	chipHistory = []
+	for deviceSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and os.path.exists(os.path.join(directory, name, fileName)) and (specificDeviceList is None or name in specificDeviceList))]:
+		jsonData = loadOldestDeviceHistory(os.path.join(directory, deviceSubdirectory), fileName, numberOfOldestExperiments=numberOfOldestExperiments)
+		for deviceRun in jsonData:
+			chipHistory.append(deviceRun)
+	return chipHistory
 
 def loadMostRecentChipHistory(directory, fileName, numberOfRecentExperiments=1, specificDeviceList=None):
 	"""Given a chip's folder path and a data fileName, load the most recently saved jsonData for devices on that chip. 
