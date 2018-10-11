@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Welcome to Autexys’s documentation! &mdash; Autexys 1 documentation</title>
+  <title>dispatcher module &mdash; Autexys 1 documentation</title>
   
 
   
@@ -46,7 +46,7 @@
           
 
           
-            <a href="#" class="icon icon-home"> Autexys
+            <a href="index.html" class="icon icon-home"> Autexys
           
 
           
@@ -78,8 +78,7 @@
             
               <!-- Local TOC -->
               <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">Welcome to Autexys’s documentation!</a></li>
-<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+<li><a class="reference internal" href="#">dispatcher module</a></li>
 </ul>
 </div>
             
@@ -94,7 +93,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">Autexys</a>
+          <a href="index.html">Autexys</a>
         
       </nav>
 
@@ -123,15 +122,15 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="#">Docs</a> &raquo;</li>
+      <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Welcome to Autexys’s documentation!</li>
+      <li>dispatcher module</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/dispatcher.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -144,18 +143,34 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="welcome-to-autexys-s-documentation">
-<h1>Welcome to Autexys’s documentation!<a class="headerlink" href="#welcome-to-autexys-s-documentation" title="Permalink to this headline">¶</a></h1>
-<div class="toctree-wrapper compound">
-</div>
-</div>
-<div class="section" id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
-<ul class="simple">
-<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
-<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
-<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
-</ul>
+  <div class="section" id="module-dispatcher">
+<span id="dispatcher-module"></span><h1>dispatcher module<a class="headerlink" href="#module-dispatcher" title="Permalink to this headline">¶</a></h1>
+<p>This module is used to ‘dispatch’ or execute a particular schedule file. When the schedule file completes, the dispatcher is finished.
+This module can be run from command line with an optional argument specifying the path to a schedule file. Alternatively, this module can
+be run as a multiprocessing.Process and given a multiprocessing.Pipe for communication to other processes.</p>
+<dl class="function">
+<dt id="dispatcher.devicesInRange">
+<code class="descclassname">dispatcher.</code><code class="descname">devicesInRange</code><span class="sig-paren">(</span><em>startContact</em>, <em>endContact</em>, <em>skip=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dispatcher.html#devicesInRange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dispatcher.devicesInRange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deprecated function for generating a list of devices.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="dispatcher.dispatch">
+<code class="descclassname">dispatcher.</code><code class="descname">dispatch</code><span class="sig-paren">(</span><em>schedule_file_path=None</em>, <em>pipe=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dispatcher.html#dispatch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dispatcher.dispatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a schedule file path, begin executing the experiments in the schedule file, otherwise prompt the user for a schedule file.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="dispatcher.run_file">
+<code class="descclassname">dispatcher.</code><code class="descname">run_file</code><span class="sig-paren">(</span><em>schedule_file_path</em>, <em>pipe=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dispatcher.html#run_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dispatcher.run_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a shedule file path, open the file and step through each experiment.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="dispatcher.send_notification_via_pushbullet">
+<code class="descclassname">dispatcher.</code><code class="descname">send_notification_via_pushbullet</code><span class="sig-paren">(</span><em>title</em>, <em>body</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dispatcher.html#send_notification_via_pushbullet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dispatcher.send_notification_via_pushbullet" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
 
 
