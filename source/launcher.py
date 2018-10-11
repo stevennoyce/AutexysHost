@@ -55,7 +55,7 @@ def run(additional_parameters):
 def runAction(parameters, schedule_parameters, smu_systems, arduino_instance):
 	print('Checking that save folder exists.')
 	dlu.makeFolder(dlu.getDeviceDirectory(parameters))
-
+	
 	experiment = dlu.incrementJSONExperimentNumber(dlu.getDeviceDirectory(parameters))
 	print('About to begin experiment #' + str(experiment))
 	parameters['startIndexes'] = dlu.loadJSONIndex(dlu.getDeviceDirectory(parameters))
@@ -63,13 +63,13 @@ def runAction(parameters, schedule_parameters, smu_systems, arduino_instance):
 	
 	print('Saving to SchedulesHistory...')
 	dlu.saveJSON(dlu.getDeviceDirectory(parameters), 'SchedulesHistory', schedule_parameters, incrementIndex=False)
-
+	
 	for smu_name, smu_instance in smu_systems.items():
 		smu_instance.setDevice(parameters['Identifiers']['device'])
-
+	
 	smu_names = list(smu_systems.keys())
 	smu_default_instance = smu_systems[smu_names[0]]	
-
+	
 	try:
 		if(parameters['runType'] == 'GateSweep'):
 			gateSweepScript.run(parameters, smu_default_instance)
@@ -95,12 +95,12 @@ def runAction(parameters, schedule_parameters, smu_systems, arduino_instance):
 		for smu_name, smu_instance in smu_systems.items():
 			smu_instance.rampDownVoltages()
 			smu_instance.disconnect()
-
+		
 		parameters['endIndexes'] = dlu.loadJSONIndex(dlu.getDeviceDirectory(parameters))
 		parameters['endIndexes']['timestamp'] = time.time()
 		print('Saving to ParametersHistory...')
 		dlu.saveJSON(dlu.getDeviceDirectory(parameters), 'ParametersHistory', parameters, incrementIndex=False)
-
+		
 		print('ERROR: Exception raised during the experiment.')
 		raise
 	
