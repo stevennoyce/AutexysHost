@@ -1,9 +1,13 @@
+"""This module manages the connection between the UI and dispatchers. On startup, this starts the UI and can also immediately give a dispatcher
+a schedule file to run, or the UI can be used to navigate schedule files and choose one to run. At any given time, this module can manage 1 UI 
+process and 1 dispatcher process."""
+
 import multiprocessing as mp
 import psutil
 import sys
 import os
 
-import main
+import dispatcher
 import ui
 
 if __name__ == '__main__':
@@ -14,8 +18,8 @@ if __name__ == '__main__':
 		os.chdir(os.path.join(os.path.abspath(os.sep), *pathParents[0:pathParents.index('AutexysHost')+1], 'source'))
 
 
-# Detect whether running on Windows or Posix
 def onPosix():
+	"""Detect whether running on Windows or Posix."""
 	try:
 		import posix
 		return True
@@ -23,6 +27,7 @@ def onPosix():
 		return False
 
 def getProcessPriorityCodes():
+	"""Get a dictionary of OS-dependent process priority codes."""
 	priorities = {}
 	if onPosix():
 		# -20 to 20, -20 being highest priority
@@ -42,12 +47,11 @@ def getProcessPriorityCodes():
 	return priorities
 
 def getPriorityCode(priority):
-	# Priority ranges from -2 to 3
+	"""Priority ranges from -2 to 3. Get a valid OS-dependent process priority code."""
 	return getProcessPriorityCodes()[priority]
 
 def changePriorityOfProcessAndChildren(pid, priority):
-	# Must be called after starting the process
-	# Priority ranges from -2 to 3
+	"""Must be called after starting a process. Change the priority of the process with a given PID and all of its child processes."""
 	priorityCode = getPriorityCode(priority)
 	
 	parent = psutil.Process(pid)
@@ -56,6 +60,7 @@ def changePriorityOfProcessAndChildren(pid, priority):
 		child.nice(priorityCode)
 
 def startUI(priority=0):
+	"""Start a Process running ui.start() and obtain a two-way Pipe for communication."""
 	pipeToUI, pipeForUI = mp.Pipe()
 	uiProcess = mp.Process(target=ui.start, kwargs={'managerPipe':pipeForUI})
 	uiProcess.start()
@@ -63,13 +68,17 @@ def startUI(priority=0):
 	return {'process':uiProcess, 'pipe':pipeToUI}
 
 def startDispatcher(schedule_file_path, priority=0):
+	"""Start a Process running dispatcher.dispatch(schedule_file_path) and obtain a two-way Pipe for communication."""
 	pipeToDispatcher, pipeForDispatcher = mp.Pipe()
-	dispatcherProcess = mp.Process(target=main.main, args=(schedule_file_path, pipeForDispatcher))
+	dispatcherProcess = mp.Process(target=dispatcher.dispatch, args=(schedule_file_path, pipeForDispatcher))
 	dispatcherProcess.start()
 	changePriorityOfProcessAndChildren(dispatcherProcess.pid, priority)
 	return {'process':dispatcherProcess, 'pipe':pipeToDispatcher}
 
 def manage(on_startup_schedule_file=None):
+	"""Initialize a UI process and enter an event loop to handle communication with that UI. Manage the creation of dispatcher
+	processes to execute schedule files and facilitate communication between the UI and the currently running dispatcher."""
+	
 	ui = startUI(priority=0)	
 	dispatcher = None
 	

@@ -1,3 +1,8 @@
+"""This module is used to 'launch' or execute a particular experiment. When the experiment completes, the launcher is finished.
+Experiments are typically fed to the launcher by a dispatcher as it reads experiments out of a schedule file. The launcher can 
+also be run by providing a subset of the parameters found in defaults.py, but it is still recommended to define these parameters 
+in a schedule file and have a dispatcher handle execution."""
+
 # === Imports ===
 import os
 import sys
@@ -25,6 +30,9 @@ import defaults
 
 # === Main API ===
 def run(additional_parameters, communication_pipe=None):
+	"""Begins execution of an experiment whose parameters are defined by the union of addition_parameters and defaults.py.
+	Also initializes a connection to the necessary SMU systems and/or Arduino systems needed to perform the experiment."""
+	
 	startTime = time.time()
 	
 	parameters = defaults.with_added(additional_parameters)
@@ -52,6 +60,10 @@ def run(additional_parameters, communication_pipe=None):
 
 # === Internal API ===
 def runAction(parameters, schedule_parameters, smu_systems, arduino_instance, communication_pipe=None):
+	"""Prepares the file system for the upcoming experiment and selects a Procedure to carry out the experiment.
+	In the event of an error during any procedure, this function is responsible for emergency ramping down the
+	SMU voltages and exiting as gracefully as possible."""
+	
 	print('Checking that save folder exists.')
 	dlu.makeFolder(dlu.getDeviceDirectory(parameters))
 	
@@ -115,6 +127,8 @@ def runAction(parameters, schedule_parameters, smu_systems, arduino_instance, co
 
 # === SMU Connection ===
 def initMeasurementSystems(parameters):
+	"""Given the parameters for running an experiment, sets up a connection to the necessary SMU or SMUs."""
+	
 	system_instances = {}
 	parameters['MeasurementSystem']['systems'] = smu.getSystemConfiguration(parameters['MeasurementSystem']['systemType'])
 	for system_name,system_info in parameters['MeasurementSystem']['systems'].items():
@@ -135,6 +149,8 @@ def initMeasurementSystems(parameters):
 
 # === Arduino Connection ===
 def initArduino(parameters):
+	"""Given the parameters for running an experiment, sets up a connection to the (usually optional) Arduino."""
+	
 	arduino_instance = None
 	baud = 9600
 	try:
