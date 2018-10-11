@@ -24,7 +24,7 @@ import defaults
 
 
 # === Main API ===
-def run(additional_parameters):
+def run(additional_parameters, communication_pipe=None):
 	startTime = time.time()
 	
 	parameters = defaults.with_added(additional_parameters)
@@ -41,9 +41,9 @@ def run(additional_parameters):
 		for device in parameters['MeasurementSystem']['deviceRange']:
 			params = copy.deepcopy(parameters)
 			params['Identifiers']['device'] = device
-			runAction(params, additional_parameters, smu_systems, arduino_instance)
+			runAction(params, additional_parameters, smu_systems, arduino_instance, communication_pipe=communication_pipe)
 	else:
-		runAction(parameters, additional_parameters, smu_systems, arduino_instance)
+		runAction(parameters, additional_parameters, smu_systems, arduino_instance, communication_pipe=communication_pipe)
 	
 	endTime = time.time()
 	print('Completed job in "' + '{:.4f}'.format(endTime - startTime) + '" seconds.')
@@ -51,7 +51,7 @@ def run(additional_parameters):
 
 
 # === Internal API ===
-def runAction(parameters, schedule_parameters, smu_systems, arduino_instance):
+def runAction(parameters, schedule_parameters, smu_systems, arduino_instance, communication_pipe=None):
 	print('Checking that save folder exists.')
 	dlu.makeFolder(dlu.getDeviceDirectory(parameters))
 

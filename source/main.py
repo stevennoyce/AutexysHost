@@ -57,7 +57,7 @@ def run_file(schedule_file_path, pipe=None):
 		print('Launching job #' + str(schedule_index+1) + ' of ' + str(len(parameter_list)) + ' in schedule file ' + schedule_file_path)
 		print('Schedule contains ' + str(len(parameter_list) - schedule_index - 1) + ' other incomplete jobs.')
 		additional_parameters = parameter_list[schedule_index].copy()
-		launcher.run(additional_parameters)
+		launcher.run(additional_parameters, pipe)
 
 		schedule_index += 1
 	
