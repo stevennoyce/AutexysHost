@@ -11,6 +11,9 @@ Welcome to Autexys's documentation!
    :caption: Contents:
 
 
+.. automodule:: manager
+   :members:
+
 
 Indices and tables
 ==================
