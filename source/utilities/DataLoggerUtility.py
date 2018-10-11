@@ -144,7 +144,7 @@ def loadMostRecentDeviceHistory(directory, fileName, numberOfRecentExperiments=1
 	mostRecentExperimentNumber = loadJSONIndex(directory)['experimentNumber']
 	return loadSpecificDeviceHistory(directory, fileName, minExperiment=mostRecentExperimentNumber-(numberOfRecentExperiments-1), maxExperiment=mostRecentExperimentNumber)
 
-def getDataFileNamesForExperiments(directory, minExperiment=0, maxExperiment=float('inf')):
+def getDataFileNamesForDeviceExperiments(directory, minExperiment=0, maxExperiment=float('inf')):
 	"""Given a folder path and range of experiments, get all of the unique .json file names that hold data in that directory."""
 	dataFileNames = []
 	for experimentSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and (name[0:2] == 'Ex' and name[2:].isdigit()) and (int(name[2:]) >= minExperiment) and (int(name[2:]) <= maxExperiment))]:
@@ -213,6 +213,17 @@ def loadMostRecentChipHistory(directory, fileName, numberOfRecentExperiments=1, 
 			chipHistory.append(deviceRun)
 	return chipHistory
 
+def getDataFileNamesForChipExperiments(directory, minExperiment=0, maxExperiment=float('inf'), specificDeviceList=None):
+	"""Given a folder path and range of experiments, get all of the unique .json file names that hold data in that directory."""
+	dataFileNames = []
+	for deviceSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and (specificDeviceList is None or name in specificDeviceList))]:
+		deviceDirectory = os.path.join(directory, deviceSubdirectory)
+		for experimentSubdirectory in [name for name in os.listdir(deviceDirectory) if(os.path.isdir(os.path.join(deviceDirectory, name)) and (name[0:2] == 'Ex' and name[2:].isdigit()) and (int(name[2:]) >= minExperiment) and (int(name[2:]) <= maxExperiment))]:
+			for filePath in glob.glob(os.path.join(deviceDirectory, experimentSubdirectory) + '/*.json'):
+				dataFileName = os.path.basename(filePath)
+				if(dataFileName not in dataFileNames):
+					dataFileNames.append(dataFileName)
+	return dataFileNames
 
 
 

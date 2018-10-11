@@ -98,7 +98,7 @@ def run(additional_parameters, plot_mode_parameters={}):
 def plotsForExperiments(parameters, minExperiment=0, maxExperiment=float('inf')):
 	"""Given the typical parameters used to run experiments, return a list of plots that could be made from the data that has been already collected."""
 	
-	return dpu.getPlotTypesFromDependencies(dlu.getDataFileNamesForExperiments(dlu.getDeviceDirectory(parameters), minExperiment=minExperiment, maxExperiment=maxExperiment), plotCategory='chip')
+	return dpu.getPlotTypesFromDependencies(dlu.getDataFileNamesForChipExperiments(dlu.getChipDirectory(parameters), minExperiment=minExperiment, maxExperiment=maxExperiment), plotCategory='chip')
 
 
 
