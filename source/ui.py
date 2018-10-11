@@ -5,6 +5,7 @@ import glob
 import flask
 import json
 import copy
+import time
 import webbrowser
 from matplotlib import pyplot as plt
 import defaults
@@ -306,10 +307,8 @@ def findFirstOpenPort(startPort=1):
 
 
 def start(managerPipe=None):
-	# global pipeToManager
-	# pipeToManager = managerPipe
-	
-	return
+	global pipeToManager
+	pipeToManager = managerPipe
 	
 	if 'AutexysUIRunning' in os.environ:
 		print('Reload detected. Not opening browser.')

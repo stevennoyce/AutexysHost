@@ -71,7 +71,7 @@ def startDispatcher(schedule_file_path, priority=0):
 	changePriorityOfProcessAndChildren(dispatcherProcess.pid, priority)
 	return (dispatcherProcess, pipeToDispatcher)
 
-def main():
+def manage():
 	#pipeManagerToUI, pipeUIToManager = mp.Pipe()
 	#pipeManagerToMain, pipeMainToManager = mp.Pipe()
 	#pipeUIToMain, pipeMainToUI = mp.Pipe()
@@ -83,6 +83,7 @@ def main():
 		# Listen to the UI pipe for 10 seconds, then yield to do other tasks
 		print('Hello from Manager')
 		if(pipeToUI.poll(10)):
+			print('Manager has something to read')
 			message = pipeToUI.recv()
 			print('Manager received a message')
 			
@@ -113,5 +114,5 @@ def main():
 	
 		
 if __name__ == '__main__':
-	main()
+	manage()
 	
