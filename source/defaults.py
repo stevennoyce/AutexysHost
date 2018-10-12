@@ -124,7 +124,7 @@ default_parameters = {
 		'step':{'type':'int', 'default': 0},
 	},
 	'MeasurementSystem':{
-		'systemType': {'type':'choice','choices':['B2912A','PCB2v14'], 'default':['single', 'standalone', 'double'][1]},
+		'systemType': {'type':'choice','choices':['single', 'standalone', 'double'], 'default':['single', 'standalone', 'double'][1]},
 		'systems': {},
 		'deviceRange': {'type':'array', 'default':[]}
 	},
