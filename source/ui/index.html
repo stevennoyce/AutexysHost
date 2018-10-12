@@ -619,7 +619,7 @@
 														</v-list-tile>
 														
 														<v-subheader>Measurement System</v-subheader>
-														<v-list-tile v-for="(settingDescription, settingName) in scheduleObjectDefault['MeasurementSystem']" v-if="['bool','float','int','string','choice','array'].includes(settingDescription.type)">
+														<v-list-tile v-for="(settingDescription, settingName) in scheduleObjectDefault['MeasurementSystem']" v-if="['bool','float','int','string','choice','array'].includes(settingDescription.type)" style="overflow:scroll; overscroll-behavior: contain">
 															<v-switch v-if="settingDescription.type == 'bool'" :label="settingName"
 																v-model="scheduleObjects[scheduleObjectIndex]['MeasurementSystem'][settingName]['default']"></v-switch>
 															<v-text-field v-if="settingDescription.type == 'float'" :label="settingName"
@@ -631,7 +631,7 @@
 															<v-select v-if="settingDescription.type == 'choice'" :label="settingName" :items="settingDescription.choices"
 																v-model="scheduleObjects[scheduleObjectIndex]['MeasurementSystem'][settingName]['default']"></v-select>
 															<v-combobox v-if="settingDescription.type == 'array'" :label="settingName"
-																v-model="scheduleObjects[scheduleObjectIndex]['MeasurementSystem'][settingName]['default']" multiple small-chips></v-combobox>
+																v-model="scheduleObjects[scheduleObjectIndex]['MeasurementSystem'][settingName]['default']" :items="scheduleObjects[scheduleObjectIndex]['MeasurementSystem'][settingName]['choices']" multiple small-chips></v-combobox>
 														</v-list-tile>
 													</v-list>
 												</v-card>
