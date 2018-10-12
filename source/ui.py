@@ -265,6 +265,12 @@ def dispatchSchedule(user, project, fileName):
 	eprint('UI Sent RUN:')
 	return jsonvalid({'success': True})
 
+@app.route('/stopAtNextJob')
+def stopAtNextJob():
+	eprint('UI stopping at next job')
+	pipeToManager.send('STOP')
+	
+	return jsonvalid({'success': True})
 
 def getSubDirectories(directory):
 		return [os.path.basename(os.path.dirname(g)) for g in glob.glob(directory + '/*/')]

@@ -857,6 +857,7 @@
 									<span v-if="scheduleExperimentUser && scheduleExperimentProject && scheduleExperimentFileName">Launch file: AutexysData/{{ scheduleExperimentUser }}/{{ scheduleExperimentProject }}/schedules/{{ scheduleExperimentFileName }}.json</span>
 									<v-spacer></v-spacer>
 									<v-btn @click="dispatchSchedule()">Launch Experiments in Schedule File</v-btn>
+									<v-btn @click="stopAtNextJob()">Stop at Next Job</v-btn>
 								</v-card-actions>
 								
 							</v-container>
@@ -1199,6 +1200,13 @@
 					if (path) {
 						$.getJSON(path, response => {app.$data.scheduleExperimentSuccessCode = response})
 						.fail(() => {console.log("Error dispatching schedule file")});
+					}
+				},
+				stopAtNextJob: function() {
+					var path = '/stopAtNextJob' + this.cacheBust;
+					if (path) {
+						$.getJSON(path, response => {app.$data.stopAtNextJobSuccessCode = response})
+						.fail(() => {console.log("Error stopping at next job")});
 					}
 				},
 				
