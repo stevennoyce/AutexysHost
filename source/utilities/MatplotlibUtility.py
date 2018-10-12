@@ -388,12 +388,15 @@ def getLegendTitle(deviceHistory, identifiers, plottype_parameters, parameterSup
 		legend_entries.append(plottype_parameters['t_legend'].format(timeWithUnits(np.mean([jsonData[parameterSuperType][parameterType]['totalBiasTime'] for jsonData in deviceHistory]))))
 	if(includeChannelLength):
 		if((mode_parameters is not None) and (mode_parameters['generalInfo'] is not None)):
-			wafer_info = mode_parameters['generalInfo']
-			L_ch = wafer_info['channel_length_nm'][identifiers['device']]
-			if(L_ch < 1000):
-				legend_entries.append('$L_{{ch}} = $ {:} nm'.format(L_ch))
-			else:
-				legend_entries.append('$L_{{ch}} = $ {:.1f} $\\mu$m'.format(L_ch/1000))
+			try:
+				wafer_info = mode_parameters['generalInfo']
+				L_ch = wafer_info['channel_length_nm'][identifiers['device']]
+				if(L_ch < 1000):
+					legend_entries.append('$L_{{ch}} = $ {:} nm'.format(L_ch))
+				else:
+					legend_entries.append('$L_{{ch}} = $ {:.1f} $\\mu$m'.format(L_ch/1000))
+			except:
+				print('Unable to find L_ch for device: ' + str(identifiers) + ' in the provided wafer.json.')
 				
 	if((mode_parameters is not None) and (mode_parameters['legendTitleSuffix'] != '')):
 		legend_entries.append(mode_parameters['legendTitleSuffix'])
