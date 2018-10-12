@@ -619,7 +619,7 @@
 														</v-list-tile>
 														
 														<v-subheader>Measurement System</v-subheader>
-														<v-list-tile v-for="(settingDescription, settingName) in scheduleObjectDefault['MeasurementSystem']" v-if="['bool','float','int','string','choice'].includes(settingDescription.type)">
+														<v-list-tile v-for="(settingDescription, settingName) in scheduleObjectDefault['MeasurementSystem']" v-if="['bool','float','int','string','choice','array'].includes(settingDescription.type)">
 															<v-switch v-if="settingDescription.type == 'bool'" :label="settingName"
 																v-model="scheduleObjects[scheduleObjectIndex]['MeasurementSystem'][settingName]['default']"></v-switch>
 															<v-text-field v-if="settingDescription.type == 'float'" :label="settingName"
@@ -630,6 +630,8 @@
 																v-model="scheduleObjects[scheduleObjectIndex]['MeasurementSystem'][settingName]['default']"></v-text-field>
 															<v-select v-if="settingDescription.type == 'choice'" :label="settingName" :items="settingDescription.choices"
 																v-model="scheduleObjects[scheduleObjectIndex]['MeasurementSystem'][settingName]['default']"></v-select>
+															<v-combobox v-if="settingDescription.type == 'array'" :label="settingName"
+																v-model="scheduleObjects[scheduleObjectIndex]['MeasurementSystem'][settingName]['default']" multiple small-chips></v-combobox>
 														</v-list-tile>
 													</v-list>
 												</v-card>

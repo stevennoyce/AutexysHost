@@ -83,7 +83,7 @@ def manage(on_startup_schedule_file=None):
 	dispatcher = None
 	
 	if(on_startup_schedule_file is not None):
-		dispatcher = startDispatcher(on_startup_schedule_file, priority=0)
+		dispatcher = startDispatcher(on_startup_schedule_file, priority=1)
 	
 	while(True):
 		# Listen to the UI pipe for 10 seconds, then yield to do other tasks
@@ -95,7 +95,7 @@ def manage(on_startup_schedule_file=None):
 			if(message.startswith('RUN: ')):
 				if(dispatcher is None):
 					schedule_file_path = message[len('RUN: '):]
-					dispatcher = startDispatcher(schedule_file_path, priority=0)
+					dispatcher = startDispatcher(schedule_file_path, priority=1)
 				else:
 					print('Error: dispatcher is already running; wait for it to finish before starting another job.')
 			elif(message == 'STOP'):
