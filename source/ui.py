@@ -187,7 +187,6 @@ def chips(user, project, wafer):
 @app.route('/<user>/<project>/<wafer>/<chip>/devices.json')
 def devices(user, project, wafer, chip):
 	paths = glob.glob(os.path.join(default_data_path, user, project, wafer, chip, '*/'))
-	print(paths)
 	names = [os.path.basename(os.path.dirname(p)) for p in paths]
 	# modificationTimes = [os.path.getmtime(p) for p in paths]
 	modificationTimes = [os.path.getmtime(p+'ParametersHistory.json') if os.path.exists(p+'ParametersHistory.json') else os.path.getmtime(p) for p in paths]

@@ -74,7 +74,8 @@ def makeDevicePlot(plotType, deviceHistory, identifiers, mode_parameters=None):
 	try:
 		fig, axes = plotDefinitions[plotType]['function'](deviceHistory, identifiers, mode_parameters=updated_mode_parameters)
 	except:
-		raise NotImplementedError('Unrecognized "plotType": ' + str(plotType))
+		print('Error plotting "plotType": ' + str(plotType))
+		raise
 	
 	return fig, axes
 

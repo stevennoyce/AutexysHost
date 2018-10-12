@@ -69,6 +69,9 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	for i in blacklisted:
 		del deviceHistory[i]
 	
+	if(len(deviceHistory) <= 0):
+		return 
+	
 	# Plot On Current
 	if(plotInRealTime):
 		line = plotOverTime(ax1, timestamps, onCurrents, plt.rcParams['axes.prop_cycle'].by_key()['color'][3], offset=0, markerSize=3, lineWidth=0)
