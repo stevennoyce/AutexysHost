@@ -4,7 +4,7 @@ from utilities.MatplotlibUtility import *
 
 plotDescription = {
 	'plotCategory': 'device',
-	'dataFileNames': ['AFMControl.json'],
+	'dataFileDependencies': ['AFMControl.json'],
 	'plotDefaults': {
 		'figsize':(5,4),
 		'colorMap':'plasma'

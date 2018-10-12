@@ -4,7 +4,7 @@ from utilities.MatplotlibUtility import *
 
 plotDescription = {
 	'plotCategory': 'device',
-	'dataFileNames': ['BurnOut.json'],
+	'dataFileDependencies': ['BurnOut.json'],
 	'plotDefaults': {
 		'figsize':(8,4.5),
 		'subplot_height_ratio':[1],

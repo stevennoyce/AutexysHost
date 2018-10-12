@@ -4,7 +4,7 @@ from utilities.MatplotlibUtility import *
 
 plotDescription = {
 	'plotCategory': 'device',
-	'dataFileNames': ['GateSweep.json'],
+	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(4.4,3.4),#(2*2.2,2*1.7),#(5,4),
 		'time_label':'Time [{:}]',
