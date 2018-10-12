@@ -1,0 +1,379 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>source.defaults &mdash; Autexys 1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Autexys
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Autexys</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>source.defaults</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for source.defaults</h1><div class="highlight"><pre>
+<span></span>
+
+<span class="n">default_parameters</span> <span class="o">=</span> <span class="p">{</span>
+	<span class="s1">&#39;runType&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;keyChoice&#39;</span><span class="p">,</span> <span class="s1">&#39;ChoiceFrom&#39;</span><span class="p">:</span> <span class="s1">&#39;runConfigs&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span><span class="s1">&#39;&#39;</span><span class="p">},</span>
+	<span class="s1">&#39;runConfigs&#39;</span><span class="p">:</span> <span class="p">{</span>
+		<span class="s1">&#39;GateSweep&#39;</span><span class="p">:{</span>
+			<span class="s1">&#39;dependencies&#39;</span><span class="p">:{</span><span class="s1">&#39;ignore&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:[]},</span>
+			<span class="s1">&#39;saveFileName&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="s1">&#39;GateSweep&#39;</span><span class="p">},</span>
+			<span class="s1">&#39;isFastSweep&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;bool&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+			<span class="s1">&#39;isAlternatingSweep&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;bool&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+			<span class="s1">&#39;pulsedMeasurementOnTime&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+			<span class="s1">&#39;pulsedMeasurementOffTime&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+			<span class="s1">&#39;stepsInVGSPerDirection&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;int&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;#&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">},</span>
+			<span class="s1">&#39;pointsPerVGS&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;int&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;#&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+			<span class="s1">&#39;complianceCurrent&#39;</span><span class="p">:</span>	<span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">100e-6</span><span class="p">},</span>
+			<span class="s1">&#39;drainVoltageSetPoint&#39;</span><span class="p">:</span>	<span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">},</span>
+			<span class="s1">&#39;gateVoltageMinimum&#39;</span><span class="p">:</span> 	<span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">15</span><span class="p">},</span>
+			<span class="s1">&#39;gateVoltageMaximum&#39;</span><span class="p">:</span> 	<span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">15</span><span class="p">}</span>
+		<span class="p">},</span>
+		<span class="s1">&#39;DrainSweep&#39;</span><span class="p">:{</span>
+			<span class="s1">&#39;dependencies&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;ignore&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:[]},</span>
+			<span class="s1">&#39;saveFileName&#39;</span><span class="p">:</span> <span class="s1">&#39;DrainSweep&#39;</span><span class="p">,</span>
+			<span class="s1">&#39;isFastSweep&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;bool&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span><span class="kc">False</span><span class="p">},</span>
+			<span class="s1">&#39;stepsInVDSPerDirection&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;int&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;#&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span><span class="mi">100</span><span class="p">},</span>
+			<span class="s1">&#39;pointsPerVDS&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;int&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;#&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">},</span>
+			<span class="s1">&#39;complianceCurrent&#39;</span><span class="p">:</span>	<span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span><span class="mf">100e-6</span><span class="p">},</span>
+			<span class="s1">&#39;gateVoltageSetPoint&#39;</span><span class="p">:</span>	<span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">},</span>
+			<span class="s1">&#39;drainVoltageMinimum&#39;</span><span class="p">:</span> 	<span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">},</span>
+			<span class="s1">&#39;drainVoltageMaximum&#39;</span><span class="p">:</span> 	<span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">}</span>
+		<span class="p">},</span>
+		<span class="s1">&#39;BurnOut&#39;</span><span class="p">:{</span>
+			<span class="s1">&#39;dependencies&#39;</span><span class="p">:{</span><span class="s1">&#39;ignore&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:[]},</span>
+			<span class="s1">&#39;saveFileName&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type:&#39;</span><span class="p">:</span> <span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="s1">&#39;BurnOut&#39;</span><span class="p">},</span>
+			<span class="s1">&#39;pointsPerRamp&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type:&#39;</span><span class="p">:</span> <span class="s1">&#39;int&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;#&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span><span class="mi">50</span><span class="p">},</span>
+			<span class="s1">&#39;pointsPerHold&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;int&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;#&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">50</span><span class="p">},</span>
+			<span class="s1">&#39;complianceCurrent&#39;</span><span class="p">:</span>	<span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">2e-3</span><span class="p">},</span>
+			<span class="s1">&#39;thresholdProportion&#39;</span><span class="p">:</span>	<span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.92</span><span class="p">},</span>
+			<span class="s1">&#39;minimumAppliedDrainVoltage&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">1.1</span><span class="p">},</span>
+			<span class="s1">&#39;gateVoltageSetPoint&#39;</span><span class="p">:</span>	<span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">15.0</span><span class="p">},</span>
+			<span class="s1">&#39;drainVoltageMaxPoint&#39;</span><span class="p">:</span>	<span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">},</span>
+			<span class="s1">&#39;drainVoltagePlateaus&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;int&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;#&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">}</span>
+		<span class="p">},</span>
+		<span class="s1">&#39;StaticBias&#39;</span><span class="p">:{</span>
+			<span class="s1">&#39;dependencies&#39;</span><span class="p">:{</span><span class="s1">&#39;ignore&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:[]},</span>
+			<span class="s1">&#39;saveFileName&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span><span class="s1">&#39;StaticBias&#39;</span><span class="p">},</span>
+			<span class="s1">&#39;totalBiasTime&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">60</span><span class="p">},</span>
+			<span class="s1">&#39;measurementTime&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">},</span>
+			<span class="s1">&#39;complianceCurrent&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">100e-6</span><span class="p">},</span>
+			<span class="s1">&#39;delayBeforeMeasurementsBegin&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+			<span class="s1">&#39;gateVoltageSetPoint&#39;</span><span class="p">:</span> 	<span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">15</span><span class="p">},</span>
+			<span class="s1">&#39;drainVoltageSetPoint&#39;</span><span class="p">:</span>	<span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">},</span>
+			<span class="s1">&#39;gateVoltageWhenDone&#39;</span><span class="p">:</span>  <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+			<span class="s1">&#39;drainVoltageWhenDone&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+			<span class="s1">&#39;floatChannelsWhenDone&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;bool&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+			<span class="s1">&#39;delayWhenDone&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+		<span class="p">},</span>
+		<span class="s1">&#39;AutoBurnOut&#39;</span><span class="p">:{</span>
+			<span class="s1">&#39;dependencies&#39;</span><span class="p">:{</span><span class="s1">&#39;ignore&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:[</span><span class="s1">&#39;BurnOut&#39;</span><span class="p">]},</span>
+			<span class="s1">&#39;targetOnOffRatio&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">80</span><span class="p">},</span>
+			<span class="s1">&#39;limitBurnOutsAllowed&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;int&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;#&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">},</span>
+			<span class="s1">&#39;limitOnOffRatioDegradation&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">}</span>
+		<span class="p">},</span>
+		<span class="s1">&#39;AutoGateSweep&#39;</span><span class="p">:{</span>
+			<span class="s1">&#39;dependencies&#39;</span><span class="p">:{</span><span class="s1">&#39;ignore&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:[</span><span class="s1">&#39;GateSweep&#39;</span><span class="p">]},</span>
+			<span class="s1">&#39;sweepsPerVDS&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;int&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;#&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+			<span class="s1">&#39;drainVoltageSetPoints&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.100</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.010</span><span class="p">]},</span>
+			<span class="s1">&#39;delayBetweenSweeps&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+			<span class="s1">&#39;timedSweepStarts&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;bool&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+		<span class="p">},</span>
+		<span class="s1">&#39;AutoDrainSweep&#39;</span><span class="p">:{</span>
+			<span class="s1">&#39;dependencies&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;ignore&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:[]},</span>
+			<span class="s1">&#39;gateVoltageSetPoints&#39;</span><span class="p">:</span>	<span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;array&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:[</span><span class="o">-</span><span class="mf">10.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">5.0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]},</span>
+			<span class="s1">&#39;sweepsPerVGS&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;int&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;#&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+			<span class="s1">&#39;delayBetweenSweeps&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+		<span class="p">},</span>
+		<span class="s1">&#39;AutoStaticBias&#39;</span><span class="p">:{</span>
+			<span class="s1">&#39;dependencies&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;ignore&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:[</span><span class="s1">&#39;StaticBias&#39;</span><span class="p">,</span><span class="s1">&#39;GateSweep&#39;</span><span class="p">]},</span>
+			<span class="s1">&#39;numberOfStaticBiases&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;int&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;#&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+			<span class="s1">&#39;doInitialGateSweep&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;bool&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+			<span class="s1">&#39;applyGateSweepBetweenBiases&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;bool&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+			<span class="s1">&#39;firstDelayBeforeMeasurementsBegin&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+			<span class="s1">&#39;numberOfBiasesBetweenIncrements&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;int&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;#&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+			<span class="s1">&#39;incrementStaticGateVoltage&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+			<span class="s1">&#39;incrementStaticDrainVoltage&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+			<span class="s1">&#39;incrementGateVoltageWhenDone&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+			<span class="s1">&#39;incrementDrainVoltageWhenDone&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+			<span class="s1">&#39;incrementDelayBeforeReapplyingVoltage&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+			<span class="s1">&#39;shuffleDelaysBeforeReapplyingVoltage&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;bool&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+		<span class="p">},</span>
+		<span class="s1">&#39;AFMControl&#39;</span><span class="p">:{</span>
+			<span class="s1">&#39;dependencies&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;ignore&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:[]},</span>
+			<span class="s1">&#39;saveFileName&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span><span class="s1">&#39;AFMControl&#39;</span><span class="p">},</span>
+			<span class="s1">&#39;lines&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;int&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;#&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span><span class="mi">3</span><span class="p">},</span>
+			<span class="s1">&#39;scanRate&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;int&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;#&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">},</span>
+			<span class="s1">&#39;napOn&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;bool&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">},</span>
+			<span class="s1">&#39;drainVoltageSetPoint&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">},</span>
+			<span class="s1">&#39;gateVoltageSetPoint&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+			<span class="s1">&#39;complianceCurrent&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">1e-6</span><span class="p">},</span>
+			<span class="s1">&#39;complianceVoltage&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">},</span>
+			<span class="s1">&#39;deviceMeasurementSpeed&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;Hz&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">60</span><span class="p">},</span>  <span class="c1"># what are the units for this?</span>
+		<span class="p">},</span>
+		<span class="s1">&#39;Delay&#39;</span><span class="p">:{</span>
+			<span class="s1">&#39;dependencies&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;ignore&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:[]},</span>
+			<span class="s1">&#39;message&#39;</span><span class="p">:{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">},</span>
+			<span class="s1">&#39;delayTime&#39;</span><span class="p">:{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;int&#39;</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">240</span><span class="p">}</span>
+		<span class="p">}</span>
+
+	<span class="p">},</span>
+	<span class="s1">&#39;Results&#39;</span><span class="p">:{</span>
+		
+	<span class="p">},</span>
+	<span class="s1">&#39;Computed&#39;</span><span class="p">:{</span>
+		
+	<span class="p">},</span>
+	<span class="s1">&#39;SensorData&#39;</span><span class="p">:{</span>
+		
+	<span class="p">},</span>
+	<span class="s1">&#39;Identifiers&#39;</span><span class="p">:{</span>
+		<span class="s1">&#39;user&#39;</span><span class="p">:{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span><span class="s1">&#39;unknown&#39;</span><span class="p">},</span>
+		<span class="s1">&#39;project&#39;</span><span class="p">:{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span><span class="s1">&#39;unknown&#39;</span><span class="p">},</span>
+		<span class="s1">&#39;wafer&#39;</span><span class="p">:{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span><span class="s1">&#39;unknown&#39;</span><span class="p">},</span>
+		<span class="s1">&#39;chip&#39;</span><span class="p">:{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span><span class="s1">&#39;unknown&#39;</span><span class="p">},</span>
+		<span class="s1">&#39;device&#39;</span><span class="p">:{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span><span class="s1">&#39;unknown&#39;</span><span class="p">},</span>
+		<span class="s1">&#39;step&#39;</span><span class="p">:{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;int&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+	<span class="p">},</span>
+	<span class="s1">&#39;MeasurementSystem&#39;</span><span class="p">:{</span>
+		<span class="s1">&#39;systemType&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;choice&#39;</span><span class="p">,</span> <span class="s1">&#39;choices&#39;</span><span class="p">:[</span><span class="s1">&#39;single&#39;</span><span class="p">,</span> <span class="s1">&#39;standalone&#39;</span><span class="p">,</span> <span class="s1">&#39;double&#39;</span><span class="p">],</span> <span class="s1">&#39;default&#39;</span><span class="p">:[</span><span class="s1">&#39;single&#39;</span><span class="p">,</span> <span class="s1">&#39;standalone&#39;</span><span class="p">,</span> <span class="s1">&#39;double&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]},</span>
+		<span class="s1">&#39;systems&#39;</span><span class="p">:</span> <span class="p">{},</span>
+		<span class="s1">&#39;deviceRange&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;array&#39;</span><span class="p">,</span> <span class="s1">&#39;choices&#39;</span><span class="p">:[</span><span class="s2">&quot;1-2&quot;</span><span class="p">,</span> <span class="s2">&quot;2-3&quot;</span><span class="p">,</span> <span class="s2">&quot;3-4&quot;</span><span class="p">,</span> <span class="s2">&quot;5-6&quot;</span><span class="p">,</span> <span class="s2">&quot;6-7&quot;</span><span class="p">,</span> <span class="s2">&quot;7-8&quot;</span><span class="p">,</span> <span class="s2">&quot;9-10&quot;</span><span class="p">,</span> <span class="s2">&quot;10-11&quot;</span><span class="p">,</span> <span class="s2">&quot;11-12&quot;</span><span class="p">,</span> <span class="s2">&quot;13-14&quot;</span><span class="p">,</span> <span class="s2">&quot;14-15&quot;</span><span class="p">,</span> <span class="s2">&quot;15-16&quot;</span><span class="p">,</span> <span class="s2">&quot;19-20&quot;</span><span class="p">,</span> <span class="s2">&quot;21-22&quot;</span><span class="p">,</span> <span class="s2">&quot;27-28&quot;</span><span class="p">,</span> <span class="s2">&quot;29-30&quot;</span><span class="p">,</span> <span class="s2">&quot;30-31&quot;</span><span class="p">,</span> <span class="s2">&quot;31-32&quot;</span><span class="p">,</span> <span class="s2">&quot;33-34&quot;</span><span class="p">,</span> <span class="s2">&quot;34-35&quot;</span><span class="p">,</span> <span class="s2">&quot;35-36&quot;</span><span class="p">,</span> <span class="s2">&quot;37-38&quot;</span><span class="p">,</span> <span class="s2">&quot;38-39&quot;</span><span class="p">,</span> <span class="s2">&quot;39-40&quot;</span><span class="p">,</span> <span class="s2">&quot;41-42&quot;</span><span class="p">,</span> <span class="s2">&quot;42-43&quot;</span><span class="p">,</span> <span class="s2">&quot;43-44&quot;</span><span class="p">,</span> <span class="s2">&quot;45-46&quot;</span><span class="p">,</span> <span class="s2">&quot;46-47&quot;</span><span class="p">,</span> <span class="s2">&quot;47-48&quot;</span><span class="p">,</span> <span class="s2">&quot;51-52&quot;</span><span class="p">,</span> <span class="s2">&quot;53-54&quot;</span><span class="p">,</span> <span class="s2">&quot;59-60&quot;</span><span class="p">,</span> <span class="s2">&quot;61-62&quot;</span><span class="p">,</span> <span class="s2">&quot;62-63&quot;</span><span class="p">,</span> <span class="s2">&quot;63-64&quot;</span><span class="p">],</span> <span class="s1">&#39;default&#39;</span><span class="p">:[]}</span>
+	<span class="p">},</span>
+	<span class="s1">&#39;dataFolder&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span><span class="s1">&#39;../../AutexysData/&#39;</span><span class="p">},</span>
+	<span class="s1">&#39;ParametersFormatVersion&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">}</span>	
+<span class="p">}</span>
+
+
+
+<span class="kn">import</span> <span class="nn">copy</span>
+
+<div class="viewcode-block" id="get"><a class="viewcode-back" href="../../source.html#source.defaults.get">[docs]</a><span class="k">def</span> <span class="nf">get</span><span class="p">():</span>
+	<span class="k">return</span> <span class="n">extractDefaults</span><span class="p">(</span><span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">default_parameters</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="with_added"><a class="viewcode-back" href="../../source.html#source.defaults.with_added">[docs]</a><span class="k">def</span> <span class="nf">with_added</span><span class="p">(</span><span class="n">additional_parameters</span><span class="p">):</span>
+	<span class="n">default</span> <span class="o">=</span> <span class="n">get</span><span class="p">()</span>
+	<span class="n">combined</span> <span class="o">=</span> <span class="n">merge</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">additional_parameters</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">combined</span></div>
+
+<div class="viewcode-block" id="merge"><a class="viewcode-back" href="../../source.html#source.defaults.merge">[docs]</a><span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+	<span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">b</span><span class="p">:</span>
+		<span class="k">if</span><span class="p">(</span> <span class="p">(</span><span class="n">key</span> <span class="ow">in</span> <span class="n">a</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="nb">dict</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="nb">dict</span><span class="p">))</span> <span class="p">):</span>
+			<span class="n">merge</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">a</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+	<span class="k">return</span> <span class="n">a</span></div>
+
+<div class="viewcode-block" id="extractDefaults"><a class="viewcode-back" href="../../source.html#source.defaults.extractDefaults">[docs]</a><span class="k">def</span> <span class="nf">extractDefaults</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+	<span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+		<span class="k">return</span> <span class="n">d</span>
+	<span class="k">if</span> <span class="s1">&#39;default&#39;</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+		<span class="k">return</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">]</span>
+	<span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span><span class="n">extractDefaults</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">or</span> <span class="s1">&#39;ignore&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">v</span><span class="p">}</span></div>
+
+<div class="viewcode-block" id="mergeDefaults"><a class="viewcode-back" href="../../source.html#source.defaults.mergeDefaults">[docs]</a><span class="k">def</span> <span class="nf">mergeDefaults</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+	<span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">b</span><span class="p">:</span>
+		<span class="k">if</span><span class="p">(</span> <span class="p">(</span><span class="n">key</span> <span class="ow">in</span> <span class="n">a</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="nb">dict</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="nb">dict</span><span class="p">))</span> <span class="p">):</span>
+			<span class="n">mergeDefaults</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+		<span class="k">elif</span><span class="p">(</span> <span class="p">(</span><span class="n">key</span> <span class="ow">in</span> <span class="n">a</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="nb">dict</span><span class="p">))</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="nb">dict</span><span class="p">))</span> <span class="p">):</span> 
+			<span class="k">if</span><span class="p">(</span><span class="s1">&#39;default&#39;</span> <span class="ow">in</span> <span class="n">a</span><span class="p">[</span><span class="n">key</span><span class="p">]):</span>
+				<span class="n">a</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;default&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">a</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+	<span class="k">return</span> <span class="n">a</span></div>
+
+<div class="viewcode-block" id="full_with_added"><a class="viewcode-back" href="../../source.html#source.defaults.full_with_added">[docs]</a><span class="k">def</span> <span class="nf">full_with_added</span><span class="p">(</span><span class="n">additional_parameters</span><span class="p">):</span>
+	<span class="n">full_defaults</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">default_parameters</span><span class="p">)</span>
+	<span class="n">combined</span> <span class="o">=</span> <span class="n">mergeDefaults</span><span class="p">(</span><span class="n">full_defaults</span><span class="p">,</span> <span class="n">additional_parameters</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">combined</span></div>
+	
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+	<span class="kn">import</span> <span class="nn">pprint</span>
+	<span class="kn">import</span> <span class="nn">deepdiff</span>
+	<span class="n">pprint</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">deepdiff</span><span class="o">.</span><span class="n">DeepDiff</span><span class="p">(</span><span class="n">default_parameters</span><span class="p">,</span> <span class="n">get</span><span class="p">()))</span>
+
+
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Steven Noyce
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

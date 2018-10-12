@@ -2,10 +2,6 @@ source
 ======
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 20
 
-   defaults
-   dispatcher
-   launcher
-   manager
-   ui
+   source

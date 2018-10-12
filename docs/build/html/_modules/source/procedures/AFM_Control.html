@@ -1,0 +1,479 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>source.procedures.AFM_Control &mdash; Autexys 1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Autexys
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Autexys</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>source.procedures.AFM_Control</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for source.procedures.AFM_Control</h1><div class="highlight"><pre>
+<span></span><span class="c1"># === Imports ===</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">threading</span>
+
+<span class="kn">from</span> <span class="nn">procedures</span> <span class="k">import</span> <span class="n">Device_History</span> <span class="k">as</span> <span class="n">deviceHistoryScript</span>
+<span class="kn">from</span> <span class="nn">utilities</span> <span class="k">import</span> <span class="n">DataLoggerUtility</span> <span class="k">as</span> <span class="n">dlu</span>
+
+<span class="kn">import</span> <span class="nn">scipy.optimize</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<div class="viewcode-block" id="triangleSine"><a class="viewcode-back" href="../../../source.procedures.html#source.procedures.AFM_Control.triangleSine">[docs]</a><span class="k">def</span> <span class="nf">triangleSine</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+	<span class="n">coefficients</span> <span class="o">=</span> <span class="p">[(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="n">i</span><span class="o">*</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">((</span><span class="mi">2</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">15</span><span class="p">)]</span>
+	<span class="n">wave</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">coefficients</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">wave</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">wave</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="triangleSinWave"><a class="viewcode-back" href="../../../source.procedures.html#source.procedures.AFM_Control.triangleSinWave">[docs]</a><span class="k">def</span> <span class="nf">triangleSinWave</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">,</span> <span class="n">period</span><span class="p">,</span> <span class="n">phase</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
+	<span class="k">return</span> <span class="n">offset</span> <span class="o">+</span> <span class="n">amplitude</span><span class="o">*</span><span class="n">triangleSine</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="p">(</span><span class="n">times</span> <span class="o">-</span> <span class="n">phase</span><span class="p">)</span><span class="o">/</span><span class="n">period</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="triangleCosWave"><a class="viewcode-back" href="../../../source.procedures.html#source.procedures.AFM_Control.triangleCosWave">[docs]</a><span class="k">def</span> <span class="nf">triangleCosWave</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">,</span> <span class="n">period</span><span class="p">,</span> <span class="n">phase</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
+	<span class="k">return</span> <span class="n">triangleSinWave</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">,</span> <span class="n">period</span><span class="p">,</span> <span class="n">phase</span> <span class="o">-</span> <span class="n">period</span><span class="o">/</span><span class="mi">4</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="fitTriangleWave"><a class="viewcode-back" href="../../../source.procedures.html#source.procedures.AFM_Control.fitTriangleWave">[docs]</a><span class="k">def</span> <span class="nf">fitTriangleWave</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+	<span class="n">parameterNames</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;amplitude&#39;</span><span class="p">,</span> <span class="s1">&#39;period&#39;</span><span class="p">,</span> <span class="s1">&#39;phase&#39;</span><span class="p">,</span> <span class="s1">&#39;offset&#39;</span><span class="p">]</span>
+	
+	<span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+	<span class="n">minTime</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">times</span><span class="p">)</span>
+	<span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">times</span><span class="p">)</span> <span class="o">-</span> <span class="n">minTime</span>
+	
+	<span class="n">slopes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">-</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="p">((</span><span class="nb">max</span><span class="p">(</span><span class="n">times</span><span class="p">)</span><span class="o">-</span><span class="nb">min</span><span class="p">(</span><span class="n">times</span><span class="p">))</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">times</span><span class="p">))</span>
+	<span class="n">slope</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">slopes</span><span class="p">)</span>
+	
+	<span class="n">guesses</span> <span class="o">=</span> <span class="p">{}</span>
+	<span class="n">optParams</span> <span class="o">=</span> <span class="p">{}</span>
+	
+	<span class="n">guesses</span><span class="p">[</span><span class="s1">&#39;amplitude&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">values</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span>
+	<span class="n">guesses</span><span class="p">[</span><span class="s1">&#39;period&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">times</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+	<span class="n">guesses</span><span class="p">[</span><span class="s1">&#39;period&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span><span class="o">*</span><span class="n">guesses</span><span class="p">[</span><span class="s1">&#39;amplitude&#39;</span><span class="p">]</span><span class="o">/</span><span class="n">slope</span>
+	<span class="n">guesses</span><span class="p">[</span><span class="s1">&#39;offset&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+	<span class="n">guesses</span><span class="p">[</span><span class="s1">&#39;phase&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">values</span><span class="p">))</span><span class="o">/</span><span class="p">(</span><span class="n">guesses</span><span class="p">[</span><span class="s1">&#39;amplitude&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">2</span><span class="p">))</span><span class="o">/</span><span class="p">(</span><span class="n">guesses</span><span class="p">[</span><span class="s1">&#39;period&#39;</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+	
+	<span class="k">if</span> <span class="n">values</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+		<span class="c1"># guesses[&#39;phase&#39;] = guesses[&#39;period&#39;] - guesses[&#39;phase&#39;] # Use this for always positive phase</span>
+		<span class="n">guesses</span><span class="p">[</span><span class="s1">&#39;phase&#39;</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span> <span class="c1"># Use this for smallest phase, positive or negative</span>
+	
+	<span class="n">optParamVals</span><span class="p">,</span> <span class="n">optParamCov</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">curve_fit</span><span class="p">(</span><span class="n">triangleCosWave</span><span class="p">,</span> <span class="n">times</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span>
+		<span class="n">p0</span> <span class="o">=</span> <span class="p">[</span><span class="n">guesses</span><span class="p">[</span><span class="n">parameterName</span><span class="p">]</span> <span class="k">for</span> <span class="n">parameterName</span> <span class="ow">in</span> <span class="n">parameterNames</span><span class="p">])</span>
+	
+	<span class="k">for</span> <span class="n">parameterName</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">parameterNames</span><span class="p">,</span> <span class="n">optParamVals</span><span class="p">):</span>
+		<span class="n">optParams</span><span class="p">[</span><span class="n">parameterName</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+	
+	<span class="k">return</span> <span class="n">optParams</span></div>
+
+<div class="viewcode-block" id="getStartTime"><a class="viewcode-back" href="../../../source.procedures.html#source.procedures.AFM_Control.getStartTime">[docs]</a><span class="k">def</span> <span class="nf">getStartTime</span><span class="p">(</span><span class="n">timestamps</span><span class="p">,</span> <span class="n">Vxs</span><span class="p">):</span>
+	<span class="n">fitParams</span> <span class="o">=</span> <span class="n">fitTriangleWave</span><span class="p">(</span><span class="n">timestamps</span><span class="p">,</span> <span class="n">Vxs</span><span class="p">)</span>
+	
+	<span class="n">periodsMeasured</span> <span class="o">=</span> <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">timestamps</span><span class="p">)</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">timestamps</span><span class="p">))</span><span class="o">/</span><span class="n">fitParams</span><span class="p">[</span><span class="s1">&#39;period&#39;</span><span class="p">]</span>
+	<span class="n">passesMeasured</span> <span class="o">=</span> <span class="n">periodsMeasured</span>
+	<span class="n">passTime</span> <span class="o">=</span> <span class="n">fitParams</span><span class="p">[</span><span class="s1">&#39;period&#39;</span><span class="p">]</span>
+	<span class="n">linesMeasured</span> <span class="o">=</span> <span class="n">passesMeasured</span><span class="o">/</span><span class="mi">2</span> <span class="c1"># Divide by 2 if nap enabled</span>
+	<span class="n">lineTime</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">passTime</span> <span class="c1"># Multiply by 2 if nap enabled</span>
+	
+	<span class="n">startTime</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">timestamps</span><span class="p">)</span> <span class="o">+</span> <span class="n">fitParams</span><span class="p">[</span><span class="s1">&#39;phase&#39;</span><span class="p">]</span>
+	<span class="n">startTime</span> <span class="o">+=</span> <span class="n">lineTime</span><span class="o">*</span><span class="mi">4</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">linesMeasured</span><span class="p">)</span>
+	
+	<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Determined line time to be </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lineTime</span><span class="p">))</span>
+	<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Determined startTime to be </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">startTime</span><span class="p">))</span>
+	<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Curent time is </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()))</span>
+	
+	<span class="k">return</span> <span class="n">startTime</span></div>
+
+<div class="viewcode-block" id="sleepUntil"><a class="viewcode-back" href="../../../source.procedures.html#source.procedures.AFM_Control.sleepUntil">[docs]</a><span class="k">def</span> <span class="nf">sleepUntil</span><span class="p">(</span><span class="n">startTime</span><span class="p">):</span>
+	<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">startTime</span> <span class="o">-</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span></div>
+
+<span class="c1"># === Main ===</span>
+<div class="viewcode-block" id="run"><a class="viewcode-back" href="../../../source.procedures.html#source.procedures.AFM_Control.run">[docs]</a><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">smu_systems</span><span class="p">,</span> <span class="n">isSavingResults</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">isPlottingResults</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+	<span class="c1"># Create distinct parameters for plotting the results</span>
+	<span class="n">dh_parameters</span> <span class="o">=</span> <span class="p">{}</span>
+	<span class="n">dh_parameters</span><span class="p">[</span><span class="s1">&#39;Identifiers&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;Identifiers&#39;</span><span class="p">])</span>
+	<span class="n">dh_parameters</span><span class="p">[</span><span class="s1">&#39;dataFolder&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;dataFolder&#39;</span><span class="p">]</span>
+	<span class="n">dh_parameters</span><span class="p">[</span><span class="s1">&#39;plotGateSweeps&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+	<span class="n">dh_parameters</span><span class="p">[</span><span class="s1">&#39;plotBurnOuts&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+	<span class="n">dh_parameters</span><span class="p">[</span><span class="s1">&#39;plotStaticBias&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+	<span class="n">dh_parameters</span><span class="p">[</span><span class="s1">&#39;excludeDataBeforeJSONExperimentNumber&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;startIndexes&#39;</span><span class="p">][</span><span class="s1">&#39;experimentNumber&#39;</span><span class="p">]</span>
+	<span class="n">dh_parameters</span><span class="p">[</span><span class="s1">&#39;excludeDataAfterJSONExperimentNumber&#39;</span><span class="p">]</span> <span class="o">=</span>  <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;startIndexes&#39;</span><span class="p">][</span><span class="s1">&#39;experimentNumber&#39;</span><span class="p">]</span>
+
+	<span class="c1"># Print the starting message</span>
+	<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Beginning AFM-assisted measurements.&#39;</span><span class="p">)</span>
+	
+	<span class="n">runAFM</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">smu_systems</span><span class="p">,</span> <span class="n">isSavingResults</span><span class="p">,</span> <span class="n">isPlottingResults</span><span class="p">)</span>	
+	
+	<span class="c1"># Show plots to the user</span>
+	<span class="k">if</span><span class="p">(</span><span class="n">isPlottingResults</span><span class="p">):</span>
+		<span class="n">deviceHistoryScript</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">dh_parameters</span><span class="p">)</span></div>
+		
+	<span class="c1"># return jsonData</span>
+
+<span class="c1"># === Data Collection ===</span>
+<div class="viewcode-block" id="runAFM"><a class="viewcode-back" href="../../../source.procedures.html#source.procedures.AFM_Control.runAFM">[docs]</a><span class="k">def</span> <span class="nf">runAFM</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">smu_systems</span><span class="p">,</span> <span class="n">isSavingResults</span><span class="p">,</span> <span class="n">isPlottingResults</span><span class="p">):</span>
+	<span class="c1"># Duke label 184553 is &#39;USB0::0x0957::0x8E18::MY51141244::INSTR&#39; - use for device drain (CH1) and gate (CH2)</span>
+	<span class="c1"># Duke Label 184554 is &#39;USB0::0x0957::0x8E18::MY51141241::INSTR&#39; - use for AFM channels x (CH1) and y (CH2)</span>
+	
+	<span class="c1"># Get shorthand name to easily refer to configuration parameters</span>
+	<span class="n">afm_parameters</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;runConfigs&#39;</span><span class="p">][</span><span class="s1">&#39;AFMControl&#39;</span><span class="p">]</span>
+	
+	<span class="n">smu_device</span> <span class="o">=</span> <span class="n">smu_systems</span><span class="p">[</span><span class="s1">&#39;deviceSMU&#39;</span><span class="p">]</span>
+	<span class="n">smu_secondary</span> <span class="o">=</span> <span class="n">smu_systems</span><span class="p">[</span><span class="s1">&#39;secondarySMU&#39;</span><span class="p">]</span>
+	
+	<span class="c1"># Set SMU source modes</span>
+	<span class="c1"># smu_device.setChannel1SourceMode(&quot;voltage&quot;)</span>
+	<span class="c1"># smu_device.setChannel2SourceMode(&quot;voltage&quot;)</span>
+	
+	<span class="c1"># smu_secondary.setChannel1SourceMode(&quot;current&quot;)</span>
+	<span class="c1"># smu_secondary.setChannel2SourceMode(&quot;current&quot;)</span>
+	
+	<span class="c1"># Set SMU NPLC</span>
+	<span class="n">smu_device</span><span class="o">.</span><span class="n">setNPLC</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+	<span class="n">smu_secondary</span><span class="o">.</span><span class="n">setNPLC</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+	
+	<span class="c1"># Set SMU compliance</span>
+	<span class="n">smu_device</span><span class="o">.</span><span class="n">setComplianceCurrent</span><span class="p">(</span><span class="n">afm_parameters</span><span class="p">[</span><span class="s1">&#39;complianceCurrent&#39;</span><span class="p">])</span>
+	<span class="c1"># smu_device.setComplianceVoltage(afm_parameters[&#39;complianceVoltage&#39;])</span>
+	
+	<span class="c1"># smu_secondary.setComplianceCurrent(afm_parameters[&#39;complianceCurrent&#39;])	</span>
+	<span class="n">smu_secondary</span><span class="o">.</span><span class="n">setComplianceVoltage</span><span class="p">(</span><span class="n">afm_parameters</span><span class="p">[</span><span class="s1">&#39;complianceVoltage&#39;</span><span class="p">])</span>
+	
+	<span class="c1"># Apply Vgs and Vds to the device</span>
+	<span class="n">smu_device</span><span class="o">.</span><span class="n">rampDrainVoltageTo</span><span class="p">(</span><span class="n">afm_parameters</span><span class="p">[</span><span class="s1">&#39;drainVoltageSetPoint&#39;</span><span class="p">])</span>
+	<span class="n">smu_device</span><span class="o">.</span><span class="n">rampGateVoltageTo</span><span class="p">(</span><span class="n">afm_parameters</span><span class="p">[</span><span class="s1">&#39;gateVoltageSetPoint&#39;</span><span class="p">])</span>
+	
+	<span class="n">smu_device</span><span class="o">.</span><span class="n">takeMeasurement</span><span class="p">()</span>
+	<span class="n">smu_secondary</span><span class="o">.</span><span class="n">takeMeasurement</span><span class="p">()</span>
+	
+	<span class="c1"># input(&#39;Press enter to begin the measurement...&#39;)</span>
+	<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">300</span><span class="p">)</span>
+	
+	<span class="c1"># for line in range(afm_parameters[&#39;lines&#39;]):</span>
+	<span class="c1"># 	print(&#39;Line {} of {}&#39;.format(line, afm_parameters[&#39;lines&#39;]))</span>
+		
+	<span class="c1"># 	lineStartTime = time.time()</span>
+	<span class="c1"># 	traceTime = (1/afm_parameters[&#39;scanRate&#39;])/2</span>
+	<span class="c1"># 	passTime = 2*traceTime</span>
+	<span class="c1"># 	lineTime = 2*traceTime</span>
+	<span class="c1"># 	if afm_parameters[&#39;napOn&#39;]:</span>
+	<span class="c1"># 		lineTime = lineTime*2</span>
+		
+	<span class="c1"># 	passPoints = afm_parameters[&#39;deviceMeasurementSpeed&#39;]*passTime</span>
+		
+	<span class="c1"># 	results = runAFMline(parameters, smu_systems, isSavingResults, isPlottingResults, passPoints)</span>
+		
+	<span class="c1"># 	# Add important metrics from the run to the parameters for easy access later in ParametersHistory</span>
+	<span class="c1"># 	parameters[&#39;Computed&#39;] = results[&#39;Computed&#39;]</span>
+		
+	<span class="c1"># 	# Copy parameters and add in the test results</span>
+	<span class="c1"># 	jsonData = dict(parameters)</span>
+	<span class="c1"># 	jsonData[&#39;Results&#39;] = results[&#39;Raw&#39;]</span>
+		
+	<span class="c1"># 	# Save results as a JSON object</span>
+	<span class="c1"># 	if(isSavingResults):</span>
+	<span class="c1"># 		print(&#39;Saving JSON: &#39; + str(dlu.getDeviceDirectory(parameters)))</span>
+	<span class="c1"># 		dlu.saveJSON(dlu.getDeviceDirectory(parameters), afm_parameters[&#39;saveFileName&#39;], jsonData)</span>
+		
+	<span class="c1"># 	elapsedTime = time.time() - lineStartTime</span>
+	<span class="c1"># 	print(&#39;Time elapsed is {}, lineTime is {}&#39;.format(elapsedTime, lineTime))</span>
+	<span class="c1"># 	time.sleep(max(lineTime - elapsedTime, 0))</span>
+	
+	<span class="n">passTime</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">afm_parameters</span><span class="p">[</span><span class="s1">&#39;scanRate&#39;</span><span class="p">]</span>
+	<span class="n">traceTime</span> <span class="o">=</span> <span class="n">passTime</span><span class="o">/</span><span class="mi">2</span>
+	<span class="n">lineTime</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">traceTime</span>
+	<span class="k">if</span> <span class="n">afm_parameters</span><span class="p">[</span><span class="s1">&#39;napOn&#39;</span><span class="p">]:</span>
+		<span class="n">lineTime</span> <span class="o">=</span> <span class="n">lineTime</span><span class="o">*</span><span class="mi">2</span>
+	
+	<span class="n">passPoints</span> <span class="o">=</span> <span class="n">afm_parameters</span><span class="p">[</span><span class="s1">&#39;deviceMeasurementSpeed&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">passTime</span>
+	
+	<span class="n">vds</span> <span class="o">=</span> <span class="n">afm_parameters</span><span class="p">[</span><span class="s1">&#39;drainVoltageSetPoint&#39;</span><span class="p">]</span>
+	<span class="n">vgs</span> <span class="o">=</span> <span class="n">afm_parameters</span><span class="p">[</span><span class="s1">&#39;gateVoltageSetPoint&#39;</span><span class="p">]</span>
+	<span class="n">interval</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">afm_parameters</span><span class="p">[</span><span class="s1">&#39;deviceMeasurementSpeed&#39;</span><span class="p">]</span>
+	
+	<span class="n">sleep_time1</span> <span class="o">=</span> <span class="n">smu_device</span><span class="o">.</span><span class="n">setupSweep</span><span class="p">(</span><span class="n">vds</span><span class="p">,</span> <span class="n">vds</span><span class="p">,</span> <span class="n">vgs</span><span class="p">,</span> <span class="n">vgs</span><span class="p">,</span> <span class="n">passPoints</span><span class="p">,</span> <span class="n">triggerInterval</span><span class="o">=</span><span class="n">interval</span><span class="p">)</span>
+	<span class="n">sleep_time2</span> <span class="o">=</span> <span class="n">smu_secondary</span><span class="o">.</span><span class="n">setupSweep</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">passPoints</span><span class="p">,</span> <span class="n">triggerInterval</span><span class="o">=</span><span class="n">interval</span><span class="p">)</span>
+	
+	
+	<span class="n">results</span> <span class="o">=</span> <span class="n">runAFMline</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">smu_systems</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">isPlottingResults</span><span class="p">,</span> <span class="n">sleep_time1</span><span class="p">,</span> <span class="n">sleep_time2</span><span class="p">)</span>
+	
+	<span class="n">runStartTime</span> <span class="o">=</span> <span class="n">getStartTime</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;Raw&#39;</span><span class="p">][</span><span class="s1">&#39;timestamps_smu2&#39;</span><span class="p">],</span> <span class="n">results</span><span class="p">[</span><span class="s1">&#39;Raw&#39;</span><span class="p">][</span><span class="s1">&#39;smu2_v2_data&#39;</span><span class="p">])</span>
+	<span class="n">sleepUntil</span><span class="p">(</span><span class="n">runStartTime</span><span class="p">)</span>
+	
+	<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">afm_parameters</span><span class="p">[</span><span class="s1">&#39;lines&#39;</span><span class="p">]):</span>
+		<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Starting line </span><span class="si">{}</span><span class="s1"> of </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">line</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">afm_parameters</span><span class="p">[</span><span class="s1">&#39;lines&#39;</span><span class="p">]))</span>
+		
+		<span class="n">lineStartTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+		<span class="n">results</span> <span class="o">=</span> <span class="n">runAFMline</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">smu_systems</span><span class="p">,</span> <span class="n">isSavingResults</span><span class="p">,</span> <span class="n">isPlottingResults</span><span class="p">,</span> <span class="n">sleep_time1</span><span class="p">,</span> <span class="n">sleep_time2</span><span class="p">)</span>
+		
+		<span class="c1"># Add important metrics from the run to the parameters for easy access later in ParametersHistory</span>
+		<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;Computed&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="s1">&#39;Computed&#39;</span><span class="p">]</span>
+		
+		<span class="c1"># Copy parameters and add in the test results</span>
+		<span class="n">jsonData</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span>
+		<span class="n">jsonData</span><span class="p">[</span><span class="s1">&#39;Results&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="s1">&#39;Raw&#39;</span><span class="p">]</span>
+		
+		<span class="c1"># Save results as a JSON object</span>
+		<span class="k">if</span><span class="p">(</span><span class="n">isSavingResults</span><span class="p">):</span>
+			<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Saving JSON: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">dlu</span><span class="o">.</span><span class="n">getDeviceDirectory</span><span class="p">(</span><span class="n">parameters</span><span class="p">)))</span>
+			<span class="c1"># _thread.start_new_thread(dlu.saveJSON, (dlu.getDeviceDirectory(parameters), afm_parameters[&#39;saveFileName&#39;], jsonData))</span>
+			<span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">dlu</span><span class="o">.</span><span class="n">saveJSON</span><span class="p">,</span>
+				<span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">dlu</span><span class="o">.</span><span class="n">getDeviceDirectory</span><span class="p">(</span><span class="n">parameters</span><span class="p">),</span> <span class="n">afm_parameters</span><span class="p">[</span><span class="s1">&#39;saveFileName&#39;</span><span class="p">],</span> <span class="n">jsonData</span><span class="p">,</span> <span class="s1">&#39;Ex&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;startIndexes&#39;</span><span class="p">][</span><span class="s1">&#39;experimentNumber&#39;</span><span class="p">]))</span>
+			<span class="p">)</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+			<span class="c1"># dlu.saveJSON(dlu.getDeviceDirectory(parameters), afm_parameters[&#39;saveFileName&#39;], jsonData)</span>
+		
+		<span class="n">elapsedRunTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">runStartTime</span>
+		<span class="n">elapsedLineTime</span> <span class="o">=</span> <span class="n">elapsedRunTime</span> <span class="o">-</span> <span class="n">line</span><span class="o">*</span><span class="n">lineTime</span>
+		<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Time elapsed is </span><span class="si">{}</span><span class="s1">, lineTime is </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">elapsedLineTime</span><span class="p">,</span> <span class="n">lineTime</span><span class="p">))</span>
+		<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">lineTime</span> <span class="o">-</span> <span class="n">elapsedLineTime</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+	
+	<span class="n">smu_device</span><span class="o">.</span><span class="n">turnChannelsOff</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="runAFMline"><a class="viewcode-back" href="../../../source.procedures.html#source.procedures.AFM_Control.runAFMline">[docs]</a><span class="k">def</span> <span class="nf">runAFMline</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">smu_systems</span><span class="p">,</span> <span class="n">isSavingResults</span><span class="p">,</span> <span class="n">isPlottingResults</span><span class="p">,</span> <span class="n">sleep_time1</span><span class="p">,</span> <span class="n">sleep_time2</span><span class="p">):</span>
+	<span class="c1"># Get shorthand name to easily refer to configuration parameters</span>
+	<span class="n">afm_parameters</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;runConfigs&#39;</span><span class="p">][</span><span class="s1">&#39;AFMControl&#39;</span><span class="p">]</span>
+	
+	<span class="n">smu_device</span> <span class="o">=</span> <span class="n">smu_systems</span><span class="p">[</span><span class="s1">&#39;deviceSMU&#39;</span><span class="p">]</span>
+	<span class="n">smu_secondary</span> <span class="o">=</span> <span class="n">smu_systems</span><span class="p">[</span><span class="s1">&#39;secondarySMU&#39;</span><span class="p">]</span>
+	
+	<span class="n">lineStartTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+	
+	<span class="c1"># Device SMU data</span>
+	<span class="n">vds_data</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="n">id_data</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="n">vgs_data</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="n">ig_data</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="n">device_timestamps</span> <span class="o">=</span> <span class="p">[]</span>
+	
+	<span class="c1"># Seconary SMU data</span>
+	<span class="n">smu2_v1_data</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="n">smu2_i1_data</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="n">smu2_v2_data</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="n">smu2_i2_data</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="n">smu2_timestamps</span> <span class="o">=</span> <span class="p">[]</span>
+	
+	<span class="c1"># Take measurements</span>
+	<span class="n">smu_device</span><span class="o">.</span><span class="n">initSweep</span><span class="p">()</span>
+	<span class="n">startTime1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+	<span class="n">smu_secondary</span><span class="o">.</span><span class="n">initSweep</span><span class="p">()</span>
+	<span class="n">startTime2</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+	
+	<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="nb">min</span><span class="p">(</span><span class="n">sleep_time1</span> <span class="o">-</span> <span class="p">(</span><span class="n">startTime2</span> <span class="o">-</span> <span class="n">startTime1</span><span class="p">),</span> <span class="n">sleep_time2</span><span class="p">))</span>
+	
+	<span class="n">results_device</span> <span class="o">=</span> <span class="n">smu_device</span><span class="o">.</span><span class="n">endSweep</span><span class="p">()</span>
+	<span class="n">results_secondary</span> <span class="o">=</span> <span class="n">smu_secondary</span><span class="o">.</span><span class="n">endSweep</span><span class="p">()</span>
+	
+	<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Difference in start times is </span><span class="si">{}</span><span class="s1"> s&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">startTime2</span> <span class="o">-</span> <span class="n">startTime1</span><span class="p">))</span>
+	
+	<span class="c1"># Pick the data to save</span>
+	<span class="n">vds_data</span> <span class="o">=</span> <span class="n">results_device</span><span class="p">[</span><span class="s1">&#39;Vds_data&#39;</span><span class="p">]</span>
+	<span class="n">id_data</span> <span class="o">=</span> <span class="n">results_device</span><span class="p">[</span><span class="s1">&#39;Id_data&#39;</span><span class="p">]</span>
+	<span class="n">vgs_data</span> <span class="o">=</span> <span class="n">results_device</span><span class="p">[</span><span class="s1">&#39;Vgs_data&#39;</span><span class="p">]</span>
+	<span class="n">ig_data</span> <span class="o">=</span> <span class="n">results_device</span><span class="p">[</span><span class="s1">&#39;Ig_data&#39;</span><span class="p">]</span>
+	<span class="n">timestamps_device</span> <span class="o">=</span> <span class="p">[</span><span class="n">startTime1</span> <span class="o">+</span> <span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">results_device</span><span class="p">[</span><span class="s1">&#39;timestamps&#39;</span><span class="p">]]</span>
+	
+	<span class="n">smu2_v1_data</span> <span class="o">=</span> <span class="n">results_secondary</span><span class="p">[</span><span class="s1">&#39;Vds_data&#39;</span><span class="p">]</span>
+	<span class="n">smu2_i1_data</span> <span class="o">=</span> <span class="n">results_secondary</span><span class="p">[</span><span class="s1">&#39;Id_data&#39;</span><span class="p">]</span>
+	<span class="n">smu2_v2_data</span> <span class="o">=</span> <span class="n">results_secondary</span><span class="p">[</span><span class="s1">&#39;Vgs_data&#39;</span><span class="p">]</span>
+	<span class="n">smu2_i2_data</span> <span class="o">=</span> <span class="n">results_secondary</span><span class="p">[</span><span class="s1">&#39;Ig_data&#39;</span><span class="p">]</span>
+	<span class="n">timestamps_smu2</span> <span class="o">=</span> <span class="p">[</span><span class="n">startTime2</span> <span class="o">+</span> <span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">results_secondary</span><span class="p">[</span><span class="s1">&#39;timestamps&#39;</span><span class="p">]]</span>
+	
+	<span class="k">return</span> <span class="p">{</span>
+		<span class="s1">&#39;Raw&#39;</span><span class="p">:{</span>
+			<span class="s1">&#39;vds_data&#39;</span><span class="p">:</span><span class="n">vds_data</span><span class="p">,</span>
+			<span class="s1">&#39;id_data&#39;</span><span class="p">:</span><span class="n">id_data</span><span class="p">,</span>
+			<span class="s1">&#39;vgs_data&#39;</span><span class="p">:</span><span class="n">vgs_data</span><span class="p">,</span>
+			<span class="s1">&#39;ig_data&#39;</span><span class="p">:</span><span class="n">ig_data</span><span class="p">,</span>
+			<span class="s1">&#39;timestamps_device&#39;</span><span class="p">:</span><span class="n">timestamps_device</span><span class="p">,</span>
+			<span class="s1">&#39;smu2_v1_data&#39;</span><span class="p">:</span><span class="n">smu2_v1_data</span><span class="p">,</span>
+			<span class="s1">&#39;smu2_i1_data&#39;</span><span class="p">:</span><span class="n">smu2_i1_data</span><span class="p">,</span>
+			<span class="s1">&#39;smu2_v2_data&#39;</span><span class="p">:</span><span class="n">smu2_v2_data</span><span class="p">,</span>
+			<span class="s1">&#39;smu2_i2_data&#39;</span><span class="p">:</span><span class="n">smu2_i2_data</span><span class="p">,</span>
+			<span class="s1">&#39;timestamps_smu2&#39;</span><span class="p">:</span><span class="n">timestamps_smu2</span><span class="p">,</span>
+		<span class="p">},</span>
+		<span class="s1">&#39;Computed&#39;</span><span class="p">:{</span>
+			<span class="s1">&#39;metric that you care about&#39;</span><span class="p">:</span><span class="mi">123456789</span>
+		<span class="p">}</span>
+	<span class="p">}</span></div>
+
+
+	
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Steven Noyce
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

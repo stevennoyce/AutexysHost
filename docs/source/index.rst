@@ -19,9 +19,8 @@ make html
 From the same directory.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 20
    :caption: Contents:
-
 
 
 

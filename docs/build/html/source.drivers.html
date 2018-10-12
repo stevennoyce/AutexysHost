@@ -1,0 +1,647 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>source.drivers namespace &mdash; Autexys 1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Autexys
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">source.drivers namespace</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-source.drivers.ArduinoBoard">source.drivers.ArduinoBoard module</a></li>
+<li><a class="reference internal" href="#module-source.drivers.SourceMeasureUnit">source.drivers.SourceMeasureUnit module</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Autexys</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>source.drivers namespace</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/source.drivers.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="source-drivers-namespace">
+<h1>source.drivers namespace<a class="headerlink" href="#source-drivers-namespace" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-source.drivers.ArduinoBoard">
+<span id="source-drivers-arduinoboard-module"></span><h2>source.drivers.ArduinoBoard module<a class="headerlink" href="#module-source.drivers.ArduinoBoard" title="Permalink to this headline">¶</a></h2>
+<p>This module defines a common Python interface for communicating to Arduino boards over the Arduino Serial interface.</p>
+<dl class="class">
+<dt id="source.drivers.ArduinoBoard.ArduinoSerial">
+<em class="property">class </em><code class="descclassname">source.drivers.ArduinoBoard.</code><code class="descname">ArduinoSerial</code><span class="sig-paren">(</span><em>pySerial</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/ArduinoBoard.html#ArduinoSerial"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.ArduinoBoard.ArduinoSerial" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="source.drivers.ArduinoBoard.ArduinoSerial.getResponse">
+<code class="descname">getResponse</code><span class="sig-paren">(</span><em>startsWith=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/ArduinoBoard.html#ArduinoSerial.getResponse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.ArduinoBoard.ArduinoSerial.getResponse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="source.drivers.ArduinoBoard.ArduinoSerial.measurementsPerSecond">
+<code class="descname">measurementsPerSecond</code><em class="property"> = 0.25</em><a class="headerlink" href="#source.drivers.ArduinoBoard.ArduinoSerial.measurementsPerSecond" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="source.drivers.ArduinoBoard.ArduinoSerial.ser">
+<code class="descname">ser</code><em class="property"> = None</em><a class="headerlink" href="#source.drivers.ArduinoBoard.ArduinoSerial.ser" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.ArduinoBoard.ArduinoSerial.takeMeasurement">
+<code class="descname">takeMeasurement</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/ArduinoBoard.html#ArduinoSerial.takeMeasurement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.ArduinoBoard.ArduinoSerial.takeMeasurement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.ArduinoBoard.ArduinoSerial.writeSerial">
+<code class="descname">writeSerial</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/ArduinoBoard.html#ArduinoSerial.writeSerial"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.ArduinoBoard.ArduinoSerial.writeSerial" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="source.drivers.ArduinoBoard.NullArduinoSerial">
+<em class="property">class </em><code class="descclassname">source.drivers.ArduinoBoard.</code><code class="descname">NullArduinoSerial</code><a class="reference internal" href="_modules/source/drivers/ArduinoBoard.html#NullArduinoSerial"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.ArduinoBoard.NullArduinoSerial" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#source.drivers.ArduinoBoard.ArduinoSerial" title="source.drivers.ArduinoBoard.ArduinoSerial"><code class="xref py py-class docutils literal notranslate"><span class="pre">source.drivers.ArduinoBoard.ArduinoSerial</span></code></a></p>
+<dl class="method">
+<dt id="source.drivers.ArduinoBoard.NullArduinoSerial.takeMeasurement">
+<code class="descname">takeMeasurement</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/ArduinoBoard.html#NullArduinoSerial.takeMeasurement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.ArduinoBoard.NullArduinoSerial.takeMeasurement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="source.drivers.ArduinoBoard.getConnection">
+<code class="descclassname">source.drivers.ArduinoBoard.</code><code class="descname">getConnection</code><span class="sig-paren">(</span><em>port</em>, <em>baud</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/ArduinoBoard.html#getConnection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.ArduinoBoard.getConnection" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="source.drivers.ArduinoBoard.getNullInstance">
+<code class="descclassname">source.drivers.ArduinoBoard.</code><code class="descname">getNullInstance</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/ArduinoBoard.html#getNullInstance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.ArduinoBoard.getNullInstance" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-source.drivers.SourceMeasureUnit">
+<span id="source-drivers-sourcemeasureunit-module"></span><h2>source.drivers.SourceMeasureUnit module<a class="headerlink" href="#module-source.drivers.SourceMeasureUnit" title="Permalink to this headline">¶</a></h2>
+<p>This module defines a common Python interface for communicating to SMU systems. It also defines the possible sets of SMUs that can be
+connected to and the ports/MAC addresses need to connect.</p>
+<dl class="class">
+<dt id="source.drivers.SourceMeasureUnit.B2912A">
+<em class="property">class </em><code class="descclassname">source.drivers.SourceMeasureUnit.</code><code class="descname">B2912A</code><span class="sig-paren">(</span><em>visa_instance</em>, <em>visa_id</em>, <em>defaultComplianceCurrent</em>, <em>system_settings</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#B2912A"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.B2912A" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#source.drivers.SourceMeasureUnit.SourceMeasureUnit" title="source.drivers.SourceMeasureUnit.SourceMeasureUnit"><code class="xref py py-class docutils literal notranslate"><span class="pre">source.drivers.SourceMeasureUnit.SourceMeasureUnit</span></code></a></p>
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.B2912A.disconnect">
+<code class="descname">disconnect</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#B2912A.disconnect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.B2912A.disconnect" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.B2912A.endSweep">
+<code class="descname">endSweep</code><span class="sig-paren">(</span><em>endMode=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#B2912A.endSweep"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.B2912A.endSweep" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.B2912A.initSweep">
+<code class="descname">initSweep</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#B2912A.initSweep"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.B2912A.initSweep" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.B2912A.initialize">
+<code class="descname">initialize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#B2912A.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.B2912A.initialize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="source.drivers.SourceMeasureUnit.B2912A.measurementRateVariabilityFactor">
+<code class="descname">measurementRateVariabilityFactor</code><em class="property"> = 2</em><a class="headerlink" href="#source.drivers.SourceMeasureUnit.B2912A.measurementRateVariabilityFactor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="source.drivers.SourceMeasureUnit.B2912A.measurementsPerSecond">
+<code class="descname">measurementsPerSecond</code><em class="property"> = 40</em><a class="headerlink" href="#source.drivers.SourceMeasureUnit.B2912A.measurementsPerSecond" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="source.drivers.SourceMeasureUnit.B2912A.nplc">
+<code class="descname">nplc</code><em class="property"> = 1</em><a class="headerlink" href="#source.drivers.SourceMeasureUnit.B2912A.nplc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.B2912A.setChannel1SourceMode">
+<code class="descname">setChannel1SourceMode</code><span class="sig-paren">(</span><em>mode='voltage'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#B2912A.setChannel1SourceMode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.B2912A.setChannel1SourceMode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.B2912A.setChannel2SourceMode">
+<code class="descname">setChannel2SourceMode</code><span class="sig-paren">(</span><em>mode='voltage'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#B2912A.setChannel2SourceMode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.B2912A.setChannel2SourceMode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.B2912A.setComplianceCurrent">
+<code class="descname">setComplianceCurrent</code><span class="sig-paren">(</span><em>complianceCurrent=0.0001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#B2912A.setComplianceCurrent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.B2912A.setComplianceCurrent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.B2912A.setComplianceVoltage">
+<code class="descname">setComplianceVoltage</code><span class="sig-paren">(</span><em>complianceVoltage</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#B2912A.setComplianceVoltage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.B2912A.setComplianceVoltage" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.B2912A.setDevice">
+<code class="descname">setDevice</code><span class="sig-paren">(</span><em>deviceID</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#B2912A.setDevice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.B2912A.setDevice" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.B2912A.setNPLC">
+<code class="descname">setNPLC</code><span class="sig-paren">(</span><em>nplc=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#B2912A.setNPLC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.B2912A.setNPLC" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.B2912A.setParameter">
+<code class="descname">setParameter</code><span class="sig-paren">(</span><em>parameter</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#B2912A.setParameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.B2912A.setParameter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.B2912A.setVds">
+<code class="descname">setVds</code><span class="sig-paren">(</span><em>voltage</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#B2912A.setVds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.B2912A.setVds" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.B2912A.setVgs">
+<code class="descname">setVgs</code><span class="sig-paren">(</span><em>voltage</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#B2912A.setVgs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.B2912A.setVgs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.B2912A.setupSweep">
+<code class="descname">setupSweep</code><span class="sig-paren">(</span><em>src1start</em>, <em>src1stop</em>, <em>src2start</em>, <em>src2stop</em>, <em>points</em>, <em>triggerInterval=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#B2912A.setupSweep"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.B2912A.setupSweep" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="source.drivers.SourceMeasureUnit.B2912A.smu">
+<code class="descname">smu</code><em class="property"> = None</em><a class="headerlink" href="#source.drivers.SourceMeasureUnit.B2912A.smu" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="source.drivers.SourceMeasureUnit.B2912A.source1_mode">
+<code class="descname">source1_mode</code><em class="property"> = 'voltage'</em><a class="headerlink" href="#source.drivers.SourceMeasureUnit.B2912A.source1_mode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="source.drivers.SourceMeasureUnit.B2912A.source2_mode">
+<code class="descname">source2_mode</code><em class="property"> = 'voltage'</em><a class="headerlink" href="#source.drivers.SourceMeasureUnit.B2912A.source2_mode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.B2912A.startSweep">
+<code class="descname">startSweep</code><span class="sig-paren">(</span><em>src1start</em>, <em>src1stop</em>, <em>src2start</em>, <em>src2stop</em>, <em>points</em>, <em>triggerInterval=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#B2912A.startSweep"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.B2912A.startSweep" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="source.drivers.SourceMeasureUnit.B2912A.stepsPerRamp">
+<code class="descname">stepsPerRamp</code><em class="property"> = 20</em><a class="headerlink" href="#source.drivers.SourceMeasureUnit.B2912A.stepsPerRamp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="source.drivers.SourceMeasureUnit.B2912A.system_id">
+<code class="descname">system_id</code><em class="property"> = ''</em><a class="headerlink" href="#source.drivers.SourceMeasureUnit.B2912A.system_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="source.drivers.SourceMeasureUnit.B2912A.system_settings">
+<code class="descname">system_settings</code><em class="property"> = {}</em><a class="headerlink" href="#source.drivers.SourceMeasureUnit.B2912A.system_settings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.B2912A.takeMeasurement">
+<code class="descname">takeMeasurement</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#B2912A.takeMeasurement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.B2912A.takeMeasurement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.B2912A.takeSweep">
+<code class="descname">takeSweep</code><span class="sig-paren">(</span><em>src1start</em>, <em>src1stop</em>, <em>src2start</em>, <em>src2stop</em>, <em>points</em>, <em>triggerInterval=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#B2912A.takeSweep"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.B2912A.takeSweep" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.B2912A.turnAutoRangingOff">
+<code class="descname">turnAutoRangingOff</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#B2912A.turnAutoRangingOff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.B2912A.turnAutoRangingOff" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.B2912A.turnAutoRangingOn">
+<code class="descname">turnAutoRangingOn</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#B2912A.turnAutoRangingOn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.B2912A.turnAutoRangingOn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.B2912A.turnChannelsOff">
+<code class="descname">turnChannelsOff</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#B2912A.turnChannelsOff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.B2912A.turnChannelsOff" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.B2912A.turnChannelsOn">
+<code class="descname">turnChannelsOn</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#B2912A.turnChannelsOn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.B2912A.turnChannelsOn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="source.drivers.SourceMeasureUnit.PCB2v14">
+<em class="property">class </em><code class="descclassname">source.drivers.SourceMeasureUnit.</code><code class="descname">PCB2v14</code><span class="sig-paren">(</span><em>pySerial</em>, <em>pcb_port</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#PCB2v14"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.PCB2v14" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#source.drivers.SourceMeasureUnit.SourceMeasureUnit" title="source.drivers.SourceMeasureUnit.SourceMeasureUnit"><code class="xref py py-class docutils literal notranslate"><span class="pre">source.drivers.SourceMeasureUnit.SourceMeasureUnit</span></code></a></p>
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.PCB2v14.disconnect">
+<code class="descname">disconnect</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#PCB2v14.disconnect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.PCB2v14.disconnect" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.PCB2v14.formatMeasurement">
+<code class="descname">formatMeasurement</code><span class="sig-paren">(</span><em>measurement</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#PCB2v14.formatMeasurement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.PCB2v14.formatMeasurement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.PCB2v14.getResponse">
+<code class="descname">getResponse</code><span class="sig-paren">(</span><em>startsWith=''</em>, <em>lines=1</em>, <em>printResponse=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#PCB2v14.getResponse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.PCB2v14.getResponse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="source.drivers.SourceMeasureUnit.PCB2v14.measurementRateVariabilityFactor">
+<code class="descname">measurementRateVariabilityFactor</code><em class="property"> = 2</em><a class="headerlink" href="#source.drivers.SourceMeasureUnit.PCB2v14.measurementRateVariabilityFactor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="source.drivers.SourceMeasureUnit.PCB2v14.measurementsPerSecond">
+<code class="descname">measurementsPerSecond</code><em class="property"> = 10</em><a class="headerlink" href="#source.drivers.SourceMeasureUnit.PCB2v14.measurementsPerSecond" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="source.drivers.SourceMeasureUnit.PCB2v14.nplc">
+<code class="descname">nplc</code><em class="property"> = 1</em><a class="headerlink" href="#source.drivers.SourceMeasureUnit.PCB2v14.nplc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="source.drivers.SourceMeasureUnit.PCB2v14.ser">
+<code class="descname">ser</code><em class="property"> = None</em><a class="headerlink" href="#source.drivers.SourceMeasureUnit.PCB2v14.ser" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.PCB2v14.setComplianceCurrent">
+<code class="descname">setComplianceCurrent</code><span class="sig-paren">(</span><em>complianceCurrent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#PCB2v14.setComplianceCurrent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.PCB2v14.setComplianceCurrent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.PCB2v14.setDevice">
+<code class="descname">setDevice</code><span class="sig-paren">(</span><em>deviceID</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#PCB2v14.setDevice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.PCB2v14.setDevice" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.PCB2v14.setParameter">
+<code class="descname">setParameter</code><span class="sig-paren">(</span><em>parameter</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#PCB2v14.setParameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.PCB2v14.setParameter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.PCB2v14.setVds">
+<code class="descname">setVds</code><span class="sig-paren">(</span><em>voltage</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#PCB2v14.setVds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.PCB2v14.setVds" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.PCB2v14.setVgs">
+<code class="descname">setVgs</code><span class="sig-paren">(</span><em>voltage</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#PCB2v14.setVgs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.PCB2v14.setVgs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="source.drivers.SourceMeasureUnit.PCB2v14.stepsPerRamp">
+<code class="descname">stepsPerRamp</code><em class="property"> = 5</em><a class="headerlink" href="#source.drivers.SourceMeasureUnit.PCB2v14.stepsPerRamp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="source.drivers.SourceMeasureUnit.PCB2v14.system_id">
+<code class="descname">system_id</code><em class="property"> = ''</em><a class="headerlink" href="#source.drivers.SourceMeasureUnit.PCB2v14.system_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.PCB2v14.takeMeasurement">
+<code class="descname">takeMeasurement</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#PCB2v14.takeMeasurement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.PCB2v14.takeMeasurement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.PCB2v14.takeSweep">
+<code class="descname">takeSweep</code><span class="sig-paren">(</span><em>src1start</em>, <em>src1stop</em>, <em>src2start</em>, <em>src2stop</em>, <em>points</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#PCB2v14.takeSweep"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.PCB2v14.takeSweep" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="source.drivers.SourceMeasureUnit.SourceMeasureUnit">
+<em class="property">class </em><code class="descclassname">source.drivers.SourceMeasureUnit.</code><code class="descname">SourceMeasureUnit</code><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#SourceMeasureUnit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.SourceMeasureUnit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.SourceMeasureUnit.disconnect">
+<code class="descname">disconnect</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#SourceMeasureUnit.disconnect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.SourceMeasureUnit.disconnect" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.SourceMeasureUnit.getVds">
+<code class="descname">getVds</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#SourceMeasureUnit.getVds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.SourceMeasureUnit.getVds" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.SourceMeasureUnit.getVgs">
+<code class="descname">getVgs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#SourceMeasureUnit.getVgs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.SourceMeasureUnit.getVgs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="source.drivers.SourceMeasureUnit.SourceMeasureUnit.measurementRateVariabilityFactor">
+<code class="descname">measurementRateVariabilityFactor</code><em class="property"> = None</em><a class="headerlink" href="#source.drivers.SourceMeasureUnit.SourceMeasureUnit.measurementRateVariabilityFactor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="source.drivers.SourceMeasureUnit.SourceMeasureUnit.measurementsPerSecond">
+<code class="descname">measurementsPerSecond</code><em class="property"> = None</em><a class="headerlink" href="#source.drivers.SourceMeasureUnit.SourceMeasureUnit.measurementsPerSecond" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.SourceMeasureUnit.rampDownVoltages">
+<code class="descname">rampDownVoltages</code><span class="sig-paren">(</span><em>steps=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#SourceMeasureUnit.rampDownVoltages"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.SourceMeasureUnit.rampDownVoltages" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.SourceMeasureUnit.rampDrainVoltage">
+<code class="descname">rampDrainVoltage</code><span class="sig-paren">(</span><em>voltageStart</em>, <em>voltageSetPoint</em>, <em>steps=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#SourceMeasureUnit.rampDrainVoltage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.SourceMeasureUnit.rampDrainVoltage" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.SourceMeasureUnit.rampDrainVoltageDown">
+<code class="descname">rampDrainVoltageDown</code><span class="sig-paren">(</span><em>steps=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#SourceMeasureUnit.rampDrainVoltageDown"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.SourceMeasureUnit.rampDrainVoltageDown" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.SourceMeasureUnit.rampDrainVoltageTo">
+<code class="descname">rampDrainVoltageTo</code><span class="sig-paren">(</span><em>voltageSetPoint</em>, <em>steps=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#SourceMeasureUnit.rampDrainVoltageTo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.SourceMeasureUnit.rampDrainVoltageTo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.SourceMeasureUnit.rampGateVoltage">
+<code class="descname">rampGateVoltage</code><span class="sig-paren">(</span><em>voltageStart</em>, <em>voltageSetPoint</em>, <em>steps=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#SourceMeasureUnit.rampGateVoltage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.SourceMeasureUnit.rampGateVoltage" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.SourceMeasureUnit.rampGateVoltageDown">
+<code class="descname">rampGateVoltageDown</code><span class="sig-paren">(</span><em>steps=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#SourceMeasureUnit.rampGateVoltageDown"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.SourceMeasureUnit.rampGateVoltageDown" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.SourceMeasureUnit.rampGateVoltageTo">
+<code class="descname">rampGateVoltageTo</code><span class="sig-paren">(</span><em>voltageSetPoint</em>, <em>steps=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#SourceMeasureUnit.rampGateVoltageTo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.SourceMeasureUnit.rampGateVoltageTo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.SourceMeasureUnit.setComplianceCurrent">
+<code class="descname">setComplianceCurrent</code><span class="sig-paren">(</span><em>complianceCurrent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#SourceMeasureUnit.setComplianceCurrent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.SourceMeasureUnit.setComplianceCurrent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.SourceMeasureUnit.setDevice">
+<code class="descname">setDevice</code><span class="sig-paren">(</span><em>deviceID</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#SourceMeasureUnit.setDevice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.SourceMeasureUnit.setDevice" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.SourceMeasureUnit.setParameter">
+<code class="descname">setParameter</code><span class="sig-paren">(</span><em>parameter</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#SourceMeasureUnit.setParameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.SourceMeasureUnit.setParameter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.SourceMeasureUnit.setVds">
+<code class="descname">setVds</code><span class="sig-paren">(</span><em>voltage</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#SourceMeasureUnit.setVds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.SourceMeasureUnit.setVds" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.SourceMeasureUnit.setVgs">
+<code class="descname">setVgs</code><span class="sig-paren">(</span><em>voltage</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#SourceMeasureUnit.setVgs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.SourceMeasureUnit.setVgs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="source.drivers.SourceMeasureUnit.SourceMeasureUnit.stepsPerRamp">
+<code class="descname">stepsPerRamp</code><em class="property"> = 15</em><a class="headerlink" href="#source.drivers.SourceMeasureUnit.SourceMeasureUnit.stepsPerRamp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="source.drivers.SourceMeasureUnit.SourceMeasureUnit.system_id">
+<code class="descname">system_id</code><em class="property"> = ''</em><a class="headerlink" href="#source.drivers.SourceMeasureUnit.SourceMeasureUnit.system_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.SourceMeasureUnit.takeMeasurement">
+<code class="descname">takeMeasurement</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#SourceMeasureUnit.takeMeasurement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.SourceMeasureUnit.takeMeasurement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.SourceMeasureUnit.takeSweep">
+<code class="descname">takeSweep</code><span class="sig-paren">(</span><em>src1start</em>, <em>src1stop</em>, <em>src2start</em>, <em>src2stop</em>, <em>points</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#SourceMeasureUnit.takeSweep"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.SourceMeasureUnit.takeSweep" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.SourceMeasureUnit.turnChannelsOff">
+<code class="descname">turnChannelsOff</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#SourceMeasureUnit.turnChannelsOff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.SourceMeasureUnit.turnChannelsOff" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="source.drivers.SourceMeasureUnit.SourceMeasureUnit.turnChannelsOn">
+<code class="descname">turnChannelsOn</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#SourceMeasureUnit.turnChannelsOn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.SourceMeasureUnit.turnChannelsOn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="source.drivers.SourceMeasureUnit.getConnectionToPCB">
+<code class="descclassname">source.drivers.SourceMeasureUnit.</code><code class="descname">getConnectionToPCB</code><span class="sig-paren">(</span><em>pcb_port=''</em>, <em>system_settings=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#getConnectionToPCB"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.getConnectionToPCB" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="source.drivers.SourceMeasureUnit.getConnectionToVisaResource">
+<code class="descclassname">source.drivers.SourceMeasureUnit.</code><code class="descname">getConnectionToVisaResource</code><span class="sig-paren">(</span><em>uniqueIdentifier=''</em>, <em>system_settings=None</em>, <em>defaultComplianceCurrent=0.0001</em>, <em>smuTimeout=60000</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#getConnectionToVisaResource"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.getConnectionToVisaResource" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="source.drivers.SourceMeasureUnit.getSystemConfiguration">
+<code class="descclassname">source.drivers.SourceMeasureUnit.</code><code class="descname">getSystemConfiguration</code><span class="sig-paren">(</span><em>systemType</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/drivers/SourceMeasureUnit.html#getSystemConfiguration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.drivers.SourceMeasureUnit.getSystemConfiguration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Steven Noyce
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
