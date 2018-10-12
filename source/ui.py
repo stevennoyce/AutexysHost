@@ -74,7 +74,6 @@ default_makePlot_parameters = {
 	'saveFigures': False,
 	'showFigures': True,
 	'sweepDirection': 'both',
-	'plotInRealTime': True,
 	'startRelativeIndex': 0,
 	'endRelativeIndex': 1e10,
 	'plot_mode_parameters': None

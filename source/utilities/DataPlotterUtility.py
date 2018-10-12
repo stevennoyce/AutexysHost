@@ -16,7 +16,6 @@ for importer, packageName, isPackage in pkgutil.iter_modules([os.path.join(os.pa
 
 # === Plot Parameters ===
 default_mode_parameters = {
-	'showFigures': True,
 	'saveFigures': True,
 	'plotSaveFolder': '../../AutexysPlots/',
 	'plotSaveName': '',
