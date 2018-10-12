@@ -221,6 +221,7 @@ def plotStaticBias(axis, jsonData, lineColor, timeOffset, currentData='id_data',
 
 # === Figures ===
 def initFigure(rows, columns, figsizeDefault, figsizeOverride=None, shareX=False, subplotWidthRatio=None, subplotHeightRatio=None):
+	print('Initializing figures.')
 	figsize = figsizeDefault
 	if(figsizeOverride != None):
 		figsize = figsizeOverride
@@ -229,7 +230,7 @@ def initFigure(rows, columns, figsizeDefault, figsizeOverride=None, shareX=False
 		fig, axes = plt.subplots(rows, columns, figsize=figsize, sharex=shareX, gridspec_kw={'width_ratios':subplotWidthRatio, 'height_ratios':subplotHeightRatio})
 	else:
 		fig, axes = plt.subplots(rows, columns, figsize=figsize)
-		
+	
 	return fig, axes
 
 def adjustAndSaveFigure(figure, plotType, mode_parameters, subplotWidthPad=0, subplotHeightPad=0):
@@ -241,14 +242,18 @@ def adjustAndSaveFigure(figure, plotType, mode_parameters, subplotWidthPad=0, su
 	plt.subplots_adjust(wspace=subplotWidthPad, hspace=subplotHeightPad)
 	pngDPI = (300) if(mode_parameters['publication_mode']) else (mode_parameters['default_png_dpi'])
 	if(mode_parameters['saveFigures']):
+		print('Saving figures.')
 		if isinstance(mode_parameters['plotSaveName'], io.BytesIO):
 			plt.savefig(mode_parameters['plotSaveName'], transparent=True, dpi=pngDPI, format='png')
 		else:
 			plt.savefig(os.path.join(mode_parameters['plotSaveFolder'], mode_parameters['plotSaveName'] + plotType + mode_parameters['plotSaveExtension']), transparent=True, dpi=pngDPI)
 			# plt.savefig(os.path.join(mode_parameters['plotSaveFolder'], mode_parameters['plotSaveName'] + plotType + '.pdf'), transparent=True, dpi=pngDPI)
 			# plt.savefig(os.path.join(mode_parameters['plotSaveFolder'], mode_parameters['plotSaveName'] + plotType + '.eps'), transparent=True, dpi=pngDPI)
+		print('Figures saved.')
 	if(not mode_parameters['showFigures']):
+		print('Closing figures.')
 		plt.close(figure)
+	
 
 
 

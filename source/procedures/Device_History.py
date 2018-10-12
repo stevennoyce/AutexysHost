@@ -115,6 +115,7 @@ def run(additional_parameters, plot_mode_parameters=None):
 	# Determine which plots are being requested and make them all
 	plotsToCreate = [p['specificPlotToCreate']] if(p['specificPlotToCreate'] != '') else plotsForExperiments(parameters, minExperiment=p['minJSONExperimentNumber'], maxExperiment=p['maxJSONExperimentNumber'])
 	for plotType in plotsToCreate:
+		print('Loading data for ' + str(plotType) + ' plot.')
 		dataFileDependencies = dpu.getDataFileDependencies(plotType)
 		deviceHistory = []
 		try:
