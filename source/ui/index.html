@@ -1183,6 +1183,12 @@
 					// $.getJSON(url, JSON.stringify(this.scheduleObjectDefault), response => {
 					// 	this.saveScheduleSuccessCode = response;
 					// }).fail(() => {console.log("Error saving schedule file")});
+					
+					if (this.scheduleExperimentUser == '') this.scheduleExperimentUser = this.scheduleSaveUser;
+					if (this.scheduleExperimentProject == '') this.scheduleExperimentProject = this.scheduleSaveProject;
+					if (this.scheduleExperimentFileName == '') this.scheduleExperimentFileName = this.scheduleSaveFileName;
+					
+					this.getScheduleNames();
 				},
 				loadSchedule: function() {
 					var path = '/scheduleFiles/' + this.scheduleLoadUser + '/' + this.scheduleLoadProject + '/' + this.scheduleLoadFileName + '.json' + this.cacheBust;
