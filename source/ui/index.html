@@ -631,7 +631,7 @@
 															<v-select v-if="settingDescription.type == 'choice'" :label="settingName" :items="settingDescription.choices"
 																v-model="scheduleObjects[scheduleObjectIndex]['MeasurementSystem'][settingName]['default']"></v-select>
 															<v-combobox v-if="settingDescription.type == 'array'" :label="settingName"
-																v-model="scheduleObjects[scheduleObjectIndex]['MeasurementSystem'][settingName]['default']" multiple small-chips></v-combobox>
+																v-model="scheduleObjects[scheduleObjectIndex]['MeasurementSystem'][settingName]['default']" :items="scheduleObjects[scheduleObjectIndex]['MeasurementSystem'][settingName]['choices']" multiple small-chips></v-combobox>
 														</v-list-tile>
 													</v-list>
 												</v-card>
