@@ -4,7 +4,7 @@ from utilities.MatplotlibUtility import *
 
 plotDescription = {
 	'plotCategory': 'chip',
-	'dataFileNames': ['chipSomething.json'],
+	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(5,4),
 		'xlabel':'Device',

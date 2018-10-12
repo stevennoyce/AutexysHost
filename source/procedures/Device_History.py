@@ -121,10 +121,10 @@ def run(additional_parameters, plot_mode_parameters=None):
 	# Determine which plots are being requested and make them all
 	plotsToCreate = [p['specificPlotToCreate']] if(p['specificPlotToCreate'] != '') else plotsForExperiments(parameters, minExperiment=p['excludeDataBeforeJSONExperimentNumber'], maxExperiment=p['excludeDataAfterJSONExperimentNumber'])
 	for plotType in plotsToCreate:
-		dataFileNames = dpu.getDataFileDependencies(plotType)
+		dataFileDependencies = dpu.getDataFileDependencies(plotType)
 		deviceHistory = []
 		try:
-			for dataFile in dataFileNames:
+			for dataFile in dataFileDependencies:
 				deviceHistory += dlu.loadSpecificDeviceHistory(dlu.getDeviceDirectory(parameters), dataFile, minIndex=p['excludeDataBeforeJSONIndex'], maxIndex=p['excludeDataAfterJSONIndex'], minExperiment=p['excludeDataBeforeJSONExperimentNumber'], maxExperiment=p['excludeDataAfterJSONExperimentNumber'], minRelativeIndex=p['excludeDataBeforeJSONRelativeIndex'], maxRelativeIndex=p['excludeDataAfterJSONRelativeIndex'])
 			plot = dpu.makeDevicePlot(plotType, deviceHistory, parameters['Identifiers'], mode_parameters=mode_parameters)
 			plotList.append(plot)

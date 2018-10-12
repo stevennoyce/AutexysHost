@@ -88,8 +88,8 @@ def makeChipPlot(plotType, identifiers, chipIndexes=None, firstRunChipHistory=No
 	be a dictionary that includes some of the keys shown above in default_mode_parameters, and the union of these two dictionaries will
 	be passed to the plots."""	
 	
-	if(plotType is 'ChipHistogram'):
-		if((chipIndexes is None) or len(chipIndexes) <= 0):
+	if(plotType == 'ChipHistogram'):
+		if((chipIndexes is None) or len(chipIndexes.keys()) <= 0):
 			print('No chip histogram to plot.')
 			return
 	elif((recentRunChipHistory is None) or len(recentRunChipHistory) <= 0):
@@ -99,27 +99,28 @@ def makeChipPlot(plotType, identifiers, chipIndexes=None, firstRunChipHistory=No
 	updated_mode_parameters = default_mode_parameters.copy()
 	if(mode_parameters is not None):
 		updated_mode_parameters.update(mode_parameters)
-
+	
 	try:
 		fig, axes = plotDefinitions[plotType]['function'](identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, mode_parameters=updated_mode_parameters)
 	except:
-		raise NotImplementedError('Unrecognized "plotType": ' + str(plotType))
-
+		print('Error plotting "plotType": ' + str(plotType))
+		raise
+		
 	return fig, axes
 
 def getDataFileDependencies(plotType):
 	"""Returns a list of data files needed to make the given plotType."""
 	try:
-		return plotDefinitions[plotType]['description']['dataFileNames']
+		return plotDefinitions[plotType]['description']['dataFileDependencies']
 	except:
 		raise NotImplementedError('Unrecognized "plotType": ' + str(plotType))
 		
-def getPlotTypesFromDependencies(dataFileNames, plotCategory='device'):
+def getPlotTypesFromDependencies(availableDataFiles, plotCategory='device'):
 	"""Returns a list of plotTypes that can be made from the given data files. plotCategory can choose between device or chip plots."""
 	plotTypes = list(plotDefinitions.keys())
 	for plotType, definition in plotDefinitions.items():
-		for dataFileName in definition['description']['dataFileNames']:
-			if((dataFileName not in dataFileNames) or (plotCategory != definition['description']['plotCategory'])):
+		for dataFileDependency in definition['description']['dataFileDependencies']:
+			if((dataFileDependency not in availableDataFiles) or (plotCategory != definition['description']['plotCategory'])):
 				if(plotType in plotTypes):
 					plotTypes.remove(plotType)
 	plotTypes.sort(reverse=True)

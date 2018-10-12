@@ -4,7 +4,7 @@ from utilities.MatplotlibUtility import *
 
 plotDescription = {
 	'plotCategory': 'device',
-	'dataFileNames': ['DrainSweep.json'],
+	'dataFileDependencies': ['DrainSweep.json'],
 	'plotDefaults': {
 		'figsize':(2.8,3.2),
 		'colorMap':'plasma',
