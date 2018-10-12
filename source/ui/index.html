@@ -183,6 +183,11 @@
 										<v-text-field v-if="plotSettingTypes[plotSettingName]['type'] == 'object'" :label="plotSettingName" v-model="setPlotSettings[plotSettingName]"></v-text-field>
 										<v-select v-if="plotSettingTypes[plotSettingName]['type'] == 'choice'" :label="plotSettingName" :items="plotSettingTypes[plotSettingName]['choices']" v-model="setPlotSettings[plotSettingName]"></v-select>
 									</v-list-tile>
+									<v-list-tile>
+										<v-btn @click="setPlotSettings = JSON.parse(JSON.stringify(defaultPlotSettings))">Reset</v-btn>
+										<v-spacer></v-spacer>
+										<v-btn @click="updatePlotSettings()">Save</v-btn>
+									</v-list-tile>
 								</v-list>
 							</v-card>
 						</v-menu>
@@ -336,7 +341,7 @@
 									
 									<!-- container gives a couple chip summary plots that present data from all experiments on this chip for comparisson (sn)-->
 									
-									<v-container fluid grid-list-sm>
+									<!-- <v-container fluid grid-list-sm>
 											<v-layout row wrap>
 												<v-flex xs12 sm6 md4 lg3 xl2 d-flex v-for="possiblePlot in experiment.possiblePlots">
 													<v-card class="ma-1" tile>
@@ -351,7 +356,7 @@
 													</v-card>
 												</v-flex>
 											</v-layout>
-									</v-container>
+									</v-container> -->
 
 								</v-card>
 
@@ -385,7 +390,7 @@
 												
 											</tr>
 										</template>
-
+										
 									</v-data-table>
 								</v-card>
 								
@@ -399,7 +404,7 @@
 									<!-- container gives a couple summary plots that present data from all experiments on this device for comparisson (sn)-->
 									<!-- [Re: need to find way to use proper experiment item (nc)] Since we are doing a summary plot, there will essentially be one plot that shows all the experiments, instead of a plot for each experiment.  I may not have made that clear previously... In the end we may want a couple summary plots, but to begin with lets just get one working. (sn)-->
 									<v-container fluid grid-list-sm>
-											<v-layout row wrap>
+											<!-- <v-layout row wrap>
 												<v-flex xs12 sm6 md4 lg3 xl2 d-flex v-for="possiblePlot in experiment.possiblePlots">
 													<v-card class="ma-1" tile>
 														<v-toolbar dark class="blue-grey lighten-1">
@@ -412,7 +417,7 @@
 														</div>
 													</v-card>
 												</v-flex>
-											</v-layout>
+											</v-layout> -->
 									</v-container>
 								</v-card>
 								
@@ -964,6 +969,16 @@
 					'plot_mode_parameters': null
 				},
 				
+				plotSettings: {
+					'startExperimentNumber': null,
+					'endExperimentNumber': null,
+					'figureSize': null,
+					'sweepDirection': 'both',
+					'startRelativeIndex': 0,
+					'endRelativeIndex': 1e10,
+					'plot_mode_parameters': null
+				},
+				
 				plotSettingTypes: {
 					'startExperimentNumber': {'type': 'int'},
 					'endExperimentNumber': {'type': 'int'},
@@ -1328,6 +1343,10 @@
 				scheduleObjectDiffFromPrevTwin: function(index) {
 					var job = this.scheduleObjects[index];
 					// var twin = 
+				},
+				
+				updatePlotSettings: function() {
+					this.plotSettings = _.omitBy(this.setPlotSettings, (v,k) => ((this.defaultPlotSettings[k] == v) || v == '') );
 				}
 			},
 			watch: {
@@ -1344,10 +1363,6 @@
 				},
 				experimentsWithIndexes: function() {
 					return this.experiments.map((x, i) => { return {...x, i} })
-				},
-				plotSettings: function() {
-					return _.omitBy(this.setPlotSettings, (v,k) => ((this.defaultPlotSettings[k] == v) || v == '') );
-					// return this.setPlotSettings;
 				},
 				chipSummaryPlotSettings: function(){
 
