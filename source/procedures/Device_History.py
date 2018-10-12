@@ -75,6 +75,7 @@ def makePlots(userID, projectID, waferID, chipID, deviceID, startExperimentNumbe
 	if(saveFolder is not None):
 		mode_parameters['plotSaveFolder'] = saveFolder
 	mode_parameters['saveFigures'] = saveFigures
+	mode_parameters['showFigures'] = showFigures
 	mode_parameters['plotSaveName'] = plotSaveName
 	mode_parameters['figureSizeOverride'] = figureSize
 	mode_parameters['sweepDirection'] = sweepDirection

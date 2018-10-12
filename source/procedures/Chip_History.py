@@ -20,19 +20,22 @@ from utilities import DataLoggerUtility as dlu
 default_ch_parameters = {
 	'dataFolder': '../../AutexysData/',
 	'minJSONIndex': 0,
-	'maxJSONIndex':  float('inf'),
+	'maxJSONIndex': float('inf'),
 	'minJSONExperimentNumber': 0,
-	'maxJSONExperimentNumber':  float('inf'),
+	'maxJSONExperimentNumber': float('inf'),
 	'minJSONRelativeIndex': 0,
-	'maxJSONRelativeIndex':  float('inf'),
+	'maxJSONRelativeIndex': float('inf'),
+	'loadOnlyMostRecentExperiments': True,
+	'numberOfRecentExperiments': 1,
+	'specificDeviceList': None,
 	'showFigures': True,
-	'specificPlotToCreate': ''
+	'specificPlotToCreate': '',
 }
 
 
 
 # === External Interface ===
-def makePlots(userID, projectID, waferID, chipID, dataFolder=None, specificPlot='', minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf'), saveFolder=None, plotSaveName='', showFigures=True, saveFigures=False, plot_mode_parameters=None):
+def makePlots(userID, projectID, waferID, chipID, dataFolder=None, specificPlot='', minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf'), loadOnlyMostRecentExperiments=True, numberOfRecentExperiments=1, specificDeviceList=None, saveFolder=None, plotSaveName='', showFigures=True, saveFigures=False, plot_mode_parameters=None):
 	parameters = {}	
 	mode_parameters = {}
 	if(plot_mode_parameters is not None):
@@ -52,6 +55,9 @@ def makePlots(userID, projectID, waferID, chipID, dataFolder=None, specificPlot=
 	parameters['maxJSONExperimentNumber'] = maxExperiment
 	parameters['minJSONRelativeIndex'] = minRelativeIndex
 	parameters['maxJSONRelativeIndex'] = maxRelativeIndex
+	parameters['loadOnlyMostRecentExperiments'] = loadOnlyMostRecentExperiments
+	parameters['numberOfRecentExperiments'] = numberOfRecentExperiments
+	parameters['specificDeviceList'] = specificDeviceList
 		
 	# Plot selection parameters	
 	parameters['showFigures'] = showFigures
@@ -60,7 +66,8 @@ def makePlots(userID, projectID, waferID, chipID, dataFolder=None, specificPlot=
 	# Plot decoration parameters
 	if(saveFolder is not None):
 		mode_parameters['plotSaveFolder'] = saveFolder
-	plot_mode_parameters['saveFigures'] = saveFigures
+	mode_parameters['saveFigures'] = saveFigures
+	mode_parameters['showFigures'] = showFigures
 
 	return run(parameters, mode_parameters)
 
@@ -79,8 +86,8 @@ def run(additional_parameters, plot_mode_parameters={}):
 
 	for plotType in plotsToCreate:
 		dataFileDependencies = dpu.getDataFileDependencies(plotType)		
-		(chipIndexes, firstRunChipHistory, recentRunChipHistory) = loadDataBasedOnPlotDependencies(dataFileDependencies, parameters)
-		plot = dpu.makeChipPlot(plotType, parameters['Identifiers'], chipIndexes=chipIndexes, firstRunChipHistory=firstRunChipHistory, recentRunChipHistory=recentRunChipHistory, mode_parameters=plot_mode_parameters)
+		(chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory) = loadDataBasedOnPlotDependencies(dataFileDependencies, parameters, minIndex=parameters['minJSONIndex'], maxIndex=parameters['maxJSONIndex'], minExperiment=parameters['minJSONExperimentNumber'], maxExperiment=parameters['maxJSONExperimentNumber'], minRelativeIndex=parameters['minJSONRelativeIndex'], maxRelativeIndex=parameters['maxJSONRelativeIndex'], loadOnlyMostRecentExperiments=parameters['loadOnlyMostRecentExperiments'], numberOfOldestExperiments=1, numberOfRecentExperiments=parameters['numberOfRecentExperiments'], specificDeviceList=parameters['specificDeviceList'])
+		plot = dpu.makeChipPlot(plotType, parameters['Identifiers'], chipIndexes=chipIndexes, firstRunChipHistory=firstRunChipHistory, recentRunChipHistory=recentRunChipHistory, specificRunChipHistory=specificRunChipHistory, mode_parameters=plot_mode_parameters)
 		plotList.append(plot)
 	
 	# Show figures if desired	
@@ -91,16 +98,21 @@ def run(additional_parameters, plot_mode_parameters={}):
 
 
 
-def loadDataBasedOnPlotDependencies(dataFileDependencies, parameters):
+def loadDataBasedOnPlotDependencies(dataFileDependencies, parameters, minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf'), loadOnlyMostRecentExperiments=True, numberOfOldestExperiments=1, numberOfRecentExperiments=1, specificDeviceList=None):
 	chipIndexes = None
 	firstRunChipHistory = None
-	lastRunChipHistory = None
+	recentRunChipHistory = None
+	specificRunChipHistory = None
 	if('index.json' in dataFileDependencies):
 		chipIndexes = dlu.loadChipIndexes(dlu.getChipDirectory(parameters))
 	if('GateSweep.json' in dataFileDependencies):
-		firstRunChipHistory = dlu.loadOldestChipHistory(dlu.getChipDirectory(parameters), 'GateSweep.json', numberOfOldestExperiments=1)
-		lastRunChipHistory = dlu.loadMostRecentChipHistory(dlu.getChipDirectory(parameters), 'GateSweep.json', numberOfRecentExperiments=1)
-	return (chipIndexes, firstRunChipHistory, lastRunChipHistory)
+		firstRunChipHistory = dlu.loadOldestChipHistory(dlu.getChipDirectory(parameters), 'GateSweep.json', numberOfOldestExperiments=numberOfOldestExperiments, specificDeviceList=specificDeviceList)
+		recentRunChipHistory = dlu.loadMostRecentChipHistory(dlu.getChipDirectory(parameters), 'GateSweep.json', numberOfRecentExperiments=numberOfRecentExperiments, specificDeviceList=specificDeviceList)
+		if(loadOnlyMostRecentExperiments):
+			specificRunChipHistory = recentRunChipHistory.copy()
+		else:
+			specificRunChipHistory = dlu.loadSpecificChipHistory(dlu.getChipDirectory(parameters), 'GateSweep.json', specificDeviceList=specificDeviceList, minIndex=minIndex, maxIndex=maxIndex, minExperiment=minExperiment, maxExperiment=maxExperiment, minRelativeIndex=minRelativeIndex, maxRelativeIndex=maxRelativeIndex)
+	return (chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory)
 
 
 
@@ -116,6 +128,6 @@ if(__name__ == '__main__'):
 	#parameters = {'Identifiers':{'user':'stevenjay','project':'RedBoard','wafer':'Resistor','chip':'MegaOhm'}, 'dataFolder':'../../AutexysData'}
 	#print(dlu.getDataFileNamesForChipExperiments(dlu.getChipDirectory(parameters), minExperiment=0, maxExperiment=float('inf')))
 	#print(plotsForExperiments(parameters, minExperiment=0, maxExperiment=float('inf')))
-	makePlots('stevenjay', 'BiasStress1', 'C127', 'X', specificPlot='')
+	#makePlots('stevenjay', 'BiasStress1', 'C127', 'X', specificPlot='')
 
 
