@@ -125,6 +125,7 @@ def plotsForExperiments(parameters, minExperiment=0, maxExperiment=float('inf'))
 
 
 if(__name__ == '__main__'):
+	pass
 	#parameters = {'Identifiers':{'user':'stevenjay','project':'RedBoard','wafer':'Resistor','chip':'MegaOhm'}, 'dataFolder':'../../AutexysData'}
 	#print(dlu.getDataFileNamesForChipExperiments(dlu.getChipDirectory(parameters), minExperiment=0, maxExperiment=float('inf')))
 	#print(plotsForExperiments(parameters, minExperiment=0, maxExperiment=float('inf')))

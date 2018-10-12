@@ -14,9 +14,17 @@
 #
 import os
 import sys
+import glob
 sys.path.insert(0, os.path.abspath('../../'))
 sys.path.insert(0, os.path.abspath('../../source/'))
 
+def getSubDirectories(directory):
+    return [os.path.basename(os.path.dirname(g)) for g in glob.glob(directory + '/*/')]
+
+for directory1 in getSubDirectories('../../source/'):
+    sys.path.insert(0, os.path.abspath(os.path.join('..', '..', 'source', directory1)))
+    for directory2 in getSubDirectories('../../source/' + directory1):
+        sys.path.insert(0, os.path.abspath(os.path.join('..', '..', 'source', directory1, directory2)))
 
 # -- Project information -----------------------------------------------------
 

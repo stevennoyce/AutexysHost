@@ -2,6 +2,6 @@ source
 ======
 
 .. toctree::
-   :maxdepth: 20
+   :maxdepth: 1
 
    source

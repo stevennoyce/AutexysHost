@@ -86,7 +86,7 @@
 <li><a class="reference internal" href="#module-source.procedures.Auto_Gate_Sweep">source.procedures.Auto_Gate_Sweep module</a></li>
 <li><a class="reference internal" href="#module-source.procedures.Auto_Static_Bias">source.procedures.Auto_Static_Bias module</a></li>
 <li><a class="reference internal" href="#module-source.procedures.Burn_Out">source.procedures.Burn_Out module</a></li>
-<li><a class="reference internal" href="#source-procedures-chip-history-module">source.procedures.Chip_History module</a></li>
+<li><a class="reference internal" href="#module-source.procedures.Chip_History">source.procedures.Chip_History module</a></li>
 <li><a class="reference internal" href="#module-source.procedures.Delay">source.procedures.Delay module</a></li>
 <li><a class="reference internal" href="#module-source.procedures.Device_History">source.procedures.Device_History module</a></li>
 <li><a class="reference internal" href="#module-source.procedures.Drain_Sweep">source.procedures.Drain_Sweep module</a></li>
@@ -281,8 +281,31 @@
 <dd></dd></dl>
 
 </div>
-<div class="section" id="source-procedures-chip-history-module">
-<h2>source.procedures.Chip_History module<a class="headerlink" href="#source-procedures-chip-history-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-source.procedures.Chip_History">
+<span id="source-procedures-chip-history-module"></span><h2>source.procedures.Chip_History module<a class="headerlink" href="#module-source.procedures.Chip_History" title="Permalink to this headline">¶</a></h2>
+<p>This module provides an interface for generating plots for a particular chip. The primary method is ChipHistory.makePlots().</p>
+<dl class="function">
+<dt id="source.procedures.Chip_History.loadDataBasedOnPlotDependencies">
+<code class="descclassname">source.procedures.Chip_History.</code><code class="descname">loadDataBasedOnPlotDependencies</code><span class="sig-paren">(</span><em>dataFileDependencies</em>, <em>parameters</em>, <em>minIndex=0</em>, <em>maxIndex=inf</em>, <em>minExperiment=0</em>, <em>maxExperiment=inf</em>, <em>minRelativeIndex=0</em>, <em>maxRelativeIndex=inf</em>, <em>loadOnlyMostRecentExperiments=True</em>, <em>numberOfOldestExperiments=1</em>, <em>numberOfRecentExperiments=1</em>, <em>specificDeviceList=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/procedures/Chip_History.html#loadDataBasedOnPlotDependencies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.procedures.Chip_History.loadDataBasedOnPlotDependencies" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="source.procedures.Chip_History.makePlots">
+<code class="descclassname">source.procedures.Chip_History.</code><code class="descname">makePlots</code><span class="sig-paren">(</span><em>userID</em>, <em>projectID</em>, <em>waferID</em>, <em>chipID</em>, <em>dataFolder=None</em>, <em>specificPlot=''</em>, <em>minIndex=0</em>, <em>maxIndex=inf</em>, <em>minExperiment=0</em>, <em>maxExperiment=inf</em>, <em>minRelativeIndex=0</em>, <em>maxRelativeIndex=inf</em>, <em>loadOnlyMostRecentExperiments=True</em>, <em>numberOfRecentExperiments=1</em>, <em>specificDeviceList=None</em>, <em>saveFolder=None</em>, <em>plotSaveName=''</em>, <em>showFigures=True</em>, <em>saveFigures=False</em>, <em>plot_mode_parameters=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/procedures/Chip_History.html#makePlots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.procedures.Chip_History.makePlots" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="source.procedures.Chip_History.plotsForExperiments">
+<code class="descclassname">source.procedures.Chip_History.</code><code class="descname">plotsForExperiments</code><span class="sig-paren">(</span><em>parameters</em>, <em>minExperiment=0</em>, <em>maxExperiment=inf</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/procedures/Chip_History.html#plotsForExperiments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.procedures.Chip_History.plotsForExperiments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given the typical parameters used to run experiments, return a list of plots that could be made from the data that has been already collected.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="source.procedures.Chip_History.run">
+<code class="descclassname">source.procedures.Chip_History.</code><code class="descname">run</code><span class="sig-paren">(</span><em>additional_parameters</em>, <em>plot_mode_parameters={}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/source/procedures/Chip_History.html#run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#source.procedures.Chip_History.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Legacy ‘run’ function from when ChipHistory was treated more like a typical procedure with parameters.</p>
+</dd></dl>
+
 </div>
 <div class="section" id="module-source.procedures.Delay">
 <span id="source-procedures-delay-module"></span><h2>source.procedures.Delay module<a class="headerlink" href="#module-source.procedures.Delay" title="Permalink to this headline">¶</a></h2>
