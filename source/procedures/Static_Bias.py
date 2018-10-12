@@ -16,8 +16,6 @@ def run(parameters, smu_instance, arduino_instance, isSavingResults=True, isPlot
 	dh_parameters['plotGateSweeps'] = False
 	dh_parameters['plotBurnOuts'] = False
 	dh_parameters['plotStaticBias'] = True
-	dh_parameters['showFiguresGenerated'] = True
-	dh_parameters['saveFiguresGenerated'] = True
 	dh_parameters['excludeDataBeforeJSONExperimentNumber'] = parameters['startIndexes']['experimentNumber']
 	dh_parameters['excludeDataAfterJSONExperimentNumber'] =  parameters['startIndexes']['experimentNumber']
 

@@ -19,34 +19,48 @@ from utilities import DataLoggerUtility as dlu
 # === Defaults ===
 default_ch_parameters = {
 	'dataFolder': '../../AutexysData/',
-	'showFiguresGenerated': True,
-	'saveFiguresGenerated': True,
+	'minJSONIndex': 0,
+	'maxJSONIndex':  float('inf'),
+	'minJSONExperimentNumber': 0,
+	'maxJSONExperimentNumber':  float('inf'),
+	'minJSONRelativeIndex': 0,
+	'maxJSONRelativeIndex':  float('inf'),
+	'showFigures': True,
 	'specificPlotToCreate': ''
 }
 
 
 
 # === External Interface ===
-def makePlots(userID, projectID, waferID, chipID, dataFolder=None, specificPlot='', saveFolder=None, plotSaveName='', showFigures=True, saveFigures=False, plot_mode_parameters=None):
+def makePlots(userID, projectID, waferID, chipID, dataFolder=None, specificPlot='', minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf'), saveFolder=None, plotSaveName='', showFigures=True, saveFigures=False, plot_mode_parameters=None):
 	parameters = {}	
 	mode_parameters = {}
 	if(plot_mode_parameters is not None):
 		mode_parameters.update(plot_mode_parameters)
 
+	# Data loading parameters
 	parameters['Identifiers'] = {}
 	parameters['Identifiers']['user'] = userID
 	parameters['Identifiers']['project'] = projectID
 	parameters['Identifiers']['wafer'] = waferID
 	parameters['Identifiers']['chip'] = chipID
-
 	if(dataFolder is not None):
 		parameters['dataFolder'] = dataFolder
-	parameters['showFiguresGenerated'] = showFigures
-	parameters['saveFiguresGenerated'] = saveFigures
+	parameters['minJSONIndex'] = minIndex
+	parameters['maxJSONIndex'] = maxIndex
+	parameters['minJSONExperimentNumber'] = minExperiment
+	parameters['maxJSONExperimentNumber'] = maxExperiment
+	parameters['minJSONRelativeIndex'] = minRelativeIndex
+	parameters['maxJSONRelativeIndex'] = maxRelativeIndex
+		
+	# Plot selection parameters	
+	parameters['showFigures'] = showFigures
 	parameters['specificPlotToCreate'] = specificPlot
 	
+	# Plot decoration parameters
 	if(saveFolder is not None):
 		mode_parameters['plotSaveFolder'] = saveFolder
+	plot_mode_parameters['saveFigures'] = saveFigures
 
 	return run(parameters, mode_parameters)
 
@@ -57,9 +71,6 @@ def run(additional_parameters, plot_mode_parameters={}):
 	
 	parameters = default_ch_parameters.copy()
 	parameters.update(additional_parameters)
-
-	plot_mode_parameters['showFigures'] = parameters['showFiguresGenerated']
-	plot_mode_parameters['saveFigures'] = parameters['saveFiguresGenerated']
 
 	plotList = []
 
@@ -73,7 +84,7 @@ def run(additional_parameters, plot_mode_parameters={}):
 		plotList.append(plot)
 	
 	# Show figures if desired	
-	if(parameters['showFiguresGenerated']):
+	if(parameters['showFigures']):
 		dpu.show()
 
 	return plotList

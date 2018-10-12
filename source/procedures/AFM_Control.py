@@ -81,8 +81,6 @@ def run(parameters, smu_systems, isSavingResults=True, isPlottingResults=False):
 	dh_parameters['plotGateSweeps'] = False
 	dh_parameters['plotBurnOuts'] = False
 	dh_parameters['plotStaticBias'] = False
-	dh_parameters['showFiguresGenerated'] = True
-	dh_parameters['saveFiguresGenerated'] = False
 	dh_parameters['excludeDataBeforeJSONExperimentNumber'] = parameters['startIndexes']['experimentNumber']
 	dh_parameters['excludeDataAfterJSONExperimentNumber'] =  parameters['startIndexes']['experimentNumber']
 
