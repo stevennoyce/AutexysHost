@@ -7,9 +7,6 @@ import psutil
 import sys
 import os
 
-import dispatcher
-import ui
-
 if __name__ == '__main__':
 	os.chdir(sys.path[0])
 	
@@ -62,18 +59,28 @@ def changePriorityOfProcessAndChildren(pid, priority):
 def startUI(priority=0):
 	"""Start a Process running ui.start() and obtain a two-way Pipe for communication."""
 	pipeToUI, pipeForUI = mp.Pipe()
-	uiProcess = mp.Process(target=ui.start, kwargs={'managerPipe':pipeForUI})
+	uiProcess = mp.Process(target=beginUI, args=(pipeForUI,))
 	uiProcess.start()
 	changePriorityOfProcessAndChildren(uiProcess.pid, priority)
 	return {'process':uiProcess, 'pipe':pipeToUI}
 
+def beginUI(pipeForUI):
+	"""A target method for running the UI that also imports the UI so the parent process does not have that dependency."""
+	import ui
+	ui.start(managerPipe=pipeForUI)
+
 def startDispatcher(schedule_file_path, priority=0):
 	"""Start a Process running dispatcher.dispatch(schedule_file_path) and obtain a two-way Pipe for communication."""
 	pipeToDispatcher, pipeForDispatcher = mp.Pipe()
-	dispatcherProcess = mp.Process(target=dispatcher.dispatch, args=(schedule_file_path, pipeForDispatcher))
+	dispatcherProcess = mp.Process(target=runDispatcher, args=(schedule_file_path, pipeForDispatcher))
 	dispatcherProcess.start()
 	changePriorityOfProcessAndChildren(dispatcherProcess.pid, priority)
 	return {'process':dispatcherProcess, 'pipe':pipeToDispatcher}
+
+def runDispatcher(schedule_file_path, pipeForDispatcher):
+	"""A target method for running the dispatcher that also imports the dispatcher so the parent process does not have that dependency."""
+	import dispatcher
+	dispatcher.dispatch(schedule_file_path, pipeForDispatcher)
 
 def manage(on_startup_schedule_file=None):
 	"""Initialize a UI process and enter an event loop to handle communication with that UI. Manage the creation of dispatcher

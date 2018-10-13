@@ -9,8 +9,7 @@ import time
 import webbrowser
 import defaults
 
-# Importing Device_History is very tempting here, but causes a large chain of imports that ultimately leads to matplotlib being imported, which can cause trouble if it is imported in the parent of a multi-threaded application.
-#from procedures import Device_History as DH
+from procedures import Device_History as DH
 from utilities import DataLoggerUtility as dlu
 
 if __name__ == '__main__':
@@ -103,7 +102,6 @@ def sendPlot(user, project, wafer, chip, device, experiment, plotType):
 	plotSettings['showFigures'] = False
 	plotSettings['specificPlot'] = plotType
 	
-	from procedures import Device_History as DH
 	DH.makePlots(user, project, wafer, chip, device, **plotSettings)
 	# plt.savefig(mode_parameters['plotSaveName'], transparent=True, dpi=pngDPI, format='png')
 	filebuf.seek(0)
@@ -204,9 +202,7 @@ def devices(user, project, wafer, chip):
 	return jsonvalid(devices)
 
 @app.route('/<user>/<project>/<wafer>/<chip>/<device>/experiments.json')
-def experiments(user, project, wafer, chip, device):
-	from procedures import Device_History as DH
-	
+def experiments(user, project, wafer, chip, device):	
 	folder = os.path.join(default_data_path, user, project, wafer, chip, device)
 	files = glob.glob(folder + '*.json')
 	fileNames = [os.path.basename(f) for f in files]
