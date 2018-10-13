@@ -95,6 +95,7 @@ def getPlt():
 	return plt
 
 def show():
+	print('Showing plots from matplotlib.')
 	plt.show()
 
 
@@ -221,16 +222,15 @@ def plotStaticBias(axis, jsonData, lineColor, timeOffset, currentData='id_data',
 
 # === Figures ===
 def initFigure(rows, columns, figsizeDefault, figsizeOverride=None, shareX=False, subplotWidthRatio=None, subplotHeightRatio=None):
-	print('Initializing figures.')
 	figsize = figsizeDefault
 	if(figsizeOverride != None):
 		figsize = figsizeOverride
-		
+
 	if(rows > 1 or columns > 1):
 		fig, axes = plt.subplots(rows, columns, figsize=figsize, sharex=shareX, gridspec_kw={'width_ratios':subplotWidthRatio, 'height_ratios':subplotHeightRatio})
 	else:
 		fig, axes = plt.subplots(rows, columns, figsize=figsize)
-	
+
 	return fig, axes
 
 def adjustAndSaveFigure(figure, plotType, mode_parameters, subplotWidthPad=0, subplotHeightPad=0):

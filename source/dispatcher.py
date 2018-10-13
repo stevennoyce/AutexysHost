@@ -11,7 +11,8 @@ import requests
 import json
 import time
 
-import launcher
+# While it is tempting to import launcher here, this causes a large chain of imports that makes it impossible to avoid importing matplotlib. Also, there is no drawback to importing locally in these functions.
+#import launcher
 from utilities import DataLoggerUtility as dlu
 
 if(__name__ == '__main__'):
@@ -45,6 +46,7 @@ def dispatch(schedule_file_path=None, pipe=None):
 
 def run_file(schedule_file_path, pipe=None):
 	"""Given a shedule file path, open the file and step through each experiment."""
+	import launcher
 
 	schedule_index = 0
 
