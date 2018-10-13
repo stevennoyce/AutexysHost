@@ -59,12 +59,12 @@ def changePriorityOfProcessAndChildren(pid, priority):
 def startUI(priority=0):
 	"""Start a Process running ui.start() and obtain a two-way Pipe for communication."""
 	pipeToUI, pipeForUI = mp.Pipe()
-	uiProcess = mp.Process(target=beginUI, args=(pipeForUI,))
+	uiProcess = mp.Process(target=runUI, args=(pipeForUI,))
 	uiProcess.start()
 	changePriorityOfProcessAndChildren(uiProcess.pid, priority)
 	return {'process':uiProcess, 'pipe':pipeToUI}
 
-def beginUI(pipeForUI):
+def runUI(pipeForUI):
 	"""A target method for running the UI that also imports the UI so the parent process does not have that dependency."""
 	import ui
 	ui.start(managerPipe=pipeForUI)
