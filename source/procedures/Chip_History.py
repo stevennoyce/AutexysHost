@@ -27,6 +27,7 @@ default_ch_parameters = {
 	'maxJSONRelativeIndex': float('inf'),
 	'loadOnlyMostRecentExperiments': True,
 	'numberOfRecentExperiments': 1,
+	'numberOfRecentIndexes': 1,
 	'specificDeviceList': None,
 	'showFigures': True,
 	'specificPlotToCreate': '',
@@ -35,7 +36,7 @@ default_ch_parameters = {
 
 
 # === External Interface ===
-def makePlots(userID, projectID, waferID, chipID, dataFolder=None, specificPlot='', minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf'), loadOnlyMostRecentExperiments=True, numberOfRecentExperiments=1, specificDeviceList=None, saveFolder=None, plotSaveName='', showFigures=True, saveFigures=False, plot_mode_parameters=None):
+def makePlots(userID, projectID, waferID, chipID, dataFolder=None, specificPlot='', minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf'), loadOnlyMostRecentExperiments=True, numberOfRecentExperiments=1, numberOfRecentIndexes=1, specificDeviceList=None, saveFolder=None, plotSaveName='', showFigures=True, saveFigures=False, plot_mode_parameters=None):
 	parameters = {}	
 	mode_parameters = {}
 	if(plot_mode_parameters is not None):
@@ -57,6 +58,7 @@ def makePlots(userID, projectID, waferID, chipID, dataFolder=None, specificPlot=
 	parameters['maxJSONRelativeIndex'] = maxRelativeIndex
 	parameters['loadOnlyMostRecentExperiments'] = loadOnlyMostRecentExperiments
 	parameters['numberOfRecentExperiments'] = numberOfRecentExperiments
+	parameters['numberOfRecentIndexes'] = numberOfRecentIndexes
 	parameters['specificDeviceList'] = specificDeviceList
 		
 	# Plot selection parameters	
@@ -86,7 +88,7 @@ def run(additional_parameters, plot_mode_parameters={}):
 
 	for plotType in plotsToCreate:
 		dataFileDependencies = dpu.getDataFileDependencies(plotType)		
-		(chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory) = loadDataBasedOnPlotDependencies(dataFileDependencies, parameters, minIndex=parameters['minJSONIndex'], maxIndex=parameters['maxJSONIndex'], minExperiment=parameters['minJSONExperimentNumber'], maxExperiment=parameters['maxJSONExperimentNumber'], minRelativeIndex=parameters['minJSONRelativeIndex'], maxRelativeIndex=parameters['maxJSONRelativeIndex'], loadOnlyMostRecentExperiments=parameters['loadOnlyMostRecentExperiments'], numberOfOldestExperiments=1, numberOfRecentExperiments=parameters['numberOfRecentExperiments'], specificDeviceList=parameters['specificDeviceList'])
+		(chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory) = loadDataBasedOnPlotDependencies(dataFileDependencies, parameters, minIndex=parameters['minJSONIndex'], maxIndex=parameters['maxJSONIndex'], minExperiment=parameters['minJSONExperimentNumber'], maxExperiment=parameters['maxJSONExperimentNumber'], minRelativeIndex=parameters['minJSONRelativeIndex'], maxRelativeIndex=parameters['maxJSONRelativeIndex'], loadOnlyMostRecentExperiments=parameters['loadOnlyMostRecentExperiments'], numberOfOldestExperiments=1, numberOfOldestIndexes=1, numberOfRecentExperiments=parameters['numberOfRecentExperiments'], numberOfRecentIndexes=parameters['numberOfRecentIndexes'], specificDeviceList=parameters['specificDeviceList'])
 		plot = dpu.makeChipPlot(plotType, parameters['Identifiers'], chipIndexes=chipIndexes, firstRunChipHistory=firstRunChipHistory, recentRunChipHistory=recentRunChipHistory, specificRunChipHistory=specificRunChipHistory, mode_parameters=plot_mode_parameters)
 		plotList.append(plot)
 	
@@ -98,7 +100,7 @@ def run(additional_parameters, plot_mode_parameters={}):
 
 
 
-def loadDataBasedOnPlotDependencies(dataFileDependencies, parameters, minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf'), loadOnlyMostRecentExperiments=True, numberOfOldestExperiments=1, numberOfRecentExperiments=1, specificDeviceList=None):
+def loadDataBasedOnPlotDependencies(dataFileDependencies, parameters, minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf'), loadOnlyMostRecentExperiments=True, numberOfOldestExperiments=1, numberOfOldestIndexes=1, numberOfRecentExperiments=1, numberOfRecentIndexes=1,specificDeviceList=None):
 	chipIndexes = None
 	firstRunChipHistory = None
 	recentRunChipHistory = None
@@ -106,8 +108,8 @@ def loadDataBasedOnPlotDependencies(dataFileDependencies, parameters, minIndex=0
 	if('index.json' in dataFileDependencies):
 		chipIndexes = dlu.loadChipIndexes(dlu.getChipDirectory(parameters))
 	if('GateSweep.json' in dataFileDependencies):
-		firstRunChipHistory = dlu.loadOldestChipHistory(dlu.getChipDirectory(parameters), 'GateSweep.json', numberOfOldestExperiments=numberOfOldestExperiments, specificDeviceList=specificDeviceList)
-		recentRunChipHistory = dlu.loadMostRecentChipHistory(dlu.getChipDirectory(parameters), 'GateSweep.json', numberOfRecentExperiments=numberOfRecentExperiments, specificDeviceList=specificDeviceList)
+		firstRunChipHistory = dlu.loadOldestChipHistory(dlu.getChipDirectory(parameters), 'GateSweep.json', numberOfOldestExperiments=numberOfOldestExperiments, numberOfOldestIndexes=numberOfOldestIndexes, specificDeviceList=specificDeviceList)
+		recentRunChipHistory = dlu.loadMostRecentChipHistory(dlu.getChipDirectory(parameters), 'GateSweep.json', numberOfRecentExperiments=numberOfRecentExperiments, numberOfRecentIndexes=numberOfRecentIndexes, specificDeviceList=specificDeviceList)
 		if(loadOnlyMostRecentExperiments):
 			specificRunChipHistory = recentRunChipHistory.copy()
 		else:
@@ -129,6 +131,6 @@ if(__name__ == '__main__'):
 	#parameters = {'Identifiers':{'user':'stevenjay','project':'RedBoard','wafer':'Resistor','chip':'MegaOhm'}, 'dataFolder':'../../AutexysData'}
 	#print(dlu.getDataFileNamesForChipExperiments(dlu.getChipDirectory(parameters), minExperiment=0, maxExperiment=float('inf')))
 	#print(plotsForExperiments(parameters, minExperiment=0, maxExperiment=float('inf')))
-	#makePlots('stevenjay', 'BiasStress1', 'C127', 'X', specificPlot='')
+	makePlots('stevenjay', 'BiasStress1', 'C127', 'X', specificPlot='')
 
 
