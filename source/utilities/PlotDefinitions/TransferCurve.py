@@ -8,7 +8,7 @@ plotDescription = {
 	'plotDefaults': {
 		'figsize':(2.8,3.2),
 		'includeOrigin':True,
-		'colorMap':'gist_heat',
+		'colorMap':'magma',
 		'colorDefault': '#f19722',
 		'xlabel':'$V_{{GS}}^{{Sweep}}$ [V]',
 		'ylabel':'$I_{{D}}$ [$\\mu$A]',
