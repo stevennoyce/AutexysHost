@@ -7,8 +7,8 @@ plotDescription = {
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(2.8,3.2),
-		'colorMap':'hot',
-		'colorDefault': plt.rcParams['axes.prop_cycle'].by_key()['color'][0],
+		'colorMap':'viridis',
+		'colorDefault': '#1f77b4',
 		'xlabel':'$V_{{GS}}^{{Sweep}}$ [V]',
 		'ylabel':'$I_{{D}}$ [A]',
 		'leg_vds_label':'$V_{{DS}}^{{Sweep}}$\n  = {:}V',
@@ -25,7 +25,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Build Color Map and Color Bar
 	totalTime = timeWithUnits(deviceHistory[-1]['Results']['timestamps'][0][0] - deviceHistory[0]['Results']['timestamps'][-1][-1])
 	holdTime = '[$t_{{Hold}}$ = {}]'.format(timeWithUnits(deviceHistory[1]['Results']['timestamps'][-1][-1] - deviceHistory[0]['Results']['timestamps'][0][0])) if(len(deviceHistory) >= 2) else ('[$t_{{Hold}}$ = 0]')
-	colors = setupColors(fig, len(deviceHistory), colorOverride=mode_parameters['colorsOverride'], colorDefault=plotDescription['plotDefaults']['colorDefault'], colorMapName=plotDescription['plotDefaults']['colorMap'], colorMapStart=0.7, colorMapEnd=0, enableColorBar=mode_parameters['enableColorBar'], colorBarTicks=[0,0.6,1], colorBarTickLabels=[totalTime, holdTime, '$t_0$'], colorBarAxisLabel='')		
+	colors = setupColors(fig, len(deviceHistory), colorOverride=mode_parameters['colorsOverride'], colorDefault=plotDescription['plotDefaults']['colorDefault'], colorMapName=plotDescription['plotDefaults']['colorMap'], colorMapStart=0.85, colorMapEnd=0, enableColorBar=mode_parameters['enableColorBar'], colorBarTicks=[0,0.6,1], colorBarTickLabels=[totalTime, holdTime, '$t_0$'], colorBarAxisLabel='')		
 
 	# Plot
 	for i in range(len(deviceHistory)):

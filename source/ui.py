@@ -215,7 +215,7 @@ def experiments(user, project, wafer, chip, device):
 		parameters[i]['possiblePlots'] = possiblePlots
 	
 	# experiments = [{'name': n, 'path': p, 'modificationTime': m, 'size': s} for n, p, m, s in zip(names, paths, modificationTimes, sizes)]
-	
+			
 	return jsonvalid(parameters)
 	
 	# return flask.Response(jsonvalid(parameters, allow_nan=False), mimetype='application/json')

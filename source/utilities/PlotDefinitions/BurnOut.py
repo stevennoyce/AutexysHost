@@ -10,7 +10,7 @@ plotDescription = {
 		'subplot_height_ratio':[1],
 		'subplot_width_ratio':[1,1],
 		'colorMap':'hot',
-		'colorDefault': plt.rcParams['axes.prop_cycle'].by_key()['color'][0],
+		'colorDefault': '#1f77b4',
 		'vds_label':'$V_{{DS}}$ [V]',
 		'id_micro_label':'$I_{{D}}$ [$\\mu$A]',
 		'time_label':'Time [sec]',

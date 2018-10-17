@@ -8,8 +8,8 @@ plotDescription = {
 	'plotDefaults': {
 		'figsize':(2.8,3.2),
 		'includeOrigin':True,
-		'colorMap':'hot',
-		'colorDefault': plt.rcParams['axes.prop_cycle'].by_key()['color'][1],
+		'colorMap':'gist_heat',
+		'colorDefault': '#f19722',
 		'xlabel':'$V_{{GS}}^{{Sweep}}$ [V]',
 		'ylabel':'$I_{{D}}$ [$\\mu$A]',
 		'neg_label':'$-I_{{D}}$ [$\\mu$A]',
@@ -29,7 +29,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Build Color Map and Color Bar
 	totalTime = timeWithUnits(deviceHistory[-1]['Results']['timestamps'][0][0] - deviceHistory[0]['Results']['timestamps'][-1][-1])
 	holdTime = '[$t_{{Hold}}$ = {}]'.format(timeWithUnits(deviceHistory[1]['Results']['timestamps'][-1][-1] - deviceHistory[0]['Results']['timestamps'][0][0])) if(len(deviceHistory) >= 2) else ('[$t_{{Hold}}$ = 0]')
-	colors = setupColors(fig, len(deviceHistory), colorOverride=mode_parameters['colorsOverride'], colorDefault=plotDescription['plotDefaults']['colorDefault'], colorMapName=plotDescription['plotDefaults']['colorMap'], colorMapStart=0.7, colorMapEnd=0, enableColorBar=mode_parameters['enableColorBar'], colorBarTicks=[0,0.6,1], colorBarTickLabels=[totalTime, holdTime, '$t_0$'], colorBarAxisLabel='')		
+	colors = setupColors(fig, len(deviceHistory), colorOverride=mode_parameters['colorsOverride'], colorDefault=plotDescription['plotDefaults']['colorDefault'], colorMapName=plotDescription['plotDefaults']['colorMap'], colorMapStart=0.85, colorMapEnd=0, enableColorBar=mode_parameters['enableColorBar'], colorBarTicks=[0,0.6,1], colorBarTickLabels=[totalTime, holdTime, '$t_0$'], colorBarAxisLabel='')		
 	
 	# If first segment of device history is mostly negative current, flip data
 	if((len(deviceHistory) > 0) and (np.percentile(deviceHistory[0]['Results']['id_data'], 75) < 0)):

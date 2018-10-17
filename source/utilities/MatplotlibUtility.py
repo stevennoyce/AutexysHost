@@ -285,15 +285,16 @@ def setupColors(fig, numberOfColors, colorOverride=[], colorDefault=plt.rcParams
 	colors = None
 	if(numberOfColors == 1):
 		colors = [colorDefault]
-	elif(numberOfColors == 2):
-		colors = [plt.rcParams['axes.prop_cycle'].by_key()['color'][0], plt.rcParams['axes.prop_cycle'].by_key()['color'][1]]
-	elif(numberOfColors == 3):
-		colors = [plt.rcParams['axes.prop_cycle'].by_key()['color'][0], plt.rcParams['axes.prop_cycle'].by_key()['color'][1], plt.rcParams['axes.prop_cycle'].by_key()['color'][2]]
+	elif(numberOfColors >= 2 and numberOfColors <= 3):
+		colors = ['#1f77b4', '#f19722', '#42ba78'][:numberOfColors]
 	else:
 		colorMap = colorsFromMap(colorMapName, colorMapStart, colorMapEnd, numberOfColors)
 		colors = colorMap['colors']
 		if(enableColorBar):
 			colorBar(fig, colorMap['smap'], ticks=colorBarTicks, tick_labels=colorBarTickLabels, axisLabel=colorBarAxisLabel)
+	
+	#for color in colors:
+	#	print(pltc.to_hex(color))
 		
 	return colors
 

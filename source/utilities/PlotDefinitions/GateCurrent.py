@@ -9,7 +9,7 @@ plotDescription = {
 		'figsize':(2.8,3.2),
 		'includeOrigin':False,
 		'colorMap':'hot',
-		'colorDefault': plt.rcParams['axes.prop_cycle'].by_key()['color'][2],
+		'colorDefault': '#42ba78',
 		'xlabel':'$V_{{GS}}^{{Sweep}}$ [V]',
 		'ylabel':'$I_{{G}}$ [A]',
 		'leg_vds_label':'$V_{{DS}}^{{Sweep}} = ${:}V',
