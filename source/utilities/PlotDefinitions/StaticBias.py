@@ -10,7 +10,7 @@ plotDescription = {
 		'mainIncludeOrigin':True,
 		'dualIncludeOrigin':False,
 		'colorMap':'plasma',
-		'colorDefault': plt.rcParams['axes.prop_cycle'].by_key()['color'][4],
+		'colorDefault': '#56638A',
 		'xlabel':'Time [{:}]',
 		'ylabel':'$I_{{D}}$ [$\\mu$A]',
 		'neg_label':'$-I_{{D}}$ [$\\mu$A]',

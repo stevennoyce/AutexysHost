@@ -285,8 +285,8 @@ def setupColors(fig, numberOfColors, colorOverride=[], colorDefault=plt.rcParams
 	colors = None
 	if(numberOfColors == 1):
 		colors = [colorDefault]
-	elif(numberOfColors >= 2 and numberOfColors <= 3):
-		colors = ['#1f77b4', '#f19722', '#42ba78'][:numberOfColors]
+	elif(numberOfColors >= 2 and numberOfColors <= 5):
+		colors = ['#1f77b4', '#f2b134', '#4fb99f', '#ed553b', '#56638A'][:numberOfColors]
 	else:
 		colorMap = colorsFromMap(colorMapName, colorMapStart, colorMapEnd, numberOfColors)
 		colors = colorMap['colors']

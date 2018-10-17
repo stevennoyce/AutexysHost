@@ -9,7 +9,7 @@ plotDescription = {
 		'figsize':(2.8,3.2),
 		'includeOrigin':False,
 		'colorMap':'magma',
-		'colorDefault': '#42ba78',
+		'colorDefault': '#4fb99f',
 		'xlabel':'$V_{{GS}}^{{Sweep}}$ [V]',
 		'ylabel':'$I_{{G}}$ [A]',
 		'leg_vds_label':'$V_{{DS}}^{{Sweep}} = ${:}V',
