@@ -1,3 +1,8 @@
+"""This module is used to 'launch' or execute a particular experiment. When the experiment completes, the launcher is finished.
+Experiments are typically fed to the launcher by a dispatcher as it reads experiments out of a schedule file. The launcher can 
+also be run by providing a subset of the parameters found in defaults.py, but it is still recommended to define these parameters 
+in a schedule file and have a dispatcher handle execution."""
+
 # === Imports ===
 import os
 import sys
@@ -16,7 +21,6 @@ from procedures import AFM_Control as afmControlScript
 from procedures import Delay as delayScript
 
 from utilities import DataLoggerUtility as dlu
-from utilities import PlotPostingUtility as plotPoster
 from drivers import SourceMeasureUnit as smu
 from drivers import ArduinoBoard as arduinoBoard
 
@@ -25,7 +29,10 @@ import defaults
 
 
 # === Main API ===
-def run(additional_parameters):
+def run(additional_parameters, communication_pipe=None):
+	"""Begins execution of an experiment whose parameters are defined by the union of addition_parameters and defaults.py.
+	Also initializes a connection to the necessary SMU systems and/or Arduino systems needed to perform the experiment."""
+	
 	startTime = time.time()
 	
 	parameters = defaults.with_added(additional_parameters)
@@ -42,49 +49,38 @@ def run(additional_parameters):
 		for device in parameters['MeasurementSystem']['deviceRange']:
 			params = copy.deepcopy(parameters)
 			params['Identifiers']['device'] = device
-			runAction(params, additional_parameters, smu_systems, arduino_instance)
+			runAction(params, additional_parameters, smu_systems, arduino_instance, communication_pipe=communication_pipe)
 	else:
-		runAction(parameters, additional_parameters, smu_systems, arduino_instance)
+		runAction(parameters, additional_parameters, smu_systems, arduino_instance, communication_pipe=communication_pipe)
 	
 	endTime = time.time()
 	print('Completed job in "' + '{:.4f}'.format(endTime - startTime) + '" seconds.')
 
-def run_file(schedule_file_path):
-	schedule_index = 0
-
-	print('Opening schedule file: ' + schedule_file_path)
-
-	while( schedule_index < len(dlu.loadJSON(directory='', loadFileName=schedule_file_path)) ):
-		print('Loading line #' + str(schedule_index+1) + ' in schedule file ' + schedule_file_path)
-		parameter_list = dlu.loadJSON(directory='', loadFileName=schedule_file_path)
-
-		print('Launching job #' + str(schedule_index+1) + ' of ' + str(len(parameter_list)) + ' in schedule file ' + schedule_file_path)
-		print('Schedule contains ' + str(len(parameter_list) - schedule_index - 1) + ' other incomplete jobs.')
-		additional_parameters = parameter_list[schedule_index].copy()
-		run(additional_parameters)
-
-		schedule_index += 1
 
 
 # === Internal API ===
-def runAction(parameters, schedule_parameters, smu_systems, arduino_instance):
+def runAction(parameters, schedule_parameters, smu_systems, arduino_instance, communication_pipe=None):
+	"""Prepares the file system for the upcoming experiment and selects a Procedure to carry out the experiment.
+	In the event of an error during any procedure, this function is responsible for emergency ramping down the
+	SMU voltages and exiting as gracefully as possible."""
+	
 	print('Checking that save folder exists.')
 	dlu.makeFolder(dlu.getDeviceDirectory(parameters))
-
-	experiment = dlu.incrementJSONExperiementNumber(dlu.getDeviceDirectory(parameters))
+	
+	experiment = dlu.incrementJSONExperimentNumber(dlu.getDeviceDirectory(parameters))
 	print('About to begin experiment #' + str(experiment))
 	parameters['startIndexes'] = dlu.loadJSONIndex(dlu.getDeviceDirectory(parameters))
 	parameters['startIndexes']['timestamp'] = time.time()
 	
 	print('Saving to SchedulesHistory...')
 	dlu.saveJSON(dlu.getDeviceDirectory(parameters), 'SchedulesHistory', schedule_parameters, incrementIndex=False)
-
+	
 	for smu_name, smu_instance in smu_systems.items():
 		smu_instance.setDevice(parameters['Identifiers']['device'])
-
+	
 	smu_names = list(smu_systems.keys())
 	smu_default_instance = smu_systems[smu_names[0]]	
-
+	
 	try:
 		if(parameters['runType'] == 'GateSweep'):
 			gateSweepScript.run(parameters, smu_default_instance)
@@ -110,12 +106,12 @@ def runAction(parameters, schedule_parameters, smu_systems, arduino_instance):
 		for smu_name, smu_instance in smu_systems.items():
 			smu_instance.rampDownVoltages()
 			smu_instance.disconnect()
-
+		
 		parameters['endIndexes'] = dlu.loadJSONIndex(dlu.getDeviceDirectory(parameters))
 		parameters['endIndexes']['timestamp'] = time.time()
 		print('Saving to ParametersHistory...')
 		dlu.saveJSON(dlu.getDeviceDirectory(parameters), 'ParametersHistory', parameters, incrementIndex=False)
-
+		
 		print('ERROR: Exception raised during the experiment.')
 		raise
 	
@@ -127,15 +123,12 @@ def runAction(parameters, schedule_parameters, smu_systems, arduino_instance):
 	print('Saving to ParametersHistory...')
 	dlu.saveJSON(dlu.getDeviceDirectory(parameters), 'ParametersHistory', parameters, incrementIndex=False)
 
-	#print('Posting plots online...')
-	#plotPoster.postPlots(parameters)
-
-
-
 
 
 # === SMU Connection ===
 def initMeasurementSystems(parameters):
+	"""Given the parameters for running an experiment, sets up a connection to the necessary SMU or SMUs."""
+	
 	system_instances = {}
 	parameters['MeasurementSystem']['systems'] = smu.getSystemConfiguration(parameters['MeasurementSystem']['systemType'])
 	for system_name,system_info in parameters['MeasurementSystem']['systems'].items():
@@ -156,6 +149,8 @@ def initMeasurementSystems(parameters):
 
 # === Arduino Connection ===
 def initArduino(parameters):
+	"""Given the parameters for running an experiment, sets up a connection to the (usually optional) Arduino."""
+	
 	arduino_instance = None
 	baud = 9600
 	try:

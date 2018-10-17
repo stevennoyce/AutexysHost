@@ -1,0 +1,671 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>source.drivers.SourceMeasureUnit &mdash; Autexys 1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Autexys
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">source</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Autexys</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>source.drivers.SourceMeasureUnit</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for source.drivers.SourceMeasureUnit</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;This module defines a common Python interface for communicating to SMU systems. It also defines the possible sets of SMUs that can be</span>
+<span class="sd">connected to and the ports/MAC addresses need to connect.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">ast</span>
+<span class="kn">import</span> <span class="nn">serial</span> <span class="k">as</span> <span class="nn">pySerial</span>
+<span class="kn">import</span> <span class="nn">serial.tools.list_ports</span> <span class="k">as</span> <span class="nn">pySerialPorts</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">random</span> <span class="k">as</span> <span class="nn">rand</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+
+<span class="n">smu_system_configurations</span> <span class="o">=</span> <span class="p">{</span>
+	<span class="s1">&#39;single&#39;</span><span class="p">:</span> <span class="p">{</span>
+		<span class="s1">&#39;SMU&#39;</span><span class="p">:</span> <span class="p">{</span>
+			<span class="s1">&#39;uniqueID&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+			<span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;B2912A&#39;</span><span class="p">,</span>
+			<span class="s1">&#39;settings&#39;</span><span class="p">:</span> <span class="p">{}</span>
+		<span class="p">}</span>
+	<span class="p">},</span>
+	<span class="s1">&#39;standalone&#39;</span><span class="p">:</span> <span class="p">{</span>
+		<span class="s1">&#39;PCB&#39;</span><span class="p">:</span> <span class="p">{</span>
+			<span class="s1">&#39;uniqueID&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+			<span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;PCB2v14&#39;</span><span class="p">,</span>
+			<span class="s1">&#39;settings&#39;</span><span class="p">:</span> <span class="p">{}</span>
+		<span class="p">}</span>
+	<span class="p">},</span>
+	<span class="s1">&#39;bluetooth&#39;</span><span class="p">:</span> <span class="p">{</span>
+		<span class="s1">&#39;PCB&#39;</span><span class="p">:</span> <span class="p">{</span>
+			<span class="s1">&#39;uniqueID&#39;</span><span class="p">:</span> <span class="s1">&#39;/dev/tty.HC-05-DevB&#39;</span><span class="p">,</span>
+			<span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;PCB2v14&#39;</span><span class="p">,</span>
+			<span class="s1">&#39;settings&#39;</span><span class="p">:</span> <span class="p">{}</span>
+		<span class="p">}</span>
+	<span class="p">},</span>
+	<span class="s1">&#39;double&#39;</span><span class="p">:</span> <span class="p">{</span>
+		<span class="s1">&#39;deviceSMU&#39;</span><span class="p">:{</span>
+			<span class="s1">&#39;uniqueID&#39;</span><span class="p">:</span> <span class="s1">&#39;USB0::0x0957::0x8E18::MY51141244::INSTR&#39;</span><span class="p">,</span>
+			<span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;B2912A&#39;</span><span class="p">,</span>
+			<span class="s1">&#39;settings&#39;</span><span class="p">:</span> <span class="p">{</span>
+				<span class="s1">&#39;reset&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+				<span class="s1">&#39;channel1SourceMode&#39;</span><span class="p">:</span> <span class="s1">&#39;voltage&#39;</span><span class="p">,</span>
+				<span class="s1">&#39;channel2SourceMode&#39;</span><span class="p">:</span> <span class="s1">&#39;voltage&#39;</span>
+			<span class="p">}</span>
+		<span class="p">},</span>
+		<span class="s1">&#39;secondarySMU&#39;</span><span class="p">:{</span>
+			<span class="s1">&#39;uniqueID&#39;</span><span class="p">:</span> <span class="s1">&#39;USB0::0x0957::0x8E18::MY51141241::INSTR&#39;</span><span class="p">,</span>
+			<span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;B2912A&#39;</span><span class="p">,</span>
+			<span class="s1">&#39;settings&#39;</span><span class="p">:</span> <span class="p">{</span>
+				<span class="s1">&#39;reset&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+				<span class="s1">&#39;channel1SourceMode&#39;</span><span class="p">:</span> <span class="s1">&#39;current&#39;</span><span class="p">,</span>
+				<span class="s1">&#39;channel2SourceMode&#39;</span><span class="p">:</span> <span class="s1">&#39;current&#39;</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<div class="viewcode-block" id="getSystemConfiguration"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.getSystemConfiguration">[docs]</a><span class="k">def</span> <span class="nf">getSystemConfiguration</span><span class="p">(</span><span class="n">systemType</span><span class="p">):</span>
+	<span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">smu_system_configurations</span><span class="p">[</span><span class="n">systemType</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="getConnectionToVisaResource"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.getConnectionToVisaResource">[docs]</a><span class="k">def</span> <span class="nf">getConnectionToVisaResource</span><span class="p">(</span><span class="n">uniqueIdentifier</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">system_settings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">defaultComplianceCurrent</span><span class="o">=</span><span class="mf">100e-6</span><span class="p">,</span> <span class="n">smuTimeout</span><span class="o">=</span><span class="mi">60000</span><span class="p">):</span>
+	<span class="kn">import</span> <span class="nn">visa</span>
+	
+	<span class="n">rm</span> <span class="o">=</span> <span class="n">visa</span><span class="o">.</span><span class="n">ResourceManager</span><span class="p">()</span>
+	<span class="k">if</span><span class="p">(</span><span class="n">uniqueIdentifier</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">):</span>
+		<span class="n">uniqueIdentifier</span> <span class="o">=</span> <span class="n">rm</span><span class="o">.</span><span class="n">list_resources</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+	<span class="n">instance</span> <span class="o">=</span> <span class="n">rm</span><span class="o">.</span><span class="n">open_resource</span><span class="p">(</span><span class="n">uniqueIdentifier</span><span class="p">)</span>
+	<span class="n">instance</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">smuTimeout</span>
+	<span class="nb">print</span><span class="p">(</span><span class="n">instance</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s1">&#39;*IDN?&#39;</span><span class="p">))</span>
+	<span class="k">return</span> <span class="n">B2912A</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">uniqueIdentifier</span><span class="p">,</span> <span class="n">defaultComplianceCurrent</span><span class="p">,</span> <span class="n">system_settings</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="getConnectionToPCB"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.getConnectionToPCB">[docs]</a><span class="k">def</span> <span class="nf">getConnectionToPCB</span><span class="p">(</span><span class="n">pcb_port</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">system_settings</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+	<span class="k">if</span><span class="p">(</span><span class="n">pcb_port</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">):</span>
+		<span class="n">active_ports</span> <span class="o">=</span> <span class="p">[</span><span class="n">port</span> <span class="k">for</span> <span class="n">port</span> <span class="ow">in</span> <span class="n">pySerialPorts</span><span class="o">.</span><span class="n">comports</span><span class="p">()</span> <span class="k">if</span><span class="p">(</span><span class="n">port</span><span class="o">.</span><span class="n">description</span> <span class="o">!=</span> <span class="s1">&#39;n/a&#39;</span><span class="p">)]</span>
+		<span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">active_ports</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+			<span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Unable to find any active serial ports to connect to PCB.&#39;</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">pcb_port</span> <span class="o">=</span> <span class="n">active_ports</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+	<span class="k">try</span><span class="p">:</span>
+		<span class="n">ser</span> <span class="o">=</span> <span class="n">pySerial</span><span class="o">.</span><span class="n">Serial</span><span class="p">(</span><span class="n">pcb_port</span><span class="p">,</span> <span class="mi">115200</span><span class="p">)</span>
+	<span class="k">except</span><span class="p">:</span>
+		<span class="n">ser</span> <span class="o">=</span> <span class="n">pySerial</span><span class="o">.</span><span class="n">Serial</span><span class="p">(</span><span class="n">pcb_port</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="mi">115200</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">PCB2v14</span><span class="p">(</span><span class="n">ser</span><span class="p">,</span> <span class="n">pcb_port</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="SourceMeasureUnit"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.SourceMeasureUnit">[docs]</a><span class="k">class</span> <span class="nc">SourceMeasureUnit</span><span class="p">:</span>
+	<span class="n">system_id</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+	<span class="n">stepsPerRamp</span> <span class="o">=</span> <span class="mi">15</span>
+	<span class="n">measurementsPerSecond</span> <span class="o">=</span> <span class="kc">None</span>
+	<span class="n">measurementRateVariabilityFactor</span> <span class="o">=</span> <span class="kc">None</span>
+	
+<div class="viewcode-block" id="SourceMeasureUnit.turnChannelsOn"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.SourceMeasureUnit.turnChannelsOn">[docs]</a>	<span class="k">def</span> <span class="nf">turnChannelsOn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Please implement SourceMeasureUnit.turnChannelsOn()&quot;</span><span class="p">)</span></div>
+	
+<div class="viewcode-block" id="SourceMeasureUnit.turnChannelsOff"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.SourceMeasureUnit.turnChannelsOff">[docs]</a>	<span class="k">def</span> <span class="nf">turnChannelsOff</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Please implement SourceMeasureUnit.turnChannelsOff()&quot;</span><span class="p">)</span></div>
+	
+<div class="viewcode-block" id="SourceMeasureUnit.setComplianceCurrent"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.SourceMeasureUnit.setComplianceCurrent">[docs]</a>	<span class="k">def</span> <span class="nf">setComplianceCurrent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">complianceCurrent</span><span class="p">):</span>
+		<span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Please implement SourceMeasureUnit.setComplianceCurrent()&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SourceMeasureUnit.setDevice"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.SourceMeasureUnit.setDevice">[docs]</a>	<span class="k">def</span> <span class="nf">setDevice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deviceID</span><span class="p">):</span>
+		<span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Please implement SourceMeasureUnit.setDevice()&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SourceMeasureUnit.setParameter"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.SourceMeasureUnit.setParameter">[docs]</a>	<span class="k">def</span> <span class="nf">setParameter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameter</span><span class="p">):</span>
+		<span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Please implement SourceMeasureUnit.setParameter()&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SourceMeasureUnit.setVds"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.SourceMeasureUnit.setVds">[docs]</a>	<span class="k">def</span> <span class="nf">setVds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">voltage</span><span class="p">):</span>
+		<span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Please implement SourceMeasureUnit.setVds()&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SourceMeasureUnit.setVgs"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.SourceMeasureUnit.setVgs">[docs]</a>	<span class="k">def</span> <span class="nf">setVgs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">voltage</span><span class="p">):</span>
+		<span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Please implement SourceMeasureUnit.setVgs()&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SourceMeasureUnit.takeMeasurement"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.SourceMeasureUnit.takeMeasurement">[docs]</a>	<span class="k">def</span> <span class="nf">takeMeasurement</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Please implement SourceMeasureUnit.takeMeasurement()&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SourceMeasureUnit.takeSweep"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.SourceMeasureUnit.takeSweep">[docs]</a>	<span class="k">def</span> <span class="nf">takeSweep</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src1start</span><span class="p">,</span> <span class="n">src1stop</span><span class="p">,</span> <span class="n">src2start</span><span class="p">,</span> <span class="n">src2stop</span><span class="p">,</span> <span class="n">points</span><span class="p">):</span>
+		<span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Please implement SourceMeasureUnit.takeSweep()&quot;</span><span class="p">)</span></div>
+	
+<div class="viewcode-block" id="SourceMeasureUnit.disconnect"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.SourceMeasureUnit.disconnect">[docs]</a>	<span class="k">def</span> <span class="nf">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Please implement SourceMeasureUnit.disconnect()&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SourceMeasureUnit.getVds"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.SourceMeasureUnit.getVds">[docs]</a>	<span class="k">def</span> <span class="nf">getVds</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">takeMeasurement</span><span class="p">()[</span><span class="s1">&#39;V_ds&#39;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="SourceMeasureUnit.getVgs"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.SourceMeasureUnit.getVgs">[docs]</a>	<span class="k">def</span> <span class="nf">getVgs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">takeMeasurement</span><span class="p">()[</span><span class="s1">&#39;V_gs&#39;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="SourceMeasureUnit.rampGateVoltage"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.SourceMeasureUnit.rampGateVoltage">[docs]</a>	<span class="k">def</span> <span class="nf">rampGateVoltage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">voltageStart</span><span class="p">,</span> <span class="n">voltageSetPoint</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+		<span class="k">if</span><span class="p">(</span><span class="n">steps</span> <span class="o">==</span> <span class="kc">None</span><span class="p">):</span>
+			<span class="n">steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stepsPerRamp</span>
+		<span class="n">gateVoltages</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">voltageStart</span><span class="p">,</span> <span class="n">voltageSetPoint</span><span class="p">,</span> <span class="n">steps</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+		<span class="k">for</span> <span class="n">gateVoltage</span> <span class="ow">in</span> <span class="n">gateVoltages</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">setVgs</span><span class="p">(</span><span class="n">gateVoltage</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SourceMeasureUnit.rampGateVoltageTo"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.SourceMeasureUnit.rampGateVoltageTo">[docs]</a>	<span class="k">def</span> <span class="nf">rampGateVoltageTo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">voltageSetPoint</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+		<span class="n">voltageStart</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getVgs</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">rampGateVoltage</span><span class="p">(</span><span class="n">voltageStart</span><span class="p">,</span> <span class="n">voltageSetPoint</span><span class="p">,</span> <span class="n">steps</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SourceMeasureUnit.rampGateVoltageDown"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.SourceMeasureUnit.rampGateVoltageDown">[docs]</a>	<span class="k">def</span> <span class="nf">rampGateVoltageDown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">rampGateVoltageTo</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">steps</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SourceMeasureUnit.rampDrainVoltage"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.SourceMeasureUnit.rampDrainVoltage">[docs]</a>	<span class="k">def</span> <span class="nf">rampDrainVoltage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">voltageStart</span><span class="p">,</span> <span class="n">voltageSetPoint</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+		<span class="k">if</span><span class="p">(</span><span class="n">steps</span> <span class="o">==</span> <span class="kc">None</span><span class="p">):</span>
+			<span class="n">steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stepsPerRamp</span>
+		<span class="n">drainVoltages</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">voltageStart</span><span class="p">,</span> <span class="n">voltageSetPoint</span><span class="p">,</span> <span class="n">steps</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+		<span class="k">for</span> <span class="n">drainVoltage</span> <span class="ow">in</span> <span class="n">drainVoltages</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">setVds</span><span class="p">(</span><span class="n">drainVoltage</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SourceMeasureUnit.rampDrainVoltageTo"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.SourceMeasureUnit.rampDrainVoltageTo">[docs]</a>	<span class="k">def</span> <span class="nf">rampDrainVoltageTo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">voltageSetPoint</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+		<span class="n">voltageStart</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getVds</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">rampDrainVoltage</span><span class="p">(</span><span class="n">voltageStart</span><span class="p">,</span> <span class="n">voltageSetPoint</span><span class="p">,</span> <span class="n">steps</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SourceMeasureUnit.rampDrainVoltageDown"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.SourceMeasureUnit.rampDrainVoltageDown">[docs]</a>	<span class="k">def</span> <span class="nf">rampDrainVoltageDown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">rampDrainVoltageTo</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">steps</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SourceMeasureUnit.rampDownVoltages"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.SourceMeasureUnit.rampDownVoltages">[docs]</a>	<span class="k">def</span> <span class="nf">rampDownVoltages</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+		<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Ramping down SMU channels.&#39;</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">rampDrainVoltageDown</span><span class="p">(</span><span class="n">steps</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">rampGateVoltageDown</span><span class="p">(</span><span class="n">steps</span><span class="p">)</span></div></div>
+	
+	
+	
+<div class="viewcode-block" id="B2912A"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.B2912A">[docs]</a><span class="k">class</span> <span class="nc">B2912A</span><span class="p">(</span><span class="n">SourceMeasureUnit</span><span class="p">):</span>
+	<span class="n">smu</span> <span class="o">=</span> <span class="kc">None</span>
+	<span class="n">system_id</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+	<span class="n">stepsPerRamp</span> <span class="o">=</span> <span class="mi">20</span>
+	<span class="n">measurementsPerSecond</span> <span class="o">=</span> <span class="mi">40</span>
+	<span class="n">measurementRateVariabilityFactor</span> <span class="o">=</span> <span class="mi">2</span>
+	<span class="n">nplc</span> <span class="o">=</span> <span class="mi">1</span>
+	<span class="n">source1_mode</span> <span class="o">=</span> <span class="s1">&#39;voltage&#39;</span>
+	<span class="n">source2_mode</span> <span class="o">=</span> <span class="s1">&#39;voltage&#39;</span>
+	<span class="n">system_settings</span> <span class="o">=</span> <span class="p">{}</span>
+	
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">visa_instance</span><span class="p">,</span> <span class="n">visa_id</span><span class="p">,</span> <span class="n">defaultComplianceCurrent</span><span class="p">,</span> <span class="n">system_settings</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">smu</span> <span class="o">=</span> <span class="n">visa_instance</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">system_id</span> <span class="o">=</span> <span class="n">visa_id</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">system_settings</span> <span class="o">=</span> <span class="n">system_settings</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setComplianceCurrent</span><span class="p">(</span><span class="n">defaultComplianceCurrent</span><span class="p">)</span>
+	
+<div class="viewcode-block" id="B2912A.initialize"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.B2912A.initialize">[docs]</a>	<span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">if</span> <span class="s1">&#39;reset&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_settings</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_settings</span><span class="p">[</span><span class="s1">&#39;reset&#39;</span><span class="p">]:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;*RST&quot;</span><span class="p">)</span> <span class="c1"># Reset</span>
+		
+		<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;:system:lfrequency 60&#39;</span><span class="p">)</span>
+		
+		<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;:sense1:curr:range:auto ON&#39;</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;:sense1:curr:range:auto:llim 1e-8&#39;</span><span class="p">)</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;:sense2:curr:range:auto ON&#39;</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;:sense2:curr:range:auto:llim 1e-8&#39;</span><span class="p">)</span>
+		
+		<span class="k">if</span> <span class="s1">&#39;channel1SourceMode&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_settings</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;:source1:function:mode voltage&quot;</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;:source2:function:mode voltage&quot;</span><span class="p">)</span>
+			
+			<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;:source1:voltage 0.0&quot;</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;:source2:voltage 0.0&quot;</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">setChannel1SourceMode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">system_settings</span><span class="p">[</span><span class="s1">&#39;channel1SourceMode&#39;</span><span class="p">])</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">setChannel2SourceMode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">system_settings</span><span class="p">[</span><span class="s1">&#39;channel2SourceMode&#39;</span><span class="p">])</span>
+		
+		<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;:sense1:curr:nplc 1&quot;</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;:sense2:curr:nplc 1&quot;</span><span class="p">)</span>
+		
+		<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;:outp1 ON&quot;</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;:outp2 ON&quot;</span><span class="p">)</span>
+		
+		<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;*WAI&quot;</span><span class="p">)</span> <span class="c1"># Explicitly wait for all of these commands to finish before handling new commands</span></div>
+
+<div class="viewcode-block" id="B2912A.setDevice"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.B2912A.setDevice">[docs]</a>	<span class="k">def</span> <span class="nf">setDevice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deviceID</span><span class="p">):</span>
+		<span class="k">pass</span></div>
+
+<div class="viewcode-block" id="B2912A.setParameter"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.B2912A.setParameter">[docs]</a>	<span class="k">def</span> <span class="nf">setParameter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameter</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="B2912A.turnChannelsOn"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.B2912A.turnChannelsOn">[docs]</a>	<span class="k">def</span> <span class="nf">turnChannelsOn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setParameter</span><span class="p">(</span><span class="s2">&quot;:output1 ON&quot;</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setParameter</span><span class="p">(</span><span class="s2">&quot;:output2 ON&quot;</span><span class="p">)</span></div>
+	
+<div class="viewcode-block" id="B2912A.turnChannelsOff"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.B2912A.turnChannelsOff">[docs]</a>	<span class="k">def</span> <span class="nf">turnChannelsOff</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setParameter</span><span class="p">(</span><span class="s2">&quot;:output1 OFF&quot;</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setParameter</span><span class="p">(</span><span class="s2">&quot;:output2 OFF&quot;</span><span class="p">)</span></div>
+	
+<div class="viewcode-block" id="B2912A.setNPLC"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.B2912A.setNPLC">[docs]</a>	<span class="k">def</span> <span class="nf">setNPLC</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nplc</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setParameter</span><span class="p">(</span><span class="s2">&quot;:sense1:curr:nplc </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nplc</span><span class="p">))</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setParameter</span><span class="p">(</span><span class="s2">&quot;:sense1:volt:nplc </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nplc</span><span class="p">))</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setParameter</span><span class="p">(</span><span class="s2">&quot;:sense2:curr:nplc </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nplc</span><span class="p">))</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setParameter</span><span class="p">(</span><span class="s2">&quot;:sense2:volt:nplc </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nplc</span><span class="p">))</span>	</div>
+
+<div class="viewcode-block" id="B2912A.turnAutoRangingOn"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.B2912A.turnAutoRangingOn">[docs]</a>	<span class="k">def</span> <span class="nf">turnAutoRangingOn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setParameter</span><span class="p">(</span><span class="s1">&#39;:sense1:curr:range:auto ON&#39;</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setParameter</span><span class="p">(</span><span class="s1">&#39;:sense2:curr:range:auto ON&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="B2912A.turnAutoRangingOff"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.B2912A.turnAutoRangingOff">[docs]</a>	<span class="k">def</span> <span class="nf">turnAutoRangingOff</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setParameter</span><span class="p">(</span><span class="s1">&#39;:sense1:curr:range:auto OFF&#39;</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setParameter</span><span class="p">(</span><span class="s1">&#39;:sense2:curr:range:auto OFF&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="B2912A.setComplianceCurrent"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.B2912A.setComplianceCurrent">[docs]</a>	<span class="k">def</span> <span class="nf">setComplianceCurrent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">complianceCurrent</span><span class="o">=</span><span class="mf">100e-6</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setParameter</span><span class="p">(</span><span class="s2">&quot;:sense1:curr:prot </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">complianceCurrent</span><span class="p">))</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setParameter</span><span class="p">(</span><span class="s2">&quot;:sense2:curr:prot </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">complianceCurrent</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="B2912A.setComplianceVoltage"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.B2912A.setComplianceVoltage">[docs]</a>	<span class="k">def</span> <span class="nf">setComplianceVoltage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">complianceVoltage</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setParameter</span><span class="p">(</span><span class="s2">&quot;:sense1:volt:prot </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">complianceVoltage</span><span class="p">))</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setParameter</span><span class="p">(</span><span class="s2">&quot;:sense2:volt:prot </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">complianceVoltage</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="B2912A.setChannel1SourceMode"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.B2912A.setChannel1SourceMode">[docs]</a>	<span class="k">def</span> <span class="nf">setChannel1SourceMode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;voltage&quot;</span><span class="p">):</span>
+		<span class="k">if</span><span class="p">(</span><span class="n">mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;voltage&quot;</span><span class="p">,</span> <span class="s2">&quot;current&quot;</span><span class="p">]):</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">setParameter</span><span class="p">(</span><span class="s2">&quot;:source1:function:mode </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mode</span><span class="p">))</span>
+			<span class="n">source1_mode</span> <span class="o">=</span> <span class="n">mode</span>
+			<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Source 1 mode set to: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">mode</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="B2912A.setChannel2SourceMode"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.B2912A.setChannel2SourceMode">[docs]</a>	<span class="k">def</span> <span class="nf">setChannel2SourceMode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;voltage&quot;</span><span class="p">):</span>
+		<span class="k">if</span><span class="p">(</span><span class="n">mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;voltage&quot;</span><span class="p">,</span> <span class="s2">&quot;current&quot;</span><span class="p">]):</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">setParameter</span><span class="p">(</span><span class="s2">&quot;:source2:function:mode </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mode</span><span class="p">))</span>
+			<span class="n">source2_mode</span> <span class="o">=</span> <span class="n">mode</span>
+			<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Source 2 mode set to: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">mode</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="B2912A.setVds"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.B2912A.setVds">[docs]</a>	<span class="k">def</span> <span class="nf">setVds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">voltage</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setParameter</span><span class="p">(</span><span class="s2">&quot;:source1:voltage </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">voltage</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="B2912A.setVgs"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.B2912A.setVgs">[docs]</a>	<span class="k">def</span> <span class="nf">setVgs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">voltage</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setParameter</span><span class="p">(</span><span class="s2">&quot;:source2:voltage </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">voltage</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="B2912A.takeMeasurement"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.B2912A.takeMeasurement">[docs]</a>	<span class="k">def</span> <span class="nf">takeMeasurement</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">query_ascii_values</span><span class="p">(</span><span class="s1">&#39;:MEAS? (@1:2)&#39;</span><span class="p">)</span>
+		<span class="k">return</span> <span class="p">{</span>
+			<span class="s1">&#39;V_ds&#39;</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+			<span class="s1">&#39;I_d&#39;</span><span class="p">:</span>  <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+			<span class="s1">&#39;V_gs&#39;</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span>
+			<span class="s1">&#39;I_g&#39;</span><span class="p">:</span>  <span class="n">data</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span>
+		<span class="p">}</span></div>
+	
+<div class="viewcode-block" id="B2912A.setupSweep"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.B2912A.setupSweep">[docs]</a>	<span class="k">def</span> <span class="nf">setupSweep</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src1start</span><span class="p">,</span> <span class="n">src1stop</span><span class="p">,</span> <span class="n">src2start</span><span class="p">,</span> <span class="n">src2stop</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">triggerInterval</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+		<span class="n">points</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+		
+		<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;:source1:</span><span class="si">{}</span><span class="s2">:mode sweep&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source1_mode</span><span class="p">))</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;:source2:</span><span class="si">{}</span><span class="s2">:mode sweep&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source2_mode</span><span class="p">))</span>
+		
+		<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;:source1:</span><span class="si">{}</span><span class="s2">:start </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source1_mode</span><span class="p">,</span> <span class="n">src1start</span><span class="p">))</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;:source1:</span><span class="si">{}</span><span class="s2">:stop </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source1_mode</span><span class="p">,</span> <span class="n">src1stop</span><span class="p">))</span> 
+		<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;:source1:</span><span class="si">{}</span><span class="s2">:points </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source1_mode</span><span class="p">,</span> <span class="n">points</span><span class="p">))</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;:source2:</span><span class="si">{}</span><span class="s2">:start </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source2_mode</span><span class="p">,</span> <span class="n">src2start</span><span class="p">))</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;:source2:</span><span class="si">{}</span><span class="s2">:stop </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source2_mode</span><span class="p">,</span> <span class="n">src2stop</span><span class="p">))</span> 
+		<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;:source2:</span><span class="si">{}</span><span class="s2">:points </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source2_mode</span><span class="p">,</span> <span class="n">points</span><span class="p">))</span>
+		
+		<span class="k">if</span> <span class="n">triggerInterval</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;:trig1:source aint&quot;</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;:trig1:count </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">points</span><span class="p">))</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;:trig2:source aint&quot;</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;:trig2:count </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">points</span><span class="p">))</span>
+			<span class="n">timeToTakeMeasurements</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nplc</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">points</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">measurementsPerSecond</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;:trig1:source timer&quot;</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;:trig1:timer </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">triggerInterval</span><span class="p">))</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;:trig1:count </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">points</span><span class="p">))</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;:trig2:source timer&quot;</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;:trig2:timer </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">triggerInterval</span><span class="p">))</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;:trig2:count </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">points</span><span class="p">))</span>
+			<span class="n">timeToTakeMeasurements</span> <span class="o">=</span> <span class="p">(</span><span class="n">triggerInterval</span><span class="o">*</span><span class="n">points</span><span class="p">)</span>
+		
+		<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;*WAI&quot;</span><span class="p">)</span>
+		
+		<span class="k">return</span> <span class="n">timeToTakeMeasurements</span></div>
+	
+<div class="viewcode-block" id="B2912A.initSweep"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.B2912A.initSweep">[docs]</a>	<span class="k">def</span> <span class="nf">initSweep</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;:init (@1:2)&quot;</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;*WAI&quot;</span><span class="p">)</span></div>
+	
+<div class="viewcode-block" id="B2912A.startSweep"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.B2912A.startSweep">[docs]</a>	<span class="k">def</span> <span class="nf">startSweep</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src1start</span><span class="p">,</span> <span class="n">src1stop</span><span class="p">,</span> <span class="n">src2start</span><span class="p">,</span> <span class="n">src2stop</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">triggerInterval</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+		<span class="n">timeToTakeMeasurements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">setupSweep</span><span class="p">(</span><span class="n">src1start</span><span class="p">,</span> <span class="n">src1stop</span><span class="p">,</span> <span class="n">src2start</span><span class="p">,</span> <span class="n">src2stop</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">triggerInterval</span><span class="o">=</span><span class="n">triggerInterval</span><span class="p">)</span>
+		
+		<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;*WAI&quot;</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">initSweep</span><span class="p">()</span>
+		
+		<span class="k">return</span> <span class="n">timeToTakeMeasurements</span></div>
+	
+<div class="viewcode-block" id="B2912A.endSweep"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.B2912A.endSweep">[docs]</a>	<span class="k">def</span> <span class="nf">endSweep</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endMode</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+		<span class="n">current1s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">query_ascii_values</span><span class="p">(</span><span class="s2">&quot;:fetch:arr:curr? (@1)&quot;</span><span class="p">)</span>
+		<span class="n">voltage1s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">query_ascii_values</span><span class="p">(</span><span class="s2">&quot;:fetch:arr:voltage? (@1)&quot;</span><span class="p">)</span>
+		<span class="n">current2s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">query_ascii_values</span><span class="p">(</span><span class="s2">&quot;:fetch:arr:curr? (@2)&quot;</span><span class="p">)</span>
+		<span class="n">voltage2s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">query_ascii_values</span><span class="p">(</span><span class="s2">&quot;:fetch:arr:voltage? (@2)&quot;</span><span class="p">)</span>
+		<span class="n">timestamps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">query_ascii_values</span><span class="p">(</span><span class="s2">&quot;:fetch:array:time? (@2)&quot;</span><span class="p">)</span>
+		
+		<span class="k">if</span> <span class="n">endMode</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;:source1:</span><span class="si">{}</span><span class="s2">:mode </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source1_mode</span><span class="p">,</span> <span class="n">endMode</span><span class="p">))</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">smu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;:source2:</span><span class="si">{}</span><span class="s2">:mode </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source2_mode</span><span class="p">,</span> <span class="n">endMode</span><span class="p">))</span>
+		
+		<span class="k">return</span> <span class="p">{</span>
+			<span class="s1">&#39;Vds_data&#39;</span><span class="p">:</span> <span class="n">voltage1s</span><span class="p">,</span>
+			<span class="s1">&#39;Id_data&#39;</span><span class="p">:</span>  <span class="n">current1s</span><span class="p">,</span>
+			<span class="s1">&#39;Vgs_data&#39;</span><span class="p">:</span> <span class="n">voltage2s</span><span class="p">,</span>
+			<span class="s1">&#39;Ig_data&#39;</span><span class="p">:</span>  <span class="n">current2s</span><span class="p">,</span>
+			<span class="s1">&#39;timestamps&#39;</span><span class="p">:</span> <span class="n">timestamps</span>
+		<span class="p">}</span></div>
+	
+<div class="viewcode-block" id="B2912A.takeSweep"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.B2912A.takeSweep">[docs]</a>	<span class="k">def</span> <span class="nf">takeSweep</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src1start</span><span class="p">,</span> <span class="n">src1stop</span><span class="p">,</span> <span class="n">src2start</span><span class="p">,</span> <span class="n">src2stop</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">triggerInterval</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+		<span class="n">timeToTakeMeasurements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">startSweep</span><span class="p">(</span><span class="n">src1start</span><span class="p">,</span> <span class="n">src1stop</span><span class="p">,</span> <span class="n">src2start</span><span class="p">,</span> <span class="n">src2stop</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">triggerInterval</span><span class="o">=</span><span class="n">triggerInterval</span><span class="p">)</span>
+		
+		<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">timeToTakeMeasurements</span><span class="p">)</span>
+		
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">endSweep</span><span class="p">(</span><span class="n">endMode</span><span class="o">=</span><span class="s1">&#39;fixed&#39;</span><span class="p">)</span></div>
+	
+<div class="viewcode-block" id="B2912A.disconnect"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.B2912A.disconnect">[docs]</a>	<span class="k">def</span> <span class="nf">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">pass</span></div></div>
+		
+
+
+<div class="viewcode-block" id="PCB2v14"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.PCB2v14">[docs]</a><span class="k">class</span> <span class="nc">PCB2v14</span><span class="p">(</span><span class="n">SourceMeasureUnit</span><span class="p">):</span>
+	<span class="n">ser</span> <span class="o">=</span> <span class="kc">None</span>
+	<span class="n">system_id</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+	<span class="n">stepsPerRamp</span> <span class="o">=</span> <span class="mi">5</span>
+	<span class="n">measurementsPerSecond</span> <span class="o">=</span> <span class="mi">10</span>
+	<span class="n">measurementRateVariabilityFactor</span> <span class="o">=</span> <span class="mi">2</span>
+	<span class="n">nplc</span> <span class="o">=</span> <span class="mi">1</span>
+
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pySerial</span><span class="p">,</span> <span class="n">pcb_port</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">ser</span> <span class="o">=</span> <span class="n">pySerial</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">system_id</span> <span class="o">=</span> <span class="n">pcb_port</span>
+
+<div class="viewcode-block" id="PCB2v14.setComplianceCurrent"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.PCB2v14.setComplianceCurrent">[docs]</a>	<span class="k">def</span> <span class="nf">setComplianceCurrent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">complianceCurrent</span><span class="p">):</span>
+		<span class="k">pass</span></div>
+
+<div class="viewcode-block" id="PCB2v14.setParameter"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.PCB2v14.setParameter">[docs]</a>	<span class="k">def</span> <span class="nf">setParameter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameter</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">write</span><span class="p">(</span> <span class="nb">str</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;UTF-8&#39;</span><span class="p">)</span> <span class="p">)</span></div>
+
+<div class="viewcode-block" id="PCB2v14.getResponse"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.PCB2v14.getResponse">[docs]</a>	<span class="k">def</span> <span class="nf">getResponse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">startsWith</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">lines</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">printResponse</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+		<span class="n">response</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+			<span class="n">line</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;UTF-8&#39;</span><span class="p">)</span>
+			<span class="k">if</span><span class="p">(</span><span class="n">startsWith</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">):</span>
+				<span class="k">while</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">startsWith</span><span class="p">):</span>
+					<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;SKIPPED: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
+					<span class="n">line</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;UTF-8&#39;</span><span class="p">)</span>
+			<span class="n">response</span> <span class="o">+=</span> <span class="n">line</span>
+		<span class="k">if</span><span class="p">(</span><span class="n">printResponse</span><span class="p">):</span>
+			<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">response</span></div>
+
+<div class="viewcode-block" id="PCB2v14.formatMeasurement"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.PCB2v14.formatMeasurement">[docs]</a>	<span class="k">def</span> <span class="nf">formatMeasurement</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">measurement</span><span class="p">):</span>
+		<span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">measurement</span><span class="p">))</span>
+		<span class="n">i_d</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+		<span class="n">v_gs</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+		<span class="n">v_ds</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+		<span class="n">i_g</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span> <span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">4</span><span class="p">)</span> <span class="k">else</span> <span class="mf">0.0</span>
+		<span class="k">return</span> <span class="p">{</span>
+			<span class="s1">&#39;V_ds&#39;</span><span class="p">:</span> <span class="n">v_ds</span><span class="p">,</span>
+			<span class="s1">&#39;I_d&#39;</span><span class="p">:</span>  <span class="n">i_d</span><span class="p">,</span>
+			<span class="s1">&#39;V_gs&#39;</span><span class="p">:</span> <span class="n">v_gs</span><span class="p">,</span>
+			<span class="s1">&#39;I_g&#39;</span><span class="p">:</span>  <span class="n">i_g</span>
+		<span class="p">}</span></div>
+
+<div class="viewcode-block" id="PCB2v14.setDevice"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.PCB2v14.setDevice">[docs]</a>	<span class="k">def</span> <span class="nf">setDevice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deviceID</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setParameter</span><span class="p">(</span><span class="s1">&#39;connect-intermediates !&#39;</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">getResponse</span><span class="p">(</span><span class="n">lines</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setParameter</span><span class="p">(</span><span class="s1">&#39;disconnect-all-from-all !&#39;</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">getResponse</span><span class="p">(</span><span class="n">lines</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+		<span class="n">contactPad1</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">deviceID</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+		<span class="n">contactPad2</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">deviceID</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+		<span class="n">intermediate1</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span><span class="p">(</span><span class="n">contactPad1</span> <span class="o">&lt;=</span> <span class="mi">32</span><span class="p">)</span> <span class="k">else</span> <span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+		<span class="n">intermediate2</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="k">if</span><span class="p">(</span><span class="n">contactPad2</span> <span class="o">&lt;=</span> <span class="mi">32</span><span class="p">)</span> <span class="k">else</span> <span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+		<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;connecting contact: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">contactPad1</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; to AMUX: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">intermediate1</span><span class="p">))</span>
+		<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;connecting contact: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">contactPad2</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; to AMUX: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">intermediate2</span><span class="p">))</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setParameter</span><span class="p">(</span><span class="s2">&quot;connect </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">contactPad1</span><span class="p">,</span> <span class="n">intermediate1</span><span class="p">))</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">getResponse</span><span class="p">(</span><span class="n">lines</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setParameter</span><span class="p">(</span><span class="s2">&quot;connect </span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">contactPad2</span><span class="p">,</span> <span class="n">intermediate2</span><span class="p">))</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">getResponse</span><span class="p">(</span><span class="n">lines</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setParameter</span><span class="p">(</span><span class="s2">&quot;calibrate-offset !&quot;</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">getResponse</span><span class="p">(</span><span class="n">startsWith</span><span class="o">=</span><span class="s1">&#39;#&#39;</span><span class="p">,</span> <span class="n">lines</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+		<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Switched to device: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">deviceID</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="PCB2v14.setVds"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.PCB2v14.setVds">[docs]</a>	<span class="k">def</span> <span class="nf">setVds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">voltage</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setParameter</span><span class="p">(</span><span class="s2">&quot;set-vds-mv </span><span class="si">{:.0f}</span><span class="s2">!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">voltage</span><span class="o">*</span><span class="mi">1000</span><span class="p">))</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">getResponse</span><span class="p">(</span><span class="n">startsWith</span><span class="o">=</span><span class="s1">&#39;#&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PCB2v14.setVgs"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.PCB2v14.setVgs">[docs]</a>	<span class="k">def</span> <span class="nf">setVgs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">voltage</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setParameter</span><span class="p">(</span><span class="s2">&quot;set-vgs-mv </span><span class="si">{:.0f}</span><span class="s2">!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">voltage</span><span class="o">*</span><span class="mi">1000</span><span class="p">))</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">getResponse</span><span class="p">(</span><span class="n">startsWith</span><span class="o">=</span><span class="s1">&#39;#&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PCB2v14.takeMeasurement"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.PCB2v14.takeMeasurement">[docs]</a>	<span class="k">def</span> <span class="nf">takeMeasurement</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">setParameter</span><span class="p">(</span><span class="s1">&#39;measure !&#39;</span><span class="p">)</span>
+		<span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getResponse</span><span class="p">(</span><span class="n">startsWith</span><span class="o">=</span><span class="s1">&#39;[&#39;</span><span class="p">,</span> <span class="n">printResponse</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+		<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;MEASURE: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">response</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">formatMeasurement</span><span class="p">(</span><span class="n">response</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PCB2v14.takeSweep"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.PCB2v14.takeSweep">[docs]</a>	<span class="k">def</span> <span class="nf">takeSweep</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src1start</span><span class="p">,</span> <span class="n">src1stop</span><span class="p">,</span> <span class="n">src2start</span><span class="p">,</span> <span class="n">src2stop</span><span class="p">,</span> <span class="n">points</span><span class="p">):</span>
+		<span class="n">vds_data</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="n">id_data</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="n">vgs_data</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="n">ig_data</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="n">points</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+
+		<span class="k">if</span><span class="p">(</span><span class="n">src1start</span> <span class="o">==</span> <span class="n">src1stop</span> <span class="ow">and</span> <span class="n">src2start</span> <span class="o">==</span> <span class="n">src2stop</span><span class="p">):</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">setParameter</span><span class="p">(</span><span class="s1">&#39;measure-multiple </span><span class="si">{:d}</span><span class="s1">!&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">points</span><span class="p">))</span>
+
+			<span class="n">timeToTakeMeasurements</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nplc</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">points</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">measurementsPerSecond</span><span class="p">)</span>
+			<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">1.5</span> <span class="o">*</span> <span class="n">timeToTakeMeasurements</span><span class="p">)</span>
+
+			<span class="k">while</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">in_waiting</span><span class="p">):</span>
+				<span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getResponse</span><span class="p">()</span>
+				<span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">formatMeasurement</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+				<span class="n">vds_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;V_ds&#39;</span><span class="p">])</span>
+				<span class="n">id_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;I_d&#39;</span><span class="p">])</span>
+				<span class="n">vgs_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;V_gs&#39;</span><span class="p">])</span>
+				<span class="n">ig_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;I_g&#39;</span><span class="p">])</span>
+
+			<span class="k">return</span> <span class="p">{</span>
+				<span class="s1">&#39;Vds_data&#39;</span><span class="p">:</span> <span class="n">vds_data</span><span class="p">,</span>
+				<span class="s1">&#39;Id_data&#39;</span><span class="p">:</span> <span class="n">id_data</span><span class="p">,</span>
+				<span class="s1">&#39;Vgs_data&#39;</span><span class="p">:</span> <span class="n">vgs_data</span><span class="p">,</span>
+				<span class="s1">&#39;Ig_data&#39;</span><span class="p">:</span> <span class="n">ig_data</span>
+			<span class="p">}</span>
+
+
+		<span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;PCB2v14 general sweep not implemented.&#39;</span><span class="p">)</span>
+
+		<span class="k">return</span> <span class="p">{</span>
+			<span class="s1">&#39;Vds_data&#39;</span><span class="p">:</span> <span class="n">vds_data</span><span class="p">,</span>
+			<span class="s1">&#39;Id_data&#39;</span><span class="p">:</span> <span class="n">id_data</span><span class="p">,</span>
+			<span class="s1">&#39;Vgs_data&#39;</span><span class="p">:</span> <span class="n">vgs_data</span><span class="p">,</span>
+			<span class="s1">&#39;Ig_data&#39;</span><span class="p">:</span> <span class="n">ig_data</span>
+		<span class="p">}</span></div>
+	
+<div class="viewcode-block" id="PCB2v14.disconnect"><a class="viewcode-back" href="../../../source.drivers.html#source.drivers.SourceMeasureUnit.PCB2v14.disconnect">[docs]</a>	<span class="k">def</span> <span class="nf">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">ser</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div></div>
+
+
+
+
+
+
+
+
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Steven Noyce
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

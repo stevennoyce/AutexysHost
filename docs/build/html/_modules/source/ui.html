@@ -1,0 +1,538 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>source.ui &mdash; Autexys 1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Autexys
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">source</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Autexys</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>source.ui</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for source.ui</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">io</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">flask</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">webbrowser</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="k">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">import</span> <span class="nn">defaults</span>
+<span class="kn">from</span> <span class="nn">procedures</span> <span class="k">import</span> <span class="n">Device_History</span> <span class="k">as</span> <span class="n">DH</span>
+<span class="kn">from</span> <span class="nn">utilities</span> <span class="k">import</span> <span class="n">DataLoggerUtility</span> <span class="k">as</span> <span class="n">dlu</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+	<span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+	
+	<span class="n">pathParents</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+	<span class="k">if</span> <span class="s1">&#39;AutexysHost&#39;</span> <span class="ow">in</span> <span class="n">pathParents</span><span class="p">:</span>
+		<span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">),</span> <span class="o">*</span><span class="n">pathParents</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">pathParents</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;AutexysHost&#39;</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;source&#39;</span><span class="p">))</span>
+
+
+<span class="c1"># Globals</span>
+<span class="n">pipeToManager</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="eprint"><a class="viewcode-back" href="../../source.html#source.ui.eprint">[docs]</a><span class="k">def</span> <span class="nf">eprint</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+	<span class="nb">print</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Sequence</span>
+
+<div class="viewcode-block" id="replaceInfNan"><a class="viewcode-back" href="../../source.html#source.ui.replaceInfNan">[docs]</a><span class="k">def</span> <span class="nf">replaceInfNan</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+	<span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+		<span class="k">if</span> <span class="n">obj</span> <span class="o">==</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;nan&#39;</span><span class="p">):</span>
+			<span class="k">return</span> <span class="kc">None</span>
+		<span class="k">if</span> <span class="n">obj</span> <span class="o">==</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">):</span>
+			<span class="k">return</span> <span class="mf">1e99</span>
+		<span class="k">if</span> <span class="n">obj</span> <span class="o">==</span> <span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">):</span>
+			<span class="k">return</span> <span class="o">-</span><span class="mf">1e99</span>
+		<span class="k">return</span> <span class="n">obj</span>
+	<span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+		<span class="k">return</span> <span class="n">obj</span>
+	<span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+		<span class="k">return</span> <span class="n">obj</span>
+	<span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">):</span>
+		<span class="k">return</span> <span class="p">[</span><span class="n">replaceInfNan</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">obj</span><span class="p">]</span>
+	<span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
+		<span class="k">return</span> <span class="nb">dict</span><span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="n">replaceInfNan</span><span class="p">(</span><span class="n">value</span><span class="p">))</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="k">return</span> <span class="n">obj</span></div>
+
+<div class="viewcode-block" id="jsonvalid"><a class="viewcode-back" href="../../source.html#source.ui.jsonvalid">[docs]</a><span class="k">def</span> <span class="nf">jsonvalid</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+	<span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">replaceInfNan</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span></div>
+
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">flask</span><span class="o">.</span><span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">static_url_path</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">static_folder</span><span class="o">=</span><span class="s1">&#39;ui&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="root"><a class="viewcode-back" href="../../source.html#source.ui.root">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">root</span><span class="p">():</span>
+	<span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;/ui/index.html&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="sendStatic"><a class="viewcode-back" href="../../source.html#source.ui.sendStatic">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/ui/&lt;path:path&gt;&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">sendStatic</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+	<span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">send_from_directory</span><span class="p">(</span><span class="s1">&#39;ui&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span></div>
+
+<span class="n">default_makePlot_parameters</span> <span class="o">=</span> <span class="p">{</span>
+	<span class="s1">&#39;startExperimentNumber&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+	<span class="s1">&#39;endExperimentNumber&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+	<span class="s1">&#39;specificPlot&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+	<span class="s1">&#39;figureSize&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+	<span class="s1">&#39;dataFolder&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+	<span class="s1">&#39;saveFolder&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+	<span class="s1">&#39;plotSaveName&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+	<span class="s1">&#39;saveFigures&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+	<span class="s1">&#39;showFigures&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+	<span class="s1">&#39;sweepDirection&#39;</span><span class="p">:</span> <span class="s1">&#39;both&#39;</span><span class="p">,</span>
+	<span class="s1">&#39;startRelativeIndex&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+	<span class="s1">&#39;endRelativeIndex&#39;</span><span class="p">:</span> <span class="mf">1e10</span><span class="p">,</span>
+	<span class="s1">&#39;plot_mode_parameters&#39;</span><span class="p">:</span> <span class="kc">None</span>
+<span class="p">}</span>
+
+<span class="n">default_data_path</span> <span class="o">=</span> <span class="s1">&#39;../../AutexysData/&#39;</span>
+
+<div class="viewcode-block" id="sendPlot"><a class="viewcode-back" href="../../source.html#source.ui.sendPlot">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/plots/&lt;user&gt;/&lt;project&gt;/&lt;wafer&gt;/&lt;chip&gt;/&lt;device&gt;/&lt;experiment&gt;/&lt;plotType&gt;&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">sendPlot</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">project</span><span class="p">,</span> <span class="n">wafer</span><span class="p">,</span> <span class="n">chip</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">experiment</span><span class="p">,</span> <span class="n">plotType</span><span class="p">):</span>
+	<span class="n">experiment</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+	
+	<span class="n">plotSettings</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">default_makePlot_parameters</span><span class="p">)</span>
+	<span class="n">receivedPlotSettings</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">flask</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;plotSettings&#39;</span><span class="p">))</span>
+	<span class="n">plotSettings</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">receivedPlotSettings</span><span class="p">)</span>
+	
+	<span class="n">filebuf</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>
+	
+	<span class="k">if</span> <span class="n">plotSettings</span><span class="p">[</span><span class="s1">&#39;startExperimentNumber&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+		<span class="n">plotSettings</span><span class="p">[</span><span class="s1">&#39;startExperimentNumber&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">experiment</span>
+	
+	<span class="k">if</span> <span class="n">plotSettings</span><span class="p">[</span><span class="s1">&#39;endExperimentNumber&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+		<span class="n">plotSettings</span><span class="p">[</span><span class="s1">&#39;endExperimentNumber&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">experiment</span>
+	
+	<span class="n">plotSettings</span><span class="p">[</span><span class="s1">&#39;plotSaveName&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">filebuf</span>
+	<span class="n">plotSettings</span><span class="p">[</span><span class="s1">&#39;saveFigures&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+	<span class="n">plotSettings</span><span class="p">[</span><span class="s1">&#39;showFigures&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+	<span class="n">plotSettings</span><span class="p">[</span><span class="s1">&#39;specificPlot&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">plotType</span>
+	
+	<span class="n">DH</span><span class="o">.</span><span class="n">makePlots</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">project</span><span class="p">,</span> <span class="n">wafer</span><span class="p">,</span> <span class="n">chip</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="o">**</span><span class="n">plotSettings</span><span class="p">)</span>
+	<span class="c1"># plt.savefig(mode_parameters[&#39;plotSaveName&#39;], transparent=True, dpi=pngDPI, format=&#39;png&#39;)</span>
+	<span class="n">filebuf</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">send_file</span><span class="p">(</span><span class="n">filebuf</span><span class="p">,</span> <span class="n">attachment_filename</span><span class="o">=</span><span class="s1">&#39;plot.png&#39;</span><span class="p">)</span></div>
+
+<span class="c1"># @app.route(&#39;/defaultPlotSettings.json&#39;)</span>
+<span class="c1"># def defaultPlotSettings():</span>
+<span class="c1"># 	settings = </span>
+<span class="c1"># 	return json.dumps(settings)</span>
+
+<div class="viewcode-block" id="users"><a class="viewcode-back" href="../../source.html#source.ui.users">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/users.json&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">users</span><span class="p">():</span>
+	<span class="n">paths</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">default_data_path</span><span class="p">,</span> <span class="s1">&#39;*/&#39;</span><span class="p">))</span>
+	<span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">p</span><span class="p">))</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">]</span>
+	<span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">names</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="projects"><a class="viewcode-back" href="../../source.html#source.ui.projects">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/&lt;user&gt;/projects.json&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">projects</span><span class="p">(</span><span class="n">user</span><span class="p">):</span>
+	<span class="n">paths</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">default_data_path</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="s1">&#39;*/&#39;</span><span class="p">))</span>
+	<span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">p</span><span class="p">))</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">]</span>
+	
+	<span class="n">projects</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">n</span><span class="p">}</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span><span class="p">]</span>
+	
+	<span class="k">return</span> <span class="n">jsonvalid</span><span class="p">(</span><span class="n">projects</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="indexes"><a class="viewcode-back" href="../../source.html#source.ui.indexes">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/&lt;user&gt;/&lt;project&gt;/indexes.json&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">indexes</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">project</span><span class="p">):</span>
+	<span class="n">indexObject</span> <span class="o">=</span> <span class="p">{}</span>
+	
+	<span class="n">waferPaths</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">default_data_path</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">project</span><span class="p">,</span> <span class="s1">&#39;*/&#39;</span><span class="p">))</span>
+	<span class="n">waferNames</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">p</span><span class="p">))</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">waferPaths</span><span class="p">]</span>
+	
+	<span class="k">for</span> <span class="n">waferPath</span><span class="p">,</span> <span class="n">waferName</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">waferPaths</span><span class="p">,</span> <span class="n">waferNames</span><span class="p">):</span>
+		<span class="n">indexObject</span><span class="p">[</span><span class="n">waferName</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+		<span class="n">chipPaths</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">waferPath</span> <span class="o">+</span> <span class="s1">&#39;/*/&#39;</span><span class="p">)</span>
+		<span class="n">chipNames</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">p</span><span class="p">))</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">chipPaths</span><span class="p">]</span>
+		
+		<span class="k">for</span> <span class="n">chipPath</span><span class="p">,</span> <span class="n">chipName</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">chipPaths</span><span class="p">,</span> <span class="n">chipNames</span><span class="p">):</span>
+			<span class="n">indexObject</span><span class="p">[</span><span class="n">waferName</span><span class="p">][</span><span class="n">chipName</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+			<span class="n">devicePaths</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">chipPath</span> <span class="o">+</span> <span class="s1">&#39;/*/index.json&#39;</span><span class="p">)</span>
+			<span class="n">deviceNames</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">p</span><span class="p">))</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">devicePaths</span><span class="p">]</span>
+			
+			<span class="k">for</span> <span class="n">devicePath</span><span class="p">,</span> <span class="n">deviceName</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">devicePaths</span><span class="p">,</span> <span class="n">deviceNames</span><span class="p">):</span>
+				<span class="n">indexObject</span><span class="p">[</span><span class="n">waferName</span><span class="p">][</span><span class="n">chipName</span><span class="p">][</span><span class="n">deviceName</span><span class="p">]</span> <span class="o">=</span> <span class="n">dlu</span><span class="o">.</span><span class="n">loadJSONIndex</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">devicePath</span><span class="p">))</span>
+	
+	<span class="k">return</span> <span class="n">jsonvalid</span><span class="p">(</span><span class="n">indexObject</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="wafers"><a class="viewcode-back" href="../../source.html#source.ui.wafers">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/&lt;user&gt;/&lt;project&gt;/wafers.json&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">wafers</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">project</span><span class="p">):</span>
+	<span class="n">paths</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">default_data_path</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">project</span><span class="p">,</span> <span class="s1">&#39;*/&#39;</span><span class="p">))</span>
+	<span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">p</span><span class="p">))</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">]</span>
+	<span class="n">modificationTimes</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">]</span>
+	<span class="n">sizes</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">]</span>
+	<span class="n">chipCounts</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">p</span> <span class="o">+</span> <span class="s1">&#39;/*/&#39;</span><span class="p">))</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">]</span>
+	
+	<span class="n">indexFileLists</span> <span class="o">=</span> <span class="p">[</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">p</span> <span class="o">+</span> <span class="s1">&#39;/**/index.json&#39;</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">]</span>
+	<span class="n">indexObjectLists</span> <span class="o">=</span> <span class="p">[[</span><span class="n">dlu</span><span class="o">.</span><span class="n">loadJSONIndex</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">indexFile</span><span class="p">))</span> <span class="k">for</span> <span class="n">indexFile</span> <span class="ow">in</span> <span class="n">indexFileList</span><span class="p">]</span> <span class="k">for</span> <span class="n">indexFileList</span> <span class="ow">in</span> <span class="n">indexFileLists</span><span class="p">]</span>
+	<span class="n">indexCounts</span> <span class="o">=</span> <span class="p">[</span><span class="nb">sum</span><span class="p">([(</span><span class="n">i</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;index&#39;</span> <span class="ow">in</span> <span class="n">i</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indexObjectList</span><span class="p">])</span> <span class="k">for</span> <span class="n">indexObjectList</span> <span class="ow">in</span> <span class="n">indexObjectLists</span><span class="p">]</span>
+	<span class="n">experimentCounts</span> <span class="o">=</span> <span class="p">[</span><span class="nb">sum</span><span class="p">([(</span><span class="n">i</span><span class="p">[</span><span class="s1">&#39;experimentNumber&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;experimentNumber&#39;</span> <span class="ow">in</span> <span class="n">i</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indexObjectList</span><span class="p">])</span> <span class="k">for</span> <span class="n">indexObjectList</span> <span class="ow">in</span> <span class="n">indexObjectLists</span><span class="p">]</span>
+	
+	<span class="n">wafers</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">n</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">p</span><span class="p">,</span> <span class="s1">&#39;modificationTime&#39;</span><span class="p">:</span> <span class="n">m</span><span class="p">,</span> <span class="s1">&#39;size&#39;</span><span class="p">:</span> <span class="n">s</span><span class="p">,</span> <span class="s1">&#39;chipCount&#39;</span><span class="p">:</span> <span class="n">c</span><span class="p">,</span> <span class="s1">&#39;indexCount&#39;</span><span class="p">:</span> <span class="n">ic</span><span class="p">,</span> <span class="s1">&#39;experimentCount&#39;</span><span class="p">:</span> <span class="n">ec</span><span class="p">}</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">ic</span><span class="p">,</span> <span class="n">ec</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">paths</span><span class="p">,</span> <span class="n">modificationTimes</span><span class="p">,</span> <span class="n">sizes</span><span class="p">,</span> <span class="n">chipCounts</span><span class="p">,</span> <span class="n">indexCounts</span><span class="p">,</span> <span class="n">experimentCounts</span><span class="p">)]</span>
+	
+	<span class="k">return</span> <span class="n">jsonvalid</span><span class="p">(</span><span class="n">wafers</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="chips"><a class="viewcode-back" href="../../source.html#source.ui.chips">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/&lt;user&gt;/&lt;project&gt;/&lt;wafer&gt;/chips.json&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">chips</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">project</span><span class="p">,</span> <span class="n">wafer</span><span class="p">):</span>
+	<span class="n">paths</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">default_data_path</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">project</span><span class="p">,</span> <span class="n">wafer</span><span class="p">,</span> <span class="s1">&#39;*/&#39;</span><span class="p">))</span>
+	<span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">p</span><span class="p">))</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">]</span>
+	<span class="n">modificationTimes</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">]</span>
+	<span class="n">sizes</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">]</span>
+	
+	<span class="n">subPathsList</span> <span class="o">=</span> <span class="p">[</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">p</span> <span class="o">+</span> <span class="s1">&#39;/*/&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">]</span>
+	<span class="n">deviceCounts</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">subPaths</span><span class="p">)</span> <span class="k">for</span> <span class="n">subPaths</span> <span class="ow">in</span> <span class="n">subPathsList</span><span class="p">]</span>
+	
+	<span class="n">indexObjectLists</span> <span class="o">=</span> <span class="p">[[</span><span class="n">dlu</span><span class="o">.</span><span class="n">loadJSONIndex</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">subPaths</span><span class="p">]</span> <span class="k">for</span> <span class="n">subPaths</span> <span class="ow">in</span> <span class="n">subPathsList</span><span class="p">]</span>
+	<span class="n">indexCounts</span> <span class="o">=</span> <span class="p">[</span><span class="nb">sum</span><span class="p">([(</span><span class="n">i</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;index&#39;</span> <span class="ow">in</span> <span class="n">i</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indexObjectList</span><span class="p">])</span> <span class="k">for</span> <span class="n">indexObjectList</span> <span class="ow">in</span> <span class="n">indexObjectLists</span><span class="p">]</span>
+	<span class="n">experimentCounts</span> <span class="o">=</span> <span class="p">[</span><span class="nb">sum</span><span class="p">([(</span><span class="n">i</span><span class="p">[</span><span class="s1">&#39;experimentNumber&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;experimentNumber&#39;</span> <span class="ow">in</span> <span class="n">i</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indexObjectList</span><span class="p">])</span> <span class="k">for</span> <span class="n">indexObjectList</span> <span class="ow">in</span> <span class="n">indexObjectLists</span><span class="p">]</span>
+	
+	<span class="n">chips</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">n</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">p</span><span class="p">,</span> <span class="s1">&#39;modificationTime&#39;</span><span class="p">:</span> <span class="n">m</span><span class="p">,</span> <span class="s1">&#39;size&#39;</span><span class="p">:</span> <span class="n">s</span><span class="p">,</span> <span class="s1">&#39;deviceCount&#39;</span><span class="p">:</span> <span class="n">d</span><span class="p">,</span> <span class="s1">&#39;indexCount&#39;</span><span class="p">:</span> <span class="n">ic</span><span class="p">,</span> <span class="s1">&#39;experimentCount&#39;</span><span class="p">:</span> <span class="n">ec</span><span class="p">}</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">ic</span><span class="p">,</span> <span class="n">ec</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">paths</span><span class="p">,</span> <span class="n">modificationTimes</span><span class="p">,</span> <span class="n">sizes</span><span class="p">,</span> <span class="n">deviceCounts</span><span class="p">,</span> <span class="n">indexCounts</span><span class="p">,</span> <span class="n">experimentCounts</span><span class="p">)]</span>
+	
+	<span class="k">return</span> <span class="n">jsonvalid</span><span class="p">(</span><span class="n">chips</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="devices"><a class="viewcode-back" href="../../source.html#source.ui.devices">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/&lt;user&gt;/&lt;project&gt;/&lt;wafer&gt;/&lt;chip&gt;/devices.json&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">devices</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">project</span><span class="p">,</span> <span class="n">wafer</span><span class="p">,</span> <span class="n">chip</span><span class="p">):</span>
+	<span class="n">paths</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">default_data_path</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">project</span><span class="p">,</span> <span class="n">wafer</span><span class="p">,</span> <span class="n">chip</span><span class="p">,</span> <span class="s1">&#39;*/&#39;</span><span class="p">))</span>
+	<span class="nb">print</span><span class="p">(</span><span class="n">paths</span><span class="p">)</span>
+	<span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">p</span><span class="p">))</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">]</span>
+	<span class="c1"># modificationTimes = [os.path.getmtime(p) for p in paths]</span>
+	<span class="n">modificationTimes</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="n">p</span><span class="o">+</span><span class="s1">&#39;ParametersHistory.json&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">p</span><span class="o">+</span><span class="s1">&#39;ParametersHistory.json&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">]</span>
+	<span class="c1"># sizes = [os.path.getsize(p) for p in paths]</span>
+	<span class="n">sizes</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">p</span><span class="o">+</span><span class="s1">&#39;ParametersHistory.json&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">p</span><span class="o">+</span><span class="s1">&#39;ParametersHistory.json&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">]</span>
+	
+	<span class="n">indexObjects</span> <span class="o">=</span> <span class="p">[</span><span class="n">dlu</span><span class="o">.</span><span class="n">loadJSONIndex</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">]</span>
+	<span class="n">indexCounts</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indexObjects</span><span class="p">]</span>
+	<span class="n">experimentCounts</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="s1">&#39;experimentNumber&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indexObjects</span><span class="p">]</span>
+	
+	<span class="n">devices</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">n</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">p</span><span class="p">,</span> <span class="s1">&#39;modificationTime&#39;</span><span class="p">:</span> <span class="n">m</span><span class="p">,</span> <span class="s1">&#39;size&#39;</span><span class="p">:</span> <span class="n">s</span><span class="p">,</span> <span class="s1">&#39;indexCount&#39;</span><span class="p">:</span> <span class="n">ic</span><span class="p">,</span> <span class="s1">&#39;experimentCount&#39;</span><span class="p">:</span> <span class="n">ec</span><span class="p">}</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">ic</span><span class="p">,</span> <span class="n">ec</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">paths</span><span class="p">,</span> <span class="n">modificationTimes</span><span class="p">,</span> <span class="n">sizes</span><span class="p">,</span> <span class="n">indexCounts</span><span class="p">,</span> <span class="n">experimentCounts</span><span class="p">)]</span>
+	
+	<span class="k">return</span> <span class="n">jsonvalid</span><span class="p">(</span><span class="n">devices</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="experiments"><a class="viewcode-back" href="../../source.html#source.ui.experiments">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/&lt;user&gt;/&lt;project&gt;/&lt;wafer&gt;/&lt;chip&gt;/&lt;device&gt;/experiments.json&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">experiments</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">project</span><span class="p">,</span> <span class="n">wafer</span><span class="p">,</span> <span class="n">chip</span><span class="p">,</span> <span class="n">device</span><span class="p">):</span>
+	<span class="n">folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">default_data_path</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">project</span><span class="p">,</span> <span class="n">wafer</span><span class="p">,</span> <span class="n">chip</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
+	<span class="n">files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">folder</span> <span class="o">+</span> <span class="s1">&#39;*.json&#39;</span><span class="p">)</span>
+	<span class="n">fileNames</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">]</span>
+	
+	<span class="n">parameters</span> <span class="o">=</span> <span class="n">dlu</span><span class="o">.</span><span class="n">loadJSON</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="s1">&#39;ParametersHistory.json&#39;</span><span class="p">)</span>
+	<span class="n">parameter_identifiers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;dataFolder&#39;</span><span class="p">:</span><span class="n">default_data_path</span><span class="p">,</span> <span class="s1">&#39;Identifiers&#39;</span><span class="p">:{</span><span class="s1">&#39;user&#39;</span><span class="p">:</span><span class="n">user</span><span class="p">,</span><span class="s1">&#39;project&#39;</span><span class="p">:</span><span class="n">project</span><span class="p">,</span><span class="s1">&#39;wafer&#39;</span><span class="p">:</span><span class="n">wafer</span><span class="p">,</span><span class="s1">&#39;chip&#39;</span><span class="p">:</span><span class="n">chip</span><span class="p">,</span><span class="s1">&#39;device&#39;</span><span class="p">:</span><span class="n">device</span><span class="p">}}</span>
+	
+	<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">parameters</span><span class="p">)):</span>
+		<span class="n">possiblePlots</span> <span class="o">=</span> <span class="n">DH</span><span class="o">.</span><span class="n">plotsForExperiments</span><span class="p">(</span><span class="n">parameter_identifiers</span><span class="p">,</span> <span class="n">minExperiment</span><span class="o">=</span><span class="n">parameters</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;startIndexes&#39;</span><span class="p">][</span><span class="s1">&#39;experimentNumber&#39;</span><span class="p">],</span> <span class="n">maxExperiment</span><span class="o">=</span><span class="n">parameters</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;startIndexes&#39;</span><span class="p">][</span><span class="s1">&#39;experimentNumber&#39;</span><span class="p">])</span>
+		<span class="n">parameters</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;possiblePlots&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">possiblePlots</span>
+	
+	<span class="c1"># experiments = [{&#39;name&#39;: n, &#39;path&#39;: p, &#39;modificationTime&#39;: m, &#39;size&#39;: s} for n, p, m, s in zip(names, paths, modificationTimes, sizes)]</span>
+	
+	<span class="k">return</span> <span class="n">jsonvalid</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span></div>
+	
+	<span class="c1"># return flask.Response(jsonvalid(parameters, allow_nan=False), mimetype=&#39;application/json&#39;)</span>
+
+<div class="viewcode-block" id="parametersDescription"><a class="viewcode-back" href="../../source.html#source.ui.parametersDescription">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/parametersDescription.json&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">parametersDescription</span><span class="p">():</span>
+	<span class="c1"># return flask.jsonify(defaults.default_parameters_description)</span>
+	<span class="k">return</span> <span class="n">jsonvalid</span><span class="p">(</span><span class="n">defaults</span><span class="o">.</span><span class="n">default_parameters</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="defaultParameters"><a class="viewcode-back" href="../../source.html#source.ui.defaultParameters">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/defaultParameters.json&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">defaultParameters</span><span class="p">():</span>
+	<span class="k">return</span> <span class="n">jsonvalid</span><span class="p">(</span><span class="n">defaults</span><span class="o">.</span><span class="n">get</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="saveSchedule"><a class="viewcode-back" href="../../source.html#source.ui.saveSchedule">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/saveSchedule/&lt;user&gt;/&lt;project&gt;/&lt;fileName&gt;&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">saveSchedule</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">project</span><span class="p">,</span> <span class="n">fileName</span><span class="p">):</span>
+	<span class="c1"># receivedJobs = json.loads(flask.request.args.get(&#39;jobs&#39;))</span>
+	<span class="n">receivedJobs</span> <span class="o">=</span> <span class="n">flask</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">(</span><span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+	
+	<span class="c1"># with open(os.path.join(default_data_path, user, project, &#39;schedules/&#39;, fileName + &#39;.json&#39;), &#39;w&#39;) as f:</span>
+	<span class="c1"># 	f.write(json.dumps(receivedJobs))</span>
+	
+	<span class="n">dlu</span><span class="o">.</span><span class="n">emptyFile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">default_data_path</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">project</span><span class="p">,</span> <span class="s1">&#39;schedules/&#39;</span><span class="p">),</span> <span class="n">fileName</span><span class="p">)</span>
+	<span class="k">for</span> <span class="n">job</span> <span class="ow">in</span> <span class="n">receivedJobs</span><span class="p">:</span>
+		<span class="n">dlu</span><span class="o">.</span><span class="n">saveJSON</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">default_data_path</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">project</span><span class="p">,</span> <span class="s1">&#39;schedules/&#39;</span><span class="p">),</span> <span class="n">fileName</span><span class="p">,</span> <span class="n">defaults</span><span class="o">.</span><span class="n">extractDefaults</span><span class="p">(</span><span class="n">job</span><span class="p">),</span> <span class="n">incrementIndex</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+	
+	<span class="k">return</span> <span class="n">jsonvalid</span><span class="p">({</span><span class="s1">&#39;success&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="loadSchedule"><a class="viewcode-back" href="../../source.html#source.ui.loadSchedule">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/scheduleFiles/&lt;user&gt;/&lt;project&gt;/&lt;fileName&gt;.json&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">loadSchedule</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">project</span><span class="p">,</span> <span class="n">fileName</span><span class="p">):</span>
+	<span class="n">scheduleData</span> <span class="o">=</span> <span class="n">dlu</span><span class="o">.</span><span class="n">loadJSON</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">default_data_path</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">project</span><span class="p">,</span> <span class="s1">&#39;schedules/&#39;</span><span class="p">),</span> <span class="n">fileName</span> <span class="o">+</span> <span class="s1">&#39;.json&#39;</span><span class="p">)</span>
+	
+	<span class="n">expandedScheduleData</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="k">for</span> <span class="n">job</span> <span class="ow">in</span> <span class="n">scheduleData</span><span class="p">:</span>
+		<span class="n">expandedScheduleData</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">defaults</span><span class="o">.</span><span class="n">full_with_added</span><span class="p">(</span><span class="n">job</span><span class="p">))</span>
+	
+	<span class="k">return</span> <span class="n">jsonvalid</span><span class="p">(</span><span class="n">expandedScheduleData</span><span class="p">)</span></div>
+
+<span class="k">def</span> <span class="nf">getSubDirectories</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+	<span class="k">return</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">g</span><span class="p">))</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">directory</span> <span class="o">+</span> <span class="s1">&#39;/*/&#39;</span><span class="p">)]</span>
+
+<div class="viewcode-block" id="dispatchSchedule"><a class="viewcode-back" href="../../source.html#source.ui.dispatchSchedule">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/dispatchSchedule/&lt;user&gt;/&lt;project&gt;/&lt;fileName&gt;.json&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">dispatchSchedule</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">project</span><span class="p">,</span> <span class="n">fileName</span><span class="p">):</span>
+	<span class="n">scheduleFilePath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">default_data_path</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">project</span><span class="p">,</span> <span class="s1">&#39;schedules&#39;</span><span class="p">,</span> <span class="n">fileName</span> <span class="o">+</span> <span class="s1">&#39;.json&#39;</span><span class="p">)</span>
+	<span class="n">eprint</span><span class="p">(</span><span class="s1">&#39;UI Sending RUN:&#39;</span><span class="p">)</span>
+	<span class="n">pipeToManager</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s1">&#39;RUN: &#39;</span> <span class="o">+</span> <span class="n">scheduleFilePath</span><span class="p">)</span>
+	<span class="n">eprint</span><span class="p">(</span><span class="s1">&#39;UI Sent RUN:&#39;</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">jsonvalid</span><span class="p">({</span><span class="s1">&#39;success&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="stopAtNextJob"><a class="viewcode-back" href="../../source.html#source.ui.stopAtNextJob">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/stopAtNextJob&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">stopAtNextJob</span><span class="p">():</span>
+	<span class="n">eprint</span><span class="p">(</span><span class="s1">&#39;UI stopping at next job&#39;</span><span class="p">)</span>
+	<span class="n">pipeToManager</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s1">&#39;STOP&#39;</span><span class="p">)</span>
+	
+	<span class="k">return</span> <span class="n">jsonvalid</span><span class="p">({</span><span class="s1">&#39;success&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="getSubDirectories"><a class="viewcode-back" href="../../source.html#source.ui.getSubDirectories">[docs]</a><span class="k">def</span> <span class="nf">getSubDirectories</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+		<span class="k">return</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">g</span><span class="p">))</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">directory</span> <span class="o">+</span> <span class="s1">&#39;/*/&#39;</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="loadScheduleNames"><a class="viewcode-back" href="../../source.html#source.ui.loadScheduleNames">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/scheduleNames.json&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">loadScheduleNames</span><span class="p">():</span>
+	<span class="n">scheduleNames</span> <span class="o">=</span> <span class="p">{}</span>
+	
+	<span class="k">for</span> <span class="n">userName</span> <span class="ow">in</span> <span class="n">getSubDirectories</span><span class="p">(</span><span class="n">default_data_path</span><span class="p">):</span>
+		<span class="n">userDirectory</span> <span class="o">=</span> <span class="n">userName</span>
+		<span class="n">scheduleNames</span><span class="p">[</span><span class="n">userName</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+		<span class="k">for</span> <span class="n">projectName</span> <span class="ow">in</span> <span class="n">getSubDirectories</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">default_data_path</span><span class="p">,</span> <span class="n">userDirectory</span><span class="p">)):</span>
+			<span class="n">projectDirectory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">userDirectory</span><span class="p">,</span> <span class="n">projectName</span><span class="p">)</span>
+			<span class="n">schedulePaths</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">default_data_path</span><span class="p">,</span> <span class="n">userName</span><span class="p">,</span> <span class="n">projectName</span><span class="p">,</span> <span class="s1">&#39;schedules/*.json&#39;</span><span class="p">))</span>
+			<span class="n">scheduleNames</span><span class="p">[</span><span class="n">userName</span><span class="p">][</span><span class="n">projectName</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">schedule</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">schedule</span> <span class="ow">in</span> <span class="n">schedulePaths</span><span class="p">]</span>
+	
+	<span class="k">return</span> <span class="n">jsonvalid</span><span class="p">(</span><span class="n">scheduleNames</span><span class="p">)</span></div>
+
+<span class="c1"># @app.after_request</span>
+<span class="c1"># def add_header(response):</span>
+<span class="c1"># 	# response.cache_control.max_age = 300</span>
+<span class="c1">#	# response.cache_control.no_store = True</span>
+<span class="c1">#	# if &#39;Cache-Control&#39; not in response.headers:</span>
+<span class="c1">#		# response.headers[&#39;Cache-Control&#39;] = &#39;no-store&#39;</span>
+<span class="c1">#	return response</span>
+
+
+<span class="kn">import</span> <span class="nn">socket</span>
+
+<div class="viewcode-block" id="findFirstOpenPort"><a class="viewcode-back" href="../../source.html#source.ui.findFirstOpenPort">[docs]</a><span class="k">def</span> <span class="nf">findFirstOpenPort</span><span class="p">(</span><span class="n">startPort</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+	<span class="k">for</span> <span class="n">port</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">startPort</span><span class="p">,</span> <span class="mi">8081</span><span class="p">):</span>
+		<span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SOCK_STREAM</span><span class="p">)</span> <span class="k">as</span> <span class="n">sock</span><span class="p">:</span>
+			<span class="k">try</span><span class="p">:</span>
+				<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Trying port </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">port</span><span class="p">))</span>
+				<span class="n">sock</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="n">port</span><span class="p">))</span>
+				<span class="n">sock</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+				<span class="k">return</span> <span class="n">port</span>
+			<span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+				<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Port </span><span class="si">{}</span><span class="s1"> is not available&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">port</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="start"><a class="viewcode-back" href="../../source.html#source.ui.start">[docs]</a><span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="n">managerPipe</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+	<span class="k">global</span> <span class="n">pipeToManager</span>
+	<span class="n">pipeToManager</span> <span class="o">=</span> <span class="n">managerPipe</span>
+	
+	<span class="k">if</span> <span class="s1">&#39;AutexysUIRunning&#39;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+		<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Reload detected. Not opening browser.&#39;</span><span class="p">)</span>
+		<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Still running on port </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;AutexysUIPort&#39;</span><span class="p">]))</span>
+		
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">port</span> <span class="o">=</span> <span class="n">findFirstOpenPort</span><span class="p">(</span><span class="n">startPort</span><span class="o">=</span><span class="mi">5000</span><span class="p">)</span>
+		<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Using port </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">port</span><span class="p">))</span>
+		
+		<span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;http://127.0.0.1:</span><span class="si">{}</span><span class="s1">/ui/index.html&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
+		
+		<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;AutexysUIRunning&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;True&#39;</span>
+		<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;AutexysUIPort&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
+		
+		<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Opening browser...&#39;</span><span class="p">)</span>
+		<span class="n">webbrowser</span><span class="o">.</span><span class="n">open_new</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+	
+	<span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">threaded</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;AutexysUIPort&#39;</span><span class="p">]))</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+	<span class="n">start</span><span class="p">()</span>
+
+
+
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Steven Noyce
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

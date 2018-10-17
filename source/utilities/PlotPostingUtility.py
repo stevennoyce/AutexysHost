@@ -1,3 +1,22 @@
+"""A deprecated utility."""
+
+	# Example of posting figures
+	# if(p['postFiguresGenerated']):
+	# 	parameters['startIndexes'] = {
+	# 		'index': max( parameters['excludeDataBeforeJSONIndex'], min(getIndexesForExperiments(directory, minExperiment=parameters['excludeDataBeforeJSONExperimentNumber'], maxExperiment=parameters['excludeDataAfterJSONExperimentNumber'])) ),
+	# 		'experimentNumber': parameters['excludeDataBeforeJSONExperimentNumber']
+	# 	}
+	# 	parameters['endIndexes'] = {
+	# 		'index': min( parameters['excludeDataAfterJSONIndex'], max(getIndexesForExperiments(directory, minExperiment=parameters['excludeDataBeforeJSONExperimentNumber'], maxExperiment=parameters['excludeDataAfterJSONExperimentNumber'])) ),
+	# 		'experimentNumber': min(parameters['excludeDataAfterJSONExperimentNumber'], dlu.loadJSONIndex(dlu.getDeviceDirectory(parameters))['experimentNumber'])
+	# 	} 
+
+	# 	dlu.makeFolder(parameters['postFolder'])
+	# 	dlu.emptyFolder(parameters['postFolder'])
+
+	# 	print('Posting plots online...')
+	# 	plotPoster.postPlots(parameters)
+
 import base64
 import requests
 import glob

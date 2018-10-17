@@ -140,6 +140,14 @@
 								<v-list-tile-title>Schedule Creator</v-list-tile-title>
 							</v-list-tile-content>
 						</v-list-tile>
+						<v-list-tile @click="setTopLevelPage('experimentRunner')">
+							<v-list-tile-action>
+								<v-icon>play_circle_outline</v-icon>
+							</v-list-tile-action>
+							<v-list-tile-content>
+								<v-list-tile-title>Experiment Runner</v-list-tile-title>
+							</v-list-tile-content>
+						</v-list-tile>
 						<v-list-tile @click="setTopLevelPage('settings')">
 							<v-list-tile-action>
 								<v-icon>settings</v-icon>
@@ -150,7 +158,7 @@
 						</v-list-tile>
 						<v-list-tile @click="setTopLevelPage('about')">
 							<v-list-tile-action>
-								<v-icon>info</v-icon>
+								<v-icon>info_outline</v-icon>
 							</v-list-tile-action>
 							<v-list-tile-content>
 								<v-list-tile-title>About</v-list-tile-title>
@@ -174,6 +182,11 @@
 										<v-text-field v-if="plotSettingTypes[plotSettingName]['type'] == 'array'" :label="plotSettingName" v-model="setPlotSettings[plotSettingName]"></v-text-field>
 										<v-text-field v-if="plotSettingTypes[plotSettingName]['type'] == 'object'" :label="plotSettingName" v-model="setPlotSettings[plotSettingName]"></v-text-field>
 										<v-select v-if="plotSettingTypes[plotSettingName]['type'] == 'choice'" :label="plotSettingName" :items="plotSettingTypes[plotSettingName]['choices']" v-model="setPlotSettings[plotSettingName]"></v-select>
+									</v-list-tile>
+									<v-list-tile>
+										<v-btn @click="setPlotSettings = JSON.parse(JSON.stringify(defaultPlotSettings))">Reset</v-btn>
+										<v-spacer></v-spacer>
+										<v-btn @click="updatePlotSettings()">Save</v-btn>
 									</v-list-tile>
 								</v-list>
 							</v-card>
@@ -318,7 +331,38 @@
 										</template>
 									</v-data-table>
 								</v-card>
+
+								<v-card v-if="stepperPage > 3 ">
+									<v-toolbar dark class="blue-grey darken-1">
+										<v-toolbar-title>
+											{{ wafer }}{{ chip }} Chip Summary Plots
+										</v-toolbar-title>
+									</v-toolbar>
+									
+									<!-- container gives a couple chip summary plots that present data from all experiments on this chip for comparisson (sn)-->
+									
+									<!-- <v-container fluid grid-list-sm>
+											<v-layout row wrap>
+												<v-flex xs12 sm6 md4 lg3 xl2 d-flex v-for="possiblePlot in experiment.possiblePlots">
+													<v-card class="ma-1" tile>
+														<v-toolbar dark class="blue-grey lighten-1">
+															<v-toolbar-title>
+																 {{ possiblePlot }}
+															</v-toolbar-title>
+														</v-toolbar> 
+														<div class="text-xs-center">
+															<zoomable-image :src="'/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(deviceSummaryPlotSettings))"></zoomable-image>
+														</div>
+													</v-card>
+												</v-flex>
+											</v-layout>
+									</v-container> -->
+
+								</v-card>
+
 							</v-stepper-content>
+
+
 							
 							<v-stepper-content step="5">
 								<v-card v-if="stepperPage > 4">
@@ -336,17 +380,46 @@
 										no-results-text="Your search did not return any results."
 										:custom-filter="customVDataTableFilter"
 										:pagination.sync="experimentTablePagination">
+
 										<template slot="items" slot-scope="props">
 											<tr @click="goToExperiment(props.item.i)">
 												<td>{{ props.item.startIndexes.experimentNumber }}</td>
 												<td>{{ props.item.runType }}</td>
 												<td>{{ props.item.MeasurementSystem.systemType }}</td>
 												<td>{{ props.item.uiComputed.indexCount }}</td>
+												
 											</tr>
 										</template>
+										
 									</v-data-table>
 								</v-card>
 								
+								<v-card v-if="stepperPage > 4">
+									<v-toolbar dark class="blue-grey darken-1">
+										<v-toolbar-title>
+											{{ wafer }}{{ chip }} {{ device }} Device Summary Plots
+										</v-toolbar-title>
+									</v-toolbar>
+									
+									<!-- container gives a couple summary plots that present data from all experiments on this device for comparisson (sn)-->
+									<!-- [Re: need to find way to use proper experiment item (nc)] Since we are doing a summary plot, there will essentially be one plot that shows all the experiments, instead of a plot for each experiment.  I may not have made that clear previously... In the end we may want a couple summary plots, but to begin with lets just get one working. (sn)-->
+									<v-container fluid grid-list-sm>
+											<!-- <v-layout row wrap>
+												<v-flex xs12 sm6 md4 lg3 xl2 d-flex v-for="possiblePlot in experiment.possiblePlots">
+													<v-card class="ma-1" tile>
+														<v-toolbar dark class="blue-grey lighten-1">
+															<v-toolbar-title>
+																 {{ possiblePlot }}
+															</v-toolbar-title>
+														</v-toolbar> 
+														<div class="text-xs-center">
+															<zoomable-image :src="'/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(deviceSummaryPlotSettings))"></zoomable-image>
+														</div>
+													</v-card>
+												</v-flex>
+											</v-layout> -->
+									</v-container>
+								</v-card>
 								
 							</v-stepper-content>
 							
@@ -372,6 +445,7 @@
 														<v-toolbar-title>
 															{{ possiblePlot }}
 														</v-toolbar-title>
+														<v-btn icon @click="copyHTMLImageToClip('/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings)))"><v-icon>photo</v-icon></v-btn>
 													</v-toolbar>
 													<div class="text-xs-center">
 														<!-- <img :src="'/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust" @click="console.log('clicked image')"> -->
@@ -423,133 +497,300 @@
 					</v-stepper>
 					
 					
-					<v-flex xs12 ma-4 v-if="topLevelPage == 'scheduleCreator'">
-						<v-card>
+					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'scheduleCreator'">
+						<v-card class="mb-3">
 							<v-toolbar dark class="blue-grey darken-1">
 								<v-toolbar-title>
-									Schedule Creator
+									Load Schedule File
+								</v-toolbar-title>
+							</v-toolbar>
+							<!-- <v-menu attach bottom left offset-y>
+								<v-btn slot="activator" flat>{{ scheduleSaveUser }}<v-icon right>people</v-icon></v-btn>
+								<v-list light>
+									<v-list-tile v-for="u in users" @click="scheduleSaveUser = u">
+										<v-list-tile-avatar color="blue-grey lighten-2"><v-icon dark>account_circle</v-icon></v-list-tile-avatar>
+										<v-list-tile-content><v-list-tile-title>{{ u }}</v-list-tile-title></v-list-tile-content>
+									</v-list-tile>
+								</v-list>
+							</v-menu> -->
+							
+							<v-form>
+								<v-container>
+									<v-layout row wrap>
+										<v-flex xs12 sm6 md4 lg3 outline>
+											<v-autocomplete clearable v-model="scheduleLoadUser" label="User" :items="Object.keys(scheduleNames)"></v-autocomplete>
+										</v-flex>
+										<v-flex xs12 sm6 md4 lg3 solo>
+											<v-autocomplete clearable v-model="scheduleLoadProject" label="Project" :items="_.keys(_.get(scheduleNames, [scheduleLoadUser], {}))"></v-autocomplete>
+										</v-flex>
+										<v-flex xs12 sm6 md4 lg3 solo>
+											<v-autocomplete clearable v-model="scheduleLoadFileName" label="File Name" :items="_.get(scheduleNames, [scheduleLoadUser, scheduleLoadProject], [])"></v-autocomplete>
+										</v-flex>
+									</v-layout>
+								</v-container>
+							</v-form>
+							
+							<v-card-actions>
+								<span v-if="scheduleLoadUser && scheduleLoadProject && scheduleLoadFileName">Loading from: AutexysData/{{ scheduleLoadUser }}/{{ scheduleLoadProject }}/schedules/{{ scheduleLoadFileName }}.json</span>
+								<v-spacer></v-spacer>
+								<v-btn @click="loadSchedule()">Load Schedule File</v-btn>
+							</v-card-actions>
+						</v-card>
+						
+						
+						<v-card class="mb-3">
+							<v-toolbar dark class="blue-grey darken-1">
+								<v-toolbar-title>
+									Define Jobs
 								</v-toolbar-title>
 								<v-spacer></v-spacer>
-								<v-btn icon @click="parameters = JSON.parse(JSON.stringify(defaultParameters))">
+								<v-btn icon @click="scheduleObjects = [JSON.parse(JSON.stringify(scheduleObjectDefault))]">
 									<v-icon>settings_backup_restore</v-icon>
 								</v-btn>
 							</v-toolbar>
-							<v-container fluid grid-list-md>
-								<v-layout row wrap>
-									
-									<v-flex xs12 sm6 md4 lg3 xl2 d-flex>
-										<v-card ma-1 tile>
-											<v-toolbar dark class="blue-grey lighten-1">
-												<v-toolbar-title>
-													Parameters
-												</v-toolbar-title>
-											</v-toolbar>
+							
+							
+							<v-list expand>
+								<v-list-group v-for="scheduleObject, scheduleObjectIndex in scheduleObjects" :key="scheduleObjectIndex">
+									<v-list-tile slot="activator">
+										<v-list-tile-content>
+											<v-list-tile-title>
+												Job {{ scheduleObjectIndex + 1 }}: {{ _.get(scheduleObjects[scheduleObjectIndex], 'runType.default') }}
+											</v-list-tile-title>
+										</v-list-tile-content>
+										<v-list-tile-action>
+											<v-tooltip top>
+												<v-btn icon @click.stop="moveScheduleJobUp(scheduleObjectIndex)" slot="activator" :disabled="scheduleObjectIndex == 0"><v-icon>arrow_upward</v-icon></v-btn>
+												<span>Move job up</span>
+											</v-tooltip>
+										</v-list-tile-action>
+										<v-list-tile-action>
+											<v-tooltip top>
+												<v-btn icon @click.stop="moveScheduleJobDown(scheduleObjectIndex)" slot="activator" :disabled="scheduleObjectIndex >= scheduleObjects.length - 1"><v-icon>arrow_downward</v-icon></v-btn>
+												<span>Move job down</span>
+											</v-tooltip>
+										</v-list-tile-action>
+										<v-list-tile-action>
+											<v-tooltip top>
+												<v-btn icon @click.stop="copyScheduleObject(scheduleObjectIndex)" slot="activator"><v-icon>file_copy</v-icon></v-btn>
+												<span>Copy job</span>
+											</v-tooltip>
+										</v-list-tile-action>
+										<v-list-tile-action>
+											<v-tooltip top>
+												<v-btn icon @click.stop="pasteScheduleObject(scheduleObjectIndex)" slot="activator"><v-icon>save_alt</v-icon></v-btn>
+												<span>Paste job</span>
+											</v-tooltip>
+										</v-list-tile-action>
+										<v-list-tile-action>
+											<v-tooltip top>
+												<v-btn icon @click.stop="addScheduleJob(scheduleObjectIndex)" slot="activator"><v-icon>add_circle</v-icon></v-btn>
+												<span>Add new job after</span>
+											</v-tooltip>
+										</v-list-tile-action>
+										<v-list-tile-action>
+											<v-tooltip top>
+												<v-btn icon @click.stop="resetScheduleJob(scheduleObjectIndex)" slot="activator"><v-icon>settings_backup_restore</v-icon></v-btn>
+												<span>Reset job settings to defaults</span>
+											</v-tooltip>
+										</v-list-tile-action>
+										<v-list-tile-action>
+											<v-tooltip top>
+												<v-btn icon @click.stop="removeScheduleJob(scheduleObjectIndex)" slot="activator"><v-icon>cancel</v-icon></v-btn>
+												<span>Delete job</span>
+											</v-tooltip>
+										</v-list-tile-action>
+									</v-list-tile>
+									<v-container fluid grid-list-md>
+										<v-layout row wrap>
 											
-											<v-list>
-												<v-select box class="ma-3" label="Run Type" v-model="parameters['runType']" :items="Object.keys(parametersDescription['runConfigs'])"></v-select>
-												<v-subheader>Identifiers</v-subheader>
-												<v-list-tile v-for="(settingDescription, settingName) in parametersDescription['Identifiers']" v-if="['bool','float','int','string','choice'].includes(settingDescription.type)">
-													<v-switch v-if="settingDescription.type == 'bool'" :label="settingName" v-model="parameters['Identifiers'][settingName]"></v-switch>
-													<v-text-field v-if="settingDescription.type == 'float'" :label="settingName" v-model.number="parameters['Identifiers'][settingName]"></v-text-field>
-													<v-text-field v-if="settingDescription.type == 'int'" :label="settingName" v-model.number="parameters['Identifiers'][settingName]"></v-text-field>
-													<v-text-field v-if="settingDescription.type == 'string'" :label="settingName" v-model="parameters['Identifiers'][settingName]"></v-text-field>
-													<v-select v-if="settingDescription.type == 'choice'" :label="settingName"  v-model="parameters['Identifiers'][settingName]" :items="settingDescription.choices"></v-select>
-												</v-list-tile>
-												
-												<v-subheader>Measurement System</v-subheader>
-												<v-list-tile v-for="(settingDescription, settingName) in parametersDescription['MeasurementSystem']" v-if="['bool','float','int','string','choice'].includes(settingDescription.type)">
-													<v-switch v-if="settingDescription.type == 'bool'" :label="settingName"
-														v-model="defaultParameters['MeasurementSystem'][settingName]"></v-switch>
-													<v-text-field v-if="settingDescription.type == 'float'" :label="settingName"
-														v-model="defaultParameters['MeasurementSystem'][settingName]"></v-text-field>
-													<v-text-field v-if="settingDescription.type == 'int'" :label="settingName"
-														v-model="defaultParameters['MeasurementSystem'][settingName]"></v-text-field>
-													<v-text-field v-if="settingDescription.type == 'string'" :label="settingName"
-														v-model="defaultParameters['MeasurementSystem'][settingName]"></v-text-field>
-													<v-select v-if="settingDescription.type == 'choice'" :label="settingName" :items="settingDescription.choices"
-														v-model="defaultParameters['MeasurementSystem'][settingName]"></v-select>
-												</v-list-tile>
-											</v-list>
-										</v-card>
-									</v-flex>
-									
-									<v-flex xs12 sm6 md4 lg3 xl2 d-flex v-if="runType">
-										<v-card ma-1 tile>
-											<v-toolbar dark class="blue-grey lighten-1">
-												<v-toolbar-title>
-													{{ runType }}
-												</v-toolbar-title>
-												<v-spacer></v-spacer>
-												<v-btn icon @click="parameters['runConfigs'][runType] = JSON.parse(JSON.stringify(defaultParameters['runConfigs'][runType]))">
-													<v-icon>settings_backup_restore</v-icon>
-												</v-btn>
-											</v-toolbar>
-											<v-list>
-												<v-list-tile v-for="(settingDescription, settingName) in parametersDescription['runConfigs'][runType]" v-if="['bool','float','int','string','choice'].includes(settingDescription.type)">
-													<v-switch v-if="settingDescription.type == 'bool'" :label="settingName"
-														v-model="parameters['runConfigs'][runType][settingName]"></v-switch>
-													<v-text-field v-if="settingDescription.type == 'float'" :label="settingName" :suffix="' ('+_.get(settingDescription,['units'])+')'"
-														v-model.number="parameters['runConfigs'][runType][settingName]"></v-text-field>
-													<v-text-field v-if="settingDescription.type == 'int'" :label="settingName + ' ('+_.get(settingDescription,['units'])+')'"
-														v-model.number="parameters['runConfigs'][runType][settingName]" clearable>
-															<v-icon slot="append" @click="parameters['runConfigs'][runType][settingName] = JSON.parse(JSON.stringify(defaultParameters['runConfigs'][runType][settingName]))" v-if="JSON.parse(JSON.stringify(parameters['runConfigs'][runType][settingName])) != JSON.parse(JSON.stringify(defaultParameters['runConfigs'][runType][settingName]))">settings_backup_restore</v-icon>
-														</v-text-field>
-													<v-text-field v-if="settingDescription.type == 'string'" :label="settingName"
-														v-model="parameters['runConfigs'][runType][settingName]"></v-text-field>
-													<v-select v-if="settingDescription.type == 'choice'" :label="settingName" :items="settingDescription.choices"
-														v-model="parameters['runConfigs'][runType][settingName]"></v-select>
-												</v-list-tile>
-											</v-list>
-										</v-card>
-									</v-flex>
-									
-									<v-flex xs12 sm6 md4 lg3 xl2 d-flex v-for="dependency in _.get(parametersDescription, ['runConfigs', runType, 'dependencies'])">
-										<v-card ma-1 tile>
-											<v-toolbar dark class="blue-grey lighten-1">
-												<v-toolbar-title>
-													{{ dependency }}
-												</v-toolbar-title>
-												<v-spacer></v-spacer>
-												<v-btn icon @click="parameters['runConfigs'][dependency] = JSON.parse(JSON.stringify(defaultParameters['runConfigs'][dependency]))">
-													<v-icon>settings_backup_restore</v-icon>
-												</v-btn>
-											</v-toolbar>
-											<v-list>
-												<v-list-tile v-for="(settingDescription, settingName) in parametersDescription['runConfigs'][dependency]" v-if="['bool','float','int','string','choice'].includes(settingDescription.type)">
-													<v-switch v-if="settingDescription.type == 'bool'" :label="settingName"
-														v-model="parameters['runConfigs'][dependency][settingName]"></v-switch>
-													<v-text-field v-if="settingDescription.type == 'float'" :label="settingName" :suffix="' ('+_.get(settingDescription,['units'])+')'"
-														v-model.number="parameters['runConfigs'][dependency][settingName]"></v-text-field>
-													<v-text-field v-if="settingDescription.type == 'int'" :label="settingName" :suffix="' ('+_.get(settingDescription,['units'])+')'"
-														v-model.number="parameters['runConfigs'][dependency][settingName]"></v-text-field>
-													<v-text-field v-if="settingDescription.type == 'string'" :label="settingName"
-														v-model="parameters['runConfigs'][dependency][settingName]"></v-text-field>
-													<v-select v-if="settingDescription.type == 'choice'" :label="settingName" :items="settingDescription.choices"
-														v-model="parameters['runConfigs'][dependency][settingName]"></v-select>
-												</v-list-tile>
-											</v-list>
-										</v-card>
-									</v-flex>
-									
-									<v-flex xs12 sm6 md4 lg3 xl2 d-flex>
-										<v-card ma-1 tile>
-											<v-toolbar dark class="blue-grey lighten-1">
-												<v-toolbar-title>
-													Schedule File
-												</v-toolbar-title>
-											</v-toolbar>
-											<p>
-												{{ scheduleLine }}
-											</p>
-										</v-card>
-									</v-flex>
-									
-								</v-layout>
-							</v-container>
+											<v-flex xs12 sm6 md4 lg3 xl2 d-flex>
+												<v-card ma-1 tile>
+													<v-toolbar dark class="blue-grey lighten-1">
+														<v-toolbar-title>
+															Parameters
+														</v-toolbar-title>
+													</v-toolbar>
+													
+													<v-list>
+														<v-select box class="ma-3" label="Run Type" v-model="scheduleObjects[scheduleObjectIndex]['runType']['default']" :items="Object.keys(scheduleObjectDefault['runConfigs'])"></v-select>
+														<v-subheader>Identifiers</v-subheader>
+														<v-list-tile v-for="(settingDescription, settingName) in scheduleObjectDefault['Identifiers']" v-if="['bool','float','int','string','choice'].includes(settingDescription.type)">
+															<v-switch v-if="settingDescription.type == 'bool'" :label="settingName" v-model="scheduleObjects[scheduleObjectIndex]['Identifiers'][settingName]['default']"></v-switch>
+															<v-text-field v-if="settingDescription.type == 'float'" :label="settingName" v-model.number="scheduleObjects[scheduleObjectIndex]['Identifiers'][settingName]['default']"></v-text-field>
+															<v-text-field v-if="settingDescription.type == 'int'" :label="settingName" v-model.number="scheduleObjects[scheduleObjectIndex]['Identifiers'][settingName]['default']"></v-text-field>
+															<v-text-field v-if="settingDescription.type == 'string'" :label="settingName" v-model="scheduleObjects[scheduleObjectIndex]['Identifiers'][settingName]['default']"></v-text-field>
+															<v-select v-if="settingDescription.type == 'choice'" :label="settingName"  v-model="scheduleObjects[scheduleObjectIndex]['Identifiers'][settingName]['default']" :items="settingDescription.choices"></v-select>
+														</v-list-tile>
+														
+														<v-subheader>Measurement System</v-subheader>
+														<v-list-tile v-for="(settingDescription, settingName) in scheduleObjectDefault['MeasurementSystem']" v-if="['bool','float','int','string','choice','array'].includes(settingDescription.type)" style="overflow:scroll; overscroll-behavior: contain">
+															<v-switch v-if="settingDescription.type == 'bool'" :label="settingName"
+																v-model="scheduleObjects[scheduleObjectIndex]['MeasurementSystem'][settingName]['default']"></v-switch>
+															<v-text-field v-if="settingDescription.type == 'float'" :label="settingName"
+																v-model="scheduleObjects[scheduleObjectIndex]['MeasurementSystem'][settingName]['default']"></v-text-field>
+															<v-text-field v-if="settingDescription.type == 'int'" :label="settingName"
+																v-model="scheduleObjects[scheduleObjectIndex]['MeasurementSystem'][settingName]['default']"></v-text-field>
+															<v-text-field v-if="settingDescription.type == 'string'" :label="settingName"
+																v-model="scheduleObjects[scheduleObjectIndex]['MeasurementSystem'][settingName]['default']"></v-text-field>
+															<v-select v-if="settingDescription.type == 'choice'" :label="settingName" :items="settingDescription.choices"
+																v-model="scheduleObjects[scheduleObjectIndex]['MeasurementSystem'][settingName]['default']"></v-select>
+															<v-combobox v-if="settingDescription.type == 'array'" :label="settingName"
+																v-model="scheduleObjects[scheduleObjectIndex]['MeasurementSystem'][settingName]['default']" :items="scheduleObjects[scheduleObjectIndex]['MeasurementSystem'][settingName]['choices']" multiple small-chips></v-combobox>
+														</v-list-tile>
+													</v-list>
+												</v-card>
+											</v-flex>
+											
+											<v-flex xs12 sm6 md4 lg3 xl2 d-flex v-if="scheduleObjects[scheduleObjectIndex]['runType']['default'] != ''">
+												<v-card ma-1 tile>
+													<v-toolbar dark class="blue-grey lighten-1">
+														<v-toolbar-title>
+															{{ scheduleObjects[scheduleObjectIndex]['runType']['default'] }}
+														</v-toolbar-title>
+														<v-spacer></v-spacer>
+														<v-btn icon @click="scheduleObjects[scheduleObjectIndex]['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']] = JSON.parse(JSON.stringify(scheduleObjectDefault['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']]))">
+															<v-icon>settings_backup_restore</v-icon>
+														</v-btn>
+													</v-toolbar>
+													<v-list>
+														<v-list-tile v-for="(settingDescription, settingName) in scheduleObjectDefault['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']]" v-if="['bool','float','int','string','choice'].includes(settingDescription.type)">
+															<v-switch v-if="settingDescription.type == 'bool'" :label="settingName"
+																v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]['default']"></v-switch>
+															<v-text-field v-if="settingDescription.type == 'float'" :label="settingName" :suffix="' ('+_.get(settingDescription,['units'])+')'"
+																v-model.number="scheduleObjects[scheduleObjectIndex]['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]['default']"></v-text-field>
+															<v-text-field v-if="settingDescription.type == 'int'" :label="settingName + ' ('+_.get(settingDescription,['units'])+')'"
+																v-model.number="scheduleObjects[scheduleObjectIndex]['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]['default']" clearable>
+																	<v-icon slot="append" @click="scheduleObjects[scheduleObjectIndex]['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]['default'] = JSON.parse(JSON.stringify(scheduleObjectDefault['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]['default']))" v-if="JSON.parse(JSON.stringify(scheduleObjects[scheduleObjectIndex]['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]['default'])) != JSON.parse(JSON.stringify(scheduleObjectDefault['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]['default']))">settings_backup_restore</v-icon>
+																</v-text-field>
+															<v-text-field v-if="settingDescription.type == 'string'" :label="settingName"
+																v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]['default']"></v-text-field>
+															<v-select v-if="settingDescription.type == 'choice'" :label="settingName" :items="settingDescription.choices"
+																v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]['default']"></v-select>
+														</v-list-tile>
+													</v-list>
+												</v-card>
+											</v-flex>
+											
+											<v-flex xs12 sm6 md4 lg3 xl2 d-flex v-for="dependency in _.get(scheduleObjectDefault, ['runConfigs', runType, 'dependencies', 'value'])">
+												<v-card ma-1 tile>
+													<v-toolbar dark class="blue-grey lighten-1">
+														<v-toolbar-title>
+															{{ dependency }}
+														</v-toolbar-title>
+														<v-spacer></v-spacer>
+														<v-btn icon @click="scheduleObjects[scheduleObjectIndex]['runConfigs'][dependency] = JSON.parse(JSON.stringify(scheduleObjectDefault['runConfigs'][dependency]))">
+															<v-icon>settings_backup_restore</v-icon>
+														</v-btn>
+													</v-toolbar>
+													<v-list>
+														<v-list-tile v-for="(settingDescription, settingName) in scheduleObjectDefault['runConfigs'][dependency]" v-if="['bool','float','int','string','choice'].includes(settingDescription.type)">
+															<v-switch v-if="settingDescription.type == 'bool'" :label="settingName"
+																v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][dependency][settingName]['default']"></v-switch>
+															<v-text-field v-if="settingDescription.type == 'float'" :label="settingName" :suffix="' ('+_.get(settingDescription,['units'])+')'"
+																v-model.number="scheduleObjects[scheduleObjectIndex]['runConfigs'][dependency][settingName]['default']"></v-text-field>
+															<v-text-field v-if="settingDescription.type == 'int'" :label="settingName" :suffix="' ('+_.get(settingDescription,['units'])+')'"
+																v-model.number="scheduleObjects[scheduleObjectIndex]['runConfigs'][dependency][settingName]['default']"></v-text-field>
+															<v-text-field v-if="settingDescription.type == 'string'" :label="settingName"
+																v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][dependency][settingName]['default']"></v-text-field>
+															<v-select v-if="settingDescription.type == 'choice'" :label="settingName" :items="settingDescription.choices"
+																v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][dependency][settingName]['default']"></v-select>
+														</v-list-tile>
+													</v-list>
+												</v-card>
+											</v-flex>
+										</v-layout>
+									</v-container>
+								</v-list-group>
+							</v-list>
+							<!-- <v-btn fab small dark bottom right absolute @click="addScheduleJob()"><v-icon>add</v-icon></v-btn> -->
 						</v-card>
+						
+						<v-card class="mb-3" tile>
+							<v-toolbar dark class="blue-grey darken-1">
+								<v-toolbar-title>
+									Preview Schedule File
+								</v-toolbar-title>
+							</v-toolbar>
+							<v-card-text class="text-no-wrap" style="overflow-x: scroll">
+								<template v-for="schedLine in scheduleLines">
+									{{ schedLine }} <br>
+								</template>
+							</v-card-text>
+							
+							<v-card v-for="scheduleObject, scheduleObjectIndex in scheduleObjects">
+								<v-chip color="secondary" text-color="white" v-if="scheduleObject['runType']['default'] != ''">
+									{{ scheduleObject['runType']['default'] }}
+								</v-chip>
+								<v-chip color="primary" text-color="white" v-for="(settingDescription, settingName) in scheduleObjectDefault['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']]" v-if="scheduleObjects[scheduleObjectIndex]['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]['default'] != scheduleObjectDefault['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]['default']">
+									{{ settingName }}
+								</v-chip>
+							</v-card>
+						</v-card>
+						
+						<v-card class="mb-3" tile>
+							<v-toolbar dark class="blue-grey darken-1">
+								<v-toolbar-title>
+									Save Schedule File
+								</v-toolbar-title>
+							</v-toolbar>
+							
+							<v-form>
+								<v-container>
+									<v-layout row wrap>
+										<v-flex xs12 sm6 md4 lg3 outline>
+											<v-combobox clearable v-model="scheduleSaveUser" label="User" :items="Object.keys(scheduleNames)">
+												<template slot="no-data">
+													<v-list-tile>
+														<v-list-tile-content>
+															<v-list-tile-title>
+																No results. Continuing will create a new user.
+															</v-list-tile-title>
+														</v-list-tile-content>
+												  	</v-list-tile>
+												</template>
+											</v-combobox>
+										</v-flex>
+										<v-flex xs12 sm6 md4 lg3 solo>
+											<v-combobox clearable v-model="scheduleSaveProject" label="Project" :items="_.keys(_.get(scheduleNames, [scheduleSaveUser], {}))">
+												<template slot="no-data">
+													<v-list-tile>
+														<v-list-tile-content>
+															<v-list-tile-title>
+																No results. Continuing will create a new project.
+															</v-list-tile-title>
+														</v-list-tile-content>
+												  	</v-list-tile>
+												</template>
+											</v-combobox>
+										</v-flex>
+										<v-flex xs12 sm6 md4 lg3 solo>
+											<v-combobox clearable v-model="scheduleSaveFileName" label="File Name" :items="_.get(scheduleNames, [scheduleSaveUser, scheduleSaveProject], [])">
+												<template slot="no-data">
+													<v-list-tile>
+														<v-list-tile-content>
+															<v-list-tile-title>
+																No results. Continuing will create a new file.
+															</v-list-tile-title>
+														</v-list-tile-content>
+												  	</v-list-tile>
+												</template>
+											</v-combobox>
+										</v-flex>
+									</v-layout>
+								</v-container>
+							</v-form>
+							
+							<v-card-actions>
+								<span v-if="scheduleSaveUser && scheduleSaveProject && scheduleSaveFileName">Saving to: AutexysData/{{ scheduleSaveUser }}/{{ scheduleSaveProject }}/schedules/{{ scheduleSaveFileName }}.json</span>
+								<v-spacer></v-spacer>
+								<v-btn @click="saveSchedule()">Save Schedule File</v-btn>
+							</v-card-actions>
+						</v-card>
+						
 					</v-flex>
 					
-					<v-flex xs12 ma-4 v-if="topLevelPage == 'settings'">
+					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'settings'">
 						<v-card>
 							<v-toolbar dark class="blue-grey darken-1">
 								<v-toolbar-title>
@@ -564,7 +805,7 @@
 						</v-card>
 					</v-flex>
 					
-					<v-flex xs12 ma-4 v-if="topLevelPage == 'dashboard'">
+					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'dashboard'">
 						<v-card>
 							<v-toolbar dark class="blue-grey darken-1">
 								<v-toolbar-title>
@@ -579,7 +820,7 @@
 						</v-card>
 					</v-flex>
 					
-					<v-flex xs12 ma-4 v-if="topLevelPage == 'about'">
+					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'about'">
 						<v-card>
 							<v-toolbar dark class="blue-grey darken-1">
 								<v-toolbar-title>
@@ -590,6 +831,42 @@
 								<p>
 									Autexys - the Automated Experimentation System
 								</p>
+							</v-container>
+						</v-card>
+					</v-flex>
+					
+					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'experimentRunner'">
+						<v-card>
+							<v-toolbar dark class="blue-grey darken-1">
+								<v-toolbar-title>
+									Experiment Runner
+								</v-toolbar-title>
+							</v-toolbar>
+							<v-container>
+								
+								<v-form>
+									<v-container>
+										<v-layout row wrap>
+											<v-flex xs12 sm6 md4 lg3 outline>
+												<v-autocomplete clearable v-model="scheduleExperimentUser" label="User" :items="Object.keys(scheduleNames)"></v-autocomplete>
+											</v-flex>
+											<v-flex xs12 sm6 md4 lg3 solo>
+												<v-autocomplete clearable v-model="scheduleExperimentProject" label="Project" :items="_.keys(_.get(scheduleNames, [scheduleExperimentUser], {}))"></v-autocomplete>
+											</v-flex>
+											<v-flex xs12 sm6 md4 lg3 solo>
+												<v-autocomplete clearable v-model="scheduleExperimentFileName" label="File Name" :items="_.get(scheduleNames, [scheduleExperimentUser, scheduleExperimentProject], [])"></v-autocomplete>
+											</v-flex>
+										</v-layout>
+									</v-container>
+								</v-form>
+								
+								<v-card-actions>
+									<span v-if="scheduleExperimentUser && scheduleExperimentProject && scheduleExperimentFileName">Launch file: AutexysData/{{ scheduleExperimentUser }}/{{ scheduleExperimentProject }}/schedules/{{ scheduleExperimentFileName }}.json</span>
+									<v-spacer></v-spacer>
+									<v-btn @click="dispatchSchedule()">Launch Experiments in Schedule File</v-btn>
+									<v-btn @click="stopAtNextJob()">Stop at Next Job</v-btn>
+								</v-card-actions>
+								
 							</v-container>
 						</v-card>
 					</v-flex>
@@ -609,7 +886,6 @@
 	<script src="/ui/vuetify.js"></script>
 	<script type="text/javascript">
 		
-		
 		function groupBy(elements, groupKey) {
 			return elements.reduce(function(rv, x) {
 				(rv[x[groupKey]] = rv[x[groupKey]] || []).push(x);
@@ -628,6 +904,24 @@
 				});
 			}
 			return changes(object, base);
+		}
+		
+		function extractDefaults(obj) {
+			var d = JSON.parse(JSON.stringify(obj));
+			
+			if (!_.isPlainObject(d)) {
+				return d;
+			}
+			if (Object.keys(d).includes('default')) {
+				console.log('returning the default');
+				return d['default'];
+			}
+			if (_.isPlainObject(d) && Object.keys(d).length > 0) {
+				return Object.assign(...Object.entries(d)
+					.filter(([k, v]) => (!Object.keys(v).includes('ignore')))
+					.map(([k, v]) => ({[k]: extractDefaults(v)})));
+			}
+			return d;
 		}
 		
 		Vue.component('zoomable-image', {
@@ -660,7 +954,6 @@
 					'endExperimentNumber': null,
 					'figureSize': null,
 					'sweepDirection': 'both',
-					'plotInRealTime': true,
 					'startRelativeIndex': 0,
 					'endRelativeIndex': 1e10,
 					'plot_mode_parameters': null
@@ -671,7 +964,16 @@
 					'endExperimentNumber': null,
 					'figureSize': null,
 					'sweepDirection': 'both',
-					'plotInRealTime': true,
+					'startRelativeIndex': 0,
+					'endRelativeIndex': 1e10,
+					'plot_mode_parameters': null
+				},
+				
+				plotSettings: {
+					'startExperimentNumber': null,
+					'endExperimentNumber': null,
+					'figureSize': null,
+					'sweepDirection': 'both',
 					'startRelativeIndex': 0,
 					'endRelativeIndex': 1e10,
 					'plot_mode_parameters': null
@@ -682,7 +984,6 @@
 					'endExperimentNumber': {'type': 'int'},
 					'figureSize': {'type': 'array'},
 					'sweepDirection': {'type': 'choice', 'choices': ['both', 'forward', 'reverse']},
-					'plotInRealTime': {'type': 'bool'},
 					'startRelativeIndex': {'type': 'int'},
 					'endRelativeIndex': {'type': 'int'},
 					'plot_mode_parameters': {'type': 'object'}
@@ -747,7 +1048,22 @@
 				possibleRunTypes: ['GateSweep', 'AutoGateSweep', 'StaticBias', 'AutoStaticBias'],
 				defaultParameters: {},
 				parameters: {},
-				parametersDescription: {}
+				parametersDescription: {},
+				scheduleObjects: localStorage.scheduleObjects || {},
+				scheduleObjectDefault: {},
+				scheduleObjectClipboard: localStorage.scheduleObjectClipboard || {},
+				scheduleSaveUser: '',
+				scheduleSaveProject: '',
+				scheduleSaveFileName: '',
+				scheduleLoadUser: '',
+				scheduleLoadProject: '',
+				scheduleLoadFileName: '',
+				scheduleExperimentUser: '',
+				scheduleExperimentProject: '',
+				scheduleExperimentFileName: '',
+				scheduleExperimentSuccessCode: {},
+				saveScheduleSuccessCode: {},
+				scheduleNames: {}
 			},
 			methods: {
 				
@@ -758,6 +1074,8 @@
 					this.getChips();
 					this.getDevices();
 					this.getExperiments();
+					this.getDefaultParameters();
+					this.getScheduleNames();
 					
 					this.pageLoading = false;
 					this.newCacheBust();
@@ -847,6 +1165,70 @@
 						.fail(() => {console.log("Error getting indexes")});
 					}
 				},
+				getDefaultParameters() {
+					$.getJSON("/defaultParameters.json" + this.$data.cacheBust, response => {
+						this.$data.defaultParameters = response;
+						this.$data.parameters = JSON.parse(JSON.stringify(response));
+					}).fail(() => {console.log("Error getting default parameters")});
+					
+					$.getJSON("/parametersDescription.json" + this.$data.cacheBust, response => {
+						this.$data.parametersDescription = response;
+						this.$data.scheduleObjectDefault = JSON.parse(JSON.stringify(response));
+						this.$data.scheduleObjects = [JSON.parse(JSON.stringify(response))];
+					}).fail(() => {console.log("Error getting parameters description")});
+				},
+				getScheduleNames: function() {
+					var path = '/scheduleNames.json' + this.cacheBust;
+					if (path) {
+						$.getJSON(path, response => {app.$data.scheduleNames = response})
+						.fail(() => {console.log("Error getting schedule names")});
+					}
+				},
+				
+				saveSchedule: function() {
+					var url = '/saveSchedule/' + this.scheduleSaveUser + '/' + this.scheduleSaveProject + '/' + this.scheduleSaveFileName;
+					url += this.cacheBust;
+					// url += '&jobs=' + encodeURI(JSON.stringify(this.scheduleObjectDefault));
+					
+					$.post(url, JSON.stringify(this.scheduleLines), response => {
+						this.saveScheduleSuccessCode = response;
+					}).fail(() => {console.log("Error saving schedule file")});
+					
+					// $.getJSON(url, JSON.stringify(this.scheduleObjectDefault), response => {
+					// 	this.saveScheduleSuccessCode = response;
+					// }).fail(() => {console.log("Error saving schedule file")});
+					
+					if (this.scheduleExperimentUser == '') this.scheduleExperimentUser = this.scheduleSaveUser;
+					if (this.scheduleExperimentProject == '') this.scheduleExperimentProject = this.scheduleSaveProject;
+					if (this.scheduleExperimentFileName == '') this.scheduleExperimentFileName = this.scheduleSaveFileName;
+					
+					this.getScheduleNames();
+				},
+				loadSchedule: function() {
+					var path = '/scheduleFiles/' + this.scheduleLoadUser + '/' + this.scheduleLoadProject + '/' + this.scheduleLoadFileName + '.json' + this.cacheBust;
+					if (path) {
+						$.getJSON(path, response => {app.$data.scheduleObjects = response})
+						.fail(() => {console.log("Error loading schedule file")});
+					}
+					
+					if (this.scheduleSaveUser == '') this.scheduleSaveUser = this.scheduleLoadUser;
+					if (this.scheduleSaveProject == '') this.scheduleSaveProject = this.scheduleLoadProject;
+					if (this.scheduleSaveFileName == '') this.scheduleSaveFileName = this.scheduleLoadFileName;
+				},
+				dispatchSchedule: function() {
+					var path = '/dispatchSchedule/' + this.scheduleExperimentUser + '/' + this.scheduleExperimentProject + '/' + this.scheduleExperimentFileName + '.json' + this.cacheBust;
+					if (path) {
+						$.getJSON(path, response => {app.$data.scheduleExperimentSuccessCode = response})
+						.fail(() => {console.log("Error dispatching schedule file")});
+					}
+				},
+				stopAtNextJob: function() {
+					var path = '/stopAtNextJob' + this.cacheBust;
+					if (path) {
+						$.getJSON(path, response => {app.$data.stopAtNextJobSuccessCode = response})
+						.fail(() => {console.log("Error stopping at next job")});
+					}
+				},
 				
 				goToUser: function(userName) {
 					this.user = userName;
@@ -905,10 +1287,72 @@
 				setTopLevelPage: function(name) {
 					this.topLevelPage = name;
 					localStorage.topLevelPage = name;
+				},
+				
+				copyHTMLStringToClip: function (str) {
+					function listener(e) {
+						e.clipboardData.setData("text/html", str);
+						e.clipboardData.setData("text/plain", str);
+						e.preventDefault();
+					}
+					document.addEventListener("copy", listener);
+					document.execCommand("copy");
+					document.removeEventListener("copy", listener);
+				},
+				
+				copyHTMLImageToClip: function (path) {
+					path = window.location.origin + path;
+					this.copyHTMLStringToClip('<img src="' + path + '" width="200">');
+				},
+				
+				addScheduleJob: function(index) {
+					this.scheduleObjects.splice(index, 0, JSON.parse(JSON.stringify(this.scheduleObjects[index])));
+					// this.scheduleObjects.push(JSON.parse(JSON.stringify(this.scheduleObjects.slice(-1)[0])));
+				},
+				
+				removeScheduleJob: function(index) {
+					this.scheduleObjects.splice(index, 1);
+					// this.scheduleObjects.splice(index, 0, JSON.parse(JSON.stringify(this.scheduleObjects[index])));
+					// this.scheduleObjects.push(JSON.parse(JSON.stringify(this.scheduleObjects.slice(-1)[0])));
+				},
+				
+				resetScheduleJob: function(index) {
+					this.scheduleObjects.splice(index, 1, JSON.parse(JSON.stringify(this.scheduleObjectDefault)));
+				},
+				
+				moveScheduleJobUp: function(index) {
+					var job = this.scheduleObjects[index];
+					this.scheduleObjects.splice(index, 1);
+					this.scheduleObjects.splice(index-1, 0, job);
+				},
+				
+				moveScheduleJobDown: function(index) {
+					var job = this.scheduleObjects[index];
+					this.scheduleObjects.splice(index, 1);
+					this.scheduleObjects.splice(index+1, 0, job);
+				},
+				
+				copyScheduleObject: function(index) {
+					this.scheduleObjectClipboard = JSON.parse(JSON.stringify(this.scheduleObjects[index]));
+				},
+				
+				pasteScheduleObject: function(index) {
+					this.scheduleObjects.splice(index, 1, JSON.parse(JSON.stringify(this.scheduleObjectClipboard)))
+				},
+				
+				scheduleObjectDiffFromPrevTwin: function(index) {
+					var job = this.scheduleObjects[index];
+					// var twin = 
+				},
+				
+				updatePlotSettings: function() {
+					this.plotSettings = _.omitBy(this.setPlotSettings, (v,k) => ((this.defaultPlotSettings[k] == v) || v == '') );
 				}
 			},
 			watch: {
-				stepperPage: function(val) { localStorage.stepperPage = val; }
+				stepperPage: function(val) { localStorage.stepperPage = val; },
+				scheduleObjects: function(val) { localStorage.scheduleObjects = val; },
+				scheduleObjectClipboard: function(val) { localStorage.scheduleObjectClipboard = val; }
 			},
 			computed: {
 				experiment: function() {
@@ -920,8 +1364,16 @@
 				experimentsWithIndexes: function() {
 					return this.experiments.map((x, i) => { return {...x, i} })
 				},
-				plotSettings: function() {
-					return _.omitBy(this.setPlotSettings, (v,k) => ((this.defaultPlotSettings[k] == v) || v == '') );
+				chipSummaryPlotSettings: function(){
+
+					return null;
+
+				},
+				deviceSummaryPlotSettings: function() {
+					var settings = _.omitBy(this.setPlotSettings, (v,k) => ((this.defaultPlotSettings[k] == v) || v == '') );
+					settings['startExperimentNumber'] = 1;
+					settings['endExperimentNumber'] = 1e10;
+					return settings;
 					// return this.setPlotSettings;
 				},
 				defaultRunConfigs: function() {
@@ -929,6 +1381,9 @@
 				},
 				scheduleLine: function() {
 					return objectDeepDiff(this.parameters, this.defaultParameters);
+				},
+				scheduleLines: function() {
+					return this.scheduleObjects.map(obj => extractDefaults(objectDeepDiff(obj, this.scheduleObjectDefault)));
 				},
 				runType: function() {
 					return this.parameters['runType'];
@@ -961,12 +1416,6 @@
 		}
 		
 		app.getAll();
-		
-		$.getJSON("/defaultParameters.json" + app.$data.cacheBust, response => {
-			app.$data.defaultParameters = response;
-			app.$data.parameters = JSON.parse(JSON.stringify(response));
-		}).fail(() => {console.log("Error getting default parameters")});
-		$.getJSON("/parametersDescription.json" + app.$data.cacheBust, response => {app.$data.parametersDescription = response}).fail(() => {console.log("Error getting parameters description")});
 		
 	</script>
 </body>

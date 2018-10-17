@@ -1,0 +1,376 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>source.procedures.Device_History &mdash; Autexys 1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Autexys
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">source</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Autexys</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>source.procedures.Device_History</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for source.procedures.Device_History</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;This module provides a complete interface for generating plots for a particular device. The primary method is DeviceHistory.makePlots().&quot;&quot;&quot;</span>
+
+<span class="c1"># === Make this script runnable ===</span>
+<span class="k">if</span><span class="p">(</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">):</span>
+	<span class="kn">import</span> <span class="nn">sys</span>
+	<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/..&#39;</span><span class="p">)</span>
+	
+	<span class="kn">import</span> <span class="nn">os</span>
+	<span class="n">pathParents</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+	<span class="k">if</span><span class="p">(</span><span class="s1">&#39;AutexysHost&#39;</span> <span class="ow">in</span> <span class="n">pathParents</span><span class="p">):</span>
+		<span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">),</span> <span class="o">*</span><span class="n">pathParents</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">pathParents</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;AutexysHost&#39;</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;source&#39;</span><span class="p">))</span>
+
+<span class="c1"># === Imports ===</span>
+<span class="kn">from</span> <span class="nn">utilities</span> <span class="k">import</span> <span class="n">DataPlotterUtility</span> <span class="k">as</span> <span class="n">dpu</span>
+<span class="kn">from</span> <span class="nn">utilities</span> <span class="k">import</span> <span class="n">DataLoggerUtility</span> <span class="k">as</span> <span class="n">dlu</span>
+<span class="kn">from</span> <span class="nn">utilities</span> <span class="k">import</span> <span class="n">PlotPostingUtility</span> <span class="k">as</span> <span class="n">plotPoster</span>
+
+
+
+<span class="c1"># === Defaults ===</span>
+<span class="n">default_dh_parameters</span> <span class="o">=</span> <span class="p">{</span>
+	<span class="s1">&#39;dataFolder&#39;</span><span class="p">:</span> <span class="s1">&#39;../../AutexysData/&#39;</span><span class="p">,</span>
+	<span class="s1">&#39;minJSONIndex&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+	<span class="s1">&#39;maxJSONIndex&#39;</span><span class="p">:</span>  <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">),</span>
+	<span class="s1">&#39;minJSONExperimentNumber&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+	<span class="s1">&#39;maxJSONExperimentNumber&#39;</span><span class="p">:</span>  <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">),</span>
+	<span class="s1">&#39;minJSONRelativeIndex&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+	<span class="s1">&#39;maxJSONRelativeIndex&#39;</span><span class="p">:</span>  <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">),</span>
+	<span class="s1">&#39;showFigures&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+	<span class="s1">&#39;specificPlotToCreate&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span>
+<span class="p">}</span>
+
+
+
+<span class="c1"># === External Interface ===</span>
+<div class="viewcode-block" id="makePlots"><a class="viewcode-back" href="../../../source.procedures.html#source.procedures.Device_History.makePlots">[docs]</a><span class="k">def</span> <span class="nf">makePlots</span><span class="p">(</span><span class="n">userID</span><span class="p">,</span> <span class="n">projectID</span><span class="p">,</span> <span class="n">waferID</span><span class="p">,</span> <span class="n">chipID</span><span class="p">,</span> <span class="n">deviceID</span><span class="p">,</span> <span class="n">startExperimentNumber</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">endExperimentNumber</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">),</span> <span class="n">specificPlot</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">figureSize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataFolder</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">saveFolder</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plotSaveName</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">saveFigures</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">showFigures</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sweepDirection</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">startRelativeIndex</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">endRelativeIndex</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">),</span> <span class="n">plot_mode_parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Make plots for the device found in the userID/projectID/waferID/chipID/deviceID folder.</span>
+<span class="sd">	</span>
+<span class="sd">	startExperimentNumber and endExperimentNumber specify a range of experiments to include in the plot(s).</span>
+<span class="sd">	specificPlot can be specified to only make one specific plot found in the plotDefintions folder, or by default all available plots are made.</span>
+<span class="sd">	figureSize can be specified as (width,height) to set the size of the plot.</span>
+<span class="sd">	dataFolder and saveFolder can specify the paths for loading .json data and saving .png plots, but they should not be necessary by default.</span>
+<span class="sd">	plotSaveName can add extra characters to the .png saved by this function if that is desireable.</span>
+<span class="sd">	saveFigures and showFigures are booleans that specify if a plot should be shown with the matplotlib pyplot interface or saved as a .png</span>
+<span class="sd">	sweepDirection is a commonly used plot decorator (can be &#39;both&#39;, &#39;forward&#39;, or &#39;reverse&#39;).</span>
+<span class="sd">	startRelativeIndex and endRelativeIndex can be used to limit the number of data entries shown if all entries have the same experimentNumber</span>
+<span class="sd">	</span>
+<span class="sd">	plot_mode_parameters is a catch-all dictionary for parameters that affect the style of plots (but not the data shown!). See the DataPlotterUtility</span>
+<span class="sd">	for more information about available plot_mode_parameters.&quot;&quot;&quot;</span>
+	
+	<span class="n">parameters</span> <span class="o">=</span> <span class="p">{}</span>	
+	<span class="n">mode_parameters</span> <span class="o">=</span> <span class="p">{}</span>
+	<span class="k">if</span><span class="p">(</span><span class="n">plot_mode_parameters</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+		<span class="n">mode_parameters</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">plot_mode_parameters</span><span class="p">)</span>
+	
+	<span class="c1"># Data loading parameters</span>
+	<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;Identifiers&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+	<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;Identifiers&#39;</span><span class="p">][</span><span class="s1">&#39;user&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">userID</span>
+	<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;Identifiers&#39;</span><span class="p">][</span><span class="s1">&#39;project&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">projectID</span>
+	<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;Identifiers&#39;</span><span class="p">][</span><span class="s1">&#39;wafer&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">waferID</span>
+	<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;Identifiers&#39;</span><span class="p">][</span><span class="s1">&#39;chip&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">chipID</span>
+	<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;Identifiers&#39;</span><span class="p">][</span><span class="s1">&#39;device&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">deviceID</span>
+	<span class="k">if</span><span class="p">(</span><span class="n">dataFolder</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+		<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;dataFolder&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dataFolder</span>
+	<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;minJSONExperimentNumber&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">startExperimentNumber</span>
+	<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;maxJSONExperimentNumber&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">endExperimentNumber</span>
+	<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;minJSONRelativeIndex&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">startRelativeIndex</span>
+	<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;maxJSONRelativeIndex&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">endRelativeIndex</span>
+	
+	<span class="c1"># Plot selection parameters</span>
+	<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;showFigures&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">showFigures</span>
+	<span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;specificPlotToCreate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">specificPlot</span>
+	
+	<span class="c1"># Plot decoration parameters</span>
+	<span class="k">if</span><span class="p">(</span><span class="n">saveFolder</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+		<span class="n">mode_parameters</span><span class="p">[</span><span class="s1">&#39;plotSaveFolder&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">saveFolder</span>
+	<span class="n">mode_parameters</span><span class="p">[</span><span class="s1">&#39;saveFigures&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">saveFigures</span>
+	<span class="n">mode_parameters</span><span class="p">[</span><span class="s1">&#39;showFigures&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">showFigures</span>
+	<span class="n">mode_parameters</span><span class="p">[</span><span class="s1">&#39;plotSaveName&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">plotSaveName</span>
+	<span class="n">mode_parameters</span><span class="p">[</span><span class="s1">&#39;figureSizeOverride&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">figureSize</span>
+	<span class="n">mode_parameters</span><span class="p">[</span><span class="s1">&#39;sweepDirection&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sweepDirection</span>
+	
+	<span class="k">return</span> <span class="n">run</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">plot_mode_parameters</span><span class="o">=</span><span class="n">mode_parameters</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># === Main ===</span>
+<div class="viewcode-block" id="run"><a class="viewcode-back" href="../../../source.procedures.html#source.procedures.Device_History.run">[docs]</a><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">additional_parameters</span><span class="p">,</span> <span class="n">plot_mode_parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Legacy &#39;run&#39; function from when DeviceHistory was treated more like a typical procedure with parameters.&quot;&quot;&quot;</span>
+	
+	<span class="n">parameters</span> <span class="o">=</span> <span class="n">default_dh_parameters</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+	<span class="n">parameters</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">additional_parameters</span><span class="p">)</span>
+
+	<span class="n">p</span> <span class="o">=</span> <span class="n">parameters</span>
+	<span class="n">plotList</span> <span class="o">=</span> <span class="p">[]</span>
+
+	<span class="n">mode_parameters</span> <span class="o">=</span> <span class="p">{}</span>
+	<span class="k">if</span><span class="p">(</span><span class="n">plot_mode_parameters</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">):</span>
+		<span class="n">mode_parameters</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">plot_mode_parameters</span><span class="p">)</span>
+
+	<span class="c1"># Print information about the device and experiment being plotted</span>
+	<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;  &#39;</span> <span class="o">+</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;Identifiers&#39;</span><span class="p">][</span><span class="s1">&#39;wafer&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;Identifiers&#39;</span><span class="p">][</span><span class="s1">&#39;chip&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;:&#39;</span> <span class="o">+</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;Identifiers&#39;</span><span class="p">][</span><span class="s1">&#39;device&#39;</span><span class="p">])</span>
+	<span class="s1">&#39;&#39;</span> <span class="k">if</span><span class="p">((</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;minJSONExperimentNumber&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;maxJSONExperimentNumber&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)))</span> <span class="k">else</span> <span class="p">(</span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;  Experiment #</span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;maxJSONExperimentNumber&#39;</span><span class="p">]))</span> <span class="k">if</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;minJSONExperimentNumber&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">p</span><span class="p">[</span><span class="s1">&#39;maxJSONExperimentNumber&#39;</span><span class="p">])</span> <span class="k">else</span> <span class="p">(</span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;  Experiments #</span><span class="si">{:}</span><span class="s1"> to #</span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;minJSONExperimentNumber&#39;</span><span class="p">],</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;maxJSONExperimentNumber&#39;</span><span class="p">]))))</span> 
+	<span class="s1">&#39;&#39;</span> <span class="k">if</span><span class="p">((</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;minJSONRelativeIndex&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;maxJSONRelativeIndex&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)))</span> <span class="k">else</span> <span class="p">(</span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;  Rel. Index #</span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;maxJSONRelativeIndex&#39;</span><span class="p">]))</span> <span class="k">if</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;minJSONRelativeIndex&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">p</span><span class="p">[</span><span class="s1">&#39;maxJSONRelativeIndex&#39;</span><span class="p">])</span> <span class="k">else</span> <span class="p">(</span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;  Rel. Indices #</span><span class="si">{:}</span><span class="s1"> to #</span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;minJSONRelativeIndex&#39;</span><span class="p">],</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;maxJSONRelativeIndex&#39;</span><span class="p">]))))</span>
+	<span class="s1">&#39;&#39;</span> <span class="k">if</span><span class="p">((</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;minJSONIndex&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;maxJSONIndex&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)))</span> <span class="k">else</span> <span class="p">(</span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;  Abs. Index #</span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;maxJSONIndex&#39;</span><span class="p">]))</span> <span class="k">if</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;minJSONIndex&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">p</span><span class="p">[</span><span class="s1">&#39;maxJSONIndex&#39;</span><span class="p">])</span> <span class="k">else</span> <span class="p">(</span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;  Abs. Indices #</span><span class="si">{:}</span><span class="s1"> to #</span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;minJSONIndex&#39;</span><span class="p">],</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;maxJSONIndex&#39;</span><span class="p">]))))</span>
+
+	<span class="c1"># Try to load general information file &#39;wafer.json&#39; if such a file exists</span>
+	<span class="k">if</span><span class="p">(</span><span class="s1">&#39;generalInfo&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mode_parameters</span><span class="p">):</span>
+		<span class="k">try</span><span class="p">:</span>
+			<span class="n">wafer_info</span> <span class="o">=</span> <span class="n">dlu</span><span class="o">.</span><span class="n">loadJSON</span><span class="p">(</span><span class="n">dlu</span><span class="o">.</span><span class="n">getWaferDirectory</span><span class="p">(</span><span class="n">parameters</span><span class="p">),</span> <span class="s1">&#39;wafer.json&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+			<span class="n">mode_parameters</span><span class="p">[</span><span class="s1">&#39;generalInfo&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">wafer_info</span>
+		<span class="k">except</span><span class="p">:</span>
+			<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Error: no information in wafer.json for this device.&#39;</span><span class="p">)</span>
+	
+	<span class="c1"># Determine which plots are being requested and make them all</span>
+	<span class="n">plotsToCreate</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;specificPlotToCreate&#39;</span><span class="p">]]</span> <span class="k">if</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;specificPlotToCreate&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="n">plotsForExperiments</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">minExperiment</span><span class="o">=</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;minJSONExperimentNumber&#39;</span><span class="p">],</span> <span class="n">maxExperiment</span><span class="o">=</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;maxJSONExperimentNumber&#39;</span><span class="p">])</span>
+	<span class="k">for</span> <span class="n">plotType</span> <span class="ow">in</span> <span class="n">plotsToCreate</span><span class="p">:</span>
+		<span class="n">dataFileDependencies</span> <span class="o">=</span> <span class="n">dpu</span><span class="o">.</span><span class="n">getDataFileDependencies</span><span class="p">(</span><span class="n">plotType</span><span class="p">)</span>
+		<span class="n">deviceHistory</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="k">try</span><span class="p">:</span>
+			<span class="k">for</span> <span class="n">dataFile</span> <span class="ow">in</span> <span class="n">dataFileDependencies</span><span class="p">:</span>
+				<span class="n">deviceHistory</span> <span class="o">+=</span> <span class="n">dlu</span><span class="o">.</span><span class="n">loadSpecificDeviceHistory</span><span class="p">(</span><span class="n">dlu</span><span class="o">.</span><span class="n">getDeviceDirectory</span><span class="p">(</span><span class="n">parameters</span><span class="p">),</span> <span class="n">dataFile</span><span class="p">,</span> <span class="n">minIndex</span><span class="o">=</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;minJSONIndex&#39;</span><span class="p">],</span> <span class="n">maxIndex</span><span class="o">=</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;maxJSONIndex&#39;</span><span class="p">],</span> <span class="n">minExperiment</span><span class="o">=</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;minJSONExperimentNumber&#39;</span><span class="p">],</span> <span class="n">maxExperiment</span><span class="o">=</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;maxJSONExperimentNumber&#39;</span><span class="p">],</span> <span class="n">minRelativeIndex</span><span class="o">=</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;minJSONRelativeIndex&#39;</span><span class="p">],</span> <span class="n">maxRelativeIndex</span><span class="o">=</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;maxJSONRelativeIndex&#39;</span><span class="p">])</span>
+			<span class="n">plot</span> <span class="o">=</span> <span class="n">dpu</span><span class="o">.</span><span class="n">makeDevicePlot</span><span class="p">(</span><span class="n">plotType</span><span class="p">,</span> <span class="n">deviceHistory</span><span class="p">,</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;Identifiers&#39;</span><span class="p">],</span> <span class="n">mode_parameters</span><span class="o">=</span><span class="n">mode_parameters</span><span class="p">)</span>
+			<span class="n">plotList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">plot</span><span class="p">)</span>
+		<span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+			<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: Unable to load data files for &#39;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">plotType</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&#39; plot.&quot;</span><span class="p">)</span>
+	
+	<span class="c1"># Show figures if desired		</span>
+	<span class="k">if</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;showFigures&#39;</span><span class="p">]):</span>
+		<span class="n">dpu</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+	<span class="k">return</span> <span class="n">plotList</span></div>
+
+
+
+<div class="viewcode-block" id="plotsForExperiments"><a class="viewcode-back" href="../../../source.procedures.html#source.procedures.Device_History.plotsForExperiments">[docs]</a><span class="k">def</span> <span class="nf">plotsForExperiments</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">minExperiment</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">maxExperiment</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)):</span>
+	<span class="sd">&quot;&quot;&quot;Given the typical parameters used to run experiments, return a list of plots that could be made from the data that has been already collected.&quot;&quot;&quot;</span>
+	
+	<span class="k">return</span> <span class="n">dpu</span><span class="o">.</span><span class="n">getPlotTypesFromDependencies</span><span class="p">(</span><span class="n">dlu</span><span class="o">.</span><span class="n">getDataFileNamesForDeviceExperiments</span><span class="p">(</span><span class="n">dlu</span><span class="o">.</span><span class="n">getDeviceDirectory</span><span class="p">(</span><span class="n">parameters</span><span class="p">),</span> <span class="n">minExperiment</span><span class="o">=</span><span class="n">minExperiment</span><span class="p">,</span> <span class="n">maxExperiment</span><span class="o">=</span><span class="n">maxExperiment</span><span class="p">),</span> <span class="n">plotCategory</span><span class="o">=</span><span class="s1">&#39;device&#39;</span><span class="p">)</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+	<span class="sd">&quot;&quot;&quot;Feel free to add your own makePlots function calls to try this out!&quot;&quot;&quot;</span>
+	
+	<span class="c1">#makePlots(&#39;stevenjay&#39;, &#39;BiasStress1&#39;, &#39;C127&#39;, &#39;X&#39;, &#39;15-16&#39;, 145, 145, &#39;FullStaticBiasHistory&#39;, (3.5,2.24), dataFolder=&#39;../data&#39;, saveFolder=&#39;../CurrentPlots&#39;, plotSaveName=&#39;Figure S6 floating - &#39;, saveFigures=True, showFigures=False, plot_mode_parameters={&#39;publication_mode&#39;:True, &#39;staticBiasSegmentDividers&#39;:True, &#39;enableGradient&#39;:True})</span>
+	<span class="c1">#makePlots(&#39;stevenjay&#39;, &#39;BiasStress1&#39;, &#39;C127&#39;, &#39;X&#39;, &#39;15-16&#39;, 118, 118, &#39;FullStaticBiasHistory&#39;, (3.5,2.24), dataFolder=&#39;../data&#39;, saveFolder=&#39;../CurrentPlots&#39;, plotSaveName=&#39;Figure S5 Grounded Between - &#39;, saveFigures=True, showFigures=False, startRelativeIndex=9, endRelativeIndex=16, plot_mode_parameters={&#39;publication_mode&#39;:True,&#39;staticBiasSegmentDividers&#39;:True, &#39;enableGradient&#39;:True})</span>
+	<span class="c1">#makePlots(&#39;stevenjay&#39;, &#39;BiasStress1&#39;, &#39;C127&#39;, &#39;E&#39;, &#39;27-28&#39;, 3, 4, &#39;FullTransferCurveHistory&#39;, (1.48 *2.24/1.74,1.74 *2.24/1.74), dataFolder=&#39;../data&#39;, saveFolder=&#39;../CurrentPlots&#39;, plotSaveName=&#39;Figure S1 Comparison - &#39;, saveFigures=True, showFigures=False, plot_mode_parameters={&#39;publication_mode&#39;:True, &#39;enableColorBar&#39;:False})</span>
+	<span class="c1">#makePlots(&#39;stevenjay&#39;, &#39;BiasStress1&#39;, &#39;C127&#39;, &#39;X&#39;, &#39;15-16&#39;, 137, 137, &#39;FullStaticBiasHistory&#39;, (2.2 *3.5/2.2,1.408 *3.5/2.2), dataFolder=&#39;../data&#39;, saveFolder=&#39;../CurrentPlots&#39;, plotSaveName=&#39;Figure S8 Light - &#39;, saveFigures=True, showFigures=False, plot_mode_parameters={&#39;publication_mode&#39;:True, &#39;enableGradient&#39;:False})</span>
+	<span class="c1">#makePlots(&#39;stevenjay&#39;, &#39;BiasStress1&#39;, &#39;C127&#39;, &#39;X&#39;, &#39;15-16&#39;, 127, 127, &#39;FullStaticBiasHistory&#39;, (2.2 *3.25/2.2,2.24), dataFolder=&#39;../../../AutexysData&#39;, saveFolder=&#39;../../../AutexysPlots&#39;, plotSaveName=&#39;Figure S9a Light - &#39;, saveFigures=False, showFigures=True, plot_mode_parameters={&#39;publication_mode&#39;:True, &#39;enableGradient&#39;:True})</span>
+	<span class="c1">#makePlots(&#39;stevenjay&#39;, &#39;BiasStress1&#39;, &#39;C127&#39;, &#39;X&#39;, &#39;15-16&#39;, 125, 125, &#39;FullStaticBiasHistory&#39;, (2.2 *3.25/2.2,2.24), dataFolder=&#39;../data&#39;, saveFolder=&#39;../CurrentPlots&#39;, plotSaveName=&#39;Figure S9b Light - &#39;, saveFigures=True, showFigures=False, plot_mode_parameters={&#39;publication_mode&#39;:True, &#39;enableGradient&#39;:True})</span>
+	<span class="c1">#makePlots(&#39;stevenjay&#39;, &#39;BiasStress1&#39;, &#39;C127&#39;, &#39;X&#39;, &#39;15-16&#39;, 127, 127, &#39;FullSubthresholdCurveHistory&#39;, (1.45 *2.24/1.55,1.55 *2.24/1.55), dataFolder=&#39;../data&#39;, saveFolder=&#39;../CurrentPlots&#39;, plotSaveName=&#39;Figure S10a Light - &#39;, saveFigures=True, showFigures=False, sweepDirection=&#39;both&#39;, plot_mode_parameters={&#39;publication_mode&#39;:True, &#39;enableErrorBars&#39;:False})</span>
+	<span class="c1">#makePlots(&#39;stevenjay&#39;, &#39;BiasStress1&#39;, &#39;C127&#39;, &#39;X&#39;, &#39;15-16&#39;, 125, 125, &#39;FullSubthresholdCurveHistory&#39;, (1.45 *2.24/1.55,1.55 *2.24/1.55), dataFolder=&#39;../data&#39;, saveFolder=&#39;../CurrentPlots&#39;, plotSaveName=&#39;Figure S10b Light - &#39;, saveFigures=True, showFigures=False, sweepDirection=&#39;both&#39;, plot_mode_parameters={&#39;publication_mode&#39;:True, &#39;enableErrorBars&#39;:False})</span>
+	<span class="c1">#makePlots(&#39;stevenjay&#39;, &#39;BiasStress1&#39;, &#39;C127&#39;, &#39;X&#39;, &#39;15-16&#39;, 104, 104, &#39;FullSubthresholdCurveHistory&#39;, (1.45 *2.24/1.55,2.24), dataFolder=&#39;../data&#39;, saveFolder=&#39;../CurrentPlots&#39;, plotSaveName=&#39;Figure S12a - &#39;, saveFigures=True, showFigures=False, sweepDirection=&#39;both&#39;, plot_mode_parameters={&#39;publication_mode&#39;:True, &#39;enableErrorBars&#39;:False}) </span>
+	<span class="c1">#makePlots(&#39;stevenjay&#39;, &#39;BiasStress1&#39;, &#39;C127&#39;, &#39;X&#39;, &#39;15-16&#39;, 104, 104, &#39;FullTransferCurveHistory&#39;, (1.45 *2.24/1.55,2.24), dataFolder=&#39;../data&#39;, saveFolder=&#39;../CurrentPlots&#39;, plotSaveName=&#39;Figure S12b - &#39;, saveFigures=True, showFigures=False, sweepDirection=&#39;both&#39;, plot_mode_parameters={&#39;publication_mode&#39;:True, &#39;enableErrorBars&#39;:False}) </span>
+	<span class="c1">#makePlots(&#39;stevenjay&#39;, &#39;BiasStress1&#39;, &#39;C127&#39;, &#39;X&#39;, &#39;15-16&#39;, 24, 24, &#39;FullSubthresholdCurveHistory&#39;, (1.45 *2.24/1.55,1.55 *2.24/1.55), dataFolder=&#39;../data&#39;, saveFolder=&#39;../CurrentPlots&#39;, plotSaveName=&#39;Figure S11a - &#39;, saveFigures=True, showFigures=False, plot_mode_parameters={&#39;publication_mode&#39;:True,&#39;enableErrorBars&#39;:False})</span>
+	<span class="c1">#makePlots(&#39;stevenjay&#39;, &#39;BiasStress1&#39;, &#39;C127&#39;, &#39;X&#39;, &#39;15-16&#39;, 24, 24, &#39;FullTransferCurveHistory&#39;, (1.48 *2.24/1.74,1.74 *2.24/1.74), dataFolder=&#39;../data&#39;, saveFolder=&#39;../CurrentPlots&#39;, plotSaveName=&#39;Figure S11b - &#39;, saveFigures=True, showFigures=False, plot_mode_parameters={&#39;publication_mode&#39;:True,&#39;enableErrorBars&#39;:False})</span>
+	<span class="c1">#makePlots(&#39;stevenjay&#39;, &#39;BiasStress1&#39;, &#39;C127&#39;, &#39;X&#39;, &#39;15-16&#39;, 155, 155, &#39;FullStaticBiasHistory&#39;, (3.5,2.24), dataFolder=&#39;../data&#39;, saveFolder=&#39;../CurrentPlots&#39;, plotSaveName=&#39;Figure S7 no grounding or floating - &#39;, saveFigures=True, showFigures=False, plot_mode_parameters={&#39;publication_mode&#39;:True,&#39;staticBiasChangeDividers&#39;:False,&#39;enableGradient&#39;:True})</span>
+	<span class="c1">#makePlots(&#39;stevenjay&#39;, &#39;BiasStress1&#39;, &#39;C127&#39;, &#39;X&#39;, &#39;15-16&#39;, 3, 6, &#39;FullSubthresholdCurveHistory&#39;, (1.48 *2.24/1.74, 2.24), dataFolder=&#39;../../../AutexysData&#39;, saveFolder=&#39;../../../AutexysPlots&#39;, plotSaveName=&#39;Figure S4a - &#39;, saveFigures=False, showFigures=True, plot_mode_parameters={&#39;publication_mode&#39;:True,&#39;enableErrorBars&#39;:False,&#39;legendLabels&#39;:[&#39;Initial&#39;,&#39;After 1 week&#39;],&#39;legendLoc&#39;:&#39;lower left&#39;})</span>
+	<span class="c1">#makePlots(&#39;stevenjay&#39;, &#39;BiasStress1&#39;, &#39;C127&#39;, &#39;X&#39;, &#39;15-16&#39;, 3, 6, &#39;FullTransferCurveHistory&#39;, (1.48 *2.24/1.74, 2.24), dataFolder=&#39;../data&#39;, saveFolder=&#39;../CurrentPlots&#39;, plotSaveName=&#39;Figure S4b - &#39;, saveFigures=True, showFigures=False, plot_mode_parameters={&#39;publication_mode&#39;:True,&#39;enableErrorBars&#39;:False,&#39;legendLabels&#39;:[&#39;Initial&#39;,&#39;After 1 week&#39;],&#39;legendLoc&#39;:&#39;lower left&#39;})</span>
+	<span class="c1">#makePlots(&#39;stevenjay&#39;, &#39;BiasStress1&#39;, &#39;C127&#39;, &#39;E&#39;, &#39;15-16&#39;, 1, 1, &#39;FullBurnOutHistory&#39;, (2.2 *4.5/2.2,1.408 *3.5/2.2), dataFolder=&#39;../../../AutexysData&#39;, saveFolder=&#39;../../../AutexysPlots&#39;, plotSaveName=&#39;Figure S4a - &#39;, saveFigures=False, showFigures=True, startRelativeIndex=5, plot_mode_parameters={&#39;publication_mode&#39;:True})</span>
+	<span class="c1">#makePlots(&#39;stevenjay&#39;, &#39;BiasStress1&#39;, &#39;C127&#39;, &#39;E&#39;, &#39;15-16&#39;, 1, 1, &#39;FullSubthresholdCurveHistory&#39;, (1.48 *2.24/1.74,1.74 *2.24/1.74), dataFolder=&#39;../data&#39;, saveFolder=&#39;../CurrentPlots&#39;, plotSaveName=&#39;Figure S3 burnout gs - &#39;, saveFigures=True, showFigures=True, plot_mode_parameters={&#39;publication_mode&#39;:True, &#39;enableErrorBars&#39;:False, &#39;legendLabels&#39;:[&#39;Initial&#39;,&#39;After Burn-out&#39;]})</span>
+	<span class="c1">#makePlots(&#39;stevenjay&#39;, &#39;BiasStress1&#39;, &#39;C127&#39;, &#39;P&#39;, &#39;1-2&#39;, 8, 8, &#39;FullStaticBiasHistory&#39;, (2.2 *4.5/2.2,1.408 *3.5/2.2), dataFolder=&#39;../../../AutexysData&#39;, saveFolder=&#39;../../../AutexysPlots/&#39;, plotSaveName=&#39;Figure - &#39;, saveFigures=False, showFigures=True, startRelativeIndex=20, endRelativeIndex=70, plot_mode_parameters={&#39;publication_mode&#39;:True})</span>
+	<span class="c1">#makePlots(&#39;stevenjay&#39;, &#39;BiasStress1&#39;, &#39;C127&#39;, &#39;X&#39;, &#39;15-16&#39;, 101, 127, &#39;FullSubthresholdCurveHistory&#39;, (1.45 *2.24/1.55,1.55 *2.24/1.55), dataFolder=&#39;../data&#39;, saveFolder=&#39;../CurrentPlots&#39;, plotSaveName=&#39;Figure S13 - &#39;, saveFigures=True, showFigures=False, plot_mode_parameters={&#39;publication_mode&#39;:True, &#39;enableErrorBars&#39;:False, &#39;legendLoc&#39;:&#39;lower left&#39;})</span>
+	<span class="c1">#makePlots(&#39;stevenjay&#39;, &#39;BiasStress1&#39;, &#39;C127&#39;, &#39;E&#39;, &#39;15-16&#39;, 6, 13, &#39;FullTransferCurveHistory&#39;, (1.48 *2.24/1.74, 2.24), dataFolder=&#39;../data&#39;, saveFolder=&#39;../CurrentPlots&#39;, plotSaveName=&#39;Figure S14 carriers - &#39;, saveFigures=True, showFigures=False, plot_mode_parameters={&#39;publication_mode&#39;:True, &#39;enableErrorBars&#39;:False, &#39;legendLoc&#39;:&#39;lower left&#39;})</span>
+	<span class="c1">#makePlots(&#39;stevenjay&#39;, &#39;BiasStress1&#39;, &#39;C127&#39;, &#39;X&#39;, &#39;15-16&#39;, 172, 172, &#39;&#39;, (1.48 *2.24/1.74, 2.24), dataFolder=&#39;../data&#39;, saveFolder=&#39;../CurrentPlots&#39;, plotSaveName=&#39;Figure S14 carriers - &#39;, saveFigures=False, showFigures=True, plot_mode_parameters={&#39;publication_mode&#39;:True, &#39;enableErrorBars&#39;:False, &#39;legendLoc&#39;:&#39;lower left&#39;})</span>
+	<span class="c1">#makePlots(&#39;stevenjay&#39;, &#39;SolutionBias1&#39;, &#39;C127&#39;, &#39;V&#39;, &#39;2-3&#39;, 15, 23, &#39;&#39;, (2.2 *4.5/2.2,1.408 *3.5/2.2), dataFolder=&#39;../data&#39;, saveFolder=&#39;../CurrentPlots&#39;, plotSaveName=&#39;Figure S? burnout - &#39;, saveFigures=True, showFigures=True, plot_mode_parameters={&#39;publication_mode&#39;:True, &#39;enableErrorBars&#39;:False, &#39;legendLoc&#39;:&#39;best&#39;})</span>
+	<span class="c1">#makePlots(&#39;stevenjay&#39;, &#39;SolutionBias1&#39;, &#39;C127&#39;, &#39;W&#39;, &#39;2-3&#39;, 0, 50, &#39;&#39;, (2.2 *4.5/2.2,1.408 *3.5/2.2), dataFolder=&#39;../data&#39;, saveFolder=&#39;../CurrentPlots&#39;, plotSaveName=&#39;Figure S? burnout - &#39;, saveFigures=True, showFigures=True, plot_mode_parameters={&#39;publication_mode&#39;:True, &#39;enableErrorBars&#39;:False, &#39;legendLoc&#39;:&#39;best&#39;})</span>
+	<span class="c1">#makePlots(&#39;stevenjay&#39;, &#39;BiasStress1&#39;, &#39;C127&#39;, &#39;X&#39;, &#39;15-16&#39;, 80, 168, &#39;FullStaticBiasHistory&#39;, (2.2 *5.5/2.2,1.408 *3.5/2.2), dataFolder=&#39;../../../AutexysData&#39;, saveFolder=&#39;../../../AutexysPlots/&#39;, plotSaveName=&#39;Figure S17a full - &#39;, saveFigures=False, showFigures=True, plot_mode_parameters={&#39;publication_mode&#39;:True, &#39;staticBiasChangeDividers&#39;:False, &#39;enableGradient&#39;:False, &#39;legendLoc&#39;:&#39;best&#39;, &#39;plotInRealTime&#39;:False})</span>
+	<span class="c1">#makePlots(&#39;stevenjay&#39;, &#39;BiasStress1&#39;, &#39;C127&#39;, &#39;X&#39;, &#39;15-16&#39;, 80, 168, &#39;OnAndOffCurrentHistory&#39;, (2.2 *5.78/2.2,1.408 *3.5/2.2), dataFolder=&#39;../../../AutexysData&#39;, saveFolder=&#39;../../../AutexysPlots/&#39;, plotSaveName=&#39;Figure S17b full - &#39;, saveFigures=False, showFigures=True, plot_mode_parameters={&#39;publication_mode&#39;:True, &#39;staticBiasChangeDividers&#39;:False, &#39;enableGradient&#39;:False, &#39;legendLoc&#39;:&#39;lower left&#39;})</span>
+	<span class="c1">#makePlots(&#39;stevenjay&#39;, &#39;BiasStress1&#39;, &#39;C127&#39;, &#39;P&#39;, &#39;15-16&#39;, 0, 500, &#39;&#39;, None, dataFolder=&#39;../../../AutexysData&#39;, saveFolder=&#39;../../../AutexysPlots/&#39;, plotSaveName=&#39;Figure S17b full - &#39;, saveFigures=False, showFigures=True, plot_mode_parameters={&#39;publication_mode&#39;:False, &#39;staticBiasChangeDividers&#39;:False, &#39;enableGradient&#39;:False, &#39;legendLoc&#39;:&#39;best&#39;})</span>
+	<span class="c1">#makePlots(&#39;stevenjay&#39;, &#39;SolutionBias1&#39;, &#39;C127&#39;, &#39;V&#39;, &#39;2-3&#39;, 0, 500, &#39;FullOutputCurveHistory&#39;, None, dataFolder=&#39;../../../AutexysData&#39;, saveFolder=&#39;../../../AutexysPlots/&#39;, plotSaveName=&#39;Figure S17b full - &#39;, saveFigures=False, showFigures=True, plot_mode_parameters={&#39;publication_mode&#39;:False, &#39;staticBiasChangeDividers&#39;:False, &#39;enableGradient&#39;:False, &#39;legendLoc&#39;:&#39;best&#39;})</span>
+	<span class="c1">#makePlots(&#39;stevenjay&#39;, &#39;BiasStress1&#39;, &#39;C127&#39;, &#39;P&#39;, &#39;1-2&#39;, 5, 7, &#39;SubthresholdCurve&#39;, None, plotSaveName=&#39;Figure S17b full - &#39;, saveFigures=False, showFigures=True, plot_mode_parameters={&#39;publication_mode&#39;:False, &#39;staticBiasChangeDividers&#39;:False, &#39;enableGradient&#39;:False, &#39;legendLoc&#39;:&#39;best&#39;})	</span>
+	<span class="c1">#makePlots(&#39;stevenjay&#39;, &#39;BiasStress1&#39;, &#39;C127&#39;, &#39;E&#39;, &#39;15-16&#39;, 10, 18, &#39;OnAndOffCurrentHistory&#39;, None, dataFolder=&#39;../../AutexysData&#39;, saveFolder=&#39;../../../AutexysPlots/&#39;, plotSaveName=&#39;Figure S17b full - &#39;, saveFigures=False, showFigures=True, plot_mode_parameters={&#39;publication_mode&#39;:False, &#39;staticBiasChangeDividers&#39;:False, &#39;enableGradient&#39;:False, &#39;legendLoc&#39;:&#39;best&#39;})	</span>
+	<span class="c1">#makePlots(&#39;steven&#39;, &#39;SGM1&#39;, &#39;F1&#39;, &#39;E&#39;, &#39;E08N_10000&#39;, 51, 51, &#39;AFMdeviationsVsX&#39;, None, dataFolder=&#39;../data&#39;, showFigures=True)</span>
+	<span class="k">pass</span>
+
+
+
+
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Steven Noyce
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

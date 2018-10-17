@@ -5,14 +5,26 @@ import glob
 import flask
 import json
 import copy
+import time
 import webbrowser
-from matplotlib import pyplot as plt
 import defaults
+
 from procedures import Device_History as DH
 from utilities import DataLoggerUtility as dlu
 
 if __name__ == '__main__':
 	os.chdir(sys.path[0])
+	
+	pathParents = os.getcwd().split('/')
+	if 'AutexysHost' in pathParents:
+		os.chdir(os.path.join(os.path.abspath(os.sep), *pathParents[0:pathParents.index('AutexysHost')+1], 'source'))
+
+
+# Globals
+pipeToManager = None
+
+def eprint(*args, **kwargs):
+	print(*args, file=sys.stderr, **kwargs)
 
 
 from collections import Mapping, Sequence
@@ -62,7 +74,6 @@ default_makePlot_parameters = {
 	'saveFigures': False,
 	'showFigures': True,
 	'sweepDirection': 'both',
-	'plotInRealTime': True,
 	'startRelativeIndex': 0,
 	'endRelativeIndex': 1e10,
 	'plot_mode_parameters': None
@@ -191,19 +202,20 @@ def devices(user, project, wafer, chip):
 	return jsonvalid(devices)
 
 @app.route('/<user>/<project>/<wafer>/<chip>/<device>/experiments.json')
-def experiments(user, project, wafer, chip, device):
+def experiments(user, project, wafer, chip, device):	
 	folder = os.path.join(default_data_path, user, project, wafer, chip, device)
 	files = glob.glob(folder + '*.json')
 	fileNames = [os.path.basename(f) for f in files]
 	
 	parameters = dlu.loadJSON(folder, 'ParametersHistory.json')
+	parameter_identifiers = {'dataFolder':default_data_path, 'Identifiers':{'user':user,'project':project,'wafer':wafer,'chip':chip,'device':device}}
 	
 	for i in range(len(parameters)):
-		possiblePlots = DH.getPossiblePlotNames(parameters[i])
+		possiblePlots = DH.plotsForExperiments(parameter_identifiers, minExperiment=parameters[i]['startIndexes']['experimentNumber'], maxExperiment=parameters[i]['startIndexes']['experimentNumber'])
 		parameters[i]['possiblePlots'] = possiblePlots
 	
 	# experiments = [{'name': n, 'path': p, 'modificationTime': m, 'size': s} for n, p, m, s in zip(names, paths, modificationTimes, sizes)]
-	
+			
 	return jsonvalid(parameters)
 	
 	# return flask.Response(jsonvalid(parameters, allow_nan=False), mimetype='application/json')
@@ -211,11 +223,70 @@ def experiments(user, project, wafer, chip, device):
 @app.route('/parametersDescription.json')
 def parametersDescription():
 	# return flask.jsonify(defaults.default_parameters_description)
-	return jsonvalid(defaults.default_parameters_description)
+	return jsonvalid(defaults.default_parameters)
 
 @app.route('/defaultParameters.json')
 def defaultParameters():
-	return jsonvalid(defaults.default_parameters)
+	return jsonvalid(defaults.get())
+
+@app.route('/saveSchedule/<user>/<project>/<fileName>', methods=['POST'])
+def saveSchedule(user, project, fileName):
+	# receivedJobs = json.loads(flask.request.args.get('jobs'))
+	receivedJobs = flask.request.get_json(force=True)
+	
+	# with open(os.path.join(default_data_path, user, project, 'schedules/', fileName + '.json'), 'w') as f:
+	# 	f.write(json.dumps(receivedJobs))
+	
+	dlu.emptyFile(os.path.join(default_data_path, user, project, 'schedules/'), fileName)
+	for job in receivedJobs:
+		dlu.saveJSON(os.path.join(default_data_path, user, project, 'schedules/'), fileName, defaults.extractDefaults(job), incrementIndex=False)
+	
+	return jsonvalid({'success':True})
+
+@app.route('/scheduleFiles/<user>/<project>/<fileName>.json')
+def loadSchedule(user, project, fileName):
+	scheduleData = dlu.loadJSON(os.path.join(default_data_path, user, project, 'schedules/'), fileName + '.json')
+	
+	expandedScheduleData = []
+	for job in scheduleData:
+		expandedScheduleData.append(defaults.full_with_added(job))
+	
+	return jsonvalid(expandedScheduleData)
+
+def getSubDirectories(directory):
+	return [os.path.basename(os.path.dirname(g)) for g in glob.glob(directory + '/*/')]
+
+@app.route('/dispatchSchedule/<user>/<project>/<fileName>.json')
+def dispatchSchedule(user, project, fileName):
+	scheduleFilePath = os.path.join(default_data_path, user, project, 'schedules', fileName + '.json')
+	eprint('UI Sending RUN:')
+	pipeToManager.send('RUN: ' + scheduleFilePath)
+	eprint('UI Sent RUN:')
+	return jsonvalid({'success': True})
+
+@app.route('/stopAtNextJob')
+def stopAtNextJob():
+	eprint('UI stopping at next job')
+	pipeToManager.send('STOP')
+	
+	return jsonvalid({'success': True})
+
+def getSubDirectories(directory):
+		return [os.path.basename(os.path.dirname(g)) for g in glob.glob(directory + '/*/')]
+
+@app.route('/scheduleNames.json')
+def loadScheduleNames():
+	scheduleNames = {}
+	
+	for userName in getSubDirectories(default_data_path):
+		userDirectory = userName
+		scheduleNames[userName] = {}
+		for projectName in getSubDirectories(os.path.join(default_data_path, userDirectory)):
+			projectDirectory = os.path.join(userDirectory, projectName)
+			schedulePaths = glob.glob(os.path.join(default_data_path, userName, projectName, 'schedules/*.json'))
+			scheduleNames[userName][projectName] = [os.path.basename(schedule).split('.')[0] for schedule in schedulePaths]
+	
+	return jsonvalid(scheduleNames)
 
 # @app.after_request
 # def add_header(response):
@@ -240,7 +311,9 @@ def findFirstOpenPort(startPort=1):
 				print('Port {} is not available'.format(port))
 
 
-if __name__ == '__main__':
+def start(managerPipe=None):
+	global pipeToManager
+	pipeToManager = managerPipe
 	
 	if 'AutexysUIRunning' in os.environ:
 		print('Reload detected. Not opening browser.')
@@ -260,6 +333,9 @@ if __name__ == '__main__':
 	
 	app.run(debug=True, threaded=False, port=int(os.environ['AutexysUIPort']))
 
+
+if __name__ == '__main__':
+	start()
 
 
 

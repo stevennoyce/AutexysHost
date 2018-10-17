@@ -1,0 +1,266 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>source.utilities.PlotPostingUtility &mdash; Autexys 1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Autexys
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">source</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Autexys</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>source.utilities.PlotPostingUtility</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for source.utilities.PlotPostingUtility</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;A deprecated utility.&quot;&quot;&quot;</span>
+
+	<span class="c1"># Example of posting figures</span>
+	<span class="c1"># if(p[&#39;postFiguresGenerated&#39;]):</span>
+	<span class="c1"># 	parameters[&#39;startIndexes&#39;] = {</span>
+	<span class="c1"># 		&#39;index&#39;: max( parameters[&#39;excludeDataBeforeJSONIndex&#39;], min(getIndexesForExperiments(directory, minExperiment=parameters[&#39;excludeDataBeforeJSONExperimentNumber&#39;], maxExperiment=parameters[&#39;excludeDataAfterJSONExperimentNumber&#39;])) ),</span>
+	<span class="c1"># 		&#39;experimentNumber&#39;: parameters[&#39;excludeDataBeforeJSONExperimentNumber&#39;]</span>
+	<span class="c1"># 	}</span>
+	<span class="c1"># 	parameters[&#39;endIndexes&#39;] = {</span>
+	<span class="c1"># 		&#39;index&#39;: min( parameters[&#39;excludeDataAfterJSONIndex&#39;], max(getIndexesForExperiments(directory, minExperiment=parameters[&#39;excludeDataBeforeJSONExperimentNumber&#39;], maxExperiment=parameters[&#39;excludeDataAfterJSONExperimentNumber&#39;])) ),</span>
+	<span class="c1"># 		&#39;experimentNumber&#39;: min(parameters[&#39;excludeDataAfterJSONExperimentNumber&#39;], dlu.loadJSONIndex(dlu.getDeviceDirectory(parameters))[&#39;experimentNumber&#39;])</span>
+	<span class="c1"># 	} </span>
+
+	<span class="c1"># 	dlu.makeFolder(parameters[&#39;postFolder&#39;])</span>
+	<span class="c1"># 	dlu.emptyFolder(parameters[&#39;postFolder&#39;])</span>
+
+	<span class="c1"># 	print(&#39;Posting plots online...&#39;)</span>
+	<span class="c1"># 	plotPoster.postPlots(parameters)</span>
+
+<span class="kn">import</span> <span class="nn">base64</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+
+<div class="viewcode-block" id="postPlots"><a class="viewcode-back" href="../../../source.utilities.html#source.utilities.PlotPostingUtility.postPlots">[docs]</a><span class="k">def</span> <span class="nf">postPlots</span><span class="p">(</span><span class="n">parameters</span><span class="p">):</span>
+	<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;When entering postPlots(), parameters is:&#39;</span><span class="p">)</span>
+	<span class="nb">print</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span>
+	
+	<span class="k">try</span><span class="p">:</span>
+		<span class="n">plotFileNames</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;postFolder&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;*.png&#39;</span><span class="p">)</span>
+		
+		<span class="k">for</span> <span class="n">plotFileName</span> <span class="ow">in</span> <span class="n">plotFileNames</span><span class="p">:</span>
+			<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">plotFileName</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">plotFile</span><span class="p">:</span>
+				<span class="n">encodedImage</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">plotFile</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+			
+			<span class="n">postURL</span> <span class="o">=</span> <span class="s1">&#39;https://script.google.com/macros/s/AKfycbzflDpYVTV3NGAEEaC-hfyQTN94JhZbr75dEh_czd7XXN5mDA/exec&#39;</span>
+			<span class="c1"># postURL = &#39;http://ptsv2.com/t/ly9tz-1525197812/post&#39;</span>
+			
+			<span class="n">postData</span> <span class="o">=</span> <span class="p">{}</span>
+			<span class="n">postData</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parameters</span>
+			<span class="n">postData</span><span class="p">[</span><span class="s1">&#39;encodedImage&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">encodedImage</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+			<span class="n">postData</span><span class="p">[</span><span class="s1">&#39;imageName&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">plotFileName</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+			
+			<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Posting plot to web service...&#39;</span><span class="p">)</span>
+			<span class="c1"># response = requests.post(postURL, data = postData)</span>
+			<span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">postURL</span><span class="p">,</span> <span class="n">json</span> <span class="o">=</span> <span class="n">postData</span><span class="p">)</span>
+			
+			<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Server response is: &#39;</span><span class="p">)</span>
+			<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+			<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+	
+	<span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+		<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Failed to post plots&#39;</span><span class="p">)</span>
+		<span class="nb">print</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">e</span><span class="p">))</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+	<span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span>
+		<span class="s1">&#39;waferID&#39;</span><span class="p">:</span> <span class="s1">&#39;C127&#39;</span><span class="p">,</span>
+		<span class="s1">&#39;chipID&#39;</span><span class="p">:</span> <span class="s1">&#39;Fake&#39;</span><span class="p">,</span>
+		<span class="s1">&#39;deviceID&#39;</span><span class="p">:</span> <span class="s1">&#39;8-9&#39;</span><span class="p">,</span>
+		<span class="s1">&#39;startIndexes&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;ExperimentNumber&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">},</span>
+		<span class="s1">&#39;runType&#39;</span><span class="p">:</span> <span class="s1">&#39;AutoGateSweep&#39;</span><span class="p">,</span>
+		<span class="s1">&#39;postFolder&#39;</span><span class="p">:</span> <span class="s1">&#39;../CurrentPlots/&#39;</span><span class="p">,</span>
+		<span class="s1">&#39;figuresSaved&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;../fig1.png&#39;</span><span class="p">],</span>
+		<span class="s1">&#39;postFigures&#39;</span><span class="p">:</span> <span class="kc">True</span>
+	<span class="p">}</span>
+	
+	<span class="n">postPlots</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span>
+	
+	<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Complete&#39;</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Steven Noyce
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,234 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>source.utilities.PlotDefinitions.ChipSubthresholdCurves &mdash; Autexys 1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+
+  
+  <script src="../../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> Autexys
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules.html">source</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Autexys</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>source.utilities.PlotDefinitions.ChipSubthresholdCurves</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for source.utilities.PlotDefinitions.ChipSubthresholdCurves</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">utilities.MatplotlibUtility</span> <span class="k">import</span> <span class="o">*</span>
+
+
+
+<span class="n">plotDescription</span> <span class="o">=</span> <span class="p">{</span>
+	<span class="s1">&#39;plotCategory&#39;</span><span class="p">:</span> <span class="s1">&#39;chip&#39;</span><span class="p">,</span>
+	<span class="s1">&#39;dataFileDependencies&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;GateSweep.json&#39;</span><span class="p">],</span>
+	<span class="s1">&#39;plotDefaults&#39;</span><span class="p">:</span> <span class="p">{</span>
+		<span class="s1">&#39;figsize&#39;</span><span class="p">:(</span><span class="mf">2.8</span><span class="p">,</span><span class="mf">3.2</span><span class="p">),</span>
+		<span class="s1">&#39;colorMap&#39;</span><span class="p">:</span><span class="s1">&#39;plasma&#39;</span><span class="p">,</span>
+		<span class="s1">&#39;colorDefault&#39;</span><span class="p">:</span> <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;axes.prop_cycle&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">by_key</span><span class="p">()[</span><span class="s1">&#39;color&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+		<span class="s1">&#39;xlabel&#39;</span><span class="p">:</span><span class="s1">&#39;$V_{{GS}}^{{Sweep}}$ [V]&#39;</span><span class="p">,</span>
+		<span class="s1">&#39;ylabel&#39;</span><span class="p">:</span><span class="s1">&#39;$I_{{D}}$ [A]&#39;</span><span class="p">,</span>
+	<span class="p">},</span>
+<span class="p">}</span>
+
+<div class="viewcode-block" id="plot"><a class="viewcode-back" href="../../../../source.utilities.PlotDefinitions.html#source.utilities.PlotDefinitions.ChipSubthresholdCurves.plot">[docs]</a><span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="n">identifiers</span><span class="p">,</span> <span class="n">chipIndexes</span><span class="p">,</span> <span class="n">firstRunChipHistory</span><span class="p">,</span> <span class="n">recentRunChipHistory</span><span class="p">,</span> <span class="n">specificRunChipHistory</span><span class="p">,</span> <span class="n">mode_parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+	<span class="c1"># Init Figure</span>
+	<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">initFigure</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">plotDescription</span><span class="p">[</span><span class="s1">&#39;plotDefaults&#39;</span><span class="p">][</span><span class="s1">&#39;figsize&#39;</span><span class="p">],</span> <span class="n">figsizeOverride</span><span class="o">=</span><span class="n">mode_parameters</span><span class="p">[</span><span class="s1">&#39;figureSizeOverride&#39;</span><span class="p">])</span>
+	<span class="k">if</span><span class="p">(</span><span class="ow">not</span> <span class="n">mode_parameters</span><span class="p">[</span><span class="s1">&#39;publication_mode&#39;</span><span class="p">]):</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Chip &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">identifiers</span><span class="p">[</span><span class="s1">&#39;wafer&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">identifiers</span><span class="p">[</span><span class="s1">&#39;chip&#39;</span><span class="p">]))</span>
+	
+	<span class="c1"># Colors</span>
+	<span class="n">colors</span> <span class="o">=</span> <span class="n">setupColors</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">specificRunChipHistory</span><span class="p">),</span> <span class="n">colorOverride</span><span class="o">=</span><span class="n">mode_parameters</span><span class="p">[</span><span class="s1">&#39;colorsOverride&#39;</span><span class="p">],</span> <span class="n">colorDefault</span><span class="o">=</span><span class="n">plotDescription</span><span class="p">[</span><span class="s1">&#39;plotDefaults&#39;</span><span class="p">][</span><span class="s1">&#39;colorDefault&#39;</span><span class="p">],</span> <span class="n">colorMapName</span><span class="o">=</span><span class="n">plotDescription</span><span class="p">[</span><span class="s1">&#39;plotDefaults&#39;</span><span class="p">][</span><span class="s1">&#39;colorMap&#39;</span><span class="p">],</span> <span class="n">colorMapStart</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">colorMapEnd</span><span class="o">=</span><span class="mf">0.87</span><span class="p">,</span> <span class="n">enableColorBar</span><span class="o">=</span><span class="n">mode_parameters</span><span class="p">[</span><span class="s1">&#39;enableColorBar&#39;</span><span class="p">],</span> <span class="n">colorBarTicks</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mf">0.6</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">colorBarTickLabels</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">],</span> <span class="n">colorBarAxisLabel</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>		
+	
+	<span class="c1"># Plot</span>
+	<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">specificRunChipHistory</span><span class="p">)):</span>
+		<span class="n">line</span> <span class="o">=</span> <span class="n">plotSubthresholdCurve</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">specificRunChipHistory</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">colors</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">direction</span><span class="o">=</span><span class="n">mode_parameters</span><span class="p">[</span><span class="s1">&#39;sweepDirection&#39;</span><span class="p">],</span> <span class="n">fitSubthresholdSwing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">includeLabel</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">lineStyle</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">errorBars</span><span class="o">=</span><span class="n">mode_parameters</span><span class="p">[</span><span class="s1">&#39;enableErrorBars&#39;</span><span class="p">])</span>			
+		<span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">specificRunChipHistory</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">mode_parameters</span><span class="p">[</span><span class="s1">&#39;legendLabels&#39;</span><span class="p">])):</span>
+			<span class="n">setLabel</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">mode_parameters</span><span class="p">[</span><span class="s1">&#39;legendLabels&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
+		
+	<span class="c1"># Label axes</span>
+	<span class="n">axisLabels</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">x_label</span><span class="o">=</span><span class="n">plotDescription</span><span class="p">[</span><span class="s1">&#39;plotDefaults&#39;</span><span class="p">][</span><span class="s1">&#39;xlabel&#39;</span><span class="p">],</span> <span class="n">y_label</span><span class="o">=</span><span class="n">plotDescription</span><span class="p">[</span><span class="s1">&#39;plotDefaults&#39;</span><span class="p">][</span><span class="s1">&#39;ylabel&#39;</span><span class="p">])</span>
+	<span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">matplotlib</span><span class="o">.</span><span class="n">ticker</span><span class="o">.</span><span class="n">LogLocator</span><span class="p">(</span><span class="n">numticks</span><span class="o">=</span><span class="mi">10</span><span class="p">))</span>
+	
+	<span class="c1"># Save Figure</span>
+	<span class="n">adjustAndSaveFigure</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s1">&#39;ChipTransferCurves&#39;</span><span class="p">,</span> <span class="n">mode_parameters</span><span class="p">)</span>
+	<span class="k">return</span> <span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="p">)</span></div>
+	
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Steven Noyce
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

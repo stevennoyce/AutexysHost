@@ -1,0 +1,557 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>source.utilities.DataLoggerUtility &mdash; Autexys 1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Autexys
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">source</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Autexys</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>source.utilities.DataLoggerUtility</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for source.utilities.DataLoggerUtility</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">import</span> <span class="nn">time</span>
+
+
+
+<span class="c1"># === File System ===</span>
+<div class="viewcode-block" id="makeFolder"><a class="viewcode-back" href="../../../source.utilities.html#source.utilities.DataLoggerUtility.makeFolder">[docs]</a><span class="k">def</span> <span class="nf">makeFolder</span><span class="p">(</span><span class="n">folderPath</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Create all of the folders in folderPath if they do not already exist.&quot;&quot;&quot;</span>
+	<span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">folderPath</span><span class="p">)):</span>
+		<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;New Folder: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">folderPath</span><span class="p">))</span>
+		<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">folderPath</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="emptyFolder"><a class="viewcode-back" href="../../../source.utilities.html#source.utilities.DataLoggerUtility.emptyFolder">[docs]</a><span class="k">def</span> <span class="nf">emptyFolder</span><span class="p">(</span><span class="n">folderPath</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Remove all png files from a folder.&quot;&quot;&quot;</span>
+	<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">folderPath</span><span class="p">):</span>
+		<span class="n">fileNames</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">folderPath</span> <span class="o">+</span> <span class="s1">&#39;*.png&#39;</span><span class="p">)</span>
+		<span class="k">for</span> <span class="n">fileName</span> <span class="ow">in</span> <span class="n">fileNames</span><span class="p">:</span>
+			<span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">fileName</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="emptyFile"><a class="viewcode-back" href="../../../source.utilities.html#source.utilities.DataLoggerUtility.emptyFile">[docs]</a><span class="k">def</span> <span class="nf">emptyFile</span><span class="p">(</span><span class="n">folderPath</span><span class="p">,</span> <span class="n">fileName</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Make an empty file called fileName.json in the folderPath directory.&quot;&quot;&quot;</span>
+	<span class="n">makeFolder</span><span class="p">(</span><span class="n">folderPath</span><span class="p">)</span>
+	
+	<span class="k">if</span> <span class="s1">&#39;.json&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fileName</span><span class="p">:</span>
+		<span class="n">fileName</span> <span class="o">+=</span> <span class="s1">&#39;.json&#39;</span>
+	
+	<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folderPath</span><span class="p">,</span> <span class="n">fileName</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+		<span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span></div>
+	
+
+
+<span class="c1"># === JSON ===</span>
+<div class="viewcode-block" id="saveJSON"><a class="viewcode-back" href="../../../source.utilities.html#source.utilities.DataLoggerUtility.saveJSON">[docs]</a><span class="k">def</span> <span class="nf">saveJSON</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">saveFileName</span><span class="p">,</span> <span class="n">jsonData</span><span class="p">,</span> <span class="n">subDirectory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">incrementIndex</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Save the jsonData dictionary to as saveFileName.json in directory. </span>
+<span class="sd">	If incrementIndex is True, also create an index.json file that tracks the index and experimentNumber of this jsonData.</span>
+<span class="sd">	If subDirectory is not None, put saveFileName.json in a folder specified by directory + subDirectory. index.json is still put in directory.&quot;&quot;&quot;</span>
+	<span class="n">savePath</span> <span class="o">=</span> <span class="n">directory</span>
+	<span class="k">if</span><span class="p">(</span><span class="n">subDirectory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+		<span class="n">savePath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">subDirectory</span><span class="p">)</span>
+	<span class="n">makeFolder</span><span class="p">(</span><span class="n">savePath</span><span class="p">)</span>
+	
+	<span class="k">if</span> <span class="s1">&#39;.json&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">saveFileName</span><span class="p">:</span>
+		<span class="n">saveFileName</span> <span class="o">+=</span> <span class="s1">&#39;.json&#39;</span>
+	
+	<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">savePath</span><span class="p">,</span> <span class="n">saveFileName</span><span class="p">),</span> <span class="s1">&#39;a&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+		<span class="k">if</span><span class="p">(</span><span class="n">incrementIndex</span><span class="p">):</span>
+			<span class="n">indexData</span> <span class="o">=</span> <span class="n">loadJSONIndex</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+			<span class="n">jsonData</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">indexData</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span>
+			<span class="n">jsonData</span><span class="p">[</span><span class="s1">&#39;experimentNumber&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">indexData</span><span class="p">[</span><span class="s1">&#39;experimentNumber&#39;</span><span class="p">]</span>
+			<span class="n">jsonData</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+			<span class="n">incrementJSONIndex</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+		<span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">jsonData</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+		<span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>	</div>
+
+<div class="viewcode-block" id="loadJSON"><a class="viewcode-back" href="../../../source.utilities.html#source.utilities.DataLoggerUtility.loadJSON">[docs]</a><span class="k">def</span> <span class="nf">loadJSON</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">loadFileName</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Load loadFileName.json as a dictionary.&quot;&quot;&quot;</span>
+	<span class="k">return</span> <span class="n">loadJSON_slow</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">loadFileName</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="loadJSONIndex"><a class="viewcode-back" href="../../../source.utilities.html#source.utilities.DataLoggerUtility.loadJSONIndex">[docs]</a><span class="k">def</span> <span class="nf">loadJSONIndex</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Load the first line of index.json in directory.&quot;&quot;&quot;</span>
+	<span class="n">indexData</span> <span class="o">=</span> <span class="p">{}</span>
+	<span class="k">try</span><span class="p">:</span>
+		<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s1">&#39;index.json&#39;</span><span class="p">),</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+			<span class="n">indexData</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">readline</span><span class="p">())</span>
+	<span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>	
+		<span class="n">indexData</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;index&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;experimentNumber&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;timestamp&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">}</span>
+	<span class="k">return</span> <span class="n">indexData</span></div>
+
+<div class="viewcode-block" id="incrementJSONIndex"><a class="viewcode-back" href="../../../source.utilities.html#source.utilities.DataLoggerUtility.incrementJSONIndex">[docs]</a><span class="k">def</span> <span class="nf">incrementJSONIndex</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Increase index in index.json by 1 and refresh the timestamp.&quot;&quot;&quot;</span>
+	<span class="n">indexData</span> <span class="o">=</span> <span class="n">loadJSONIndex</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+	<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s1">&#39;index.json&#39;</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+		<span class="n">indexData</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+		<span class="n">indexData</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+		<span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">indexData</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+		<span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">indexData</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="incrementJSONExperimentNumber"><a class="viewcode-back" href="../../../source.utilities.html#source.utilities.DataLoggerUtility.incrementJSONExperimentNumber">[docs]</a><span class="k">def</span> <span class="nf">incrementJSONExperimentNumber</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Increase experimentNumber in index.json by 1 and refresh the timestamp.&quot;&quot;&quot;</span>
+	<span class="n">indexData</span> <span class="o">=</span> <span class="n">loadJSONIndex</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+	<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s1">&#39;index.json&#39;</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+		<span class="n">indexData</span><span class="p">[</span><span class="s1">&#39;experimentNumber&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+		<span class="n">indexData</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+		<span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">indexData</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+		<span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">indexData</span><span class="p">[</span><span class="s1">&#39;experimentNumber&#39;</span><span class="p">]</span></div>
+	
+<div class="viewcode-block" id="loadJSON_slow"><a class="viewcode-back" href="../../../source.utilities.html#source.utilities.DataLoggerUtility.loadJSON_slow">[docs]</a><span class="k">def</span> <span class="nf">loadJSON_slow</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">loadFileName</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Private method. This is the traditional way of parsing json data files, but it can be slow if you only need to see one line in a large file.&quot;&quot;&quot;</span>
+	<span class="n">jsonData</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">loadFileName</span><span class="p">))</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+		<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">file</span><span class="p">:</span>
+			<span class="k">try</span><span class="p">:</span>
+				<span class="n">jsonData</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">line</span><span class="p">)))</span>
+			<span class="k">except</span><span class="p">:</span>
+				<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Error loading JSON line in file </span><span class="si">{:}</span><span class="s1">/</span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">loadFileName</span><span class="p">))</span>
+	<span class="k">return</span> <span class="n">jsonData</span></div>
+
+<div class="viewcode-block" id="loadJSON_fast"><a class="viewcode-back" href="../../../source.utilities.html#source.utilities.DataLoggerUtility.loadJSON_fast">[docs]</a><span class="k">def</span> <span class="nf">loadJSON_fast</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">loadFileName</span><span class="p">,</span> <span class="n">minIndex</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">maxIndex</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">),</span> <span class="n">minExperiment</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">maxExperiment</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">),</span> <span class="n">minRelativeIndex</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">maxRelativeIndex</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)):</span>
+	<span class="sd">&quot;&quot;&quot;Private method. Given filters of min/max index, experimentNumber, and relativeIndex this loads individual file lines much faster.&quot;&quot;&quot;</span>
+	<span class="n">fileLines</span> <span class="o">=</span> <span class="n">loadJSONtoStringArray</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">loadFileName</span><span class="p">)</span>
+	<span class="n">filteredFileLines</span> <span class="o">=</span> <span class="n">filterStringArrayByIndexAndExperiment</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">fileLines</span><span class="p">,</span> <span class="n">minIndex</span><span class="p">,</span> <span class="n">maxIndex</span><span class="p">,</span> <span class="n">minExperiment</span><span class="p">,</span> <span class="n">maxExperiment</span><span class="p">,</span> <span class="n">minRelativeIndex</span><span class="p">,</span> <span class="n">maxRelativeIndex</span><span class="p">)</span>
+	<span class="n">jsonData</span> <span class="o">=</span> <span class="n">parseJSON</span><span class="p">(</span><span class="n">filteredFileLines</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">jsonData</span></div>
+
+
+
+<span class="c1"># === Device History API ===</span>
+<span class="sd">&quot;&quot;&quot;These are the public methods used specifically to load device data.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="getDeviceDirectory"><a class="viewcode-back" href="../../../source.utilities.html#source.utilities.DataLoggerUtility.getDeviceDirectory">[docs]</a><span class="k">def</span> <span class="nf">getDeviceDirectory</span><span class="p">(</span><span class="n">parameters</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Given the typical parameters used to run an experiment, return the path to the directory where data will be saved for this device.&quot;&quot;&quot;</span>
+	<span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;dataFolder&#39;</span><span class="p">],</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;Identifiers&#39;</span><span class="p">][</span><span class="s1">&#39;user&#39;</span><span class="p">],</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;Identifiers&#39;</span><span class="p">][</span><span class="s1">&#39;project&#39;</span><span class="p">],</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;Identifiers&#39;</span><span class="p">][</span><span class="s1">&#39;wafer&#39;</span><span class="p">],</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;Identifiers&#39;</span><span class="p">][</span><span class="s1">&#39;chip&#39;</span><span class="p">],</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;Identifiers&#39;</span><span class="p">][</span><span class="s1">&#39;device&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span></div>
+
+<div class="viewcode-block" id="loadSpecificDeviceHistory"><a class="viewcode-back" href="../../../source.utilities.html#source.utilities.DataLoggerUtility.loadSpecificDeviceHistory">[docs]</a><span class="k">def</span> <span class="nf">loadSpecificDeviceHistory</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">fileName</span><span class="p">,</span> <span class="n">minIndex</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">maxIndex</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">),</span> <span class="n">minExperiment</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">maxExperiment</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">),</span> <span class="n">minRelativeIndex</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">maxRelativeIndex</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)):</span>
+	<span class="sd">&quot;&quot;&quot;Given a folder path and fileName, load data for a device over a range of indices or experiments. </span>
+<span class="sd">	If minIndex/maxIndex or minExperiment/maxExperiment are negative, then index backwards (-1 == the most recent index/experiment)&quot;&quot;&quot;</span>
+	<span class="n">indexData</span> <span class="o">=</span> <span class="n">loadJSONIndex</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+	<span class="k">if</span><span class="p">(</span><span class="n">minExperiment</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
+		<span class="n">minExperiment</span> <span class="o">=</span> <span class="n">indexData</span><span class="p">[</span><span class="s1">&#39;experimentNumber&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">minExperiment</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+	<span class="k">if</span><span class="p">(</span><span class="n">maxExperiment</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
+		<span class="n">maxExperiment</span> <span class="o">=</span> <span class="n">indexData</span><span class="p">[</span><span class="s1">&#39;experimentNumber&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">maxExperiment</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+	<span class="k">if</span><span class="p">(</span><span class="n">minIndex</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
+		<span class="n">minIndex</span> <span class="o">=</span> <span class="n">indexData</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">minIndex</span>
+	<span class="k">if</span><span class="p">(</span><span class="n">maxIndex</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
+		<span class="n">maxIndex</span> <span class="o">=</span> <span class="n">indexData</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">maxIndex</span>
+	
+	<span class="n">filteredHistory</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="k">for</span> <span class="n">experimentSubdirectory</span> <span class="ow">in</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="k">if</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">fileName</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Ex&#39;</span> <span class="ow">and</span> <span class="n">name</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">())</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span> <span class="o">&gt;=</span> <span class="n">minExperiment</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span> <span class="o">&lt;=</span> <span class="n">maxExperiment</span><span class="p">))]:</span>
+		<span class="n">filteredHistory</span> <span class="o">+=</span> <span class="n">loadJSON_fast</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">experimentSubdirectory</span><span class="p">),</span> <span class="n">fileName</span><span class="p">,</span> <span class="n">minIndex</span><span class="p">,</span> <span class="n">maxIndex</span><span class="p">,</span> <span class="n">minExperiment</span><span class="p">,</span> <span class="n">maxExperiment</span><span class="p">,</span> <span class="n">minRelativeIndex</span><span class="p">,</span> <span class="n">maxRelativeIndex</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">filteredHistory</span></div>
+
+<div class="viewcode-block" id="loadOldestDeviceHistory"><a class="viewcode-back" href="../../../source.utilities.html#source.utilities.DataLoggerUtility.loadOldestDeviceHistory">[docs]</a><span class="k">def</span> <span class="nf">loadOldestDeviceHistory</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">fileName</span><span class="p">,</span> <span class="n">numberOfOldestExperiments</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Given a folder path and fileName, load oldest data for a device. Can specify the number of oldest experiments to include.&quot;&quot;&quot;</span>
+	<span class="n">mostRecentExperimentNumber</span> <span class="o">=</span> <span class="n">loadJSONIndex</span><span class="p">(</span><span class="n">directory</span><span class="p">)[</span><span class="s1">&#39;experimentNumber&#39;</span><span class="p">]</span>
+	<span class="n">oldDeviceExperimentNumber</span> <span class="o">=</span> <span class="mi">1</span>
+	<span class="k">while</span><span class="p">(</span><span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s1">&#39;Ex&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">oldDeviceExperimentNumber</span><span class="p">),</span> <span class="n">fileName</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="n">oldDeviceExperimentNumber</span> <span class="o">&lt;</span> <span class="n">mostRecentExperimentNumber</span><span class="p">)):</span>
+		<span class="n">oldDeviceExperimentNumber</span> <span class="o">+=</span> <span class="mi">1</span>
+	<span class="k">return</span> <span class="n">loadSpecificDeviceHistory</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">fileName</span><span class="p">,</span> <span class="n">minExperiment</span><span class="o">=</span><span class="n">oldDeviceExperimentNumber</span><span class="p">,</span> <span class="n">maxExperiment</span><span class="o">=</span><span class="n">oldDeviceExperimentNumber</span><span class="o">+</span><span class="p">(</span><span class="n">numberOfOldestExperiments</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="loadMostRecentDeviceHistory"><a class="viewcode-back" href="../../../source.utilities.html#source.utilities.DataLoggerUtility.loadMostRecentDeviceHistory">[docs]</a><span class="k">def</span> <span class="nf">loadMostRecentDeviceHistory</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">fileName</span><span class="p">,</span> <span class="n">numberOfRecentExperiments</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Given a folder path and fileName, load most recent data for a device. Can specify the number of recent experiments to include.&quot;&quot;&quot;</span>
+	<span class="n">mostRecentExperimentNumber</span> <span class="o">=</span> <span class="n">loadJSONIndex</span><span class="p">(</span><span class="n">directory</span><span class="p">)[</span><span class="s1">&#39;experimentNumber&#39;</span><span class="p">]</span>
+	<span class="n">recentDeviceExperimentNumber</span> <span class="o">=</span> <span class="n">mostRecentExperimentNumber</span>
+	<span class="k">while</span><span class="p">(</span><span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s1">&#39;Ex&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">recentDeviceExperimentNumber</span><span class="p">),</span> <span class="n">fileName</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="n">recentDeviceExperimentNumber</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)):</span>
+		<span class="n">recentDeviceExperimentNumber</span> <span class="o">-=</span> <span class="mi">1</span>
+	<span class="k">return</span> <span class="n">loadSpecificDeviceHistory</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">fileName</span><span class="p">,</span> <span class="n">minExperiment</span><span class="o">=</span><span class="n">recentDeviceExperimentNumber</span><span class="o">-</span><span class="p">(</span><span class="n">numberOfRecentExperiments</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">maxExperiment</span><span class="o">=</span><span class="n">recentDeviceExperimentNumber</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="getDataFileNamesForDeviceExperiments"><a class="viewcode-back" href="../../../source.utilities.html#source.utilities.DataLoggerUtility.getDataFileNamesForDeviceExperiments">[docs]</a><span class="k">def</span> <span class="nf">getDataFileNamesForDeviceExperiments</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">minExperiment</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">maxExperiment</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)):</span>
+	<span class="sd">&quot;&quot;&quot;Given a folder path and range of experiments, get all of the unique .json file names that hold data in that directory.&quot;&quot;&quot;</span>
+	<span class="n">dataFileNames</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="k">for</span> <span class="n">experimentSubdirectory</span> <span class="ow">in</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="k">if</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Ex&#39;</span> <span class="ow">and</span> <span class="n">name</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">())</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span> <span class="o">&gt;=</span> <span class="n">minExperiment</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span> <span class="o">&lt;=</span> <span class="n">maxExperiment</span><span class="p">))]:</span>
+		<span class="k">for</span> <span class="n">filePath</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">experimentSubdirectory</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/*.json&#39;</span><span class="p">):</span>
+			<span class="n">dataFileName</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filePath</span><span class="p">)</span>
+			<span class="k">if</span><span class="p">(</span><span class="n">dataFileName</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dataFileNames</span><span class="p">):</span>
+				<span class="n">dataFileNames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dataFileName</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">dataFileNames</span></div>
+
+<div class="viewcode-block" id="getIndexesForExperiments"><a class="viewcode-back" href="../../../source.utilities.html#source.utilities.DataLoggerUtility.getIndexesForExperiments">[docs]</a><span class="k">def</span> <span class="nf">getIndexesForExperiments</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">minExperiment</span><span class="p">,</span> <span class="n">maxExperiment</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Given a folder path and range of experiments, get a list of the indices for the data in those experiments.&quot;&quot;&quot;</span>
+	<span class="n">indexes</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="k">for</span> <span class="n">experimentSubdirectory</span> <span class="ow">in</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="k">if</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Ex&#39;</span> <span class="ow">and</span> <span class="n">name</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">())</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span> <span class="o">&gt;=</span> <span class="n">minExperiment</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span> <span class="o">&lt;=</span> <span class="n">maxExperiment</span><span class="p">))]:</span>	
+		<span class="k">for</span> <span class="n">filePath</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">experimentSubdirectory</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/*.json&#39;</span><span class="p">):</span>
+			<span class="n">jsonData</span> <span class="o">=</span> <span class="n">loadJSON_fast</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">filePath</span><span class="p">,</span> <span class="n">minExperiment</span><span class="o">=</span><span class="n">minExperiment</span><span class="p">,</span> <span class="n">maxExperiment</span><span class="o">=</span><span class="n">maxExperiment</span><span class="p">)</span>
+			<span class="k">for</span> <span class="n">deviceRun</span> <span class="ow">in</span> <span class="n">jsonData</span><span class="p">:</span>
+				<span class="k">if</span><span class="p">(</span><span class="n">deviceRun</span><span class="p">[</span><span class="s1">&#39;experimentNumber&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">minExperiment</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">deviceRun</span><span class="p">[</span><span class="s1">&#39;experimentNumber&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">maxExperiment</span><span class="p">):</span>
+					<span class="n">indexes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">deviceRun</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">])</span>
+	<span class="n">indexes</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+	<span class="k">return</span> <span class="n">indexes</span></div>
+		
+
+
+<span class="c1"># === Chip History API ===</span>
+<span class="sd">&quot;&quot;&quot;These are the public methods used specifically to load data from multiple devices on the same chip.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="getChipDirectory"><a class="viewcode-back" href="../../../source.utilities.html#source.utilities.DataLoggerUtility.getChipDirectory">[docs]</a><span class="k">def</span> <span class="nf">getChipDirectory</span><span class="p">(</span><span class="n">parameters</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Given the typical parameters used to run an experiment, return the path to the directory where data will be saved for this chip.&quot;&quot;&quot;</span>
+	<span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;dataFolder&#39;</span><span class="p">],</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;Identifiers&#39;</span><span class="p">][</span><span class="s1">&#39;user&#39;</span><span class="p">],</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;Identifiers&#39;</span><span class="p">][</span><span class="s1">&#39;project&#39;</span><span class="p">],</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;Identifiers&#39;</span><span class="p">][</span><span class="s1">&#39;wafer&#39;</span><span class="p">],</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;Identifiers&#39;</span><span class="p">][</span><span class="s1">&#39;chip&#39;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="loadChipIndexes"><a class="viewcode-back" href="../../../source.utilities.html#source.utilities.DataLoggerUtility.loadChipIndexes">[docs]</a><span class="k">def</span> <span class="nf">loadChipIndexes</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Given a chip&#39;s folder path, load the index.json data for every device.&quot;&quot;&quot;</span>
+	<span class="n">chipIndexes</span> <span class="o">=</span> <span class="p">{}</span>
+	<span class="k">for</span> <span class="n">deviceSubdirectory</span> <span class="ow">in</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">name</span><span class="p">))]:</span>
+		<span class="n">indexData</span> <span class="o">=</span> <span class="n">loadJSONIndex</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">deviceSubdirectory</span><span class="p">))</span>
+		<span class="n">chipIndexes</span><span class="p">[</span><span class="n">deviceSubdirectory</span><span class="p">]</span> <span class="o">=</span> <span class="n">indexData</span>
+	<span class="k">return</span> <span class="n">chipIndexes</span></div>
+
+<div class="viewcode-block" id="loadSpecificChipHistory"><a class="viewcode-back" href="../../../source.utilities.html#source.utilities.DataLoggerUtility.loadSpecificChipHistory">[docs]</a><span class="k">def</span> <span class="nf">loadSpecificChipHistory</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">fileName</span><span class="p">,</span> <span class="n">specificDeviceList</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">minIndex</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">maxIndex</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">),</span> <span class="n">minExperiment</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">maxExperiment</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">),</span> <span class="n">minRelativeIndex</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">maxRelativeIndex</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)):</span>
+	<span class="sd">&quot;&quot;&quot;Given a chip&#39;s folder path and a data fileName, load data over a range of indices or experiments for devices on that chip.</span>
+<span class="sd">	The default loads all devices on the chip but specific devices can also be specified.&quot;&quot;&quot;</span>
+	<span class="n">chipHistory</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="k">for</span> <span class="n">deviceSubdirectory</span> <span class="ow">in</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="k">if</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="n">specificDeviceList</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">specificDeviceList</span><span class="p">))]:</span>
+		<span class="n">jsonData</span> <span class="o">=</span> <span class="n">loadSpecificDeviceHistory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">deviceSubdirectory</span><span class="p">),</span> <span class="n">fileName</span><span class="p">,</span> <span class="n">minIndex</span><span class="o">=</span><span class="n">minIndex</span><span class="p">,</span> <span class="n">maxIndex</span><span class="o">=</span><span class="n">maxIndex</span><span class="p">,</span> <span class="n">minExperiment</span><span class="o">=</span><span class="n">minExperiment</span><span class="p">,</span> <span class="n">maxExperiment</span><span class="o">=</span><span class="n">maxExperiment</span><span class="p">,</span> <span class="n">minRelativeIndex</span><span class="o">=</span><span class="n">minRelativeIndex</span><span class="p">,</span> <span class="n">maxRelativeIndex</span><span class="o">=</span><span class="n">maxRelativeIndex</span><span class="p">)</span>
+		<span class="k">for</span> <span class="n">deviceRun</span> <span class="ow">in</span> <span class="n">jsonData</span><span class="p">:</span>
+			<span class="n">chipHistory</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">deviceRun</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">chipHistory</span></div>
+
+<div class="viewcode-block" id="loadOldestChipHistory"><a class="viewcode-back" href="../../../source.utilities.html#source.utilities.DataLoggerUtility.loadOldestChipHistory">[docs]</a><span class="k">def</span> <span class="nf">loadOldestChipHistory</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">fileName</span><span class="p">,</span> <span class="n">numberOfOldestExperiments</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">specificDeviceList</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Given a chip&#39;s folder path and a data fileName, load the oldest saved jsonData for devices on that chip. </span>
+<span class="sd">	The default loads all devices on the chip but specific devices can also be specified.&quot;&quot;&quot;</span>
+	<span class="n">chipHistory</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="k">for</span> <span class="n">deviceSubdirectory</span> <span class="ow">in</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="k">if</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="n">specificDeviceList</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">specificDeviceList</span><span class="p">))]:</span>
+		<span class="n">jsonData</span> <span class="o">=</span> <span class="n">loadOldestDeviceHistory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">deviceSubdirectory</span><span class="p">),</span> <span class="n">fileName</span><span class="p">,</span> <span class="n">numberOfOldestExperiments</span><span class="o">=</span><span class="n">numberOfOldestExperiments</span><span class="p">)</span>
+		<span class="k">for</span> <span class="n">deviceRun</span> <span class="ow">in</span> <span class="n">jsonData</span><span class="p">:</span>
+			<span class="n">chipHistory</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">deviceRun</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">chipHistory</span></div>
+
+<div class="viewcode-block" id="loadMostRecentChipHistory"><a class="viewcode-back" href="../../../source.utilities.html#source.utilities.DataLoggerUtility.loadMostRecentChipHistory">[docs]</a><span class="k">def</span> <span class="nf">loadMostRecentChipHistory</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">fileName</span><span class="p">,</span> <span class="n">numberOfRecentExperiments</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">specificDeviceList</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Given a chip&#39;s folder path and a data fileName, load the most recently saved jsonData for devices on that chip. </span>
+<span class="sd">	The default loads all devices on the chip but specific devices can also be specified.&quot;&quot;&quot;</span>
+	<span class="n">chipHistory</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="k">for</span> <span class="n">deviceSubdirectory</span> <span class="ow">in</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="k">if</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="n">specificDeviceList</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">specificDeviceList</span><span class="p">))]:</span>
+		<span class="n">jsonData</span> <span class="o">=</span> <span class="n">loadMostRecentDeviceHistory</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">deviceSubdirectory</span><span class="p">),</span> <span class="n">fileName</span><span class="p">,</span> <span class="n">numberOfRecentExperiments</span><span class="o">=</span><span class="n">numberOfRecentExperiments</span><span class="p">)</span>
+		<span class="k">for</span> <span class="n">deviceRun</span> <span class="ow">in</span> <span class="n">jsonData</span><span class="p">:</span>
+			<span class="n">chipHistory</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">deviceRun</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">chipHistory</span></div>
+
+<div class="viewcode-block" id="getDataFileNamesForChipExperiments"><a class="viewcode-back" href="../../../source.utilities.html#source.utilities.DataLoggerUtility.getDataFileNamesForChipExperiments">[docs]</a><span class="k">def</span> <span class="nf">getDataFileNamesForChipExperiments</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">minExperiment</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">maxExperiment</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">),</span> <span class="n">specificDeviceList</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Given a folder path and range of experiments, get all of the unique .json file names that hold data in that directory.&quot;&quot;&quot;</span>
+	<span class="n">dataFileNames</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="k">for</span> <span class="n">deviceSubdirectory</span> <span class="ow">in</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span> <span class="k">if</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="n">specificDeviceList</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">specificDeviceList</span><span class="p">))]:</span>
+		<span class="c1"># Get all .json files for this device&#39;s experiments</span>
+		<span class="n">deviceFileNames</span> <span class="o">=</span> <span class="n">getDataFileNamesForDeviceExperiments</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">deviceSubdirectory</span><span class="p">),</span> <span class="n">minExperiment</span><span class="o">=</span><span class="n">minExperiment</span><span class="p">,</span> <span class="n">maxExperiment</span><span class="o">=</span><span class="n">maxExperiment</span><span class="p">)</span>
+		<span class="c1"># Plus all of the supporting .json files in the device&#39;s subdirectory</span>
+		<span class="k">for</span> <span class="n">filePath</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">deviceSubdirectory</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/*.json&#39;</span><span class="p">):</span>
+			<span class="n">deviceInfoFileName</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filePath</span><span class="p">)</span>
+			<span class="k">if</span><span class="p">(</span><span class="n">deviceInfoFileName</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">deviceFileNames</span><span class="p">):</span>
+				<span class="n">deviceFileNames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">deviceInfoFileName</span><span class="p">)</span>
+		<span class="c1"># Add all of those to the list of files available for this chip</span>
+		<span class="k">for</span> <span class="n">dataFileName</span> <span class="ow">in</span> <span class="n">deviceFileNames</span><span class="p">:</span>
+			<span class="k">if</span><span class="p">(</span><span class="n">dataFileName</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dataFileNames</span><span class="p">):</span>
+				<span class="n">dataFileNames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dataFileName</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">dataFileNames</span></div>
+
+
+
+<span class="c1"># === Wafer History API ===</span>
+<span class="sd">&quot;&quot;&quot;These are the public methods used specifically to load data from multiple chips on the same wafer.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="getWaferDirectory"><a class="viewcode-back" href="../../../source.utilities.html#source.utilities.DataLoggerUtility.getWaferDirectory">[docs]</a><span class="k">def</span> <span class="nf">getWaferDirectory</span><span class="p">(</span><span class="n">parameters</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Given the typical parameters used to run an experiment, return the path to the directory where data will be saved for this wafer.&quot;&quot;&quot;</span>
+	<span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;dataFolder&#39;</span><span class="p">],</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;Identifiers&#39;</span><span class="p">][</span><span class="s1">&#39;user&#39;</span><span class="p">],</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;Identifiers&#39;</span><span class="p">][</span><span class="s1">&#39;project&#39;</span><span class="p">],</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;Identifiers&#39;</span><span class="p">][</span><span class="s1">&#39;wafer&#39;</span><span class="p">])</span></div>
+
+
+
+<span class="c1"># === Faster JSON Loading ===</span>
+<span class="sd">&quot;&quot;&quot;Private methods used to load data faster when only a few lines are needed from a large file.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="loadJSONtoStringArray"><a class="viewcode-back" href="../../../source.utilities.html#source.utilities.DataLoggerUtility.loadJSONtoStringArray">[docs]</a><span class="k">def</span> <span class="nf">loadJSONtoStringArray</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">loadFileName</span><span class="p">):</span>
+	<span class="n">fileLines</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">loadFileName</span><span class="p">))</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+		<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">file</span><span class="p">:</span>
+			<span class="n">fileLines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">fileLines</span></div>
+
+<div class="viewcode-block" id="filterStringArrayByIndexAndExperiment"><a class="viewcode-back" href="../../../source.utilities.html#source.utilities.DataLoggerUtility.filterStringArrayByIndexAndExperiment">[docs]</a><span class="k">def</span> <span class="nf">filterStringArrayByIndexAndExperiment</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">fileLines</span><span class="p">,</span> <span class="n">minIndex</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">maxIndex</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">),</span> <span class="n">minExperiment</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">maxExperiment</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">),</span> <span class="n">minRelativeIndex</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">maxRelativeIndex</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)):</span>
+	<span class="n">filteredFileLines</span> <span class="o">=</span> <span class="n">fileLines</span>
+
+	<span class="k">if</span><span class="p">(</span><span class="n">minExperiment</span> <span class="o">==</span> <span class="n">maxExperiment</span><span class="p">):</span>
+		<span class="n">filteredFileLines</span> <span class="o">=</span> <span class="n">filterFileLines</span><span class="p">(</span><span class="n">filteredFileLines</span><span class="p">,</span> <span class="s1">&#39;experimentNumber&#39;</span><span class="p">,</span> <span class="n">minExperiment</span><span class="p">)</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="k">if</span><span class="p">(</span><span class="n">minExperiment</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+			<span class="n">filteredFileLines</span> <span class="o">=</span> <span class="n">filterFileLinesGreaterThan</span><span class="p">(</span><span class="n">filteredFileLines</span><span class="p">,</span> <span class="s1">&#39;experimentNumber&#39;</span><span class="p">,</span> <span class="n">minExperiment</span><span class="p">)</span>
+		<span class="k">if</span><span class="p">(</span><span class="n">maxExperiment</span> <span class="o">&lt;</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)):</span>
+			<span class="n">filteredFileLines</span> <span class="o">=</span> <span class="n">filterFileLinesLessThan</span><span class="p">(</span><span class="n">filteredFileLines</span><span class="p">,</span> <span class="s1">&#39;experimentNumber&#39;</span><span class="p">,</span> <span class="n">maxExperiment</span><span class="p">)</span>
+
+	<span class="k">if</span><span class="p">(</span><span class="n">minIndex</span> <span class="o">==</span> <span class="n">maxIndex</span><span class="p">):</span>
+		<span class="n">filteredFileLines</span> <span class="o">=</span> <span class="n">filterFileLines</span><span class="p">(</span><span class="n">filteredFileLines</span><span class="p">,</span> <span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="n">minIndex</span><span class="p">)</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="k">if</span><span class="p">(</span><span class="n">minIndex</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+			<span class="n">filteredFileLines</span> <span class="o">=</span> <span class="n">filterFileLinesGreaterThan</span><span class="p">(</span><span class="n">filteredFileLines</span><span class="p">,</span> <span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="n">minIndex</span><span class="p">)</span>
+		<span class="k">if</span><span class="p">(</span><span class="n">maxIndex</span> <span class="o">&lt;</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)):</span>
+			<span class="n">filteredFileLines</span> <span class="o">=</span> <span class="n">filterFileLinesLessThan</span><span class="p">(</span><span class="n">filteredFileLines</span><span class="p">,</span> <span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="n">maxIndex</span><span class="p">)</span>
+	
+	<span class="k">if</span><span class="p">(</span><span class="n">minRelativeIndex</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">maxRelativeIndex</span> <span class="o">&lt;</span> <span class="mf">1e10</span><span class="p">):</span>
+		<span class="n">experimentBaseIndex</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">getIndexesForExperiments</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">minExperiment</span><span class="p">,</span> <span class="n">maxExperiment</span><span class="p">))</span>
+		<span class="k">if</span><span class="p">(</span><span class="n">minRelativeIndex</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+			<span class="n">filteredFileLines</span> <span class="o">=</span> <span class="n">filterFileLinesGreaterThan</span><span class="p">(</span><span class="n">filteredFileLines</span><span class="p">,</span> <span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="n">experimentBaseIndex</span> <span class="o">+</span> <span class="n">minRelativeIndex</span><span class="p">)</span>
+		<span class="k">if</span><span class="p">(</span><span class="n">maxRelativeIndex</span> <span class="o">&lt;</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)):</span>
+			<span class="n">filteredFileLines</span> <span class="o">=</span> <span class="n">filterFileLinesLessThan</span><span class="p">(</span><span class="n">filteredFileLines</span><span class="p">,</span> <span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="n">experimentBaseIndex</span> <span class="o">+</span> <span class="n">maxRelativeIndex</span><span class="p">)</span>
+
+	<span class="k">return</span> <span class="n">filteredFileLines</span></div>
+
+<div class="viewcode-block" id="parseJSON"><a class="viewcode-back" href="../../../source.utilities.html#source.utilities.DataLoggerUtility.parseJSON">[docs]</a><span class="k">def</span> <span class="nf">parseJSON</span><span class="p">(</span><span class="n">fileLines</span><span class="p">):</span>
+	<span class="n">jsonData</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fileLines</span><span class="p">:</span>
+		<span class="k">try</span><span class="p">:</span>
+			<span class="n">jsonData</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">line</span><span class="p">)))</span>
+		<span class="k">except</span><span class="p">:</span>
+			<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Error loading JSON line in file </span><span class="si">{:}</span><span class="s1">/</span><span class="si">{:}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">loadFileName</span><span class="p">))</span>
+	<span class="k">return</span> <span class="n">jsonData</span></div>
+
+
+
+<span class="c1"># === Filtering ===</span>
+<span class="sd">&quot;&quot;&quot;Private methods used to filter either 1) arrays of parsed device data or 2) raw strings from files.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="filterHistory"><a class="viewcode-back" href="../../../source.utilities.html#source.utilities.DataLoggerUtility.filterHistory">[docs]</a><span class="k">def</span> <span class="nf">filterHistory</span><span class="p">(</span><span class="n">deviceHistory</span><span class="p">,</span> <span class="nb">property</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">subproperties</span><span class="o">=</span><span class="p">[]):</span>
+	<span class="n">filteredHistory</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="k">for</span> <span class="n">deviceRun</span> <span class="ow">in</span> <span class="n">deviceHistory</span><span class="p">:</span>
+		<span class="n">propertyLocation</span> <span class="o">=</span> <span class="n">deviceRun</span>
+		<span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">subproperties</span><span class="p">:</span>
+			<span class="n">propertyLocation</span> <span class="o">=</span> <span class="n">propertyLocation</span><span class="p">[</span><span class="n">sub</span><span class="p">]</span>
+		<span class="k">try</span><span class="p">:</span>
+			<span class="k">if</span><span class="p">(</span><span class="n">propertyLocation</span><span class="p">[</span><span class="nb">property</span><span class="p">]</span> <span class="o">==</span> <span class="n">value</span><span class="p">):</span>
+				<span class="n">filteredHistory</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">deviceRun</span><span class="p">)</span>
+		<span class="k">except</span><span class="p">:</span>
+			<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Unable to apply filter on &#39;&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">property</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;&#39; == &#39;&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;&#39;&quot;</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">filteredHistory</span></div>
+
+<div class="viewcode-block" id="filterHistoryGreaterThan"><a class="viewcode-back" href="../../../source.utilities.html#source.utilities.DataLoggerUtility.filterHistoryGreaterThan">[docs]</a><span class="k">def</span> <span class="nf">filterHistoryGreaterThan</span><span class="p">(</span><span class="n">deviceHistory</span><span class="p">,</span> <span class="nb">property</span><span class="p">,</span> <span class="n">threshold</span><span class="p">):</span>
+	<span class="n">filteredHistory</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="k">for</span> <span class="n">deviceRun</span> <span class="ow">in</span> <span class="n">deviceHistory</span><span class="p">:</span>
+		<span class="k">try</span><span class="p">:</span>
+			<span class="k">if</span><span class="p">(</span><span class="n">deviceRun</span><span class="p">[</span><span class="nb">property</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">threshold</span><span class="p">):</span>
+				<span class="n">filteredHistory</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">deviceRun</span><span class="p">)</span>
+		<span class="k">except</span><span class="p">:</span>
+			<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Unable to apply filter on &#39;&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">property</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;&#39; &gt;= &#39;&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;&#39;&quot;</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">filteredHistory</span></div>
+
+<div class="viewcode-block" id="filterHistoryLessThan"><a class="viewcode-back" href="../../../source.utilities.html#source.utilities.DataLoggerUtility.filterHistoryLessThan">[docs]</a><span class="k">def</span> <span class="nf">filterHistoryLessThan</span><span class="p">(</span><span class="n">deviceHistory</span><span class="p">,</span> <span class="nb">property</span><span class="p">,</span> <span class="n">threshold</span><span class="p">):</span>
+	<span class="n">filteredHistory</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="k">for</span> <span class="n">deviceRun</span> <span class="ow">in</span> <span class="n">deviceHistory</span><span class="p">:</span>
+		<span class="k">try</span><span class="p">:</span>
+			<span class="k">if</span><span class="p">(</span><span class="n">deviceRun</span><span class="p">[</span><span class="nb">property</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">threshold</span><span class="p">):</span>
+				<span class="n">filteredHistory</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">deviceRun</span><span class="p">)</span>
+		<span class="k">except</span><span class="p">:</span>
+			<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Unable to apply filter on &#39;&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">property</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;&#39; &lt;= &#39;&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;&#39;&quot;</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">filteredHistory</span></div>
+
+<div class="viewcode-block" id="filterFileLines"><a class="viewcode-back" href="../../../source.utilities.html#source.utilities.DataLoggerUtility.filterFileLines">[docs]</a><span class="k">def</span> <span class="nf">filterFileLines</span><span class="p">(</span><span class="n">fileLines</span><span class="p">,</span> <span class="nb">property</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+	<span class="n">filteredFileLines</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fileLines</span><span class="p">:</span>
+		<span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39; &quot;&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">property</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;&quot;: ([^,}]*)&#39;</span> <span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+		<span class="k">if</span><span class="p">(</span><span class="n">match</span> <span class="ow">and</span> <span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))):</span>
+			<span class="n">filteredFileLines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">filteredFileLines</span></div>
+
+<div class="viewcode-block" id="filterFileLinesGreaterThan"><a class="viewcode-back" href="../../../source.utilities.html#source.utilities.DataLoggerUtility.filterFileLinesGreaterThan">[docs]</a><span class="k">def</span> <span class="nf">filterFileLinesGreaterThan</span><span class="p">(</span><span class="n">fileLines</span><span class="p">,</span> <span class="nb">property</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+	<span class="n">filteredFileLines</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fileLines</span><span class="p">:</span>
+		<span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39; &quot;&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">property</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;&quot;: ([^,}]*)&#39;</span> <span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+		<span class="k">if</span><span class="p">(</span><span class="n">match</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span> <span class="o">&gt;=</span> <span class="n">value</span><span class="p">)):</span>
+			<span class="n">filteredFileLines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+	<span class="k">return</span> <span class="n">filteredFileLines</span></div>
+
+<div class="viewcode-block" id="filterFileLinesLessThan"><a class="viewcode-back" href="../../../source.utilities.html#source.utilities.DataLoggerUtility.filterFileLinesLessThan">[docs]</a><span class="k">def</span> <span class="nf">filterFileLinesLessThan</span><span class="p">(</span><span class="n">fileLines</span><span class="p">,</span> <span class="nb">property</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+	<span class="n">filteredFileLines</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fileLines</span><span class="p">:</span>
+		<span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39; &quot;&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">property</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;&quot;: ([^,}]*)&#39;</span> <span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+		<span class="k">if</span><span class="p">(</span><span class="n">match</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span> <span class="o">&lt;=</span> <span class="n">value</span><span class="p">)):</span>
+			<span class="n">filteredFileLines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+	<span class="k">return</span> <span class="n">filteredFileLines</span></div>
+
+	
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Steven Noyce
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

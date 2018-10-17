@@ -1,3 +1,5 @@
+"""This module defines a common Python interface for communicating to Arduino boards over the Arduino Serial interface."""
+
 import serial as pySerial
 import time
 import json

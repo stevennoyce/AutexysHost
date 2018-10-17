@@ -16,8 +16,6 @@ def run(parameters, smu_instance, arduino_instance, isSavingResults=True, isPlot
 	dh_parameters['plotGateSweeps'] = False
 	dh_parameters['plotBurnOuts'] = False
 	dh_parameters['plotStaticBias'] = True
-	dh_parameters['showFiguresGenerated'] = True
-	dh_parameters['saveFiguresGenerated'] = True
 	dh_parameters['excludeDataBeforeJSONExperimentNumber'] = parameters['startIndexes']['experimentNumber']
 	dh_parameters['excludeDataAfterJSONExperimentNumber'] =  parameters['startIndexes']['experimentNumber']
 
@@ -84,7 +82,7 @@ def run(parameters, smu_instance, arduino_instance, isSavingResults=True, isPlot
 	# Save results as a JSON object
 	if(isSavingResults):
 		print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
-		dlu.saveJSON(dlu.getDeviceDirectory(parameters), sb_parameters['saveFileName'], jsonData)
+		dlu.saveJSON(dlu.getDeviceDirectory(parameters), sb_parameters['saveFileName'], jsonData, subDirectory='Ex'+str(parameters['startIndexes']['experimentNumber']))
 	
 	# Show plots to the user if desired
 	if(isPlottingResults):
@@ -189,8 +187,22 @@ def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVolt
 		'Computed':{
 			'id_max':max(id_data),
 			'id_min':min(id_data),
-			'avg_id_std':np.mean(id_std)
+			'avg_id_std':np.mean(id_std),
+			'tau_settle':settlingTimeConstant(timestamps, id_data)
 		}
 	}
+	
+def settlingTimeConstant(timestamps, id_data):
+	id_start = id_data[0]
+	id_mean = np.mean(id_data)
+	id_settled = (id_start - id_mean)*np.exp(-1) + id_mean
+	i_settled = -1
+	if(len(id_data) > 2):
+		for i in range(len(id_data) - 1):
+			if(((id_data[i] <= id_settled) and (id_data[i+1] >= id_settled)) or ((id_data[i] >= id_settled) and (id_data[i+1] <= id_settled))):
+				i_settled = i
+				break
+	return (timestamps[i_settled] - timestamps[0])
+	
 
 
