@@ -220,7 +220,7 @@ def experiments(user, project, wafer, chip, device):
 		parameters[i]['possiblePlots'] = possiblePlots
 	
 	# experiments = [{'name': n, 'path': p, 'modificationTime': m, 'size': s} for n, p, m, s in zip(names, paths, modificationTimes, sizes)]
-			
+	
 	return jsonvalid(parameters)
 	
 	# return flask.Response(jsonvalid(parameters, allow_nan=False), mimetype='application/json')
@@ -315,7 +315,7 @@ def findFirstOpenPort(startPort=1):
 			except Exception as e:
 				print('Port {} is not available'.format(port))
 
-def periodicMessageSender():
+def managerMessageForwarder():
 	global pipeToManager
 	while True:
 		if pipeToManager.poll():
@@ -333,15 +333,12 @@ thread = None
 def connect():
 	global thread                                                               
 	if thread is None:
-		thread = socketio.start_background_task(target=periodicMessageSender)
+		thread = socketio.start_background_task(target=managerMessageForwarder)
 
 
 def start(managerPipe=None):
 	global pipeToManager
 	pipeToManager = managerPipe
-	
-	# thread = threading.Thread(target=periodicMessageSender)
-	# thread.start()
 	
 	if 'AutexysUIRunning' in os.environ:
 		print('Reload detected. Not opening browser.')

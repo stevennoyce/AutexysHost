@@ -7,6 +7,8 @@ import psutil
 import sys
 import os
 
+import pipes
+
 if __name__ == '__main__':
 	os.chdir(sys.path[0])
 	
@@ -95,11 +97,11 @@ def manage(on_startup_schedule_file=None):
 	while(True):
 		# Listen to the UI pipe for 10 seconds, then yield to do other tasks
 		print('Hello from Manager')
-		ui['pipe'].send({'message': 'Hello from the Manager'})
+		pipes.send(ui['pipe'], {'message': 'Hello from the Manager'})
 		
 		if(ui['pipe'].poll(10)):
 			message = ui['pipe'].recv()
-			print('Manager received: "' + str(message) + '"')
+			print('Manager received from UI: "' + str(message) + '"')
 						
 			if(message.startswith('RUN: ')):
 				if(dispatcher is None):
@@ -109,9 +111,19 @@ def manage(on_startup_schedule_file=None):
 					print('Error: dispatcher is already running; wait for it to finish before starting another job.')
 			elif(message == 'STOP'):
 				if(dispatcher is not None):
-					dispatcher['pipe'].send('STOP')
+					pipes.send(dispatcher['pipe'], 'STOP')
 				else:
 					print('Dispatcher has already stopped.')
+		
+		if dispatcher is not None:
+			if(dispatcher['pipe'].poll()):
+				message = dispatcher['pipe'].recv()
+				print('Manager received from Dispatcher: "' + str(message) + '"')
+				
+				if 'destination' in message:
+					# Forward messages that are intended for the UI to the UI
+					if message['destination'] == 'UI':
+						pipes.send(ui['pipe'], message)
 		
 		# Check if dispatcher is running, if not join it to explicitly end
 		if((dispatcher is not None) and (not dispatcher['process'].is_alive())):
