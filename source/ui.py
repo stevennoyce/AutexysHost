@@ -341,11 +341,13 @@ def findFirstOpenPort(startPort=1):
 			except Exception as e:
 				print('Port {} is not available'.format(port))
 
-def periodicMessageSender():
+def managerMessageForwarder():
+	global pipeToManager
 	while True:
-		print('Sending server message')
-		socketio.emit('Server Message', {'message': 'Hello from server'})
-		time.sleep(5)
+		if pipeToManager.poll():
+			print('Sending server message')
+			socketio.emit('Server Message', pipeToManager.recv())
+		time.sleep(0.1)
 
 
 @socketio.on('my event')
@@ -357,15 +359,12 @@ thread = None
 def connect():
 	global thread                                                               
 	if thread is None:
-		thread = socketio.start_background_task(target=periodicMessageSender)
+		thread = socketio.start_background_task(target=managerMessageForwarder)
 
 
 def start(managerPipe=None):
 	global pipeToManager
 	pipeToManager = managerPipe
-	
-	# thread = threading.Thread(target=periodicMessageSender)
-	# thread.start()
 	
 	if 'AutexysUIRunning' in os.environ:
 		print('Reload detected. Not opening browser.')
