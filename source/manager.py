@@ -95,6 +95,8 @@ def manage(on_startup_schedule_file=None):
 	while(True):
 		# Listen to the UI pipe for 10 seconds, then yield to do other tasks
 		print('Hello from Manager')
+		ui['pipe'].send({'message': 'Hello from the Manager'})
+		
 		if(ui['pipe'].poll(10)):
 			message = ui['pipe'].recv()
 			print('Manager received: "' + str(message) + '"')

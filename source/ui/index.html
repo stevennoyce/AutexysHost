@@ -890,7 +890,7 @@
 		var socket = io.connect('http://' + document.domain + ':' + location.port);
 		socket.on('connect', function(s) {
 			console.log('Emiting my event');
-			socket.emit('my event', {data: 'I\'m connected!'});
+			socket.emit('my event', {data: 'Client is connected'});
 		});
 		
 		socket.on('Server Message', function(message) {

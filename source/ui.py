@@ -316,10 +316,12 @@ def findFirstOpenPort(startPort=1):
 				print('Port {} is not available'.format(port))
 
 def periodicMessageSender():
+	global pipeToManager
 	while True:
-		print('Sending server message')
-		socketio.emit('Server Message', {'message': 'Hello from server'})
-		time.sleep(5)
+		if pipeToManager.poll():
+			print('Sending server message')
+			socketio.emit('Server Message', pipeToManager.recv())
+		time.sleep(0.1)
 
 
 @socketio.on('my event')
