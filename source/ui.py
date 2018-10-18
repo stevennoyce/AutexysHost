@@ -8,8 +8,7 @@ import copy
 import time
 import webbrowser
 import threading
-
-from flask_socketio import SocketIO
+import flask_socketio
 
 import defaults
 from procedures import Device_History as DH
@@ -59,7 +58,7 @@ def jsonvalid(obj):
 app = flask.Flask(__name__, static_url_path='', static_folder='ui')
 
 app.config['SECRET_KEY'] = 'secretkey'
-socketio = SocketIO(app)
+socketio = flask_socketio.SocketIO(app)
 
 @app.route('/')
 def root():
@@ -303,12 +302,6 @@ def loadScheduleNames():
 #	return response
 
 
-@socketio.on('my event')
-def handle_my_custom_event(json):
-	print('in my event, received json: ' + str(json))
-
-
-
 import socket
 
 def findFirstOpenPort(startPort=1):
@@ -325,8 +318,20 @@ def findFirstOpenPort(startPort=1):
 def periodicMessageSender():
 	while True:
 		print('Sending server message')
-		# flask_socketio.send('Hello from server')
+		socketio.emit('Server Message', {'message': 'Hello from server'})
 		time.sleep(5)
+
+
+@socketio.on('my event')
+def handle_my_custom_event(json):
+	print('in my event, received json: ' + str(json))
+
+thread = None
+@socketio.on('connect')
+def connect():
+	global thread                                                               
+	if thread is None:
+		thread = socketio.start_background_task(target=periodicMessageSender)
 
 
 def start(managerPipe=None):

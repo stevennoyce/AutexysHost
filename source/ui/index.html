@@ -888,9 +888,13 @@
 	<script type="text/javascript">
 		
 		var socket = io.connect('http://' + document.domain + ':' + location.port);
-		socket.on('connect', function() {
+		io.on('connect', function(socket) {
 			console.log('Emiting my event');
-			socket.emit('my event', {data: 'I\'m connected!'});
+			io.emit('my event', {data: 'I\'m connected!'});
+			
+			socket.on('Server Message', function() {
+				console.log('Receiving Server Message');
+			});
 		});
 		
 		function groupBy(elements, groupKey) {
