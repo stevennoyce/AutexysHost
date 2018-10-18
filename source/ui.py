@@ -7,8 +7,11 @@ import json
 import copy
 import time
 import webbrowser
-import defaults
+import threading
 
+from flask_socketio import SocketIO
+
+import defaults
 from procedures import Device_History as DH
 from utilities import DataLoggerUtility as dlu
 
@@ -54,6 +57,9 @@ def jsonvalid(obj):
 
 
 app = flask.Flask(__name__, static_url_path='', static_folder='ui')
+
+app.config['SECRET_KEY'] = 'secretkey'
+socketio = SocketIO(app)
 
 @app.route('/')
 def root():
@@ -297,6 +303,12 @@ def loadScheduleNames():
 #	return response
 
 
+@socketio.on('my event')
+def handle_my_custom_event(json):
+	print('in my event, received json: ' + str(json))
+
+
+
 import socket
 
 def findFirstOpenPort(startPort=1):
@@ -310,10 +322,19 @@ def findFirstOpenPort(startPort=1):
 			except Exception as e:
 				print('Port {} is not available'.format(port))
 
+def periodicMessageSender():
+	while True:
+		print('Sending server message')
+		# flask_socketio.send('Hello from server')
+		time.sleep(5)
+
 
 def start(managerPipe=None):
 	global pipeToManager
 	pipeToManager = managerPipe
+	
+	# thread = threading.Thread(target=periodicMessageSender)
+	# thread.start()
 	
 	if 'AutexysUIRunning' in os.environ:
 		print('Reload detected. Not opening browser.')
@@ -331,7 +352,9 @@ def start(managerPipe=None):
 		print('Opening browser...')
 		webbrowser.open_new(url)
 	
-	app.run(debug=True, threaded=False, port=int(os.environ['AutexysUIPort']))
+	# app.run(debug=True, threaded=False, port=int(os.environ['AutexysUIPort']))
+	socketio.run(app, debug=True, port=int(os.environ['AutexysUIPort']))
+
 
 
 if __name__ == '__main__':

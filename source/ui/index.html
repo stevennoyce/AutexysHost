@@ -884,7 +884,14 @@
 	<script src="/ui/lodash.js"></script>
 	<script src="/ui/vue.js"></script>
 	<script src="/ui/vuetify.js"></script>
+	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
 	<script type="text/javascript">
+		
+		var socket = io.connect('http://' + document.domain + ':' + location.port);
+		socket.on('connect', function() {
+			console.log('Emiting my event');
+			socket.emit('my event', {data: 'I\'m connected!'});
+		});
 		
 		function groupBy(elements, groupKey) {
 			return elements.reduce(function(rv, x) {
