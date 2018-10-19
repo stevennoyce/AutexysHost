@@ -247,7 +247,7 @@ def experiments(user, project, wafer, chip, device):
 		experimentDictionary[experimentNumber]['possiblePlots'] = DH.plotsForExperiments(parameter_identifiers, minExperiment=experimentNumber, maxExperiment=experimentNumber)
 	
 	# Finally, extract all of the experiments from the dictionary that we built and return the list of their parameters
-	experiments = list(experimentDictionary.values())
+	experiments = [experimentDictionary[key] for key in sorted(experimentDictionary.keys())]
 		
 	return jsonvalid(experiments)
 	
