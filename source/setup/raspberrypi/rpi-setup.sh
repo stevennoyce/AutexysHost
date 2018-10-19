@@ -23,3 +23,7 @@ sudo systemctl enable resilio-sync
 # use id command to find the user that 'pi' should be replaced with
 sudo usermod -aG pi rslsync
 sudo chmod g+rw synced_folder
+
+
+pip3 install psutil
+pip3 install flask-socketio
