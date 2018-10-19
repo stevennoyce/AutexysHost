@@ -328,12 +328,17 @@ def managerMessageForwarder():
 def handle_my_custom_event(json):
 	print('in my event, received json: ' + str(json))
 
-thread = None
+managerMessageForwarderthread = None
 @socketio.on('connect')
 def connect():
-	global thread                                                               
-	if thread is None:
-		thread = socketio.start_background_task(target=managerMessageForwarder)
+	global managerMessageForwarderthread                                                               
+	if managerMessageForwarderthread is None:
+		managerMessageForwarderthread = socketio.start_background_task(target=managerMessageForwarder)
+
+def launchBrowser(url):
+	time.sleep(1)
+	print('URL is "{}"'.format(url))
+	webbrowser.open_new(url)
 
 
 def start(managerPipe=None):
@@ -354,7 +359,7 @@ def start(managerPipe=None):
 		os.environ['AutexysUIPort'] = str(port)
 		
 		print('Opening browser...')
-		webbrowser.open_new(url)
+		socketio.start_background_task(launchBrowser, url)
 	
 	# app.run(debug=True, threaded=False, port=int(os.environ['AutexysUIPort']))
 	socketio.run(app, debug=True, port=int(os.environ['AutexysUIPort']))
