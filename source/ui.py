@@ -12,6 +12,7 @@ import flask_socketio
 
 import defaults
 from procedures import Device_History as DH
+DH.dpu.mplu.plt.switch_backend('agg')
 from utilities import DataLoggerUtility as dlu
 
 if __name__ == '__main__':
