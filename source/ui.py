@@ -193,9 +193,7 @@ def chips(user, project, wafer):
 def devices(user, project, wafer, chip):
 	paths = glob.glob(os.path.join(default_data_path, user, project, wafer, chip, '*/'))
 	names = [os.path.basename(os.path.dirname(p)) for p in paths]
-	# modificationTimes = [os.path.getmtime(p) for p in paths]
 	modificationTimes = [os.path.getmtime(p+'ParametersHistory.json') if os.path.exists(p+'ParametersHistory.json') else os.path.getmtime(p) for p in paths]
-	# sizes = [os.path.getsize(p) for p in paths]
 	sizes = [os.path.getsize(p+'ParametersHistory.json') if os.path.exists(p+'ParametersHistory.json') else os.path.getsize(p) for p in paths]
 	
 	indexObjects = [dlu.loadJSONIndex(p) for p in paths]
@@ -209,21 +207,49 @@ def devices(user, project, wafer, chip):
 @app.route('/<user>/<project>/<wafer>/<chip>/<device>/experiments.json')
 def experiments(user, project, wafer, chip, device):	
 	folder = os.path.join(default_data_path, user, project, wafer, chip, device)
-	files = glob.glob(folder + '*.json')
-	fileNames = [os.path.basename(f) for f in files]
 	
-	parameters = dlu.loadJSON(folder, 'ParametersHistory.json')
-	parameter_identifiers = {'dataFolder':default_data_path, 'Identifiers':{'user':user,'project':project,'wafer':wafer,'chip':chip,'device':device}}
+	paths = glob.glob(os.path.join(folder, '*/'))
+	names = [os.path.basename(os.path.dirname(p)) for p in paths]
 	
-	for i in range(len(parameters)):
-		possiblePlots = DH.plotsForExperiments(parameter_identifiers, minExperiment=parameters[i]['startIndexes']['experimentNumber'], maxExperiment=parameters[i]['startIndexes']['experimentNumber'])
-		parameters[i]['possiblePlots'] = possiblePlots
+	# Load all found experiment folders and make a dictionary of experiments
+	experimentDictionary = {}
+	for name in names:
+		if('Ex' in name and name.replace('Ex', '').isdigit()):
+			experimentDictionary[int(name.replace('Ex', ''))] = None
 	
-	# experiments = [{'name': n, 'path': p, 'modificationTime': m, 'size': s} for n, p, m, s in zip(names, paths, modificationTimes, sizes)]
+	# Load parameters history
+	try:
+		parametersHistory = dlu.loadJSON(folder, 'ParametersHistory.json')
+	except:
+		parametersHistory = []
+
+	# For every experiment that has a "ParametersHistory.json", add that to the information to the dictionary of experiments
+	for experimentParameters in parametersHistory:
+		experimentDictionary[experimentParameters['startIndexes']['experimentNumber']] = experimentParameters
 	
-	return jsonvalid(parameters)
+	for experimentNumber in experimentDictionary.keys():
+		# If an experiment had no "ParametersHistory.json", load the last known data entry for that experiment and use it to reconstruct as much info as possible
+		if(experimentDictionary[experimentNumber] is None):
+			experimentFolder = os.path.join(folder, 'Ex' + str(experimentNumber))
+			lastDataEntryParameters = None
+			for dataFile in glob.glob(os.path.join(experimentFolder, '*.json')):
+				dataParameters = dlu.loadJSON(experimentFolder, os.path.basename(dataFile))[-1]
+				if((lastDataEntryParameters is None) or (dataParameters['index'] > lastDataEntryParameters['index'])):
+					lastDataEntryParameters = dataParameters
+			del lastDataEntryParameters['Results']
+			lastDataEntryParameters['endIndexes'] = lastDataEntryParameters['startIndexes']
+			lastDataEntryParameters['endIndexes']['index'] = lastDataEntryParameters['index']
+			lastDataEntryParameters['endIndexes']['experimentNumber'] = lastDataEntryParameters['experimentNumber']
+			experimentDictionary[experimentNumber] = lastDataEntryParameters
+		# Get the possible plots for this experiment and save that with the parameters 
+		parameter_identifiers = {'dataFolder':default_data_path, 'Identifiers':{'user':user,'project':project,'wafer':wafer,'chip':chip,'device':device}}
+		experimentDictionary[experimentNumber]['possiblePlots'] = DH.plotsForExperiments(parameter_identifiers, minExperiment=experimentNumber, maxExperiment=experimentNumber)
 	
-	# return flask.Response(jsonvalid(parameters, allow_nan=False), mimetype='application/json')
+	# Finally, extract all of the experiments from the dictionary that we built and return the list of their parameters
+	experiments = list(experimentDictionary.values())
+		
+	return jsonvalid(experiments)
+	
 
 @app.route('/parametersDescription.json')
 def parametersDescription():
