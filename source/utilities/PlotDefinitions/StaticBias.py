@@ -1,5 +1,5 @@
 from utilities.MatplotlibUtility import *
-
+import copy
 
 
 plotDescription = {
@@ -26,6 +26,8 @@ plotDescription = {
 }
 
 def plot(deviceHistory, identifiers, mode_parameters=None):
+	# Load Defaults
+	plotDescrip_current = copy.deepcopy(plotDescription)
 	timescale = mode_parameters['timescale']
 	plotInRealTime = mode_parameters['plotInRealTime']
 	includeDualAxis = mode_parameters['includeDualAxis']
@@ -42,19 +44,19 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	
 	# Init Figure
 	if(includeDualAxis):
-		fig, (ax1, ax2) = initFigure(2, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'], shareX=True, subplotWidthRatio=plotDescription['plotDefaults']['subplot_width_ratio'], subplotHeightRatio=plotDescription['plotDefaults']['subplot_height_ratio'])
+		fig, (ax1, ax2) = initFigure(2, 1, plotDescrip_current['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'], shareX=True, subplotWidthRatio=plotDescrip_current['plotDefaults']['subplot_width_ratio'], subplotHeightRatio=plotDescrip_current['plotDefaults']['subplot_height_ratio'])
 		ax3 = ax2.twinx() if(vds_setpoint_changes and vgs_setpoint_changes) else None
 		
 		vds_ax = ax2
 		vgs_ax = ax3 if(vds_setpoint_changes) else ax2
 	else:
-		fig, ax1 = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
+		fig, ax1 = initFigure(1, 1, plotDescrip_current['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
 		ax2, ax3 = None, None
 	if(not mode_parameters['publication_mode']):
 		ax1.set_title(getTestLabel(deviceHistory, identifiers))
 	
 	# Build Color Map
-	colors = setupColors(fig, len(deviceHistory), colorOverride=mode_parameters['colorsOverride'], colorDefault=plotDescription['plotDefaults']['colorDefault'], colorMapName=plotDescription['plotDefaults']['colorMap'], colorMapStart=0, colorMapEnd=0.87, enableColorBar=False)		
+	colors = setupColors(fig, len(deviceHistory), colorOverride=mode_parameters['colorsOverride'], colorDefault=plotDescrip_current['plotDefaults']['colorDefault'], colorMapName=plotDescrip_current['plotDefaults']['colorMap'], colorMapStart=0, colorMapEnd=0.87, enableColorBar=False)		
 	
 	# If timescale is unspecified, choose an appropriate one based on the data range
 	if(timescale == ''):
@@ -66,7 +68,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# If first segment of device history is mostly negative current, flip data
 	if((np.percentile(deviceHistory[0]['Results']['id_data'], 75) < 0)):
 		deviceHistory = scaledData(deviceHistory, 'Results', 'id_data', -1)
-		plotDescription['plotDefaults']['ylabel'] = plotDescription['plotDefaults']['neg_label']
+		plotDescrip_current['plotDefaults']['ylabel'] = plotDescrip_current['plotDefaults']['neg_label']
 	
 	# === Begin Plotting Data ===
 	time_offset = 0
@@ -84,7 +86,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 			time_offset = (0) if(i == 0) else (time_offset + (t_prev_end - t_prev_start))
 		
 		# Plot
-		line = plotStaticBias(ax1, deviceHistory[i], colors[i], time_offset, timescale=timescale, lineStyle=None, gradient=mode_parameters['enableGradient'], gradientColors=colorsFromMap(plotDescription['plotDefaults']['colorMap'], 0, 0.95, len(deviceHistory[i]['Results']['timestamps']))['colors'])
+		line = plotStaticBias(ax1, deviceHistory[i], colors[i], time_offset, timescale=timescale, lineStyle=None, gradient=mode_parameters['enableGradient'], gradientColors=colorsFromMap(plotDescrip_current['plotDefaults']['colorMap'], 0, 0.95, len(deviceHistory[i]['Results']['timestamps']))['colors'])
 		if(len(deviceHistory) == len(mode_parameters['legendLabels'])):
 			setLabel(line, mode_parameters['legendLabels'][i])
 		
@@ -132,27 +134,27 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 					ax1.annotate(' $V_{GS} = $'+'{:.0f}V'.format(parameter_labels['gateVoltageSetPoint'][i]['gateVoltageSetPoint']), xy=(parameter_labels['gateVoltageSetPoint'][i]['x'], ax1.get_ylim()[1]*(0.90 - 0*0.03*i)), xycoords='data', ha='left', va='bottom', rotation=-90)
 	
 	# Adjust Y-lim (if desired)
-	includeOriginOnYaxis(ax1, include=plotDescription['plotDefaults']['mainIncludeOrigin'])
+	includeOriginOnYaxis(ax1, include=plotDescrip_current['plotDefaults']['mainIncludeOrigin'])
 	
 	# Main Axis Legend
-	legend_title = getLegendTitle(deviceHistory, identifiers, plotDescription['plotDefaults'], 'runConfigs', 'StaticBias', mode_parameters, includeVdsHold=(not vds_setpoint_changes), includeVgsHold=(not vgs_setpoint_changes), includeTimeHold=(not biasTime_changes))
+	legend_title = getLegendTitle(deviceHistory, identifiers, plotDescrip_current['plotDefaults'], 'runConfigs', 'StaticBias', mode_parameters, includeVdsHold=(not vds_setpoint_changes), includeVgsHold=(not vgs_setpoint_changes), includeTimeHold=(not biasTime_changes))
 	if(len(legend_title) > 0):
 		addLegend(ax1, loc=mode_parameters['legendLoc'], title=legend_title)
 	
 	# Dual Axis Legend, Axis Labels, and save figure
 	if(includeDualAxis):
 		# Axis labels
-		axisLabels(ax1, y_label=plotDescription['plotDefaults']['ylabel'])
-		axisLabels(ax2, x_label=plotDescription['plotDefaults']['xlabel'].format(timescale))
+		axisLabels(ax1, y_label=plotDescrip_current['plotDefaults']['ylabel'])
+		axisLabels(ax2, x_label=plotDescrip_current['plotDefaults']['xlabel'].format(timescale))
 		
 		if(vds_setpoint_changes):
-			includeOriginOnYaxis(vds_ax, include=plotDescription['plotDefaults']['dualIncludeOrigin'])
+			includeOriginOnYaxis(vds_ax, include=plotDescrip_current['plotDefaults']['dualIncludeOrigin'])
 			vds_ax.set_ylim(bottom=vds_ax.get_ylim()[0] - (vds_ax.get_ylim()[1] - vds_ax.get_ylim()[0])*0.08, top=vds_ax.get_ylim()[1] + (vds_ax.get_ylim()[1] - vds_ax.get_ylim()[0])*0.08)
-			axisLabels(vds_ax, y_label=plotDescription['plotDefaults']['vds_label'])
+			axisLabels(vds_ax, y_label=plotDescrip_current['plotDefaults']['vds_label'])
 			
 		if(vgs_setpoint_changes):
-			includeOriginOnYaxis(vgs_ax, include=plotDescription['plotDefaults']['dualIncludeOrigin'])
-			axisLabels(vgs_ax, y_label=plotDescription['plotDefaults']['vgs_label'])
+			includeOriginOnYaxis(vgs_ax, include=plotDescrip_current['plotDefaults']['dualIncludeOrigin'])
+			axisLabels(vgs_ax, y_label=plotDescrip_current['plotDefaults']['vgs_label'])
 			
 		if(vds_setpoint_changes and vgs_setpoint_changes):
 			setLabel(vds_line, '$V_{DS}^{{Hold}}$')
@@ -162,9 +164,9 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		
 		# Adjust tick alignment
 		[tick.set_verticalalignment('top') for tick in ax2.yaxis.get_majorticklabels()]
-		adjustAndSaveFigure(fig, 'FullStaticBias', mode_parameters, subplotHeightPad=plotDescription['plotDefaults']['subplot_spacing'])
+		adjustAndSaveFigure(fig, 'FullStaticBias', mode_parameters, subplotHeightPad=plotDescrip_current['plotDefaults']['subplot_spacing'])
 	else:
-		axisLabels(ax1, x_label=plotDescription['plotDefaults']['xlabel'].format(timescale), y_label=plotDescription['plotDefaults']['ylabel'])
+		axisLabels(ax1, x_label=plotDescrip_current['plotDefaults']['xlabel'].format(timescale), y_label=plotDescrip_current['plotDefaults']['ylabel'])
 		adjustAndSaveFigure(fig, 'FullStaticBias', mode_parameters)
 
 	return (fig, (ax1, ax2, ax3))

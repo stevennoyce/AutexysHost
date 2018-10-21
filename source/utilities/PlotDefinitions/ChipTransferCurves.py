@@ -1,5 +1,5 @@
 from utilities.MatplotlibUtility import *
-
+import copy
 
 
 plotDescription = {
@@ -17,18 +17,21 @@ plotDescription = {
 }
 
 def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory, mode_parameters=None):
+	# Load Defaults
+	plotDescrip_current = copy.deepcopy(plotDescription)
+
 	# Init Figure
-	fig, ax = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
+	fig, ax = initFigure(1, 1, plotDescrip_current['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
 	if(not mode_parameters['publication_mode']):
 		ax.set_title('Chip ' + str(identifiers['wafer']) + str(identifiers['chip']))
 	
 	# Colors
-	colors = setupColors(fig, len(specificRunChipHistory), colorOverride=mode_parameters['colorsOverride'], colorDefault=plotDescription['plotDefaults']['colorDefault'], colorMapName=plotDescription['plotDefaults']['colorMap'], colorMapStart=0.85, colorMapEnd=0, enableColorBar=mode_parameters['enableColorBar'], colorBarTicks=[0,0.6,1], colorBarTickLabels=['', '', ''], colorBarAxisLabel='')		
+	colors = setupColors(fig, len(specificRunChipHistory), colorOverride=mode_parameters['colorsOverride'], colorDefault=plotDescrip_current['plotDefaults']['colorDefault'], colorMapName=plotDescrip_current['plotDefaults']['colorMap'], colorMapStart=0.85, colorMapEnd=0, enableColorBar=mode_parameters['enableColorBar'], colorBarTicks=[0,0.6,1], colorBarTickLabels=['', '', ''], colorBarAxisLabel='')		
 	
 	# If first segment of device history is mostly negative current, flip data
 	if((len(specificRunChipHistory) > 0) and (np.percentile(specificRunChipHistory[0]['Results']['id_data'], 75) < 0)):
 		specificRunChipHistory = scaledData(specificRunChipHistory, 'Results', 'id_data', -1)
-		plotDescription['plotDefaults']['ylabel'] = plotDescription['plotDefaults']['neg_label']
+		plotDescrip_current['plotDefaults']['ylabel'] = plotDescrip_current['plotDefaults']['neg_label']
 	
 	# Plot
 	for i in range(len(specificRunChipHistory)):
@@ -37,10 +40,10 @@ def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, sp
 			setLabel(line, mode_parameters['legendLabels'][i])
 		
 	# Label axes
-	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=plotDescription['plotDefaults']['ylabel'])
+	axisLabels(ax, x_label=plotDescrip_current['plotDefaults']['xlabel'], y_label=plotDescrip_current['plotDefaults']['ylabel'])
 	
 	# Adjust Y-lim (if desired)
-	includeOriginOnYaxis(ax, include=plotDescription['plotDefaults']['includeOrigin'])
+	includeOriginOnYaxis(ax, include=plotDescrip_current['plotDefaults']['includeOrigin'])
 	
 	# Save Figure
 	adjustAndSaveFigure(fig, 'ChipTransferCurves', mode_parameters)
