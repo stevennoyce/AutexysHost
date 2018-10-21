@@ -2,7 +2,7 @@ from utilities.MatplotlibUtility import *
 
 
 
-plotDescription = {
+plotDescription_default = {
 	'plotCategory': 'device',
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
@@ -21,6 +21,9 @@ plotDescription = {
 }
 
 def plot(deviceHistory, identifiers, mode_parameters=None):
+	# Load Defaults
+	plotDescription = dict(plotDescription_default)
+
 	# Init Figure
 	fig, ax = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
 	if(not mode_parameters['publication_mode']):
