@@ -11,6 +11,7 @@ import requests
 import json
 import time
 
+import pipes
 import launcher
 from utilities import DataLoggerUtility as dlu
 
@@ -46,9 +47,9 @@ def dispatch(schedule_file_path=None, pipe=None):
 def run_file(schedule_file_path, pipe=None):
 	"""Given a shedule file path, open the file and step through each experiment."""
 	schedule_index = 0
-
+	
 	print('Opening schedule file: ' + schedule_file_path)
-
+	
 	while( schedule_index < len(dlu.loadJSON(directory='', loadFileName=schedule_file_path)) ):
 		if(pipe is not None):
 			while(pipe.poll()):
@@ -63,12 +64,24 @@ def run_file(schedule_file_path, pipe=None):
 		print('Schedule contains ' + str(len(parameter_list) - schedule_index - 1) + ' other incomplete jobs.')
 		additional_parameters = parameter_list[schedule_index].copy()
 		launcher.run(additional_parameters, pipe)
-
+		
 		schedule_index += 1
+		
+		pipes.send(pipe, {
+			'destination':'UI',
+			'type':'Progress',
+			'progress': {
+				'points': {
+					'start': 0,
+					'current': schedule_index,
+					'end': len(dlu.loadJSON(directory='', loadFileName=schedule_file_path))
+				}
+			}
+		})
 	
 	print('Closing schedule file: ' + schedule_file_path)
-		
-		
+	
+
 
 def send_notification_via_pushbullet(title, body):
 	url = 'https://api.pushbullet.com/v2/pushes'

@@ -7,9 +7,12 @@ import json
 import copy
 import time
 import webbrowser
-import defaults
+import threading
+import flask_socketio
 
+import defaults
 from procedures import Device_History as DH
+DH.dpu.mplu.plt.switch_backend('agg')
 from utilities import DataLoggerUtility as dlu
 
 if __name__ == '__main__':
@@ -54,6 +57,9 @@ def jsonvalid(obj):
 
 
 app = flask.Flask(__name__, static_url_path='', static_folder='ui')
+
+app.config['SECRET_KEY'] = 'secretkey'
+socketio = flask_socketio.SocketIO(app)
 
 @app.route('/')
 def root():
@@ -188,9 +194,7 @@ def chips(user, project, wafer):
 def devices(user, project, wafer, chip):
 	paths = glob.glob(os.path.join(default_data_path, user, project, wafer, chip, '*/'))
 	names = [os.path.basename(os.path.dirname(p)) for p in paths]
-	# modificationTimes = [os.path.getmtime(p) for p in paths]
 	modificationTimes = [os.path.getmtime(p+'ParametersHistory.json') if os.path.exists(p+'ParametersHistory.json') else os.path.getmtime(p) for p in paths]
-	# sizes = [os.path.getsize(p) for p in paths]
 	sizes = [os.path.getsize(p+'ParametersHistory.json') if os.path.exists(p+'ParametersHistory.json') else os.path.getsize(p) for p in paths]
 	
 	indexObjects = [dlu.loadJSONIndex(p) for p in paths]
@@ -204,21 +208,49 @@ def devices(user, project, wafer, chip):
 @app.route('/<user>/<project>/<wafer>/<chip>/<device>/experiments.json')
 def experiments(user, project, wafer, chip, device):	
 	folder = os.path.join(default_data_path, user, project, wafer, chip, device)
-	files = glob.glob(folder + '*.json')
-	fileNames = [os.path.basename(f) for f in files]
 	
-	parameters = dlu.loadJSON(folder, 'ParametersHistory.json')
-	parameter_identifiers = {'dataFolder':default_data_path, 'Identifiers':{'user':user,'project':project,'wafer':wafer,'chip':chip,'device':device}}
+	paths = glob.glob(os.path.join(folder, '*/'))
+	names = [os.path.basename(os.path.dirname(p)) for p in paths]
 	
-	for i in range(len(parameters)):
-		possiblePlots = DH.plotsForExperiments(parameter_identifiers, minExperiment=parameters[i]['startIndexes']['experimentNumber'], maxExperiment=parameters[i]['startIndexes']['experimentNumber'])
-		parameters[i]['possiblePlots'] = possiblePlots
+	# Load all found experiment folders and make a dictionary of experiments
+	experimentDictionary = {}
+	for name in names:
+		if('Ex' in name and name.replace('Ex', '').isdigit()):
+			experimentDictionary[int(name.replace('Ex', ''))] = None
 	
-	# experiments = [{'name': n, 'path': p, 'modificationTime': m, 'size': s} for n, p, m, s in zip(names, paths, modificationTimes, sizes)]
-			
-	return jsonvalid(parameters)
+	# Load parameters history
+	try:
+		parametersHistory = dlu.loadJSON(folder, 'ParametersHistory.json')
+	except:
+		parametersHistory = []
+
+	# For every experiment that has a "ParametersHistory.json", add that to the information to the dictionary of experiments
+	for experimentParameters in parametersHistory:
+		experimentDictionary[experimentParameters['startIndexes']['experimentNumber']] = experimentParameters
 	
-	# return flask.Response(jsonvalid(parameters, allow_nan=False), mimetype='application/json')
+	for experimentNumber in experimentDictionary.keys():
+		# If an experiment had no "ParametersHistory.json", load the last known data entry for that experiment and use it to reconstruct as much info as possible
+		if(experimentDictionary[experimentNumber] is None):
+			experimentFolder = os.path.join(folder, 'Ex' + str(experimentNumber))
+			lastDataEntryParameters = None
+			for dataFile in glob.glob(os.path.join(experimentFolder, '*.json')):
+				dataParameters = dlu.loadJSON(experimentFolder, os.path.basename(dataFile))[-1]
+				if((lastDataEntryParameters is None) or (dataParameters['index'] > lastDataEntryParameters['index'])):
+					lastDataEntryParameters = dataParameters
+			del lastDataEntryParameters['Results']
+			lastDataEntryParameters['endIndexes'] = lastDataEntryParameters['startIndexes']
+			lastDataEntryParameters['endIndexes']['index'] = lastDataEntryParameters['index']
+			lastDataEntryParameters['endIndexes']['experimentNumber'] = lastDataEntryParameters['experimentNumber']
+			experimentDictionary[experimentNumber] = lastDataEntryParameters
+		# Get the possible plots for this experiment and save that with the parameters 
+		parameter_identifiers = {'dataFolder':default_data_path, 'Identifiers':{'user':user,'project':project,'wafer':wafer,'chip':chip,'device':device}}
+		experimentDictionary[experimentNumber]['possiblePlots'] = DH.plotsForExperiments(parameter_identifiers, minExperiment=experimentNumber, maxExperiment=experimentNumber)
+	
+	# Finally, extract all of the experiments from the dictionary that we built and return the list of their parameters
+	experiments = [experimentDictionary[key] for key in sorted(experimentDictionary.keys())]
+		
+	return jsonvalid(experiments)
+	
 
 @app.route('/parametersDescription.json')
 def parametersDescription():
@@ -310,6 +342,31 @@ def findFirstOpenPort(startPort=1):
 			except Exception as e:
 				print('Port {} is not available'.format(port))
 
+def managerMessageForwarder():
+	global pipeToManager
+	while True:
+		if pipeToManager.poll():
+			print('Sending server message')
+			socketio.emit('Server Message', pipeToManager.recv())
+		time.sleep(0.1)
+
+
+@socketio.on('my event')
+def handle_my_custom_event(json):
+	print('in my event, received json: ' + str(json))
+
+managerMessageForwarderthread = None
+@socketio.on('connect')
+def connect():
+	global managerMessageForwarderthread                                                               
+	if managerMessageForwarderthread is None:
+		managerMessageForwarderthread = socketio.start_background_task(target=managerMessageForwarder)
+
+def launchBrowser(url):
+	time.sleep(1)
+	print('URL is "{}"'.format(url))
+	webbrowser.open_new(url)
+
 
 def start(managerPipe=None):
 	global pipeToManager
@@ -329,9 +386,11 @@ def start(managerPipe=None):
 		os.environ['AutexysUIPort'] = str(port)
 		
 		print('Opening browser...')
-		webbrowser.open_new(url)
+		socketio.start_background_task(launchBrowser, url)
 	
-	app.run(debug=True, threaded=False, port=int(os.environ['AutexysUIPort']))
+	# app.run(debug=True, threaded=False, port=int(os.environ['AutexysUIPort']))
+	socketio.run(app, debug=True, port=int(os.environ['AutexysUIPort']))
+
 
 
 if __name__ == '__main__':
