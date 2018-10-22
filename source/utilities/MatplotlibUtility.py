@@ -171,9 +171,6 @@ def plotSweep(axis, jsonData, lineColor, direction='both', voltageData='gate', c
 
 	return line
 
-def boxplot(axis, data):
-	return axis.boxplot(data, meanline=True, showmeans=True, showfliers=True)
-
 def plotSubthresholdCurve(axis, jsonData, lineColor, direction='both', fitSubthresholdSwing=False, includeLabel=False, lineStyle=None, errorBars=True):
 	line = plotSweep(axis, jsonData, lineColor, direction, voltageData='gate', currentData='drain', logScale=True, scaleCurrentBy=1, lineStyle=lineStyle, errorBars=errorBars)
 	if(includeLabel): 
@@ -277,6 +274,10 @@ def plotOverTime(axis, timestamps, y, lineColor, offset=0, markerSize=1, lineWid
 		for i in range(0, len(y)-1, N):
 			p = axis.plot(zeroed_timestamps[i:i+1+N], y[i:i+1+N], color=innerGradientColors[i])
 		return p[0]
+
+def boxplot(axis, data):
+	return axis.boxplot(data, meanline=True, showmeans=True, showfliers=True)
+	
 
 
 # === Colors ===
