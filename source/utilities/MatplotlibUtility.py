@@ -171,6 +171,9 @@ def plotSweep(axis, jsonData, lineColor, direction='both', voltageData='gate', c
 
 	return line
 
+def boxplot(axis, data):
+	return axis.boxplot(data, meanline=True, showmeans=True, showfliers=True)
+
 def plotSubthresholdCurve(axis, jsonData, lineColor, direction='both', fitSubthresholdSwing=False, includeLabel=False, lineStyle=None, errorBars=True):
 	line = plotSweep(axis, jsonData, lineColor, direction, voltageData='gate', currentData='drain', logScale=True, scaleCurrentBy=1, lineStyle=lineStyle, errorBars=errorBars)
 	if(includeLabel): 
@@ -217,7 +220,6 @@ def plotBurnOut(axis1, axis2, axis3, jsonData, lineColor, lineStyle=None, annota
 def plotStaticBias(axis, jsonData, lineColor, timeOffset, currentData='id_data', timescale='seconds', lineStyle=None, gradient=False, gradientColors=None):
 	line = plotOverTime(axis, jsonData['Results']['timestamps'], (np.array(jsonData['Results'][currentData])*(10**6)), lineColor, offset=timeOffset, plotInnerGradient=gradient, innerGradientColors=gradientColors)	
 	return line
-
 
 
 # === Figures ===
