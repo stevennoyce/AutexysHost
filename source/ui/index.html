@@ -480,7 +480,14 @@
 									</v-container> -->
 									
 									
-									
+									<v-card class="ma-1" v-if="experiment.runType.includes('AFM')">
+										<v-toolbar dark class="blue-grey darken-1">
+											<v-toolbar-title>
+												Corresponding AFM Images
+											</v-toolbar-title>
+										</v-toolbar>
+										{{ associatedAFMs }}
+									</v-card>
 									
 									<v-card class="ma-1">
 										<v-expansion-panel dark expand>
@@ -878,7 +885,7 @@
 					
 				</v-content>
 				<v-footer inset>
-					<v-spacer></v-spacer><span class="pr-3">Created by Steven Noyce. Updated August 2018.</span>
+					<v-spacer></v-spacer><span class="pr-3">Created by Steven Noyce. Updated October 2018.</span>
 				</v-footer>
 			</v-app>
 		</transition>
@@ -908,6 +915,10 @@
 				return rv;
 			}, {});
 		}
+		
+		// should identifiers span jobs? Give option?
+		// What about other things, like device range?
+		// click on stepper header causes refresh of section
 		
 		const get = path => object => path.reduce((xs, x) => (xs && xs[x]) ? xs[x] : null, object);
 		
@@ -1079,7 +1090,8 @@
 				scheduleExperimentFileName: '',
 				scheduleExperimentSuccessCode: {},
 				saveScheduleSuccessCode: {},
-				scheduleNames: {}
+				scheduleNames: {},
+				associatedAFMs: []
 			},
 			methods: {
 				
@@ -1200,6 +1212,20 @@
 						.fail(() => {console.log("Error getting schedule names")});
 					}
 				},
+				getAssociatedAFMs: function(experiment) {
+					if (!experiment.runType.includes('AFM')) {
+						this.associatedAFMs = [];
+						return;
+					}
+					
+					startTime = experiment.startIndexes.timestamp;
+					endTime = experiment.endIndexes.timestamp;
+					var path = '/AFMFilesInTimestampRange/' + startTime + '/' + endTime + '.json' + this.cacheBust;
+					if (path) {
+						$.getJSON(path, response => {this.associatedAFMs = response})
+						.fail(() => {console.log("Error getting associated AFMs")});
+					}
+				},
 				
 				saveSchedule: function() {
 					var url = '/saveSchedule/' + this.scheduleSaveUser + '/' + this.scheduleSaveProject + '/' + this.scheduleSaveFileName;
@@ -1282,6 +1308,8 @@
 					this.parametersTab = this.experiments[experimentIndex].runType;
 					this.parametersSection = this.experiments[experimentIndex].runType;
 					this.getExperiment();
+					this.getAssociatedAFMs(this.experiments[experimentIndex]);
+					
 					this.stepperPage++;
 				},
 				

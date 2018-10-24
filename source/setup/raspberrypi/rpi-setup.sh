@@ -24,6 +24,6 @@ sudo systemctl enable resilio-sync
 sudo usermod -aG pi rslsync
 sudo chmod g+rw synced_folder
 
-
 pip3 install psutil
 pip3 install flask-socketio
+pip3 install gevent

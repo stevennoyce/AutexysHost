@@ -242,10 +242,11 @@ def experiments(user, project, wafer, chip, device):
 			lastDataEntryParameters['endIndexes']['index'] = lastDataEntryParameters['index']
 			lastDataEntryParameters['endIndexes']['experimentNumber'] = lastDataEntryParameters['experimentNumber']
 			experimentDictionary[experimentNumber] = lastDataEntryParameters
+		
 		# Get the possible plots for this experiment and save that with the parameters 
 		parameter_identifiers = {'dataFolder':default_data_path, 'Identifiers':{'user':user,'project':project,'wafer':wafer,'chip':chip,'device':device}}
 		experimentDictionary[experimentNumber]['possiblePlots'] = DH.plotsForExperiments(parameter_identifiers, minExperiment=experimentNumber, maxExperiment=experimentNumber)
-	
+		
 	# Finally, extract all of the experiments from the dictionary that we built and return the list of their parameters
 	experiments = [experimentDictionary[key] for key in sorted(experimentDictionary.keys())]
 		
@@ -319,6 +320,11 @@ def loadScheduleNames():
 			scheduleNames[userName][projectName] = [os.path.basename(schedule).split('.')[0] for schedule in schedulePaths]
 	
 	return jsonvalid(scheduleNames)
+
+@app.route('/AFMFilesInTimestampRange/<startTime>/<endTime>.json')
+def AFMFilesInTimestampRange(startTime, endTime):
+	afms = glob.glob(default_data_path + '../../**/*.ibw', recursive=True)
+	return jsonvalid(afms)
 
 # @app.after_request
 # def add_header(response):
