@@ -3,7 +3,7 @@ from utilities.MatplotlibUtility import *
 
 
 plotDescription = {
-	'plotCategroy': 'device',
+	'plotCategory': 'device',
 	'dataFileDependencies': ['AFMControl.json'],
 	'plotDefaults': {
 		'figsize':(5,4),
