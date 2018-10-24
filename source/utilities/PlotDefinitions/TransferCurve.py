@@ -38,7 +38,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	print((np.array(deviceHistory[0]['Results']['id_data']) < 0).sum())
 	
 	# If first segment of device history is mostly negative current, flip data
-	if((len(deviceHistory) > 0) and ((np.array(deviceHistory[0]['Results']['id_data']) < 0).sum() > (np.array(deviceHistory[0]['Results']['id_data']) >= 0).sum()):
+	if((len(deviceHistory) > 0) and ((np.array(deviceHistory[0]['Results']['id_data']) < 0).sum() > (np.array(deviceHistory[0]['Results']['id_data']) >= 0).sum())):
 		deviceHistory = scaledData(deviceHistory, 'Results', 'id_data', -1)
 		plotDescrip_current['plotDefaults']['ylabel'] = plotDescrip_current['plotDefaults']['neg_label']
 	
