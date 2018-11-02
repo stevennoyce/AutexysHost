@@ -238,7 +238,7 @@ def experiments(user, project, wafer, chip, device):
 				if((lastDataEntryParameters is None) or (dataParameters['index'] > lastDataEntryParameters['index'])):
 					lastDataEntryParameters = dataParameters
 			del lastDataEntryParameters['Results']
-			lastDataEntryParameters['endIndexes'] = lastDataEntryParameters['startIndexes']
+			lastDataEntryParameters['endIndexes'] = dict(lastDataEntryParameters['startIndexes'])
 			lastDataEntryParameters['endIndexes']['index'] = lastDataEntryParameters['index']
 			lastDataEntryParameters['endIndexes']['experimentNumber'] = lastDataEntryParameters['experimentNumber']
 			experimentDictionary[experimentNumber] = lastDataEntryParameters
