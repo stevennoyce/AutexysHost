@@ -389,7 +389,7 @@
 										<template slot="items" slot-scope="props">
 											<tr @click="goToExperiment(props.item.i)">
 												<td>{{ props.item.startIndexes.experimentNumber }}</td>
-												<td>{{ props.item.runType }}</td>
+												<td>{{ props.item.runType }}<template v-if="props.item.parametersHistoryGenerated && props.item.experimentNumber == experiments[experiments.length-1].experimentNumber">: Running</template></td>
 												<td>{{ props.item.MeasurementSystem.systemType }}</td>
 												<td>{{ props.item.uiComputed.indexCount }}</td>
 												
@@ -1163,7 +1163,6 @@
 								response[i]['uiComputed']['indexCount'] = response[i]['endIndexes']['index'] - response[i]['startIndexes']['index'];
 							}
 							app.$data.experiments = response;
-							
 							
 							// let lastExperiment = this.experiments[this.experiments.length - 1];
 							// let lastFinishedIndex = lastExperiment['endIndexes']['index'];
