@@ -290,7 +290,7 @@ def filterStringArrayByIndexAndExperiment(directory, fileLines, minIndex=0, maxI
 			filteredFileLines = filterFileLinesLessThan(filteredFileLines, 'index', maxIndex)
 	
 	if(minRelativeIndex > 0 or maxRelativeIndex < 1e10):
-		experimentBaseIndex = min(getIndexesForExperiments(directory, minExperiment, maxExperiment))
+		experimentBaseIndex = min(getIndexesForExperiments(os.path.join(directory, '../'), minExperiment, maxExperiment))
 		if(minRelativeIndex > 0):
 			filteredFileLines = filterFileLinesGreaterThan(filteredFileLines, 'index', experimentBaseIndex + minRelativeIndex)
 		if(maxRelativeIndex < float('inf')):
@@ -371,4 +371,3 @@ def filterFileLinesLessThan(fileLines, property, value):
 	return filteredFileLines
 
 	
-
