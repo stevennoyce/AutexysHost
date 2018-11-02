@@ -1165,19 +1165,19 @@
 							app.$data.experiments = response;
 							
 							
-							let lastExperiment = this.experiments[this.experiments.length - 1];
-							let lastFinishedIndex = lastExperiment['endIndexes']['index'];
-							let lastIndexObject = this.indexes[this.wafer][this.chip][this.device];
-							let lastIndex = lastIndexObject['index'];
+							// let lastExperiment = this.experiments[this.experiments.length - 1];
+							// let lastFinishedIndex = lastExperiment['endIndexes']['index'];
+							// let lastIndexObject = this.indexes[this.wafer][this.chip][this.device];
+							// let lastIndex = lastIndexObject['index'];
 							
-							if (lastIndex > lastFinishedIndex) {
-								let currentExperiment = JSON.parse(JSON.stringify(lastExperiment));
-								currentExperiment['startIndexes'] = JSON.parse(JSON.stringify(lastExperiment['startIndexes']));
-								currentExperiment['startIndexes']['experimentNumber']++;
-								currentExperiment['endIndexes'] = JSON.parse(JSON.stringify(lastIndexObject));
-								currentExperiment['runType'] = 'Running';
-								this.experiments.push(currentExperiment);
-							}
+							// if (lastIndex > lastFinishedIndex) {
+							// 	let currentExperiment = JSON.parse(JSON.stringify(lastExperiment));
+							// 	currentExperiment['startIndexes'] = JSON.parse(JSON.stringify(lastExperiment['startIndexes']));
+							// 	currentExperiment['startIndexes']['experimentNumber']++;
+							// 	currentExperiment['endIndexes'] = JSON.parse(JSON.stringify(lastIndexObject));
+							// 	currentExperiment['runType'] = 'Running';
+							// 	this.experiments.push(currentExperiment);
+							// }
 						})
 						.fail(function(jqXHR, textStatus, errorThrown) { console.log('getJSON request failed! ' + textStatus + ' ' + errorThrown); });
 						//.fail(() => {console.log("Error getting experiments");});
