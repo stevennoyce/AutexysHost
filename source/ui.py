@@ -241,6 +241,7 @@ def experiments(user, project, wafer, chip, device):
 			lastDataEntryParameters['endIndexes'] = dict(lastDataEntryParameters['startIndexes'])
 			lastDataEntryParameters['endIndexes']['index'] = lastDataEntryParameters['index']
 			lastDataEntryParameters['endIndexes']['experimentNumber'] = lastDataEntryParameters['experimentNumber']
+			lastDataEntryParameters['parametersHistoryGenerated'] = True
 			experimentDictionary[experimentNumber] = lastDataEntryParameters
 		
 		# Get the possible plots for this experiment and save that with the parameters 
