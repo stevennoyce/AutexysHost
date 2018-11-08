@@ -2,7 +2,7 @@
 
 Automated Experimentation System Host and User Interface
 
-## Setup and Dependencies
+## Installation
 
 The python code is written in Python 3.
 
@@ -30,3 +30,27 @@ Especially for those less familiar with git, we recommend the [GitHub Desktop Ap
 
 If desired, [Resilio Sync](https://www.resilio.com/individuals/) can be used to sync the data directory between your personal computers. The key for the data folder is: ALPORGP3DKHYE6STIG62DTRMGEANCCQ6O
 
+
+## Usage
+
+The most common method to launch Autexys is to open a terminal and execute
+
+```console
+python manager.py
+```
+
+On some systems, such as the Raspberry Pi, this may need to be
+
+```console
+python3 manager.py
+```
+
+If the terminal is not pointed at the `source` directory that contains `managery.py`, you will either have to change directories using the `cd` command or enter the relative or absolute path to `manager.py`.
+
+The manager starts two processes, the user interface (`ui.py`), and the dispatcher (`dispatcher.py`). The dispatcher is responsible for running experiments, which it does by dispatching lines of schedule files to be executed.  Schedule files are `.json` files that specify any settings that need to be altered from the defaults in order to specify the details of the experiment to run.  These lines in the schedule file are also referred to as jobs.
+
+The dispatcher can be launched and given a schedule file without the use of the manager. This is done by running `dispatcher.py` and passing it the path of the desired schedule file as the first command line argument, such as
+
+```console
+python dispatcher.py ../../AutexysData/user/project/schedules/scheduleFile.json
+```
