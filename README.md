@@ -22,9 +22,9 @@ Resilio Sync Key: ALPORGP3DKHYE6STIG62DTRMGEANCCQ6O
 
 Here is a list of the standard setup commands:
 
-````
+```console
 pip install pyserial
 pip install flask-socketio
 pip install pyvisa
 pip install pyvisa-py
-````
+```
