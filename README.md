@@ -54,3 +54,5 @@ The dispatcher can be launched and given a schedule file without the use of the 
 ```console
 python dispatcher.py ../../AutexysData/user/project/schedules/scheduleFile.json
 ```
+
+The user interface can also be run standalone if desired.
