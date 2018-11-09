@@ -72,6 +72,8 @@ def runAction(parameters, schedule_parameters, smu_systems, arduino_instance, co
 	parameters['startIndexes'] = dlu.loadJSONIndex(dlu.getDeviceDirectory(parameters))
 	parameters['startIndexes']['timestamp'] = time.time()
 	
+	parameters['originalRunType'] = parameters['runType']
+	
 	print('Saving to SchedulesHistory...')
 	dlu.saveJSON(dlu.getDeviceDirectory(parameters), 'SchedulesHistory', schedule_parameters, incrementIndex=False)
 	
