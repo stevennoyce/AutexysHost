@@ -1,4 +1,6 @@
 # === Imports ===
+import time
+
 from procedures import Drain_Sweep as drainSweepScript
 from utilities import DataLoggerUtility as dlu
 

@@ -377,7 +377,7 @@ def getLegendTitle(deviceHistory, identifiers, plottype_parameters, parameterSup
 		vgs_list = getParameterArray(deviceHistory, parameterSuperType, parameterType, 'gateVoltageSetPoint')
 		vgs_min = min(vgs_list)
 		vgs_max = max(vgs_list)
-		legend_entries.append(plottype_parameters['leg_vgs_label'].format(vgs_min) if(vgs_min == vgs_max) else (plottype_parameters['leg_vds_range_label'].format(vgs_min, vgs_max)))
+		legend_entries.append(plottype_parameters['leg_vgs_label'].format(vgs_min) if(vgs_min == vgs_max) else (plottype_parameters['leg_vgs_range_label'].format(vgs_min, vgs_max)))
 	if(includeSubthresholdSwing):
 		SS_list = []
 		for deviceRun in deviceHistory:

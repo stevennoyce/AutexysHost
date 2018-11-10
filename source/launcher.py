@@ -16,6 +16,7 @@ from procedures import Drain_Sweep as drainSweepScript
 from procedures import Auto_Burn_Out as autoBurnScript
 from procedures import Static_Bias as staticBiasScript
 from procedures import Auto_Gate_Sweep as autoGateScript
+from procedures import Auto_Drain_Sweep as autoDrainScript
 from procedures import Auto_Static_Bias as autoBiasScript
 from procedures import AFM_Control as afmControlScript
 from procedures import Delay as delayScript
@@ -96,6 +97,8 @@ def runAction(parameters, schedule_parameters, smu_systems, arduino_instance, co
 			staticBiasScript.run(parameters, smu_default_instance, arduino_instance)
 		elif(parameters['runType'] == 'AutoGateSweep'):
 			autoGateScript.run(parameters, smu_default_instance, arduino_instance)
+		elif(parameters['runType'] == 'AutoDrainSweep'):
+			autoDrainScript.run(parameters, smu_default_instance, arduino_instance)
 		elif(parameters['runType'] == 'AutoStaticBias'):
 			autoBiasScript.run(parameters, smu_default_instance, arduino_instance)
 		elif(parameters['runType'] == 'AFMControl'):
