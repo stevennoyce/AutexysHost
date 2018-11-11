@@ -6,7 +6,7 @@ plotDescription = {
 	'plotCategory': 'device',
 	'dataFileDependencies': ['StaticBias.json'],
 	'plotDefaults': {
-		'figsize':(4.4,3.2),#(2*2.2,2*1.6),#(5,4),
+		'figsize':(3.5,2.5),#(2*2.2,2*1.6),#(5,4),
 		'mainIncludeOrigin':True,
 		'dualIncludeOrigin':False,
 		'colorMap':'plasma',

@@ -6,7 +6,7 @@ plotDescription = {
 	'plotCategory': 'device',
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
-		'figsize':(4.4,3.4),#(2*2.2,2*1.7),#(5,4),
+		'figsize':(3.1,2.4),#(2*2.2,2*1.7),#(5,4),
 		'time_label':'Time [{:}]',
 		'index_label':'Time Index of Gate Sweep [#]',
 		'ylabel':'$I_{{ON}}$ [$\\mu$A]',
