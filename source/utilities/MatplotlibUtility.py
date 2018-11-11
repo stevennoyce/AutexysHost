@@ -276,7 +276,7 @@ def plotOverTime(axis, timestamps, y, lineColor, offset=0, markerSize=1, lineWid
 		return p[0]
 
 def boxplot(axis, data):
-	return axis.boxplot(data, meanline=True, showmeans=True, showfliers=True)
+	return axis.boxplot(data, meanline=True, showmeans=True, showfliers=False, medianprops={'color':'#000000'}, meanprops={'color':'#000000'})
 	
 
 

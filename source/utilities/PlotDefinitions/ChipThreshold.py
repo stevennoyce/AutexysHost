@@ -5,7 +5,7 @@ import copy
 
 
 plotDescription = {
-	'plotCategory': 'device',
+	'plotCategory': 'chip',
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(2.8,3.2),
@@ -14,27 +14,27 @@ plotDescription = {
 	},
 }
 
-def plot(deviceHistory, identifiers, mode_parameters=None):
+def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory, mode_parameters=None):
 	# Load Defaults
 	plotDescrip_current = copy.deepcopy(plotDescription)
 
 	# Init Figure
 	fig, ax = initFigure(1, 1, plotDescrip_current['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
 	if(not mode_parameters['publication_mode']):
-		ax.set_title(getTestLabel(deviceHistory, identifiers))
+		ax.set_title('Chip ' + str(identifiers['wafer']) + str(identifiers['chip']))
 		
 	# Plot
-	gm, vt, r2 = dpu.fitBasicDeviceModel(deviceHistory)
+	gm, vt, r2 = dpu.fitBasicDeviceModel(specificRunChipHistory)
 	if mode_parameters['useBoxWhiskerPlot']: 
 		line = boxplot(ax, vt)
 	else: 
 		line = ax.plot(range(len(vt)), vt, color=plt.rcParams['axes.prop_cycle'].by_key()['color'][0], marker='o', markersize=4, linewidth=0, linestyle=None)
 
-	axisLabels(ax, x_label=plotDescrip_current['plotDefaults']['xlabel'], y_label=plotDescrip_current['plotDefaults']['ylabel'])
+	axisLabels(ax, y_label=plotDescrip_current['plotDefaults']['ylabel'])
 
 
 	# Save figure	
-	adjustAndSaveFigure(fig, 'Threshold', mode_parameters)
+	adjustAndSaveFigure(fig, 'ChipThreshold', mode_parameters)
 
 	return (fig, ax)
 
