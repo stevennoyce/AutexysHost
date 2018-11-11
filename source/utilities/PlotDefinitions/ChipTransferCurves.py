@@ -16,7 +16,7 @@ plotDescription = {
 	},
 }
 
-def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory, mode_parameters=None):
+def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory, chipHistoryList, mode_parameters=None):
 	# Load Defaults
 	plotDescrip_current = copy.deepcopy(plotDescription)
 

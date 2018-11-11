@@ -12,7 +12,7 @@ plotDescription = {
 	},
 }
 
-def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory, mode_parameters=None):
+def plot(identifiers, chipIndexes, chipHistories, mode_parameters=None):
 	# Init Figure
 	fig, ax = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
 

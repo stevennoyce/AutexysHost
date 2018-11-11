@@ -36,7 +36,7 @@ default_ch_parameters = {
 
 
 # === External Interface ===
-def makePlots(userID, projectID, waferID, chipID, dataFolder=None, specificPlot='', minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf'), loadOnlyMostRecentExperiments=True, numberOfRecentExperiments=1, numberOfRecentIndexes=1, specificDeviceList=None, saveFolder=None, plotSaveName='', showFigures=True, saveFigures=False, plot_mode_parameters=None):
+def makePlots(userID, projectID, waferID, chipID, dataFolder=None, specificPlot='', minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf'), loadOnlyMostRecentExperiments=True, numberOfRecentExperiments=1, numberOfRecentIndexes=1, specificDeviceList=None, deviceCategoryLists=None, saveFolder=None, plotSaveName='', showFigures=True, saveFigures=False, plot_mode_parameters=None):
 	parameters = {}	
 	mode_parameters = {}
 	if(plot_mode_parameters is not None):
@@ -60,6 +60,7 @@ def makePlots(userID, projectID, waferID, chipID, dataFolder=None, specificPlot=
 	parameters['numberOfRecentExperiments'] = numberOfRecentExperiments
 	parameters['numberOfRecentIndexes'] = numberOfRecentIndexes
 	parameters['specificDeviceList'] = specificDeviceList
+	parameters['deviceCategoryLists'] = deviceCategoryLists
 		
 	# Plot selection parameters	
 	parameters['showFigures'] = showFigures
@@ -68,6 +69,7 @@ def makePlots(userID, projectID, waferID, chipID, dataFolder=None, specificPlot=
 	# Plot decoration parameters
 	if(saveFolder is not None):
 		mode_parameters['plotSaveFolder'] = saveFolder
+	mode_parameters['plotSaveName'] = plotSaveName
 	mode_parameters['saveFigures'] = saveFigures
 	mode_parameters['showFigures'] = showFigures
 
@@ -88,8 +90,8 @@ def run(additional_parameters, plot_mode_parameters={}):
 
 	for plotType in plotsToCreate:
 		dataFileDependencies = dpu.getDataFileDependencies(plotType)		
-		(chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory) = loadDataBasedOnPlotDependencies(dataFileDependencies, parameters, minIndex=parameters['minJSONIndex'], maxIndex=parameters['maxJSONIndex'], minExperiment=parameters['minJSONExperimentNumber'], maxExperiment=parameters['maxJSONExperimentNumber'], minRelativeIndex=parameters['minJSONRelativeIndex'], maxRelativeIndex=parameters['maxJSONRelativeIndex'], loadOnlyMostRecentExperiments=parameters['loadOnlyMostRecentExperiments'], numberOfOldestExperiments=1, numberOfOldestIndexes=1, numberOfRecentExperiments=parameters['numberOfRecentExperiments'], numberOfRecentIndexes=parameters['numberOfRecentIndexes'], specificDeviceList=parameters['specificDeviceList'])
-		plot = dpu.makeChipPlot(plotType, parameters['Identifiers'], chipIndexes=chipIndexes, firstRunChipHistory=firstRunChipHistory, recentRunChipHistory=recentRunChipHistory, specificRunChipHistory=specificRunChipHistory, mode_parameters=plot_mode_parameters)
+		(chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory, chipHistoryList) = loadDataBasedOnPlotDependencies(dataFileDependencies, parameters, minIndex=parameters['minJSONIndex'], maxIndex=parameters['maxJSONIndex'], minExperiment=parameters['minJSONExperimentNumber'], maxExperiment=parameters['maxJSONExperimentNumber'], minRelativeIndex=parameters['minJSONRelativeIndex'], maxRelativeIndex=parameters['maxJSONRelativeIndex'], loadOnlyMostRecentExperiments=parameters['loadOnlyMostRecentExperiments'], numberOfOldestExperiments=1, numberOfOldestIndexes=1, numberOfRecentExperiments=parameters['numberOfRecentExperiments'], numberOfRecentIndexes=parameters['numberOfRecentIndexes'], specificDeviceList=parameters['specificDeviceList'], deviceCategoryLists=parameters['deviceCategoryLists'])
+		plot = dpu.makeChipPlot(plotType, parameters['Identifiers'], chipIndexes=chipIndexes, firstRunChipHistory=firstRunChipHistory, recentRunChipHistory=recentRunChipHistory, specificRunChipHistory=specificRunChipHistory, chipHistoryList=chipHistoryList, mode_parameters=plot_mode_parameters)
 		plotList.append(plot)
 	
 	# Show figures if desired	
@@ -100,7 +102,7 @@ def run(additional_parameters, plot_mode_parameters={}):
 
 
 
-def loadDataBasedOnPlotDependencies(dataFileDependencies, parameters, minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf'), loadOnlyMostRecentExperiments=True, numberOfOldestExperiments=1, numberOfOldestIndexes=1, numberOfRecentExperiments=1, numberOfRecentIndexes=1,specificDeviceList=None):
+def loadDataBasedOnPlotDependencies(dataFileDependencies, parameters, minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf'), loadOnlyMostRecentExperiments=True, numberOfOldestExperiments=1, numberOfOldestIndexes=1, numberOfRecentExperiments=1, numberOfRecentIndexes=1,specificDeviceList=None, deviceCategoryLists=None):
 	chipIndexes = None
 	firstRunChipHistory = None
 	recentRunChipHistory = None
@@ -114,7 +116,12 @@ def loadDataBasedOnPlotDependencies(dataFileDependencies, parameters, minIndex=0
 			specificRunChipHistory = recentRunChipHistory.copy()
 		else:
 			specificRunChipHistory = dlu.loadSpecificChipHistory(dlu.getChipDirectory(parameters), 'GateSweep.json', specificDeviceList=specificDeviceList, minIndex=minIndex, maxIndex=maxIndex, minExperiment=minExperiment, maxExperiment=maxExperiment, minRelativeIndex=minRelativeIndex, maxRelativeIndex=maxRelativeIndex)
-	return (chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory)
+			chipHistoryList = list()
+			if not deviceCategoryLists == None:
+				for deviceCategory in deviceCategoryLists:
+					categoryChipHistory = dlu.loadSpecificChipHistory(dlu.getChipDirectory(parameters), 'GateSweep.json', specificDeviceList=deviceCategory, minIndex=minIndex, maxIndex=maxIndex, minExperiment=minExperiment, maxExperiment=maxExperiment, minRelativeIndex=minRelativeIndex, maxRelativeIndex=maxRelativeIndex)
+					chipHistoryList.append(categoryChipHistory)
+	return (chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory, chipHistoryList)
 
 
 
