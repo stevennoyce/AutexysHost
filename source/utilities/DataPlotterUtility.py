@@ -42,6 +42,7 @@ default_mode_parameters = {
 	'includeDualAxis': True,
 	'includeOffCurrent': True,
 	'includeGateCurrent': False,
+	'useBoxWhiskerPlot': True,
 	
 	'staticBiasSegmentDividers': False,
 	'staticBiasChangeDividers': True,
@@ -81,7 +82,7 @@ def makeDevicePlot(plotType, deviceHistory, identifiers, mode_parameters=None):
 	
 	return fig, axes
 
-def makeChipPlot(plotType, identifiers, chipIndexes=None, firstRunChipHistory=None, recentRunChipHistory=None, specificRunChipHistory=None, mode_parameters=None):
+def makeChipPlot(plotType, identifiers, chipIndexes=None, firstRunChipHistory=None, recentRunChipHistory=None, specificRunChipHistory=None, chipHistoryList=None, mode_parameters=None):
 	"""Given a plotType that matches one of the plotDefinitions in the plotDefinitions folder, as well as a variety of chip data, 
 	and a dictionary containing the user/project/wafer/chip identifiers for this data, generate the requested plot. The plot can
 	be shown by a later call to show(). Given the complexity of different requirements for different plots, it is highly recommended
@@ -104,7 +105,7 @@ def makeChipPlot(plotType, identifiers, chipIndexes=None, firstRunChipHistory=No
 		updated_mode_parameters.update(mode_parameters)
 	
 	try:
-		fig, axes = plotDefinitions[plotType]['function'](identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory, mode_parameters=updated_mode_parameters)
+		fig, axes = plotDefinitions[plotType]['function'](identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory, chipHistoryList, mode_parameters=updated_mode_parameters)
 	except:
 		print('Error plotting "plotType": ' + str(plotType))
 		raise

@@ -26,8 +26,10 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Plot
 	gm, vt, r2 = dpu.fitBasicDeviceModel(deviceHistory)
 	gm = [val*1000000 for val in gm] #Convert to uA
-	#line = boxplot(ax, gm)
-	line = ax.plot(range(len(gm)), gm, color=plt.rcParams['axes.prop_cycle'].by_key()['color'][0], marker='o', markersize=4, linewidth=0, linestyle=None)
+	if mode_parameters['useBoxWhiskerPlot'] :
+		line = boxplot(ax, gm)
+	else:
+		line = ax.plot(range(len(gm)), gm, color=plt.rcParams['axes.prop_cycle'].by_key()['color'][0], marker='o', markersize=4, linewidth=0, linestyle=None)
 
 	axisLabels(ax, x_label=plotDescrip_current['plotDefaults']['xlabel'], y_label=plotDescrip_current['plotDefaults']['ylabel'])
 
