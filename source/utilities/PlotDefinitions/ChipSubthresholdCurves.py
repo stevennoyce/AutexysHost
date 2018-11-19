@@ -8,7 +8,7 @@ plotDescription = {
 	'plotDefaults': {
 		'figsize':(2.8,3.2),
 		'colorMap':'viridis',
-		'colorDefault': plt.rcParams['axes.prop_cycle'].by_key()['color'][1],
+		'colorDefault': ['#f2b134'],
 		'xlabel':'$V_{{GS}}^{{Sweep}}$ [V]',
 		'ylabel':'$I_{{D}}$ [A]',
 	},

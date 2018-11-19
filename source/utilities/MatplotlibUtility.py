@@ -88,6 +88,11 @@ plt.rcParams['axes.formatter.limits'] = [-2, 3]
 plt.rcParams['pdf.fonttype'] = 42
 plt.rcParams['ps.fonttype'] = 42
 
+# Add custom color-maps
+plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_red_black', {'red':((0.0, 0/255, 0/255), (0.5, 237/255, 237/255), (1.0, 255/255, 255/255)), 'green':((0.0, 0/255, 0/255), (0.5, 85/255, 85/255), (1.0, 255/255, 255/255)), 'blue':((0.0, 0/255, 0/255), (0.5, 59/255, 59/255), (1.0, 255/255, 255/255))}))
+plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_green_black', {'red':((0.0, 0/255, 0/255), (0.5, 79/255, 79/255), (1.0, 255/255, 255/255)), 'green':((0.0, 0/255, 0/255), (0.5, 185/255, 185/255), (1.0, 255/255, 255/255)), 'blue':((0.0, 0/255, 0/255), (0.5, 159/255, 159/255), (1.0, 255/255, 255/255))}))
+plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_blue_black', {'red':((0.0, 0/255, 0/255), (0.5, 31/255, 31/255), (1.0, 255/255, 255/255)), 'green':((0.0, 0/255, 0/255), (0.5, 119/255, 119/255), (1.0, 255/255, 255/255)), 'blue':((0.0, 0/255, 0/255), (0.5, 180/255, 180/255), (1.0, 255/255, 255/255))}))
+
 
 
 # === Matplotlib Access ===
@@ -281,19 +286,17 @@ def boxplot(axis, data):
 
 
 # === Colors ===
-def setupColors(fig, numberOfColors, colorOverride=[], colorDefault=plt.rcParams['axes.prop_cycle'].by_key()['color'][0], colorMapName='plasma', colorMapStart=0, colorMapEnd=0.87, enableColorBar=False, colorBarTicks=[0,1], colorBarTickLabels=['End','Start'], colorBarAxisLabel=''):
+def setupColors(fig, numberOfColors, colorOverride=[], colorDefault=['#1f77b4', '#f2b134', '#4fb99f', '#ed553b', '#56638A'], colorMapName='plasma', colorMapStart=0, colorMapEnd=0.87, enableColorBar=False, colorBarTicks=[0,1], colorBarTickLabels=['End','Start'], colorBarAxisLabel=''):
 	if(numberOfColors == len(colorOverride)):
 		return colorOverride
 	
 	colors = None
-	if(numberOfColors == 1):
-		colors = [colorDefault]
-	elif(numberOfColors >= 2 and numberOfColors <= 5):
-		colors = ['#1f77b4', '#f2b134', '#4fb99f', '#ed553b', '#56638A'][:numberOfColors]
+	if(numberOfColors <= len(colorDefault)):
+		colors = colorDefault.copy()
 	else:
 		colorMap = colorsFromMap(colorMapName, colorMapStart, colorMapEnd, numberOfColors)
 		colors = colorMap['colors']
-		if(enableColorBar):
+		if(enableColorBar and numberOfColors >= 5):
 			colorBar(fig, colorMap['smap'], ticks=colorBarTicks, tick_labels=colorBarTickLabels, axisLabel=colorBarAxisLabel)
 	
 	#for color in colors:
@@ -399,7 +402,7 @@ def getLegendTitle(deviceHistory, identifiers, plottype_parameters, parameterSup
 		if((mode_parameters is not None) and (mode_parameters['generalInfo'] is not None)):
 			try:
 				wafer_info = mode_parameters['generalInfo']
-				L_ch = wafer_info['channel_length_nm'][identifiers['device']]
+				L_ch = wafer_info['channel_length_nm'][identifiers['chip']][identifiers['device']] if(identifiers['chip'] in wafer_info['channel_length_nm']) else wafer_info['channel_length_nm'][identifiers['device']]
 				if(L_ch < 1000):
 					legend_entries.append('$L_{{ch}} = $ {:} nm'.format(L_ch))
 				else:
