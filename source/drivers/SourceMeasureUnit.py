@@ -59,7 +59,7 @@ smu_system_configurations = {
 def getSystemConfiguration(systemType):
 	return copy.deepcopy(smu_system_configurations[systemType])
 
-def getConnectionToVisaResource(uniqueIdentifier='', system_settings=None, defaultComplianceCurrent=100e-6, smuTimeout=100000):
+def getConnectionToVisaResource(uniqueIdentifier='', system_settings=None, defaultComplianceCurrent=100e-6, smuTimeout=60000):
 	import visa
 	
 	rm = visa.ResourceManager()
@@ -265,10 +265,7 @@ class B2912A(SourceMeasureUnit):
 		self.setParameter(":source2:voltage {}".format(voltage))
 
 	def takeMeasurement(self):
-		try:
-			data = self.smu.query_ascii_values(':MEAS? (@1:2)')
-		except:
-			data = self.smu.query_ascii_values(':MEAS? (@1:2)')
+		data = self.smu.query_ascii_values(':MEAS? (@1:2)')
 		return {
 			'V_ds': data[0],
 			'I_d':  data[1],
