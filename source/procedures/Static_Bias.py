@@ -141,6 +141,8 @@ def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVolt
 			measurements['Vgs_data'].append(measurement['V_gs'])
 			measurements['Ig_data'].append(measurement['I_g'])
 			measurementCount += 1
+			# Sleep for a fraction of the SMU's speed so we put a slight delay between consecutive queries
+			time.sleep((1/2)*(time.time() - startTime)/measurementCount)
 		
 		# Save the median of all the measurements taken in this measurementTime window
 		timestamp = time.time()
