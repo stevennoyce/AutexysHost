@@ -5,9 +5,10 @@ from matplotlib import pyplot as plt
 from matplotlib import colors as pltc
 from matplotlib import cm
 import numpy as np
-
 import io
 import os
+
+from utilities import FET_Modeling as fet_model
 
 # ********** Matplotlib Parameters **********
 
@@ -379,7 +380,7 @@ def addLegend(axis, loc, title):
 	lines, labels = axis.get_legend_handles_labels()
 	axis.legend(lines, labels, loc=loc, title=title, labelspacing=(0) if(len(labels) == 0) else (0.3))
 
-def getLegendTitle(deviceHistory, identifiers, plottype_parameters, parameterSuperType, parameterType, mode_parameters=None, includeVdsSweep=False, includeVgsSweep=False, includeSubthresholdSwing=False, includeVdsHold=False, includeVgsHold=False, includeHoldTime=False, includeTimeHold=False, includeChannelLength=True):
+def getLegendTitle(deviceHistory, identifiers, plottype_parameters, parameterSuperType, parameterType, mode_parameters=None, includeVdsSweep=False, includeVgsSweep=False, includeIdVgsFit=False, includeVdsHold=False, includeVgsHold=False, includeHoldTime=False, includeTimeHold=False, includeChannelLength=True):
 	legend_title = ''
 	legend_entries = []
 	if(includeVdsSweep):
@@ -392,17 +393,30 @@ def getLegendTitle(deviceHistory, identifiers, plottype_parameters, parameterSup
 		vgs_min = min(vgs_list)
 		vgs_max = max(vgs_list)
 		legend_entries.append(plottype_parameters['leg_vgs_label'].format(vgs_min) if(vgs_min == vgs_max) else (plottype_parameters['leg_vgs_range_label'].format(vgs_min, vgs_max)))
-	if(includeSubthresholdSwing):
-		SS_list = []
+	if(includeIdVgsFit and mode_parameters['enableModelFitting']):
+		all_fitted_parameters = {'V_T':[], 'mu_Cox_W_L':[], 'SS_mV_dec':[], 'I_OFF':[], 'g_m_max':[]}
 		for deviceRun in deviceHistory:
-			startIndex, endIndex = steepestRegion(np.log10(np.abs(deviceRun['Results']['id_data'][0])), 10)
-			vgs_region = deviceRun['Results']['vgs_data'][0][startIndex:endIndex]
-			id_region = deviceRun['Results']['id_data'][0][startIndex:endIndex]
-			fitted_region = semilogFit(vgs_region, id_region)['fitted_data']
-			SS_list.append(avgSubthresholdSwing(vgs_region, fitted_region))
-			#axis.plot(vgs_region, fitted_region, color='b', linestyle='--')
-		SS_avg = np.mean(SS_list)
-		legend_entries.append('$SS_{{avg}} = $ {:.0f}mV/dec'.format(SS_avg))
+			if(mode_parameters['sweepDirection'] in ['both', 'forward']):
+				if(abs(deviceRun['Results']['id_data'][0][0]) > abs(deviceRun['Results']['id_data'][0][-1]) and (deviceRun['Results']['vgs_data'][0][0] < deviceRun['Results']['vgs_data'][0][-1])):
+					fwd_id_fitted, fwd_model_parameters, fwd_model_parameters_kw, fwd_cov = fet_model.PMOSFET_Fit(deviceRun['Results']['vgs_data'][0], deviceRun['Results']['id_data'][0], deviceRun['runConfigs']['GateSweep']['drainVoltageSetPoint'], I_OFF_guess=deviceRun['Computed']['offCurrent'], I_OFF_min=deviceRun['Computed']['offCurrent']/2, I_OFF_max=deviceRun['Computed']['offCurrent']*2)
+				else:
+					fwd_id_fitted, fwd_model_parameters, fwd_model_parameters_kw, fwd_cov = fet_model.NMOSFET_Fit(deviceRun['Results']['vgs_data'][0], deviceRun['Results']['id_data'][0], deviceRun['runConfigs']['GateSweep']['drainVoltageSetPoint'], I_OFF_guess=deviceRun['Computed']['offCurrent'], I_OFF_min=deviceRun['Computed']['offCurrent']/2, I_OFF_max=deviceRun['Computed']['offCurrent']*2)
+				for parameter in all_fitted_parameters.keys():
+					all_fitted_parameters[parameter].append(fwd_model_parameters_kw[parameter])
+			if(mode_parameters['sweepDirection'] in ['both', 'reverse']):
+				if(abs(deviceRun['Results']['id_data'][1][0]) < abs(deviceRun['Results']['id_data'][1][-1]) and (deviceRun['Results']['vgs_data'][1][0] > deviceRun['Results']['vgs_data'][1][-1])):
+					rev_id_fitted, rev_model_parameters, rev_model_parameters_kw, rev_cov = fet_model.PMOSFET_Fit(deviceRun['Results']['vgs_data'][1], deviceRun['Results']['id_data'][1], deviceRun['runConfigs']['GateSweep']['drainVoltageSetPoint'], I_OFF_guess=deviceRun['Computed']['offCurrent'], I_OFF_min=deviceRun['Computed']['offCurrent']/2, I_OFF_max=deviceRun['Computed']['offCurrent']*2)
+				else:
+					rev_id_fitted, rev_model_parameters, rev_model_parameters_kw, rev_cov = fet_model.NMOSFET_Fit(deviceRun['Results']['vgs_data'][1], deviceRun['Results']['id_data'][1], deviceRun['runConfigs']['GateSweep']['drainVoltageSetPoint'], I_OFF_guess=deviceRun['Computed']['offCurrent'], I_OFF_min=deviceRun['Computed']['offCurrent']/2, I_OFF_max=deviceRun['Computed']['offCurrent']*2)
+				for parameter in all_fitted_parameters.keys():
+					all_fitted_parameters[parameter].append(rev_model_parameters_kw[parameter])
+		#plt.gca().plot(deviceRun['Results']['vgs_data'][0], 10**6 * np.array(fwd_id_fitted), color='#f2b134')
+		VT_avg = np.mean(all_fitted_parameters['V_T'])
+		gm_avg = np.mean(all_fitted_parameters['g_m_max'])	
+		SS_avg = np.mean(all_fitted_parameters['SS_mV_dec'])
+		legend_entries.append('$V_{{T}}^{{avg}} = $ {:.2f}V'.format(VT_avg))
+		legend_entries.append('$g_{{m \\cdot max}}^{{avg}} = $ {:.1f}$\\mu$A/V'.format(gm_avg * 10**6))
+		legend_entries.append('$SS^{{avg}} = $ {:.0f}mV/dec'.format(SS_avg))
 	if(includeVdsHold):	
 		legend_entries.append(plottype_parameters['vds_legend'].format(deviceHistory[0][parameterSuperType][parameterType]['drainVoltageSetPoint']))
 	if(includeVgsHold):
@@ -435,6 +449,17 @@ def getLegendTitle(deviceHistory, identifiers, plottype_parameters, parameterSup
 
 
 # === Curve Fitting ===
+
+## EXAMPLE ##
+#for deviceRun in deviceHistory:
+#	startIndex, endIndex = steepestRegion(np.log10(np.abs(deviceRun['Results']['id_data'][0])), 10)
+#	vgs_region = deviceRun['Results']['vgs_data'][0][startIndex:endIndex]
+#	id_region = deviceRun['Results']['id_data'][0][startIndex:endIndex]
+#	fitted_region = semilogFit(vgs_region, id_region)['fitted_data']
+#	SS_list.append(avgSubthresholdSwing(vgs_region, fitted_region))
+#	axis.plot(vgs_region, fitted_region, color='b', linestyle='--')
+#SS_avg = np.mean(SS_list)
+
 def linearFit(x, y):
 	slope, intercept = np.polyfit(x, y, 1)
 	fitted_data = [slope*x[i] + intercept for i in range(len(x))]
@@ -466,7 +491,7 @@ def steepestRegion(data, numberOfPoints):
 
 # === Metrics ===
 def avgSubthresholdSwing(vgs_data, id_data):
-	return (abs( vgs_data[0] - vgs_data[-1] / (np.log10(np.abs(id_data[0])) - np.log10(np.abs(id_data[-1]))) ) * 1000)
+	return (abs( (vgs_data[0] - vgs_data[-1]) / (np.log10(np.abs(id_data[0])) - np.log10(np.abs(id_data[-1]))) ) * 1000)
 
 
 

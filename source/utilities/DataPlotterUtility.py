@@ -34,6 +34,7 @@ default_mode_parameters = {
 	'enableErrorBars': True,
 	'enableColorBar': True,
 	'enableGradient': False,
+	'enableModelFitting': False,
 	
 	'sweepDirection': ['both','forward','reverse'][0],
 	'timescale': ['','seconds','minutes','hours','days','weeks'][0],

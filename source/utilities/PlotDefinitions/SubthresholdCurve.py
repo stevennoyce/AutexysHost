@@ -37,7 +37,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	ax.yaxis.set_major_locator(matplotlib.ticker.LogLocator(numticks=10))
 	
 	# Add Legend and save figure
-	addLegend(ax, loc=mode_parameters['legendLoc'], title=getLegendTitle(deviceHistory, identifiers, plotDescription['plotDefaults'], 'runConfigs', 'GateSweep', mode_parameters, includeVdsSweep=True, includeSubthresholdSwing=False))
+	addLegend(ax, loc=mode_parameters['legendLoc'], title=getLegendTitle(deviceHistory, identifiers, plotDescription['plotDefaults'], 'runConfigs', 'GateSweep', mode_parameters, includeVdsSweep=True, includeIdVgsFit=True))
 	adjustAndSaveFigure(fig, 'FullSubthresholdCurves', mode_parameters)
 
 	return (fig, ax)
