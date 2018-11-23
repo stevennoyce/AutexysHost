@@ -53,21 +53,21 @@ t_inv = 45e-8			#[cm] Inversion Layer Thickness (Howard and Stern Nov. 15, 1967)
 # Level 1 SPICE NMOSFET Model
 NMOSFET_V_DSat_fn = lambda V_GS, V_TN: (V_GS - V_TN)
 NMOSFET_g_m_fn = lambda V_GS, V_DS, V_TN, K_N: ( (K_N*V_DS) if(V_DS < NMOSFET_V_DSat_fn(V_GS, V_TN)) else (K_N)*(V_GS - V_TN) )
-NMOSFET_I_D_subth_fn = lambda V_GS, V_DS, V_TN, K_N, SS_mV_dec: ((1.1*K_N) * ((SS_mV_dec/1000)/(ln(10)*kB_T_q) - 1) * ((kB_T_q)**2) * exp((V_GS - V_TN) * ln(10)/(SS_mV_dec/1000)) * (1 - exp(-V_DS/kB_T_q)))
+NMOSFET_I_D_subth_fn = lambda V_GS, V_DS, V_TN, K_N, SS_mV_dec: ((7.5*K_N) * ((SS_mV_dec/1000)/(ln(10)*kB_T_q) - 1) * ((kB_T_q)**2) * exp((V_GS - V_TN) * ln(10)/(SS_mV_dec/1000)) * (1 - exp(-V_DS/kB_T_q)))
 NMOSFET_I_D_lin_fn = lambda V_GS, V_DS, V_TN, K_N: ((K_N)*((V_GS - V_TN)*V_DS - 0.5*(V_DS**2)))
 NMOSFET_I_D_sat_fn = lambda V_GS, V_TN, K_N: ((K_N/2)*((V_GS - V_TN)**2))
 NMOSFET_I_D_on_fn = lambda V_GS, V_DS, V_TN, K_N: (NMOSFET_I_D_lin_fn(V_GS, V_DS, V_TN, K_N) if (V_DS < NMOSFET_V_DSat_fn(V_GS, V_TN)) else NMOSFET_I_D_sat_fn(V_GS, V_TN, K_N))
-NMOSFET_I_D_fn = lambda V_GS, V_DS, V_TN, K_N, SS_mV_dec, I_OFF: (max(NMOSFET_I_D_subth_fn(V_GS, V_DS, V_TN, K_N, SS_mV_dec) if(V_GS < V_TN + 2*(SS_mV_dec/1000)/ln(10)) else NMOSFET_I_D_on_fn(V_GS, V_DS, V_TN, K_N), I_OFF))
+NMOSFET_I_D_fn = lambda V_GS, V_DS, V_TN, K_N, SS_mV_dec, I_OFF: (max(NMOSFET_I_D_subth_fn(V_GS, V_DS, V_TN, K_N, SS_mV_dec) if(V_GS < V_TN) else (NMOSFET_I_D_subth_fn(0, V_DS, 0, K_N, SS_mV_dec) + NMOSFET_I_D_on_fn(V_GS, V_DS, V_TN, K_N)), I_OFF))
 #NMOSFET_I_D_ChLenMod_fn = lambda V_GS, V_DS, V_TN, K_N, SS_mV_dec, I_OFF, lambda_N: (NMOSFET_I_D_fn(V_GS, V_DS, V_TN, K_N, SS_mV_dec, I_OFF) * (1 + lambda_N*V_DS))
 
 # Level 1 SPICE PMOSFET Model
 PMOSFET_V_DSat_fn = lambda V_GS, V_TP: (V_GS - V_TP)
 PMOSFET_g_m_fn = lambda V_GS, V_DS, V_TP, K_P: ( (K_P*V_DS) if(V_DS > PMOSFET_V_DSat_fn(V_GS, V_TP)) else (K_P)*(V_GS - V_TP) )
-PMOSFET_I_D_subth_fn = lambda V_GS, V_DS, V_TP, K_P, SS_mV_dec: ((-1.1*K_P) * ((SS_mV_dec/1000)/(ln(10)*kB_T_q) - 1) * ((kB_T_q)**2) * exp(-(V_GS - V_TP) * ln(10)/(SS_mV_dec/1000)) * (1 - exp(-abs(V_DS)/kB_T_q)))
+PMOSFET_I_D_subth_fn = lambda V_GS, V_DS, V_TP, K_P, SS_mV_dec: ((-7.5*K_P) * ((SS_mV_dec/1000)/(ln(10)*kB_T_q) - 1) * ((kB_T_q)**2) * exp(-(V_GS - V_TP) * ln(10)/(SS_mV_dec/1000)) * (1 - exp(-abs(V_DS)/kB_T_q)))
 PMOSFET_I_D_lin_fn = lambda V_GS, V_DS, V_TP, K_P: ((-K_P)*((V_GS - V_TP)*V_DS - 0.5*(V_DS**2)))
 PMOSFET_I_D_sat_fn = lambda V_GS, V_TP, K_P: ((-K_P/2)*((V_GS - V_TP)**2))
 PMOSFET_I_D_on_fn = lambda V_GS, V_DS, V_TP, K_P: (PMOSFET_I_D_lin_fn(V_GS, V_DS, V_TP, K_P) if (V_DS > PMOSFET_V_DSat_fn(V_GS, V_TP)) else PMOSFET_I_D_sat_fn(V_GS, V_TP, K_P))
-PMOSFET_I_D_fn = lambda V_GS, V_DS, V_TP, K_P, SS_mV_dec, I_OFF: (min(PMOSFET_I_D_subth_fn(V_GS, V_DS, V_TP, K_P, SS_mV_dec) if(V_GS > V_TP - 2*(SS_mV_dec/1000)/ln(10)) else PMOSFET_I_D_on_fn(V_GS, V_DS, V_TP, K_P), -abs(I_OFF)))
+PMOSFET_I_D_fn = lambda V_GS, V_DS, V_TP, K_P, SS_mV_dec, I_OFF: (min(PMOSFET_I_D_subth_fn(V_GS, V_DS, V_TP, K_P, SS_mV_dec) if(V_GS > V_TP) else (PMOSFET_I_D_subth_fn(0, V_DS, 0, K_P, SS_mV_dec) + PMOSFET_I_D_on_fn(V_GS, V_DS, V_TP, K_P)), -abs(I_OFF)))
 #PMOSFET_I_D_ChLenMod_fn = lambda  V_GS, V_DS, V_TP, K_P, SS_mV_dec, lambda_P: (PMOSFET_I_D_fn(V_GS, V_DS, V_TP, K_P, SS_mV_dec) * (1 + lambda_P*V_DS))
 
 
@@ -96,10 +96,11 @@ def NMOSFET_Fit(V_GS_data, I_D_data, V_DS, V_TN_guess=0, V_TN_min=-50, V_TN_max=
 	NMOSFET_transconductance = [NMOSFET_g_m_fn(v_gs, V_DS, V_TN_linear_fitted, K_N_linear_fitted) for v_gs in V_GS_data]
 	g_m_linear_fitted = max(NMOSFET_transconductance)
 	
-	fitted_model_parameters = [V_TN_linear_fitted, K_N_linear_fitted, SS_mV_dec_log_fitted, I_OFF_log_fitted]
-	fitted_model_parameters_kw = {'V_T':V_TN_linear_fitted, 'mu_Cox_W_L':K_N_linear_fitted, 'SS_mV_dec':SS_mV_dec_log_fitted, 'I_OFF':I_OFF_log_fitted, 'g_m_max':g_m_linear_fitted}
+	# From the large collection of parameters fitted, choose the ones that best approximate the real data
+	fitted_model_parameters = [V_TN_linear_fitted, K_N_linear_fitted, SS_mV_dec_steepest_region, I_OFF_log_fitted]
+	fitted_model_parameters_kw = {'V_T':V_TN_linear_fitted, 'mu_Cox_W_L':K_N_linear_fitted, 'SS_mV_dec':SS_mV_dec_steepest_region, 'I_OFF':I_OFF_log_fitted, 'g_m_max':g_m_linear_fitted}
 	fitted_yvals = [NMOSFET_I_D_fn(vgs, V_DS, *fitted_model_parameters) for vgs in V_GS_data]
-	return (fitted_yvals, fitted_model_parameters, fitted_model_parameters_kw, log_covariance)
+	return (fitted_yvals, fitted_model_parameters, fitted_model_parameters_kw)
 
 def PMOSFET_Fit(V_GS_data, I_D_data, V_DS, V_TP_guess=0, V_TP_min=-50, V_TP_max=50, I_OFF_guess=100e-12, I_OFF_min=100e-15, I_OFF_max=1e-6):
 	# Find steepest region - on a linear and log scale - to estimate K_N and SS respectively
@@ -125,10 +126,11 @@ def PMOSFET_Fit(V_GS_data, I_D_data, V_DS, V_TP_guess=0, V_TP_min=-50, V_TP_max=
 	PMOSFET_transconductance = [PMOSFET_g_m_fn(v_gs, V_DS, V_TP_linear_fitted, K_P_linear_fitted) for v_gs in V_GS_data]
 	g_m_linear_fitted = max(PMOSFET_transconductance)
 	
-	fitted_model_parameters = [V_TP_linear_fitted, K_P_linear_fitted, SS_mV_dec_linear_estimate, I_OFF_log_fitted]
+	# From the large collection of parameters fitted, choose the ones that best approximate the real data
+	fitted_model_parameters = [V_TP_linear_fitted, K_P_linear_fitted, SS_mV_dec_steepest_region, I_OFF_log_fitted]
 	fitted_model_parameters_kw = {'V_T':V_TP_linear_fitted, 'mu_Cox_W_L':K_P_linear_fitted, 'SS_mV_dec':SS_mV_dec_log_fitted, 'I_OFF':I_OFF_log_fitted, 'g_m_max':g_m_linear_fitted}
 	fitted_yvals = [PMOSFET_I_D_fn(vgs, V_DS, *fitted_model_parameters) for vgs in V_GS_data]
-	return (fitted_yvals, fitted_model_parameters, fitted_model_parameters_kw, covariance)
+	return (fitted_yvals, fitted_model_parameters, fitted_model_parameters_kw)
 
 def _max_subthreshold_swing(V_GS_data, I_D_data):
 	startIndex, endIndex = _find_steepest_region(np.log10(np.abs(I_D_data)), int(len(I_D_data)/10))
@@ -169,6 +171,7 @@ def _semilogFit(x, y):
 	return {'fitted_data': fitted_data}
 
 
+
 if __name__ == '__main__':
 	import matplotlib as mpl
 	from matplotlib import pyplot as plt
@@ -176,13 +179,13 @@ if __name__ == '__main__':
 	fig, ax = plt.subplots(1,1, figsize=(3,3))
 	
 	V_GS_data = np.linspace(-10, 10, 200)
-	V_DS = -1.5
+	V_DS = 1.0
 	
 	import random
 	
-	I_D = (np.array([PMOSFET_I_D_fn(vgs, V_DS, -5, 50e-6, 400, 1e-10)*(1+random.random()/2) for vgs in V_GS_data]))
+	I_D = (np.array([NMOSFET_I_D_fn(vgs, V_DS, 0, 1e-6, 1000, 1e-10)*(1+random.random()/10) for vgs in V_GS_data]))
 	
-	fitted_vals, fitted_model_parameters, fitted_model_parameters_kw, cov = PMOSFET_Fit(V_GS_data, I_D, V_DS)
+	fitted_vals, fitted_model_parameters, fitted_model_parameters_kw = NMOSFET_Fit(V_GS_data, I_D, V_DS)
 		
 	print(fitted_model_parameters_kw)
 	
