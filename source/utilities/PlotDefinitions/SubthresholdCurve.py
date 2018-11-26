@@ -38,7 +38,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	
 	# Add Legend and save figure
 	addLegend(ax, loc=mode_parameters['legendLoc'], title=getLegendTitle(deviceHistory, identifiers, plotDescription['plotDefaults'], 'runConfigs', 'GateSweep', mode_parameters, includeVdsSweep=True, includeIdVgsFit=True))
-	adjustAndSaveFigure(fig, 'FullSubthresholdCurves', mode_parameters)
+	adjustAndSaveFigure(fig, 'SubthresholdCurve', mode_parameters)
 
 	return (fig, ax)
 

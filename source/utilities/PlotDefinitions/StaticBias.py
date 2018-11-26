@@ -167,6 +167,6 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		adjustAndSaveFigure(fig, 'FullStaticBias', mode_parameters, subplotHeightPad=plotDescrip_current['plotDefaults']['subplot_spacing'])
 	else:
 		axisLabels(ax1, x_label=plotDescrip_current['plotDefaults']['xlabel'].format(timescale), y_label=plotDescrip_current['plotDefaults']['ylabel'])
-		adjustAndSaveFigure(fig, 'FullStaticBias', mode_parameters)
+		adjustAndSaveFigure(fig, 'StaticBias', mode_parameters)
 
 	return (fig, (ax1, ax2, ax3))
