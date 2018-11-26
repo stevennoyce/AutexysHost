@@ -113,6 +113,16 @@ def makeChipPlot(plotType, identifiers, chipIndexes=None, firstRunChipHistory=No
 		
 	return fig, axes
 
+def makeBlankPlot(figsize=None):
+	return mplu.initFigure(1,1, figsizeDefault=figsize)
+	
+def saveExternalPlot(figure, fileName, mode_parameters=None):
+	updated_mode_parameters = default_mode_parameters.copy()
+	if(mode_parameters is not None):
+		updated_mode_parameters.update(mode_parameters)
+	
+	mplu.adjustAndSaveFigure(figure, fileName, updated_mode_parameters)
+
 def getDataFileDependencies(plotType):
 	"""Returns a list of data files needed to make the given plotType."""
 	try:
