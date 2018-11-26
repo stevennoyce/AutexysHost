@@ -46,7 +46,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	axisLabels(ax, x_label=plotDescrip_current['plotDefaults']['xlabel'], y_label=plotDescrip_current['plotDefaults']['ylabel'])
 
 	# Add Legend and save figure	
-	addLegend(ax, loc=mode_parameters['legendLoc'], title=getLegendTitle(deviceHistory, identifiers, plotDescrip_current['plotDefaults'], 'runConfigs', 'DrainSweep', mode_parameters, includeVgsSweep=True))
+	addLegend(ax, loc=mode_parameters['legendLoc'], title=getLegendTitle(deviceHistory, identifiers, plotDescrip_current['plotDefaults'], 'runConfigs', 'DrainSweep', mode_parameters, includeVgsSweep=True), mode_parameters=mode_parameters)
 	adjustAndSaveFigure(fig, 'OutputCurve', mode_parameters)
 
 	return (fig, ax)

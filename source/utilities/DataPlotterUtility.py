@@ -31,6 +31,7 @@ default_mode_parameters = {
 	'legendTitleSuffix':'',
 	'legendLabels': [],
 	
+	'enableLegend': True,
 	'enableErrorBars': True,
 	'enableColorBar': True,
 	'enableGradient': False,

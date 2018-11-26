@@ -76,7 +76,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	includeOriginOnYaxis(ax, include=plotDescrip_current['plotDefaults']['includeOrigin'])
 
 	# Add Legend and save figure	
-	addLegend(ax, loc=mode_parameters['legendLoc'], title=getLegendTitle(deviceHistory, identifiers, plotDescrip_current['plotDefaults'], 'runConfigs', 'GateSweep', mode_parameters, includeVdsSweep=True))
+	addLegend(ax, loc=mode_parameters['legendLoc'], title=getLegendTitle(deviceHistory, identifiers, plotDescrip_current['plotDefaults'], 'runConfigs', 'GateSweep', mode_parameters, includeVdsSweep=True), mode_parameters=mode_parameters)
 	adjustAndSaveFigure(fig, 'FullTransferCurves', mode_parameters)
 
 	return (fig, ax)

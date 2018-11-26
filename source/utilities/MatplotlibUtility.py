@@ -376,7 +376,9 @@ def getTestLabel(deviceHistory, identifiers):
 
 
 # === Legend ===
-def addLegend(axis, loc, title):
+def addLegend(axis, loc, title, mode_parameters=None):
+	if((mode_parameters is not None) and (mode_parameters['enableLegend'] == False)):
+		return
 	lines, labels = axis.get_legend_handles_labels()
 	axis.legend(lines, labels, loc=loc, title=title, labelspacing=(0) if(len(labels) == 0) else (0.3))
 

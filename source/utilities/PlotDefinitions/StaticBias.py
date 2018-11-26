@@ -139,7 +139,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Main Axis Legend
 	legend_title = getLegendTitle(deviceHistory, identifiers, plotDescrip_current['plotDefaults'], 'runConfigs', 'StaticBias', mode_parameters, includeVdsHold=(not vds_setpoint_changes), includeVgsHold=(not vgs_setpoint_changes), includeTimeHold=(not biasTime_changes))
 	if(len(legend_title) > 0):
-		addLegend(ax1, loc=mode_parameters['legendLoc'], title=legend_title)
+		addLegend(ax1, loc=mode_parameters['legendLoc'], title=legend_title, mode_parameters=mode_parameters)
 	
 	# Dual Axis Legend, Axis Labels, and save figure
 	if(includeDualAxis):

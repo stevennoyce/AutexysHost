@@ -40,9 +40,9 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	axisLabels(ax3, x_label=plotDescription['plotDefaults']['time_label'], y_label=plotDescription['plotDefaults']['vds_label'])
 
 	# Add Legend and save figure
-	addLegend(ax1, loc=mode_parameters['legendLoc'], title=plotDescription['plotDefaults']['legend_title'].format(np.mean([deviceRun['runConfigs']['BurnOut']['gateVoltageSetPoint'] for deviceRun in deviceHistory])))
-	addLegend(ax2, loc=mode_parameters['legendLoc'], title=plotDescription['plotDefaults']['legend_title'].format(np.mean([deviceRun['runConfigs']['BurnOut']['gateVoltageSetPoint'] for deviceRun in deviceHistory])))
-	addLegend(ax3, loc=mode_parameters['legendLoc'], title=plotDescription['plotDefaults']['legend_title'].format(np.mean([deviceRun['runConfigs']['BurnOut']['gateVoltageSetPoint'] for deviceRun in deviceHistory])))
+	addLegend(ax1, loc=mode_parameters['legendLoc'], title=plotDescription['plotDefaults']['legend_title'].format(np.mean([deviceRun['runConfigs']['BurnOut']['gateVoltageSetPoint'] for deviceRun in deviceHistory])), mode_parameters=mode_parameters)
+	addLegend(ax2, loc=mode_parameters['legendLoc'], title=plotDescription['plotDefaults']['legend_title'].format(np.mean([deviceRun['runConfigs']['BurnOut']['gateVoltageSetPoint'] for deviceRun in deviceHistory])), mode_parameters=mode_parameters)
+	addLegend(ax3, loc=mode_parameters['legendLoc'], title=plotDescription['plotDefaults']['legend_title'].format(np.mean([deviceRun['runConfigs']['BurnOut']['gateVoltageSetPoint'] for deviceRun in deviceHistory])), mode_parameters=mode_parameters)
 	adjustAndSaveFigure(fig, 'BurnOut', mode_parameters, subplotWidthPad=0.25, subplotHeightPad=0.8)
 
 	return (fig, (ax1, ax2, ax3))
