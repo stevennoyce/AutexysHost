@@ -103,6 +103,16 @@ default_parameters = {
 			'dependencies': {'ignore':True, 'value':[]},
 			'message':{'type':'string', 'default': ""},
 			'delayTime':{'type':'int', 'units':'s', 'default': 240}
+		},
+		'InverterSweep':{
+			'dependencies':{'ignore':True, 'value':[]},
+			'saveFileName': {'type':'constant', 'default': 'InverterSweep'},
+			'stepsInVINPerDirection': {'type':'int', 'units':'#', 'default': 100},
+			'pointsPerVIN': {'type':'int', 'units':'#', 'default': 1},
+			'complianceCurrent':	{'type':'float', 'units':'A', 'default': 100e-6},
+			'vddSupplyVoltageSetPoint':	{'type':'float', 'units':'V', 'default': 1.0},
+			'inputVoltageMinimum': 	{'type':'float', 'units':'V', 'default': 0.0},
+			'inputVoltageMaximum': 	{'type':'float', 'units':'V', 'default': 1.0}
 		}
 
 	},

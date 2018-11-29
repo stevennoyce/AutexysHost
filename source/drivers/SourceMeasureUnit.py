@@ -53,6 +53,26 @@ smu_system_configurations = {
 				'channel2SourceMode': 'current'
 			}
 		}
+	},
+	'inverter': {
+		'sweepSMU':{
+			'uniqueID': 'USB0::0x0957::0x8E18::MY51141244::INSTR',
+			'type': 'B2912A',
+			'settings': {
+				'reset': True,
+				'channel1SourceMode': 'voltage',
+				'channel2SourceMode': 'current'
+			}
+		},
+		'powerSupplySMU':{
+			'uniqueID': 'USB0::0x0957::0x8E18::MY51141241::INSTR',
+			'type': 'B2912A',
+			'settings': {
+				'reset': True,
+				'channel1SourceMode': 'voltage',
+				'channel2SourceMode': 'voltage'
+			}
+		}
 	}
 }
 
@@ -181,7 +201,7 @@ class B2912A(SourceMeasureUnit):
 		self.setComplianceCurrent(defaultComplianceCurrent)
 	
 	def initialize(self):
-		if 'reset' in self.system_settings and self.system_settings['reset']:
+		if('reset' not in self.system_settings or self.system_settings['reset']):
 			self.smu.write("*RST") # Reset
 		
 		self.smu.write(':system:lfrequency 60')
