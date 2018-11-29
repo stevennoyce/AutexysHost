@@ -133,7 +133,7 @@ def PMOSFET_Fit(V_GS_data, I_D_data, V_DS, V_TP_guess=0, V_TP_min=-100, V_TP_max
 	return (fitted_yvals, fitted_model_parameters, fitted_model_parameters_kw)
 
 def _max_subthreshold_swing(V_GS_data, I_D_data):
-	startIndex, endIndex = _find_steepest_region(np.log10(np.abs(I_D_data)), int(len(I_D_data)/10))
+	startIndex, endIndex = _find_steepest_region(np.log10(np.abs(I_D_data)), (int(len(I_D_data)/20) + 1))
 	V_GS_steepest_region = V_GS_data[startIndex:endIndex]
 	I_D_steepest_region = I_D_data[startIndex:endIndex]
 	fitted_steepest_region = _semilogFit(V_GS_steepest_region, I_D_steepest_region)['fitted_data']
@@ -141,7 +141,7 @@ def _max_subthreshold_swing(V_GS_data, I_D_data):
 	return SS_mV_dec
 
 def _max_transconductance(V_GS_data, I_D_data):
-	startIndex, endIndex = _find_steepest_region(np.abs(I_D_data), int(len(I_D_data)/10))
+	startIndex, endIndex = _find_steepest_region(np.abs(I_D_data), (int(len(I_D_data)/10) + 1))
 	V_GS_steepest_region = V_GS_data[startIndex:endIndex]
 	I_D_steepest_region = I_D_data[startIndex:endIndex]
 	fit = _linearFit(V_GS_steepest_region, I_D_steepest_region)

@@ -56,6 +56,12 @@ plt.rcParams['xtick.labelsize'] = 6
 plt.rcParams['ytick.labelsize'] = 6
 plt.rcParams['font.size'] = 6
 
+try:
+	plt.rcParams["legend.title_fontsize"] = 6
+except:
+	# this is new in Matplotlib version 3.0
+	pass
+
 plt.rcParams['axes.labelpad'] = 0
 plt.rcParams['axes.titlepad'] = 6
 plt.rcParams['ytick.major.pad'] = 2
