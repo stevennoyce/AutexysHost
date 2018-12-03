@@ -176,6 +176,7 @@ if __name__ == '__main__':
 	#makePlots('steven', 'SGM1', 'F1', 'E', 'E08N_10000', 51, 51, 'AFMdeviationsVsX', None, dataFolder='../data', showFigures=True)
 	#makePlots('jay', 'MoS2FET', 'JM3', 'B', '53-54', 9, 9, 'StaticBias', None, plotSaveName='Figure S17b full - ', saveFigures=True, showFigures=True, plot_mode_parameters={'publication_mode':False, 'staticBiasChangeDividers':False, 'enableGradient':False, 'legendLoc':'best', 'colorsOverride':['#56638A','#56638A','#56638A']})	
 	#makePlots('matthew', 'TFTBiasStress1', 'C144', 'T', '13-14', 1, 1, 'GateCurrent', None, plotSaveName='Matthew4', dataFolder='../../AutexysData', showFigures=True, saveFigures=True)
+	#makePlots('jay', 'MoS2FET', 'JM3', 'B', '53-54', 277, 277, 'TransferCurve', None, plotSaveName='Figure S17b full - ', saveFigures=True, showFigures=True, startRelativeIndex=1, endRelativeIndex=16, plot_mode_parameters={'publication_mode':False, 'staticBiasChangeDividers':False, 'enableGradient':False, 'legendLoc':'best'})	
 	pass
 
 

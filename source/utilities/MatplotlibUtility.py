@@ -127,19 +127,24 @@ def show():
 """Every method in this utility is intended to assist the creation of new plotDefintions in the plotDefinitions folder."""
 
 # === Device Plots ===
-def plotSweep(axis, jsonData, lineColor, direction='both', voltageData='gate', currentData='drain', logScale=True, scaleCurrentBy=1, lineStyle=None, errorBars=True, alphaForwardSweep=1):
-	if(currentData == 'gate'):
-		currentData = 'ig_data'
-	elif(currentData == 'drain'):
-		currentData = 'id_data'
+def plotSweep(axis, jsonData, lineColor, direction='both', x_data='gate voltage', y_data='drain current', logScale=True, scaleCurrentBy=1, lineStyle=None, errorBars=True, alphaForwardSweep=1):
+	data_save_names = {
+		'gate voltage': 'vgs_data',
+		'drain voltage': 'vds_data',
+		'gate current': 'ig_data',
+		'drain current': 'id_data',
+		
+		'input voltage': 'vin_data',
+		'output voltage': 'vout_data',
+		'input current': 'iin_data',
+		'output current': 'iout_data',
+	}
 	
-	if(voltageData == 'gate'):
-		voltageData = 'vgs_data'
-	elif(voltageData == 'drain'):
-		voltageData = 'vds_data'
+	y_data = data_save_names[y_data]
+	x_data = data_save_names[x_data]
 	
-	x = jsonData['Results'][voltageData]
-	y = jsonData['Results'][currentData]
+	x = jsonData['Results'][x_data]
+	y = jsonData['Results'][y_data]
 
 	# Sort data if it was collected in an unordered fashion
 	try:
@@ -195,7 +200,7 @@ def plotSweep(axis, jsonData, lineColor, direction='both', voltageData='gate', c
 	return line
 
 def plotSubthresholdCurve(axis, jsonData, lineColor, direction='both', fitSubthresholdSwing=False, includeLabel=False, lineStyle=None, errorBars=True):
-	line = plotSweep(axis, jsonData, lineColor, direction, voltageData='gate', currentData='drain', logScale=True, scaleCurrentBy=1, lineStyle=lineStyle, errorBars=errorBars)
+	line = plotSweep(axis, jsonData, lineColor, direction, x_data='gate voltage', y_data='drain current', logScale=True, scaleCurrentBy=1, lineStyle=lineStyle, errorBars=errorBars)
 	if(includeLabel): 
 		#setLabel(line, '$log_{10}(I_{on}/I_{off})$'+': {:.1f}'.format(np.log10(jsonData['Computed']['onOffRatio'])))
 		setLabel(line, 'max $|I_{g}|$'+': {:.2e}'.format(jsonData['Computed']['ig_max']))
@@ -209,15 +214,15 @@ def plotSubthresholdCurve(axis, jsonData, lineColor, direction='both', fitSubthr
 	return line
 
 def plotTransferCurve(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True):
-	line = plotSweep(axis, jsonData, lineColor, direction, voltageData='gate', currentData='drain', logScale=False, scaleCurrentBy=scaleCurrentBy, lineStyle=lineStyle, errorBars=errorBars)
+	line = plotSweep(axis, jsonData, lineColor, direction, x_data='gate voltage', y_data='drain current', logScale=False, scaleCurrentBy=scaleCurrentBy, lineStyle=lineStyle, errorBars=errorBars)
 	return line
 
 def plotGateCurrent(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True):
-	line = plotSweep(axis, jsonData, lineColor, direction, voltageData='gate', currentData='gate', logScale=False, scaleCurrentBy=scaleCurrentBy, lineStyle=lineStyle, errorBars=errorBars)
+	line = plotSweep(axis, jsonData, lineColor, direction, x_data='gate voltage', y_data='gate current', logScale=False, scaleCurrentBy=scaleCurrentBy, lineStyle=lineStyle, errorBars=errorBars)
 	return line
 
 def plotOutputCurve(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True):
-	line = plotSweep(axis, jsonData, lineColor, direction, voltageData='drain', currentData='drain', logScale=False, scaleCurrentBy=scaleCurrentBy, lineStyle=lineStyle, errorBars=errorBars)
+	line = plotSweep(axis, jsonData, lineColor, direction, x_data='drain voltage', y_data='drain current', logScale=False, scaleCurrentBy=scaleCurrentBy, lineStyle=lineStyle, errorBars=errorBars)
 	return line
 
 def plotBurnOut(axis1, axis2, axis3, jsonData, lineColor, lineStyle=None, annotate=False, annotation='', plotLine1=True, plotLine2=True, plotLine3=True):
@@ -241,6 +246,9 @@ def plotStaticBias(axis, jsonData, lineColor, timeOffset, currentData='id_data',
 	line = plotOverTime(axis, jsonData['Results']['timestamps'], (np.array(jsonData['Results'][currentData])*(10**6)), lineColor, offset=timeOffset, plotInnerGradient=gradient, innerGradientColors=gradientColors)	
 	return line
 
+def plotInverterVTC(axis, jsonData, lineColor, direction='both', lineStyle=None, errorBars=True):
+	line = plotSweep(axis, jsonData, lineColor, direction, x_data='input voltage', y_data='output voltage', logScale=False, scaleCurrentBy=1, lineStyle=lineStyle, errorBars=errorBars)
+	return line
 
 # === Figures ===
 def initFigure(rows, columns, figsizeDefault, figsizeOverride=None, shareX=False, subplotWidthRatio=None, subplotHeightRatio=None):

@@ -140,7 +140,11 @@ def loadSpecificDeviceHistory(directory, fileName, minIndex=0, maxIndex=float('i
 	#for experimentSubdirectory in ["Ex" + str(val) for val in folderlist]:
 	#	filteredHistory += loadJSON_fast(os.path.join(directory, experimentSubdirectory), fileName, minIndex, maxIndex, minExperiment, maxExperiment, minRelativeIndex, maxRelativeIndex)
 	
-	for experimentSubdirectory in sorted([name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and os.path.exists(os.path.join(directory, name, fileName)) and (name[0:2] == 'Ex' and name[2:].isdigit()) and (int(name[2:]) >= minExperiment) and (int(name[2:]) <= maxExperiment))]):
+	string_to_int = lambda text: int(text) if text.isdigit() else text
+	natural_keys = lambda text: [string_to_int(c) for c in re.split('(\d+)', text)]
+	
+	for experimentSubdirectory in sorted([name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and os.path.exists(os.path.join(directory, name, fileName)) and (name[0:2] == 'Ex' and name[2:].isdigit()) and (int(name[2:]) >= minExperiment) and (int(name[2:]) <= maxExperiment))], key=natural_keys):
+		print(experimentSubdirectory)
 		filteredHistory += loadJSON_fast(os.path.join(directory, experimentSubdirectory), fileName, minIndex, maxIndex, minExperiment, maxExperiment, minRelativeIndex, maxRelativeIndex)	
 		
 	return filteredHistory
@@ -370,4 +374,7 @@ def filterFileLinesLessThan(fileLines, property, value):
 			filteredFileLines.append(line)
 	return filteredFileLines
 
-	
+
+if(__name__ == '__main__'):
+	#loadSpecificDeviceHistory('../../../AutexysData/jay/MoS2FET/JM3/B/53-54', 'GateSweep.json', minExperiment=0, maxExperiment=20)
+	pass
