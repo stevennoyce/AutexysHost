@@ -144,9 +144,8 @@ def loadSpecificDeviceHistory(directory, fileName, minIndex=0, maxIndex=float('i
 	natural_keys = lambda text: [string_to_int(c) for c in re.split('(\d+)', text)]
 	
 	for experimentSubdirectory in sorted([name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and os.path.exists(os.path.join(directory, name, fileName)) and (name[0:2] == 'Ex' and name[2:].isdigit()) and (int(name[2:]) >= minExperiment) and (int(name[2:]) <= maxExperiment))], key=natural_keys):
-		print(experimentSubdirectory)
 		filteredHistory += loadJSON_fast(os.path.join(directory, experimentSubdirectory), fileName, minIndex, maxIndex, minExperiment, maxExperiment, minRelativeIndex, maxRelativeIndex)	
-		
+			
 	return filteredHistory
 
 def loadOldestDeviceHistory(directory, fileName, numberOfOldestExperiments=1, numberOfOldestIndexes=1):
