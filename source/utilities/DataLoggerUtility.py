@@ -30,8 +30,46 @@ def emptyFile(folderPath, fileName):
 	
 	with open(os.path.join(folderPath, fileName), 'w') as file:
 		file.write('')
-	
 
+
+
+# === CSV ===
+def loadCSV(directory, loadFileName, dataNamesLabel=None, dataValuesLabel=None):
+	"""Load a specified CSV file in directory. If the CSV file has a row that names every data column and the data rows are labeled,
+	then the data columns can be extracted to arrays in a dictionary. For the B1500A, these labels are 'DataName' and 'DataValue'. """
+	
+	# Load generic CSV data
+	csv_data = []
+	with open(os.path.join(directory, loadFileName), encoding='utf-8') as file:
+		for line in file:
+			row = line.strip().split(',')
+			csv_data.append(row)
+	
+	# By default, just return the entire 2D array of CSV data
+	if((dataNamesLabel is None) or (dataValuesLabel is None)):
+		return csv_data
+	
+	# Locate the names of each data column
+	column_index = {}
+	formatted_data = {}
+	for row in csv_data:
+		if(row[0] == dataNamesLabel):
+			for i in range(1, len(row)):
+				column_index[i] = row[i].strip()
+				formatted_data[row[i].strip()] = []
+			break
+	
+	# Extract data values to the appropriate array for their column
+	for row in csv_data:
+		if(row[0] == dataValuesLabel):
+			for i in range(1, len(row)):
+				try:
+					formatted_data[column_index[i]].append(float(row[i]))	
+				except:
+					formatted_data[column_index[i]].append(row[i])	
+	
+	return formatted_data
+	
 
 # === JSON ===
 def saveJSON(directory, saveFileName, jsonData, subDirectory=None, incrementIndex=True):
