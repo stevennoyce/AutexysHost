@@ -11,9 +11,9 @@ plotDescription = {
 		'subplot_width_ratio':[1,1],
 		'colorMap':'hot',
 		'colorDefault': ['#1f77b4'],
-		'vds_label':'$V_{{DS}}$ [V]',
-		'id_micro_label':'$I_{{D}}$ [$\\mu$A]',
-		'time_label':'Time [sec]',
+		'vds_label':'$V_{{DS}}$ (V)',
+		'id_micro_label':'$I_{{D}}$ ($\\mu$A)',
+		'time_label':'Time (s)',
 		'id_annotation':'burn current',
 		'legend_title':'$V_{{GS}}$ = {:}V'
 	},

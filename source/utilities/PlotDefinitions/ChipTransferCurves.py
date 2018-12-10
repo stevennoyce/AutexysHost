@@ -10,9 +10,9 @@ plotDescription = {
 		'includeOrigin':True,
 		'colorMap':'magma',
 		'colorDefault': ['#f2b134'],
-		'xlabel':'$V_{{GS}}^{{Sweep}}$ [V]',
-		'ylabel':'$I_{{D}}$ [$\\mu$A]',
-		'neg_label':'$-I_{{D}}$ [$\\mu$A]',
+		'xlabel':'$V_{{GS}}^{{Sweep}}$ (V)',
+		'ylabel':'$I_{{D}}$ ($\\mu$A)',
+		'neg_label':'$-I_{{D}}$ ($\\mu$A)',
 	},
 }
 

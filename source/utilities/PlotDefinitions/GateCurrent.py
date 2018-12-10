@@ -10,8 +10,8 @@ plotDescription = {
 		'includeOrigin':False,
 		'colorMap':'white_green_black',
 		'colorDefault': ['#4FB99F'],
-		'xlabel':'$V_{{GS}}^{{Sweep}}$ [V]',
-		'ylabel':'$I_{{G}}$ [A]',
+		'xlabel':'$V_{{GS}}^{{Sweep}}$ (V)',
+		'ylabel':'$I_{{G}}$ (A)',
 		'leg_vds_label':'$V_{{DS}}^{{Sweep}} = ${:}V',
 		'leg_vds_range_label':'$V_{{DS}}^{{min}} = $ {:}V\n'+'$V_{{DS}}^{{max}} = $ {:}V'
 	},

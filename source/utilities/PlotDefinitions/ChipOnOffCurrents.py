@@ -8,8 +8,8 @@ plotDescription = {
 	'plotDefaults': {
 		'figsize':(5,4),
 		'xlabel':'Device',
-		'ylabel':'$I_{{ON}}$ [$\\mu$A]',
-		'ylabel_dual_axis':'$I_{{OFF}}$ [$\\mu$A]'
+		'ylabel':'$I_{{ON}}$ ($\\mu$A)',
+		'ylabel_dual_axis':'$I_{{OFF}}$ ($\\mu$A)'
 	},
 }
 	

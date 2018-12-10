@@ -10,7 +10,7 @@ plotDescription = {
 	'plotDefaults': {
 		'figsize':(2.8,3.2),
 		'xlabel':'Device',
-		'ylabel':'Threshold Voltage [V]',
+		'ylabel':'Threshold Voltage (V)',
 	},
 }
 

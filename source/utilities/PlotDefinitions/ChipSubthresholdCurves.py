@@ -9,8 +9,8 @@ plotDescription = {
 		'figsize':(2.8,3.2),
 		'colorMap':'viridis',
 		'colorDefault': ['#f2b134'],
-		'xlabel':'$V_{{GS}}^{{Sweep}}$ [V]',
-		'ylabel':'$I_{{D}}$ [A]',
+		'xlabel':'$V_{{GS}}^{{Sweep}}$ (V)',
+		'ylabel':'$I_{{D}}$ (A)',
 	},
 }
 

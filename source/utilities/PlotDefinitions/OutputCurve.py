@@ -10,9 +10,9 @@ plotDescription = {
 		'figsize':(2,2.5),
 		'colorMap':'white_red_black',
 		'colorDefault': ['#ed553b'],
-		'xlabel':'$V_{{DS}}^{{Sweep}}$ [V]',
-		'ylabel':'$I_{{D}}$ [$\\mu$A]',
-		'neg_label':'$-I_{{D}}$ [$\\mu$A]',
+		'xlabel':'$V_{{DS}}^{{Sweep}}$ (V)',
+		'ylabel':'$I_{{D}}$ ($\\mu$A)',
+		'neg_label':'$-I_{{D}}$ ($\\mu$A)',
 		'leg_vgs_label':'$V_{{GS}}^{{Sweep}}$\n  = {:}V',
 		'leg_vgs_range_label':'$V_{{GS}}^{{min}} = $ {:}V\n'+'$V_{{GS}}^{{max}} = $ {:}V'
 	},

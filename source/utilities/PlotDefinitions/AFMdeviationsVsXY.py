@@ -55,8 +55,8 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# if(len(deviceHistory) == len(mode_parameters['legendLabels'])):
 		# setLabel(line, mode_parameters['legendLabels'][i])
 	
-	ax.set_ylabel('Y Position [$\mu$m]')
-	ax.set_xlabel('X Position [$\mu$m]')
+	ax.set_ylabel('Y Position ($\mu$m)')
+	ax.set_xlabel('X Position ($\mu$m)')
 	
 	# Add Legend and save figure
 	adjustAndSaveFigure(fig, 'AFMdeviationsVsXY', mode_parameters)
