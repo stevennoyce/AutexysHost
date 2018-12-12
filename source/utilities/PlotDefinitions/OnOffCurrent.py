@@ -25,12 +25,15 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	includeDualAxis = mode_parameters['includeDualAxis']
 	
 	# Check if V_DS or V_GS are changing during this experiment
-	vds_setpoint_values = [jsonData['runConfigs']['StaticBias']['drainVoltageSetPoint'] for jsonData in deviceHistory]
-	vgs_setpoint_values = [jsonData['runConfigs']['StaticBias']['gateVoltageSetPoint'] for jsonData in deviceHistory]
-	vds_setpoint_changes = min(vds_setpoint_values) != max(vds_setpoint_values)
-	vgs_setpoint_changes = min(vgs_setpoint_values) != max(vgs_setpoint_values)
-	if(not (vds_setpoint_changes or vgs_setpoint_changes)):
-		includeDualAxis = False
+	try:
+		vds_setpoint_values = [jsonData['runConfigs']['StaticBias']['drainVoltageSetPoint'] for jsonData in deviceHistory]
+		vgs_setpoint_values = [jsonData['runConfigs']['StaticBias']['gateVoltageSetPoint'] for jsonData in deviceHistory]
+		vds_setpoint_changes = min(vds_setpoint_values) != max(vds_setpoint_values)
+		vgs_setpoint_changes = min(vgs_setpoint_values) != max(vgs_setpoint_values)
+		if(not (vds_setpoint_changes or vgs_setpoint_changes)):
+			includeDualAxis = False
+	except:
+		pass
 	
 	# Init Figure
 	if(includeDualAxis):
@@ -106,13 +109,16 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 				vgs_line = plotOverTime(vgs_ax, [timestamps[i], t_i_next], [deviceHistory[i]['runConfigs']['StaticBias']['gateVoltageSetPoint']]*2, plt.rcParams['axes.prop_cycle'].by_key()['color'][3], offset=time_offset)
 	
 	# Add Legend
-	lines1, labels1 = ax1.get_legend_handles_labels()
-	lines2, labels2 = [],[]
-	legendax = ax1
-	if(mode_parameters['includeOffCurrent']):
-		lines2, labels2 = ax2.get_legend_handles_labels()
-		legendax = ax2
-	legendax.legend(lines1 + lines2, labels1 + labels2, loc=mode_parameters['legendLoc'])
+	try:
+		lines1, labels1 = ax1.get_legend_handles_labels()
+		lines2, labels2 = [],[]
+		legendax = ax1
+		if(mode_parameters['includeOffCurrent']):
+			lines2, labels2 = ax2.get_legend_handles_labels()
+			legendax = ax2
+		legendax.legend(lines1 + lines2, labels1 + labels2, loc=mode_parameters['legendLoc'])
+	except:
+		pass
 
 	if(includeDualAxis):
 		if(plotInRealTime):

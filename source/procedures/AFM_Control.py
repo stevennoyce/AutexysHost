@@ -132,7 +132,7 @@ def runAFM(parameters, smu_systems, isSavingResults, isPlottingResults):
 	smu_secondary.takeMeasurement()
 	
 	# input('Press enter to begin the measurement...')
-	time.sleep(300)
+	#time.sleep(300)
 	
 	# for line in range(afm_parameters['lines']):
 	# 	print('Line {} of {}'.format(line, afm_parameters['lines']))
