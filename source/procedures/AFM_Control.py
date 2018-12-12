@@ -193,10 +193,16 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 			).start()
 			# dlu.saveJSON(dlu.getDeviceDirectory(parameters), afm_parameters['saveFileName'], jsonData)
 		
+		fittedStartTime = getStartTime(results['Raw']['timestamps_smu2'], results['Raw']['smu2_v2_data'])
 		elapsedRunTime = time.time() - runStartTime
 		elapsedLineTime = elapsedRunTime - line*lineTime
 		print('Time elapsed is {}, lineTime is {}'.format(elapsedLineTime, lineTime))
-		time.sleep(max(lineTime - elapsedLineTime, 0))
+		plannedDelay = max(lineTime - elapsedLineTime, 0)
+		fittedDelay = fittedStartTime - time.time()
+		if(abs(plannedDelay - fittedDelay) < 0.25*plannedDelay):
+			time.sleep(fittedDelay)
+		else: 
+			time.sleep(plannedDelay)
 	
 	smu_device.turnChannelsOff()
 
