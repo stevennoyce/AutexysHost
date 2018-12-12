@@ -1,5 +1,5 @@
 from utilities.MatplotlibUtility import *
-
+from procedures.AFM_Control import *
 
 
 plotDescription = {
@@ -61,5 +61,56 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Add Legend and save figure
 	adjustAndSaveFigure(fig, 'AFMdeviationsVsXY', mode_parameters)
 	
+	# ========= TEST ==========
+	Vx_topolgy_trace = []
+	Vx_topolgy_retrace = []
+	Vx_nap_trace = []
+	Vx_nap_retrace = []
+	
+	Vy_topolgy_trace = []
+	Vy_topolgy_retrace = []
+	Vy_nap_trace = []
+	Vy_nap_retrace = []
+	
+	Id_topolgy_trace = []
+	Id_topolgy_retrace = []
+	Id_nap_trace = []
+	Id_nap_retrace = []
+	
+	for i in range(len(deviceHistory)):
+		timestamps = deviceHistory[i]['Results']['timestamps_smu2']
+		Vx = deviceHistory[i]['Results']['smu2_v2_data']
+		Vy = deviceHistory[i]['Results']['smu2_v1_data']
+		current = np.array(deviceHistory[i]['Results']['id_data'])
+		currentLinearFit = np.polyval(np.polyfit(range(len(current)), current, 1), range(len(current)))
+		currentLinearized = current - currentLinearFit
+		currentLinearized = currentLinearized - np.median(currentLinearized)
+		
+		indices = getSegmentsOfTriangle(timestamps, Vx)
+		if(len(indices) > 4):
+			if(len(indices[0]) > len(indices[-1])):
+				indices = indices[0:-1]
+			else:
+				indices = indices[1:]
+			
+		Vx_topolgy_trace.append(np.array(Vx)[indices[0]])
+		Vy_topolgy_trace.append(np.array(Vy)[indices[0]])
+		Id_topolgy_trace.append(np.array(currentLinearized)[indices[0]])
+		
+		Vx_topolgy_retrace.append(np.array(Vx)[indices[1]])
+		Vy_topolgy_retrace.append(np.array(Vy)[indices[1]])
+		Id_topolgy_retrace.append(np.array(currentLinearized)[indices[1]])
+		
+		Vx_nap_trace.append(np.array(Vx)[indices[2]])
+		Vy_nap_trace.append(np.array(Vy)[indices[2]])
+		Id_nap_trace.append(np.array(currentLinearized)[indices[2]])
+		
+		Vx_nap_retrace.append(np.array(Vx)[indices[3]])
+		Vy_nap_retrace.append(np.array(Vy)[indices[3]])
+		Id_nap_retrace.append(np.array(currentLinearized)[indices[3]])
+	
+	
 	return (fig, ax)
+	
+
 

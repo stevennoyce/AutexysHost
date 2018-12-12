@@ -93,6 +93,7 @@ default_parameters = {
 			'lines': {'type':'int', 'units':'#', 'default':3},
 			'scanRate': {'type':'int', 'units':'#', 'default':1},
 			'napOn': {'type':'bool', 'default':True},
+			'startOnFrameSwitch': {'type':'bool', 'default':False},
 			'drainVoltageSetPoint': {'type':'float', 'units':'V', 'default': 0.01},
 			'gateVoltageSetPoint': {'type':'float', 'units':'V', 'default': 0},
 			'complianceCurrent': {'type':'float', 'units':'A', 'default': 1e-6},

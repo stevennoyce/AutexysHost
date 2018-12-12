@@ -3,7 +3,7 @@ import time
 import numpy as np
 import threading
 
-from utilities import DataLoggerUtility as dlu
+#from utilities import DataLoggerUtility as dlu
 
 import scipy.optimize
 import math
@@ -50,7 +50,27 @@ def fitTriangleWave(times, values):
 	
 	return optParams
 
-def getStartTime(timestamps, Vxs):
+def getSegmentsOfTriangle(times, values):
+	indices = []
+	times = np.array(times) - min(times)
+	values = np.array(values)
+	
+	fitParams = fitTriangleWave(times, values)
+	phase = fitParams['phase']
+	period = fitParams['period']
+	half_period = period/2
+	
+	periodsMeasured = int((max(times) - min(times))/period) + 1
+	tracesMeasured = 2*periodsMeasured
+		
+	for i in range(tracesMeasured):
+		segment = np.where( ((i*half_period)+phase < times) & (times <= ((i+1)*half_period)+phase) )[0]
+		if(len(segment) > 0):
+			indices.append(list(segment))
+		
+	return indices
+
+def getStartTime(timestamps, Vxs, skipNumberOfLines=1):
 	fitParams = fitTriangleWave(timestamps, Vxs)
 	
 	periodsMeasured = (max(timestamps) - min(timestamps))/fitParams['period']
@@ -60,11 +80,8 @@ def getStartTime(timestamps, Vxs):
 	linesMeasured = passesMeasured/2 # Divide by 2 if nap enabled
 	lineTime = 2*passTime # Multiply by 2 if nap enabled
 	
-	print('Passes measured: ' + str(passesMeasured))
-	print('Lines measured: ' + str(linesMeasured))
-	
 	startTime = min(timestamps) + fitParams['phase']
-	startTime += 2*(lineTime)*math.ceil(linesMeasured)
+	startTime += (lineTime)*(math.ceil(linesMeasured) + skipNumberOfLines)
 	
 	print('Determined line time to be {}'.format(lineTime))
 	print('Determined startTime to be {}'.format(startTime))
@@ -74,6 +91,22 @@ def getStartTime(timestamps, Vxs):
 
 def sleepUntil(startTime):
 	time.sleep(startTime - time.time())
+
+def waitForFrameSwitch(smu_secondary, lineTime):
+	Vy_1 = smu_secondary.takeMeasurement()['V_ds']
+	time.sleep(1.1*lineTime)
+	Vy_2 = smu_secondary.takeMeasurement()['V_ds']
+	oritinalStepVy = Vy_2 - Vy_1
+	stepVy = oritinalStepVy
+	
+	# While the original step and current step are both positive or both negative
+	while(oritinalStepVy*stepVy > 0): 
+		time.sleep(1.1*lineTime)
+		Vy_1 = Vy_2
+		Vy_2 = smu_secondary.takeMeasurement()['V_ds']
+		stepVy = Vy_2 - Vy_1
+
+	
 
 
 
@@ -168,10 +201,14 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 	sleep_time1 = smu_device.setupSweep(vds, vds, vgs, vgs, passPoints, triggerInterval=interval)
 	sleep_time2 = smu_secondary.setupSweep(0, 0, 0, 0, passPoints, triggerInterval=interval)
 	
+	# If desired, wait for the AFM to reach the end of a scan before beginning
+	if(afm_parameters['startOnFrameSwitch']):
+		waitForFrameSwitch(smu_secondary, lineTime)
+	
 	# Collect one line un-synchronized to the AFM to figure out when the next trace will start
 	results = runAFMline(parameters, smu_systems, sleep_time1, sleep_time2)
 	
-	runStartTime = getStartTime(results['Raw']['timestamps_smu2'], results['Raw']['smu2_v2_data'])
+	runStartTime = getStartTime(results['Raw']['timestamps_smu2'], results['Raw']['smu2_v2_data'], skipNumberOfLines=3)
 	sleepUntil(runStartTime)
 	
 	for line in range(afm_parameters['lines']):
@@ -193,10 +230,11 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 			).start()
 			# dlu.saveJSON(dlu.getDeviceDirectory(parameters), afm_parameters['saveFileName'], jsonData)
 		
-		fittedStartTime = getStartTime(results['Raw']['timestamps_smu2'], results['Raw']['smu2_v2_data'])
+		fittedStartTime = getStartTime(results['Raw']['timestamps_smu2'], results['Raw']['smu2_v2_data'], skipNumberOfLines=1)
 		elapsedRunTime = time.time() - runStartTime
 		elapsedLineTime = elapsedRunTime - line*lineTime
 		print('Time elapsed is {}, lineTime is {}'.format(elapsedLineTime, lineTime))
+		
 		plannedDelay = max(lineTime - elapsedLineTime, 0)
 		fittedDelay = fittedStartTime - time.time()
 		if(abs(plannedDelay - fittedDelay) < 0.25*plannedDelay):
@@ -251,5 +289,11 @@ def runAFMline(parameters, smu_systems, sleep_time1, sleep_time2):
 		}
 	}
 
+if(__name__=='__main__'):
+	x = np.array([1,2,3,4,3,2,1,2,3,4, 3, 2, 1, 2, 3, 4])
+	t = np.array([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15])
+	i = getSegmentsOfTriangle(t, x)
+	print(i)
+	print(x[i[0]])
 
 	
