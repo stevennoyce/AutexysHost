@@ -60,8 +60,11 @@ def getStartTime(timestamps, Vxs):
 	linesMeasured = passesMeasured/2 # Divide by 2 if nap enabled
 	lineTime = 2*passTime # Multiply by 2 if nap enabled
 	
+	print('Passes measured: ' + str(passesMeasured))
+	print('Lines measured: ' + str(linesMeasured))
+	
 	startTime = min(timestamps) + fitParams['phase']
-	startTime += (lineTime*2)*math.ceil(linesMeasured)
+	startTime += 2*(lineTime)*math.ceil(linesMeasured)
 	
 	print('Determined line time to be {}'.format(lineTime))
 	print('Determined startTime to be {}'.format(startTime))
