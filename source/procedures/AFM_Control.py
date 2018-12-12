@@ -3,7 +3,6 @@ import time
 import numpy as np
 import threading
 
-from procedures import Device_History as deviceHistoryScript
 from utilities import DataLoggerUtility as dlu
 
 import scipy.optimize
@@ -57,11 +56,12 @@ def getStartTime(timestamps, Vxs):
 	periodsMeasured = (max(timestamps) - min(timestamps))/fitParams['period']
 	passesMeasured = periodsMeasured
 	passTime = fitParams['period']
+	
 	linesMeasured = passesMeasured/2 # Divide by 2 if nap enabled
 	lineTime = 2*passTime # Multiply by 2 if nap enabled
 	
 	startTime = min(timestamps) + fitParams['phase']
-	startTime += lineTime*4*math.ceil(linesMeasured)
+	startTime += (lineTime*2)*math.ceil(linesMeasured)
 	
 	print('Determined line time to be {}'.format(lineTime))
 	print('Determined startTime to be {}'.format(startTime))
@@ -72,46 +72,34 @@ def getStartTime(timestamps, Vxs):
 def sleepUntil(startTime):
 	time.sleep(startTime - time.time())
 
-# === Main ===
-def run(parameters, smu_systems, isSavingResults=True, isPlottingResults=False):
-	# Create distinct parameters for plotting the results
-	dh_parameters = {}
-	dh_parameters['Identifiers'] = dict(parameters['Identifiers'])
-	dh_parameters['dataFolder'] = parameters['dataFolder']
-	dh_parameters['plotGateSweeps'] = False
-	dh_parameters['plotBurnOuts'] = False
-	dh_parameters['plotStaticBias'] = False
-	dh_parameters['excludeDataBeforeJSONExperimentNumber'] = parameters['startIndexes']['experimentNumber']
-	dh_parameters['excludeDataAfterJSONExperimentNumber'] =  parameters['startIndexes']['experimentNumber']
 
+
+# === Main ===
+def run(parameters, smu_systems, isSavingResults=True):
 	# Print the starting message
 	print('Beginning AFM-assisted measurements.')
-	
-	runAFM(parameters, smu_systems, isSavingResults, isPlottingResults)	
-	
-	# Show plots to the user
-	if(isPlottingResults):
-		deviceHistoryScript.run(dh_parameters)
-		
+	runAFM(parameters, smu_systems, isSavingResults)	
 	# return jsonData
 
+
+
 # === Data Collection ===
-def runAFM(parameters, smu_systems, isSavingResults, isPlottingResults):
+def runAFM(parameters, smu_systems, isSavingResults=True):
 	# Duke label 184553 is 'USB0::0x0957::0x8E18::MY51141244::INSTR' - use for device drain (CH1) and gate (CH2)
 	# Duke Label 184554 is 'USB0::0x0957::0x8E18::MY51141241::INSTR' - use for AFM channels x (CH1) and y (CH2)
 	
-	# Get shorthand name to easily refer to configuration parameters
+	# Get shorthand name to easily refer to configuration and SMUs
 	afm_parameters = parameters['runConfigs']['AFMControl']
-	
 	smu_device = smu_systems['deviceSMU']
 	smu_secondary = smu_systems['secondarySMU']
+	vds = afm_parameters['drainVoltageSetPoint']
+	vgs = afm_parameters['gateVoltageSetPoint']
 	
 	# Set SMU source modes
-	# smu_device.setChannel1SourceMode("voltage")
-	# smu_device.setChannel2SourceMode("voltage")
-	
-	# smu_secondary.setChannel1SourceMode("current")
-	# smu_secondary.setChannel2SourceMode("current")
+	#smu_device.setChannel1SourceMode("voltage")
+	#smu_device.setChannel2SourceMode("voltage")
+	#smu_secondary.setChannel1SourceMode("current")
+	#smu_secondary.setChannel2SourceMode("current")
 	
 	# Set SMU NPLC
 	smu_device.setNPLC(1)
@@ -119,20 +107,18 @@ def runAFM(parameters, smu_systems, isSavingResults, isPlottingResults):
 	
 	# Set SMU compliance
 	smu_device.setComplianceCurrent(afm_parameters['complianceCurrent'])
-	# smu_device.setComplianceVoltage(afm_parameters['complianceVoltage'])
-	
-	# smu_secondary.setComplianceCurrent(afm_parameters['complianceCurrent'])	
 	smu_secondary.setComplianceVoltage(afm_parameters['complianceVoltage'])
 	
 	# Apply Vgs and Vds to the device
-	smu_device.rampDrainVoltageTo(afm_parameters['drainVoltageSetPoint'])
-	smu_device.rampGateVoltageTo(afm_parameters['gateVoltageSetPoint'])
+	smu_device.rampDrainVoltageTo(vds)
+	smu_device.rampGateVoltageTo(vgs)
 	
+	# Take a measurement to update the SMU visual displays
 	smu_device.takeMeasurement()
 	smu_secondary.takeMeasurement()
 	
 	# input('Press enter to begin the measurement...')
-	#time.sleep(300)
+	# time.sleep(300)
 	
 	# for line in range(afm_parameters['lines']):
 	# 	print('Line {} of {}'.format(line, afm_parameters['lines']))
@@ -146,7 +132,7 @@ def runAFM(parameters, smu_systems, isSavingResults, isPlottingResults):
 		
 	# 	passPoints = afm_parameters['deviceMeasurementSpeed']*passTime
 		
-	# 	results = runAFMline(parameters, smu_systems, isSavingResults, isPlottingResults, passPoints)
+	# 	results = runAFMline(parameters, smu_systems, passPoints)
 		
 	# 	# Add important metrics from the run to the parameters for easy access later in ParametersHistory
 	# 	parameters['Computed'] = results['Computed']
@@ -164,23 +150,23 @@ def runAFM(parameters, smu_systems, isSavingResults, isPlottingResults):
 	# 	print('Time elapsed is {}, lineTime is {}'.format(elapsedTime, lineTime))
 	# 	time.sleep(max(lineTime - elapsedTime, 0))
 	
+	# Compute time per trace, pass (aka 2 traces) and line (aka topology pass + nap pass), as well as the approx number of points to collect per pass
 	passTime = 1/afm_parameters['scanRate']
 	traceTime = passTime/2
 	lineTime = 2*traceTime
-	if afm_parameters['napOn']:
+	if(afm_parameters['napOn']):
 		lineTime = lineTime*2
-	
 	passPoints = afm_parameters['deviceMeasurementSpeed']*passTime
 	
-	vds = afm_parameters['drainVoltageSetPoint']
-	vgs = afm_parameters['gateVoltageSetPoint']
+	# Choose the amount of time it takes for the SMU to measure one point
 	interval = 1/afm_parameters['deviceMeasurementSpeed']
 	
+	# Prepare the SMUs to collect data in sweep mode
 	sleep_time1 = smu_device.setupSweep(vds, vds, vgs, vgs, passPoints, triggerInterval=interval)
 	sleep_time2 = smu_secondary.setupSweep(0, 0, 0, 0, passPoints, triggerInterval=interval)
 	
-	
-	results = runAFMline(parameters, smu_systems, False, isPlottingResults, sleep_time1, sleep_time2)
+	# Collect one line un-synchronized to the AFM to figure out when the next trace will start
+	results = runAFMline(parameters, smu_systems, sleep_time1, sleep_time2)
 	
 	runStartTime = getStartTime(results['Raw']['timestamps_smu2'], results['Raw']['smu2_v2_data'])
 	sleepUntil(runStartTime)
@@ -188,13 +174,10 @@ def runAFM(parameters, smu_systems, isSavingResults, isPlottingResults):
 	for line in range(afm_parameters['lines']):
 		print('Starting line {} of {}'.format(line+1, afm_parameters['lines']))
 		
-		lineStartTime = time.time()
-		results = runAFMline(parameters, smu_systems, isSavingResults, isPlottingResults, sleep_time1, sleep_time2)
-		
-		# Add important metrics from the run to the parameters for easy access later in ParametersHistory
-		parameters['Computed'] = results['Computed']
-		
+		results = runAFMline(parameters, smu_systems, sleep_time1, sleep_time2)
+				
 		# Copy parameters and add in the test results
+		parameters['Computed'] = results['Computed']
 		jsonData = dict(parameters)
 		jsonData['Results'] = results['Raw']
 		
@@ -215,70 +198,47 @@ def runAFM(parameters, smu_systems, isSavingResults, isPlottingResults):
 	smu_device.turnChannelsOff()
 
 
-def runAFMline(parameters, smu_systems, isSavingResults, isPlottingResults, sleep_time1, sleep_time2):
-	# Get shorthand name to easily refer to configuration parameters
+
+def runAFMline(parameters, smu_systems, sleep_time1, sleep_time2):
+	# Get shorthand name to easily refer to configuration and SMUs
 	afm_parameters = parameters['runConfigs']['AFMControl']
-	
 	smu_device = smu_systems['deviceSMU']
 	smu_secondary = smu_systems['secondarySMU']
-	
-	lineStartTime = time.time()
-	
-	# Device SMU data
-	vds_data = []
-	id_data = []
-	vgs_data = []
-	ig_data = []
-	device_timestamps = []
-	
-	# Seconary SMU data
-	smu2_v1_data = []
-	smu2_i1_data = []
-	smu2_v2_data = []
-	smu2_i2_data = []
-	smu2_timestamps = []
-	
+		
 	# Take measurements
 	smu_device.initSweep()
 	startTime1 = time.time()
 	smu_secondary.initSweep()
 	startTime2 = time.time()
 	
+	# Sleep for about half the time it takes for the data to be collected
 	time.sleep(0.5*min(sleep_time1 - (startTime2 - startTime1), sleep_time2))
 	
+	# Request data from the SMUs
 	results_device = smu_device.endSweep()
 	results_secondary = smu_secondary.endSweep()
 	
 	print('Difference in start times is {} s'.format(startTime2 - startTime1))
 	
-	# Pick the data to save
-	vds_data = results_device['Vds_data']
-	id_data = results_device['Id_data']
-	vgs_data = results_device['Vgs_data']
-	ig_data = results_device['Ig_data']
+	# Adjust timestamps to be in realtime values
 	timestamps_device = [startTime1 + t for t in results_device['timestamps']]
-	
-	smu2_v1_data = results_secondary['Vds_data']
-	smu2_i1_data = results_secondary['Id_data']
-	smu2_v2_data = results_secondary['Vgs_data']
-	smu2_i2_data = results_secondary['Ig_data']
 	timestamps_smu2 = [startTime2 + t for t in results_secondary['timestamps']]
 	
 	return {
 		'Raw':{
-			'vds_data':vds_data,
-			'id_data':id_data,
-			'vgs_data':vgs_data,
-			'ig_data':ig_data,
-			'timestamps_device':timestamps_device,
-			'smu2_v1_data':smu2_v1_data,
-			'smu2_i1_data':smu2_i1_data,
-			'smu2_v2_data':smu2_v2_data,
-			'smu2_i2_data':smu2_i2_data,
-			'timestamps_smu2':timestamps_smu2,
+			'vds_data':	results_device['Vds_data'],
+			'id_data':	results_device['Id_data'],
+			'vgs_data':	results_device['Vgs_data'],
+			'ig_data':	results_device['Ig_data'],
+			'timestamps_device': timestamps_device,
+			'smu2_v1_data':	results_secondary['Vds_data'],
+			'smu2_i1_data':	results_secondary['Id_data'],
+			'smu2_v2_data':	results_secondary['Vgs_data'],
+			'smu2_i2_data':	results_secondary['Ig_data'],
+			'timestamps_smu2': timestamps_smu2,
 		},
 		'Computed':{
-			'metric that you care about':123456789
+			
 		}
 	}
 

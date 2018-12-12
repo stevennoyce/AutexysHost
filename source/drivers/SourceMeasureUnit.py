@@ -347,7 +347,7 @@ class B2912A(SourceMeasureUnit):
 		voltage2s = self.smu.query_ascii_values(":fetch:arr:voltage? (@2)")
 		timestamps = self.smu.query_ascii_values(":fetch:array:time? (@2)")
 		
-		if endMode is not None:
+		if(endMode is not None):
 			self.smu.write(":source1:{}:mode {}".format(self.source1_mode, endMode))
 			self.smu.write(":source2:{}:mode {}".format(self.source2_mode, endMode))
 		
