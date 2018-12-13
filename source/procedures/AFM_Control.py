@@ -119,7 +119,7 @@ def getRasteredMatrix(Vx, Vy, Id):
 	# Create empty matrix
 	matrix = np.full((number_of_rows, max_row_length), np.NaN)
 	
-	# Sort each row of values by X
+	# If this is a retrace, reverse the data so that we can treat it the same as a regular trace
 	for i in range(len(Vx)):
 		if(Vx[i][0] > Vx[i][-1]):
 			Vx[i] = list(reversed(Vx[i]))
@@ -143,7 +143,9 @@ def getRasteredMatrix(Vx, Vy, Id):
 					offset += 1
 			else:
 				row.append(np.NaN)
-		matrix[r] = row
+		
+		# The x-coordinates are flipped so we have to reverse every row in the matrix		
+		matrix[r] = list(reversed(row))
 	
 	return matrix
 			
