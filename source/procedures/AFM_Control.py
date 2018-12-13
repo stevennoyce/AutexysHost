@@ -50,11 +50,11 @@ def fitTriangleWave(times, values):
 	
 	return optParams
 
-def getSegmentsOfTriangle(times, values):
-	indices = []
+def getSegmentsOfTriangle(times, values, maxSegmentLength=float('inf'), discardThreshold=0.25, smoothSegmentsByTrimming=False, smoothSegmentsByOverlapping=False):
 	times = np.array(times) - min(times)
 	values = np.array(values)
 	
+	# Fit times and values to a triangle wave
 	fitParams = fitTriangleWave(times, values)
 	phase = fitParams['phase']
 	period = fitParams['period']
@@ -62,13 +62,47 @@ def getSegmentsOfTriangle(times, values):
 	
 	periodsMeasured = int((max(times) - min(times))/period) + 1
 	tracesMeasured = 2*periodsMeasured
-		
+	
+	# Break triangle wave into segments at the peaks and valleys
+	all_segments = []
 	for i in range(tracesMeasured):
 		segment = np.where( ((i*half_period)+phase < times) & (times <= ((i+1)*half_period)+phase) )[0]
 		if(len(segment) > 0):
-			indices.append(list(segment))
+			all_segments.append(list(segment))
+	
+	# Discard segments that are shorter than 'discardThreshold' times the typical segment length
+	median_segment_length = np.median([len(segment) for segment in all_segments])
+	segments = []
+	for segment	in all_segments:
+		if(len(segment) >= discardThreshold*median_segment_length):
+			segments.append(segment)
+	
+	
+	# Attempt to make segments equal length by adding entries
+	max_segment_length = max([len(segment) for segment in all_segments])
+	if(smoothSegmentsByOverlapping):
+		for segment	in segments:
+			while(len(segment) < max_segment_length):
+				if(max(segment) + 1 < len(times)):
+					segment.append(max(segment) + 1)
+				if(len(segment) >= max_segment_length):
+					break
+				if(min(segment) > 0):
+					segment.insert(0, min(segment) - 1)
+	
+	# Attempt to make segments equal length by removing entries
+	min_segment_length = min(maxSegmentLength, min([len(segment) for segment in all_segments]))
+	if(smoothSegmentsByTrimming):
+		for segment	in segments:
+			while(len(segment) > min_segment_length):
+				segment.pop()
+				if(len(segment) <= min_segment_length):
+					break
+				segment.pop(0)
+	
+	print([len(segment) for segment in all_segments])
 		
-	return indices
+	return segments
 
 def getStartTime(timestamps, Vxs, skipNumberOfLines=1):
 	fitParams = fitTriangleWave(timestamps, Vxs)

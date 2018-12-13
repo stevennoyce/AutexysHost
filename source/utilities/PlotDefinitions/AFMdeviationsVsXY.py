@@ -55,28 +55,41 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# if(len(deviceHistory) == len(mode_parameters['legendLabels'])):
 		# setLabel(line, mode_parameters['legendLabels'][i])
 	
-	ax.set_ylabel('Y Position ($\mu$m)')
-	ax.set_xlabel('X Position ($\mu$m)')
+	ax.set_ylabel('Y Position ($\\mu$m)')
+	ax.set_xlabel('X Position ($\\mu$m)')
+	
+	Id_vals = extractTraces(deviceHistory)['Id'][1]
+	ax.imshow(Id_vals, extent=(min(Xs),max(Xs),min(Ys),max(Ys)), interpolation=None)
 	
 	# Add Legend and save figure
 	adjustAndSaveFigure(fig, 'AFMdeviationsVsXY', mode_parameters)
 	
-	# ========= TEST ==========
-	Vx_topolgy_trace = []
-	Vx_topolgy_retrace = []
+	
+	
+	return (fig, ax)
+	
+	
+
+		
+	
+def extractTraces(deviceHistory):
+	Vx_topology_trace = []
+	Vx_topology_retrace = []
 	Vx_nap_trace = []
 	Vx_nap_retrace = []
 	
-	Vy_topolgy_trace = []
-	Vy_topolgy_retrace = []
+	Vy_topology_trace = []
+	Vy_topology_retrace = []
 	Vy_nap_trace = []
 	Vy_nap_retrace = []
 	
-	Id_topolgy_trace = []
-	Id_topolgy_retrace = []
+	Id_topology_trace = []
+	Id_topology_retrace = []
 	Id_nap_trace = []
 	Id_nap_retrace = []
 	
+	segments = []
+	max_segment_length = float('inf')
 	for i in range(len(deviceHistory)):
 		timestamps = deviceHistory[i]['Results']['timestamps_smu2']
 		Vx = deviceHistory[i]['Results']['smu2_v2_data']
@@ -86,31 +99,32 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		currentLinearized = current - currentLinearFit
 		currentLinearized = currentLinearized - np.median(currentLinearized)
 		
-		indices = getSegmentsOfTriangle(timestamps, Vx)
-		if(len(indices) > 4):
-			if(len(indices[0]) > len(indices[-1])):
-				indices = indices[0:-1]
-			else:
-				indices = indices[1:]
-			
-		Vx_topolgy_trace.append(np.array(Vx)[indices[0]])
-		Vy_topolgy_trace.append(np.array(Vy)[indices[0]])
-		Id_topolgy_trace.append(np.array(currentLinearized)[indices[0]])
+		segments = getSegmentsOfTriangle(timestamps, Vx, maxSegmentLength=max_segment_length, discardThreshold=0.5, smoothSegmentsByOverlapping=True)
+		max_segment_length = min([len(s) for s in segments])
 		
-		Vx_topolgy_retrace.append(np.array(Vx)[indices[1]])
-		Vy_topolgy_retrace.append(np.array(Vy)[indices[1]])
-		Id_topolgy_retrace.append(np.array(currentLinearized)[indices[1]])
-		
-		Vx_nap_trace.append(np.array(Vx)[indices[2]])
-		Vy_nap_trace.append(np.array(Vy)[indices[2]])
-		Id_nap_trace.append(np.array(currentLinearized)[indices[2]])
-		
-		Vx_nap_retrace.append(np.array(Vx)[indices[3]])
-		Vy_nap_retrace.append(np.array(Vy)[indices[3]])
-		Id_nap_retrace.append(np.array(currentLinearized)[indices[3]])
+		for j in range(len(segments)):
+			if((j % 4) == 0):
+				Vx_topology_trace.append(np.array(Vx)[segments[j]])
+				Vy_topology_trace.append(np.array(Vy)[segments[j]])
+				Id_topology_trace.append(np.array(currentLinearized)[segments[j]])
+			elif((j % 4) == 1):
+				Vx_topology_retrace.append(np.array(Vx)[segments[j]])
+				Vy_topology_retrace.append(np.array(Vy)[segments[j]])
+				Id_topology_retrace.append(np.array(currentLinearized)[segments[j]])
+			elif((j % 4) == 2):
+				Vx_nap_trace.append(np.array(Vx)[segments[j]])
+				Vy_nap_trace.append(np.array(Vy)[segments[j]])
+				Id_nap_trace.append(np.array(currentLinearized)[segments[j]])
+			elif((j % 4) == 3):
+				Vx_nap_retrace.append(np.array(Vx)[segments[j]])
+				Vy_nap_retrace.append(np.array(Vy)[segments[j]])
+				Id_nap_retrace.append(np.array(currentLinearized)[segments[j]])
 	
 	
-	return (fig, ax)
 	
-
+	return {
+		'Vx': [Vx_topology_trace, Vx_topology_retrace, Vx_nap_trace, Vx_nap_retrace],
+		'Vy': [Vy_topology_trace, Vy_topology_retrace, Vy_nap_trace, Vy_nap_retrace],
+		'Id': [Id_topology_trace, Id_topology_retrace, Id_nap_trace, Id_nap_retrace]
+	}
 
