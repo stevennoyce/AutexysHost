@@ -46,11 +46,11 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# currents[np.where(Xs < 0.5)[0]] = 0
 	
 	c, a, b = zip(*sorted(zip(np.array(currents)*1e9, Xs, Ys), reverse=False))
-	line = ax.scatter(a, b, c=c, cmap=plotDescription['plotDefaults']['colorMap'], alpha=0.6, marker='o')
+	#line = ax.scatter(a, b, c=c, cmap=plotDescription['plotDefaults']['colorMap'], alpha=0.6, marker='o')
 	# line = ax.scatter(Xs, Ys, c=np.array(currents)*1e9, cmap=plotDescription['plotDefaults']['colorMap'], alpha=0.6)
-	cbar = fig.colorbar(line, pad=0.015, aspect=50)
-	cbar.set_label('Drain Current [nA]', rotation=270, labelpad=11)
-	cbar.solids.set(alpha=1)
+	#cbar = fig.colorbar(line, pad=0.015, aspect=50)
+	#cbar.set_label('Drain Current [nA]', rotation=270, labelpad=11)
+	#cbar.solids.set(alpha=1)
 	
 	# if(len(deviceHistory) == len(mode_parameters['legendLabels'])):
 		# setLabel(line, mode_parameters['legendLabels'][i])
@@ -58,8 +58,10 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	ax.set_ylabel('Y Position ($\\mu$m)')
 	ax.set_xlabel('X Position ($\\mu$m)')
 	
-	Id_vals = extractTraces(deviceHistory)['Id'][1]
-	ax.imshow(Id_vals, extent=(min(Xs),max(Xs),min(Ys),max(Ys)), interpolation=None)
+	Vx_vals = extractTraces(deviceHistory)['Vx'][0]
+	Vy_vals = extractTraces(deviceHistory)['Vy'][0]
+	Id_vals = extractTraces(deviceHistory)['Id'][0]
+	ax.imshow(getRasteredMatrix(Vx_vals, Vy_vals, Id_vals), extent=(min(Xs), max(Xs), min(Ys), max(Ys)), interpolation=None)
 	
 	# Add Legend and save figure
 	adjustAndSaveFigure(fig, 'AFMdeviationsVsXY', mode_parameters)
@@ -88,8 +90,6 @@ def extractTraces(deviceHistory):
 	Id_nap_trace = []
 	Id_nap_retrace = []
 	
-	segments = []
-	max_segment_length = float('inf')
 	for i in range(len(deviceHistory)):
 		timestamps = deviceHistory[i]['Results']['timestamps_smu2']
 		Vx = deviceHistory[i]['Results']['smu2_v2_data']
@@ -99,28 +99,25 @@ def extractTraces(deviceHistory):
 		currentLinearized = current - currentLinearFit
 		currentLinearized = currentLinearized - np.median(currentLinearized)
 		
-		segments = getSegmentsOfTriangle(timestamps, Vx, maxSegmentLength=max_segment_length, discardThreshold=0.5, smoothSegmentsByOverlapping=True)
-		max_segment_length = min([len(s) for s in segments])
+		segments = getSegmentsOfTriangle(timestamps, Vx, discardThreshold=0.5, smoothSegmentsByOverlapping=False)
 		
 		for j in range(len(segments)):
 			if((j % 4) == 0):
-				Vx_topology_trace.append(np.array(Vx)[segments[j]])
-				Vy_topology_trace.append(np.array(Vy)[segments[j]])
-				Id_topology_trace.append(np.array(currentLinearized)[segments[j]])
+				Vx_topology_trace.append(list(np.array(Vx)[segments[j]]))
+				Vy_topology_trace.append(list(np.array(Vy)[segments[j]]))
+				Id_topology_trace.append(list(np.array(currentLinearized)[segments[j]]))
 			elif((j % 4) == 1):
-				Vx_topology_retrace.append(np.array(Vx)[segments[j]])
-				Vy_topology_retrace.append(np.array(Vy)[segments[j]])
-				Id_topology_retrace.append(np.array(currentLinearized)[segments[j]])
+				Vx_topology_retrace.append(list(np.array(Vx)[segments[j]]))
+				Vy_topology_retrace.append(list(np.array(Vy)[segments[j]]))
+				Id_topology_retrace.append(list(np.array(currentLinearized)[segments[j]]))
 			elif((j % 4) == 2):
-				Vx_nap_trace.append(np.array(Vx)[segments[j]])
-				Vy_nap_trace.append(np.array(Vy)[segments[j]])
-				Id_nap_trace.append(np.array(currentLinearized)[segments[j]])
+				Vx_nap_trace.append(list(np.array(Vx)[segments[j]]))
+				Vy_nap_trace.append(list(np.array(Vy)[segments[j]]))
+				Id_nap_trace.append(list(np.array(currentLinearized)[segments[j]]))
 			elif((j % 4) == 3):
-				Vx_nap_retrace.append(np.array(Vx)[segments[j]])
-				Vy_nap_retrace.append(np.array(Vy)[segments[j]])
-				Id_nap_retrace.append(np.array(currentLinearized)[segments[j]])
-	
-	
+				Vx_nap_retrace.append(list(np.array(Vx)[segments[j]]))
+				Vy_nap_retrace.append(list(np.array(Vy)[segments[j]]))
+				Id_nap_retrace.append(list(np.array(currentLinearized)[segments[j]]))
 	
 	return {
 		'Vx': [Vx_topology_trace, Vx_topology_retrace, Vx_nap_trace, Vx_nap_retrace],

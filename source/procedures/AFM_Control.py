@@ -50,7 +50,7 @@ def fitTriangleWave(times, values):
 	
 	return optParams
 
-def getSegmentsOfTriangle(times, values, maxSegmentLength=float('inf'), discardThreshold=0.25, smoothSegmentsByTrimming=False, smoothSegmentsByOverlapping=False):
+def getSegmentsOfTriangle(times, values, minSegmentLength=0, maxSegmentLength=float('inf'), discardThreshold=0.25, smoothSegmentsByTrimming=False, smoothSegmentsByOverlapping=False):
 	times = np.array(times) - min(times)
 	values = np.array(values)
 	
@@ -60,16 +60,16 @@ def getSegmentsOfTriangle(times, values, maxSegmentLength=float('inf'), discardT
 	period = fitParams['period']
 	half_period = period/2
 	
-	periodsMeasured = int((max(times) - min(times))/period) + 1
+	periodsMeasured = int((max(times) - min(times))/period) + 2
 	tracesMeasured = 2*periodsMeasured
 	
 	# Break triangle wave into segments at the peaks and valleys
 	all_segments = []
-	for i in range(tracesMeasured):
+	for i in range(-1, tracesMeasured):
 		segment = np.where( ((i*half_period)+phase < times) & (times <= ((i+1)*half_period)+phase) )[0]
 		if(len(segment) > 0):
 			all_segments.append(list(segment))
-	
+		
 	# Discard segments that are shorter than 'discardThreshold' times the typical segment length
 	median_segment_length = np.median([len(segment) for segment in all_segments])
 	segments = []
@@ -77,9 +77,10 @@ def getSegmentsOfTriangle(times, values, maxSegmentLength=float('inf'), discardT
 		if(len(segment) >= discardThreshold*median_segment_length):
 			segments.append(segment)
 	
+	print(len(segments))
 	
 	# Attempt to make segments equal length by adding entries
-	max_segment_length = max([len(segment) for segment in all_segments])
+	max_segment_length = max(minSegmentLength, max([len(segment) for segment in all_segments]))
 	if(smoothSegmentsByOverlapping):
 		for segment	in segments:
 			while(len(segment) < max_segment_length):
@@ -99,10 +100,53 @@ def getSegmentsOfTriangle(times, values, maxSegmentLength=float('inf'), discardT
 				if(len(segment) <= min_segment_length):
 					break
 				segment.pop(0)
-	
-	print([len(segment) for segment in all_segments])
-		
+			
 	return segments
+
+def getRasteredMatrix(Vx, Vy, Id):
+	# Determine matrix X-dimentions
+	max_row_length = max([len(segment) for segment in Vx])
+	#max_Vx = max([max(seg) for seg in Vx])
+	#min_Vx = min([min(seg) for seg in Vx])
+	#bin_width = abs(max_Vx - min_Vx)/max_row_length
+	
+	# Determine matrix Y-dimensions
+	number_of_rows = len(Vx)
+	#max_Vy = max([max(seg) for seg in Vy])
+	#min_Vy = min([min(seg) for seg in Vy])
+	#bin_height = abs(max_Vy - min_Vy)/number_of_rows
+	
+	# Create empty matrix
+	matrix = np.full((number_of_rows, max_row_length), np.NaN)
+	
+	# Sort each row of values by X
+	for i in range(len(Vx)):
+		if(Vx[i][0] > Vx[i][-1]):
+			Vx[i] = list(reversed(Vx[i]))
+			Vy[i] = list(reversed(Vy[i]))
+			Id[i] = list(reversed(Id[i]))
+	
+	# Get one of the max-length rows to fit the other rows to		
+	template_row = []
+	for segment in Vx:
+		if(len(segment) >= len(template_row)):
+			template_row = segment
+	
+	# Fill matrix with data by shifting rows into place
+	for r in range(len(Vx)):
+		row = list(Id[r])
+		offset = 0
+		while(len(row) < max_row_length):
+			if(Vx[r][0] > template_row[offset+1]):
+				row.insert(0, np.NaN)
+				if(offset < len(row) - 1):
+					offset += 1
+			else:
+				row.append(np.NaN)
+		matrix[r] = row
+	
+	return matrix
+			
 
 def getStartTime(timestamps, Vxs, skipNumberOfLines=1):
 	fitParams = fitTriangleWave(timestamps, Vxs)
