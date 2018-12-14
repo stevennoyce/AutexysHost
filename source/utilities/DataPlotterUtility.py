@@ -49,7 +49,8 @@ default_mode_parameters = {
 	'staticBiasSegmentDividers': False,
 	'staticBiasChangeDividers': True,
 	
-	'generalInfo': None
+	'generalInfo': None,
+	'afm_image_path': None
 }
 
 

@@ -93,6 +93,7 @@ def sendPlot(user, project, wafer, chip, device, experiment, plotType):
 	
 	plotSettings = copy.deepcopy(default_makePlot_parameters)
 	receivedPlotSettings = json.loads(flask.request.args.get('plotSettings'))
+	#afmPath = json.loads(flask.request.args.get('afmPath'))
 	plotSettings.update(receivedPlotSettings)
 	
 	filebuf = io.BytesIO()
@@ -107,6 +108,11 @@ def sendPlot(user, project, wafer, chip, device, experiment, plotType):
 	plotSettings['saveFigures'] = True
 	plotSettings['showFigures'] = False
 	plotSettings['specificPlot'] = plotType
+	
+	#if(plotType == 'AFMdeviationsImage'):
+	#	if(plotSettings['plot_mode_parameters'] == None):
+	#		plotSettings['plot_mode_parameters'] = {}
+	#	plotSettings['plot_mode_parameters']['afm_image_path'] = afmPath
 	
 	DH.makePlots(user, project, wafer, chip, device, **plotSettings)
 	# plt.savefig(mode_parameters['plotSaveName'], transparent=True, dpi=pngDPI, format='png')
