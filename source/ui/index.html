@@ -454,7 +454,7 @@
 													</v-toolbar>
 													<div class="text-xs-center">
 														<!-- <img :src="'/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust" @click="console.log('clicked image')"> -->
-														<zoomable-image :src="'/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></zoomable-image>
+														<zoomable-image src="" :data-src="'/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></zoomable-image>
 													</div>
 												</v-card>
 											</v-flex>
@@ -950,6 +950,29 @@
 			}
 			return d;
 		}
+		
+		var imageRequestsLoading = 0;
+		var imageLoaderTimer = setInterval(function() {
+			if (imageRequestsLoading > 0) return;
+			if (imageRequestsLoading < 0) imageRequestsLoading = 0;
+			
+			let zoomableImages = document.getElementsByClassName("zoomableImage");
+			
+			for (var i = 0; i < zoomableImages.length; i++) {
+				if (zoomableImages[i].getAttribute('data-src') != zoomableImages[i].getAttribute('src')) {
+					zoomableImages[i].setAttribute('src', zoomableImages[i].getAttribute('data-src'));
+					
+					imageRequestsLoading++;
+					
+					zoomableImages[i].onload = function() {
+						imageRequestsLoading--;
+					}
+				}
+				if (!zoomableImages[i].complete) {
+					return;
+				}
+			}
+		}, 100)
 		
 		Vue.component('zoomable-image', {
 			data: function() {
