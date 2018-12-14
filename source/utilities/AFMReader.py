@@ -43,16 +43,30 @@ def updateAFMRegistry(dataFolder):
 
 def searchAFMRegistry(dataFolder, minTimestamp=0, maxTimestamp=float('inf')):
 	matches = []
-	
-	afm_registry = updateAFMRegistry(dataFolder):
+	afm_registry = updateAFMRegistry(dataFolder)
 	for entry in afm_registry:
-		if((minTimestamp <= entry['timestamp']) and (entry['timestamp'] <= maxTimestamp))
+		if((minTimestamp <= entry['timestamp']) and (entry['timestamp'] <= maxTimestamp)):
 			matches.append(entry['path'])
 	
 	return matches
 
 def bestMatchAFMRegistry(dataFolder, targetTimestamp, minTimestamp=0, maxTimestamp=float('inf')):
-	limited_results = searchAFMRegistry(dataFolder, minTimestamp=minTimestamp, maxTimestamp=maxTimestamp)
+	matches_in_range = []
+	afm_registry = updateAFMRegistry(dataFolder)
+	for entry in afm_registry:
+		if((minTimestamp <= entry['timestamp']) and (entry['timestamp'] <= maxTimestamp)):
+			matches_in_range.append(entry)
+	
+	best_match = None
+	min_distance = float('inf')
+	for entry in matches_in_range:
+		distance = abs(targetTimestamp - entry['timestamp'])
+		if(distance < min_distance):
+			best_match = entry['path']
+			min_distance = distance
+	
+	return best_match
+			
 	
 	
 
@@ -89,6 +103,45 @@ def loadAFM(path):
 	
 	return data
 
+def loadAFMImageData(path):
+	afm = loadAFM(path)
+	
+	image_data = {}
+	image_types = []
+	for binary_labels in afm['wave']['labels']:
+		for label in binary_labels:
+			if(len(label) > 0):
+				image_types.append(label.decode('utf-8'))
+				image_data[label.decode('utf-8')] = []
+	
+	# data_array = afm['wave']['wData']
+	# for row in range(len(data_array)):
+	# 	# Add a row to each of the images
+	# 	for point in range(len(data_array[0][0])):
+	# 		image_data[image_types[point]].append([])
+			
+	# 	# Iterate over the columns of this row
+	# 	for col in range(len(data_array[0])):
+	# 		# At each column, add one point to each of the images
+	# 		for point in range(len(data_array[0][0])):
+	# 			image_data[image_types[point]][row].append(data_array[row][col][point])
+	
+	data_array = afm['wave']['wData']
+	data_array2 = np.array(data_array).transpose(2,0,1)
+	for i in range(len(image_types)):
+		image_data[image_types[i]] = data_array2[i]
+	
+	image_width = afm['wave']['note']['FastScanSize']
+	image_height = afm['wave']['note']['SlowScanSize']
+	image_rotation = afm['wave']['note']['ScanAngle']
+	
+	if(image_rotation % 90 == 0):
+		while(image_rotation > 0):
+			for key in image_data.keys():
+				image_data[key] = np.rot90(image_data[key])
+			image_rotation -= 90
+	
+	return (image_data, image_width, image_height)
 
 def getAFMTimeMetrics(path):
 	afm = loadAFM(path)
@@ -179,8 +232,8 @@ def getImportantAFMMetaData(path):
 if __name__ == '__main__':
 	path = '../../../AutexysPlatforms/Analysis/AFM_Loading/AFM_Test_Files/SGM0000.ibw'
 	
-	# print(loadAFM(path))
-	print(getAFMMetaData(path))
+	print(loadAFM(path))
+	# print(getAFMMetaData(path))
 	# print(getAFMTimeMetrics(path))
 	# print(getAFMTimestamp(path))
 

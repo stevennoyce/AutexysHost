@@ -76,9 +76,7 @@ def getSegmentsOfTriangle(times, values, minSegmentLength=0, maxSegmentLength=fl
 	for segment	in all_segments:
 		if(len(segment) >= discardThreshold*median_segment_length):
 			segments.append(segment)
-	
-	print(len(segments))
-	
+		
 	# Attempt to make segments equal length by adding entries
 	max_segment_length = max(minSegmentLength, max([len(segment) for segment in all_segments]))
 	if(smoothSegmentsByOverlapping):

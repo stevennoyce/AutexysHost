@@ -1,11 +1,8 @@
 from utilities.MatplotlibUtility import *
 from procedures import AFM_Control as afm_ctrl
 from utilities import AFMReader as afm_reader
-#from utilities import IgorReader as afm_reader
 
-#import os
-#import glob
-#from datetime import datetime
+import numpy as np
 
 plotDescription = {
 	'plotCategory': 'device',
@@ -25,30 +22,49 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Get X/Y limits
 	Vxs = []
 	Vys = []
+	times = []
 	for i in range(len(deviceHistory)):
 		Vxs.extend(deviceHistory[i]['Results']['smu2_v2_data'])
 		Vys.extend(deviceHistory[i]['Results']['smu2_v1_data'])
+		times.extend(deviceHistory[i]['Results']['timestamps_smu2'])
 	Xs = -np.array(Vxs)/0.157
 	Ys = np.array(Vys)/0.138
 	Xs = Xs - np.min(Xs)
 	Ys = Ys - np.min(Ys)
-	
-	# Axis Labels
-	ax.set_ylabel('Y Position ($\\mu$m)')
-	ax.set_xlabel('X Position ($\\mu$m)')
 	
 	# Get data
 	Vx_vals = extractTraces(deviceHistory)['Vx'][0]
 	Vy_vals = extractTraces(deviceHistory)['Vy'][0]
 	Id_vals = extractTraces(deviceHistory)['Id'][0]
 	
-	# Plot
-	ax.imshow(afm_ctrl.getRasteredMatrix(Vx_vals, Vy_vals, Id_vals), cmap=plotDescription['plotDefaults']['colorMap'], extent=(min(Xs), max(Xs), min(Ys), max(Ys)), interpolation=None)
+	# Determine the path to the correct AFM image to use
+	image_path = None
+	if(mode_parameters['afm_image_path'] is not None):
+		image_path = mode_parameters['afm_image_path']
+	else:
+		min_timestamp = min(times)
+		max_timestamp = max(times)
+		avg_timestamp = np.mean(times)
+		image_path = afm_reader.bestMatchAFMRegistry(deviceHistory[0]['dataFolder'], targetTimestamp=avg_timestamp)
 	
-	image = afm_reader.loadAFMImageFromTimeframe(deviceHistory[0]['dataFolder'], minTimestamp, maxTimestamp)
+	# Draw the image (if there is one to show)
+	if(image_path is not None):
+		full_data, imageWidth, imageHeight = afm_reader.loadAFMImageData(image_path)
+		ax.imshow(full_data['HeightRetrace'], cmap='Greys_r', extent=(0, imageWidth*10**6, 0, imageHeight*10**6))
 	
-	# Add Legend and save figure
-	adjustAndSaveFigure(fig, 'AFMdeviationsVsXY', mode_parameters)
+	# Axis Labels
+	ax.set_ylabel('Y Position ($\\mu$m)')
+	ax.set_xlabel('X Position ($\\mu$m)')
+	
+	# Plot data on top of image
+	ax.imshow(afm_ctrl.getRasteredMatrix(Vx_vals, Vy_vals, Id_vals), cmap=plotDescription['plotDefaults']['colorMap'], extent=(min(Xs), max(Xs), min(Ys), max(Ys)), alpha=0.5, interpolation=None)
+	
+	# Re-adjust the axes to be centered on the image
+	ax.set_xlim((0, imageWidth*10**6))
+	ax.set_ylim((0, imageHeight*10**6))
+	
+	# Save figure
+	adjustAndSaveFigure(fig, 'AFMdeviationsImage', mode_parameters)
 	
 	return (fig, ax)
 	
