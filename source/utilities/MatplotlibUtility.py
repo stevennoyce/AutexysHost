@@ -97,6 +97,9 @@ plt.rcParams['ps.fonttype'] = 42
 
 # Add custom color-maps
 light_to_dark_map = lambda R, G, B: dict({'red':((0.0, 0/255, 0/255), (0.5, R/255, R/255), (1.0, 255/255, 255/255)), 'green':((0.0, 0/255, 0/255), (0.5, G/255, G/255), (1.0, 255/255, 255/255)), 'blue':((0.0, 0/255, 0/255), (0.5, B/255, B/255), (1.0, 255/255, 255/255))})
+color_to_color_map = lambda R1, G1, B1, R2, G2, B2: dict({'red':((0.0, R1/255, R1/255), (0.5, 0.5*(R1+R2)/255, 0.5*(R1+R2)/255), (1.0, R2/255, R2/255)), 'green':((0.0, G1/255, G1/255), (0.5, 0.5*(G1+G2)/255, 0.5*(G1+G2)/255), (1.0, G2/255, G2/255)), 'blue':((0.0, B1/255, B1/255), (0.5, 0.5*(B1+B2)/255, 0.5*(B1+B2)/255), (1.0, B2/255, B2/255))})
+color_to_color_to_color_map = lambda R1, G1, B1, R2, G2, B2, R3, G3, B3: dict({'red':((0.0, R1/255, R1/255), (0.5, R2/255, R2/255), (1.0, R3/255, R3/255)), 'green':((0.0, G1/255, G1/255), (0.5, G2/255, G2/255), (1.0, G3/255, G3/255)), 'blue':((0.0, B1/255, B1/255), (0.5, B2/255, B2/255), (1.0, B3/255, B3/255))})
+
 
 plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_red_black', light_to_dark_map(237, 85, 59) ))
 plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_green_black', light_to_dark_map(79, 185, 159) ))
@@ -112,6 +115,10 @@ plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_violet_black', light_
 plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_magenta_black', light_to_dark_map(159, 50, 133) ))
 plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_peach_black', light_to_dark_map(255, 142, 101) ))
 plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_peach_black', light_to_dark_map(255, 142, 101) ))
+
+plt.register_cmap(cmap=pltc.LinearSegmentedColormap('blue_teal_orange', color_to_color_to_color_map(10, 30, 150, 100, 175, 170, 250, 200, 100) ))
+
+
 
 # === Matplotlib Access ===
 def getPlt():
