@@ -102,7 +102,7 @@ def manage(on_startup_schedule_file=None):
 		if(ui['pipe'].poll(10)):
 			message = ui['pipe'].recv()
 			print('Manager received from UI: "' + str(message) + '"')
-						
+			
 			if(message.startswith('RUN: ')):
 				if(dispatcher is None):
 					schedule_file_path = message[len('RUN: '):]
