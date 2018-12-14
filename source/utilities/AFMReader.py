@@ -3,17 +3,9 @@ import igor.binarywave as igorbinary
 
 # pip install igor
 
-# Gwyddion can be used to view .ibw AFM files
-# We want to be able to plot similar images
-# We also want to get any available data/experiment parameters
-#	- Tip Voltage
-#	- Scan size (X and Y dimensions in microns)
-#	- Nap Height
-
 # The instrument that generates these files is an Asylum MFP-3D AFM
-# There could be some documentation on the file type
-
 # The software that generates the files is based on IGOR, a plotting software
+# Gwyddion can be also used to view .ibw AFM files
 
 
 def loadAFM(path):
@@ -64,9 +56,10 @@ def getAFMTimeMetrics(path):
 def getAFMMetaData(path):
 	afm = loadAFM(path)
 	
-	del afm['wave']['wData']
+	metadata = afm['wave']['note']
+	metadata['labels'] = afm['wave']['labels']
 	
-	return afm
+	return metadata
 
 def getImportantNames():
 	importantNoteNames = ['Date','Time','Seconds','ImageFrameTime','NapHeight','labels','NapTipVoltage','NapSurfaceVoltage','ScanSize','FastScanSize','SlowScanSize','ScanRate','ScanPoints','ScanLines','ScanAngle','NapMode','Channel1DataType','Channel2DataType','Channel3DataType','Channel4DataType','Channel5DataType','Channel6DataType','Channel7DataType','Channel8DataType','Chip','ScanSpeed','IntegralGain','ProportionalGain','AmplitudeSetpointVolts','AmplitudeSetpointMeters','DriveAmplitude','DriveFrequency','SlowScanEnabled','ScanDown','StartHeadTemp','StartScannerTemp','EndHeadTemp','EndScannerTemp','TipVoltage','SurfaceVoltage','User0Voltage','User1Voltage','FreeAirAmplitude','FreeAirPhase','NapIntegralGain','NapProportionalGain','NapAmplitudeSetpointVolts','NapDriveAmplitude','NapDriveFrequency','NapStartHeight','NapTime']
@@ -78,6 +71,9 @@ def getImportantAFMMetaData(path):
 	
 	importantNotes = {name: afm['wave']['note'][name] for name in importantNoteNames}
 	return importantNotes
+
+
+# Examples of relevant data contained in the metadata
 
 # 'Date': '2018-09-26'
 # 'Time': '12:05:27 PM'
@@ -137,7 +133,7 @@ if __name__ == '__main__':
 	
 	# print(loadAFM(path))
 	print(getAFMMetaData(path))
-	# print(getAFMTimeMetrics('AFM_Test_Files/SGM0000.ibw'))
-	# print(getAFMTimestamp('AFM_Test_Files/SGM0000.ibw'))
+	# print(getAFMTimeMetrics(path))
+	# print(getAFMTimestamp(path))
 
 
