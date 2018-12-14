@@ -1,6 +1,6 @@
 from utilities.MatplotlibUtility import *
 from procedures import AFM_Control as afm_ctrl
-from utilities import DataLoggerUtility as dlu
+from utilities import AFMReader as afm_reader
 #from utilities import IgorReader as afm_reader
 
 #import os
@@ -45,8 +45,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Plot
 	ax.imshow(afm_ctrl.getRasteredMatrix(Vx_vals, Vy_vals, Id_vals), cmap=plotDescription['plotDefaults']['colorMap'], extent=(min(Xs), max(Xs), min(Ys), max(Ys)), interpolation=None)
 	
-	
-	image = loadAFMImageFromTimeframe(deviceHistory[0]['dataFolder'], minTimestamp, maxTimestamp)
+	image = afm_reader.loadAFMImageFromTimeframe(deviceHistory[0]['dataFolder'], minTimestamp, maxTimestamp)
 	
 	# Add Legend and save figure
 	adjustAndSaveFigure(fig, 'AFMdeviationsVsXY', mode_parameters)
@@ -108,18 +107,11 @@ def extractTraces(deviceHistory):
 		'Id': [Id_topology_trace, Id_topology_retrace, Id_nap_trace, Id_nap_retrace]
 	}
 	
-def loadAFMImageFromTimeframe(dataFolder, minTimestamp, maxTimestamp):
-	afm_registry = dlu.updateAFMRegistry(dataFolder)
-	{'path':'', 'timestamp':1234}
 	
-	
-		
-
-
 	
 
 	
 if(__name__=='__main__'):
-	loadAFMImageFromTimeframe('../../AutexysData/', minTimestamp=1, maxTimestamp=2)
+	pass
 	
 

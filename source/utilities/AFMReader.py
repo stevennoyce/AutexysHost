@@ -1,5 +1,10 @@
 import numpy as np
 import igor.binarywave as igorbinary
+import os
+import glob
+from datetime import datetime
+
+from utilities import DataLoggerUtility as dlu
 
 # pip install igor
 
@@ -7,6 +12,49 @@ import igor.binarywave as igorbinary
 # The software that generates the files is based on IGOR, a plotting software
 # Gwyddion can be also used to view .ibw AFM files
 
+
+def updateAFMRegistry(dataFolder):
+	afm_image_root_directories = ['/Users/jaydoherty/Documents/myResearch/Images/AFM/', '/Users/stevennoyce/Documents/']
+	afm_registry_directory = os.path.join(dataFolder, 'AFM')
+	
+	# Load all AFM images found in one of the specific root directories
+	image_paths = []
+	for afm_root in afm_image_root_directories:
+		if(os.path.exists(afm_root)):
+			ibwFiles = glob.glob(afm_root + '**/*.ibw', recursive=True)
+			image_paths.extend(ibwFiles)
+	
+	# Load the AFM registry and determine the list of new images that have not yet been entered in the registry	
+	afm_registry = dlu.loadJSON(afm_registry_directory, 'AFM_Registry.json')
+	registered_paths = [entry['path'] for entry in afm_registry]
+	new_paths = list(set(image_paths) - set(registered_paths))
+	
+	# Open the new images and save important meta-data to the registry
+	for path in new_paths:
+		image_data = getAFMTimeMetrics(path)
+		stringtime = image_data['DateTime']
+		dt = datetime.strptime(stringtime, '%Y-%m-%d %I:%M:%S %p')
+		timestamp = dt.timestamp()
+		entryData = {'path':path, 'timestamp':timestamp}
+		afm_registry.append(entryData)
+		dlu.saveJSON(afm_registry_directory, 'AFM_Registry.json', entryData, incrementIndex=False)
+		
+	return afm_registry
+
+def searchAFMRegistry(dataFolder, minTimestamp=0, maxTimestamp=float('inf')):
+	matches = []
+	
+	afm_registry = updateAFMRegistry(dataFolder):
+	for entry in afm_registry:
+		if((minTimestamp <= entry['timestamp']) and (entry['timestamp'] <= maxTimestamp))
+			matches.append(entry['path'])
+	
+	return matches
+
+def bestMatchAFMRegistry(dataFolder, targetTimestamp, minTimestamp=0, maxTimestamp=float('inf')):
+	limited_results = searchAFMRegistry(dataFolder, minTimestamp=minTimestamp, maxTimestamp=maxTimestamp)
+	
+	
 
 def loadAFM(path):
 	data = igorbinary.load(path)
