@@ -50,7 +50,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Draw the image (if there is one to show)
 	if(image_path is not None):
 		full_data, imageWidth, imageHeight = afm_reader.loadAFMImageData(image_path)
-		ax.imshow(full_data['HeightRetrace'], cmap='Greys_r', extent=(0, imageWidth*10**6, 0, imageHeight*10**6))
+		#ax.imshow(full_data['HeightRetrace'], cmap='Greys_r', extent=(0, imageWidth*10**6, 0, imageHeight*10**6))
 	
 	# Axis Labels
 	ax.set_ylabel('Y Position ($\\mu$m)')
