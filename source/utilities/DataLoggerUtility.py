@@ -155,6 +155,10 @@ def getDeviceDirectory(parameters):
 	"""Given the typical parameters used to run an experiment, return the path to the directory where data will be saved for this device."""
 	return os.path.join(parameters['dataFolder'], parameters['Identifiers']['user'], parameters['Identifiers']['project'], parameters['Identifiers']['wafer'], parameters['Identifiers']['chip'], parameters['Identifiers']['device']) + os.sep
 
+def getExperimentDirectory(parameters, experimentNumber):
+	"""Given the typical parameters used to run an experiment, return the path to the directory where data will be saved for this device."""
+	return os.path.join(getDeviceDirectory(parameters), 'Ex'+str(experimentNumber)) + os.sep
+
 def loadSpecificDeviceHistory(directory, fileName, minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf')):
 	"""Given a folder path and fileName, load data for a device over a range of indices or experiments. 
 	If minIndex/maxIndex or minExperiment/maxExperiment are negative, then index backwards (-1 == the most recent index/experiment)"""
