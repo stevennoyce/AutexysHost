@@ -103,7 +103,7 @@ def getSegmentsOfTriangle(times, values, minSegmentLength=0, maxSegmentLength=fl
 
 def getRasteredMatrix(Vx, Vy, Id):
 	# Determine matrix X-dimentions
-	max_row_length = max([len(segment) for segment in Vx])
+	max_row_length = max([len(segment) for segment in Vx])	
 	
 	# Convert each segment of Vy into a single value, then find what a reasonable "step" would be between values (need this to deal with noise)
 	Vy_averages = [np.mean(segment) for segment in Vy]
@@ -161,11 +161,19 @@ def getRasteredMatrix(Vx, Vy, Id):
 		
 		# The x-coordinates are flipped so we have to reverse every row in the matrix	
 		row_values = list(reversed(row_values))
-		
+
 		# For now, if data was previously assigned to this row it is simply overwritten by the more recent data		
 		matrix[row_index] = row_values
 	
-	return matrix
+	# Determine physical X and Y-dimensions
+	max_Vx = max([max(seg) for seg in Vx])
+	min_Vx = min([min(seg) for seg in Vx])
+	max_Vy = max([max(seg) for seg in Vy])
+	min_Vy = min([min(seg) for seg in Vy])
+	physicalWidth = abs(max_Vx - min_Vx)/0.157
+	physicalHeight = abs(max_Vy - min_Vy)/0.138
+	
+	return matrix, physicalWidth, physicalHeight
 			
 
 def getStartTime(timestamps, Vxs, skipNumberOfLines=1):

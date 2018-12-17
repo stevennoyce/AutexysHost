@@ -20,17 +20,17 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		ax.set_title(getTestLabel(deviceHistory, identifiers))
 	
 	# Get X/Y limits
-	Vxs = []
-	Vys = []
+	#Vxs = []
+	#Vys = []
 	times = []
 	for i in range(len(deviceHistory)):
-		Vxs.extend(deviceHistory[i]['Results']['smu2_v2_data'])
-		Vys.extend(deviceHistory[i]['Results']['smu2_v1_data'])
+		#Vxs.extend(deviceHistory[i]['Results']['smu2_v2_data'])
+		#Vys.extend(deviceHistory[i]['Results']['smu2_v1_data'])
 		times.extend(deviceHistory[i]['Results']['timestamps_smu2'])
-	Xs = -np.array(Vxs)/0.157
-	Ys = np.array(Vys)/0.138
-	Xs = Xs - np.min(Xs)
-	Ys = Ys - np.min(Ys)
+	#Xs = -np.array(Vxs)/0.157
+	#Ys = np.array(Vys)/0.138
+	#Xs = Xs - np.min(Xs)
+	#Ys = Ys - np.min(Ys)
 	
 	# Get data
 	Vx_vals = extractTraces(deviceHistory)['Vx'][0]
@@ -39,8 +39,8 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	
 	# Determine the path to the correct AFM image to use
 	image_path = None
-	if(mode_parameters['afm_image_path'] is not None):
-		image_path = mode_parameters['afm_image_path']
+	if(mode_parameters['AFMImagePath'] is not None):
+		image_path = mode_parameters['AFMImagePath']
 	else:
 		min_timestamp = min(times)
 		max_timestamp = max(times)
@@ -50,14 +50,15 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Draw the image (if there is one to show)
 	if(image_path is not None):
 		full_data, imageWidth, imageHeight = afm_reader.loadAFMImageData(image_path)
-		#ax.imshow(full_data['HeightRetrace'], cmap='Greys_r', extent=(0, imageWidth*10**6, 0, imageHeight*10**6))
+		ax.imshow(full_data['HeightRetrace'], cmap='Greys_r', extent=(0, imageWidth*10**6, 0, imageHeight*10**6))
 	
 	# Axis Labels
 	ax.set_ylabel('Y Position ($\\mu$m)')
 	ax.set_xlabel('X Position ($\\mu$m)')
 	
-	# Plot data on top of image
-	ax.imshow(afm_ctrl.getRasteredMatrix(Vx_vals, Vy_vals, Id_vals), cmap=plotDescription['plotDefaults']['colorMap'], extent=(min(Xs), max(Xs), min(Ys), max(Ys)), alpha=0.5, interpolation=None)
+	# Plot data on top of AFM image
+	afm_data, dataWidth, dataHeight = afm_ctrl.getRasteredMatrix(Vx_vals, Vy_vals, Id_vals)
+	ax.imshow(afm_data, cmap=plotDescription['plotDefaults']['colorMap'], extent=(0, dataWidth, 0, dataHeight), alpha=0.5, interpolation=None)
 	
 	# Re-adjust the axes to be centered on the image
 	ax.set_xlim((0, imageWidth*10**6))

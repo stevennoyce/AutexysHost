@@ -50,7 +50,7 @@ default_mode_parameters = {
 	'staticBiasChangeDividers': True,
 	
 	'generalInfo': None,
-	'afm_image_path': None
+	'AFMImagePath': None
 }
 
 
