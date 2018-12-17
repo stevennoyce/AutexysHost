@@ -967,6 +967,9 @@
 					zoomableImages[i].onload = function() {
 						imageRequestsLoading--;
 					}
+					zoomableImages[i].onerror = function() {
+						imageRequestsLoading--;
+					}
 				}
 				if (!zoomableImages[i].complete) {
 					return;

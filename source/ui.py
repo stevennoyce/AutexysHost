@@ -109,6 +109,7 @@ def sendPlot(user, project, wafer, chip, device, experiment, plotType):
 	plotSettings['showFigures'] = False
 	plotSettings['specificPlot'] = plotType
 	
+	# mode parameter 'AFMImagePath'
 	#if(plotType == 'AFMdeviationsImage'):
 	#	if(plotSettings['plot_mode_parameters'] == None):
 	#		plotSettings['plot_mode_parameters'] = {}
@@ -332,6 +333,20 @@ def loadScheduleNames():
 def AFMFilesInTimestampRange(startTime, endTime):
 	afms = glob.glob(default_data_path + '../../**/*.ibw', recursive=True)
 	return jsonvalid(afms)
+
+@app.route('/addToNote/<user>/<project>/<wafer>/<chip>/<device>/<experimentNumber>', methods=['POST'])
+def saveNote(user, project, wafer, chip, device, experiment):	
+	folder = os.path.join(default_data_path, user, project, wafer, chip, device, 'Ex' + experimentNumber)
+	
+	note = flask.request.data
+
+@app.route('/addToCorrection/<user>/<project>/<wafer>/<chip>/<device>/<experimentNumber>', methods=['POST'])
+def saveCorrection(user, project, wafer, chip, device, experiment):	
+	folder = os.path.join(default_data_path, user, project, wafer, chip, device, 'Ex' + experimentNumber)
+	
+	correction = flask.request.get_json(force=True)
+
+# C127X_15-16 vented before Ex210
 
 # @app.after_request
 # def add_header(response):
