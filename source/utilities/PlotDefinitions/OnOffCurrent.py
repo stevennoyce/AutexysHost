@@ -33,7 +33,8 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		if(not (vds_setpoint_changes or vgs_setpoint_changes)):
 			includeDualAxis = False
 	except:
-		pass
+		vds_setpoint_changes = False
+		vgs_setpoint_changes = False
 	
 	# Init Figure
 	if(includeDualAxis):
@@ -98,25 +99,28 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	if(includeDualAxis):
 		time_offset = 0
 		for i in range(len(deviceHistory)):
-			t_0 = timestamps[0]
-			t_i = timestamps[i]
-			time_offset = (t_i - t_0)
-			t_i_next = timestamps[i] + deviceHistory[i]['runConfigs']['StaticBias']['totalBiasTime']/secondsPer(timescale)
+			try:
+				t_0 = timestamps[0]
+				t_i = timestamps[i]
+				time_offset = (t_i - t_0)
+				t_i_next = timestamps[i] + deviceHistory[i]['runConfigs']['StaticBias']['totalBiasTime']/secondsPer(timescale)
 
-			if(vds_setpoint_changes):
-				vds_line = plotOverTime(vds_ax, [timestamps[i], t_i_next], [deviceHistory[i]['runConfigs']['StaticBias']['drainVoltageSetPoint']]*2, plt.rcParams['axes.prop_cycle'].by_key()['color'][0], offset=time_offset)
-			if(vgs_setpoint_changes):
-				vgs_line = plotOverTime(vgs_ax, [timestamps[i], t_i_next], [deviceHistory[i]['runConfigs']['StaticBias']['gateVoltageSetPoint']]*2, plt.rcParams['axes.prop_cycle'].by_key()['color'][3], offset=time_offset)
-	
+				if(vds_setpoint_changes):
+					vds_line = plotOverTime(vds_ax, [timestamps[i], t_i_next], [deviceHistory[i]['runConfigs']['StaticBias']['drainVoltageSetPoint']]*2, plt.rcParams['axes.prop_cycle'].by_key()['color'][0], offset=time_offset)
+				if(vgs_setpoint_changes):
+					vgs_line = plotOverTime(vgs_ax, [timestamps[i], t_i_next], [deviceHistory[i]['runConfigs']['StaticBias']['gateVoltageSetPoint']]*2, plt.rcParams['axes.prop_cycle'].by_key()['color'][3], offset=time_offset)
+			except:
+				pass
 	# Add Legend
 	try:
-		lines1, labels1 = ax1.get_legend_handles_labels()
-		lines2, labels2 = [],[]
-		legendax = ax1
-		if(mode_parameters['includeOffCurrent']):
-			lines2, labels2 = ax2.get_legend_handles_labels()
-			legendax = ax2
-		legendax.legend(lines1 + lines2, labels1 + labels2, loc=mode_parameters['legendLoc'])
+		if(mode_parameters['enableLegend']):
+			lines1, labels1 = ax1.get_legend_handles_labels()
+			lines2, labels2 = [],[]
+			legendax = ax1
+			if(mode_parameters['includeOffCurrent']):
+				lines2, labels2 = ax2.get_legend_handles_labels()
+				legendax = ax2
+			legendax.legend(lines1 + lines2, labels1 + labels2, loc=mode_parameters['legendLoc'])
 	except:
 		pass
 
