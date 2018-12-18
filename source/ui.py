@@ -334,14 +334,20 @@ def AFMFilesInTimestampRange(startTime, endTime):
 	afms = glob.glob(default_data_path + '../../**/*.ibw', recursive=True)
 	return jsonvalid(afms)
 
-@app.route('/addToNote/<user>/<project>/<wafer>/<chip>/<device>/<experimentNumber>', methods=['POST'])
-def saveNote(user, project, wafer, chip, device, experiment):	
-	folder = os.path.join(default_data_path, user, project, wafer, chip, device, 'Ex' + experimentNumber)
+@app.route('/addToNote', methods=['POST'])
+def addToNote():
+	experiment = flask.request.get_json(force=True)
+	experimentNumber = experiment['startIndexes']['experimentNumber']
+	noteAddition = experiment['noteAddition']
+	path = dlu.getExperimentDirectory(experiment, experimentNumber)
 	
-	note = flask.request.data
+	dlu.appendTextToFile(path, 'Note.txt', noteAddition)
+	
+	return jsonvalid({'success': True})
 
-@app.route('/addToCorrection/<user>/<project>/<wafer>/<chip>/<device>/<experimentNumber>', methods=['POST'])
-def saveCorrection(user, project, wafer, chip, device, experiment):	
+
+@app.route('/addToCorrection', methods=['POST'])
+def addToCorrection():	
 	folder = os.path.join(default_data_path, user, project, wafer, chip, device, 'Ex' + experimentNumber)
 	
 	correction = flask.request.get_json(force=True)

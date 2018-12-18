@@ -479,6 +479,16 @@
 										</v-layout>
 									</v-container> -->
 									
+									<v-card class="ma-1">
+										<v-toolbar dark class="blue-grey darken-1">
+											<v-toolbar-title>
+												Notes
+											</v-toolbar-title>
+										</v-toolbar>
+										<v-text-field v-model="experiment.noteAddition"></v-text-field>
+										<v-btn @click="addToNote(experiment)">Save</v-btn>
+									</v-card>
+									
 									
 									<v-card class="ma-1" v-if="experiment.runType.includes('AFM')">
 										<v-toolbar dark class="blue-grey darken-1">
@@ -1117,7 +1127,8 @@
 				scheduleExperimentSuccessCode: {},
 				saveScheduleSuccessCode: {},
 				scheduleNames: {},
-				associatedAFMs: []
+				associatedAFMs: [],
+				addToNoteSuccessCode: {}
 			},
 			methods: {
 				
@@ -1250,6 +1261,15 @@
 						$.getJSON(path, response => {this.associatedAFMs = response})
 						.fail(() => {console.log("Error getting associated AFMs")});
 					}
+				},
+				
+				addToNote: function(experiment) {
+					var url = '/addToNote'
+					
+					$.post(url, JSON.stringify(experiment), response => {
+						this.addToNoteSuccessCode = response;
+						this.experiment.noteAddition = '';
+					}).fail(() => {console.log("Error adding to note")});
 				},
 				
 				saveSchedule: function() {
