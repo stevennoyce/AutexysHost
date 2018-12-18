@@ -71,6 +71,13 @@ def loadCSV(directory, loadFileName, dataNamesLabel=None, dataValuesLabel=None):
 	return formatted_data
 	
 
+def appendTextToFile(directory, saveFileName, textToAppend):
+	makeFolder(directory)
+	
+	with open(os.path.join(directory, saveFileName), 'a') as file:
+		file.write(textToAppend)
+		file.write('\n')
+
 # === JSON ===
 def saveJSON(directory, saveFileName, jsonData, subDirectory=None, incrementIndex=True):
 	"""Save the jsonData dictionary to as saveFileName.json in directory. 
@@ -92,7 +99,7 @@ def saveJSON(directory, saveFileName, jsonData, subDirectory=None, incrementInde
 			jsonData['timestamp'] = time.time()
 			incrementJSONIndex(directory)
 		json.dump(jsonData, file)
-		file.write('\n')	
+		file.write('\n')
 
 def loadJSON(directory, loadFileName):
 	"""Load loadFileName.json as a dictionary."""
