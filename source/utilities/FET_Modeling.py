@@ -70,6 +70,8 @@ PMOSFET_I_D_on_fn = lambda V_GS, V_DS, V_TP, K_P: (PMOSFET_I_D_lin_fn(V_GS, V_DS
 PMOSFET_I_D_fn = lambda V_GS, V_DS, V_TP, K_P, SS_mV_dec, I_OFF: (min(PMOSFET_I_D_subth_fn(V_GS, V_DS, V_TP, K_P, SS_mV_dec) if(V_GS > V_TP) else (PMOSFET_I_D_subth_fn(0, V_DS, 0, K_P, SS_mV_dec) + PMOSFET_I_D_on_fn(V_GS, V_DS, V_TP, K_P)), -abs(I_OFF)))
 #PMOSFET_I_D_ChLenMod_fn = lambda  V_GS, V_DS, V_TP, K_P, SS_mV_dec, lambda_P: (PMOSFET_I_D_fn(V_GS, V_DS, V_TP, K_P, SS_mV_dec) * (1 + lambda_P*V_DS))
 
+fet_mobility_fn = lambda g_m_max, V_DS, C_ox, W_ch, L_ch: (g_m_max/(C_ox * W_ch/L_ch * V_DS))
+
 
 
 def NMOSFET_Fit(V_GS_data, I_D_data, V_DS, V_TN_guess=0, V_TN_min=-100, V_TN_max=100, I_OFF_guess=100e-12, I_OFF_min=100e-15, I_OFF_max=1e-6):
