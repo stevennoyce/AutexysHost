@@ -15,27 +15,14 @@ plotDescription = {
 
 def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Init Figure
-	fig, ax = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
+	fig, (ax, ax2) = initFigure(1, 2, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
 	if(not mode_parameters['publication_mode']):
 		ax.set_title(getTestLabel(deviceHistory, identifiers))
 	
 	# Get X/Y limits
-	#Vxs = []
-	#Vys = []
 	times = []
 	for i in range(len(deviceHistory)):
-		#Vxs.extend(deviceHistory[i]['Results']['smu2_v2_data'])
-		#Vys.extend(deviceHistory[i]['Results']['smu2_v1_data'])
 		times.extend(deviceHistory[i]['Results']['timestamps_smu2'])
-	#Xs = -np.array(Vxs)/0.157
-	#Ys = np.array(Vys)/0.138
-	#Xs = Xs - np.min(Xs)
-	#Ys = Ys - np.min(Ys)
-	
-	# Get data
-	Vx_vals = extractTraces(deviceHistory)['Vx'][0]
-	Vy_vals = extractTraces(deviceHistory)['Vy'][0]
-	Id_vals = extractTraces(deviceHistory)['Id'][0]
 	
 	# Determine the path to the correct AFM image to use
 	image_path = None
@@ -51,18 +38,35 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	if(image_path is not None):
 		full_data, imageWidth, imageHeight = afm_reader.loadAFMImageData(image_path)
 		ax.imshow(full_data['HeightRetrace'], cmap='Greys_r', extent=(0, imageWidth*10**6, 0, imageHeight*10**6))
+		ax2.imshow(full_data['HeightRetrace'], cmap='Greys_r', extent=(0, imageWidth*10**6, 0, imageHeight*10**6))
 	
 	# Axis Labels
 	ax.set_ylabel('Y Position ($\\mu$m)')
 	ax.set_xlabel('X Position ($\\mu$m)')
+	ax2.set_ylabel('Y Position ($\\mu$m)')
+	ax2.set_xlabel('X Position ($\\mu$m)')
+	
+	# Get data
+	Vx_vals_1 = extractTraces(deviceHistory)['Vx'][0]
+	Vy_vals_1 = extractTraces(deviceHistory)['Vy'][0]
+	Id_vals_1 = extractTraces(deviceHistory)['Id'][0]
+	
+	Vx_vals_2 = extractTraces(deviceHistory)['Vx'][1]
+	Vy_vals_2 = extractTraces(deviceHistory)['Vy'][1]
+	Id_vals_2 = extractTraces(deviceHistory)['Id'][1]
 	
 	# Plot data on top of AFM image
-	afm_data, dataWidth, dataHeight = afm_ctrl.getRasteredMatrix(Vx_vals, Vy_vals, Id_vals)
+	afm_data, dataWidth, dataHeight = afm_ctrl.getRasteredMatrix(Vx_vals_1, Vy_vals_1, Id_vals_1)
 	ax.imshow(afm_data, cmap=plotDescription['plotDefaults']['colorMap'], extent=(0, dataWidth, 0, dataHeight), alpha=0.5, interpolation=None)
+	
+	afm_data_2, dataWidth_2, dataHeight_2 = afm_ctrl.getRasteredMatrix(Vx_vals_2, Vy_vals_2, Id_vals_2)
+	ax2.imshow(afm_data_2, cmap=plotDescription['plotDefaults']['colorMap'], extent=(0, dataWidth_2, 0, dataHeight_2), alpha=0.5, interpolation=None)
 	
 	# Re-adjust the axes to be centered on the image
 	ax.set_xlim((0, imageWidth*10**6))
 	ax.set_ylim((0, imageHeight*10**6))
+	ax2.set_xlim((0, imageWidth*10**6))
+	ax2.set_ylim((0, imageHeight*10**6))
 	
 	# Save figure
 	adjustAndSaveFigure(fig, 'AFMdeviationsImage', mode_parameters)

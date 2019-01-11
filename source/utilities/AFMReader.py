@@ -134,12 +134,10 @@ def loadAFMImageData(path):
 	image_width = afm['wave']['note']['FastScanSize']
 	image_height = afm['wave']['note']['SlowScanSize']
 	image_rotation = afm['wave']['note']['ScanAngle']
-	
-	if(image_rotation % 90 == 0):
-		while(image_rotation > 0):
-			for key in image_data.keys():
-				image_data[key] = np.rot90(image_data[key])
-			image_rotation -= 90
+		
+	# Image data must be rotated in order to plot correctly with matplotlib
+	for key in image_data.keys():
+		image_data[key] = np.rot90(image_data[key])
 	
 	return (image_data, image_width, image_height)
 

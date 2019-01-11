@@ -69,7 +69,7 @@ def getSegmentsOfTriangle(times, values, minSegmentLength=0, maxSegmentLength=fl
 		segment = np.where( ((i*half_period)+phase < times) & (times <= ((i+1)*half_period)+phase) )[0]
 		if(len(segment) > 0):
 			all_segments.append(list(segment))
-		
+			
 	# Discard segments that are shorter than 'discardThreshold' times the typical segment length
 	median_segment_length = np.median([len(segment) for segment in all_segments])
 	segments = []
@@ -158,9 +158,6 @@ def getRasteredMatrix(Vx, Vy, Id):
 		# Identify the position of the row by its average Vy
 		row_Vy_avg = np.mean(row_Vy)
 		row_index = np.abs(np.array(Vy_unique_values) - row_Vy_avg).argmin()
-		
-		# The x-coordinates are flipped so we have to reverse every row in the matrix	
-		row_values = list(reversed(row_values))
 
 		# For now, if data was previously assigned to this row it is simply overwritten by the more recent data		
 		matrix[row_index] = row_values
