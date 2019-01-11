@@ -78,8 +78,8 @@ def getSegmentsOfTriangle(times, values, minSegmentLength=0, maxSegmentLength=fl
 			segments.append(segment)
 		
 	# Attempt to make segments equal length by adding entries
-	max_segment_length = max(minSegmentLength, max([len(segment) for segment in all_segments]))
 	if(smoothSegmentsByOverlapping):
+		max_segment_length = max(minSegmentLength, max([len(segment) for segment in all_segments]))
 		for segment	in segments:
 			while(len(segment) < max_segment_length):
 				if(max(segment) + 1 < len(times)):
@@ -90,8 +90,8 @@ def getSegmentsOfTriangle(times, values, minSegmentLength=0, maxSegmentLength=fl
 					segment.insert(0, min(segment) - 1)
 	
 	# Attempt to make segments equal length by removing entries
-	min_segment_length = min(maxSegmentLength, min([len(segment) for segment in all_segments]))
 	if(smoothSegmentsByTrimming):
+		min_segment_length = min(maxSegmentLength, min([len(segment) for segment in all_segments]))
 		for segment	in segments:
 			while(len(segment) > min_segment_length):
 				segment.pop()
