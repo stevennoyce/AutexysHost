@@ -3,7 +3,7 @@ import time
 import numpy as np
 import threading
 
-#from utilities import DataLoggerUtility as dlu
+from utilities import DataLoggerUtility as dlu
 
 import scipy.optimize
 import math
