@@ -14,7 +14,7 @@ plotDescription = {
 	},
 }
 
-def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory, chipHistoryList, mode_parameters=None):
+def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory, groupedChipHistory, mode_parameters=None):
 	# Load Defaults
 	plotDescrip_current = copy.deepcopy(plotDescription)
 
@@ -24,11 +24,11 @@ def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, sp
 		ax.set_title('Chip ' + str(identifiers['wafer']) + str(identifiers['chip']))
 		
 	# Plot
-	if chipHistoryList == None or len(chipHistoryList) <= 0:
-		chipHistoryList = list()
-		chipHistoryList.append(specificRunChipHistory)
+	if groupedChipHistory == None or len(groupedChipHistory) <= 0:
+		groupedChipHistory = list()
+		groupedChipHistory.append(specificRunChipHistory)
 	vtVals = list()
-	for chipHistory in chipHistoryList:
+	for chipHistory in groupedChipHistory:
 		gm, vt, r2 = dpu.fitBasicDeviceModel(chipHistory)
 		if not mode_parameters['useBoxWhiskerPlot']:
 			line = ax.plot(range(len(vt)), vt, color=plt.rcParams['axes.prop_cycle'].by_key()['color'][0], marker='o', markersize=4, linewidth=0, linestyle=None)
