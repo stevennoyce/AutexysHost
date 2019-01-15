@@ -123,8 +123,9 @@ def run(additional_parameters, plot_mode_parameters=None):
 				deviceHistory += dlu.loadSpecificDeviceHistory(dlu.getDeviceDirectory(parameters), dataFile, minIndex=p['minJSONIndex'], maxIndex=p['maxJSONIndex'], minExperiment=p['minJSONExperimentNumber'], maxExperiment=p['maxJSONExperimentNumber'], minRelativeIndex=p['minJSONRelativeIndex'], maxRelativeIndex=p['maxJSONRelativeIndex'])
 			plot = dpu.makeDevicePlot(plotType, deviceHistory, parameters['Identifiers'], mode_parameters=mode_parameters)
 			plotList.append(plot)
-		except FileNotFoundError:
+		except FileNotFoundError as e:
 			print("Error: Unable to load data files for '" + str(plotType) + "' plot.")
+			print(e)
 	
 	# Show figures if desired		
 	if(p['showFigures']):
