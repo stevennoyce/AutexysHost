@@ -45,8 +45,9 @@ def searchAFMRegistry(dataFolder, minTimestamp=0, maxTimestamp=float('inf')):
 	matches = []
 	afm_registry = updateAFMRegistry(dataFolder)
 	for entry in afm_registry:
-		if((minTimestamp <= entry['timestamp']) and (entry['timestamp'] <= maxTimestamp)):
-			matches.append(entry['path'])
+		if(os.path.exists(entry['path'])):
+			if((minTimestamp <= entry['timestamp']) and (entry['timestamp'] <= maxTimestamp)):
+				matches.append(entry['path'])
 	
 	return matches
 
@@ -54,8 +55,9 @@ def bestMatchAFMRegistry(dataFolder, targetTimestamp, minTimestamp=0, maxTimesta
 	matches_in_range = []
 	afm_registry = updateAFMRegistry(dataFolder)
 	for entry in afm_registry:
-		if((minTimestamp <= entry['timestamp']) and (entry['timestamp'] <= maxTimestamp)):
-			matches_in_range.append(entry)
+		if(os.path.exists(entry['path'])):
+			if((minTimestamp <= entry['timestamp']) and (entry['timestamp'] <= maxTimestamp)):
+				matches_in_range.append(entry)
 	
 	best_match = None
 	min_distance = float('inf')
