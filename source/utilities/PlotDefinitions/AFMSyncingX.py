@@ -148,7 +148,7 @@ def getStartTime2(timestamps, Vxs, skipNumberOfLines=1):
 	if fitParams['amplitude'] < 0:
 		fitParams['phase'] += fitParams['period']/2
 	
-	possiblePhases = fitParams['phase'] + np.array([-4,-3,-2,-1,0,1,2,3,4])*fitParams['period']
+	possiblePhases = fitParams['phase'] + np.arange(-10,10,1)*fitParams['period']
 	
 	fitParams['phase'] = min(possiblePhases, key=abs)
 	
