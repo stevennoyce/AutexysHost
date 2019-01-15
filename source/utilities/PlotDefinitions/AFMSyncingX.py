@@ -126,9 +126,31 @@ def getStartTime(timestamps, Vxs, skipNumberOfLines=1):
 	startTime = min(timestamps) + fitParams['phase']
 	startTime += (lineTime)*(math.ceil(linesMeasured) + skipNumberOfLines)
 	
-	print('Determined line time to be {}'.format(lineTime))
-	print('Determined startTime to be {}'.format(startTime))
-	print('Curent time is {}'.format(time.time()))
+	# print('Determined line time to be {}'.format(lineTime))
+	# print('Determined startTime to be {}'.format(startTime))
+	# print('Curent time is {}'.format(time.time()))
+	
+	return startTime
+
+def getStartTime2(timestamps, Vxs, skipNumberOfLines=1):
+	import math
+	import time
+	
+	fitParams = fitTriangleWave(timestamps, Vxs)
+	
+	periodsMeasured = (max(timestamps) - min(timestamps))/fitParams['period']
+	passesMeasured = periodsMeasured
+	passTime = fitParams['period']
+	
+	linesMeasured = passesMeasured/2 # Divide by 2 if nap enabled
+	lineTime = 2*passTime # Multiply by 2 if nap enabled
+	
+	startTime = min(timestamps) + fitParams['phase']
+	startTime += (lineTime)*(math.ceil(linesMeasured) + skipNumberOfLines)
+	
+	# print('Determined line time to be {}'.format(lineTime))
+	# print('Determined startTime to be {}'.format(startTime))
+	# print('Curent time is {}'.format(time.time()))
 	
 	return startTime
 
@@ -159,6 +181,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		timestamps = np.array(deviceHistory[i]['Results']['timestamps_device']) - startTime
 		Vxs = np.array(deviceHistory[i]['Results']['smu2_v2_data'])+i*0.01
 		startTime = getStartTime(timestamps, Vxs, skipNumberOfLines=1)
+		startTime2 = getStartTime(timestamps, Vxs, skipNumberOfLines=1)
 		fitTimestamps = np.linspace(min(timestamps), startTime, 200)
 		
 		optParams = fitTriangleWave(timestamps, Vxs)
@@ -166,6 +189,8 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		line1 = ax.plot(timestamps, Vxs)
 		line2 = ax.plot(fitTimestamps, triangleCosWave(fitTimestamps, **optParams), '--')
 		line3 = ax.plot(startTime, triangleCosWave(max(fitTimestamps), **optParams), 'o')
+		line4 = ax.plot(startTime2, triangleCosWave(max(fitTimestamps), **optParams), 'o')
+		line4 = ax.plot(optParams['phase'], triangleCosWave(optParams['phase'], **optParams), 'o')
 		
 		VxValues = np.append(VxValues, deviceHistory[i]['Results']['smu2_v2_data'])
 		VxTimes = np.append(VxTimes, np.array(deviceHistory[i]['Results']['timestamps_smu2']) - startTime)
