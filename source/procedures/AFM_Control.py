@@ -78,7 +78,7 @@ def getSegmentsOfTriangle(times, values, minSegmentLength=0, maxSegmentLength=fl
 			segments.append(segment)
 		
 	# Attempt to make segments equal length by adding entries
-	if(smoothSegmentsByOverlapping):
+	if(smoothSegmentsByOverlapping): # False by default
 		max_segment_length = max(minSegmentLength, max([len(segment) for segment in all_segments]))
 		for segment	in segments:
 			while(len(segment) < max_segment_length):
@@ -90,7 +90,7 @@ def getSegmentsOfTriangle(times, values, minSegmentLength=0, maxSegmentLength=fl
 					segment.insert(0, min(segment) - 1)
 	
 	# Attempt to make segments equal length by removing entries
-	if(smoothSegmentsByTrimming):
+	if(smoothSegmentsByTrimming): # False by default
 		min_segment_length = min(maxSegmentLength, min([len(segment) for segment in all_segments]))
 		for segment	in segments:
 			while(len(segment) > min_segment_length):
@@ -182,6 +182,13 @@ def getStartTime(timestamps, Vxs, skipNumberOfLines=1):
 	
 	linesMeasured = passesMeasured/2 # Divide by 2 if nap enabled
 	lineTime = 2*passTime # Multiply by 2 if nap enabled
+	
+	if fitParams['amplitude'] < 0:
+		fitParams['phase'] += fitParams['period']/2
+	
+	possiblePhases = fitParams['phase'] + np.arange(-10,10,1)*fitParams['period']
+	
+	fitParams['phase'] = min(possiblePhases, key=abs)
 	
 	startTime = min(timestamps) + fitParams['phase']
 	startTime += (lineTime)*(math.ceil(linesMeasured) + skipNumberOfLines)
@@ -310,8 +317,11 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 	
 	# Collect one line un-synchronized to the AFM to figure out when the next trace will start
 	results = runAFMline(parameters, smu_systems, sleep_time1, sleep_time2)
-	
 	runStartTime = getStartTime(results['Raw']['timestamps_smu2'], results['Raw']['smu2_v2_data'], skipNumberOfLines=3)
+	sleepUntil(runStartTime)
+	
+	results = runAFMline(parameters, smu_systems, sleep_time1, sleep_time2)
+	runStartTime = getStartTime(results['Raw']['timestamps_smu2'], results['Raw']['smu2_v2_data'], skipNumberOfLines=1)
 	sleepUntil(runStartTime)
 	
 	for line in range(afm_parameters['lines']):
@@ -354,7 +364,7 @@ def runAFMline(parameters, smu_systems, sleep_time1, sleep_time2):
 	afm_parameters = parameters['runConfigs']['AFMControl']
 	smu_device = smu_systems['deviceSMU']
 	smu_secondary = smu_systems['secondarySMU']
-		
+	
 	# Take measurements
 	smu_device.initSweep()
 	startTime1 = time.time()
