@@ -84,14 +84,17 @@ def getConnectionToVisaResource(uniqueIdentifier='', system_settings=None, defau
 	
 	try:
 		rm = visa.ResourceManager()
+		if(uniqueIdentifier == ''):
+			uniqueIdentifier = rm.list_resources()[0]
+		instance = rm.open_resource(uniqueIdentifier)
 		print('Opened VISA connection through NI-VISA backend.')
 	except:
 		rm = visa.ResourceManager('@py')
+		if(uniqueIdentifier == ''):
+			uniqueIdentifier = rm.list_resources()[0]
+		instance = rm.open_resource(uniqueIdentifier)
 		print('Opened VISA connection through PyVISA-py backend.')
 		
-	if(uniqueIdentifier == ''):
-		uniqueIdentifier = rm.list_resources()[0]
-	instance = rm.open_resource(uniqueIdentifier)
 	instance.timeout = smuTimeout
 	print(instance.query('*IDN?'))
 	#print(uniqueIdentifier)
