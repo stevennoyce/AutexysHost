@@ -108,17 +108,17 @@ def getConnectionToVisaResource(uniqueIdentifier='', system_settings=None, defau
 		if(uniqueIdentifier == ''):
 			uniqueIdentifier = rm.list_resources()[0]
 		instance = rm.open_resource(uniqueIdentifier)
+		print(instance.query('*IDN?'))
 		print('Opened VISA connection through NI-VISA backend.')
 	except:
 		rm = visa.ResourceManager('@py')
 		if(uniqueIdentifier == ''):
 			uniqueIdentifier = rm.list_resources()[0]
 		instance = rm.open_resource(uniqueIdentifier)
+		print(instance.query('*IDN?'))
 		print('Opened VISA connection through PyVISA-py backend.')
 		
 	instance.timeout = smuTimeout
-	print(instance.query('*IDN?'))
-	#print(uniqueIdentifier)
 	return B2912A(instance, uniqueIdentifier, defaultComplianceCurrent, system_settings)
 
 def getConnectionToPCB(pcb_port='', system_settings=None):
