@@ -82,7 +82,13 @@ def getSystemConfiguration(systemType):
 def getConnectionToVisaResource(uniqueIdentifier='', system_settings=None, defaultComplianceCurrent=100e-6, smuTimeout=60000):
 	import visa
 	
-	rm = visa.ResourceManager()
+	try:
+		rm = visa.ResourceManager()
+		print('Opened VISA connection through NI-VISA backend.')
+	except:
+		rm = visa.ResourceManager('@py')
+		print('Opened VISA connection through PyVISA-py backend.')
+		
 	if(uniqueIdentifier == ''):
 		uniqueIdentifier = rm.list_resources()[0]
 	instance = rm.open_resource(uniqueIdentifier)
