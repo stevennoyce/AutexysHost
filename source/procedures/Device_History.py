@@ -126,6 +126,8 @@ def run(additional_parameters, plot_mode_parameters=None):
 		except FileNotFoundError as e:
 			print("Error: Unable to load data files for '" + str(plotType) + "' plot.")
 			print(e)
+			import traceback
+			traceback.print_exc()
 	
 	# Show figures if desired		
 	if(p['showFigures']):

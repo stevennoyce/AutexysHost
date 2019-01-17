@@ -23,7 +23,11 @@ sudo systemctl enable resilio-sync
 # use id command to find the user that 'pi' should be replaced with
 sudo usermod -aG pi rslsync
 sudo chmod g+rw synced_folder
+# Visit sync ui at localhost:8888
+# Set resilio username as pi and password as autexys1
+# Resilio diplay name for sharing can be rpi1 or similar
 
 pip3 install psutil
 pip3 install flask-socketio
 pip3 install gevent
+pip3 install lmfit

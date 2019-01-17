@@ -352,6 +352,12 @@ def addToCorrection():
 	
 	correction = flask.request.get_json(force=True)
 
+@app.route('/paths.json')
+def paths():
+	sourceAbsPath = os.path.abspath(os.path.dirname(__file__))
+	
+	return jsonvalid({'sourceAbsPath': sourceAbsPath})
+
 # C127X_15-16 vented before Ex210
 
 # @app.after_request
