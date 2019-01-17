@@ -162,6 +162,18 @@ def plotSweep(axis, jsonData, lineColor, direction='both', x_data='gate voltage'
 			y = [list(forward_y), list(reverse_y)]
 	except:
 		pass
+	
+	# Figure out if data was collected with multiple points per x-value
+	pointsPerX = 1
+	try:
+		if(x_data == 'vgs_data'):
+			pointsPerX = jsonData['runConfigs']['GateSweep']['pointsPerVGS']
+		elif(x_data == 'vds_data'):
+			pointsPerX = jsonData['runConfigs']['DrainSweep']['pointsPerVDS']
+		elif(x_data == 'vin_data'):
+			pointsPerX = jsonData['runConfigs']['InverterSweep']['pointsPerVIN']
+	except:
+		pointsPerX = 1
 
 	# Plot only forward or reverse sweeps of the data (also backwards compatible to old format)
 	if(direction == 'forward'):
@@ -184,6 +196,8 @@ def plotSweep(axis, jsonData, lineColor, direction='both', x_data='gate voltage'
 		x = flatten(x)
 		y = flatten(y)
 
+	# x and y are flattened and plotted as a single array at this point to be backwards compatible with old data and to simplify data scaling
+
 	# Make y-axis a logarithmic scale
 	if(logScale):
 		y = abs(np.array(y))
@@ -193,7 +207,7 @@ def plotSweep(axis, jsonData, lineColor, direction='both', x_data='gate voltage'
 	y = np.array(y)*scaleCurrentBy
 
 	# data contains multiple y-values per x-value
-	if(x[0] == x[1]):
+	if(pointsPerX > 1):
 		line = plotWithErrorBars(axis, x, y, lineColor, errorBars=errorBars)
 	else:
 		line = axis.plot(x, y, color=lineColor, marker='o', markersize=2, linewidth=1, linestyle=lineStyle)[0]
