@@ -676,7 +676,7 @@
 														</v-btn>
 													</v-toolbar>
 													<v-list>
-														<v-list-tile v-for="(settingDescription, settingName) in scheduleObjectDefault['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']]" v-if="['bool','float','int','string','choice'].includes(settingDescription.type)">
+														<v-list-tile v-for="(settingDescription, settingName) in scheduleObjectDefault['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']]" v-if="['bool','float','int','string','choice','array'].includes(settingDescription.type)">
 															<v-switch v-if="settingDescription.type == 'bool'" :label="settingName"
 																v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]['default']"></v-switch>
 															<v-text-field v-if="settingDescription.type == 'float'" :label="settingName" :suffix="' ('+_.get(settingDescription,['units'])+')'"
@@ -689,6 +689,8 @@
 																v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]['default']"></v-text-field>
 															<v-select v-if="settingDescription.type == 'choice'" :label="settingName" :items="settingDescription.choices"
 																v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]['default']"></v-select>
+															<v-combobox v-if="settingDescription.type == 'array'" :label="settingName"
+																v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]['default']" :items="[]" multiple small-chips></v-combobox>
 														</v-list-tile>
 													</v-list>
 												</v-card>
@@ -706,7 +708,7 @@
 														</v-btn>
 													</v-toolbar>
 													<v-list>
-														<v-list-tile v-for="(settingDescription, settingName) in scheduleObjectDefault['runConfigs'][dependency]" v-if="['bool','float','int','string','choice'].includes(settingDescription.type)">
+														<v-list-tile v-for="(settingDescription, settingName) in scheduleObjectDefault['runConfigs'][dependency]" v-if="['bool','float','int','string','choice','array'].includes(settingDescription.type)">
 															<v-switch v-if="settingDescription.type == 'bool'" :label="settingName"
 																v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][dependency][settingName]['default']"></v-switch>
 															<v-text-field v-if="settingDescription.type == 'float'" :label="settingName" :suffix="' ('+_.get(settingDescription,['units'])+')'"
@@ -717,6 +719,8 @@
 																v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][dependency][settingName]['default']"></v-text-field>
 															<v-select v-if="settingDescription.type == 'choice'" :label="settingName" :items="settingDescription.choices"
 																v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][dependency][settingName]['default']"></v-select>
+															<v-combobox v-if="settingDescription.type == 'array'" :label="settingName"
+																v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][dependency][settingName]['default']" :items="[]" multiple small-chips></v-combobox>
 														</v-list-tile>
 													</v-list>
 												</v-card>
