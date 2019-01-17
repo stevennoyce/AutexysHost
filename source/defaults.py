@@ -54,7 +54,7 @@ default_parameters = {
 			'gateVoltageWhenDone':  	{'type':'float', 'units':'V', 'default': 0},
 			'drainVoltageWhenDone': 	{'type':'float', 'units':'V', 'default': 0},
 			'floatChannelsWhenDone': 	{'type':'bool', 'default': False},
-			'delayWhenDone': 			{'default': 0}
+			'delayWhenDone': 			{'type':'float', 'units':'s', 'default': 0}
 		},
 		'AutoBurnOut':{
 			'dependencies':				{'ignore':True, 'value':['BurnOut']},
@@ -65,7 +65,7 @@ default_parameters = {
 		'AutoGateSweep':{
 			'dependencies':				{'ignore':True, 'value':['GateSweep']},
 			'sweepsPerVDS': 			{'type':'int', 'units':'#', 'default': 1},
-			'drainVoltageSetPoints': 	{'default': [0.100, 0.010]},
+			'drainVoltageSetPoints': 	{'type':'array', 'units':'V', 'default': [0.100, 0.010]},
 			'delayBetweenSweeps': 		{'type':'float', 'units':'s', 'default': 0},
 			'timedSweepStarts': 		{'type':'bool', 'default': False}
 		},
