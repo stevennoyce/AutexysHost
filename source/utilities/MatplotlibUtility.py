@@ -134,7 +134,7 @@ def show():
 """Every method in this utility is intended to assist the creation of new plotDefintions in the plotDefinitions folder."""
 
 # === Device Plots ===
-def plotSweep(axis, jsonData, lineColor, direction='both', x_data='gate voltage', y_data='drain current', logScale=True, scaleCurrentBy=1, lineStyle=None, errorBars=True, alphaForwardSweep=1):
+def plotSweep(axis, jsonData, lineColor, direction='both', x_data='gate voltage', y_data='drain current', logScale=True, scaleCurrentBy=1, lineStyle=None, errorBars=True):
 	data_save_names = {
 		'gate voltage': 'vgs_data',
 		'drain voltage': 'vds_data',
@@ -165,18 +165,24 @@ def plotSweep(axis, jsonData, lineColor, direction='both', x_data='gate voltage'
 
 	# Plot only forward or reverse sweeps of the data (also backwards compatible to old format)
 	if(direction == 'forward'):
-		x = x[0]
-		y = y[0]
+		forward_x = []
+		forward_y = []
+		for i in [j for j in range(len(x)) if(j % 2 == 0)]:
+			forward_x.extend(x[i])
+			forward_y.extend(y[i])
+		x = forward_x
+		y = forward_y
 	elif(direction == 'reverse'):
-		x = x[1]
-		y = y[1]
+		reverse_x = []
+		reverse_y = []
+		for i in [j for j in range(len(x)) if(j % 2 == 1)]:
+			reverse_x.extend(x[i])
+			reverse_y.extend(y[i])
+		x = reverse_x
+		y = reverse_y
 	else:
-		if(alphaForwardSweep < 1):
-			x = x
-			y = y
-		else:
-			x = flatten(x)
-			y = flatten(y)
+		x = flatten(x)
+		y = flatten(y)
 
 	# Make y-axis a logarithmic scale
 	if(logScale):
@@ -186,23 +192,11 @@ def plotSweep(axis, jsonData, lineColor, direction='both', x_data='gate voltage'
 	# Scale the data by a given factor
 	y = np.array(y)*scaleCurrentBy
 
-	if(alphaForwardSweep < 1):
-		forward_x = x[0]
-		forward_y = y[0]
-		reverse_x = x[1]
-		reverse_y = y[1]
-		if(forward_x[0] == forward_x[1]):
-			plotWithErrorBars(axis, forward_x, forward_y, lineColor, errorBars=errorBars, alpha=alphaForwardSweep)
-			line = plotWithErrorBars(axis, reverse_x, reverse_y, lineColor, errorBars=errorBars)
-		else:
-			axis.plot(forward_x, forward_y, color=lineColor, marker='o', markersize=2, linewidth=1, linestyle=lineStyle, alpha=alphaForwardSweep)[0]
-			line = axis.plot(reverse_x, reverse_y, color=lineColor, marker='o', markersize=2, linewidth=1, linestyle=lineStyle)[0]
+	# data contains multiple y-values per x-value
+	if(x[0] == x[1]):
+		line = plotWithErrorBars(axis, x, y, lineColor, errorBars=errorBars)
 	else:
-		# data contains multiple y-values per x-value
-		if(x[0] == x[1]):
-			line = plotWithErrorBars(axis, x, y, lineColor, errorBars=errorBars)
-		else:
-			line = axis.plot(x, y, color=lineColor, marker='o', markersize=2, linewidth=1, linestyle=lineStyle)[0]
+		line = axis.plot(x, y, color=lineColor, marker='o', markersize=2, linewidth=1, linestyle=lineStyle)[0]
 
 	return line
 

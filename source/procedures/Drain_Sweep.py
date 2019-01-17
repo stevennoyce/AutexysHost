@@ -39,7 +39,8 @@ def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False)
 							drainVoltageMinimum=ds_parameters['drainVoltageMinimum'], 
 							drainVoltageMaximum=ds_parameters['drainVoltageMaximum'], 
 							stepsInVDSPerDirection=ds_parameters['stepsInVDSPerDirection'],
-							pointsPerVDS=ds_parameters['pointsPerVDS'])
+							pointsPerVDS=ds_parameters['pointsPerVDS'],
+							drainVoltageRamps=ds_parameters['drainVoltageRamps'])
 	smu_instance.rampDownVoltages()
 	# === COMPLETE ===
 
@@ -67,7 +68,7 @@ def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False)
 	return jsonData
 
 # === Data Collection ===
-def runDrainSweep(smu_instance, isFastSweep, gateVoltageSetPoint, drainVoltageMinimum, drainVoltageMaximum, stepsInVDSPerDirection, pointsPerVDS):
+def runDrainSweep(smu_instance, isFastSweep, gateVoltageSetPoint, drainVoltageMinimum, drainVoltageMaximum, stepsInVDSPerDirection, pointsPerVDS, drainVoltageRamps):
 	vds_data = [[],[]]
 	id_data = [[],[]]
 	vgs_data = [[],[]]
@@ -75,7 +76,7 @@ def runDrainSweep(smu_instance, isFastSweep, gateVoltageSetPoint, drainVoltageMi
 	timestamps = [[],[]]
 
 	# Generate list of drain voltages to apply
-	drainVoltages = dgu.sweepValuesWithDuplicates(drainVoltageMinimum, drainVoltageMaximum, stepsInVDSPerDirection*2*pointsPerVDS, pointsPerVDS)
+	drainVoltages = dgu.sweepValuesWithDuplicates(drainVoltageMinimum, drainVoltageMaximum, stepsInVDSPerDirection*2*pointsPerVDS, pointsPerVDS, ramps=drainVoltageRamps)
 	
 	# Ramp drain and wait a second for everything to settle down
 	smu_instance.rampDrainVoltageTo(drainVoltageMinimum)
@@ -103,7 +104,7 @@ def runDrainSweep(smu_instance, isFastSweep, gateVoltageSetPoint, drainVoltageMi
 		# Save true measured Vgs as the applied voltages
 		drainVoltages = vds_data
 	else:
-		for direction in [0,1]:
+		for direction in range(len(drainVoltages)):
 			for drainVoltage in drainVoltages[direction]:
 				# Apply V_DS
 				smu_instance.setVds(drainVoltage)

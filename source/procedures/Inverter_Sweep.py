@@ -34,7 +34,8 @@ def run(parameters, smu_systems, isSavingResults=True):
 							inputVoltageMinimum=is_parameters['inputVoltageMinimum'], 
 							inputVoltageMaximum=is_parameters['inputVoltageMaximum'], 
 							stepsInVINPerDirection=is_parameters['stepsInVINPerDirection'],
-							pointsPerVIN=is_parameters['pointsPerVIN'])
+							pointsPerVIN=is_parameters['pointsPerVIN'],
+							inputVoltageRamps=gs_parameters['inputVoltageRamps'])
 	
 	smu_vdd.rampDownVoltages()
 	#smu_instance.rampDownVoltages()
@@ -61,7 +62,7 @@ def run(parameters, smu_systems, isSavingResults=True):
 	return jsonData
 
 # === Data Collection ===
-def runInverterSweep(smu_sweep, inputVoltageMinimum, inputVoltageMaximum, stepsInVINPerDirection, pointsPerVIN):
+def runInverterSweep(smu_sweep, inputVoltageMinimum, inputVoltageMaximum, stepsInVINPerDirection, pointsPerVIN, inputVoltageRamps):
 	vin_data = [[],[]]
 	iin_data = [[],[]]
 	vout_data = [[],[]]
@@ -69,14 +70,14 @@ def runInverterSweep(smu_sweep, inputVoltageMinimum, inputVoltageMaximum, stepsI
 	timestamps = [[],[]]
 
 	# Generate list of input voltages to apply
-	inputVoltages = dgu.sweepValuesWithDuplicates(inputVoltageMinimum, inputVoltageMaximum, stepsInVINPerDirection*2*pointsPerVIN, pointsPerVIN)
+	inputVoltages = dgu.sweepValuesWithDuplicates(inputVoltageMinimum, inputVoltageMaximum, stepsInVINPerDirection*2*pointsPerVIN, pointsPerVIN, ramps=inputVoltageRamps)
 	print(inputVoltages)
 	
 	# Ramp V_IN and wait a second for everything to settle down
 	smu_sweep.rampGateVoltageTo(inputVoltageMinimum)
 	#time.sleep(1)
 
-	for direction in [0,1]:
+	for direction in range(len(inputVoltages)):
 		for inputVoltage in inputVoltages[direction]:
 			# Apply V_IN
 			smu_sweep.setVgs(inputVoltage)

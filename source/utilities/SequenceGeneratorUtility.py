@@ -37,10 +37,19 @@ def rampValuesWithDuplicates(start, end, points, duplicates):
 	data = np.linspace(start, end, points/duplicates).tolist()
 	return sorted(duplicates*data)
 
-def sweepValuesWithDuplicates(start, end, points, duplicates):
+def sweepValuesWithDuplicates(start, end, points, duplicates, ramps=2):
 	data = rampValuesWithDuplicates(start, end, points/2, duplicates)
-	return [data, list(reversed(data))]
-
+	if(ramps == 1):
+		return [data]
+	elif(ramps == 2):
+		return [data, list(reversed(data))]
+	else:
+		values = []
+		for i in range(ramps):
+			values.extend(data)
+			data = list(reversed(data))
+		return values
+	
 def alternatingSweepValuesWithDuplicates(maximum, points, duplicates):
 	data = alternatingSweepValues(maximum, points/duplicates)
 	duplicated_lists = [data[0] + data[1]] * duplicates
