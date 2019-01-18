@@ -450,9 +450,41 @@
 														<v-toolbar-title>
 															{{ possiblePlot }}
 														</v-toolbar-title>
-														<v-btn icon @click="copyHTMLImageToClip('/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings)))"><v-icon>photo</v-icon></v-btn>
+														
+														<v-menu bottom left offset-y>
+															<v-btn slot="activator" icon><v-icon>settings</v-icon></v-btn>
+															<v-list light>
+																<v-list-tile @click="copyHTMLImageToClip('/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings)))">
+																	<v-list-tile-avatar>
+																		<v-icon>photo</v-icon>
+																	</v-list-tile-avatar>
+																	<v-list-tile-content><v-list-tile-title>
+																		Copy
+																	</v-list-tile-title></v-list-tile-content>
+																</v-list-tile>
+																
+																<v-list-tile @click="disabledPlots.push(possiblePlot)">
+																	<v-list-tile-avatar>
+																		<v-icon>photo</v-icon>
+																	</v-list-tile-avatar>
+																	<v-list-tile-content><v-list-tile-title>
+																		Disable
+																	</v-list-tile-title></v-list-tile-content>
+																</v-list-tile>
+																
+																<v-list-tile @click="while(disabledPlots.includes(possiblePlot)) { disabledPlots.splice( disabledPlots.indexOf(possiblePlot), 1 ); }">
+																	<v-list-tile-avatar>
+																		<v-icon>photo</v-icon>
+																	</v-list-tile-avatar>
+																	<v-list-tile-content><v-list-tile-title>
+																		Enable
+																	</v-list-tile-title></v-list-tile-content>
+																</v-list-tile>
+															</v-list>
+														</v-menu>
+														
 													</v-toolbar>
-													<div class="text-xs-center">
+													<div class="text-xs-center" v-if="!disabledPlots.includes(possiblePlot)">
 														<!-- <img :src="'/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust" @click="console.log('clicked image')"> -->
 														<zoomable-image src="" :data-src="'/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></zoomable-image>
 													</div>
@@ -1141,7 +1173,8 @@
 				scheduleNames: {},
 				associatedAFMs: [],
 				addToNoteSuccessCode: {},
-				paths: {}
+				paths: {},
+				disabledPlots: localStorage.disabledPlots || []
 			},
 			methods: {
 				
@@ -1462,7 +1495,8 @@
 			watch: {
 				stepperPage: function(val) { localStorage.stepperPage = val; },
 				scheduleObjects: function(val) { localStorage.scheduleObjects = val; },
-				scheduleObjectClipboard: function(val) { localStorage.scheduleObjectClipboard = val; }
+				scheduleObjectClipboard: function(val) { localStorage.scheduleObjectClipboard = val; },
+				disabledPlots: function(val) { localStorage.disabledPlots = val; }
 			},
 			computed: {
 				experiment: function() {
