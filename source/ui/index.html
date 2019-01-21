@@ -450,9 +450,41 @@
 														<v-toolbar-title>
 															{{ possiblePlot }}
 														</v-toolbar-title>
-														<v-btn icon @click="copyHTMLImageToClip('/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings)))"><v-icon>photo</v-icon></v-btn>
+														
+														<v-menu bottom left offset-y>
+															<v-btn slot="activator" icon><v-icon>settings</v-icon></v-btn>
+															<v-list light>
+																<v-list-tile @click="copyHTMLImageToClip('/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings)))">
+																	<v-list-tile-avatar>
+																		<v-icon>photo</v-icon>
+																	</v-list-tile-avatar>
+																	<v-list-tile-content><v-list-tile-title>
+																		Copy
+																	</v-list-tile-title></v-list-tile-content>
+																</v-list-tile>
+																
+																<v-list-tile @click="disabledPlots.push(possiblePlot)">
+																	<v-list-tile-avatar>
+																		<v-icon>photo</v-icon>
+																	</v-list-tile-avatar>
+																	<v-list-tile-content><v-list-tile-title>
+																		Disable
+																	</v-list-tile-title></v-list-tile-content>
+																</v-list-tile>
+																
+																<v-list-tile @click="while(disabledPlots.includes(possiblePlot)) { disabledPlots.splice( disabledPlots.indexOf(possiblePlot), 1 ); }">
+																	<v-list-tile-avatar>
+																		<v-icon>photo</v-icon>
+																	</v-list-tile-avatar>
+																	<v-list-tile-content><v-list-tile-title>
+																		Enable
+																	</v-list-tile-title></v-list-tile-content>
+																</v-list-tile>
+															</v-list>
+														</v-menu>
+														
 													</v-toolbar>
-													<div class="text-xs-center">
+													<div class="text-xs-center" v-if="!disabledPlots.includes(possiblePlot)">
 														<!-- <img :src="'/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust" @click="console.log('clicked image')"> -->
 														<zoomable-image src="" :data-src="'/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></zoomable-image>
 													</div>
@@ -676,7 +708,7 @@
 														</v-btn>
 													</v-toolbar>
 													<v-list>
-														<v-list-tile v-for="(settingDescription, settingName) in scheduleObjectDefault['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']]" v-if="['bool','float','int','string','choice'].includes(settingDescription.type)">
+														<v-list-tile v-for="(settingDescription, settingName) in scheduleObjectDefault['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']]" v-if="['bool','float','int','string','choice','array'].includes(settingDescription.type)">
 															<v-switch v-if="settingDescription.type == 'bool'" :label="settingName"
 																v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]['default']"></v-switch>
 															<v-text-field v-if="settingDescription.type == 'float'" :label="settingName" :suffix="' ('+_.get(settingDescription,['units'])+')'"
@@ -689,12 +721,14 @@
 																v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]['default']"></v-text-field>
 															<v-select v-if="settingDescription.type == 'choice'" :label="settingName" :items="settingDescription.choices"
 																v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]['default']"></v-select>
+															<v-combobox v-if="settingDescription.type == 'array'" :label="settingName"
+																v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]['default']" :items="[]" multiple small-chips></v-combobox>
 														</v-list-tile>
 													</v-list>
 												</v-card>
 											</v-flex>
 											
-											<v-flex xs12 sm6 md4 lg3 xl2 d-flex v-for="dependency in _.get(scheduleObjectDefault, ['runConfigs', runType, 'dependencies', 'value'])">
+											<v-flex xs12 sm6 md4 lg3 xl2 d-flex v-for="dependency in _.get(scheduleObjectDefault, ['runConfigs', scheduleObjects[scheduleObjectIndex]['runType']['default'], 'dependencies', 'value'])">
 												<v-card ma-1 tile>
 													<v-toolbar dark class="blue-grey lighten-1">
 														<v-toolbar-title>
@@ -706,7 +740,7 @@
 														</v-btn>
 													</v-toolbar>
 													<v-list>
-														<v-list-tile v-for="(settingDescription, settingName) in scheduleObjectDefault['runConfigs'][dependency]" v-if="['bool','float','int','string','choice'].includes(settingDescription.type)">
+														<v-list-tile v-for="(settingDescription, settingName) in scheduleObjectDefault['runConfigs'][dependency]" v-if="['bool','float','int','string','choice','array'].includes(settingDescription.type)">
 															<v-switch v-if="settingDescription.type == 'bool'" :label="settingName"
 																v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][dependency][settingName]['default']"></v-switch>
 															<v-text-field v-if="settingDescription.type == 'float'" :label="settingName" :suffix="' ('+_.get(settingDescription,['units'])+')'"
@@ -717,6 +751,8 @@
 																v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][dependency][settingName]['default']"></v-text-field>
 															<v-select v-if="settingDescription.type == 'choice'" :label="settingName" :items="settingDescription.choices"
 																v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][dependency][settingName]['default']"></v-select>
+															<v-combobox v-if="settingDescription.type == 'array'" :label="settingName"
+																v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][dependency][settingName]['default']" :items="[]" multiple small-chips></v-combobox>
 														</v-list-tile>
 													</v-list>
 												</v-card>
@@ -803,8 +839,16 @@
 								</v-container>
 							</v-form>
 							
+							<template v-if="scheduleSaveUser && scheduleSaveProject && scheduleSaveFileName">
+								<p><i>Saving to:</i> AutexysData/{{ scheduleSaveUser }}/{{ scheduleSaveProject }}/schedules/{{ scheduleSaveFileName }}.json</p>
+								<p>
+									<i>Run by executing:</i><br/>
+									cd "{{ paths['sourceAbsPath'] }}"<br/>
+									python dispatcher.py "../../AutexysData/{{ scheduleSaveUser }}/{{ scheduleSaveProject }}/schedules/{{ scheduleSaveFileName }}.json"
+								</p>
+							</template>
+							
 							<v-card-actions>
-								<span v-if="scheduleSaveUser && scheduleSaveProject && scheduleSaveFileName">Saving to: AutexysData/{{ scheduleSaveUser }}/{{ scheduleSaveProject }}/schedules/{{ scheduleSaveFileName }}.json</span>
 								<v-spacer></v-spacer>
 								<v-btn @click="saveSchedule()">Save Schedule File</v-btn>
 							</v-card-actions>
@@ -1128,7 +1172,9 @@
 				saveScheduleSuccessCode: {},
 				scheduleNames: {},
 				associatedAFMs: [],
-				addToNoteSuccessCode: {}
+				addToNoteSuccessCode: {},
+				paths: {},
+				disabledPlots: localStorage.disabledPlots || []
 			},
 			methods: {
 				
@@ -1141,6 +1187,7 @@
 					this.getExperiments();
 					this.getDefaultParameters();
 					this.getScheduleNames();
+					this.getPaths();
 					
 					this.pageLoading = false;
 					this.newCacheBust();
@@ -1260,6 +1307,13 @@
 					if (path) {
 						$.getJSON(path, response => {this.associatedAFMs = response})
 						.fail(() => {console.log("Error getting associated AFMs")});
+					}
+				},
+				getPaths: function() {
+					var path = '/paths.json' + this.cacheBust;
+					if (path) {
+						$.getJSON(path, response => {app.$data.paths = response})
+						.fail(() => {console.log("Error getting paths")});
 					}
 				},
 				
@@ -1441,7 +1495,8 @@
 			watch: {
 				stepperPage: function(val) { localStorage.stepperPage = val; },
 				scheduleObjects: function(val) { localStorage.scheduleObjects = val; },
-				scheduleObjectClipboard: function(val) { localStorage.scheduleObjectClipboard = val; }
+				scheduleObjectClipboard: function(val) { localStorage.scheduleObjectClipboard = val; },
+				disabledPlots: function(val) { localStorage.disabledPlots = val; }
 			},
 			computed: {
 				experiment: function() {
