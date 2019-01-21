@@ -256,8 +256,8 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 	smu_secondary.setComplianceVoltage(afm_parameters['complianceVoltage'])
 	
 	# Apply Vgs and Vds to the device
-	smu_device.rampDrainVoltageTo(vds)
-	smu_device.rampGateVoltageTo(vgs)
+	smu_device.rampDrainVoltageTo(vds, steps=150)
+	smu_device.rampGateVoltageTo(vgs, steps=150)
 	
 	# Take a measurement to update the SMU visual displays
 	smu_device.takeMeasurement()
