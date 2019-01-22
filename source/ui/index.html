@@ -451,8 +451,11 @@
 															{{ possiblePlot }}
 														</v-toolbar-title>
 														
+														<v-spacer></v-spacer>
+														
 														<v-menu bottom left offset-y>
-															<v-btn slot="activator" icon><v-icon>settings</v-icon></v-btn>
+															<v-btn slot="activator" icon :loading="false"><v-icon>settings</v-icon></v-btn>
+															<!-- !this.$parent.getElementsByClassName('zoomableImage')[0].complete -->
 															<v-list light>
 																<v-list-tile @click="copyHTMLImageToClip('/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings)))">
 																	<v-list-tile-avatar>
@@ -472,7 +475,7 @@
 																	</v-list-tile-title></v-list-tile-content>
 																</v-list-tile>
 																
-																<v-list-tile @click="while(disabledPlots.includes(possiblePlot)) { disabledPlots.splice( disabledPlots.indexOf(possiblePlot), 1 ); }">
+																<v-list-tile @click="removeValueFromArray(possiblePlot, disabledPlots)">
 																	<v-list-tile-avatar>
 																		<v-icon>photo</v-icon>
 																	</v-list-tile-avatar>
@@ -1049,8 +1052,8 @@
 				currentPage: window.location.hash.substr(1) || "",
 				drawer: null,
 				online: navigator.onLine,
-				stepperPage: localStorage.stepperPage || 1,
-				topLevelPage: localStorage.topLevelPage || 'stepper',
+				stepperPage: localStorage.stepperPage ? JSON.parse(localStorage.stepperPage) : 1,
+				topLevelPage: localStorage.topLevelPage ? JSON.parse(localStorage.topLevelPage) : 'stepper',
 				pageNames: ['projects','wafers','chips','devices','experiments','experiment'],
 				parametersTab: 0,
 				parametersSection: '',
@@ -1097,16 +1100,16 @@
 				},
 				
 				users: [],
-				user: localStorage.user || '',
+				user: localStorage.user ? JSON.parse(localStorage.user) : '',
 				
 				projects: [],
-				project: localStorage.project || '',
+				project: localStorage.project ? JSON.parse(localStorage.project) : '',
 				projectTableHeaders: [
 					{'text':'Name', 'value':'name'}],
 				projectTableSearch: '',
 				
 				wafers: [],
-				wafer: localStorage.wafer || '',
+				wafer: localStorage.wafer ? JSON.parse(localStorage.wafer) : '',
 				waferTableHeaders: [
 					{'text':'Name', 'value':'name'},
 					{'text':'Path', 'value':'path', 'searchable':false},
@@ -1118,7 +1121,7 @@
 				waferTableSearch: '',
 				
 				chips: [],
-				chip: localStorage.chip || '',
+				chip: localStorage.chip ? JSON.parse(localStorage.chip) : '',
 				chipTableHeaders: [
 					{'text':'Name', 'value':'name'},
 					{'text':'Path', 'value':'path', 'searchable':false},
@@ -1130,7 +1133,7 @@
 				chipTableSearch: '',
 				
 				devices: [],
-				device: localStorage.device || '',
+				device: localStorage.device ? JSON.parse(localStorage.device) : '',
 				deviceTableHeaders: [
 					{'text':'Name', 'value':'displayName'},
 					{'text':'Path', 'value':'path', 'searchable':false},
@@ -1141,7 +1144,7 @@
 				deviceTableSearch: '',
 				
 				experiments: [],
-				experimentIndex: localStorage.experimentIndex || 0,
+				experimentIndex: localStorage.experimentIndex ? JSON.parse(localStorage.experimentIndex) : 0,
 				experimentTableHeaders: [
 					{'text':'Experiment Number', 'value':'startIndexes.experimentNumber'},
 					{'text':'Run Type', 'value':'runType'},
@@ -1156,9 +1159,9 @@
 				defaultParameters: {},
 				parameters: {},
 				parametersDescription: {},
-				scheduleObjects: localStorage.scheduleObjects || {},
+				scheduleObjects: localStorage.scheduleObjects ? JSON.parse(localStorage.scheduleObjects) : {},
 				scheduleObjectDefault: {},
-				scheduleObjectClipboard: localStorage.scheduleObjectClipboard || {},
+				scheduleObjectClipboard: localStorage.scheduleObjectClipboard ? JSON.parse(localStorage.scheduleObjectClipboard) : {},
 				scheduleSaveUser: '',
 				scheduleSaveProject: '',
 				scheduleSaveFileName: '',
@@ -1174,7 +1177,7 @@
 				associatedAFMs: [],
 				addToNoteSuccessCode: {},
 				paths: {},
-				disabledPlots: localStorage.disabledPlots || []
+				disabledPlots: localStorage.disabledPlots ? JSON.parse(localStorage.disabledPlots) : []
 			},
 			methods: {
 				
@@ -1373,36 +1376,36 @@
 				
 				goToUser: function(userName) {
 					this.user = userName;
-					localStorage.user = userName;
+					localStorage.user = JSON.stringify(userName);
 					this.getProjects();
 				},
 				goToProject: function(projectName) {
 					this.project = projectName;
-					localStorage.project = projectName;
+					localStorage.project = JSON.stringify(projectName);
 					this.getWafers();
 					this.stepperPage++;
 				},
 				goToWafer: function(waferName) {
 					this.wafer = waferName;
-					localStorage.wafer = waferName;
+					localStorage.wafer = JSON.stringify(waferName);
 					this.getChips();
 					this.stepperPage++;
 				},
 				goToChip: function(chipName) {
 					this.chip = chipName;
-					localStorage.chip = chipName;
+					localStorage.chip = JSON.stringify(chipName);
 					this.getDevices();
 					this.stepperPage++;
 				},
 				goToDevice: function(deviceName) {
 					this.device = deviceName;
-					localStorage.device = deviceName;
+					localStorage.device = JSON.stringify(deviceName);
 					this.getExperiments();
 					this.stepperPage++;
 				},
 				goToExperiment: function(experimentIndex) {
 					this.experimentIndex = experimentIndex;
-					localStorage.experimentIndex = experimentIndex;
+					localStorage.experimentIndex = JSON.stringify(experimentIndex);
 					// this.experiment = experimentParameters;
 					this.parametersTab = this.experiments[experimentIndex].runType;
 					this.parametersSection = this.experiments[experimentIndex].runType;
@@ -1429,7 +1432,7 @@
 				},
 				setTopLevelPage: function(name) {
 					this.topLevelPage = name;
-					localStorage.topLevelPage = name;
+					localStorage.topLevelPage = JSON.stringify(name);
 				},
 				
 				copyHTMLStringToClip: function (str) {
@@ -1490,13 +1493,17 @@
 				
 				updatePlotSettings: function() {
 					this.plotSettings = _.omitBy(this.setPlotSettings, (v,k) => ((this.defaultPlotSettings[k] == v) || v == '') );
+				},
+				
+				removeValueFromArray: function(value, array) {
+					while(array.includes(value)) { array.splice( array.indexOf(value), 1 ); }
 				}
 			},
 			watch: {
-				stepperPage: function(val) { localStorage.stepperPage = val; },
-				scheduleObjects: function(val) { localStorage.scheduleObjects = val; },
-				scheduleObjectClipboard: function(val) { localStorage.scheduleObjectClipboard = val; },
-				disabledPlots: function(val) { localStorage.disabledPlots = val; }
+				stepperPage: function(val) { localStorage.stepperPage = JSON.stringify(val); },
+				scheduleObjects: function(val) { localStorage.scheduleObjects = JSON.stringify(val); },
+				scheduleObjectClipboard: function(val) { localStorage.scheduleObjectClipboard = JSON.stringify(val); },
+				disabledPlots: function(val) { localStorage.disabledPlots = JSON.stringify(val); }
 			},
 			computed: {
 				experiment: function() {
@@ -1556,7 +1563,7 @@
 		window.onhashchange = function() { app.$data.currentPage = location.hash; };
 		
 		if (typeof(Storage) !== 'undefined') {
-			localStorage.exists = 'True';
+			localStorage.exists = JSON.stringify('True');
 		}
 		
 		app.getAll();
