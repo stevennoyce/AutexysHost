@@ -11,6 +11,7 @@ plotDescription = {
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(2.8,3.2),
+		'include60mV':True,
 		'colorMap':'white_purple_black',
 		'colorDefault': ['#1f77b4'],
 		'xlabel':'Trial',
@@ -63,6 +64,11 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 
 	# Label axes
 	axisLabels(ax, x_label=plotDescrip_current['plotDefaults']['xlabel'], y_label=plotDescrip_current['plotDefaults']['ylabel'])
+
+	# Adjust Y-lim (if desired)
+	if(plotDescrip_current['plotDefaults']['include60mV']):
+		ax.plot([ax.get_xlim()[0], ax.get_xlim()[1]], [60, 60], color='black', lw=1, ls='--')
+		ax.set_ylim(bottom=0, top=ax.get_ylim()[1]*1.1)
 
 	# Save figure	
 	adjustAndSaveFigure(fig, 'SubthresholdSwing', mode_parameters)

@@ -66,6 +66,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 
 	# Adjust Y-lim (if desired)
 	includeOriginOnYaxis(ax, include=plotDescrip_current['plotDefaults']['includeOrigin'])
+	ax.set_ylim(bottom=ax.get_ylim()[0]*1.1, top=ax.get_ylim()[1]*1.1)
 
 	# Save figure	
 	adjustAndSaveFigure(fig, 'MaxTransconductance', mode_parameters)

@@ -15,7 +15,7 @@ plotDescription = {
 		'colorMap':'white_yellow_black',
 		'colorDefault': ['#1f77b4'],
 		'xlabel':'Trial',
-		'ylabel':'$g_{{m}}^{{max}}$ ($\\mu$A/V)',
+		'ylabel':'$V_{{T}}$ ($\\mu$A/V)',
 	},
 }
 
@@ -66,6 +66,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 
 	# Adjust Y-lim (if desired)
 	includeOriginOnYaxis(ax, include=plotDescrip_current['plotDefaults']['includeOrigin'])
+	ax.set_ylim(bottom=ax.get_ylim()[0]*1.1, top=ax.get_ylim()[1]*1.1)
 
 	# Save figure	
 	adjustAndSaveFigure(fig, 'ThresholdVoltage', mode_parameters)

@@ -13,8 +13,9 @@ plotDescription = {
 		'figsize':(2.8,3.2),
 		'colorMap':'white_yellow_black',
 		'colorDefault': ['#1f77b4'],
-		'xlabel':'Trial',
-		'ylabel':'$g_{{m}}^{{max}}$ ($\\mu$A/V)',
+		'xlabel':'$V_{{GS}}^{{Sweep}}$ (V)',
+		'ylabel':'$I_{{D}}$ ($\\mu$A)',
+		'neg_label':'$-I_{{D}}$ ($\\mu$A)'
 	},
 }
 
@@ -26,7 +27,12 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	fig, ax = initFigure(1, 1, plotDescrip_current['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
 	if(not mode_parameters['publication_mode']):
 		ax.set_title(getTestLabel(deviceHistory, identifiers))
-		
+	
+	# If first segment of device history is mostly negative current, flip data
+	if((len(deviceHistory) > 0) and ((np.array(deviceHistory[0]['Results']['id_data']) < 0).sum() > (np.array(deviceHistory[0]['Results']['id_data']) >= 0).sum())):
+		deviceHistory = scaledData(deviceHistory, 'Results', 'id_data', -1)
+		plotDescrip_current['plotDefaults']['ylabel'] = plotDescrip_current['plotDefaults']['neg_label']
+	
 	# Compute device metrics
 	all_fitted_values = {'fwd_id_fitted':[], 'rev_id_fitted':[]}
 	for deviceRun in deviceHistory:
