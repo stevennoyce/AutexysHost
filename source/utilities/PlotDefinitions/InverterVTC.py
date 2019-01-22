@@ -5,6 +5,7 @@ import copy
 
 plotDescription = {
 	'plotCategory': 'device',
+	'priority': 10,
 	'dataFileDependencies': ['InverterSweep.json'],
 	'plotDefaults': {
 		'figsize':(2,2.5),

@@ -4,6 +4,7 @@ import copy
 
 plotDescription = {
 	'plotCategory': 'device',
+	'priority': 1000,
 	'dataFileDependencies': ['GateSweep.json', 'ThisPlotIsStillInProgressDontUseItYet'],
 	'plotDefaults': {
 		'figsize':(2.8,3.2),

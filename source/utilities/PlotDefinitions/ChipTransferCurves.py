@@ -4,6 +4,7 @@ import copy
 
 plotDescription = {
 	'plotCategory': 'chip',
+	'priority': 10,
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(2.8,3.2),

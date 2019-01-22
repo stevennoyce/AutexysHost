@@ -5,6 +5,7 @@ import copy
 
 plotDescription = {
 	'plotCategory': 'device',
+	'priority': 40,
 	'dataFileDependencies': ['DrainSweep.json'],
 	'plotDefaults': {
 		'figsize':(2,2.5),

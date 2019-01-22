@@ -4,6 +4,7 @@ from utilities.MatplotlibUtility import *
 
 plotDescription = {
 	'plotCategory': 'chip',
+	'priority': 150,
 	'dataFileDependencies': ['index.json'],
 	'plotDefaults': {
 		'figsize':(5,4),
