@@ -114,7 +114,6 @@ plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_lime_black', light_to
 plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_violet_black', light_to_dark_map(53, 25, 150) ))
 plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_magenta_black', light_to_dark_map(159, 50, 133) ))
 plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_peach_black', light_to_dark_map(255, 142, 101) ))
-plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_peach_black', light_to_dark_map(255, 142, 101) ))
 
 plt.register_cmap(cmap=pltc.LinearSegmentedColormap('blue_teal_orange', color_to_color_to_color_map(10, 30, 150, 100, 175, 170, 250, 200, 100) ))
 
@@ -210,7 +209,10 @@ def plotSweep(axis, jsonData, lineColor, direction='both', x_data='gate voltage'
 	if(pointsPerX > 1):
 		line = plotWithErrorBars(axis, x, y, lineColor, errorBars=errorBars)
 	else:
-		line = axis.plot(x, y, color=lineColor, marker='o', markersize=2, linewidth=1, linestyle=lineStyle)[0]
+		if(lineStyle == ''):
+			line = axis.plot(x, y, color=lineColor, marker='o', markersize=2, linewidth=0)[0]
+		else:
+			line = axis.plot(x, y, color=lineColor, marker='o', markersize=2, linewidth=1, linestyle=lineStyle)[0]
 
 	return line
 

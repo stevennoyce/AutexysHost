@@ -385,7 +385,7 @@ def findFirstOpenPort(startPort=1):
 def managerMessageForwarder():
 	global pipeToManager
 	while True:
-		if pipeToManager.poll():
+		if((pipeToManager is not None) and (pipeToManager.poll())):
 			print('Sending server message')
 			socketio.emit('Server Message', pipeToManager.recv())
 		time.sleep(0.1)

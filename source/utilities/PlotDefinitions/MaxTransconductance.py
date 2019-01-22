@@ -1,0 +1,74 @@
+from utilities.MatplotlibUtility import *
+from utilities import DataProcessorUtility as dpu
+from utilities import FET_Modeling as fet_model
+import copy
+
+
+
+plotDescription = {
+	'plotCategory': 'device',
+	'priority': 130,
+	'dataFileDependencies': ['GateSweep.json'],
+	'plotDefaults': {
+		'figsize':(2.8,3.2),
+		'includeOrigin':True,
+		'colorMap':'white_orange_black',
+		'colorDefault': ['#1f77b4'],
+		'xlabel':'Trial',
+		'ylabel':'$g_{{m}}^{{max}}$ ($\\mu$A/V)',
+	},
+}
+
+def plot(deviceHistory, identifiers, mode_parameters=None):
+	# Load Defaults
+	plotDescrip_current = copy.deepcopy(plotDescription)
+
+	# Init Figure
+	fig, ax = initFigure(1, 1, plotDescrip_current['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
+	if(not mode_parameters['publication_mode']):
+		ax.set_title(getTestLabel(deviceHistory, identifiers))
+		
+	# Compute device metrics
+	all_fitted_parameters = {'V_T':[], 'mu_Cox_W_L':[], 'SS_mV_dec':[], 'I_OFF':[], 'g_m_max':[]}
+	for deviceRun in deviceHistory:
+		if(mode_parameters['sweepDirection'] in ['both', 'forward']):
+			if(abs(deviceRun['Results']['id_data'][0][0]) > abs(deviceRun['Results']['id_data'][0][-1]) and (deviceRun['Results']['vgs_data'][0][0] < deviceRun['Results']['vgs_data'][0][-1])):
+				fwd_id_fitted, fwd_model_parameters, fwd_model_parameters_kw = fet_model.PMOSFET_Fit(deviceRun['Results']['vgs_data'][0], deviceRun['Results']['id_data'][0], deviceRun['runConfigs']['GateSweep']['drainVoltageSetPoint'], I_OFF_guess=deviceRun['Computed']['offCurrent'], I_OFF_min=deviceRun['Computed']['offCurrent']/2, I_OFF_max=deviceRun['Computed']['offCurrent']*2)
+			else:
+				fwd_id_fitted, fwd_model_parameters, fwd_model_parameters_kw = fet_model.NMOSFET_Fit(deviceRun['Results']['vgs_data'][0], deviceRun['Results']['id_data'][0], deviceRun['runConfigs']['GateSweep']['drainVoltageSetPoint'], I_OFF_guess=deviceRun['Computed']['offCurrent'], I_OFF_min=deviceRun['Computed']['offCurrent']/2, I_OFF_max=deviceRun['Computed']['offCurrent']*2)
+			for parameter in all_fitted_parameters.keys():
+				all_fitted_parameters[parameter].append(fwd_model_parameters_kw[parameter])
+		if(mode_parameters['sweepDirection'] in ['both', 'reverse']):
+			if(abs(deviceRun['Results']['id_data'][1][0]) < abs(deviceRun['Results']['id_data'][1][-1]) and (deviceRun['Results']['vgs_data'][1][0] > deviceRun['Results']['vgs_data'][1][-1])):
+				rev_id_fitted, rev_model_parameters, rev_model_parameters_kw = fet_model.PMOSFET_Fit(deviceRun['Results']['vgs_data'][1], deviceRun['Results']['id_data'][1], deviceRun['runConfigs']['GateSweep']['drainVoltageSetPoint'], I_OFF_guess=deviceRun['Computed']['offCurrent'], I_OFF_min=deviceRun['Computed']['offCurrent']/2, I_OFF_max=deviceRun['Computed']['offCurrent']*2)
+			else:
+				rev_id_fitted, rev_model_parameters, rev_model_parameters_kw = fet_model.NMOSFET_Fit(deviceRun['Results']['vgs_data'][1], deviceRun['Results']['id_data'][1], deviceRun['runConfigs']['GateSweep']['drainVoltageSetPoint'], I_OFF_guess=deviceRun['Computed']['offCurrent'], I_OFF_min=deviceRun['Computed']['offCurrent']/2, I_OFF_max=deviceRun['Computed']['offCurrent']*2)
+			for parameter in all_fitted_parameters.keys():
+				all_fitted_parameters[parameter].append(rev_model_parameters_kw[parameter])
+	VT_list = all_fitted_parameters['V_T']
+	gm_list = all_fitted_parameters['g_m_max']
+	SS_list = all_fitted_parameters['SS_mV_dec']
+	VT_avg = np.mean(all_fitted_parameters['V_T'])
+	gm_avg = np.mean(all_fitted_parameters['g_m_max'])	
+	SS_avg = np.mean(all_fitted_parameters['SS_mV_dec'])
+	
+	# Build Color Map and Color Bar	
+	totalTime = timeWithUnits(deviceHistory[-1]['Results']['timestamps'][0][0] - deviceHistory[0]['Results']['timestamps'][-1][-1])
+	holdTime = '[$t_{{Hold}}$ = {}]'.format(timeWithUnits(deviceHistory[1]['Results']['timestamps'][-1][-1] - deviceHistory[0]['Results']['timestamps'][0][0])) if(len(deviceHistory) >= 2) else ('[$t_{{Hold}}$ = 0]')
+	colors = setupColors(fig, len(gm_list), colorOverride=mode_parameters['colorsOverride'], colorDefault=plotDescription['plotDefaults']['colorDefault'], colorMapName=plotDescription['plotDefaults']['colorMap'], colorMapStart=0.8, colorMapEnd=0.15, enableColorBar=mode_parameters['enableColorBar'], colorBarTicks=[0,0.6,1], colorBarTickLabels=[totalTime, holdTime, '$t_0$'], colorBarAxisLabel='')			
+	
+	# Plot
+	for i in range(len(gm_list)):
+		line = ax.plot([i+1], np.array([gm_list[i]]) * 10**6, color=colors[i], marker='o', markersize=4, linewidth=0, linestyle=None)
+
+	# Label axes
+	axisLabels(ax, x_label=plotDescrip_current['plotDefaults']['xlabel'], y_label=plotDescrip_current['plotDefaults']['ylabel'])
+
+	# Adjust Y-lim (if desired)
+	includeOriginOnYaxis(ax, include=plotDescrip_current['plotDefaults']['includeOrigin'])
+
+	# Save figure	
+	adjustAndSaveFigure(fig, 'MaxTransconductance', mode_parameters)
+
+	return (fig, ax)
+

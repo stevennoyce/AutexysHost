@@ -6,7 +6,7 @@ import copy
 
 plotDescription = {
 	'plotCategory': 'device',
-	'priority': 130,
+	'priority': 210,
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(2.8,3.2),
@@ -36,7 +36,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 
 
 	# Save figure	
-	adjustAndSaveFigure(fig, 'Transconductance', mode_parameters)
+	adjustAndSaveFigure(fig, 'TransconductanceBoxPlot', mode_parameters)
 
 	return (fig, ax)
 
