@@ -32,17 +32,11 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	all_fitted_parameters = {'V_T':[], 'mu_Cox_W_L':[], 'SS_mV_dec':[], 'I_OFF':[], 'g_m_max':[]}
 	for deviceRun in deviceHistory:
 		if(mode_parameters['sweepDirection'] in ['both', 'forward']):
-			if(abs(deviceRun['Results']['id_data'][0][0]) > abs(deviceRun['Results']['id_data'][0][-1]) and (deviceRun['Results']['vgs_data'][0][0] < deviceRun['Results']['vgs_data'][0][-1])):
-				fwd_id_fitted, fwd_model_parameters, fwd_model_parameters_kw = fet_model.PMOSFET_Fit(deviceRun['Results']['vgs_data'][0], deviceRun['Results']['id_data'][0], deviceRun['runConfigs']['GateSweep']['drainVoltageSetPoint'], I_OFF_guess=deviceRun['Computed']['offCurrent'], I_OFF_min=deviceRun['Computed']['offCurrent']/2, I_OFF_max=deviceRun['Computed']['offCurrent']*2)
-			else:
-				fwd_id_fitted, fwd_model_parameters, fwd_model_parameters_kw = fet_model.NMOSFET_Fit(deviceRun['Results']['vgs_data'][0], deviceRun['Results']['id_data'][0], deviceRun['runConfigs']['GateSweep']['drainVoltageSetPoint'], I_OFF_guess=deviceRun['Computed']['offCurrent'], I_OFF_min=deviceRun['Computed']['offCurrent']/2, I_OFF_max=deviceRun['Computed']['offCurrent']*2)
+			fwd_id_fitted, fwd_model_parameters, fwd_model_parameters_kw = fet_model.FET_Fit(deviceRun['Results']['vgs_data'][0], deviceRun['Results']['id_data'][0], deviceRun['runConfigs']['GateSweep']['drainVoltageSetPoint'], I_OFF_guess=deviceRun['Computed']['offCurrent'])
 			for parameter in all_fitted_parameters.keys():
 				all_fitted_parameters[parameter].append(fwd_model_parameters_kw[parameter])
 		if(mode_parameters['sweepDirection'] in ['both', 'reverse']):
-			if(abs(deviceRun['Results']['id_data'][1][0]) < abs(deviceRun['Results']['id_data'][1][-1]) and (deviceRun['Results']['vgs_data'][1][0] > deviceRun['Results']['vgs_data'][1][-1])):
-				rev_id_fitted, rev_model_parameters, rev_model_parameters_kw = fet_model.PMOSFET_Fit(deviceRun['Results']['vgs_data'][1], deviceRun['Results']['id_data'][1], deviceRun['runConfigs']['GateSweep']['drainVoltageSetPoint'], I_OFF_guess=deviceRun['Computed']['offCurrent'], I_OFF_min=deviceRun['Computed']['offCurrent']/2, I_OFF_max=deviceRun['Computed']['offCurrent']*2)
-			else:
-				rev_id_fitted, rev_model_parameters, rev_model_parameters_kw = fet_model.NMOSFET_Fit(deviceRun['Results']['vgs_data'][1], deviceRun['Results']['id_data'][1], deviceRun['runConfigs']['GateSweep']['drainVoltageSetPoint'], I_OFF_guess=deviceRun['Computed']['offCurrent'], I_OFF_min=deviceRun['Computed']['offCurrent']/2, I_OFF_max=deviceRun['Computed']['offCurrent']*2)
+			rev_id_fitted, rev_model_parameters, rev_model_parameters_kw = fet_model.FET_Fit(deviceRun['Results']['vgs_data'][1], deviceRun['Results']['id_data'][1], deviceRun['runConfigs']['GateSweep']['drainVoltageSetPoint'], I_OFF_guess=deviceRun['Computed']['offCurrent'])
 			for parameter in all_fitted_parameters.keys():
 				all_fitted_parameters[parameter].append(rev_model_parameters_kw[parameter])
 	VT_list = all_fitted_parameters['V_T']
