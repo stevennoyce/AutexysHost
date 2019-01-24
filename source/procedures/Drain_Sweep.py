@@ -69,14 +69,14 @@ def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False)
 
 # === Data Collection ===
 def runDrainSweep(smu_instance, isFastSweep, gateVoltageSetPoint, drainVoltageMinimum, drainVoltageMaximum, stepsInVDSPerDirection, pointsPerVDS, drainVoltageRamps):
-	vds_data = [[],[]]
-	id_data = [[],[]]
-	vgs_data = [[],[]]
-	ig_data = [[],[]]
-	timestamps = [[],[]]
-
 	# Generate list of drain voltages to apply
 	drainVoltages = dgu.sweepValuesWithDuplicates(drainVoltageMinimum, drainVoltageMaximum, stepsInVDSPerDirection*2*pointsPerVDS, pointsPerVDS, ramps=drainVoltageRamps)
+	
+	vds_data   = [[]]*len(drainVoltages)
+	id_data    = [[]]*len(drainVoltages)
+	vgs_data   = [[]]*len(drainVoltages)
+	ig_data    = [[]]*len(drainVoltages)
+	timestamps = [[]]*len(drainVoltages)
 	
 	# Ramp drain and wait a second for everything to settle down
 	smu_instance.rampDrainVoltageTo(drainVoltageMinimum)

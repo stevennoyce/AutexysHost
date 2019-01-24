@@ -46,7 +46,7 @@ def sweepValuesWithDuplicates(start, end, points, duplicates, ramps=2):
 	else:
 		values = []
 		for i in range(ramps):
-			values.extend(data)
+			values.append(data)
 			data = list(reversed(data))
 		return values
 	
