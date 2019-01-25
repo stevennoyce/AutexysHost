@@ -350,7 +350,7 @@
 									
 									<v-container fluid grid-list-sm>
 											<v-layout row wrap>
-												<v-flex xs12 sm6 md4 lg3 xl2 d-flex v-for="possiblePlot in ['ChipSubthresholdCurve']">
+												<v-flex xs12 sm6 md4 lg3 xl2 d-flex v-for="possiblePlot in possibleChipPlots">
 													<v-card class="ma-1" tile>
 														<v-toolbar dark class="blue-grey lighten-1">
 															<v-toolbar-title>
@@ -1190,7 +1190,8 @@
 				associatedAFMs: [],
 				addToNoteSuccessCode: {},
 				paths: {},
-				disabledPlots: localStorage.disabledPlots ? JSON.parse(localStorage.disabledPlots) : []
+				disabledPlots: localStorage.disabledPlots ? JSON.parse(localStorage.disabledPlots) : [],
+				possibleChipPlots: []
 			},
 			methods: {
 				
@@ -1204,6 +1205,7 @@
 					this.getDefaultParameters();
 					this.getScheduleNames();
 					this.getPaths();
+					this.getPossibleChipPlots();
 					
 					this.pageLoading = false;
 					this.newCacheBust();
@@ -1237,6 +1239,13 @@
 					if (path) {
 						$.getJSON(path, response => {app.$data.chips = response})
 						.fail(() => {console.log("Error getting chips")});
+					}
+				},
+				getPossibleChipPlots: function() {
+					var path = '/' + this.user + '/' + this.project + '/' + this.wafer + '/' + this.chip + '/availableChipPlots.json' + this.cacheBust;
+					if (path) {
+						$.getJSON(path, response => {app.$data.possibleChipPlots = response})
+						.fail(() => {console.log("Error getting possible chip plots")});
 					}
 				},
 				getDevices: function() {

@@ -241,12 +241,6 @@ def sendChipPlot(user, project, wafer, chip, plotType):
 	plotSettings['showFigures'] = False
 	plotSettings['specificPlot'] = plotType
 	
-	# mode parameter 'AFMImagePath'
-	#if(plotType == 'AFMdeviationsImage'):
-	#	if(plotSettings['plot_mode_parameters'] == None):
-	#		plotSettings['plot_mode_parameters'] = {}
-	#	plotSettings['plot_mode_parameters']['afm_image_path'] = afmPath
-	
 	CH.makePlots(user, project, wafer, chip, specificPlot=plotType, saveFigures=True, showFigures=False, plotSaveName=filebuf)
 	# CH.makePlots(user, project, wafer, chip, **plotSettings)
 	# plt.savefig(mode_parameters['plotSaveName'], transparent=True, dpi=pngDPI, format='png')
