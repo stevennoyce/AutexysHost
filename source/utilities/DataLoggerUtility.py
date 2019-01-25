@@ -127,9 +127,7 @@ def saveCSV(deviceHistory, saveFileName, directory='', separateDataByEmptyRows=T
 		with open(savePath, 'w') as file:
 			for line in lines:
 				file.write(line)
-		
-	
-	
+
 
 def appendTextToFile(directory, saveFileName, textToAppend):
 	makeFolder(directory)	
