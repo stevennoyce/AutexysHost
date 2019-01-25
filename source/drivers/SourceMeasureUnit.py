@@ -61,6 +61,7 @@ smu_system_configurations = {
 			'type': 'B2912A',
 			'settings': {
 				'reset': False,
+				'turnChannelsOn': False,
 				'channel1SourceMode': 'voltage',
 				'channel2SourceMode': 'voltage'
 			}
@@ -70,6 +71,7 @@ smu_system_configurations = {
 			'type': 'B2912A',
 			'settings': {
 				'reset': False,
+				'turnChannelsOn': False,
 				'channel1SourceMode': 'current',
 				'channel2SourceMode': 'current'
 			}
@@ -245,7 +247,7 @@ class B2912A(SourceMeasureUnit):
 		self.smu.write(':sense2:curr:range:auto ON')
 		self.smu.write(':sense2:curr:range:auto:llim 1e-8')
 		
-		if((self.system_settings is not None) and ('channel1SourceMode' in self.system_settings)):
+		if ((self.system_settings is not None) and ('channel1SourceMode' in self.system_settings)):
 			self.setChannel1SourceMode(self.system_settings['channel1SourceMode'])
 			self.setChannel2SourceMode(self.system_settings['channel2SourceMode'])
 		else:
@@ -258,11 +260,12 @@ class B2912A(SourceMeasureUnit):
 		self.smu.write(":sense1:curr:nplc 1")
 		self.smu.write(":sense2:curr:nplc 1")
 		
-		self.smu.write(":outp1 ON")
-		self.smu.write(":outp2 ON")
+		if ((self.system_settings is not None) and ('turnChannelsOn' in self.system_settings) and (system_settings['turnChannelsOn'])):
+			self.smu.write(":outp1 ON")
+			self.smu.write(":outp2 ON")
 		
 		self.smu.write("*WAI") # Explicitly wait for all of these commands to finish before handling new commands
-
+	
 	def setDevice(self, deviceID):
 		pass
 
