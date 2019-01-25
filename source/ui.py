@@ -84,8 +84,8 @@ default_makePlot_parameters = {
 	'saveFigures': False,
 	'showFigures': True,
 	'sweepDirection': 'both',
-	'startRelativeIndex': 0,
-	'endRelativeIndex': 1e10,
+	'minRelativeIndex': 0,
+	'maxRelativeIndex': 1e10,
 	'plot_mode_parameters': None
 }
 
