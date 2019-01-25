@@ -13,7 +13,9 @@ plotDescription = {
 		'colorDefault': ['#f2b134'],
 		'xlabel':'$V_{{GS}}^{{Sweep}}$ [V]',
 		'ylabel':'$I_{{D}}$ [$\\mu$A]',
+		'nano_ylabel':'$I_{{D}}$ [nA]',
 		'neg_label':'$-I_{{D}}$ [$\\mu$A]',
+		'nano_neg_label':'$-I_{{D}}$ [nA]',
 		'ii_label':'$I_{{D}}$, $I_{{G}}$ [$\\mu$A]',
 		'neg_ii_label':'$-I_{{D}}$, $I_{{G}}$ [$\\mu$A]',
 		'leg_vds_label':'$V_{{DS}}^{{Sweep}}$  = {:}V',
@@ -38,15 +40,26 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	print((np.array(deviceHistory[0]['Results']['id_data']) < 0).sum())
 	
 	# If first segment of device history is mostly negative current, flip data
+	# If the maximum current is smaller than one microamp, change the unit to nanoamp
+	if(np.max(np.abs(np.array(deviceHistory[0]['Results']['id_data'])))< 1e-6):
+		plotDescrip_current['plotDefaults']['ylabel'] = plotDescrip_current['plotDefaults']['nano_ylabel']
 	if((len(deviceHistory) > 0) and ((np.array(deviceHistory[0]['Results']['id_data']) < 0).sum() > (np.array(deviceHistory[0]['Results']['id_data']) >= 0).sum())):
 		deviceHistory = scaledData(deviceHistory, 'Results', 'id_data', -1)
 		plotDescrip_current['plotDefaults']['ylabel'] = plotDescrip_current['plotDefaults']['neg_label']
+		if(np.max(np.abs(np.array(deviceHistory[0]['Results']['id_data'])))< 1e-6):
+			plotDescrip_current['plotDefaults']['ylabel'] = plotDescrip_current['plotDefaults']['nano_neg_label']
 	
 	# Plot
-	for i in range(len(deviceHistory)):
-		line = plotTransferCurve(ax, deviceHistory[i], colors[i], direction=mode_parameters['sweepDirection'], scaleCurrentBy=1e6, lineStyle=None, errorBars=mode_parameters['enableErrorBars'])
-		if(len(deviceHistory) == len(mode_parameters['legendLabels'])):
-			setLabel(line, mode_parameters['legendLabels'][i])
+	if(np.max(np.abs(np.array(deviceHistory[0]['Results']['id_data'])))>= 1e-6):
+		for i in range(len(deviceHistory)):
+			line = plotTransferCurve(ax, deviceHistory[i], colors[i], direction=mode_parameters['sweepDirection'], scaleCurrentBy=1e6, lineStyle=None, errorBars=mode_parameters['enableErrorBars'])
+			if(len(deviceHistory) == len(mode_parameters['legendLabels'])):
+				setLabel(line, mode_parameters['legendLabels'][i])
+	else:		
+		for i in range(len(deviceHistory)):
+			line = plotTransferCurve(ax, deviceHistory[i], colors[i], direction=mode_parameters['sweepDirection'], scaleCurrentBy=1e9, lineStyle=None, errorBars=mode_parameters['enableErrorBars'])
+			if(len(deviceHistory) == len(mode_parameters['legendLabels'])):
+				setLabel(line, mode_parameters['legendLabels'][i])
 
 	axisLabels(ax, x_label=plotDescrip_current['plotDefaults']['xlabel'], y_label=plotDescrip_current['plotDefaults']['ylabel'])
 
