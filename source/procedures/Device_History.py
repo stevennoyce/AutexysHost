@@ -33,10 +33,10 @@ default_dh_parameters = {
 
 
 # === External Interface ===
-def makePlots(userID, projectID, waferID, chipID, deviceID, startExperimentNumber=0, endExperimentNumber=float('inf'), specificPlot='', figureSize=None, sweepDirection='both', dataFolder=None, saveFolder=None, plotSaveName='', saveFigures=False, showFigures=True, startRelativeIndex=0, endRelativeIndex=float('inf'), plot_mode_parameters=None):
+def makePlots(userID, projectID, waferID, chipID, deviceID, minExperiment=0, maxExperiment=float('inf'), specificPlot='', figureSize=None, sweepDirection='both', dataFolder=None, saveFolder=None, plotSaveName='', saveFigures=False, showFigures=True, startRelativeIndex=0, endRelativeIndex=float('inf'), plot_mode_parameters=None):
 	"""Make plots for the device found in the userID/projectID/waferID/chipID/deviceID folder.
 	
-	startExperimentNumber and endExperimentNumber specify a range of experiments to include in the plot(s).
+	minExperiment and maxExperiment specify a range of experiments to include in the plot(s).
 	specificPlot can be specified to only make one specific plot found in the plotDefintions folder, or by default all available plots are made.
 	figureSize can be specified as (width,height) to set the size of the plot.
 	dataFolder and saveFolder can specify the paths for loading .json data and saving .png plots, but they should not be necessary by default.
@@ -62,8 +62,8 @@ def makePlots(userID, projectID, waferID, chipID, deviceID, startExperimentNumbe
 	parameters['Identifiers']['device'] = deviceID
 	if(dataFolder is not None):
 		parameters['dataFolder'] = dataFolder
-	parameters['minJSONExperimentNumber'] = startExperimentNumber
-	parameters['maxJSONExperimentNumber'] = endExperimentNumber
+	parameters['minJSONExperimentNumber'] = minExperiment
+	parameters['maxJSONExperimentNumber'] = maxExperiment
 	parameters['minJSONRelativeIndex'] = startRelativeIndex
 	parameters['maxJSONRelativeIndex'] = endRelativeIndex
 	

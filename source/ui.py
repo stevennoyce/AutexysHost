@@ -74,8 +74,8 @@ def sendStatic(path):
 	return flask.send_from_directory('ui', path)
 
 default_makePlot_parameters = {
-	'startExperimentNumber': None,
-	'endExperimentNumber': None,
+	'minExperiment': None,
+	'maxExperiment': None,
 	'specificPlot': '',
 	'figureSize': None,
 	'dataFolder': None,
@@ -102,11 +102,11 @@ def sendPlot(user, project, wafer, chip, device, experiment, plotType):
 	
 	filebuf = io.BytesIO()
 	
-	if plotSettings['startExperimentNumber'] == None:
-		plotSettings['startExperimentNumber'] = experiment
+	if plotSettings['minExperiment'] == None:
+		plotSettings['minExperiment'] = experiment
 	
-	if plotSettings['endExperimentNumber'] == None:
-		plotSettings['endExperimentNumber'] = experiment
+	if plotSettings['maxExperiment'] == None:
+		plotSettings['maxExperiment'] = experiment
 	
 	plotSettings['plotSaveName'] = filebuf
 	plotSettings['saveFigures'] = True
@@ -230,11 +230,11 @@ def sendChipPlot(user, project, wafer, chip, plotType):
 	
 	filebuf = io.BytesIO()
 	
-	if plotSettings['startExperimentNumber'] == None:
-		plotSettings['startExperimentNumber'] = 0
+	if plotSettings['minExperiment'] == None:
+		plotSettings['minExperiment'] = 0
 	
-	if plotSettings['endExperimentNumber'] == None:
-		plotSettings['endExperimentNumber'] = float('inf')
+	if plotSettings['maxExperiment'] == None:
+		plotSettings['maxExperiment'] = float('inf')
 	
 	plotSettings['plotSaveName'] = filebuf
 	plotSettings['saveFigures'] = True
