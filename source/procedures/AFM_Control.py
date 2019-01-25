@@ -320,6 +320,7 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 	runStartTime = getStartTime(results['Raw']['timestamps_smu2'], results['Raw']['smu2_v2_data'], skipNumberOfLines=3)
 	sleepUntil(runStartTime)
 	
+	# Collect one more line to firm up the sync
 	results = runAFMline(parameters, smu_systems, sleep_time1, sleep_time2)
 	runStartTime = getStartTime(results['Raw']['timestamps_smu2'], results['Raw']['smu2_v2_data'], skipNumberOfLines=1)
 	sleepUntil(runStartTime)
@@ -337,11 +338,10 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 		# Save results as a JSON object
 		if(isSavingResults):
 			print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
-			# _thread.start_new_thread(dlu.saveJSON, (dlu.getDeviceDirectory(parameters), afm_parameters['saveFileName'], jsonData))
+			# Spin a new thread to save the data in the background
 			threading.Thread(target=dlu.saveJSON,
 				args=(dlu.getDeviceDirectory(parameters), afm_parameters['saveFileName'], jsonData, 'Ex'+str(parameters['startIndexes']['experimentNumber']))
 			).start()
-			# dlu.saveJSON(dlu.getDeviceDirectory(parameters), afm_parameters['saveFileName'], jsonData)
 		
 		fittedStartTime = getStartTime(results['Raw']['timestamps_smu2'], results['Raw']['smu2_v2_data'], skipNumberOfLines=1)
 		elapsedRunTime = time.time() - runStartTime
@@ -403,10 +403,9 @@ def runAFMline(parameters, smu_systems, sleep_time1, sleep_time2):
 	}
 
 if(__name__=='__main__'):
-	x = np.array([1,2,3,4,3,2,1,2,3,4, 3, 2, 1, 2, 3, 4])
-	t = np.array([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15])
-	i = getSegmentsOfTriangle(t, x)
-	print(i)
-	print(x[i[0]])
+	print('Running AFM Control as Main')
+	
+	if sys.argv[2] == 'start':
+		print('Setting up')
 
 	
