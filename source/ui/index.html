@@ -1073,8 +1073,8 @@
 				cacheBust: '',
 				
 				defaultPlotSettings: {
-					'startExperimentNumber': null,
-					'endExperimentNumber': null,
+					'minExperiment': null,
+					'maxExperiment': null,
 					'figureSize': null,
 					'sweepDirection': 'both',
 					'startRelativeIndex': 0,
@@ -1083,8 +1083,8 @@
 				},
 				
 				setPlotSettings: {
-					'startExperimentNumber': null,
-					'endExperimentNumber': null,
+					'minExperiment': null,
+					'maxExperiment': null,
 					'figureSize': null,
 					'sweepDirection': 'both',
 					'startRelativeIndex': 0,
@@ -1093,8 +1093,8 @@
 				},
 				
 				plotSettings: {
-					'startExperimentNumber': null,
-					'endExperimentNumber': null,
+					'minExperiment': null,
+					'maxExperiment': null,
 					'figureSize': null,
 					'sweepDirection': 'both',
 					'startRelativeIndex': 0,
@@ -1103,8 +1103,8 @@
 				},
 				
 				plotSettingTypes: {
-					'startExperimentNumber': {'type': 'int'},
-					'endExperimentNumber': {'type': 'int'},
+					'minExperiment': {'type': 'int'},
+					'maxExperiment': {'type': 'int'},
 					'figureSize': {'type': 'array'},
 					'sweepDirection': {'type': 'choice', 'choices': ['both', 'forward', 'reverse']},
 					'startRelativeIndex': {'type': 'int'},
@@ -1544,8 +1544,8 @@
 				},
 				deviceSummaryPlotSettings: function() {
 					var settings = _.omitBy(this.setPlotSettings, (v,k) => ((this.defaultPlotSettings[k] == v) || v == '') );
-					settings['startExperimentNumber'] = 1;
-					settings['endExperimentNumber'] = 1e10;
+					settings['minExperiment'] = 1;
+					settings['maxExperiment'] = 1e10;
 					return settings;
 					// return this.setPlotSettings;
 				},
