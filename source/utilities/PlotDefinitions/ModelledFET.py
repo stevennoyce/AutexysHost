@@ -1,7 +1,6 @@
 from utilities.MatplotlibUtility import *
 from utilities import DataProcessorUtility as dpu
 from utilities import FET_Modeling as fet_model
-import copy
 
 
 
@@ -15,24 +14,22 @@ plotDescription = {
 		'colorDefault': ['#1f77b4'],
 		'xlabel':'$V_{{GS}}^{{Sweep}}$ (V)',
 		'ylabel':'$I_{{D}}$ ($\\mu$A)',
-		'neg_label':'$-I_{{D}}$ ($\\mu$A)'
+		'neg_ylabel':'$-I_{{D}}$ ($\\mu$A)'
 	},
 }
 
 def plot(deviceHistory, identifiers, mode_parameters=None):
-	# Load Defaults
-	plotDescrip_current = copy.deepcopy(plotDescription)
-
 	# Init Figure
-	fig, ax = initFigure(1, 1, plotDescrip_current['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
+	fig, ax = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
 	if(not mode_parameters['publication_mode']):
 		ax.set_title(getTestLabel(deviceHistory, identifiers))
 	ax2 = ax.twinx()
 	
 	# If first segment of device history is mostly negative current, flip data
+	ylabel = plotDescription['plotDefaults']['ylabel']
 	if((len(deviceHistory) > 0) and ((np.array(deviceHistory[0]['Results']['id_data']) < 0).sum() > (np.array(deviceHistory[0]['Results']['id_data']) >= 0).sum())):
 		deviceHistory = scaledData(deviceHistory, 'Results', 'id_data', -1)
-		plotDescrip_current['plotDefaults']['ylabel'] = plotDescrip_current['plotDefaults']['neg_label']
+		ylabel = plotDescription['plotDefaults']['neg_ylabel']
 	
 	# Compute device metrics
 	all_fitted_values = {'fwd_id_fitted':[], 'rev_id_fitted':[]}
@@ -67,7 +64,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 
 
 	# Label axes
-	axisLabels(ax, x_label=plotDescrip_current['plotDefaults']['xlabel'], y_label=plotDescrip_current['plotDefaults']['ylabel'])
+	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=ylabel)
 
 	# Save figure	
 	adjustAndSaveFigure(fig, 'ModelledFET', mode_parameters)
