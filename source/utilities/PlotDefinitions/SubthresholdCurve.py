@@ -34,6 +34,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		if(len(deviceHistory) == len(mode_parameters['legendLabels'])):
 			setLabel(line, mode_parameters['legendLabels'][i])
 
+	# Set Axis Labels and tick spacing
 	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=plotDescription['plotDefaults']['ylabel'])
 	ax.yaxis.set_major_locator(matplotlib.ticker.LogLocator(numticks=10))
 	

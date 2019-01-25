@@ -11,7 +11,7 @@ plotDescription = {
 		'colorMap':'viridis',
 		'colorDefault': ['#f2b134'],
 		'xlabel':'$V_{{GS}}^{{Sweep}}$ (V)',
-		'ylabel':'$I_{{D}}$ (A)',
+		'ylabel':'|$I_{{D}}$| (A)',
 	},
 }
 
@@ -22,7 +22,7 @@ def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, sp
 		ax.set_title('Chip ' + str(identifiers['wafer']) + str(identifiers['chip']))
 	
 	# Colors
-	colors = setupColors(fig, len(specificRunChipHistory), colorOverride=mode_parameters['colorsOverride'], colorDefault=plotDescription['plotDefaults']['colorDefault'], colorMapName=plotDescription['plotDefaults']['colorMap'], colorMapStart=0.85, colorMapEnd=0, enableColorBar=mode_parameters['enableColorBar'], colorBarTicks=[0,0.6,1], colorBarTickLabels=['', '', ''], colorBarAxisLabel='')		
+	colors = setupColors(fig, len(specificRunChipHistory), colorOverride=mode_parameters['colorsOverride'], colorDefault=plotDescription['plotDefaults']['colorDefault'], colorMapName=plotDescription['plotDefaults']['colorMap'], colorMapStart=0.85, colorMapEnd=0, enableColorBar=False, colorBarTicks=[0,0.6,1], colorBarTickLabels=['', '', ''], colorBarAxisLabel='')		
 	
 	# Plot
 	for i in range(len(specificRunChipHistory)):
