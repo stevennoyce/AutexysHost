@@ -358,6 +358,23 @@ def paths():
 	
 	return jsonvalid({'sourceAbsPath': sourceAbsPath})
 
+@app.route('/saveCSV/<user>/<project>/<wafer>/<chip>/<device>/<experiment>/data.csv')
+def saveCSV(user, project, wafer, chip, device, experiment):
+	plotSettings = copy.deepcopy(default_makePlot_parameters)
+	receivedPlotSettings = json.loads(flask.request.args.get('plotSettings'))
+	#afmPath = json.loads(flask.request.args.get('afmPath'))
+	plotSettings.update(receivedPlotSettings)
+	
+	path = os.path.join(default_data_path, user, project, wafer, chip, device, 'Ex' + experiment)
+	
+	deviceHistory = dlu.loadJSON(path, 'GateSweep.json')
+	
+	filebuf = io.BytesIO()
+	dlu.saveCSV(deviceHistory, filebuf)
+	
+	filebuf.seek(0)
+	return flask.send_file(filebuf, attachment_filename='data.csv')
+
 # C127X_15-16 vented before Ex210
 
 # @app.after_request

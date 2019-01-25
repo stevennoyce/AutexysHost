@@ -2,19 +2,26 @@ import os
 import json
 import glob
 import re
-
+import BytesIO
 import time
 import numpy as np
 import io
 
 
+# Make open work with BytesIO
+oldopen, __builtins__.open = __builtins__.open, lambda *args, **kwargs: args[0] if isinstance(args[0], BytesIO.BytesIO) else oldopen(*args, **kwargs)
+
 
 # === File System ===
 def makeFolder(folderPath):
 	"""Create all of the folders in folderPath if they do not already exist."""
-	if (not os.path.exists(folderPath)):
-		print('New Folder: ' + str(folderPath))
-		os.makedirs(folderPath)
+	try:
+		if (not os.path.exists(folderPath)):
+			print('New Folder: ' + str(folderPath))
+			os.makedirs(folderPath)
+	except Exception as e:
+		print('Cannot make folder: "' + folderPath + '"')
+
 
 def emptyFolder(folderPath):
 	"""Remove all png files from a folder."""

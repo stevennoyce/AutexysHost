@@ -550,6 +550,17 @@
 										</v-expansion-panel>
 									</v-card>
 									
+									<v-card class="ma-1">
+										<v-toolbar dark class="blue-grey darken-1">
+											<v-toolbar-title>
+												Data Export
+											</v-toolbar-title>
+										</v-toolbar>
+										<v-card-actions>
+											<v-btn :href="'/saveCSV/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/data.csv' + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))">Save CSV</v-btn>
+										</v-card-actions>
+									</v-card>
+									
 								</v-card>
 							</v-stepper-content>
 						</v-stepper-items>
