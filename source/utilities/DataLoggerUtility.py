@@ -73,15 +73,14 @@ def loadCSV(directory, loadFileName, dataNamesLabel=None, dataValuesLabel=None):
 	
 	return formatted_data
 	
-def saveCSV(deviceHistory, saveFileName='', saveFile=None, directory='', separateDataByEmptyRows=True):
+def saveCSV(deviceHistory, saveFileName, directory='', separateDataByEmptyRows=True):
 	makeFolder(directory)
 	
-	# savePath = ''
-	# if(isinstance(saveFileName, io.StringIO)):
-	# 	saveFile = saveFileName
-	# else:
-	# 	savePath = os.path.join(directory, saveFileName)
-	savePath = os.path.join(directory, saveFileName)
+	savePath = ''
+	if(isinstance(saveFileName, io.StringIO)):
+	 	savePath = saveFileName
+	else:
+	 	savePath = os.path.join(directory, saveFileName)
 	
 	# Look at the first line in the data and extract the data lists to save
 	data_columns = {}
@@ -96,33 +95,39 @@ def saveCSV(deviceHistory, saveFileName='', saveFile=None, directory='', separat
 				data_columns[key].extend(np.hstack(jsonData['Results'][key]).flatten())
 				if(separateDataByEmptyRows):
 					data_columns[key].append('')
-		
+					
+	lines = []
+	
+	# Write all of the variable names in the first line of the CSV
+	header = ','.join(data_columns.keys()) + '\n' 
+	lines.append(header)
+	
+	# Write all of the data row-by-row to the file
 	index = 0
 	isDone = False
-	with open(savePath, 'w') as f:
-		if saveFile is not None:
-			file = saveFile
-		else:
-			file = f
+	while(not isDone):
+		isDone = True
+		values = []
+		for key in data_columns.keys():
+			if(index < len(data_columns[key])):
+				values.append(str(data_columns[key][index]))
+				isDone = False
+			else:
+				values.append('')
+				
+		row = ','.join(values) + '\n'
+		lines.append(row)
+		index += 1
+	
+	if(isinstance(saveFileName, io.StringIO)):
+		file = savePath
+		for line in lines:
+			file.write(line)
+	else:
+		with open(savePath, 'w') as file:
+			for line in lines:
+				file.write(line)
 		
-		# Write all of the variable names in the first line of the CSV
-		header = ','.join(data_columns.keys()) + '\n' 
-		file.write(header)
-		
-		# Write all of the data row-by-row to the file
-		while(not isDone):
-			isDone = True
-			values = []
-			for key in data_columns.keys():
-				if(index < len(data_columns[key])):
-					values.append(str(data_columns[key][index]))
-					isDone = False
-				else:
-					values.append('')
-					
-			row = ','.join(values) + '\n'
-			file.write(row)
-			index += 1
 	
 	
 
@@ -479,5 +484,5 @@ def filterFileLinesLessThan(fileLines, property, value):
 
 if(__name__ == '__main__'):
 	#loadSpecificDeviceHistory('../../../AutexysData/jay/MoS2FET/JM3/B/53-54', 'GateSweep.json', minExperiment=0, maxExperiment=20)
-	deviceHistory = loadJSON('/Users/jaydoherty/Documents/myWorkspaces/Research/Autexys/AutexysData/jay/MoS2FET/JM4/C/31-32/Ex1/', 'GateSweep.json')
+	deviceHistory = loadJSON('/Users/jaydoherty/Documents/myWorkspaces/Research/Autexys/AutexysData/joey/CNT_TFT/190108/unknown/34-35/Ex3/', 'GateSweep.json')
 	saveCSV(deviceHistory, 'test.csv', '/Users/jaydoherty/Desktop/')
