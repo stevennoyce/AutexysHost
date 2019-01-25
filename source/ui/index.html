@@ -348,22 +348,22 @@
 									
 									<!-- container gives a couple chip summary plots that present data from all experiments on this chip for comparisson (sn)-->
 									
-									<!-- <v-container fluid grid-list-sm>
+									<v-container fluid grid-list-sm>
 											<v-layout row wrap>
-												<v-flex xs12 sm6 md4 lg3 xl2 d-flex v-for="possiblePlot in experiment.possiblePlots">
+												<v-flex xs12 sm6 md4 lg3 xl2 d-flex v-for="possiblePlot in ['ChipSubthresholdCurve']">
 													<v-card class="ma-1" tile>
 														<v-toolbar dark class="blue-grey lighten-1">
 															<v-toolbar-title>
 																 {{ possiblePlot }}
 															</v-toolbar-title>
-														</v-toolbar> 
+														</v-toolbar>
 														<div class="text-xs-center">
-															<zoomable-image :src="'/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(deviceSummaryPlotSettings))"></zoomable-image>
+															<zoomable-image src="" :data-src="'/chipPlots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></zoomable-image>
 														</div>
 													</v-card>
 												</v-flex>
 											</v-layout>
-									</v-container> -->
+									</v-container>
 
 								</v-card>
 

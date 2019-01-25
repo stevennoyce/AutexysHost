@@ -13,6 +13,10 @@ import flask_socketio
 import defaults
 from procedures import Device_History as DH
 DH.dpu.mplu.plt.switch_backend('agg')
+
+from procedures import Chip_History as CH
+CH.dpu.mplu.plt.switch_backend('agg')
+
 from utilities import DataLoggerUtility as dlu
 
 if __name__ == '__main__':
@@ -212,6 +216,43 @@ def devices(user, project, wafer, chip):
 	
 	return jsonvalid(devices)
 
+@app.route('/<user>/<project>/<wafer>/<chip>/availableChipPlots.json')
+def availableChipPlots(user, project, wafer, chip):
+	plots = CH.plotsForExperiments(default_data_path, user, project, wafer, chip)
+	return jsonvalid(plots)
+
+@app.route('/chipPlots/<user>/<project>/<wafer>/<chip>/<plotType>')
+def sendChipPlot(user, project, wafer, chip, plotType):
+	plotSettings = copy.deepcopy(default_makePlot_parameters)
+	receivedPlotSettings = json.loads(flask.request.args.get('plotSettings'))
+	#afmPath = json.loads(flask.request.args.get('afmPath'))
+	plotSettings.update(receivedPlotSettings)
+	
+	filebuf = io.BytesIO()
+	
+	if plotSettings['startExperimentNumber'] == None:
+		plotSettings['startExperimentNumber'] = 0
+	
+	if plotSettings['endExperimentNumber'] == None:
+		plotSettings['endExperimentNumber'] = float('inf')
+	
+	plotSettings['plotSaveName'] = filebuf
+	plotSettings['saveFigures'] = True
+	plotSettings['showFigures'] = False
+	plotSettings['specificPlot'] = plotType
+	
+	# mode parameter 'AFMImagePath'
+	#if(plotType == 'AFMdeviationsImage'):
+	#	if(plotSettings['plot_mode_parameters'] == None):
+	#		plotSettings['plot_mode_parameters'] = {}
+	#	plotSettings['plot_mode_parameters']['afm_image_path'] = afmPath
+	
+	CH.makePlots(user, project, wafer, chip, specificPlot=plotType, saveFigures=True, showFigures=False, plotSaveName=filebuf)
+	# CH.makePlots(user, project, wafer, chip, **plotSettings)
+	# plt.savefig(mode_parameters['plotSaveName'], transparent=True, dpi=pngDPI, format='png')
+	filebuf.seek(0)
+	return flask.send_file(filebuf, attachment_filename='plot.png')
+
 @app.route('/<user>/<project>/<wafer>/<chip>/<device>/experiments.json')
 def experiments(user, project, wafer, chip, device):	
 	folder = os.path.join(default_data_path, user, project, wafer, chip, device)
@@ -257,9 +298,9 @@ def experiments(user, project, wafer, chip, device):
 		
 	# Finally, extract all of the experiments from the dictionary that we built and return the list of their parameters
 	experiments = [experimentDictionary[key] for key in sorted(experimentDictionary.keys())]
-		
-	return jsonvalid(experiments)
 	
+	return jsonvalid(experiments)
+
 
 @app.route('/parametersDescription.json')
 def parametersDescription():
