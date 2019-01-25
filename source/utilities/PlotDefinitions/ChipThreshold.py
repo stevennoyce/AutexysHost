@@ -1,6 +1,5 @@
 from utilities.MatplotlibUtility import *
 from utilities import DataProcessorUtility as dpu
-import copy
 
 
 
@@ -16,11 +15,8 @@ plotDescription = {
 }
 
 def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory, groupedChipHistory, mode_parameters=None):
-	# Load Defaults
-	plotDescrip_current = copy.deepcopy(plotDescription)
-
 	# Init Figure
-	fig, ax = initFigure(1, 1, plotDescrip_current['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
+	fig, ax = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
 	if(not mode_parameters['publication_mode']):
 		ax.set_title('Chip ' + str(identifiers['wafer']) + str(identifiers['chip']))
 		
@@ -35,11 +31,12 @@ def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, sp
 			line = ax.plot(range(len(vt)), vt, color=plt.rcParams['axes.prop_cycle'].by_key()['color'][0], marker='o', markersize=4, linewidth=0, linestyle=None)
 		else: 
 			vtVals.append(vt)
+			
 	if mode_parameters['useBoxWhiskerPlot']: 
 		line = boxplot(ax, vtVals)
-		axisLabels(ax, y_label=plotDescrip_current['plotDefaults']['ylabel'])
+		axisLabels(ax, y_label=plotDescription['plotDefaults']['ylabel'])
 	else:
-		axisLabels(ax, x_label=plotDescrip_current['plotDefaults']['xlabel'], y_label=plotDescrip_current['plotDefaults']['ylabel'])
+		axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=plotDescription['plotDefaults']['ylabel'])
 
 	# Save figure	
 	adjustAndSaveFigure(fig, 'ChipThreshold', mode_parameters)

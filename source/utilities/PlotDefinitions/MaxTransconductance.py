@@ -1,7 +1,6 @@
 from utilities.MatplotlibUtility import *
 from utilities import DataProcessorUtility as dpu
 from utilities import FET_Modeling as fet_model
-import copy
 
 
 
@@ -20,11 +19,8 @@ plotDescription = {
 }
 
 def plot(deviceHistory, identifiers, mode_parameters=None):
-	# Load Defaults
-	plotDescrip_current = copy.deepcopy(plotDescription)
-
 	# Init Figure
-	fig, ax = initFigure(1, 1, plotDescrip_current['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
+	fig, ax = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
 	if(not mode_parameters['publication_mode']):
 		ax.set_title(getTestLabel(deviceHistory, identifiers))
 		
@@ -56,10 +52,10 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		line = ax.plot([i+1], np.array([gm_list[i]]) * 10**6, color=colors[i], marker='o', markersize=4, linewidth=0, linestyle=None)
 
 	# Label axes
-	axisLabels(ax, x_label=plotDescrip_current['plotDefaults']['xlabel'], y_label=plotDescrip_current['plotDefaults']['ylabel'])
+	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=plotDescription['plotDefaults']['ylabel'])
 
 	# Adjust Y-lim (if desired)
-	includeOriginOnYaxis(ax, include=plotDescrip_current['plotDefaults']['includeOrigin'])
+	includeOriginOnYaxis(ax, include=plotDescription['plotDefaults']['includeOrigin'])
 	ax.set_ylim(bottom=ax.get_ylim()[0]*1.1, top=ax.get_ylim()[1]*1.1)
 
 	# Save figure	
