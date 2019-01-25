@@ -33,7 +33,7 @@ default_dh_parameters = {
 
 
 # === External Interface ===
-def makePlots(userID, projectID, waferID, chipID, deviceID, startExperimentNumber=0, endExperimentNumber=float('inf'), specificPlot='', figureSize=None, dataFolder=None, saveFolder=None, plotSaveName='', saveFigures=False, showFigures=True, sweepDirection='both', startRelativeIndex=0, endRelativeIndex=float('inf'), plot_mode_parameters=None):
+def makePlots(userID, projectID, waferID, chipID, deviceID, startExperimentNumber=0, endExperimentNumber=float('inf'), specificPlot='', figureSize=None, sweepDirection='both', dataFolder=None, saveFolder=None, plotSaveName='', saveFigures=False, showFigures=True, startRelativeIndex=0, endRelativeIndex=float('inf'), plot_mode_parameters=None):
 	"""Make plots for the device found in the userID/projectID/waferID/chipID/deviceID folder.
 	
 	startExperimentNumber and endExperimentNumber specify a range of experiments to include in the plot(s).

@@ -36,7 +36,7 @@ default_ch_parameters = {
 
 
 # === External Interface ===
-def makePlots(userID, projectID, waferID, chipID, dataFolder=None, specificPlot='', minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf'), loadOnlyMostRecentExperiments=True, numberOfRecentExperiments=1, numberOfRecentIndexes=1, specificDeviceList=None, deviceCategoryLists=None, saveFolder=None, plotSaveName='', showFigures=True, saveFigures=False, plot_mode_parameters=None):
+def makePlots(userID, projectID, waferID, chipID, specificPlot='', minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf'), loadOnlyMostRecentExperiments=True, numberOfRecentExperiments=1, numberOfRecentIndexes=1, specificDeviceList=None, deviceCategoryLists=None, dataFolder=None, saveFolder=None, plotSaveName='', saveFigures=False, showFigures=True, plot_mode_parameters=None):
 	parameters = {}	
 	mode_parameters = {}
 	if(plot_mode_parameters is not None):
@@ -86,7 +86,7 @@ def run(additional_parameters, plot_mode_parameters={}):
 	plotList = []
 
 	# Determine which plots are being requested and make them all
-	plotsToCreate = [parameters['specificPlotToCreate']] if(parameters['specificPlotToCreate'] != '') else plotsForExperiments(parameters, minExperiment=0, maxExperiment=float('inf'))
+	plotsToCreate = [parameters['specificPlotToCreate']] if(parameters['specificPlotToCreate'] != '') else plotsForExperiments(parameters['dataFolder'], parameters['Identifiers']['user'], parameters['Identifiers']['project'], parameters['Identifiers']['wafer'], parameters['Identifiers']['chip'], minExperiment=0, maxExperiment=float('inf'))
 
 	for plotType in plotsToCreate:
 		dataFileDependencies = dpu.getDataFileDependencies(plotType)		
@@ -139,6 +139,6 @@ if(__name__ == '__main__'):
 	#parameters = {'Identifiers':{'user':'stevenjay','project':'RedBoard','wafer':'Resistor','chip':'MegaOhm'}, 'dataFolder':'../../AutexysData'}
 	#print(dlu.getDataFileNamesForChipExperiments(dlu.getChipDirectory(parameters), minExperiment=0, maxExperiment=float('inf')))
 	#print(plotsForExperiments(parameters, minExperiment=0, maxExperiment=float('inf')))
-	makePlots('jay', 'MoS2FET', 'JM4', 'C', specificPlot='ChipTransferCurve', specificDeviceList={'24-25'})#specificDeviceList={'3-6', '5-6', '4-5', '27-30', '28-29', '24-25', '34-35', '20-31', '31-32', '19-32'})
+	makePlots('jay', 'MoS2FET', 'JM4', 'C', specificPlot='ChipSubthresholdCurve', specificDeviceList={'3-6', '5-6', '4-5', '27-30', '28-29', '24-25', '34-35', '20-31', '31-32', '19-32'})
 
 
