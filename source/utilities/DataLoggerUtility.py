@@ -2,14 +2,9 @@ import os
 import json
 import glob
 import re
-import BytesIO
 import time
 import numpy as np
 import io
-
-
-# Make open work with BytesIO
-oldopen, __builtins__.open = __builtins__.open, lambda *args, **kwargs: args[0] if isinstance(args[0], BytesIO.BytesIO) else oldopen(*args, **kwargs)
 
 
 # === File System ===
@@ -39,7 +34,6 @@ def emptyFile(folderPath, fileName):
 	
 	with open(os.path.join(folderPath, fileName), 'w') as file:
 		file.write('')
-
 
 
 # === CSV ===
@@ -79,14 +73,15 @@ def loadCSV(directory, loadFileName, dataNamesLabel=None, dataValuesLabel=None):
 	
 	return formatted_data
 	
-def saveCSV(deviceHistory, saveFileName, directory='', separateDataByEmptyRows=True):
+def saveCSV(deviceHistory, saveFileName='', saveFile=None, directory='', separateDataByEmptyRows=True):
 	makeFolder(directory)
 	
-	savePath = ''
-	if(isinstance(saveFileName, io.BytesIO)):
-		savePath = saveFileName
-	else:
-		savePath = os.path.join(directory, saveFileName)
+	# savePath = ''
+	# if(isinstance(saveFileName, io.StringIO)):
+	# 	saveFile = saveFileName
+	# else:
+	# 	savePath = os.path.join(directory, saveFileName)
+	savePath = os.path.join(directory, saveFileName)
 	
 	# Look at the first line in the data and extract the data lists to save
 	data_columns = {}
@@ -104,7 +99,12 @@ def saveCSV(deviceHistory, saveFileName, directory='', separateDataByEmptyRows=T
 		
 	index = 0
 	isDone = False
-	with open(savePath, 'w') as file:
+	with open(savePath, 'w') as f:
+		if saveFile is not None:
+			file = saveFile
+		else:
+			file = f
+		
 		# Write all of the variable names in the first line of the CSV
 		header = ','.join(data_columns.keys()) + '\n' 
 		file.write(header)
@@ -122,7 +122,9 @@ def saveCSV(deviceHistory, saveFileName, directory='', separateDataByEmptyRows=T
 					
 			row = ','.join(values) + '\n'
 			file.write(row)
-			index += 1 
+			index += 1
+	
+	
 
 def appendTextToFile(directory, saveFileName, textToAppend):
 	makeFolder(directory)	
