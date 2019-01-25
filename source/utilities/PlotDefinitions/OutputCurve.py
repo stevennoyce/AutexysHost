@@ -5,14 +5,15 @@ import copy
 
 plotDescription = {
 	'plotCategory': 'device',
+	'priority': 40,
 	'dataFileDependencies': ['DrainSweep.json'],
 	'plotDefaults': {
 		'figsize':(2,2.5),
 		'colorMap':'white_red_black',
 		'colorDefault': ['#ed553b'],
-		'xlabel':'$V_{{DS}}^{{Sweep}}$ [V]',
-		'ylabel':'$I_{{D}}$ [$\\mu$A]',
-		'neg_label':'$-I_{{D}}$ [$\\mu$A]',
+		'xlabel':'$V_{{DS}}^{{Sweep}}$ (V)',
+		'ylabel':'$I_{{D}}$ ($\\mu$A)',
+		'neg_label':'$-I_{{D}}$ ($\\mu$A)',
 		'leg_vgs_label':'$V_{{GS}}^{{Sweep}}$\n  = {:}V',
 		'leg_vgs_range_label':'$V_{{GS}}^{{min}} = $ {:}V\n'+'$V_{{GS}}^{{max}} = $ {:}V'
 	},
@@ -30,7 +31,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Build Color Map and Color Bar
 	startVGS = ('${:.1f} V$').format(deviceHistory[0]['runConfigs']['DrainSweep']['gateVoltageSetPoint'])
 	endVGS = ('${:.1f} V$').format(deviceHistory[-1]['runConfigs']['DrainSweep']['gateVoltageSetPoint'])
-	colors = setupColors(fig, len(deviceHistory), colorOverride=mode_parameters['colorsOverride'], colorDefault=plotDescrip_current['plotDefaults']['colorDefault'], colorMapName=plotDescrip_current['plotDefaults']['colorMap'], colorMapStart=1.0, colorMapEnd=0.15, enableColorBar=False, colorBarTicks=[0,0.6,1], colorBarTickLabels=[endVGS, '$V_{{GS}}$', startVGS], colorBarAxisLabel='')		
+	colors = setupColors(fig, len(deviceHistory), colorOverride=mode_parameters['colorsOverride'], colorDefault=plotDescrip_current['plotDefaults']['colorDefault'], colorMapName=plotDescrip_current['plotDefaults']['colorMap'], colorMapStart=0.9, colorMapEnd=0.15, enableColorBar=False, colorBarTicks=[0,0.6,1], colorBarTickLabels=[endVGS, '$V_{{GS}}$', startVGS], colorBarAxisLabel='')		
 	
 	# If first segment of device history is mostly negative current, flip data
 	if((len(deviceHistory) > 0) and ((np.array(deviceHistory[0]['Results']['id_data']) < 0).sum() > (np.array(deviceHistory[0]['Results']['id_data']) >= 0).sum())):
@@ -46,8 +47,8 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	axisLabels(ax, x_label=plotDescrip_current['plotDefaults']['xlabel'], y_label=plotDescrip_current['plotDefaults']['ylabel'])
 
 	# Add Legend and save figure	
-	addLegend(ax, loc=mode_parameters['legendLoc'], title=getLegendTitle(deviceHistory, identifiers, plotDescrip_current['plotDefaults'], 'runConfigs', 'DrainSweep', mode_parameters, includeVgsSweep=True))
-	adjustAndSaveFigure(fig, 'FullOutputCurves', mode_parameters)
+	addLegend(ax, loc=mode_parameters['legendLoc'], title=getLegendTitle(deviceHistory, identifiers, plotDescrip_current['plotDefaults'], 'runConfigs', 'DrainSweep', mode_parameters, includeVgsSweep=True), mode_parameters=mode_parameters)
+	adjustAndSaveFigure(fig, 'OutputCurve', mode_parameters)
 
 	return (fig, ax)
 

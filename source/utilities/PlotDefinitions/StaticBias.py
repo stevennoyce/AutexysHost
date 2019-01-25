@@ -4,18 +4,19 @@ import copy
 
 plotDescription = {
 	'plotCategory': 'device',
+	'priority': 5,
 	'dataFileDependencies': ['StaticBias.json'],
 	'plotDefaults': {
-		'figsize':(3.5,2.5),#(2*2.2,2*1.6),#(5,4),
+		'figsize':(3,2.5),#(2*2.2,2*1.6),#(5,4),
 		'mainIncludeOrigin':True,
 		'dualIncludeOrigin':False,
 		'colorMap':'plasma',
 		'colorDefault': ['#56638A'],
-		'xlabel':'Time [{:}]',
-		'ylabel':'$I_{{D}}$ [$\\mu$A]',
-		'neg_label':'$-I_{{D}}$ [$\\mu$A]',
-		'vds_label': '$V_{{DS}}^{{Hold}}$ [V]',
-		'vgs_label': '$V_{{GS}}^{{Hold}}$ [V]',
+		'xlabel':'Time ({:})',
+		'ylabel':'$I_{{D}}$ ($\\mu$A)',
+		'neg_label':'$-I_{{D}}$ ($\\mu$A)',
+		'vds_label': '$V_{{DS}}^{{Hold}}$ (V)',
+		'vgs_label': '$V_{{GS}}^{{Hold}}$ (V)',
 		'vds_legend': '$V_{{DS}}^{{Hold}}$ = {:.2f}V',
 		'vgs_legend': '$V_{{GS}}^{{Hold}}$ = {:.1f}V',
 		't_legend': '$t_{{Hold}}$ = {:}',
@@ -139,7 +140,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Main Axis Legend
 	legend_title = getLegendTitle(deviceHistory, identifiers, plotDescrip_current['plotDefaults'], 'runConfigs', 'StaticBias', mode_parameters, includeVdsHold=(not vds_setpoint_changes), includeVgsHold=(not vgs_setpoint_changes), includeTimeHold=(not biasTime_changes))
 	if(len(legend_title) > 0):
-		addLegend(ax1, loc=mode_parameters['legendLoc'], title=legend_title)
+		addLegend(ax1, loc=mode_parameters['legendLoc'], title=legend_title, mode_parameters=mode_parameters)
 	
 	# Dual Axis Legend, Axis Labels, and save figure
 	if(includeDualAxis):
@@ -167,6 +168,6 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		adjustAndSaveFigure(fig, 'FullStaticBias', mode_parameters, subplotHeightPad=plotDescrip_current['plotDefaults']['subplot_spacing'])
 	else:
 		axisLabels(ax1, x_label=plotDescrip_current['plotDefaults']['xlabel'].format(timescale), y_label=plotDescrip_current['plotDefaults']['ylabel'])
-		adjustAndSaveFigure(fig, 'FullStaticBias', mode_parameters)
+		adjustAndSaveFigure(fig, 'StaticBias', mode_parameters)
 
 	return (fig, (ax1, ax2, ax3))

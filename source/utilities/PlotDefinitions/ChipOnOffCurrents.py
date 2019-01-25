@@ -4,16 +4,17 @@ from utilities.MatplotlibUtility import *
 
 plotDescription = {
 	'plotCategory': 'chip',
+	'priority': 110,
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(5,4),
 		'xlabel':'Device',
-		'ylabel':'$I_{{ON}}$ [$\\mu$A]',
-		'ylabel_dual_axis':'$I_{{OFF}}$ [$\\mu$A]'
+		'ylabel':'$I_{{ON}}$ ($\\mu$A)',
+		'ylabel_dual_axis':'$I_{{OFF}}$ ($\\mu$A)'
 	},
 }
 	
-def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory, chipHistoryList, mode_parameters=None):
+def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory, groupedChipHistory, mode_parameters=None):
 	# Init Figure
 	fig, ax = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
 

@@ -4,17 +4,18 @@ from utilities.MatplotlibUtility import *
 
 plotDescription = {
 	'plotCategory': 'chip',
+	'priority': 20,
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(2.8,3.2),
 		'colorMap':'viridis',
 		'colorDefault': ['#f2b134'],
-		'xlabel':'$V_{{GS}}^{{Sweep}}$ [V]',
-		'ylabel':'$I_{{D}}$ [A]',
+		'xlabel':'$V_{{GS}}^{{Sweep}}$ (V)',
+		'ylabel':'$I_{{D}}$ (A)',
 	},
 }
 
-def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory, chipHistoryList, mode_parameters=None):
+def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory, groupedChipHistory, mode_parameters=None):
 	# Init Figure
 	fig, ax = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
 	if(not mode_parameters['publication_mode']):

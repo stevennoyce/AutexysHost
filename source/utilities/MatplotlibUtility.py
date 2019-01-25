@@ -5,9 +5,10 @@ from matplotlib import pyplot as plt
 from matplotlib import colors as pltc
 from matplotlib import cm
 import numpy as np
-
 import io
 import os
+
+from utilities import FET_Modeling as fet_model
 
 # ********** Matplotlib Parameters **********
 
@@ -55,6 +56,12 @@ plt.rcParams['xtick.labelsize'] = 6
 plt.rcParams['ytick.labelsize'] = 6
 plt.rcParams['font.size'] = 6
 
+try:
+	plt.rcParams["legend.title_fontsize"] = 6
+except:
+	# this is new in Matplotlib version 3.0
+	pass
+
 plt.rcParams['axes.labelpad'] = 0
 plt.rcParams['axes.titlepad'] = 6
 plt.rcParams['ytick.major.pad'] = 2
@@ -90,6 +97,10 @@ plt.rcParams['ps.fonttype'] = 42
 
 # Add custom color-maps
 light_to_dark_map = lambda R, G, B: dict({'red':((0.0, 0/255, 0/255), (0.5, R/255, R/255), (1.0, 255/255, 255/255)), 'green':((0.0, 0/255, 0/255), (0.5, G/255, G/255), (1.0, 255/255, 255/255)), 'blue':((0.0, 0/255, 0/255), (0.5, B/255, B/255), (1.0, 255/255, 255/255))})
+color_to_color_map = lambda R1, G1, B1, R2, G2, B2: dict({'red':((0.0, R1/255, R1/255), (0.5, 0.5*(R1+R2)/255, 0.5*(R1+R2)/255), (1.0, R2/255, R2/255)), 'green':((0.0, G1/255, G1/255), (0.5, 0.5*(G1+G2)/255, 0.5*(G1+G2)/255), (1.0, G2/255, G2/255)), 'blue':((0.0, B1/255, B1/255), (0.5, 0.5*(B1+B2)/255, 0.5*(B1+B2)/255), (1.0, B2/255, B2/255))})
+color_to_color_to_color_map = lambda R1, G1, B1, R2, G2, B2, R3, G3, B3: dict({'red':((0.0, R1/255, R1/255), (0.5, R2/255, R2/255), (1.0, R3/255, R3/255)), 'green':((0.0, G1/255, G1/255), (0.5, G2/255, G2/255), (1.0, G3/255, G3/255)), 'blue':((0.0, B1/255, B1/255), (0.5, B2/255, B2/255), (1.0, B3/255, B3/255))})
+rgba_to_rgba_map = lambda R1, G1, B1, A1, R2, G2, B2, A2: dict({'red':((0.0, R1/255, R1/255), (0.5, 0.5*(R1+R2)/255, 0.5*(R1+R2)/255), (1.0, R2/255, R2/255)), 'green':((0.0, G1/255, G1/255), (0.5, 0.5*(G1+G2)/255, 0.5*(G1+G2)/255), (1.0, G2/255, G2/255)), 'blue':((0.0, B1/255, B1/255), (0.5, 0.5*(B1+B2)/255, 0.5*(B1+B2)/255), (1.0, B2/255, B2/255)), 'alpha':((0.0, A1/255, A1/255), (0.5, 0.5*(A1+A2)/255, 0.5*(A1+A2)/255), (1.0, A2/255, A2/255))})
+
 
 plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_red_black', light_to_dark_map(237, 85, 59) ))
 plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_green_black', light_to_dark_map(79, 185, 159) ))
@@ -104,7 +115,10 @@ plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_lime_black', light_to
 plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_violet_black', light_to_dark_map(53, 25, 150) ))
 plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_magenta_black', light_to_dark_map(159, 50, 133) ))
 plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_peach_black', light_to_dark_map(255, 142, 101) ))
-plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_peach_black', light_to_dark_map(255, 142, 101) ))
+
+plt.register_cmap(cmap=pltc.LinearSegmentedColormap('blue_teal_orange', color_to_color_to_color_map(10, 30, 150, 100, 175, 170, 250, 200, 100) ))
+
+
 
 # === Matplotlib Access ===
 def getPlt():
@@ -120,19 +134,24 @@ def show():
 """Every method in this utility is intended to assist the creation of new plotDefintions in the plotDefinitions folder."""
 
 # === Device Plots ===
-def plotSweep(axis, jsonData, lineColor, direction='both', voltageData='gate', currentData='drain', logScale=True, scaleCurrentBy=1, lineStyle=None, errorBars=True, alphaForwardSweep=1):
-	if(currentData == 'gate'):
-		currentData = 'ig_data'
-	elif(currentData == 'drain'):
-		currentData = 'id_data'
+def plotSweep(axis, jsonData, lineColor, direction='both', x_data='gate voltage', y_data='drain current', logScale=True, scaleCurrentBy=1, lineStyle=None, errorBars=True):
+	data_save_names = {
+		'gate voltage': 'vgs_data',
+		'drain voltage': 'vds_data',
+		'gate current': 'ig_data',
+		'drain current': 'id_data',
+		
+		'input voltage': 'vin_data',
+		'output voltage': 'vout_data',
+		'input current': 'iin_data',
+		'output current': 'iout_data',
+	}
 	
-	if(voltageData == 'gate'):
-		voltageData = 'vgs_data'
-	elif(voltageData == 'drain'):
-		voltageData = 'vds_data'
+	y_data = data_save_names[y_data]
+	x_data = data_save_names[x_data]
 	
-	x = jsonData['Results'][voltageData]
-	y = jsonData['Results'][currentData]
+	x = jsonData['Results'][x_data]
+	y = jsonData['Results'][y_data]
 
 	# Sort data if it was collected in an unordered fashion
 	try:
@@ -143,21 +162,41 @@ def plotSweep(axis, jsonData, lineColor, direction='both', voltageData='gate', c
 			y = [list(forward_y), list(reverse_y)]
 	except:
 		pass
+	
+	# Figure out if data was collected with multiple points per x-value
+	pointsPerX = 1
+	try:
+		if(x_data == 'vgs_data'):
+			pointsPerX = jsonData['runConfigs']['GateSweep']['pointsPerVGS']
+		elif(x_data == 'vds_data'):
+			pointsPerX = jsonData['runConfigs']['DrainSweep']['pointsPerVDS']
+		elif(x_data == 'vin_data'):
+			pointsPerX = jsonData['runConfigs']['InverterSweep']['pointsPerVIN']
+	except:
+		pointsPerX = 1
 
 	# Plot only forward or reverse sweeps of the data (also backwards compatible to old format)
 	if(direction == 'forward'):
-		x = x[0]
-		y = y[0]
+		forward_x = []
+		forward_y = []
+		for i in [j for j in range(len(x)) if(j % 2 == 0)]:
+			forward_x.extend(x[i])
+			forward_y.extend(y[i])
+		x = forward_x
+		y = forward_y
 	elif(direction == 'reverse'):
-		x = x[1]
-		y = y[1]
+		reverse_x = []
+		reverse_y = []
+		for i in [j for j in range(len(x)) if(j % 2 == 1)]:
+			reverse_x.extend(x[i])
+			reverse_y.extend(y[i])
+		x = reverse_x
+		y = reverse_y
 	else:
-		if(alphaForwardSweep < 1):
-			x = x
-			y = y
-		else:
-			x = flatten(x)
-			y = flatten(y)
+		x = flatten(x)
+		y = flatten(y)
+
+	# x and y are flattened and plotted as a single array at this point to be backwards compatible with old data and to simplify data scaling
 
 	# Make y-axis a logarithmic scale
 	if(logScale):
@@ -167,28 +206,19 @@ def plotSweep(axis, jsonData, lineColor, direction='both', voltageData='gate', c
 	# Scale the data by a given factor
 	y = np.array(y)*scaleCurrentBy
 
-	if(alphaForwardSweep < 1):
-		forward_x = x[0]
-		forward_y = y[0]
-		reverse_x = x[1]
-		reverse_y = y[1]
-		if(forward_x[0] == forward_x[1]):
-			plotWithErrorBars(axis, forward_x, forward_y, lineColor, errorBars=errorBars, alpha=alphaForwardSweep)
-			line = plotWithErrorBars(axis, reverse_x, reverse_y, lineColor, errorBars=errorBars)
-		else:
-			axis.plot(forward_x, forward_y, color=lineColor, marker='o', markersize=2, linewidth=1, linestyle=lineStyle, alpha=alphaForwardSweep)[0]
-			line = axis.plot(reverse_x, reverse_y, color=lineColor, marker='o', markersize=2, linewidth=1, linestyle=lineStyle)[0]
+	# data contains multiple y-values per x-value
+	if(pointsPerX > 1):
+		line = plotWithErrorBars(axis, x, y, lineColor, errorBars=errorBars)
 	else:
-		# data contains multiple y-values per x-value
-		if(x[0] == x[1]):
-			line = plotWithErrorBars(axis, x, y, lineColor, errorBars=errorBars)
+		if(lineStyle == ''):
+			line = axis.plot(x, y, color=lineColor, marker='o', markersize=2, linewidth=0)[0]
 		else:
 			line = axis.plot(x, y, color=lineColor, marker='o', markersize=2, linewidth=1, linestyle=lineStyle)[0]
 
 	return line
 
 def plotSubthresholdCurve(axis, jsonData, lineColor, direction='both', fitSubthresholdSwing=False, includeLabel=False, lineStyle=None, errorBars=True):
-	line = plotSweep(axis, jsonData, lineColor, direction, voltageData='gate', currentData='drain', logScale=True, scaleCurrentBy=1, lineStyle=lineStyle, errorBars=errorBars)
+	line = plotSweep(axis, jsonData, lineColor, direction, x_data='gate voltage', y_data='drain current', logScale=True, scaleCurrentBy=1, lineStyle=lineStyle, errorBars=errorBars)
 	if(includeLabel): 
 		#setLabel(line, '$log_{10}(I_{on}/I_{off})$'+': {:.1f}'.format(np.log10(jsonData['Computed']['onOffRatio'])))
 		setLabel(line, 'max $|I_{g}|$'+': {:.2e}'.format(jsonData['Computed']['ig_max']))
@@ -202,15 +232,15 @@ def plotSubthresholdCurve(axis, jsonData, lineColor, direction='both', fitSubthr
 	return line
 
 def plotTransferCurve(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True):
-	line = plotSweep(axis, jsonData, lineColor, direction, voltageData='gate', currentData='drain', logScale=False, scaleCurrentBy=scaleCurrentBy, lineStyle=lineStyle, errorBars=errorBars)
+	line = plotSweep(axis, jsonData, lineColor, direction, x_data='gate voltage', y_data='drain current', logScale=False, scaleCurrentBy=scaleCurrentBy, lineStyle=lineStyle, errorBars=errorBars)
 	return line
 
 def plotGateCurrent(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True):
-	line = plotSweep(axis, jsonData, lineColor, direction, voltageData='gate', currentData='gate', logScale=False, scaleCurrentBy=scaleCurrentBy, lineStyle=lineStyle, errorBars=errorBars)
+	line = plotSweep(axis, jsonData, lineColor, direction, x_data='gate voltage', y_data='gate current', logScale=False, scaleCurrentBy=scaleCurrentBy, lineStyle=lineStyle, errorBars=errorBars)
 	return line
 
 def plotOutputCurve(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True):
-	line = plotSweep(axis, jsonData, lineColor, direction, voltageData='drain', currentData='drain', logScale=False, scaleCurrentBy=scaleCurrentBy, lineStyle=lineStyle, errorBars=errorBars)
+	line = plotSweep(axis, jsonData, lineColor, direction, x_data='drain voltage', y_data='drain current', logScale=False, scaleCurrentBy=scaleCurrentBy, lineStyle=lineStyle, errorBars=errorBars)
 	return line
 
 def plotBurnOut(axis1, axis2, axis3, jsonData, lineColor, lineStyle=None, annotate=False, annotation='', plotLine1=True, plotLine2=True, plotLine3=True):
@@ -234,6 +264,9 @@ def plotStaticBias(axis, jsonData, lineColor, timeOffset, currentData='id_data',
 	line = plotOverTime(axis, jsonData['Results']['timestamps'], (np.array(jsonData['Results'][currentData])*(10**6)), lineColor, offset=timeOffset, plotInnerGradient=gradient, innerGradientColors=gradientColors)	
 	return line
 
+def plotInverterVTC(axis, jsonData, lineColor, direction='both', lineStyle=None, errorBars=True):
+	line = plotSweep(axis, jsonData, lineColor, direction, x_data='input voltage', y_data='output voltage', logScale=False, scaleCurrentBy=1, lineStyle=lineStyle, errorBars=errorBars)
+	return line
 
 # === Figures ===
 def initFigure(rows, columns, figsizeDefault, figsizeOverride=None, shareX=False, subplotWidthRatio=None, subplotHeightRatio=None):
@@ -375,11 +408,13 @@ def getTestLabel(deviceHistory, identifiers):
 
 
 # === Legend ===
-def addLegend(axis, loc, title):
+def addLegend(axis, loc, title, mode_parameters=None):
+	if((mode_parameters is not None) and (mode_parameters['enableLegend'] == False)):
+		return
 	lines, labels = axis.get_legend_handles_labels()
 	axis.legend(lines, labels, loc=loc, title=title, labelspacing=(0) if(len(labels) == 0) else (0.3))
 
-def getLegendTitle(deviceHistory, identifiers, plottype_parameters, parameterSuperType, parameterType, mode_parameters=None, includeVdsSweep=False, includeVgsSweep=False, includeSubthresholdSwing=False, includeVdsHold=False, includeVgsHold=False, includeHoldTime=False, includeTimeHold=False, includeChannelLength=True):
+def getLegendTitle(deviceHistory, identifiers, plottype_parameters, parameterSuperType, parameterType, mode_parameters=None, includeVdsSweep=False, includeVgsSweep=False, includeIdVgsFit=False, includeVdsHold=False, includeVgsHold=False, includeHoldTime=False, includeTimeHold=False, includeChannelLength=True):
 	legend_title = ''
 	legend_entries = []
 	if(includeVdsSweep):
@@ -392,17 +427,30 @@ def getLegendTitle(deviceHistory, identifiers, plottype_parameters, parameterSup
 		vgs_min = min(vgs_list)
 		vgs_max = max(vgs_list)
 		legend_entries.append(plottype_parameters['leg_vgs_label'].format(vgs_min) if(vgs_min == vgs_max) else (plottype_parameters['leg_vgs_range_label'].format(vgs_min, vgs_max)))
-	if(includeSubthresholdSwing):
-		SS_list = []
+	if(includeIdVgsFit and mode_parameters['enableModelFitting']):
+		all_fitted_parameters = {'V_T':[], 'mu_Cox_W_L':[], 'SS_mV_dec':[], 'I_OFF':[], 'g_m_max':[]}
 		for deviceRun in deviceHistory:
-			startIndex, endIndex = steepestRegion(np.log10(np.abs(deviceRun['Results']['id_data'][0])), 10)
-			vgs_region = deviceRun['Results']['vgs_data'][0][startIndex:endIndex]
-			id_region = deviceRun['Results']['id_data'][0][startIndex:endIndex]
-			fitted_region = semilogFit(vgs_region, id_region)['fitted_data']
-			SS_list.append(avgSubthresholdSwing(vgs_region, fitted_region))
-			#axis.plot(vgs_region, fitted_region, color='b', linestyle='--')
-		SS_avg = np.mean(SS_list)
-		legend_entries.append('$SS_{{avg}} = $ {:.0f}mV/dec'.format(SS_avg))
+			if(mode_parameters['sweepDirection'] in ['both', 'forward']):
+				if(abs(deviceRun['Results']['id_data'][0][0]) > abs(deviceRun['Results']['id_data'][0][-1]) and (deviceRun['Results']['vgs_data'][0][0] < deviceRun['Results']['vgs_data'][0][-1])):
+					fwd_id_fitted, fwd_model_parameters, fwd_model_parameters_kw = fet_model.PMOSFET_Fit(deviceRun['Results']['vgs_data'][0], deviceRun['Results']['id_data'][0], deviceRun['runConfigs']['GateSweep']['drainVoltageSetPoint'], I_OFF_guess=deviceRun['Computed']['offCurrent'], I_OFF_min=deviceRun['Computed']['offCurrent']/2, I_OFF_max=deviceRun['Computed']['offCurrent']*2)
+				else:
+					fwd_id_fitted, fwd_model_parameters, fwd_model_parameters_kw = fet_model.NMOSFET_Fit(deviceRun['Results']['vgs_data'][0], deviceRun['Results']['id_data'][0], deviceRun['runConfigs']['GateSweep']['drainVoltageSetPoint'], I_OFF_guess=deviceRun['Computed']['offCurrent'], I_OFF_min=deviceRun['Computed']['offCurrent']/2, I_OFF_max=deviceRun['Computed']['offCurrent']*2)
+				for parameter in all_fitted_parameters.keys():
+					all_fitted_parameters[parameter].append(fwd_model_parameters_kw[parameter])
+			if(mode_parameters['sweepDirection'] in ['both', 'reverse']):
+				if(abs(deviceRun['Results']['id_data'][1][0]) < abs(deviceRun['Results']['id_data'][1][-1]) and (deviceRun['Results']['vgs_data'][1][0] > deviceRun['Results']['vgs_data'][1][-1])):
+					rev_id_fitted, rev_model_parameters, rev_model_parameters_kw = fet_model.PMOSFET_Fit(deviceRun['Results']['vgs_data'][1], deviceRun['Results']['id_data'][1], deviceRun['runConfigs']['GateSweep']['drainVoltageSetPoint'], I_OFF_guess=deviceRun['Computed']['offCurrent'], I_OFF_min=deviceRun['Computed']['offCurrent']/2, I_OFF_max=deviceRun['Computed']['offCurrent']*2)
+				else:
+					rev_id_fitted, rev_model_parameters, rev_model_parameters_kw = fet_model.NMOSFET_Fit(deviceRun['Results']['vgs_data'][1], deviceRun['Results']['id_data'][1], deviceRun['runConfigs']['GateSweep']['drainVoltageSetPoint'], I_OFF_guess=deviceRun['Computed']['offCurrent'], I_OFF_min=deviceRun['Computed']['offCurrent']/2, I_OFF_max=deviceRun['Computed']['offCurrent']*2)
+				for parameter in all_fitted_parameters.keys():
+					all_fitted_parameters[parameter].append(rev_model_parameters_kw[parameter])
+		#plt.gca().plot(deviceRun['Results']['vgs_data'][0], 10**6 * np.array(fwd_id_fitted), color='#f2b134')
+		VT_avg = np.mean(all_fitted_parameters['V_T'])
+		gm_avg = np.mean(all_fitted_parameters['g_m_max'])	
+		SS_avg = np.mean(all_fitted_parameters['SS_mV_dec'])
+		legend_entries.append('$V_{{T}}^{{avg}} = $ {:.2f}V'.format(VT_avg))
+		legend_entries.append('$g_{{m \\cdot max}}^{{avg}} = $ {:.1f}$\\mu$A/V'.format(gm_avg * 10**6))
+		legend_entries.append('$SS^{{avg}} = $ {:.0f}mV/dec'.format(SS_avg))
 	if(includeVdsHold):	
 		legend_entries.append(plottype_parameters['vds_legend'].format(deviceHistory[0][parameterSuperType][parameterType]['drainVoltageSetPoint']))
 	if(includeVgsHold):
@@ -435,6 +483,17 @@ def getLegendTitle(deviceHistory, identifiers, plottype_parameters, parameterSup
 
 
 # === Curve Fitting ===
+
+## EXAMPLE ##
+#for deviceRun in deviceHistory:
+#	startIndex, endIndex = steepestRegion(np.log10(np.abs(deviceRun['Results']['id_data'][0])), 10)
+#	vgs_region = deviceRun['Results']['vgs_data'][0][startIndex:endIndex]
+#	id_region = deviceRun['Results']['id_data'][0][startIndex:endIndex]
+#	fitted_region = semilogFit(vgs_region, id_region)['fitted_data']
+#	SS_list.append(avgSubthresholdSwing(vgs_region, fitted_region))
+#	axis.plot(vgs_region, fitted_region, color='b', linestyle='--')
+#SS_avg = np.mean(SS_list)
+
 def linearFit(x, y):
 	slope, intercept = np.polyfit(x, y, 1)
 	fitted_data = [slope*x[i] + intercept for i in range(len(x))]
@@ -466,7 +525,7 @@ def steepestRegion(data, numberOfPoints):
 
 # === Metrics ===
 def avgSubthresholdSwing(vgs_data, id_data):
-	return (abs( vgs_data[0] - vgs_data[-1] / (np.log10(np.abs(id_data[0])) - np.log10(np.abs(id_data[-1]))) ) * 1000)
+	return (abs( (vgs_data[0] - vgs_data[-1]) / (np.log10(np.abs(id_data[0])) - np.log10(np.abs(id_data[-1]))) ) * 1000)
 
 
 

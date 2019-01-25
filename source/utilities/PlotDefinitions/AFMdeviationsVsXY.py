@@ -1,9 +1,10 @@
 from utilities.MatplotlibUtility import *
-
+from procedures.AFM_Control import *
 
 
 plotDescription = {
 	'plotCategory': 'device',
+	'priority': 10,
 	'dataFileDependencies': ['AFMControl.json'],
 	'plotDefaults': {
 		'figsize':(5,4),
@@ -46,7 +47,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# currents[np.where(Xs < 0.5)[0]] = 0
 	
 	c, a, b = zip(*sorted(zip(np.array(currents)*1e9, Xs, Ys), reverse=True))
-	line = ax.scatter(a, b, c=c, cmap=plotDescription['plotDefaults']['colorMap'], alpha=0.6)
+	line = ax.scatter(a, b, c=c, cmap=plotDescription['plotDefaults']['colorMap'], alpha=0.6, marker='o', s=70)
 	# line = ax.scatter(Xs, Ys, c=np.array(currents)*1e9, cmap=plotDescription['plotDefaults']['colorMap'], alpha=0.6)
 	cbar = fig.colorbar(line, pad=0.015, aspect=50)
 	cbar.set_label('Drain Current [nA]', rotation=270, labelpad=11)
@@ -55,11 +56,68 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# if(len(deviceHistory) == len(mode_parameters['legendLabels'])):
 		# setLabel(line, mode_parameters['legendLabels'][i])
 	
-	ax.set_ylabel('Y Position [$\mu$m]')
-	ax.set_xlabel('X Position [$\mu$m]')
+	ax.set_ylabel('Y Position ($\\mu$m)')
+	ax.set_xlabel('X Position ($\\mu$m)')
 	
 	# Add Legend and save figure
 	adjustAndSaveFigure(fig, 'AFMdeviationsVsXY', mode_parameters)
 	
+	
+	
 	return (fig, ax)
+	
+	
+
+		
+	
+def extractTraces(deviceHistory):
+	Vx_topology_trace = []
+	Vx_topology_retrace = []
+	Vx_nap_trace = []
+	Vx_nap_retrace = []
+	
+	Vy_topology_trace = []
+	Vy_topology_retrace = []
+	Vy_nap_trace = []
+	Vy_nap_retrace = []
+	
+	Id_topology_trace = []
+	Id_topology_retrace = []
+	Id_nap_trace = []
+	Id_nap_retrace = []
+	
+	for i in range(len(deviceHistory)):
+		timestamps = deviceHistory[i]['Results']['timestamps_smu2']
+		Vx = deviceHistory[i]['Results']['smu2_v2_data']
+		Vy = deviceHistory[i]['Results']['smu2_v1_data']
+		current = np.array(deviceHistory[i]['Results']['id_data'])
+		currentLinearFit = np.polyval(np.polyfit(range(len(current)), current, 1), range(len(current)))
+		currentLinearized = current - currentLinearFit
+		currentLinearized = currentLinearized - np.median(currentLinearized)
+		
+		segments = getSegmentsOfTriangle(timestamps, Vx, discardThreshold=0.5, smoothSegmentsByOverlapping=False)
+		
+		for j in range(len(segments)):
+			if((j % 4) == 0):
+				Vx_topology_trace.append(list(np.array(Vx)[segments[j]]))
+				Vy_topology_trace.append(list(np.array(Vy)[segments[j]]))
+				Id_topology_trace.append(list(np.array(currentLinearized)[segments[j]]))
+			elif((j % 4) == 1):
+				Vx_topology_retrace.append(list(np.array(Vx)[segments[j]]))
+				Vy_topology_retrace.append(list(np.array(Vy)[segments[j]]))
+				Id_topology_retrace.append(list(np.array(currentLinearized)[segments[j]]))
+			elif((j % 4) == 2):
+				Vx_nap_trace.append(list(np.array(Vx)[segments[j]]))
+				Vy_nap_trace.append(list(np.array(Vy)[segments[j]]))
+				Id_nap_trace.append(list(np.array(currentLinearized)[segments[j]]))
+			elif((j % 4) == 3):
+				Vx_nap_retrace.append(list(np.array(Vx)[segments[j]]))
+				Vy_nap_retrace.append(list(np.array(Vy)[segments[j]]))
+				Id_nap_retrace.append(list(np.array(currentLinearized)[segments[j]]))
+	
+	return {
+		'Vx': [Vx_topology_trace, Vx_topology_retrace, Vx_nap_trace, Vx_nap_retrace],
+		'Vy': [Vy_topology_trace, Vy_topology_retrace, Vy_nap_trace, Vy_nap_retrace],
+		'Id': [Id_topology_trace, Id_topology_retrace, Id_nap_trace, Id_nap_retrace]
+	}
 

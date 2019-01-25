@@ -6,14 +6,15 @@ import copy
 
 plotDescription = {
 	'plotCategory': 'chip',
+	'priority': 130,
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(2.8,3.2),
-		'ylabel':'Transconductance [$\\mu$A/V]',
+		'ylabel':'Transconductance ($\\mu$A/V)',
 	},
 }
 
-def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory, chipHistoryList, mode_parameters=None):
+def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory, groupedChipHistory, mode_parameters=None):
 	# Load Defaults
 	plotDescrip_current = copy.deepcopy(plotDescription)
 
@@ -25,11 +26,11 @@ def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, sp
 	# Plot
 
 	# Plot
-	if chipHistoryList == None or len(chipHistoryList) <= 0:
-		chipHistoryList = list()
-		chipHistoryList.append(specificRunChipHistory)
+	if groupedChipHistory == None or len(groupedChipHistory) <= 0:
+		groupedChipHistory = list()
+		groupedChipHistory.append(specificRunChipHistory)
 	gmVals = list()
-	for chipHistory in chipHistoryList:
+	for chipHistory in groupedChipHistory:
 		gm, vt, r2 = dpu.fitBasicDeviceModel(chipHistory)
 		gm = [val*1000000 for val in gm] #Convert to uA
 		if not mode_parameters['useBoxWhiskerPlot']:

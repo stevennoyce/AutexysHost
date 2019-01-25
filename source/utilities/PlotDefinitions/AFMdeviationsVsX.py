@@ -4,6 +4,7 @@ from utilities.MatplotlibUtility import *
 
 plotDescription = {
 	'plotCategory': 'device',
+	'priority': 20,
 	'dataFileDependencies': ['AFMControl.json'],
 	'plotDefaults': {
 		'figsize':(5,4),
@@ -38,8 +39,8 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		# if(len(deviceHistory) == len(mode_parameters['legendLabels'])):
 			# setLabel(line, mode_parameters['legendLabels'][i])
 	
-	ax.set_ylabel('$I_D$ [nA]')
-	ax.set_xlabel('X Position [$\mu$m]')
+	ax.set_ylabel('$I_D$ (nA)')
+	ax.set_xlabel('X Position ($\mu$m)')
 	
 	# Add Legend and save figure
 	adjustAndSaveFigure(fig, 'AFMdeviationsVsX', mode_parameters)

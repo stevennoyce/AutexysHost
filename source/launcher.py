@@ -20,6 +20,7 @@ from procedures import Auto_Drain_Sweep as autoDrainScript
 from procedures import Auto_Static_Bias as autoBiasScript
 from procedures import AFM_Control as afmControlScript
 from procedures import Delay as delayScript
+from procedures import Inverter_Sweep as inverterSweepScript
 
 from utilities import DataLoggerUtility as dlu
 from drivers import SourceMeasureUnit as smu
@@ -105,6 +106,8 @@ def runAction(parameters, schedule_parameters, smu_systems, arduino_instance, co
 			afmControlScript.run(parameters, smu_systems)
 		elif(parameters['runType'] == 'Delay'):
 			delayScript.run(parameters)
+		elif(parameters['runType'] == 'InverterSweep'):
+			inverterSweepScript.run(parameters, smu_systems)
 		else:
 			raise NotImplementedError("Invalid action for the Source Measure Unit")
 	except Exception as e:

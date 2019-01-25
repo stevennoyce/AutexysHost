@@ -4,6 +4,7 @@ from utilities.MatplotlibUtility import *
 
 plotDescription = {
 	'plotCategory': 'device',
+	'priority': 40,
 	'dataFileDependencies': ['AFMControl.json'],
 	'plotDefaults': {
 		'figsize':(5,4),
@@ -33,9 +34,9 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		# if(len(deviceHistory) == len(mode_parameters['legendLabels'])):
 			# setLabel(line, mode_parameters['legendLabels'][i])
 	
-	ax.set_ylabel('$I_D$ [nA]')
-	ax.set_xlabel('Time [s]')
-	ax2.set_ylabel('AFM Voltages [V]', rotation=-90, va='bottom', labelpad=5)
+	ax.set_ylabel('$I_D$ (nA)')
+	ax.set_xlabel('Time (s)')
+	ax2.set_ylabel('AFM Voltages (V)', rotation=-90, va='bottom', labelpad=5)
 	
 	# Add Legend and save figure
 	adjustAndSaveFigure(fig, 'FullSubthresholdCurves', mode_parameters)

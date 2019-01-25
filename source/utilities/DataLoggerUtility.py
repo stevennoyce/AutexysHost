@@ -2,17 +2,21 @@ import os
 import json
 import glob
 import re
-
 import time
-
+import numpy as np
+import io
 
 
 # === File System ===
 def makeFolder(folderPath):
 	"""Create all of the folders in folderPath if they do not already exist."""
-	if (not os.path.exists(folderPath)):
-		print('New Folder: ' + str(folderPath))
-		os.makedirs(folderPath)
+	try:
+		if (not os.path.exists(folderPath)):
+			print('New Folder: ' + str(folderPath))
+			os.makedirs(folderPath)
+	except Exception as e:
+		print('Cannot make folder: "' + folderPath + '"')
+
 
 def emptyFolder(folderPath):
 	"""Remove all png files from a folder."""
@@ -30,8 +34,106 @@ def emptyFile(folderPath, fileName):
 	
 	with open(os.path.join(folderPath, fileName), 'w') as file:
 		file.write('')
-	
 
+
+# === CSV ===
+def loadCSV(directory, loadFileName, dataNamesLabel=None, dataValuesLabel=None):
+	"""Load a specified CSV file in directory. If the CSV file has a row that names every data column and the data rows are labeled,
+	then the data columns can be extracted to arrays in a dictionary. For the B1500A, these labels are 'DataName' and 'DataValue'. """
+	
+	# Load generic CSV data
+	csv_data = []
+	with open(os.path.join(directory, loadFileName), encoding='utf-8') as file:
+		for line in file:
+			row = line.strip().split(',')
+			csv_data.append(row)
+	
+	# By default, just return the entire 2D array of CSV data
+	if((dataNamesLabel is None) or (dataValuesLabel is None)):
+		return csv_data
+	
+	# Locate the names of each data column
+	column_index = {}
+	formatted_data = {}
+	for row in csv_data:
+		if(row[0] == dataNamesLabel):
+			for i in range(1, len(row)):
+				column_index[i] = row[i].strip()
+				formatted_data[row[i].strip()] = []
+			break
+	
+	# Extract data values to the appropriate array for their column
+	for row in csv_data:
+		if(row[0] == dataValuesLabel):
+			for i in range(1, len(row)):
+				try:
+					formatted_data[column_index[i]].append(float(row[i]))	
+				except:
+					formatted_data[column_index[i]].append(row[i])	
+	
+	return formatted_data
+	
+def saveCSV(deviceHistory, saveFileName, directory='', separateDataByEmptyRows=True):
+	makeFolder(directory)
+	
+	savePath = ''
+	if(isinstance(saveFileName, io.StringIO)):
+	 	savePath = saveFileName
+	else:
+	 	savePath = os.path.join(directory, saveFileName)
+	
+	# Look at the first line in the data and extract the data lists to save
+	data_columns = {}
+	if(len(deviceHistory) >= 1):
+		for key in deviceHistory[0]['Results'].keys():
+			data_columns[key] = []
+				
+	# Flatten the data into 			
+	for jsonData in deviceHistory:
+		for key in jsonData['Results']:
+			if(key in data_columns.keys()):
+				data_columns[key].extend(np.hstack(jsonData['Results'][key]).flatten())
+				if(separateDataByEmptyRows):
+					data_columns[key].append('')
+					
+	lines = []
+	
+	# Write all of the variable names in the first line of the CSV
+	header = ','.join(data_columns.keys()) + '\n' 
+	lines.append(header)
+	
+	# Write all of the data row-by-row to the file
+	index = 0
+	isDone = False
+	while(not isDone):
+		isDone = True
+		values = []
+		for key in data_columns.keys():
+			if(index < len(data_columns[key])):
+				values.append(str(data_columns[key][index]))
+				isDone = False
+			else:
+				values.append('')
+				
+		row = ','.join(values) + '\n'
+		lines.append(row)
+		index += 1
+	
+	if(isinstance(saveFileName, io.StringIO)):
+		file = savePath
+		for line in lines:
+			file.write(line)
+	else:
+		with open(savePath, 'w') as file:
+			for line in lines:
+				file.write(line)
+
+
+def appendTextToFile(directory, saveFileName, textToAppend):
+	makeFolder(directory)	
+	with open(os.path.join(directory, saveFileName), 'a') as file:
+		file.write(textToAppend)
+		file.write('\n')
 
 # === JSON ===
 def saveJSON(directory, saveFileName, jsonData, subDirectory=None, incrementIndex=True):
@@ -54,7 +156,7 @@ def saveJSON(directory, saveFileName, jsonData, subDirectory=None, incrementInde
 			jsonData['timestamp'] = time.time()
 			incrementJSONIndex(directory)
 		json.dump(jsonData, file)
-		file.write('\n')	
+		file.write('\n')
 
 def loadJSON(directory, loadFileName):
 	"""Load loadFileName.json as a dictionary."""
@@ -117,6 +219,10 @@ def getDeviceDirectory(parameters):
 	"""Given the typical parameters used to run an experiment, return the path to the directory where data will be saved for this device."""
 	return os.path.join(parameters['dataFolder'], parameters['Identifiers']['user'], parameters['Identifiers']['project'], parameters['Identifiers']['wafer'], parameters['Identifiers']['chip'], parameters['Identifiers']['device']) + os.sep
 
+def getExperimentDirectory(parameters, experimentNumber):
+	"""Given the typical parameters used to run an experiment, return the path to the directory where data will be saved for this device."""
+	return os.path.join(getDeviceDirectory(parameters), 'Ex'+str(experimentNumber)) + os.sep
+
 def loadSpecificDeviceHistory(directory, fileName, minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf')):
 	"""Given a folder path and fileName, load data for a device over a range of indices or experiments. 
 	If minIndex/maxIndex or minExperiment/maxExperiment are negative, then index backwards (-1 == the most recent index/experiment)"""
@@ -140,9 +246,12 @@ def loadSpecificDeviceHistory(directory, fileName, minIndex=0, maxIndex=float('i
 	#for experimentSubdirectory in ["Ex" + str(val) for val in folderlist]:
 	#	filteredHistory += loadJSON_fast(os.path.join(directory, experimentSubdirectory), fileName, minIndex, maxIndex, minExperiment, maxExperiment, minRelativeIndex, maxRelativeIndex)
 	
-	for experimentSubdirectory in sorted([name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and os.path.exists(os.path.join(directory, name, fileName)) and (name[0:2] == 'Ex' and name[2:].isdigit()) and (int(name[2:]) >= minExperiment) and (int(name[2:]) <= maxExperiment))]):
+	string_to_int = lambda text: int(text) if text.isdigit() else text
+	natural_keys = lambda text: [string_to_int(c) for c in re.split('(\d+)', text)]
+	
+	for experimentSubdirectory in sorted([name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and os.path.exists(os.path.join(directory, name, fileName)) and (name[0:2] == 'Ex' and name[2:].isdigit()) and (int(name[2:]) >= minExperiment) and (int(name[2:]) <= maxExperiment))], key=natural_keys):
 		filteredHistory += loadJSON_fast(os.path.join(directory, experimentSubdirectory), fileName, minIndex, maxIndex, minExperiment, maxExperiment, minRelativeIndex, maxRelativeIndex)	
-		
+			
 	return filteredHistory
 
 def loadOldestDeviceHistory(directory, fileName, numberOfOldestExperiments=1, numberOfOldestIndexes=1):
@@ -370,4 +479,8 @@ def filterFileLinesLessThan(fileLines, property, value):
 			filteredFileLines.append(line)
 	return filteredFileLines
 
-	
+
+if(__name__ == '__main__'):
+	#loadSpecificDeviceHistory('../../../AutexysData/jay/MoS2FET/JM3/B/53-54', 'GateSweep.json', minExperiment=0, maxExperiment=20)
+	deviceHistory = loadJSON('/Users/jaydoherty/Documents/myWorkspaces/Research/Autexys/AutexysData/joey/CNT_TFT/190108/unknown/34-35/Ex3/', 'GateSweep.json')
+	saveCSV(deviceHistory, 'test.csv', '/Users/jaydoherty/Desktop/')

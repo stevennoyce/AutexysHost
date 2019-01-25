@@ -4,19 +4,20 @@ import copy
 
 plotDescription = {
 	'plotCategory': 'chip',
+	'priority': 10,
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(2.8,3.2),
 		'includeOrigin':True,
 		'colorMap':'magma',
 		'colorDefault': ['#f2b134'],
-		'xlabel':'$V_{{GS}}^{{Sweep}}$ [V]',
-		'ylabel':'$I_{{D}}$ [$\\mu$A]',
-		'neg_label':'$-I_{{D}}$ [$\\mu$A]',
+		'xlabel':'$V_{{GS}}^{{Sweep}}$ (V)',
+		'ylabel':'$I_{{D}}$ ($\\mu$A)',
+		'neg_label':'$-I_{{D}}$ ($\\mu$A)',
 	},
 }
 
-def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory, chipHistoryList, mode_parameters=None):
+def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory, groupedChipHistory, mode_parameters=None):
 	# Load Defaults
 	plotDescrip_current = copy.deepcopy(plotDescription)
 

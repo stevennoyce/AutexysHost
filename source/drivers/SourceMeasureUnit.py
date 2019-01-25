@@ -34,6 +34,27 @@ smu_system_configurations = {
 			'settings': {}
 		}
 	},
+	'slowSMU1': {
+		'SMU': {
+			'uniqueID': 'USB0::0x0957::0x8C18::MY51142879::INSTR',
+			'type': 'B2912A',
+			'settings': {}
+		}
+	},
+	'fastSMU1': {
+		'SMU': {
+			'uniqueID': 'USB0::0x0957::0x8E18::MY51141244::INSTR',
+			'type': 'B2912A',
+			'settings': {}
+		}
+	},
+	'fastSMU2': {
+		'SMU': {
+			'uniqueID': 'USB0::0x0957::0x8E18::MY51141241::INSTR',
+			'type': 'B2912A',
+			'settings': {}
+		}
+	},
 	'double': {
 		'deviceSMU':{
 			'uniqueID': 'USB0::0x0957::0x8E18::MY51141244::INSTR',
@@ -53,6 +74,26 @@ smu_system_configurations = {
 				'channel2SourceMode': 'current'
 			}
 		}
+	},
+	'inverter': {
+		'sweepSMU':{
+			'uniqueID': 'USB0::0x0957::0x8E18::MY51141241::INSTR',
+			'type': 'B2912A',
+			'settings': {
+				'reset': True,
+				'channel1SourceMode': 'current',
+				'channel2SourceMode': 'voltage'
+			}
+		},
+		'powerSupplySMU':{
+			'uniqueID': 'USB0::0x0957::0x8C18::MY51142879::INSTR',
+			'type': 'B2912A',
+			'settings': {
+				'reset': True,
+				'channel1SourceMode': 'voltage',
+				'channel2SourceMode': 'voltage'
+			}
+		}
 	}
 }
 
@@ -62,12 +103,22 @@ def getSystemConfiguration(systemType):
 def getConnectionToVisaResource(uniqueIdentifier='', system_settings=None, defaultComplianceCurrent=100e-6, smuTimeout=60000):
 	import visa
 	
-	rm = visa.ResourceManager()
-	if(uniqueIdentifier == ''):
-		uniqueIdentifier = rm.list_resources()[0]
-	instance = rm.open_resource(uniqueIdentifier)
+	try:
+		rm = visa.ResourceManager()
+		if(uniqueIdentifier == ''):
+			uniqueIdentifier = rm.list_resources()[0]
+		instance = rm.open_resource(uniqueIdentifier)
+		print(instance.query('*IDN?'))
+		print('Opened VISA connection through NI-VISA backend.')
+	except:
+		rm = visa.ResourceManager('@py')
+		if(uniqueIdentifier == ''):
+			uniqueIdentifier = rm.list_resources()[0]
+		instance = rm.open_resource(uniqueIdentifier)
+		print(instance.query('*IDN?'))
+		print('Opened VISA connection through PyVISA-py backend.')
+		
 	instance.timeout = smuTimeout
-	print(instance.query('*IDN?'))
 	return B2912A(instance, uniqueIdentifier, defaultComplianceCurrent, system_settings)
 
 def getConnectionToPCB(pcb_port='', system_settings=None):
@@ -181,7 +232,9 @@ class B2912A(SourceMeasureUnit):
 		self.setComplianceCurrent(defaultComplianceCurrent)
 	
 	def initialize(self):
-		if 'reset' in self.system_settings and self.system_settings['reset']:
+		if((self.system_settings is not None) and ('reset' in self.system_settings) and (not self.system_settings['reset'])):
+			pass # don't reset on startup if you are specifically told not to by the system settings
+		else:
 			self.smu.write("*RST") # Reset
 		
 		self.smu.write(':system:lfrequency 60')
@@ -192,15 +245,15 @@ class B2912A(SourceMeasureUnit):
 		self.smu.write(':sense2:curr:range:auto ON')
 		self.smu.write(':sense2:curr:range:auto:llim 1e-8')
 		
-		if 'channel1SourceMode' not in self.system_settings:
+		if((self.system_settings is not None) and ('channel1SourceMode' in self.system_settings)):
+			self.setChannel1SourceMode(self.system_settings['channel1SourceMode'])
+			self.setChannel2SourceMode(self.system_settings['channel2SourceMode'])
+		else:
 			self.smu.write(":source1:function:mode voltage")
 			self.smu.write(":source2:function:mode voltage")
 			
 			self.smu.write(":source1:voltage 0.0")
 			self.smu.write(":source2:voltage 0.0")
-		else:
-			self.setChannel1SourceMode(self.system_settings['channel1SourceMode'])
-			self.setChannel2SourceMode(self.system_settings['channel2SourceMode'])
 		
 		self.smu.write(":sense1:curr:nplc 1")
 		self.smu.write(":sense2:curr:nplc 1")
@@ -324,7 +377,7 @@ class B2912A(SourceMeasureUnit):
 		voltage2s = self.smu.query_ascii_values(":fetch:arr:voltage? (@2)")
 		timestamps = self.smu.query_ascii_values(":fetch:array:time? (@2)")
 		
-		if endMode is not None:
+		if(endMode is not None):
 			self.smu.write(":source1:{}:mode {}".format(self.source1_mode, endMode))
 			self.smu.write(":source2:{}:mode {}".format(self.source2_mode, endMode))
 		
@@ -468,7 +521,8 @@ class PCB2v14(SourceMeasureUnit):
 
 
 
-
+if (__name__ == '__main__'):
+	getConnectionToVisaResource()
 
 
 

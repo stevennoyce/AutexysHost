@@ -4,17 +4,18 @@ import copy
 
 plotDescription = {
 	'plotCategory': 'device',
+	'priority': 1000,
 	'dataFileDependencies': ['GateSweep.json', 'ThisPlotIsStillInProgressDontUseItYet'],
 	'plotDefaults': {
 		'figsize':(2.8,3.2),
 		'includeOrigin':True,
 		'colorMap':'viridis',
 		'colorDefault': [plt.rcParams['axes.prop_cycle'].by_key()['color'][1]],
-		'xlabel':'$V_{{GS}}^{{Sweep}}$ [V]',
-		'ylabel':'$I_{{D}}$ [$\\mu$A]',
-		'neg_label':'$-I_{{D}}$ [$\\mu$A]',
-		'ii_label':'$I_{{D}}$, $I_{{G}}$ [$\\mu$A]',
-		'neg_ii_label':'$-I_{{D}}$, $I_{{G}}$ [$\\mu$A]',
+		'xlabel':'$V_{{GS}}^{{Sweep}}$ (V)',
+		'ylabel':'$I_{{D}}$ ($\\mu$A)',
+		'neg_label':'$-I_{{D}}$ ($\\mu$A)',
+		'ii_label':'$I_{{D}}$, $I_{{G}}$ ($\\mu$A)',
+		'neg_ii_label':'$-I_{{D}}$, $I_{{G}}$ ($\\mu$A)',
 		'leg_vds_label':'$V_{{DS}}^{{Sweep}}$\n  = {:}V',
 		'leg_vds_range_label':'$V_{{DS}}^{{min}} = $ {:}V\n'+'$V_{{DS}}^{{max}} = $ {:}V',
 	},
@@ -76,7 +77,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	includeOriginOnYaxis(ax, include=plotDescrip_current['plotDefaults']['includeOrigin'])
 
 	# Add Legend and save figure	
-	addLegend(ax, loc=mode_parameters['legendLoc'], title=getLegendTitle(deviceHistory, identifiers, plotDescrip_current['plotDefaults'], 'runConfigs', 'GateSweep', mode_parameters, includeVdsSweep=True))
+	addLegend(ax, loc=mode_parameters['legendLoc'], title=getLegendTitle(deviceHistory, identifiers, plotDescrip_current['plotDefaults'], 'runConfigs', 'GateSweep', mode_parameters, includeVdsSweep=True), mode_parameters=mode_parameters)
 	adjustAndSaveFigure(fig, 'FullTransferCurves', mode_parameters)
 
 	return (fig, ax)

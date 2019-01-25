@@ -6,11 +6,12 @@ import copy
 
 plotDescription = {
 	'plotCategory': 'device',
+	'priority': 220,
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(2.8,3.2),
 		'xlabel':'Trial',
-		'ylabel':'Threshold Voltage [V]',
+		'ylabel':'Threshold Voltage (V)',
 	},
 }
 

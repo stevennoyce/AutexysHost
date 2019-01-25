@@ -93,6 +93,7 @@ def sendPlot(user, project, wafer, chip, device, experiment, plotType):
 	
 	plotSettings = copy.deepcopy(default_makePlot_parameters)
 	receivedPlotSettings = json.loads(flask.request.args.get('plotSettings'))
+	#afmPath = json.loads(flask.request.args.get('afmPath'))
 	plotSettings.update(receivedPlotSettings)
 	
 	filebuf = io.BytesIO()
@@ -107,6 +108,12 @@ def sendPlot(user, project, wafer, chip, device, experiment, plotType):
 	plotSettings['saveFigures'] = True
 	plotSettings['showFigures'] = False
 	plotSettings['specificPlot'] = plotType
+	
+	# mode parameter 'AFMImagePath'
+	#if(plotType == 'AFMdeviationsImage'):
+	#	if(plotSettings['plot_mode_parameters'] == None):
+	#		plotSettings['plot_mode_parameters'] = {}
+	#	plotSettings['plot_mode_parameters']['afm_image_path'] = afmPath
 	
 	DH.makePlots(user, project, wafer, chip, device, **plotSettings)
 	# plt.savefig(mode_parameters['plotSaveName'], transparent=True, dpi=pngDPI, format='png')
@@ -327,6 +334,54 @@ def AFMFilesInTimestampRange(startTime, endTime):
 	afms = glob.glob(default_data_path + '../../**/*.ibw', recursive=True)
 	return jsonvalid(afms)
 
+@app.route('/addToNote', methods=['POST'])
+def addToNote():
+	experiment = flask.request.get_json(force=True)
+	experimentNumber = experiment['startIndexes']['experimentNumber']
+	noteAddition = experiment['noteAddition']
+	path = dlu.getExperimentDirectory(experiment, experimentNumber)
+	
+	dlu.appendTextToFile(path, 'Note.txt', noteAddition)
+	
+	return jsonvalid({'success': True})
+
+
+@app.route('/addToCorrection', methods=['POST'])
+def addToCorrection():	
+	folder = os.path.join(default_data_path, user, project, wafer, chip, device, 'Ex' + experimentNumber)
+	
+	correction = flask.request.get_json(force=True)
+
+@app.route('/paths.json')
+def paths():
+	sourceAbsPath = os.path.abspath(os.path.dirname(__file__))
+	
+	return jsonvalid({'sourceAbsPath': sourceAbsPath})
+
+@app.route('/saveCSV/<user>/<project>/<wafer>/<chip>/<device>/<experiment>/data.csv')
+def saveCSV(user, project, wafer, chip, device, experiment):
+	plotSettings = copy.deepcopy(default_makePlot_parameters)
+	receivedPlotSettings = json.loads(flask.request.args.get('plotSettings'))
+	#afmPath = json.loads(flask.request.args.get('afmPath'))
+	plotSettings.update(receivedPlotSettings)
+	
+	path = os.path.join(default_data_path, user, project, wafer, chip, device, 'Ex' + experiment)
+	
+	deviceHistory = dlu.loadJSON(path, 'GateSweep.json')
+	
+	proxy = io.StringIO()
+	dlu.saveCSV(deviceHistory, proxy)
+	
+	filebuf = io.BytesIO()
+	filebuf.write(proxy.getvalue().encode('utf-8'))
+	
+	filebuf.seek(0)
+	proxy.close()
+    
+	return flask.send_file(filebuf, attachment_filename='data.csv')
+
+# C127X_15-16 vented before Ex210
+
 # @app.after_request
 # def add_header(response):
 # 	# response.cache_control.max_age = 300
@@ -352,7 +407,7 @@ def findFirstOpenPort(startPort=1):
 def managerMessageForwarder():
 	global pipeToManager
 	while True:
-		if pipeToManager.poll():
+		if((pipeToManager is not None) and (pipeToManager.poll())):
 			print('Sending server message')
 			socketio.emit('Server Message', pipeToManager.recv())
 		time.sleep(0.1)
