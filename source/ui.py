@@ -369,11 +369,15 @@ def saveCSV(user, project, wafer, chip, device, experiment):
 	
 	deviceHistory = dlu.loadJSON(path, 'GateSweep.json')
 	
-	filebuf = io.StringIO()
-	dlu.saveCSV(deviceHistory, saveFile=filebuf)
+	proxy = io.StringIO()
+	dlu.saveCSV(deviceHistory, proxy)
 	
-	# filebuf.seek(0)
-	filebuf.open()
+	filebuf = io.BytesIO()
+	filebuf.write(proxy.getvalue().encode('utf-8'))
+	
+	filebuf.seek(0)
+	proxy.close()
+    
 	return flask.send_file(filebuf, attachment_filename='data.csv')
 
 # C127X_15-16 vented before Ex210
