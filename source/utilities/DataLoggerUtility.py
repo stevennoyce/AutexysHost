@@ -72,7 +72,7 @@ def loadCSV(directory, loadFileName, dataNamesLabel=None, dataValuesLabel=None):
 	
 	return formatted_data
 	
-def saveCSV(deviceHistory, saveFileName, directory=''):
+def saveCSV(deviceHistory, saveFileName, directory='', separateDataByEmptyRows=True):
 	makeFolder(directory)
 	
 	savePath = ''
@@ -87,11 +87,13 @@ def saveCSV(deviceHistory, saveFileName, directory=''):
 		for key in deviceHistory[0]['Results'].keys():
 			data_columns[key] = []
 				
+	# Flatten the data into 			
 	for jsonData in deviceHistory:
 		for key in jsonData['Results']:
 			if(key in data_columns.keys()):
 				data_columns[key].extend(np.hstack(jsonData['Results'][key]).flatten())
-				data_columns[key].append('')
+				if(separateDataByEmptyRows):
+					data_columns[key].append('')
 		
 	index = 0
 	isDone = False
