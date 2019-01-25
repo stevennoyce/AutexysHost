@@ -90,7 +90,7 @@ def saveCSV(deviceHistory, saveFileName, directory=''):
 	for jsonData in deviceHistory:
 		for key in jsonData['Results']:
 			if(key in data_columns.keys()):
-				data_columns[key].extend(np.hstack(jsonData['Results'][key]))
+				data_columns[key].extend(np.hstack(jsonData['Results'][key]).flatten())
 				data_columns[key].append('')
 		
 	index = 0
