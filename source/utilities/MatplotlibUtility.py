@@ -180,16 +180,16 @@ def plotSweep(axis, jsonData, lineColor, direction='both', x_data='gate voltage'
 		forward_x = []
 		forward_y = []
 		for i in [j for j in range(len(x)) if(j % 2 == 0)]:
-			forward_x.extend(x[i])
-			forward_y.extend(y[i])
+			forward_x.append(x[i])
+			forward_y.append(y[i])
 		x = forward_x
 		y = forward_y
 	elif(direction == 'reverse'):
 		reverse_x = []
 		reverse_y = []
 		for i in [j for j in range(len(x)) if(j % 2 == 1)]:
-			reverse_x.extend(x[i])
-			reverse_y.extend(y[i])
+			reverse_x.append(x[i])
+			reverse_y.append(y[i])
 		x = reverse_x
 		y = reverse_y
 	else:
@@ -206,14 +206,21 @@ def plotSweep(axis, jsonData, lineColor, direction='both', x_data='gate voltage'
 	# Scale the data by a given factor
 	y = np.array(y)*scaleCurrentBy
 
-	# data contains multiple y-values per x-value
-	if(pointsPerX > 1):
-		line = plotWithErrorBars(axis, x, y, lineColor, errorBars=errorBars)
-	else:
-		if(lineStyle == ''):
-			line = axis.plot(x, y, color=lineColor, marker='o', markersize=2, linewidth=0)[0]
+	# Convert x and y to list-of-list form for consistency across all possible data formats
+	if(not isinstance(x[0], list)):
+		x = [x]
+		y = [y]
+	
+	# Iterate through segments of x and y
+	for i in range(len(x)):
+		# data contains multiple y-values per x-value
+		if(pointsPerX > 1):
+			line = plotWithErrorBars(axis, x[i], y[i], lineColor, errorBars=errorBars)
 		else:
-			line = axis.plot(x, y, color=lineColor, marker='o', markersize=2, linewidth=1, linestyle=lineStyle)[0]
+			if(lineStyle == ''):
+				line = axis.plot(x[i], y[i], color=lineColor, marker='o', markersize=2, linewidth=0)[0]
+			else:
+				line = axis.plot(x[i], y[i], color=lineColor, marker='o', markersize=2, linewidth=1, linestyle=lineStyle)[0]
 
 	return line
 
