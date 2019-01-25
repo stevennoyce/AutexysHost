@@ -51,10 +51,10 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	for i in range(len(SS_list)):
 		line = ax.plot([i+1], [SS_list[i]], color=colors[i], marker='o', markersize=4, linewidth=0, linestyle=None)
 
-	# Label axes
+	# Set Axis Labels
 	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=plotDescription['plotDefaults']['ylabel'])
 
-	# Adjust Y-lim (if desired)
+	# Show the 60 mV/dec thermal limit to SS (if desired)
 	if(plotDescription['plotDefaults']['include60mV']):
 		ax.plot([ax.get_xlim()[0], ax.get_xlim()[1]], [60, 60], color='black', lw=1, ls='--')
 		ax.set_ylim(bottom=0, top=ax.get_ylim()[1]*1.1)

@@ -51,7 +51,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	for i in range(len(gm_list)):
 		line = ax.plot([i+1], np.array([gm_list[i]]) * 10**6, color=colors[i], marker='o', markersize=4, linewidth=0, linestyle=None)
 
-	# Label axes
+	# Set Axis Labels
 	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=plotDescription['plotDefaults']['ylabel'])
 
 	# Adjust Y-lim (if desired)

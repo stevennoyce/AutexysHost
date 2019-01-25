@@ -42,6 +42,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		if(len(deviceHistory) == len(mode_parameters['legendLabels'])):
 			setLabel(line, mode_parameters['legendLabels'][i])
 	
+	# Set Axis Labels
 	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=ylabel)
 
 	# Adjust Y-lim (if desired)
