@@ -241,22 +241,38 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 	vds = afm_parameters['drainVoltageSetPoint']
 	vgs = afm_parameters['gateVoltageSetPoint']
 	
-	# Set SMU source modes
-	#smu_device.setChannel1SourceMode("voltage")
-	#smu_device.setChannel2SourceMode("voltage")
-	#smu_secondary.setChannel1SourceMode("current")
-	#smu_secondary.setChannel2SourceMode("current")
-	
 	# Set SMU NPLC
 	smu_device.setNPLC(1)
 	smu_secondary.setNPLC(1)
 	
-	# Set SMU compliance
+	# Set a low compliance current for startup
+	smu_device.setComplianceCurrent(1e-9)
+	
+	# Turn the device channels on and wait for system capacitances to charge
+	print('Turning device channels on and waiting for equilibration')
+	smu_device.turnChannelsOn()
+	for i in range(10):
+		print(smu_device.takeMeasurement())
+		time.sleep(1)
+	
+	# Turn the voltage measurement channels on and wait
+	print('Turning voltage measurement channels on')
+	smu_secondary.turnChannelsOn()
+	time.sleep(5)
+	
+	# Set SMU compliance to setpoints
+	print('Setting device compliance to setpoint')
 	smu_device.setComplianceCurrent(afm_parameters['complianceCurrent'])
+	time.sleep(5)
+	
+	print('Setting voltage measurement compliance to setpoint')
 	smu_secondary.setComplianceVoltage(afm_parameters['complianceVoltage'])
+	time.sleep(5)
 	
 	# Apply Vgs and Vds to the device
+	print('Ramping drain to source voltage')
 	smu_device.rampDrainVoltageTo(vds, steps=150)
+	print('Ramping gate to source voltage')
 	smu_device.rampGateVoltageTo(vgs, steps=150)
 	
 	# Take a measurement to update the SMU visual displays
