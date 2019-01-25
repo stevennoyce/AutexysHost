@@ -126,8 +126,9 @@ def loadDataBasedOnPlotDependencies(dataFileDependencies, parameters, minIndex=0
 
 
 
-def plotsForExperiments(parameters, minExperiment=0, maxExperiment=float('inf')):
+def plotsForExperiments(dataFolder, user, project, wafer, chip, minExperiment=0, maxExperiment=float('inf')):
 	"""Given the typical parameters used to run experiments, return a list of plots that could be made from the data that has been already collected."""
+	parameters = {'dataFolder':dataFolder, 'Identifiers':{'user':user, 'project':project, 'wafer':wafer, 'chip':chip}}
 	return dpu.getPlotTypesFromDependencies(dlu.getDataFileNamesForChipExperiments(dlu.getChipDirectory(parameters), minExperiment=minExperiment, maxExperiment=maxExperiment), plotCategory='chip')
 
 
@@ -138,6 +139,6 @@ if(__name__ == '__main__'):
 	#parameters = {'Identifiers':{'user':'stevenjay','project':'RedBoard','wafer':'Resistor','chip':'MegaOhm'}, 'dataFolder':'../../AutexysData'}
 	#print(dlu.getDataFileNamesForChipExperiments(dlu.getChipDirectory(parameters), minExperiment=0, maxExperiment=float('inf')))
 	#print(plotsForExperiments(parameters, minExperiment=0, maxExperiment=float('inf')))
-	makePlots('jay', 'MoS2FET', 'JM4', 'C', specificPlot='ChipTransferCurve', specificDeviceList={'3-6', '5-6', '4-5', '27-30', '28-29', '24-25', '34-35', '20-31', '31-32', '19-32'})
+	makePlots('jay', 'MoS2FET', 'JM4', 'C', specificPlot='ChipTransferCurve', specificDeviceList={'24-25'})#specificDeviceList={'3-6', '5-6', '4-5', '27-30', '28-29', '24-25', '34-35', '20-31', '31-32', '19-32'})
 
 
