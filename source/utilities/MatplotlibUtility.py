@@ -192,9 +192,6 @@ def plotSweep(axis, jsonData, lineColor, direction='both', x_data='gate voltage'
 			reverse_y.append(y[i])
 		x = reverse_x
 		y = reverse_y
-	else:
-		x = flatten(x)
-		y = flatten(y)
 
 	# x and y are flattened and plotted as a single array at this point to be backwards compatible with old data and to simplify data scaling
 
@@ -218,9 +215,9 @@ def plotSweep(axis, jsonData, lineColor, direction='both', x_data='gate voltage'
 			line = plotWithErrorBars(axis, x[i], y[i], lineColor, errorBars=errorBars)
 		else:
 			if(lineStyle == ''):
-				line = axis.plot(x[i], y[i], color=lineColor, marker='o', markersize=2, linewidth=0)[0]
+				line = axis.plot(x[i], y[i], color=lineColor, marker='o', markersize=2, linewidth=0, alpha=(1 if(i >= len(x)-2) else 0.25))[0]
 			else:
-				line = axis.plot(x[i], y[i], color=lineColor, marker='o', markersize=2, linewidth=1, linestyle=lineStyle)[0]
+				line = axis.plot(x[i], y[i], color=lineColor, marker='o', markersize=2, linewidth=1, alpha=(1 if(i >= len(x)-2) else 0.25), linestyle=lineStyle)[0]
 
 	return line
 
