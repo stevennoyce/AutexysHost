@@ -339,7 +339,7 @@
 									</v-data-table>
 								</v-card>
 
-								<v-card v-if="stepperPage > 3 ">
+								<v-card v-if="stepperPage == 4 ">
 									<v-toolbar dark class="blue-grey darken-1">
 										<v-toolbar-title>
 											{{ wafer }}{{ chip }} Chip Summary Plots
@@ -401,7 +401,7 @@
 									</v-data-table>
 								</v-card>
 								
-								<v-card v-if="stepperPage > 4">
+								<v-card v-if="stepperPage == 5">
 									<v-toolbar dark class="blue-grey darken-1">
 										<v-toolbar-title>
 											{{ wafer }}{{ chip }} {{ device }} Device Summary Plots
