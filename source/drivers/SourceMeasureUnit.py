@@ -260,7 +260,7 @@ class B2912A(SourceMeasureUnit):
 		self.smu.write(":sense1:curr:nplc 1")
 		self.smu.write(":sense2:curr:nplc 1")
 		
-		if ((self.system_settings is not None) and ('turnChannelsOn' in self.system_settings) and (system_settings['turnChannelsOn'])):
+		if ((self.system_settings is not None) and ('turnChannelsOn' in self.system_settings) and (self.system_settings['turnChannelsOn'])):
 			self.smu.write(":outp1 ON")
 			self.smu.write(":outp2 ON")
 		

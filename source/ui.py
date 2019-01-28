@@ -221,6 +221,8 @@ def availableChipPlots(user, project, wafer, chip):
 	plots = CH.plotsForExperiments(default_data_path, user, project, wafer, chip)
 	return jsonvalid(plots)
 
+
+
 @app.route('/chipPlots/<user>/<project>/<wafer>/<chip>/<plotType>')
 def sendChipPlot(user, project, wafer, chip, plotType):
 	plotSettings = copy.deepcopy(default_makePlot_parameters)
@@ -241,9 +243,7 @@ def sendChipPlot(user, project, wafer, chip, plotType):
 	plotSettings['showFigures'] = False
 	plotSettings['specificPlot'] = plotType
 	
-	CH.makePlots(user, project, wafer, chip, specificPlot=plotType, saveFigures=True, showFigures=False, plotSaveName=filebuf)
-	# CH.makePlots(user, project, wafer, chip, **plotSettings)
-	# plt.savefig(mode_parameters['plotSaveName'], transparent=True, dpi=pngDPI, format='png')
+	CH.makePlots(user, project, wafer, chip, **plotSettings)
 	filebuf.seek(0)
 	return flask.send_file(filebuf, attachment_filename='plot.png')
 
