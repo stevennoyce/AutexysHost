@@ -4,7 +4,7 @@ from utilities.MatplotlibUtility import *
 
 plotDescription = {
 	'plotCategory': 'device',
-	'priority': 10,
+	'priority': 410,
 	'dataFileDependencies': ['InverterSweep.json'],
 	'plotDefaults': {
 		'figsize':(2,2.5),

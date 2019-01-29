@@ -5,7 +5,7 @@ import lmfit
 
 plotDescription = {
 	'plotCategory': 'device',
-	'priority': 60,
+	'priority': 560,
 	'dataFileDependencies': ['AFMControl.json'],
 	'plotDefaults': {
 		'figsize':(5,4),

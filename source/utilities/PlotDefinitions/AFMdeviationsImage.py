@@ -6,7 +6,7 @@ import numpy as np
 
 plotDescription = {
 	'plotCategory': 'device',
-	'priority': 30,
+	'priority': 530,
 	'dataFileDependencies': ['AFMControl.json'],
 	'plotDefaults': {
 		'figsize':(5,4),

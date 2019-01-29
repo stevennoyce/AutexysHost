@@ -5,7 +5,7 @@ from utilities import DataProcessorUtility as dpu
 
 plotDescription = {
 	'plotCategory': 'chip',
-	'priority': 140,
+	'priority': 1050,
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(2.8,3.2),

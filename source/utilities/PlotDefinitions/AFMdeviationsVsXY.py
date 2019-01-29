@@ -4,7 +4,7 @@ from procedures.AFM_Control import *
 
 plotDescription = {
 	'plotCategory': 'device',
-	'priority': 10,
+	'priority': 510,
 	'dataFileDependencies': ['AFMControl.json'],
 	'plotDefaults': {
 		'figsize':(5,4),

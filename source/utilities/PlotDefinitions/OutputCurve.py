@@ -4,7 +4,7 @@ from utilities.MatplotlibUtility import *
 
 plotDescription = {
 	'plotCategory': 'device',
-	'priority': 40,
+	'priority': 210,
 	'dataFileDependencies': ['DrainSweep.json'],
 	'plotDefaults': {
 		'figsize':(2,2.5),

@@ -223,16 +223,6 @@ def plotSweep(axis, jsonData, lineColor, direction='both', x_data='gate voltage'
 
 def plotSubthresholdCurve(axis, jsonData, lineColor, direction='both', fitSubthresholdSwing=False, includeLabel=False, lineStyle=None, errorBars=True):
 	line = plotSweep(axis, jsonData, lineColor, direction, x_data='gate voltage', y_data='drain current', logScale=True, scaleCurrentBy=1, lineStyle=lineStyle, errorBars=errorBars)
-	if(includeLabel): 
-		#setLabel(line, '$log_{10}(I_{on}/I_{off})$'+': {:.1f}'.format(np.log10(jsonData['Computed']['onOffRatio'])))
-		setLabel(line, 'max $|I_{g}|$'+': {:.2e}'.format(jsonData['Computed']['ig_max']))
-	if(fitSubthresholdSwing):
-		startIndex, endIndex = steepestRegion(np.log10(np.abs(jsonData['Results']['id_data'][0])), 10)
-		vgs_region = jsonData['Results']['vgs_data'][0][startIndex:endIndex]
-		id_region = jsonData['Results']['id_data'][0][startIndex:endIndex]
-		fitted_region = semilogFit(vgs_region, id_region)['fitted_data']
-		print(avgSubthresholdSwing(vgs_region, fitted_region))
-		axis.plot(vgs_region, fitted_region, color='b', linestyle='--')
 	return line
 
 def plotTransferCurve(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True):
@@ -245,6 +235,10 @@ def plotGateCurrent(axis, jsonData, lineColor, direction='both', scaleCurrentBy=
 
 def plotOutputCurve(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True):
 	line = plotSweep(axis, jsonData, lineColor, direction, x_data='drain voltage', y_data='drain current', logScale=False, scaleCurrentBy=scaleCurrentBy, lineStyle=lineStyle, errorBars=errorBars)
+	return line
+
+def plotOutputGateCurrent(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True):
+	line = plotSweep(axis, jsonData, lineColor, direction, x_data='drain voltage', y_data='gate current', logScale=False, scaleCurrentBy=scaleCurrentBy, lineStyle=lineStyle, errorBars=errorBars)
 	return line
 
 def plotBurnOut(axis1, axis2, axis3, jsonData, lineColor, lineStyle=None, annotate=False, annotation='', plotLine1=True, plotLine2=True, plotLine3=True):
