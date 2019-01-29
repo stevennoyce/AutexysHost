@@ -203,6 +203,7 @@ def sleepUntil(startTime):
 	time.sleep(startTime - time.time())
 
 def waitForFrameSwitch(smu_secondary, lineTime):
+	print('Waiting for frame switch')
 	Vy_1 = smu_secondary.takeMeasurement()['V_ds']
 	time.sleep(1.1*lineTime)
 	Vy_2 = smu_secondary.takeMeasurement()['V_ds']
@@ -246,7 +247,7 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 	smu_secondary.setNPLC(1)
 	
 	# Set a low compliance current for startup
-	smu_device.setComplianceCurrent(1e-9)
+	smu_device.setComplianceCurrent(10e-9)
 	
 	# Turn the device channels on and wait for system capacitances to charge
 	print('Turning device channels on and waiting for equilibration')
@@ -258,16 +259,16 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 	# Turn the voltage measurement channels on and wait
 	print('Turning voltage measurement channels on')
 	smu_secondary.turnChannelsOn()
-	time.sleep(5)
+	time.sleep(1)
 	
 	# Set SMU compliance to setpoints
 	print('Setting device compliance to setpoint')
 	smu_device.setComplianceCurrent(afm_parameters['complianceCurrent'])
-	time.sleep(5)
+	time.sleep(1)
 	
 	print('Setting voltage measurement compliance to setpoint')
 	smu_secondary.setComplianceVoltage(afm_parameters['complianceVoltage'])
-	time.sleep(5)
+	time.sleep(1)
 	
 	# Apply Vgs and Vds to the device
 	print('Ramping drain to source voltage')
