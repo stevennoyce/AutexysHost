@@ -75,9 +75,11 @@ fet_mobility_fn = lambda g_m_max, V_DS, C_ox, W_ch, L_ch: (g_m_max/(C_ox * W_ch/
 
 
 def FET_Fit(V_GS_data, I_D_data, V_DS, I_OFF_guess=100e-12):
-	if(abs(I_D_data[0]) > abs(I_D_data[-1]) and (V_GS_data[0] < V_GS_data[-1])):
+	if((V_GS_data[0] < V_GS_data[-1]) and abs(I_D_data[0]) > abs(I_D_data[-1]) or (V_GS_data[0] > V_GS_data[-1]) and (abs(I_D_data[0]) < abs(I_D_data[-1]))):
+		print('Fitting to PMOSFET Model.')
 		return PMOSFET_Fit(V_GS_data, -abs(np.array(I_D_data)), -abs(V_DS), I_OFF_guess=abs(I_OFF_guess), I_OFF_min=abs(I_OFF_guess)/2, I_OFF_max=abs(I_OFF_guess)*2)
 	else:
+		print('Fitting to NMOSFET Model.')
 		return NMOSFET_Fit(V_GS_data,  abs(np.array(I_D_data)),  abs(V_DS), I_OFF_guess=abs(I_OFF_guess), I_OFF_min=abs(I_OFF_guess)/2, I_OFF_max=abs(I_OFF_guess)*2)
 
 def NMOSFET_Fit(V_GS_data, I_D_data, V_DS, V_TN_guess=0, V_TN_min=-100, V_TN_max=100, I_OFF_guess=100e-12, I_OFF_min=100e-15, I_OFF_max=1e-6):
