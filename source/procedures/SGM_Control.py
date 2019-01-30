@@ -259,11 +259,6 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 	if(afm_parameters['startOnFrameSwitch']):
 		waitForFrameSwitch(smu_secondary, lineTime)
 	
-	# Collect one line un-synchronized to the AFM to figure out when the next trace will start
-	results = runAFMline(parameters, smu_systems, sleep_time1, sleep_time2)
-	runStartTime = getStartTime(results['Raw']['timestamps_smu2'], results['Raw']['smu2_v2_data'], skipNumberOfLines=1)
-	sleepUntil(runStartTime)
-	
 	for line in range(afm_parameters['lines']):
 		print('Starting line {} of {}'.format(line+1, afm_parameters['lines']))
 		
@@ -281,18 +276,6 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 			threading.Thread(target=dlu.saveJSON,
 				args=(dlu.getDeviceDirectory(parameters), afm_parameters['saveFileName'], jsonData, 'Ex'+str(parameters['startIndexes']['experimentNumber']))
 			).start()
-		
-		fittedStartTime = getStartTime(results['Raw']['timestamps_smu2'], results['Raw']['smu2_v2_data'], skipNumberOfLines=1)
-		elapsedRunTime = time.time() - runStartTime
-		elapsedLineTime = elapsedRunTime - line*lineTime
-		print('Time elapsed is {}, lineTime is {}'.format(elapsedLineTime, lineTime))
-		
-		plannedDelay = max(lineTime - elapsedLineTime, 0)
-		fittedDelay = fittedStartTime - time.time()
-		if(abs(plannedDelay - fittedDelay) < 0.25*plannedDelay):
-			time.sleep(fittedDelay)
-		else: 
-			time.sleep(plannedDelay)
 	
 	smu_device.turnChannelsOff()
 
@@ -304,22 +287,22 @@ def runAFMline(parameters, smu_systems, sleep_time1, sleep_time2):
 	smu_device = smu_systems['deviceSMU']
 	smu_secondary = smu_systems['secondarySMU']
 	
-	# Take measurements
-	smu_device.initSweep()
-	startTime1 = time.time()
-	smu_secondary.initSweep()
-	startTime2 = time.time()
+	# Arm the instruments
+	smu_device.arm()
+	smu_secondary.arm()
 	
-	# Sleep for about half the time it takes for the data to be collected
-	time.sleep(0.5*min(sleep_time1 - (startTime2 - startTime1), sleep_time2))
+	startTime = time.time()
+	
+	# Sleep for a portion of the time it takes for the data to be collected
+	time.sleep(0.9*min(sleep_time1, sleep_time2))
 	
 	# Request data from the SMUs
 	results_device = smu_device.endSweep()
 	results_secondary = smu_secondary.endSweep()
 	
 	# Adjust timestamps to be in realtime values
-	timestamps_device = [startTime1 + t for t in results_device['timestamps']]
-	timestamps_smu2 = [startTime2 + t for t in results_secondary['timestamps']]
+	timestamps_device = [startTime + t for t in results_device['timestamps']]
+	timestamps_smu2 = [startTime + t for t in results_secondary['timestamps']]
 	
 	return {
 		'Raw':{
