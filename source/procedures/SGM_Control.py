@@ -99,79 +99,7 @@ def getSegmentsOfTriangle(times, values, minSegmentLength=0, maxSegmentLength=fl
 					break
 				segment.pop(0)
 			
-	return segments
-
-def getRasteredMatrix(Vx, Vy, Id):
-	# Determine matrix X-dimentions
-	max_row_length = max([len(segment) for segment in Vx])	
-	
-	# Convert each segment of Vy into a single value, then find what a reasonable "step" would be between values (need this to deal with noise)
-	Vy_averages = [np.mean(segment) for segment in Vy]
-	max_Vy_step = max([abs(Vy_averages[i+1] - Vy_averages[i]) for i in range(len(Vy_averages) - 1)])
-	
-	# Find all of the unqiue values of Vy
-	min_distance_to_other_values = lambda candidate, values: min([abs(candidate - val) for val in values]) if(len(values) > 0) else float('inf')
-	Vy_unique_values = []
-	for Vy_avg in Vy_averages:
-		# A Vy segment is considered "different" if is at least half a step away from every other value
-		distance = min_distance_to_other_values(Vy_avg, Vy_unique_values)
-		if(distance >= 0.5*max_Vy_step):
-			Vy_unique_values.append(Vy_avg)
-	Vy_unique_values = list(reversed(sorted(Vy_unique_values))) ## TODO: determine which ordering of Vy will plot it not upside-down
-	
-	# We now have the number of "real" lines if some lines were scanned multiple times
-	number_of_rows = len(Vy_unique_values)
-	
-	# Create empty matrix
-	matrix = np.full((number_of_rows, max_row_length), np.NaN)
-	
-	# If this is a retrace, reverse the data so that we can treat it the same as a regular trace
-	for i in range(len(Vx)):
-		if(Vx[i][0] > Vx[i][-1]):
-			Vx[i] = list(reversed(Vx[i]))
-			Vy[i] = list(reversed(Vy[i]))
-			Id[i] = list(reversed(Id[i]))
-	
-	# Get one of the max-length rows to align any shorter rows to	
-	template_row = []
-	for segment in Vx:
-		if(len(segment) >= len(template_row)):
-			template_row = segment
-	
-	# Fill matrix with data by shifting rows into place
-	for r in range(len(Vx)):
-		# Get the relevant data for this row in the matrix
-		row_values = list(Id[r])
-		row_Vx = list(Vx[r])
-		row_Vy = list(Vy[r])
-		
-		# Fix the width of the row by filling in blank squares
-		offset = 0
-		while(len(row_values) < max_row_length):
-			if(Vx[r][0] > template_row[offset+1]):
-				row_values.insert(0, np.NaN)
-				if(offset < len(row_values) - 1):
-					offset += 1
-			else:
-				row_values.append(np.NaN)
-		
-		# Identify the position of the row by its average Vy
-		row_Vy_avg = np.mean(row_Vy)
-		row_index = np.abs(np.array(Vy_unique_values) - row_Vy_avg).argmin()
-
-		# For now, if data was previously assigned to this row it is simply overwritten by the more recent data		
-		matrix[row_index] = row_values
-	
-	# Determine physical X and Y-dimensions
-	max_Vx = max([max(seg) for seg in Vx])
-	min_Vx = min([min(seg) for seg in Vx])
-	max_Vy = max([max(seg) for seg in Vy])
-	min_Vy = min([min(seg) for seg in Vy])
-	physicalWidth = abs(max_Vx - min_Vx)/0.157
-	physicalHeight = abs(max_Vy - min_Vy)/0.138
-	
-	return matrix, physicalWidth, physicalHeight
-			
+	return segments		
 
 def getStartTime(timestamps, Vxs, skipNumberOfLines=1):
 	fitParams = fitTriangleWave(timestamps, Vxs)
@@ -217,7 +145,6 @@ def waitForFrameSwitch(smu_secondary, lineTime):
 		Vy_2 = smu_secondary.takeMeasurement()['V_ds']
 		stepVy = Vy_2 - Vy_1
 
-	
 
 
 
@@ -334,11 +261,6 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 	
 	# Collect one line un-synchronized to the AFM to figure out when the next trace will start
 	results = runAFMline(parameters, smu_systems, sleep_time1, sleep_time2)
-	runStartTime = getStartTime(results['Raw']['timestamps_smu2'], results['Raw']['smu2_v2_data'], skipNumberOfLines=3)
-	sleepUntil(runStartTime)
-	
-	# Collect one more line to firm up the sync
-	results = runAFMline(parameters, smu_systems, sleep_time1, sleep_time2)
 	runStartTime = getStartTime(results['Raw']['timestamps_smu2'], results['Raw']['smu2_v2_data'], skipNumberOfLines=1)
 	sleepUntil(runStartTime)
 	
@@ -395,8 +317,6 @@ def runAFMline(parameters, smu_systems, sleep_time1, sleep_time2):
 	results_device = smu_device.endSweep()
 	results_secondary = smu_secondary.endSweep()
 	
-	print('Difference in start times is {} s'.format(startTime2 - startTime1))
-	
 	# Adjust timestamps to be in realtime values
 	timestamps_device = [startTime1 + t for t in results_device['timestamps']]
 	timestamps_smu2 = [startTime2 + t for t in results_secondary['timestamps']]
@@ -420,7 +340,7 @@ def runAFMline(parameters, smu_systems, sleep_time1, sleep_time2):
 	}
 
 if(__name__=='__main__'):
-	print('Running AFM Control as Main')
+	print('Running SGM Control as Main')
 	
 	if sys.argv[2] == 'start':
 		print('Setting up')
