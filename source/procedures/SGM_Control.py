@@ -163,7 +163,7 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 	# Duke Label 184554 is 'USB0::0x0957::0x8E18::MY51141241::INSTR' - use for AFM channels x (CH1) and y (CH2)
 	
 	# Get shorthand name to easily refer to configuration and SMUs
-	afm_parameters = parameters['runConfigs']['AFMControl']
+	afm_parameters = parameters['runConfigs']['SGMControl']
 	smu_device = smu_systems['deviceSMU']
 	smu_secondary = smu_systems['secondarySMU']
 	vds = afm_parameters['drainVoltageSetPoint']
@@ -219,7 +219,7 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 	lineTime = 2*traceTime
 	if(afm_parameters['napOn']):
 		lineTime = lineTime*2
-	passPoints = afm_parameters['deviceMeasurementSpeed']*passTime
+	passPoints = int(afm_parameters['deviceMeasurementSpeed']*passTime*1.02 + 2)
 	
 	# Choose the amount of time it takes for the SMU to measure one point
 	interval = 1/afm_parameters['deviceMeasurementSpeed']
@@ -256,7 +256,7 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 
 def runAFMline(parameters, smu_systems, sleep_time1, sleep_time2):
 	# Get shorthand name to easily refer to configuration and SMUs
-	afm_parameters = parameters['runConfigs']['AFMControl']
+	afm_parameters = parameters['runConfigs']['SGMControl']
 	smu_device = smu_systems['deviceSMU']
 	smu_secondary = smu_systems['secondarySMU']
 	
