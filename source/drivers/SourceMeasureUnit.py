@@ -413,6 +413,19 @@ class B2912A(SourceMeasureUnit):
 		self.smu.write(':arm1:acq:count {}'.format(count))
 		self.smu.write(':arm2:acq:count {}'.format(count))
 	
+	def enableHardwareTriggerReception(pin=1):
+		"""Configure the instrument to enable the reception of hardware triggers whenever it is armed."""
+		
+		# Configure the digital pin
+		self.smu.write(':source:digital:ext{}:function tinp'.format(pin))
+		self.smu.write(':source:digital:ext{}:polarity pos'.format(pin))
+		self.smu.write(':source:digital:ext{}:toutput:type level'.format(pin))
+		self.smu.write(':source:digital:ext{}:toutput:width 0.01'.format(pin))
+		
+		# Set the input pin as the trigger source
+		self.smu.write(':trigger1:acq:source:signal ext{}'.format(pin))
+		self.smu.write(':trigger2:acq:source:signal ext{}'.format(pin))
+	
 	def disconnect(self):
 		pass
 		
