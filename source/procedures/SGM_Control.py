@@ -208,8 +208,8 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 	smu_secondary.takeMeasurement()
 	
 	# Setup hardware triggers
-	smu_device.enableHardwareTriggerReception(2)
-	smu_secondary.enableHardwareTriggerReception(2)
+	smu_device.enableHardwareArmReception(2)
+	smu_secondary.enableHardwareArmReception(2)
 	
 	# input('Press enter to begin the measurement...')
 	
@@ -261,17 +261,23 @@ def runAFMline(parameters, smu_systems, sleep_time1, sleep_time2):
 	smu_secondary = smu_systems['secondarySMU']
 	
 	# Arm the instruments
-	smu_device.arm()
-	smu_secondary.arm()
+	# smu_device.arm()
+	# smu_secondary.arm()
+	
+	smu_device.initSweep()
+	smu_secondary.initSweep()
 	
 	startTime = time.time()
+	print('Waiting for nap trigger')
 	
 	# Sleep for a portion of the time it takes for the data to be collected
-	time.sleep(0.9*min(sleep_time1, sleep_time2))
+	# time.sleep(0.5*min(sleep_time1, sleep_time2))
 	
 	# Request data from the SMUs
 	results_device = smu_device.endSweep()
 	results_secondary = smu_secondary.endSweep()
+	
+	# print(results_secondary) # Temporary debug line
 	
 	# Adjust timestamps to be in realtime values
 	timestamps_device = [startTime + t for t in results_device['timestamps']]

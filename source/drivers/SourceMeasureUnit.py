@@ -343,18 +343,18 @@ class B2912A(SourceMeasureUnit):
 		self.smu.write(":source2:{}:points {}".format(self.source2_mode, points))
 		
 		if triggerInterval is None:
-			self.smu.write(":trig1:source aint")
-			self.smu.write(":trig1:count {}".format(points))
-			self.smu.write(":trig2:source aint")
-			self.smu.write(":trig2:count {}".format(points))
+			self.smu.write(":trigger1:source aint")
+			self.smu.write(":trigger1:count {}".format(points))
+			self.smu.write(":trigger2:source aint")
+			self.smu.write(":trigger2:count {}".format(points))
 			timeToTakeMeasurements = (self.nplc)*(points/self.measurementsPerSecond)
 		else:
-			self.smu.write(":trig1:source timer")
-			self.smu.write(":trig1:timer {}".format(triggerInterval))
-			self.smu.write(":trig1:count {}".format(points))
-			self.smu.write(":trig2:source timer")
-			self.smu.write(":trig2:timer {}".format(triggerInterval))
-			self.smu.write(":trig2:count {}".format(points))
+			self.smu.write(":trigger1:source timer")
+			self.smu.write(":trigger1:timer {}".format(triggerInterval))
+			self.smu.write(":trigger1:count {}".format(points))
+			self.smu.write(":trigger2:source timer")
+			self.smu.write(":trigger2:timer {}".format(triggerInterval))
+			self.smu.write(":trigger2:count {}".format(points))
 			timeToTakeMeasurements = (triggerInterval*points)
 		
 		self.smu.write("*WAI")
@@ -407,6 +407,8 @@ class B2912A(SourceMeasureUnit):
 		:param count: The number of hardware triggers that can be recieved before returning to the idle state. This can be float('inf') for a permanent armed state.
 		:type count: int, float"""
 		
+		print('Arming the instrument')
+		
 		if count != float('inf'):
 			count = int(count)
 		
@@ -415,6 +417,8 @@ class B2912A(SourceMeasureUnit):
 	
 	def enableHardwareTriggerReception(self, pin=1):
 		"""Configure the instrument to enable the reception of hardware triggers whenever it is armed."""
+		
+		print('Enabling hardware trigger reception on pin {}'.format(pin))
 		
 		# Configure the digital pin
 		self.smu.write(':source:digital:ext{}:function tinp'.format(pin))
@@ -425,6 +429,21 @@ class B2912A(SourceMeasureUnit):
 		# Set the input pin as the trigger source
 		self.smu.write(':trigger1:acq:source:signal ext{}'.format(pin))
 		self.smu.write(':trigger2:acq:source:signal ext{}'.format(pin))
+	
+	def enableHardwareArmReception(self, pin=1):
+		"""Configure the instrument to enable the reception of hardware arm events whenever it is initiated."""
+		
+		print('Enabling hardware arm reception on pin {}'.format(pin))
+		
+		# Configure the digital pin
+		self.smu.write(':source:digital:ext{}:function tinp'.format(pin))
+		self.smu.write(':source:digital:ext{}:polarity pos'.format(pin))
+		self.smu.write(':source:digital:ext{}:toutput:type level'.format(pin))
+		self.smu.write(':source:digital:ext{}:toutput:width 0.01'.format(pin))
+		
+		# Set the input pin as the trigger source
+		self.smu.write(':arm1:all:source:signal ext{}'.format(pin))
+		self.smu.write(':arm2:all:source:signal ext{}'.format(pin))
 	
 	def disconnect(self):
 		pass
