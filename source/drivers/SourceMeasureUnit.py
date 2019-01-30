@@ -399,6 +399,20 @@ class B2912A(SourceMeasureUnit):
 		
 		return self.endSweep(endMode='fixed')
 	
+	def arm(self, count=1):
+		"""Arm the instrument.
+		
+		Take the instrument from the idle state to the armed state, enabling it to recieve hardware triggers.
+		
+		:param count: The number of hardware triggers that can be recieved before returning to the idle state. This can be float('inf') for a permanent armed state.
+		:type count: int, float"""
+		
+		if count != float('inf'):
+			count = int(count)
+		
+		self.smu.write(':arm1:acq:count {}'.format(count))
+		self.smu.write(':arm2:acq:count {}'.format(count))
+	
 	def disconnect(self):
 		pass
 		
