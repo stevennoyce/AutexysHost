@@ -207,38 +207,11 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 	smu_device.takeMeasurement()
 	smu_secondary.takeMeasurement()
 	
-	# input('Press enter to begin the measurement...')
-	# time.sleep(300)
+	# Setup hardware triggers
+	smu_device.enableHardwareTriggerReception(2)
+	smu_secondary.enableHardwareTriggerReception(2)
 	
-	# for line in range(afm_parameters['lines']):
-	# 	print('Line {} of {}'.format(line, afm_parameters['lines']))
-		
-	# 	lineStartTime = time.time()
-	# 	traceTime = (1/afm_parameters['scanRate'])/2
-	# 	passTime = 2*traceTime
-	# 	lineTime = 2*traceTime
-	# 	if afm_parameters['napOn']:
-	# 		lineTime = lineTime*2
-		
-	# 	passPoints = afm_parameters['deviceMeasurementSpeed']*passTime
-		
-	# 	results = runAFMline(parameters, smu_systems, passPoints)
-		
-	# 	# Add important metrics from the run to the parameters for easy access later in ParametersHistory
-	# 	parameters['Computed'] = results['Computed']
-		
-	# 	# Copy parameters and add in the test results
-	# 	jsonData = dict(parameters)
-	# 	jsonData['Results'] = results['Raw']
-		
-	# 	# Save results as a JSON object
-	# 	if(isSavingResults):
-	# 		print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
-	# 		dlu.saveJSON(dlu.getDeviceDirectory(parameters), afm_parameters['saveFileName'], jsonData)
-		
-	# 	elapsedTime = time.time() - lineStartTime
-	# 	print('Time elapsed is {}, lineTime is {}'.format(elapsedTime, lineTime))
-	# 	time.sleep(max(lineTime - elapsedTime, 0))
+	# input('Press enter to begin the measurement...')
 	
 	# Compute time per trace, pass (aka 2 traces) and line (aka topology pass + nap pass), as well as the approx number of points to collect per pass
 	passTime = 1/afm_parameters['scanRate']
