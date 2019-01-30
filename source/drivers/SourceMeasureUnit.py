@@ -413,7 +413,7 @@ class B2912A(SourceMeasureUnit):
 		self.smu.write(':arm1:acq:count {}'.format(count))
 		self.smu.write(':arm2:acq:count {}'.format(count))
 	
-	def enableHardwareTriggerReception(pin=1):
+	def enableHardwareTriggerReception(self, pin=1):
 		"""Configure the instrument to enable the reception of hardware triggers whenever it is armed."""
 		
 		# Configure the digital pin
