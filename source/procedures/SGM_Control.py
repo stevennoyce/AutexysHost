@@ -140,9 +140,11 @@ def medianMeasurement(smu, key, count):
 
 def waitForFrameSwitch(smu_secondary, lineTime):
 	print('Waiting for frame switch')
-	Vy_1 = medianMeasurement(smu_secondary, 'V_ds', 10)
+	samples = 5
+	
+	Vy_1 = medianMeasurement(smu_secondary, 'V_ds', samples)
 	time.sleep(1.1*lineTime)
-	Vy_2 = medianMeasurement(smu_secondary, 'V_ds', 10)
+	Vy_2 = medianMeasurement(smu_secondary, 'V_ds', samples)
 	
 	originalStepVy = Vy_2 - Vy_1
 	stepVy = originalStepVy
@@ -152,7 +154,7 @@ def waitForFrameSwitch(smu_secondary, lineTime):
 	while(originalStepVy*stepVy > 0): 
 		time.sleep(1.1*lineTime)
 		Vy_1 = Vy_2
-		Vy_2 = medianMeasurement(smu_secondary, 'V_ds', 10)
+		Vy_2 = medianMeasurement(smu_secondary, 'V_ds', samples)
 		stepVy = Vy_2 - Vy_1
 		print(stepVy)
 
