@@ -19,6 +19,7 @@ from procedures import Auto_Gate_Sweep as autoGateScript
 from procedures import Auto_Drain_Sweep as autoDrainScript
 from procedures import Auto_Static_Bias as autoBiasScript
 from procedures import AFM_Control as afmControlScript
+from procedures import SGM_Control as sgmControlScript
 from procedures import Delay as delayScript
 from procedures import Inverter_Sweep as inverterSweepScript
 
@@ -104,6 +105,8 @@ def runAction(parameters, schedule_parameters, smu_systems, arduino_instance, co
 			autoBiasScript.run(parameters, smu_default_instance, arduino_instance)
 		elif(parameters['runType'] == 'AFMControl'):
 			afmControlScript.run(parameters, smu_systems)
+		elif(parameters['runType'] == 'SGMControl'):
+			sgmControlScript.run(parameters, smu_systems)
 		elif(parameters['runType'] == 'Delay'):
 			delayScript.run(parameters)
 		elif(parameters['runType'] == 'InverterSweep'):

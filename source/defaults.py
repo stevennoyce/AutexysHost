@@ -104,6 +104,21 @@ default_parameters = {
 			'deviceMeasurementSpeed': 	{'type':'float', 'units':'Hz', 'default': 60},  # what are the units for this?
 			'XYCableSwap':				{'type':'bool', 'default':False}
 		},
+		'SGMControl':{
+			'dependencies': 			{'ignore':True, 'value':[]},
+			'saveFileName': 			{'type':'constant', 'default':'AFMControl'},
+			'lines': 					{'type':'int', 'units':'#', 'default':3},
+			'scanRate': 				{'type':'int', 'units':'#', 'default':1},
+			'napOn': 					{'type':'bool', 'default':True},
+			'startOnFrameSwitch': 		{'type':'bool', 'default':False},
+			'drainVoltageSetPoint': 	{'type':'float', 'units':'V', 'default': 0.01},
+			'gateVoltageSetPoint': 		{'type':'float', 'units':'V', 'default': 0},
+			'complianceCurrent': 		{'type':'float', 'units':'A', 'default': 1e-6},
+			'complianceVoltage': 		{'type':'float', 'units':'V', 'default': 10},
+			'deviceMeasurementSpeed': 	{'type':'float', 'units':'Hz', 'default': 60},  # what are the units for this?
+			'XYCableSwap':				{'type':'bool', 'default':False},
+			'tracesToMeasure':			{'type':'int', 'units':'#', 'default': 1}
+		},
 		'Delay':{
 			'dependencies': 			{'ignore':True, 'value':[]},
 			'message':					{'type':'string', 'default': ""},
