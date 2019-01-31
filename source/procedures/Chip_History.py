@@ -141,6 +141,7 @@ if(__name__ == '__main__'):
 	#parameters = {'Identifiers':{'user':'stevenjay','project':'RedBoard','wafer':'Resistor','chip':'MegaOhm'}, 'dataFolder':'../../AutexysData'}
 	#print(dlu.getDataFileNamesForChipExperiments(dlu.getChipDirectory(parameters), minExperiment=0, maxExperiment=float('inf')))
 	#print(plotsForExperiments(parameters, minExperiment=0, maxExperiment=float('inf')))
-	makePlots('jay', 'MoS2FET', 'JM4', 'C', specificPlot='ChipSubthresholdCurve', specificDeviceList={'3-6', '5-6', '4-5', '27-30', '28-29', '24-25', '34-35', '20-31', '31-32', '19-32'})
+	#makePlots('jay', 'MoS2FET', 'JM4', 'C', specificPlot='ChipSubthresholdCurve', specificDeviceList={'3-6', '5-6', '4-5', '27-30', '28-29', '24-25', '34-35', '20-31', '31-32', '19-32'})
+	makePlots('jay', 'MoS2FET', 'JM4', 'D', specificPlot='ChipSubthresholdCurve', specificDeviceList={'3-4', '3-6', '7-11'})
 
 
