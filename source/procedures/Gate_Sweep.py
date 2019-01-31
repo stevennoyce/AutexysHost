@@ -73,11 +73,11 @@ def runGateSweep(smu_instance, isFastSweep, drainVoltageSetPoint, gateVoltageMin
 	# Generate list of gate voltages to apply
 	gateVoltages = dgu.sweepValuesWithDuplicates(gateVoltageMinimum, gateVoltageMaximum, stepsInVGSPerDirection*2*pointsPerVGS, pointsPerVGS, ramps=gateVoltageRamps)
 	
-	vds_data   = [[]]*len(gateVoltages)
-	id_data    = [[]]*len(gateVoltages)
-	vgs_data   = [[]]*len(gateVoltages)
-	ig_data    = [[]]*len(gateVoltages)
-	timestamps = [[]]*len(gateVoltages)
+	vds_data   = [[] for i in range(len(gateVoltages))]
+	id_data    = [[] for i in range(len(gateVoltages))]
+	vgs_data   = [[] for i in range(len(gateVoltages))]
+	ig_data    = [[] for i in range(len(gateVoltages))]
+	timestamps = [[] for i in range(len(gateVoltages))]
 	
 	# Ramp gate and wait a second for everything to settle down
 	smu_instance.rampGateVoltageTo(gateVoltageMinimum)
