@@ -116,7 +116,8 @@ default_parameters = {
 			'complianceCurrent': 		{'type':'float', 'units':'A', 'default': 1e-6},
 			'complianceVoltage': 		{'type':'float', 'units':'V', 'default': 10},
 			'deviceMeasurementSpeed': 	{'type':'float', 'units':'Hz', 'default': 60},  # what are the units for this?
-			'XYCableSwap':				{'type':'bool', 'default':False}
+			'XYCableSwap':				{'type':'bool', 'default':False},
+			'tracesToMeasure':			{'type':'int', 'units':'#', 'default': 1}
 		},
 		'Delay':{
 			'dependencies': 			{'ignore':True, 'value':[]},

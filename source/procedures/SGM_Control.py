@@ -148,7 +148,6 @@ def waitForFrameSwitch(smu_secondary, lineTime):
 	
 	originalStepVy = Vy_2 - Vy_1
 	stepVy = originalStepVy
-	print(stepVy)
 	
 	# While the original step and current step are both positive or both negative
 	while(originalStepVy*stepVy > 0): 
@@ -156,7 +155,6 @@ def waitForFrameSwitch(smu_secondary, lineTime):
 		Vy_1 = Vy_2
 		Vy_2 = medianMeasurement(smu_secondary, 'V_ds', samples)
 		stepVy = Vy_2 - Vy_1
-		print(stepVy)
 
 
 
@@ -231,7 +229,8 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 	lineTime = 2*traceTime
 	if(afm_parameters['napOn']):
 		lineTime = lineTime*2
-	passPoints = int(afm_parameters['deviceMeasurementSpeed']*passTime*1.02 + 2)
+	measurementTime = traceTime*afm_parameters['tracesToMeasure']
+	passPoints = int(afm_parameters['deviceMeasurementSpeed']*measurementTime*1.02 + 2)
 	
 	# Choose the amount of time it takes for the SMU to measure one point
 	interval = 1/afm_parameters['deviceMeasurementSpeed']
