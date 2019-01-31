@@ -130,21 +130,31 @@ def getStartTime(timestamps, Vxs, skipNumberOfLines=1):
 def sleepUntil(startTime):
 	time.sleep(startTime - time.time())
 
+def medianMeasurement(smu, key, count):
+	results = []
+	
+	for i in range(count):
+		results.append(smu.takeMeasurement()[key])
+	
+	return np.median(results)
+
 def waitForFrameSwitch(smu_secondary, lineTime):
 	print('Waiting for frame switch')
-	Vy_1 = smu_secondary.takeMeasurement()['V_ds']
+	Vy_1 = medianMeasurement(smu_secondary, 'V_ds', 10)
 	time.sleep(1.1*lineTime)
-	Vy_2 = smu_secondary.takeMeasurement()['V_ds']
-	oritinalStepVy = Vy_2 - Vy_1
-	stepVy = oritinalStepVy
+	Vy_2 = medianMeasurement(smu_secondary, 'V_ds', 10)
+	
+	originalStepVy = Vy_2 - Vy_1
+	stepVy = originalStepVy
+	print(stepVy)
 	
 	# While the original step and current step are both positive or both negative
-	while(oritinalStepVy*stepVy > 0): 
+	while(originalStepVy*stepVy > 0): 
 		time.sleep(1.1*lineTime)
 		Vy_1 = Vy_2
-		Vy_2 = smu_secondary.takeMeasurement()['V_ds']
+		Vy_2 = medianMeasurement(smu_secondary, 'V_ds', 10)
 		stepVy = Vy_2 - Vy_1
-
+		print(stepVy)
 
 
 
@@ -179,23 +189,23 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 	# Turn the device channels on and wait for system capacitances to charge
 	print('Turning device channels on and waiting for equilibration')
 	smu_device.turnChannelsOn()
-	for i in range(10):
+	for i in range(5):
 		print(smu_device.takeMeasurement())
-		time.sleep(1)
+		time.sleep(0.5)
 	
 	# Turn the voltage measurement channels on and wait
 	print('Turning voltage measurement channels on')
 	smu_secondary.turnChannelsOn()
-	time.sleep(1)
+	time.sleep(0.5)
 	
 	# Set SMU compliance to setpoints
 	print('Setting device compliance to setpoint')
 	smu_device.setComplianceCurrent(afm_parameters['complianceCurrent'])
-	time.sleep(1)
+	time.sleep(0.5)
 	
 	print('Setting voltage measurement compliance to setpoint')
 	smu_secondary.setComplianceVoltage(afm_parameters['complianceVoltage'])
-	time.sleep(1)
+	time.sleep(0.5)
 	
 	# Apply Vgs and Vds to the device
 	print('Ramping drain to source voltage')
