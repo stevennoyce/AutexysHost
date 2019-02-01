@@ -143,7 +143,7 @@ def waitForFrameSwitch(smu_secondary, lineTime):
 	samples = 5
 	
 	Vy_1 = medianMeasurement(smu_secondary, 'V_ds', samples)
-	time.sleep(1.1*lineTime)
+	time.sleep(1.01*lineTime)
 	Vy_2 = medianMeasurement(smu_secondary, 'V_ds', samples)
 	
 	originalStepVy = Vy_2 - Vy_1
@@ -151,7 +151,7 @@ def waitForFrameSwitch(smu_secondary, lineTime):
 	
 	# While the original step and current step are both positive or both negative
 	while(originalStepVy*stepVy > 0): 
-		time.sleep(1.1*lineTime)
+		time.sleep(1.01*lineTime)
 		Vy_1 = Vy_2
 		Vy_2 = medianMeasurement(smu_secondary, 'V_ds', samples)
 		stepVy = Vy_2 - Vy_1
@@ -243,23 +243,42 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 	if(afm_parameters['startOnFrameSwitch']):
 		waitForFrameSwitch(smu_secondary, lineTime)
 	
-	for line in range(afm_parameters['lines']):
-		print('Starting line {} of {}'.format(line+1, afm_parameters['lines']))
+	for scan in range(afm_parameters['scans']):
+		print('Starting scan {} of {}'.format(scan+1, afm_parameters['scans']))
 		
-		results = runAFMline(parameters, smu_systems, sleep_time1, sleep_time2)
-		
-		# Copy parameters and add in the test results
-		parameters['Computed'] = results['Computed']
-		jsonData = dict(parameters)
-		jsonData['Results'] = results['Raw']
-		
-		# Save results as a JSON object
-		if(isSavingResults):
-			print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
-			# Spin a new thread to save the data in the background
-			threading.Thread(target=dlu.saveJSON,
-				args=(dlu.getDeviceDirectory(parameters), afm_parameters['saveFileName'], jsonData, 'Ex'+str(parameters['startIndexes']['experimentNumber']))
-			).start()
+		for line in range(afm_parameters['lines']):
+			print('Starting line {} of {} (scan {} of {})'.format(line+1, afm_parameters['lines'], scan+1, afm_parameters['scans']))
+			
+			results = runAFMline(parameters, smu_systems, sleep_time1, sleep_time2)
+			
+			# Copy parameters and add in the test results
+			parameters['Computed'] = results['Computed']
+			parameters['Computed']['scan'] = int(scan)
+			jsonData = dict(parameters)
+			jsonData['Results'] = results['Raw']
+			jsonData['Results']['scan'] = int(scan)
+			
+			# Determine frame switch
+			meanY = np.mean(results['Raw']['smu2_v1_data'])
+			if line == 1:
+				Vy_1 = float(meanY)
+			elif line == 2:
+				Vy_2 = float(meanY)
+				originalStepVy = Vy_2 - Vy_1
+			elif line > 2:
+				Vy_1 = float(Vy_2)
+				Vy_2 = float(meanY)
+				stepVy = Vy_2 - Vy_1
+				if originalStepVy*stepVy < 0:
+					break
+			
+			# Save results as a JSON object
+			if(isSavingResults):
+				print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
+				# Spin a new thread to save the data in the background
+				threading.Thread(target=dlu.saveJSON,
+					args=(dlu.getDeviceDirectory(parameters), afm_parameters['saveFileName'], jsonData, 'Ex'+str(parameters['startIndexes']['experimentNumber']))
+				).start()
 	
 	smu_device.turnChannelsOff()
 
