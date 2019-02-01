@@ -22,7 +22,7 @@ def interpolate_nans(X):
         X[mask_j,j] = np.interp(np.flatnonzero(mask_j), np.flatnonzero(~mask_j), X[~mask_j,j])
     return X
 
-def plot(deviceHistory, identifiers, mode_parameters=None, showBackgroundAFMImage=True, interpolateNans=True):
+def plot(deviceHistory, identifiers, mode_parameters=None, showBackgroundAFMImage=False, interpolateNans=True):
 	# Init Figure
 	fig, (ax, ax2) = initFigure(1, 2, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
 	if(not mode_parameters['publication_mode']):
@@ -78,12 +78,12 @@ def plot(deviceHistory, identifiers, mode_parameters=None, showBackgroundAFMImag
 	afm_data, dataWidth, dataHeight = afm_ctrl.getRasteredMatrix(Vx_vals_1, Vy_vals_1, Id_vals_1)
 	if interpolateNans:
 		afm_data = interpolate_nans(afm_data)
-	ax.imshow(afm_data, cmap=plotDescription['plotDefaults']['colorMap'], extent=(0, dataWidth, 0, dataHeight), alpha=IdAlpha, interpolation='spline36', aspect=0.45)
+	ax.imshow(afm_data, cmap=plotDescription['plotDefaults']['colorMap'], extent=(0, dataWidth, 0, dataHeight), alpha=IdAlpha, interpolation='spline36', aspect='auto')
 	
 	afm_data_2, dataWidth_2, dataHeight_2 = afm_ctrl.getRasteredMatrix(Vx_vals_2, Vy_vals_2, Id_vals_2)
 	if interpolateNans:
 		afm_data_2 = interpolate_nans(afm_data_2)
-	ax2.imshow(afm_data_2, cmap=plotDescription['plotDefaults']['colorMap'], extent=(0, dataWidth_2, 0, dataHeight_2), alpha=IdAlpha, interpolation='spline36', aspect=0.45)
+	ax2.imshow(afm_data_2, cmap=plotDescription['plotDefaults']['colorMap'], extent=(0, dataWidth_2, 0, dataHeight_2), alpha=IdAlpha, interpolation='spline36', aspect='auto')
 	
 	fig.tight_layout()
 	
