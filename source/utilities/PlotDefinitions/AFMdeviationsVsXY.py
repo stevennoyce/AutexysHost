@@ -34,7 +34,10 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		
 		# currentLinearized[np.where(np.array(deviceHistory[i]['Results']['smu2_v1_data']) - max(deviceHistory[i]['Results']['smu2_v1_data']) < -2.2*0.157)[0]] = 0
 		
-		Vxs.extend(deviceHistory[i]['Results']['smu2_v2_data'])
+		xs = np.array(deviceHistory[i]['Results']['smu2_v2_data'])
+		xs -= min(xs)
+		
+		Vxs.extend(list(xs))
 		Vys.extend(deviceHistory[i]['Results']['smu2_v1_data'])
 		currents.extend(currentLinearized)
 	
@@ -47,7 +50,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# currents[np.where(Xs < 0.5)[0]] = 0
 	
 	c, a, b = zip(*sorted(zip(np.array(currents)*1e9, Xs, Ys), reverse=True))
-	line = ax.scatter(a, b, c=c, cmap=plotDescription['plotDefaults']['colorMap'], alpha=0.6, marker='o', s=70)
+	line = ax.scatter(a, b, c=c, cmap=plotDescription['plotDefaults']['colorMap'], alpha=0.6, marker='o', s=14)
 	# line = ax.scatter(Xs, Ys, c=np.array(currents)*1e9, cmap=plotDescription['plotDefaults']['colorMap'], alpha=0.6)
 	cbar = fig.colorbar(line, pad=0.015, aspect=50)
 	cbar.set_label('Drain Current [nA]', rotation=270, labelpad=11)
