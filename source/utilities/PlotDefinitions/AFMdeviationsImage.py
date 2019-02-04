@@ -45,12 +45,8 @@ def plot(deviceHistory, identifiers, mode_parameters=None, showBackgroundAFMImag
 	Vy_vals_2 = traces['Vy'][1]
 	Id_vals_2 = traces['Id'][1]
 	
-	try:
-		imageWidth = max(max(max(Vx_vals_1, key=max))-min(min(Vx_vals_1, key=min)), max(max(Vx_vals_2, key=max))-min(min(Vx_vals_2, key=min)))/0.157e6
-		imageHeight = max(max(max(Vy_vals_1, key=max))-min(min(Vy_vals_1, key=min)), max(max(Vy_vals_2, key=max))-min(min(Vy_vals_2, key=min)))/0.138e6
-	except Exception as e:
-		imageWidth = 1
-		imageHeight = 1
+	imageWidth = 0
+	imageHeight = 0
 	
 	# Determine the path to the correct AFM image to use
 	image_path = None
@@ -80,9 +76,10 @@ def plot(deviceHistory, identifiers, mode_parameters=None, showBackgroundAFMImag
 	
 	# Plot data on top of AFM image
 	afm_data, dataWidth, dataHeight = afm_ctrl.getRasteredMatrix(Vx_vals_1, Vy_vals_1, Id_vals_1)
+	print(afm_data)
 	if interpolateNans:
 		afm_data = interpolate_nans(afm_data)
-	ax.imshow(afm_data, cmap=plotDescription['plotDefaults']['colorMap'], extent=(0, dataWidth, 0, dataHeight), alpha=IdAlpha, interpolation='spline36', aspect='auto')
+	ax.imshow(afm_data, cmap=plotDescription['plotDefaults']['colorMap'], extent=(0, dataWidth, 0, dataHeight), interpolation='spline36', alpha=IdAlpha)
 	
 	# afm_data_2, dataWidth_2, dataHeight_2 = afm_ctrl.getRasteredMatrix(Vx_vals_2, Vy_vals_2, Id_vals_2)
 	# if interpolateNans:
@@ -91,9 +88,14 @@ def plot(deviceHistory, identifiers, mode_parameters=None, showBackgroundAFMImag
 	
 	fig.tight_layout()
 	
+	if imageWidth == 0:
+		imageWidth = dataWidth
+	if imageHeight == 0:
+		imageHeight = dataHeight
+	
 	# Re-adjust the axes to be centered on the image
-	ax.set_xlim((0, imageWidth*10**6))
-	ax.set_ylim((0, imageHeight*10**6))
+	# ax.set_xlim((0, imageWidth*10**6))
+	# ax.set_ylim((0, imageHeight*10**6))
 	# ax2.set_xlim((0, imageWidth*10**6))
 	# ax2.set_ylim((0, imageHeight*10**6))
 	
