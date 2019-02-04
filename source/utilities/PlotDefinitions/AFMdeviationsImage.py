@@ -2,6 +2,7 @@ from utilities.MatplotlibUtility import *
 from procedures import AFM_Control as afm_ctrl
 from utilities import AFMReader as afm_reader
 
+import time
 import numpy as np
 
 plotDescription = {
@@ -23,6 +24,8 @@ def interpolate_nans(X):
     return X
 
 def plot(deviceHistory, identifiers, mode_parameters=None, showBackgroundAFMImage=False, interpolateNans=True):
+	startTime = time.time()
+	
 	# Init Figure
 	fig, ax = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
 	if(not mode_parameters['publication_mode']):
@@ -34,8 +37,14 @@ def plot(deviceHistory, identifiers, mode_parameters=None, showBackgroundAFMImag
 	for i in range(len(deviceHistory)):
 		times.extend(deviceHistory[i]['Results']['timestamps_smu2'])
 	
+	etStartTime = time.time()
+	print('Time elapsed before extracting Traces is {} s'.format(etStartTime - startTime))
+	
 	# Get data
 	traces = extractTraces(deviceHistory)
+	
+	etEndTime = time.time()
+	print('Time taken to extract traces is {} s'.format(etEndTime - etStartTime))
 	
 	Vx_vals_1 = traces['Vx'][0]
 	Vy_vals_1 = traces['Vy'][0]
@@ -74,11 +83,21 @@ def plot(deviceHistory, identifiers, mode_parameters=None, showBackgroundAFMImag
 	if showBackgroundAFMImage:
 		IdAlpha = 0.5
 	
+	rmStartTime = time.time()
+	print('Time elapsed before rastered matrix is {} s'.format(rmStartTime - etEndTime))
+	
 	# Plot data on top of AFM image
 	afm_data, dataWidth, dataHeight = afm_ctrl.getRasteredMatrix(Vx_vals_1, Vy_vals_1, Id_vals_1)
-	print(afm_data)
+	
+	inStartTime = time.time()
+	print('Time taken to rastere matrix is {} s'.format(inStartTime - rmStartTime))
+	
 	if interpolateNans:
 		afm_data = interpolate_nans(afm_data)
+	
+	isStartTime = time.time()
+	print('Time taken to interpolate nans is {} s'.format(isStartTime - inStartTime))
+	
 	ax.imshow(afm_data, cmap=plotDescription['plotDefaults']['colorMap'], extent=(0, dataWidth, 0, dataHeight), interpolation='spline36', alpha=IdAlpha)
 	
 	# afm_data_2, dataWidth_2, dataHeight_2 = afm_ctrl.getRasteredMatrix(Vx_vals_2, Vy_vals_2, Id_vals_2)
@@ -101,6 +120,8 @@ def plot(deviceHistory, identifiers, mode_parameters=None, showBackgroundAFMImag
 	
 	# Save figure
 	adjustAndSaveFigure(fig, 'AFMdeviationsImage', mode_parameters)
+	
+	print('Total time is {} s'.format(time.time() - startTime))
 	
 	return (fig, ax)
 	
