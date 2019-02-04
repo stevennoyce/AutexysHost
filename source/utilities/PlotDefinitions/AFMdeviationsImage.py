@@ -24,7 +24,7 @@ def interpolate_nans(X):
 
 def plot(deviceHistory, identifiers, mode_parameters=None, showBackgroundAFMImage=False, interpolateNans=True):
 	# Init Figure
-	fig, (ax, ax2) = initFigure(1, 2, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
+	fig, ax = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
 	if(not mode_parameters['publication_mode']):
 		fig.suptitle(getTestLabel(deviceHistory, identifiers))
 		ax.set_title(' ')
@@ -45,8 +45,12 @@ def plot(deviceHistory, identifiers, mode_parameters=None, showBackgroundAFMImag
 	Vy_vals_2 = traces['Vy'][1]
 	Id_vals_2 = traces['Id'][1]
 	
-	imageWidth = max(max(max(Vx_vals_1, key=max))-min(min(Vx_vals_1, key=min)), max(max(Vx_vals_2, key=max))-min(min(Vx_vals_2, key=min)))/0.157e6
-	imageHeight = max(max(max(Vy_vals_1, key=max))-min(min(Vy_vals_1, key=min)), max(max(Vy_vals_2, key=max))-min(min(Vy_vals_2, key=min)))/0.138e6
+	try:
+		imageWidth = max(max(max(Vx_vals_1, key=max))-min(min(Vx_vals_1, key=min)), max(max(Vx_vals_2, key=max))-min(min(Vx_vals_2, key=min)))/0.157e6
+		imageHeight = max(max(max(Vy_vals_1, key=max))-min(min(Vy_vals_1, key=min)), max(max(Vy_vals_2, key=max))-min(min(Vy_vals_2, key=min)))/0.138e6
+	except Exception as e:
+		imageWidth = 1
+		imageHeight = 1
 	
 	# Determine the path to the correct AFM image to use
 	image_path = None
@@ -62,13 +66,13 @@ def plot(deviceHistory, identifiers, mode_parameters=None, showBackgroundAFMImag
 	if((image_path is not None) and showBackgroundAFMImage):
 		full_data, imageWidth, imageHeight = afm_reader.loadAFMImageData(image_path)
 		ax.imshow(full_data['HeightRetrace'], cmap='Greys_r', extent=(0, imageWidth*10**6, 0, imageHeight*10**6), interpolation='spline36')
-		ax2.imshow(full_data['HeightRetrace'], cmap='Greys_r', extent=(0, imageWidth*10**6, 0, imageHeight*10**6), interpolation='spline36')
+		# ax2.imshow(full_data['HeightRetrace'], cmap='Greys_r', extent=(0, imageWidth*10**6, 0, imageHeight*10**6), interpolation='spline36')
 	
 	# Axis Labels
 	ax.set_ylabel('Y Position ($\\mu$m)')
 	ax.set_xlabel('X Position ($\\mu$m)')
-	ax2.set_ylabel('Y Position ($\\mu$m)')
-	ax2.set_xlabel('X Position ($\\mu$m)')
+	# ax2.set_ylabel('Y Position ($\\mu$m)')
+	# ax2.set_xlabel('X Position ($\\mu$m)')
 	
 	IdAlpha = 1
 	if showBackgroundAFMImage:
@@ -80,18 +84,18 @@ def plot(deviceHistory, identifiers, mode_parameters=None, showBackgroundAFMImag
 		afm_data = interpolate_nans(afm_data)
 	ax.imshow(afm_data, cmap=plotDescription['plotDefaults']['colorMap'], extent=(0, dataWidth, 0, dataHeight), alpha=IdAlpha, interpolation='spline36', aspect='auto')
 	
-	afm_data_2, dataWidth_2, dataHeight_2 = afm_ctrl.getRasteredMatrix(Vx_vals_2, Vy_vals_2, Id_vals_2)
-	if interpolateNans:
-		afm_data_2 = interpolate_nans(afm_data_2)
-	ax2.imshow(afm_data_2, cmap=plotDescription['plotDefaults']['colorMap'], extent=(0, dataWidth_2, 0, dataHeight_2), alpha=IdAlpha, interpolation='spline36', aspect='auto')
+	# afm_data_2, dataWidth_2, dataHeight_2 = afm_ctrl.getRasteredMatrix(Vx_vals_2, Vy_vals_2, Id_vals_2)
+	# if interpolateNans:
+	# 	afm_data_2 = interpolate_nans(afm_data_2)
+	# ax2.imshow(afm_data_2, cmap=plotDescription['plotDefaults']['colorMap'], extent=(0, dataWidth_2, 0, dataHeight_2), alpha=IdAlpha, interpolation='spline36', aspect='auto')
 	
 	fig.tight_layout()
 	
 	# Re-adjust the axes to be centered on the image
 	ax.set_xlim((0, imageWidth*10**6))
 	ax.set_ylim((0, imageHeight*10**6))
-	ax2.set_xlim((0, imageWidth*10**6))
-	ax2.set_ylim((0, imageHeight*10**6))
+	# ax2.set_xlim((0, imageWidth*10**6))
+	# ax2.set_ylim((0, imageHeight*10**6))
 	
 	# Save figure
 	adjustAndSaveFigure(fig, 'AFMdeviationsImage', mode_parameters)
