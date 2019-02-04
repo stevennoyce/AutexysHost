@@ -43,10 +43,14 @@ def fitTriangleWave(times, values):
 		guesses['phase'] *= -1 # Use this for smallest phase, positive or negative
 	
 	optParamVals, optParamCov = scipy.optimize.curve_fit(triangleCosWave, times, values,
-		p0 = [guesses[parameterName] for parameterName in parameterNames])
+		p0 = [guesses[parameterName] for parameterName in parameterNames], 
+		bounds=[[0,0,-np.inf,-np.inf],[max(values)-min(values),4*(max(times)-min(times)),np.inf,np.inf]])
 	
 	for parameterName, value in zip(parameterNames, optParamVals):
 		optParams[parameterName] = value
+	
+	possiblePhases = optParams['phase'] + np.arange(-20,20,1)*optParams['period']
+	optParams['phase'] = min(possiblePhases, key=abs)
 	
 	return optParams
 
@@ -60,23 +64,25 @@ def getSegmentsOfTriangle(times, values, minSegmentLength=0, maxSegmentLength=fl
 	period = fitParams['period']
 	half_period = period/2
 	
-	periodsMeasured = int((max(times) - min(times))/period) + 2
-	tracesMeasured = 2*periodsMeasured
+	# periodsMeasured = int((max(times) - min(times))/period) + 2
+	fractionalTracesMeasured = 2*(max(times) - min(times))/period
+	tracesMeasured = int(fractionalTracesMeasured)
+	pointsPerTrace = len(times)/fractionalTracesMeasured
 	
 	# Break triangle wave into segments at the peaks and valleys
 	all_segments = []
-	for i in range(-1, tracesMeasured):
+	for i in range(-4, tracesMeasured + 4):
 		segment = np.where( ((i*half_period)+phase < times) & (times <= ((i+1)*half_period)+phase) )[0]
 		if(len(segment) > 0):
 			all_segments.append(list(segment))
-			
+	
 	# Discard segments that are shorter than 'discardThreshold' times the typical segment length
-	median_segment_length = np.median([len(segment) for segment in all_segments])
+	# median_segment_length = np.median([len(segment) for segment in all_segments])
 	segments = []
 	for segment	in all_segments:
-		if(len(segment) >= discardThreshold*median_segment_length):
+		if(len(segment) >= discardThreshold*pointsPerTrace):
 			segments.append(segment)
-		
+	
 	# Attempt to make segments equal length by adding entries
 	if(smoothSegmentsByOverlapping): # False by default
 		max_segment_length = max(minSegmentLength, max([len(segment) for segment in all_segments]))
@@ -103,7 +109,7 @@ def getSegmentsOfTriangle(times, values, minSegmentLength=0, maxSegmentLength=fl
 
 def getRasteredMatrix(Vx, Vy, Id):
 	# Determine matrix X-dimentions
-	max_row_length = max([len(segment) for segment in Vx])	
+	max_row_length = max([len(segment) for segment in Vx])
 	
 	# Convert each segment of Vy into a single value, then find what a reasonable "step" would be between values (need this to deal with noise)
 	Vy_averages = [np.mean(segment) for segment in Vy]
@@ -159,7 +165,7 @@ def getRasteredMatrix(Vx, Vy, Id):
 		row_Vy_avg = np.mean(row_Vy)
 		row_index = np.abs(np.array(Vy_unique_values) - row_Vy_avg).argmin()
 
-		# For now, if data was previously assigned to this row it is simply overwritten by the more recent data		
+		# For now, if data was previously assigned to this row it is simply overwritten by the more recent data
 		matrix[row_index] = row_values
 	
 	# Determine physical X and Y-dimensions
@@ -185,10 +191,6 @@ def getStartTime(timestamps, Vxs, skipNumberOfLines=1):
 	
 	if fitParams['amplitude'] < 0:
 		fitParams['phase'] += fitParams['period']/2
-	
-	possiblePhases = fitParams['phase'] + np.arange(-10,10,1)*fitParams['period']
-	
-	fitParams['phase'] = min(possiblePhases, key=abs)
 	
 	startTime = min(timestamps) + fitParams['phase']
 	startTime += (lineTime)*(math.ceil(linesMeasured) + skipNumberOfLines)
