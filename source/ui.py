@@ -416,6 +416,14 @@ def saveCSV(user, project, wafer, chip, device, experiment):
 	
 	return flask.send_file(filebuf, attachment_filename='data.csv')
 
+@app.route('/updateAFMRegistry')
+def updateAFMRegistry():
+	from utilities import AFMReader
+	
+	AFMReader.updateAFMRegistry(default_data_path)
+	
+	return jsonvalid({'success':True})
+
 @app.route('/getJSONData/<user>/<project>/<wafer>/<chip>/<device>/<experiment>/data.json')
 def getJSONData(user, project, wafer, chip, device, experiment):
 	plotSettings = copy.deepcopy(default_makePlot_parameters)

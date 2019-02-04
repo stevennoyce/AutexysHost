@@ -558,6 +558,8 @@
 										</v-toolbar>
 										<v-card-actions>
 											<v-btn :href="'/saveCSV/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/data.csv' + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))">Save CSV</v-btn>
+											
+											<v-btn @click="updateAFMRegistry()">Update AFM Registry</v-btn>
 										</v-card-actions>
 									</v-card>
 									
@@ -1393,6 +1395,16 @@
 					if (path) {
 						$.getJSON(path, response => {app.$data.stopAtNextJobSuccessCode = response})
 						.fail(() => {console.log("Error stopping at next job")});
+					}
+				},
+				updateAFMRegistry: function() {
+					var path = '/updateAFMRegistry' + this.cacheBust;
+					if (path) {
+						$.getJSON(path, response => {
+							if (response['success']) {
+								app.$data.updateAFMRegistryTime = new Date();
+							}
+						}).fail(() => {console.log("Error updaing AFM registry")});
 					}
 				},
 				
