@@ -99,6 +99,7 @@ plt.rcParams['ps.fonttype'] = 42
 light_to_dark_map = lambda R, G, B: dict({'red':((0.0, 0/255, 0/255), (0.5, R/255, R/255), (1.0, 255/255, 255/255)), 'green':((0.0, 0/255, 0/255), (0.5, G/255, G/255), (1.0, 255/255, 255/255)), 'blue':((0.0, 0/255, 0/255), (0.5, B/255, B/255), (1.0, 255/255, 255/255))})
 color_to_color_map = lambda R1, G1, B1, R2, G2, B2: dict({'red':((0.0, R1/255, R1/255), (0.5, 0.5*(R1+R2)/255, 0.5*(R1+R2)/255), (1.0, R2/255, R2/255)), 'green':((0.0, G1/255, G1/255), (0.5, 0.5*(G1+G2)/255, 0.5*(G1+G2)/255), (1.0, G2/255, G2/255)), 'blue':((0.0, B1/255, B1/255), (0.5, 0.5*(B1+B2)/255, 0.5*(B1+B2)/255), (1.0, B2/255, B2/255))})
 color_to_color_to_color_map = lambda R1, G1, B1, R2, G2, B2, R3, G3, B3: dict({'red':((0.0, R1/255, R1/255), (0.5, R2/255, R2/255), (1.0, R3/255, R3/255)), 'green':((0.0, G1/255, G1/255), (0.5, G2/255, G2/255), (1.0, G3/255, G3/255)), 'blue':((0.0, B1/255, B1/255), (0.5, B2/255, B2/255), (1.0, B3/255, B3/255))})
+rgba_to_rgba_map = lambda R1, G1, B1, A1, R2, G2, B2, A2: dict({'red':((0.0, R1/255, R1/255), (0.5, 0.5*(R1+R2)/255, 0.5*(R1+R2)/255), (1.0, R2/255, R2/255)), 'green':((0.0, G1/255, G1/255), (0.5, 0.5*(G1+G2)/255, 0.5*(G1+G2)/255), (1.0, G2/255, G2/255)), 'blue':((0.0, B1/255, B1/255), (0.5, 0.5*(B1+B2)/255, 0.5*(B1+B2)/255), (1.0, B2/255, B2/255)), 'alpha':((0.0, A1/255, A1/255), (0.5, 0.5*(A1+A2)/255, 0.5*(A1+A2)/255), (1.0, A2/255, A2/255))})
 
 
 plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_red_black', light_to_dark_map(237, 85, 59) ))
@@ -113,7 +114,6 @@ plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_teal_black', light_to
 plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_lime_black', light_to_dark_map(58, 226, 75) ))
 plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_violet_black', light_to_dark_map(53, 25, 150) ))
 plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_magenta_black', light_to_dark_map(159, 50, 133) ))
-plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_peach_black', light_to_dark_map(255, 142, 101) ))
 plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_peach_black', light_to_dark_map(255, 142, 101) ))
 
 plt.register_cmap(cmap=pltc.LinearSegmentedColormap('blue_teal_orange', color_to_color_to_color_map(10, 30, 150, 100, 175, 170, 250, 200, 100) ))
@@ -134,7 +134,7 @@ def show():
 """Every method in this utility is intended to assist the creation of new plotDefintions in the plotDefinitions folder."""
 
 # === Device Plots ===
-def plotSweep(axis, jsonData, lineColor, direction='both', x_data='gate voltage', y_data='drain current', logScale=True, scaleCurrentBy=1, lineStyle=None, errorBars=True, alphaForwardSweep=1):
+def plotSweep(axis, jsonData, lineColor, direction='both', x_data='gate voltage', y_data='drain current', logScale=True, scaleCurrentBy=1, lineStyle=None, errorBars=True):
 	data_save_names = {
 		'gate voltage': 'vgs_data',
 		'drain voltage': 'vds_data',
@@ -166,20 +166,37 @@ def plotSweep(axis, jsonData, lineColor, direction='both', x_data='gate voltage'
 	except:
 		pass
 
+	# Figure out if data was collected with multiple points per x-value
+	pointsPerX = 1
+	try:
+		if(x_data == 'vgs_data'):
+			pointsPerX = jsonData['runConfigs']['GateSweep']['pointsPerVGS']
+		elif(x_data == 'vds_data'):
+			pointsPerX = jsonData['runConfigs']['DrainSweep']['pointsPerVDS']
+		elif(x_data == 'vin_data'):
+			pointsPerX = jsonData['runConfigs']['InverterSweep']['pointsPerVIN']
+	except:
+		pointsPerX = 1
+
 	# Plot only forward or reverse sweeps of the data (also backwards compatible to old format)
 	if(direction == 'forward'):
-		x = x[0]
-		y = y[0]
+		forward_x = []
+		forward_y = []
+		for i in [j for j in range(len(x)) if(j % 2 == 0)]:
+			forward_x.append(x[i])
+			forward_y.append(y[i])
+		x = forward_x
+		y = forward_y
 	elif(direction == 'reverse'):
-		x = x[1]
-		y = y[1]
-	else:
-		if(alphaForwardSweep < 1):
-			x = x
-			y = y
-		else:
-			x = flatten(x)
-			y = flatten(y)
+		reverse_x = []
+		reverse_y = []
+		for i in [j for j in range(len(x)) if(j % 2 == 1)]:
+			reverse_x.append(x[i])
+			reverse_y.append(y[i])
+		x = reverse_x
+		y = reverse_y
+
+	# x and y are flattened and plotted as a single array at this point to be backwards compatible with old data and to simplify data scaling
 
 	# Make y-axis a logarithmic scale
 	if(logScale):
@@ -189,42 +206,30 @@ def plotSweep(axis, jsonData, lineColor, direction='both', x_data='gate voltage'
 	# Scale the data by a given factor
 	y = np.array(y)*scaleCurrentBy
 
-	if(alphaForwardSweep < 1):
-		forward_x = x[0]
-		forward_y = y[0]
-		reverse_x = x[1]
-		reverse_y = y[1]
-		if(forward_x[0] == forward_x[1]):
-			plotWithErrorBars(axis, forward_x, forward_y, lineColor, errorBars=errorBars, alpha=alphaForwardSweep)
-			line = plotWithErrorBars(axis, reverse_x, reverse_y, lineColor, errorBars=errorBars)
-		else:
-			axis.plot(forward_x, forward_y, color=lineColor, marker='o', markersize=2, linewidth=1, linestyle=lineStyle, alpha=alphaForwardSweep)[0]
-			line = axis.plot(reverse_x, reverse_y, color=lineColor, marker='o', markersize=2, linewidth=1, linestyle=lineStyle)[0]
-	else:
+	# Convert x and y to list-of-list form for consistency across all possible data formats
+	if(not isinstance(x[0], list)):
+		x = [x]
+		y = [y]
+
+	# Iterate through segments of x and y
+	for i in range(len(x)):
 		# data contains multiple y-values per x-value
-		if(x[0] == x[1]):
-			line = plotWithErrorBars(axis, x, y, lineColor, errorBars=errorBars)
+		if(pointsPerX > 1):
+			line = plotWithErrorBars(axis, x[i], y[i], lineColor, errorBars=errorBars)
 		else:
-			line = axis.plot(x, y, color=lineColor, marker='o', markersize=2, linewidth=1, linestyle=lineStyle)[0]
+			if(lineStyle == ''):
+				line = axis.plot(x[i], y[i], color=lineColor, marker='o', markersize=2, linewidth=0, alpha=(1 if(i >= len(x)-2) else 0.25))[0]
+			else:
+				line = axis.plot(x[i], y[i], color=lineColor, marker='o', markersize=2, linewidth=1, alpha=(1 if(i >= len(x)-2) else 0.25), linestyle=lineStyle)[0]
 
-	return line
-
-def plotSubthresholdCurve(axis, jsonData, lineColor, direction='both', fitSubthresholdSwing=False, includeLabel=False, lineStyle=None, errorBars=True):
-	line = plotSweep(axis, jsonData, lineColor, direction, x_data='gate voltage', y_data='drain current', logScale=True, scaleCurrentBy=1, lineStyle=lineStyle, errorBars=errorBars)
-	if(includeLabel):
-		#setLabel(line, '$log_{10}(I_{on}/I_{off})$'+': {:.1f}'.format(np.log10(jsonData['Computed']['onOffRatio'])))
-		setLabel(line, 'max $|I_{g}|$'+': {:.2e}'.format(jsonData['Computed']['ig_max']))
-	if(fitSubthresholdSwing):
-		startIndex, endIndex = steepestRegion(np.log10(np.abs(jsonData['Results']['id_data'][0])), 10)
-		vgs_region = jsonData['Results']['vgs_data'][0][startIndex:endIndex]
-		id_region = jsonData['Results']['id_data'][0][startIndex:endIndex]
-		fitted_region = semilogFit(vgs_region, id_region)['fitted_data']
-		print(avgSubthresholdSwing(vgs_region, fitted_region))
-		axis.plot(vgs_region, fitted_region, color='b', linestyle='--')
 	return line
 
 def plotSNR(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True):
 	line = plotSweep(axis, jsonData, lineColor, direction ='both', x_data='gate voltage for snr', y_data='snr', logScale=False, scaleCurrentBy=scaleCurrentBy, lineStyle=lineStyle, errorBars=errorBars)
+	return line
+
+def plotSubthresholdCurve(axis, jsonData, lineColor, direction='both', fitSubthresholdSwing=False, includeLabel=False, lineStyle=None, errorBars=True):
+	line = plotSweep(axis, jsonData, lineColor, direction, x_data='gate voltage', y_data='drain current', logScale=True, scaleCurrentBy=1, lineStyle=lineStyle, errorBars=errorBars)
 	return line
 
 def plotTransferCurve(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True):
@@ -237,6 +242,10 @@ def plotGateCurrent(axis, jsonData, lineColor, direction='both', scaleCurrentBy=
 
 def plotOutputCurve(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True):
 	line = plotSweep(axis, jsonData, lineColor, direction, x_data='drain voltage', y_data='drain current', logScale=False, scaleCurrentBy=scaleCurrentBy, lineStyle=lineStyle, errorBars=errorBars)
+	return line
+
+def plotOutputGateCurrent(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True):
+	line = plotSweep(axis, jsonData, lineColor, direction, x_data='drain voltage', y_data='gate current', logScale=False, scaleCurrentBy=scaleCurrentBy, lineStyle=lineStyle, errorBars=errorBars)
 	return line
 
 def plotBurnOut(axis1, axis2, axis3, jsonData, lineColor, lineStyle=None, annotate=False, annotation='', plotLine1=True, plotLine2=True, plotLine3=True):
@@ -263,9 +272,6 @@ def plotStaticBias(axis, jsonData, lineColor, timeOffset, currentData='id_data',
 def plotInverterVTC(axis, jsonData, lineColor, direction='both', lineStyle=None, errorBars=True):
 	line = plotSweep(axis, jsonData, lineColor, direction, x_data='input voltage', y_data='output voltage', logScale=False, scaleCurrentBy=1, lineStyle=lineStyle, errorBars=errorBars)
 	return line
-
-
-
 
 # === Figures ===
 def initFigure(rows, columns, figsizeDefault, figsizeOverride=None, shareX=False, subplotWidthRatio=None, subplotHeightRatio=None):
