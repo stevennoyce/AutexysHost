@@ -165,6 +165,18 @@ def plotSweep(axis, jsonData, lineColor, direction='both', x_data='gate voltage'
 			y = [list(forward_y), list(reverse_y)]
 	except:
 		pass
+	
+	# Figure out if data was collected with multiple points per x-value
+	pointsPerX = 1
+	try:
+		if(x_data == 'vgs_data'):
+			pointsPerX = jsonData['runConfigs']['GateSweep']['pointsPerVGS']
+		elif(x_data == 'vds_data'):
+			pointsPerX = jsonData['runConfigs']['DrainSweep']['pointsPerVDS']
+		elif(x_data == 'vin_data'):
+			pointsPerX = jsonData['runConfigs']['InverterSweep']['pointsPerVIN']
+	except:
+		pointsPerX = 1
 
 	# Figure out if data was collected with multiple points per x-value
 	pointsPerX = 1

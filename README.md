@@ -18,15 +18,20 @@ Once the [anaconda distribution](https://www.anaconda.com/download/) of python 3
 These can typically be installed easily using a terminal by entering the following setup commands:
 
 ```console
+conda install pip
 pip install pyserial
 pip install flask-socketio
 pip install pyvisa
 pip install pyvisa-py
+pip install igor
+pip install lmfit
 ```
+
+If pip cannot install these packages, it is highly likely that you need to add some Anaconda directories to the PATH environmental variable of your system. Usually the directories that need to be added are the Anaconda install directory itself as well as the Anaconda/Scripts folder inside of the install directory. To use pip on the Windows command prompt, you also usually need to add Anaconda/Library/bin and Anaconda/Library/mingw-w64/bin 
 
 In order to use the SMUs, a [backend](https://pyvisa.readthedocs.io/en/master/getting.html) needs to be installed for pyVisa.  PyVisa-py is one option for a backend, but it cannot collect data as quickly as the other backends, and it requires installation of dependencies such as libUSB. The typical route is to install a Visa Backend such as the one provided by NI. You can find more information about this in the [pyVisa documentation](https://pyvisa.readthedocs.io/en/master/getting_nivisa.html#getting-nivisa).
 
-Especially for those less familiar with git, we recommend the [GitHub Desktop App](https://desktop.github.com/) be utilized to pull and push changes.
+We strongly recommend the [GitHub Desktop App](https://desktop.github.com/) be utilized to pull and push changes to the GitHub repository.
 
 If desired, [Resilio Sync](https://www.resilio.com/individuals/) can be used to sync the data directory between your personal computers. The key for the data folder is: ALPORGP3DKHYE6STIG62DTRMGEANCCQ6O
 
@@ -56,3 +61,7 @@ python dispatcher.py ../../AutexysData/user/project/schedules/scheduleFile.json
 ```
 
 The user interface can also be run standalone if desired.
+
+```console
+python ui.py
+```

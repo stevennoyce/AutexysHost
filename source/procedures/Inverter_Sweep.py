@@ -34,7 +34,8 @@ def run(parameters, smu_systems, isSavingResults=True):
 							inputVoltageMinimum=is_parameters['inputVoltageMinimum'], 
 							inputVoltageMaximum=is_parameters['inputVoltageMaximum'], 
 							stepsInVINPerDirection=is_parameters['stepsInVINPerDirection'],
-							pointsPerVIN=is_parameters['pointsPerVIN'])
+							pointsPerVIN=is_parameters['pointsPerVIN'],
+							inputVoltageRamps=gs_parameters['inputVoltageRamps'])
 	
 	smu_vdd.rampDownVoltages()
 	#smu_instance.rampDownVoltages()
@@ -61,22 +62,21 @@ def run(parameters, smu_systems, isSavingResults=True):
 	return jsonData
 
 # === Data Collection ===
-def runInverterSweep(smu_sweep, inputVoltageMinimum, inputVoltageMaximum, stepsInVINPerDirection, pointsPerVIN):
-	vin_data = [[],[]]
-	iin_data = [[],[]]
-	vout_data = [[],[]]
-	iout_data = [[],[]]
-	timestamps = [[],[]]
-
+def runInverterSweep(smu_sweep, inputVoltageMinimum, inputVoltageMaximum, stepsInVINPerDirection, pointsPerVIN, inputVoltageRamps):
 	# Generate list of input voltages to apply
-	inputVoltages = dgu.sweepValuesWithDuplicates(inputVoltageMinimum, inputVoltageMaximum, stepsInVINPerDirection*2*pointsPerVIN, pointsPerVIN)
-	print(inputVoltages)
+	inputVoltages = dgu.sweepValuesWithDuplicates(inputVoltageMinimum, inputVoltageMaximum, stepsInVINPerDirection*2*pointsPerVIN, pointsPerVIN, ramps=inputVoltageRamps)
+	
+	vin_data   = [[] for i in range(len(inputVoltages))]
+	iin_data   = [[] for i in range(len(inputVoltages))]
+	vout_data  = [[] for i in range(len(inputVoltages))]
+	iout_data  = [[] for i in range(len(inputVoltages))]
+	timestamps = [[] for i in range(len(inputVoltages))]
 	
 	# Ramp V_IN and wait a second for everything to settle down
 	smu_sweep.rampGateVoltageTo(inputVoltageMinimum)
-	#time.sleep(1)
+	time.sleep(1)
 
-	for direction in [0,1]:
+	for direction in range(len(inputVoltages)):
 		for inputVoltage in inputVoltages[direction]:
 			# Apply V_IN
 			smu_sweep.setVgs(inputVoltage)
@@ -105,10 +105,10 @@ def runInverterSweep(smu_sweep, inputVoltageMinimum, inputVoltageMaximum, stepsI
 			'inputVoltages':inputVoltages,
 		},
 		'Computed':{
-			'iin_max':  max(abs(np.array(iin_data[0] + iin_data[1]))),
-			'iin_min':  min(abs(np.array(iin_data[0] + iin_data[1]))),
-			'iout_max': max(abs(np.array(iout_data[0] + iout_data[1]))),
-			'iout_min': min(abs(np.array(iout_data[0] + iout_data[1]))),
+			'iin_max':  np.max(np.abs(iin_data)),
+			'iin_min':  np.min(np.abs(iin_data)),
+			'iout_max': np.max(np.abs(iout_data)),
+			'iout_min': np.min(np.abs(iout_data)),
 		}
 	}
 

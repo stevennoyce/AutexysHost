@@ -13,6 +13,10 @@ import flask_socketio
 import defaults
 from procedures import Device_History as DH
 DH.dpu.mplu.plt.switch_backend('agg')
+
+from procedures import Chip_History as CH
+CH.dpu.mplu.plt.switch_backend('agg')
+
 from utilities import DataLoggerUtility as dlu
 
 if __name__ == '__main__':
@@ -70,8 +74,8 @@ def sendStatic(path):
 	return flask.send_from_directory('ui', path)
 
 default_makePlot_parameters = {
-	'startExperimentNumber': None,
-	'endExperimentNumber': None,
+	'minExperiment': None,
+	'maxExperiment': None,
 	'specificPlot': '',
 	'figureSize': None,
 	'dataFolder': None,
@@ -80,8 +84,8 @@ default_makePlot_parameters = {
 	'saveFigures': False,
 	'showFigures': True,
 	'sweepDirection': 'both',
-	'startRelativeIndex': 0,
-	'endRelativeIndex': 1e10,
+	'minRelativeIndex': 0,
+	'maxRelativeIndex': 1e10,
 	'plot_mode_parameters': None
 }
 
@@ -98,11 +102,11 @@ def sendPlot(user, project, wafer, chip, device, experiment, plotType):
 	
 	filebuf = io.BytesIO()
 	
-	if plotSettings['startExperimentNumber'] == None:
-		plotSettings['startExperimentNumber'] = experiment
+	if plotSettings['minExperiment'] == None:
+		plotSettings['minExperiment'] = experiment
 	
-	if plotSettings['endExperimentNumber'] == None:
-		plotSettings['endExperimentNumber'] = experiment
+	if plotSettings['maxExperiment'] == None:
+		plotSettings['maxExperiment'] = experiment
 	
 	plotSettings['plotSaveName'] = filebuf
 	plotSettings['saveFigures'] = True
@@ -212,6 +216,37 @@ def devices(user, project, wafer, chip):
 	
 	return jsonvalid(devices)
 
+@app.route('/<user>/<project>/<wafer>/<chip>/availableChipPlots.json')
+def availableChipPlots(user, project, wafer, chip):
+	plots = CH.plotsForExperiments(default_data_path, user, project, wafer, chip)
+	return jsonvalid(plots)
+
+
+
+@app.route('/chipPlots/<user>/<project>/<wafer>/<chip>/<plotType>')
+def sendChipPlot(user, project, wafer, chip, plotType):
+	plotSettings = copy.deepcopy(default_makePlot_parameters)
+	receivedPlotSettings = json.loads(flask.request.args.get('plotSettings'))
+	#afmPath = json.loads(flask.request.args.get('afmPath'))
+	plotSettings.update(receivedPlotSettings)
+	
+	filebuf = io.BytesIO()
+	
+	if plotSettings['minExperiment'] == None:
+		plotSettings['minExperiment'] = 0
+	
+	if plotSettings['maxExperiment'] == None:
+		plotSettings['maxExperiment'] = float('inf')
+	
+	plotSettings['plotSaveName'] = filebuf
+	plotSettings['saveFigures'] = True
+	plotSettings['showFigures'] = False
+	plotSettings['specificPlot'] = plotType
+	
+	CH.makePlots(user, project, wafer, chip, **plotSettings)
+	filebuf.seek(0)
+	return flask.send_file(filebuf, attachment_filename='plot.png')
+
 @app.route('/<user>/<project>/<wafer>/<chip>/<device>/experiments.json')
 def experiments(user, project, wafer, chip, device):	
 	folder = os.path.join(default_data_path, user, project, wafer, chip, device)
@@ -257,9 +292,9 @@ def experiments(user, project, wafer, chip, device):
 		
 	# Finally, extract all of the experiments from the dictionary that we built and return the list of their parameters
 	experiments = [experimentDictionary[key] for key in sorted(experimentDictionary.keys())]
-		
-	return jsonvalid(experiments)
 	
+	return jsonvalid(experiments)
+
 
 @app.route('/parametersDescription.json')
 def parametersDescription():
@@ -352,6 +387,57 @@ def addToCorrection():
 	
 	correction = flask.request.get_json(force=True)
 
+@app.route('/paths.json')
+def paths():
+	sourceAbsPath = os.path.abspath(os.path.dirname(__file__))
+	
+	return jsonvalid({'sourceAbsPath': sourceAbsPath})
+
+@app.route('/saveCSV/<user>/<project>/<wafer>/<chip>/<device>/<experiment>/data.csv')
+def saveCSV(user, project, wafer, chip, device, experiment):
+	plotSettings = copy.deepcopy(default_makePlot_parameters)
+	receivedPlotSettings = json.loads(flask.request.args.get('plotSettings'))
+	#afmPath = json.loads(flask.request.args.get('afmPath'))
+	plotSettings.update(receivedPlotSettings)
+	
+	path = os.path.join(default_data_path, user, project, wafer, chip, device, 'Ex' + experiment)
+	fileNames = [os.path.basename(p) for p in glob.glob(os.path.join(path, '*.json'))]
+	
+	deviceHistory = dlu.loadJSON(path, fileNames[0])
+	
+	proxy = io.StringIO()
+	dlu.saveCSV(deviceHistory, proxy)
+	
+	filebuf = io.BytesIO()
+	filebuf.write(proxy.getvalue().encode('utf-8'))
+	
+	filebuf.seek(0)
+	proxy.close()
+	
+	return flask.send_file(filebuf, attachment_filename='data.csv')
+
+@app.route('/updateAFMRegistry')
+def updateAFMRegistry():
+	from utilities import AFMReader
+	
+	AFMReader.updateAFMRegistry(default_data_path)
+	
+	return jsonvalid({'success':True})
+
+@app.route('/getJSONData/<user>/<project>/<wafer>/<chip>/<device>/<experiment>/data.json')
+def getJSONData(user, project, wafer, chip, device, experiment):
+	plotSettings = copy.deepcopy(default_makePlot_parameters)
+	receivedPlotSettings = json.loads(flask.request.args.get('plotSettings'))
+	#afmPath = json.loads(flask.request.args.get('afmPath'))
+	plotSettings.update(receivedPlotSettings)
+	
+	path = os.path.join(default_data_path, user, project, wafer, chip, device, 'Ex' + experiment)
+	
+	deviceHistory = dlu.loadJSON(path, 'GateSweep.json')
+    
+	return jsonvalid(deviceHistory)
+
+
 # C127X_15-16 vented before Ex210
 
 # @app.after_request
@@ -379,7 +465,7 @@ def findFirstOpenPort(startPort=1):
 def managerMessageForwarder():
 	global pipeToManager
 	while True:
-		if pipeToManager.poll():
+		if((pipeToManager is not None) and (pipeToManager.poll())):
 			print('Sending server message')
 			socketio.emit('Server Message', pipeToManager.recv())
 		time.sleep(0.1)

@@ -109,6 +109,34 @@ def devicesInRange(startContact, endContact, skip=True):
 
 
 
+# === Nathaniel's Custhom Dispatchers ===
+def dispatch_continuously(schedule_file_path, totalTime=10800, delayTime=300, pipe=None):
+	startTime = time.time()
+	while(time.time() < startTime + totalTime):
+		dispatchTime = time.time()
+		dispatch(schedule_file_path=schedule_file_path)
+		dispatchTime = time.time() - dispatchTime
+		print("Delaying " + str(delayTime - dispatchTime) + " seconds")
+		time.sleep(delayTime - dispatchTime)
+
+def dispatch_cycler(schedule_file_path, pipe=None):
+	allDevices = ["1-2", "2-3", "3-4", "4-5", "5-6", "6-7", "7-8", "8-9", "9-10", "10-11", "11-12", "12-13", "14-15", "15-16", "16-17", "17-18", "18-19", "19-20", "21-22", "22-23", "23-24", "24-25", "25-26", "26-27", "27-28", "28-29", "29-30", "30-31", "31-32", "33-34", "34-35", "35-36", "36-37", "37-38", "38-39", "40-41", "41-42", "42-43", "43-44", "45-46", "46-47", "47-48", "48-49", "49-50", "50-51", "52-53", "53-54", "54-55", "55-56", "57-58", "58-59", "59-60", "60-61", "61-62", "62-63"]
+	startDevice = "62-63"
+	
+	currentDevice = startDevice
+	for device in allDevices:
+		input('\n\nChange to device ' + str(device))
+		# Edit schedule file and save new version in temp location
+		with open(schedule_file_path) as in_file:
+			with open('temp.txt', 'w') as out_file:
+				out_file.write(in_file.read().replace(currentDevice, device))
+		# Overwrite schedule file		
+		with open(schedule_file_path, 'w') as out_file:
+			with open('temp.txt') as in_file:
+				out_file.write(in_file.read())
+		currentDevice = device
+		dispatch(schedule_file_path=schedule_file_path)
+		
 
 
 if(__name__ == '__main__'):
@@ -116,3 +144,6 @@ if(__name__ == '__main__'):
 		dispatch(schedule_file_path=sys.argv[1])
 	else:
 		dispatch()
+	
+	
+	

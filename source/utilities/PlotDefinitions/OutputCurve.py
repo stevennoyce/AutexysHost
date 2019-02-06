@@ -1,10 +1,10 @@
 from utilities.MatplotlibUtility import *
-import copy
 
 
 
 plotDescription = {
 	'plotCategory': 'device',
+	'priority': 210,
 	'dataFileDependencies': ['DrainSweep.json'],
 	'plotDefaults': {
 		'figsize':(2,2.5),
@@ -12,30 +12,28 @@ plotDescription = {
 		'colorDefault': ['#ed553b'],
 		'xlabel':'$V_{{DS}}^{{Sweep}}$ (V)',
 		'ylabel':'$I_{{D}}$ ($\\mu$A)',
-		'neg_label':'$-I_{{D}}$ ($\\mu$A)',
+		'neg_ylabel':'$-I_{{D}}$ ($\\mu$A)',
 		'leg_vgs_label':'$V_{{GS}}^{{Sweep}}$\n  = {:}V',
 		'leg_vgs_range_label':'$V_{{GS}}^{{min}} = $ {:}V\n'+'$V_{{GS}}^{{max}} = $ {:}V'
 	},
 }
 
 def plot(deviceHistory, identifiers, mode_parameters=None):
-	# Load Defaults
-	plotDescrip_current = copy.deepcopy(plotDescription)
-
 	# Init Figure
-	fig, ax = initFigure(1, 1, plotDescrip_current['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
+	fig, ax = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
 	if(not mode_parameters['publication_mode']):
 		ax.set_title(getTestLabel(deviceHistory, identifiers))
 
 	# Build Color Map and Color Bar
 	startVGS = ('${:.1f} V$').format(deviceHistory[0]['runConfigs']['DrainSweep']['gateVoltageSetPoint'])
 	endVGS = ('${:.1f} V$').format(deviceHistory[-1]['runConfigs']['DrainSweep']['gateVoltageSetPoint'])
-	colors = setupColors(fig, len(deviceHistory), colorOverride=mode_parameters['colorsOverride'], colorDefault=plotDescrip_current['plotDefaults']['colorDefault'], colorMapName=plotDescrip_current['plotDefaults']['colorMap'], colorMapStart=0.9, colorMapEnd=0.15, enableColorBar=False, colorBarTicks=[0,0.6,1], colorBarTickLabels=[endVGS, '$V_{{GS}}$', startVGS], colorBarAxisLabel='')		
+	colors = setupColors(fig, len(deviceHistory), colorOverride=mode_parameters['colorsOverride'], colorDefault=plotDescription['plotDefaults']['colorDefault'], colorMapName=plotDescription['plotDefaults']['colorMap'], colorMapStart=0.9, colorMapEnd=0.15, enableColorBar=False, colorBarTicks=[0,0.6,1], colorBarTickLabels=[endVGS, '$V_{{GS}}$', startVGS], colorBarAxisLabel='')		
 	
 	# If first segment of device history is mostly negative current, flip data
+	ylabel = plotDescription['plotDefaults']['ylabel']
 	if((len(deviceHistory) > 0) and ((np.array(deviceHistory[0]['Results']['id_data']) < 0).sum() > (np.array(deviceHistory[0]['Results']['id_data']) >= 0).sum())):
 		deviceHistory = scaledData(deviceHistory, 'Results', 'id_data', -1)
-		plotDescrip_current['plotDefaults']['ylabel'] = plotDescrip_current['plotDefaults']['neg_label']
+		ylabel = plotDescription['plotDefaults']['neg_ylabel']
 	
 	# Plot
 	for i in range(len(deviceHistory)):
@@ -43,10 +41,11 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		if(len(deviceHistory) == len(mode_parameters['legendLabels'])):
 			setLabel(line, mode_parameters['legendLabels'][i])
 
-	axisLabels(ax, x_label=plotDescrip_current['plotDefaults']['xlabel'], y_label=plotDescrip_current['plotDefaults']['ylabel'])
+	# Set Axis Labels
+	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=ylabel)
 
 	# Add Legend and save figure	
-	addLegend(ax, loc=mode_parameters['legendLoc'], title=getLegendTitle(deviceHistory, identifiers, plotDescrip_current['plotDefaults'], 'runConfigs', 'DrainSweep', mode_parameters, includeVgsSweep=True), mode_parameters=mode_parameters)
+	addLegend(ax, loc=mode_parameters['legendLoc'], title=getLegendTitle(deviceHistory, identifiers, plotDescription['plotDefaults'], 'runConfigs', 'DrainSweep', mode_parameters, includeVgsSweep=True), mode_parameters=mode_parameters)
 	adjustAndSaveFigure(fig, 'OutputCurve', mode_parameters)
 
 	return (fig, ax)

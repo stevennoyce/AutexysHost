@@ -43,14 +43,10 @@ def fitTriangleWave(times, values):
 		guesses['phase'] *= -1 # Use this for smallest phase, positive or negative
 	
 	optParamVals, optParamCov = scipy.optimize.curve_fit(triangleCosWave, times, values,
-		p0 = [guesses[parameterName] for parameterName in parameterNames], 
-		bounds=[[0,0,-np.inf,-np.inf],[max(values)-min(values),4*(max(times)-min(times)),np.inf,np.inf]])
+		p0 = [guesses[parameterName] for parameterName in parameterNames])
 	
 	for parameterName, value in zip(parameterNames, optParamVals):
 		optParams[parameterName] = value
-	
-	possiblePhases = optParams['phase'] + np.arange(-20,20,1)*optParams['period']
-	optParams['phase'] = min(possiblePhases, key=abs)
 	
 	return optParams
 
@@ -64,25 +60,23 @@ def getSegmentsOfTriangle(times, values, minSegmentLength=0, maxSegmentLength=fl
 	period = fitParams['period']
 	half_period = period/2
 	
-	# periodsMeasured = int((max(times) - min(times))/period) + 2
-	fractionalTracesMeasured = 2*(max(times) - min(times))/period
-	tracesMeasured = int(fractionalTracesMeasured)
-	pointsPerTrace = len(times)/fractionalTracesMeasured
+	periodsMeasured = int((max(times) - min(times))/period) + 2
+	tracesMeasured = 2*periodsMeasured
 	
 	# Break triangle wave into segments at the peaks and valleys
 	all_segments = []
-	for i in range(-4, tracesMeasured + 4):
+	for i in range(-1, tracesMeasured):
 		segment = np.where( ((i*half_period)+phase < times) & (times <= ((i+1)*half_period)+phase) )[0]
 		if(len(segment) > 0):
 			all_segments.append(list(segment))
-	
+			
 	# Discard segments that are shorter than 'discardThreshold' times the typical segment length
-	# median_segment_length = np.median([len(segment) for segment in all_segments])
+	median_segment_length = np.median([len(segment) for segment in all_segments])
 	segments = []
 	for segment	in all_segments:
-		if(len(segment) >= discardThreshold*pointsPerTrace):
+		if(len(segment) >= discardThreshold*median_segment_length):
 			segments.append(segment)
-	
+		
 	# Attempt to make segments equal length by adding entries
 	if(smoothSegmentsByOverlapping): # False by default
 		max_segment_length = max(minSegmentLength, max([len(segment) for segment in all_segments]))
@@ -105,79 +99,7 @@ def getSegmentsOfTriangle(times, values, minSegmentLength=0, maxSegmentLength=fl
 					break
 				segment.pop(0)
 			
-	return segments
-
-def getRasteredMatrix(Vx, Vy, Id):
-	# Determine matrix X-dimentions
-	max_row_length = max([len(segment) for segment in Vx])
-	
-	# Convert each segment of Vy into a single value, then find what a reasonable "step" would be between values (need this to deal with noise)
-	Vy_averages = [np.mean(segment) for segment in Vy]
-	max_Vy_step = max([abs(Vy_averages[i+1] - Vy_averages[i]) for i in range(len(Vy_averages) - 1)])
-	
-	# Find all of the unqiue values of Vy
-	min_distance_to_other_values = lambda candidate, values: min([abs(candidate - val) for val in values]) if(len(values) > 0) else float('inf')
-	Vy_unique_values = []
-	for Vy_avg in Vy_averages:
-		# A Vy segment is considered "different" if is at least half a step away from every other value
-		distance = min_distance_to_other_values(Vy_avg, Vy_unique_values)
-		if(distance >= 0.5*max_Vy_step):
-			Vy_unique_values.append(Vy_avg)
-	Vy_unique_values = list(reversed(sorted(Vy_unique_values))) ## TODO: determine which ordering of Vy will plot it not upside-down
-	
-	# We now have the number of "real" lines if some lines were scanned multiple times
-	number_of_rows = len(Vy_unique_values)
-	
-	# Create empty matrix
-	matrix = np.full((number_of_rows, max_row_length), np.NaN)
-	
-	# If this is a retrace, reverse the data so that we can treat it the same as a regular trace
-	for i in range(len(Vx)):
-		if(Vx[i][0] > Vx[i][-1]):
-			Vx[i] = list(reversed(Vx[i]))
-			Vy[i] = list(reversed(Vy[i]))
-			Id[i] = list(reversed(Id[i]))
-	
-	# Get one of the max-length rows to align any shorter rows to	
-	template_row = []
-	for segment in Vx:
-		if(len(segment) >= len(template_row)):
-			template_row = segment
-	
-	# Fill matrix with data by shifting rows into place
-	for r in range(len(Vx)):
-		# Get the relevant data for this row in the matrix
-		row_values = list(Id[r])
-		row_Vx = list(Vx[r])
-		row_Vy = list(Vy[r])
-		
-		# Fix the width of the row by filling in blank squares
-		offset = 0
-		while(len(row_values) < max_row_length):
-			if(Vx[r][0] > template_row[offset+1]):
-				row_values.insert(0, np.NaN)
-				if(offset < len(row_values) - 1):
-					offset += 1
-			else:
-				row_values.append(np.NaN)
-		
-		# Identify the position of the row by its average Vy
-		row_Vy_avg = np.mean(row_Vy)
-		row_index = np.abs(np.array(Vy_unique_values) - row_Vy_avg).argmin()
-
-		# For now, if data was previously assigned to this row it is simply overwritten by the more recent data
-		matrix[row_index] = row_values
-	
-	# Determine physical X and Y-dimensions
-	max_Vx = max([max(seg) for seg in Vx])
-	min_Vx = min([min(seg) for seg in Vx])
-	max_Vy = max([max(seg) for seg in Vy])
-	min_Vy = min([min(seg) for seg in Vy])
-	physicalWidth = abs(max_Vx - min_Vx)/0.157
-	physicalHeight = abs(max_Vy - min_Vy)/0.138
-	
-	return matrix, physicalWidth, physicalHeight
-			
+	return segments		
 
 def getStartTime(timestamps, Vxs, skipNumberOfLines=1):
 	fitParams = fitTriangleWave(timestamps, Vxs)
@@ -192,6 +114,10 @@ def getStartTime(timestamps, Vxs, skipNumberOfLines=1):
 	if fitParams['amplitude'] < 0:
 		fitParams['phase'] += fitParams['period']/2
 	
+	possiblePhases = fitParams['phase'] + np.arange(-10,10,1)*fitParams['period']
+	
+	fitParams['phase'] = min(possiblePhases, key=abs)
+	
 	startTime = min(timestamps) + fitParams['phase']
 	startTime += (lineTime)*(math.ceil(linesMeasured) + skipNumberOfLines)
 	
@@ -204,22 +130,31 @@ def getStartTime(timestamps, Vxs, skipNumberOfLines=1):
 def sleepUntil(startTime):
 	time.sleep(startTime - time.time())
 
+def medianMeasurement(smu, key, count):
+	results = []
+	
+	for i in range(count):
+		results.append(smu.takeMeasurement()[key])
+	
+	return np.median(results)
+
 def waitForFrameSwitch(smu_secondary, lineTime):
 	print('Waiting for frame switch')
-	Vy_1 = smu_secondary.takeMeasurement()['V_ds']
-	time.sleep(1.1*lineTime)
-	Vy_2 = smu_secondary.takeMeasurement()['V_ds']
-	oritinalStepVy = Vy_2 - Vy_1
-	stepVy = oritinalStepVy
+	samples = 5
+	
+	Vy_1 = medianMeasurement(smu_secondary, 'V_ds', samples)
+	time.sleep(1.01*lineTime)
+	Vy_2 = medianMeasurement(smu_secondary, 'V_ds', samples)
+	
+	originalStepVy = Vy_2 - Vy_1
+	stepVy = originalStepVy
 	
 	# While the original step and current step are both positive or both negative
-	while(oritinalStepVy*stepVy > 0): 
-		time.sleep(1.1*lineTime)
+	while(originalStepVy*stepVy > 0): 
+		time.sleep(1.01*lineTime)
 		Vy_1 = Vy_2
-		Vy_2 = smu_secondary.takeMeasurement()['V_ds']
+		Vy_2 = medianMeasurement(smu_secondary, 'V_ds', samples)
 		stepVy = Vy_2 - Vy_1
-
-	
 
 
 
@@ -238,7 +173,7 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 	# Duke Label 184554 is 'USB0::0x0957::0x8E18::MY51141241::INSTR' - use for AFM channels x (CH1) and y (CH2)
 	
 	# Get shorthand name to easily refer to configuration and SMUs
-	afm_parameters = parameters['runConfigs']['AFMControl']
+	afm_parameters = parameters['runConfigs']['SGMControl']
 	smu_device = smu_systems['deviceSMU']
 	smu_secondary = smu_systems['secondarySMU']
 	vds = afm_parameters['drainVoltageSetPoint']
@@ -254,23 +189,23 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 	# Turn the device channels on and wait for system capacitances to charge
 	print('Turning device channels on and waiting for equilibration')
 	smu_device.turnChannelsOn()
-	for i in range(10):
+	for i in range(5):
 		print(smu_device.takeMeasurement())
-		time.sleep(1)
+		time.sleep(0.5)
 	
 	# Turn the voltage measurement channels on and wait
 	print('Turning voltage measurement channels on')
 	smu_secondary.turnChannelsOn()
-	time.sleep(1)
+	time.sleep(0.5)
 	
 	# Set SMU compliance to setpoints
 	print('Setting device compliance to setpoint')
 	smu_device.setComplianceCurrent(afm_parameters['complianceCurrent'])
-	time.sleep(1)
+	time.sleep(0.5)
 	
 	print('Setting voltage measurement compliance to setpoint')
 	smu_secondary.setComplianceVoltage(afm_parameters['complianceVoltage'])
-	time.sleep(1)
+	time.sleep(0.5)
 	
 	# Apply Vgs and Vds to the device
 	print('Ramping drain to source voltage')
@@ -282,38 +217,11 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 	smu_device.takeMeasurement()
 	smu_secondary.takeMeasurement()
 	
-	# input('Press enter to begin the measurement...')
-	# time.sleep(300)
+	# Setup hardware triggers
+	smu_device.enableHardwareArmReception(2)
+	smu_secondary.enableHardwareArmReception(2)
 	
-	# for line in range(afm_parameters['lines']):
-	# 	print('Line {} of {}'.format(line, afm_parameters['lines']))
-		
-	# 	lineStartTime = time.time()
-	# 	traceTime = (1/afm_parameters['scanRate'])/2
-	# 	passTime = 2*traceTime
-	# 	lineTime = 2*traceTime
-	# 	if afm_parameters['napOn']:
-	# 		lineTime = lineTime*2
-		
-	# 	passPoints = afm_parameters['deviceMeasurementSpeed']*passTime
-		
-	# 	results = runAFMline(parameters, smu_systems, passPoints)
-		
-	# 	# Add important metrics from the run to the parameters for easy access later in ParametersHistory
-	# 	parameters['Computed'] = results['Computed']
-		
-	# 	# Copy parameters and add in the test results
-	# 	jsonData = dict(parameters)
-	# 	jsonData['Results'] = results['Raw']
-		
-	# 	# Save results as a JSON object
-	# 	if(isSavingResults):
-	# 		print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
-	# 		dlu.saveJSON(dlu.getDeviceDirectory(parameters), afm_parameters['saveFileName'], jsonData)
-		
-	# 	elapsedTime = time.time() - lineStartTime
-	# 	print('Time elapsed is {}, lineTime is {}'.format(elapsedTime, lineTime))
-	# 	time.sleep(max(lineTime - elapsedTime, 0))
+	# input('Press enter to begin the measurement...')
 	
 	# Compute time per trace, pass (aka 2 traces) and line (aka topology pass + nap pass), as well as the approx number of points to collect per pass
 	passTime = 1/afm_parameters['scanRate']
@@ -321,7 +229,8 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 	lineTime = 2*traceTime
 	if(afm_parameters['napOn']):
 		lineTime = lineTime*2
-	passPoints = afm_parameters['deviceMeasurementSpeed']*passTime
+	measurementTime = traceTime*afm_parameters['tracesToMeasure']
+	passPoints = int(afm_parameters['deviceMeasurementSpeed']*measurementTime*1.02 + 2)
 	
 	# Choose the amount of time it takes for the SMU to measure one point
 	interval = 1/afm_parameters['deviceMeasurementSpeed']
@@ -334,45 +243,42 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 	if(afm_parameters['startOnFrameSwitch']):
 		waitForFrameSwitch(smu_secondary, lineTime)
 	
-	# Collect one line un-synchronized to the AFM to figure out when the next trace will start
-	results = runAFMline(parameters, smu_systems, sleep_time1, sleep_time2)
-	runStartTime = getStartTime(results['Raw']['timestamps_smu2'], results['Raw']['smu2_v2_data'], skipNumberOfLines=3)
-	sleepUntil(runStartTime)
-	
-	# Collect one more line to firm up the sync
-	results = runAFMline(parameters, smu_systems, sleep_time1, sleep_time2)
-	runStartTime = getStartTime(results['Raw']['timestamps_smu2'], results['Raw']['smu2_v2_data'], skipNumberOfLines=1)
-	sleepUntil(runStartTime)
-	
-	for line in range(afm_parameters['lines']):
-		print('Starting line {} of {}'.format(line+1, afm_parameters['lines']))
+	for scan in range(afm_parameters['scans']):
+		print('Starting scan {} of {}'.format(scan+1, afm_parameters['scans']))
 		
-		results = runAFMline(parameters, smu_systems, sleep_time1, sleep_time2)
-		
-		# Copy parameters and add in the test results
-		parameters['Computed'] = results['Computed']
-		jsonData = dict(parameters)
-		jsonData['Results'] = results['Raw']
-		
-		# Save results as a JSON object
-		if(isSavingResults):
-			print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
-			# Spin a new thread to save the data in the background
-			threading.Thread(target=dlu.saveJSON,
-				args=(dlu.getDeviceDirectory(parameters), afm_parameters['saveFileName'], jsonData, 'Ex'+str(parameters['startIndexes']['experimentNumber']))
-			).start()
-		
-		fittedStartTime = getStartTime(results['Raw']['timestamps_smu2'], results['Raw']['smu2_v2_data'], skipNumberOfLines=1)
-		elapsedRunTime = time.time() - runStartTime
-		elapsedLineTime = elapsedRunTime - line*lineTime
-		print('Time elapsed is {}, lineTime is {}'.format(elapsedLineTime, lineTime))
-		
-		plannedDelay = max(lineTime - elapsedLineTime, 0)
-		fittedDelay = fittedStartTime - time.time()
-		if(abs(plannedDelay - fittedDelay) < 0.25*plannedDelay):
-			time.sleep(fittedDelay)
-		else: 
-			time.sleep(plannedDelay)
+		for line in range(afm_parameters['lines']):
+			print('Starting line {} of {} (scan {} of {})'.format(line+1, afm_parameters['lines'], scan+1, afm_parameters['scans']))
+			
+			results = runAFMline(parameters, smu_systems, sleep_time1, sleep_time2)
+			
+			# Copy parameters and add in the test results
+			parameters['Computed'] = results['Computed']
+			parameters['Computed']['scan'] = int(scan)
+			jsonData = dict(parameters)
+			jsonData['Results'] = results['Raw']
+			jsonData['Results']['scan'] = int(scan)
+			
+			# Determine frame switch
+			meanY = np.mean(results['Raw']['smu2_v1_data'])
+			if line == 1:
+				Vy_1 = float(meanY)
+			elif line == 2:
+				Vy_2 = float(meanY)
+				originalStepVy = Vy_2 - Vy_1
+			elif line > 2:
+				Vy_1 = float(Vy_2)
+				Vy_2 = float(meanY)
+				stepVy = Vy_2 - Vy_1
+				if originalStepVy*stepVy < 0:
+					break
+			
+			# Save results as a JSON object
+			if(isSavingResults):
+				print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
+				# Spin a new thread to save the data in the background
+				threading.Thread(target=dlu.saveJSON,
+					args=(dlu.getDeviceDirectory(parameters), afm_parameters['saveFileName'], jsonData, 'Ex'+str(parameters['startIndexes']['experimentNumber']))
+				).start()
 	
 	smu_device.turnChannelsOff()
 
@@ -380,28 +286,32 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 
 def runAFMline(parameters, smu_systems, sleep_time1, sleep_time2):
 	# Get shorthand name to easily refer to configuration and SMUs
-	afm_parameters = parameters['runConfigs']['AFMControl']
+	afm_parameters = parameters['runConfigs']['SGMControl']
 	smu_device = smu_systems['deviceSMU']
 	smu_secondary = smu_systems['secondarySMU']
 	
-	# Take measurements
-	smu_device.initSweep()
-	startTime1 = time.time()
-	smu_secondary.initSweep()
-	startTime2 = time.time()
+	# Arm the instruments
+	# smu_device.arm()
+	# smu_secondary.arm()
 	
-	# Sleep for about half the time it takes for the data to be collected
-	time.sleep(0.5*min(sleep_time1 - (startTime2 - startTime1), sleep_time2))
+	smu_device.initSweep()
+	smu_secondary.initSweep()
+	
+	startTime = time.time()
+	print('Waiting for nap trigger')
+	
+	# Sleep for a portion of the time it takes for the data to be collected
+	# time.sleep(0.5*min(sleep_time1, sleep_time2))
 	
 	# Request data from the SMUs
 	results_device = smu_device.endSweep()
 	results_secondary = smu_secondary.endSweep()
 	
-	print('Difference in start times is {} s'.format(startTime2 - startTime1))
+	# print(results_secondary) # Temporary debug line
 	
 	# Adjust timestamps to be in realtime values
-	timestamps_device = [startTime1 + t for t in results_device['timestamps']]
-	timestamps_smu2 = [startTime2 + t for t in results_secondary['timestamps']]
+	timestamps_device = [startTime + t for t in results_device['timestamps']]
+	timestamps_smu2 = [startTime + t for t in results_secondary['timestamps']]
 	
 	return {
 		'Raw':{
@@ -422,7 +332,7 @@ def runAFMline(parameters, smu_systems, sleep_time1, sleep_time2):
 	}
 
 if(__name__=='__main__'):
-	print('Running AFM Control as Main')
+	print('Running SGM Control as Main')
 	
 	if sys.argv[2] == 'start':
 		print('Setting up')

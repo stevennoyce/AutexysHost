@@ -176,7 +176,7 @@
 					<v-toolbar-title>Autexys User Interface</v-toolbar-title>
 					<v-spacer></v-spacer>
 					<v-toolbar-items>
-						<v-menu attach bottom left offset-y :close-on-content-click="false" :nudge-width="200">
+						<v-menu bottom left offset-y :close-on-content-click="false" :nudge-width="200">
 							<v-btn slot="activator" flat><v-icon>art_track</v-icon></v-btn>
 							<v-card light>
 								<v-list>
@@ -196,14 +196,16 @@
 								</v-list>
 							</v-card>
 						</v-menu>
-						<v-menu attach bottom left offset-y>
+						<v-menu bottom left offset-y>
 							<v-btn slot="activator" flat>{{ user }}<v-icon right>people</v-icon></v-btn>
-							<v-list light>
-								<v-list-tile v-for="u in users" @click="goToUser(u)">
-									<v-list-tile-avatar color="blue-grey lighten-2"><v-icon dark>account_circle</v-icon></v-list-tile-avatar>
-									<v-list-tile-content><v-list-tile-title>{{ u }}</v-list-tile-title></v-list-tile-content>
-								</v-list-tile>
-							</v-list>
+							<v-card style="max-height:85vh">
+								<v-list light>
+									<v-list-tile v-for="u in users" @click="goToUser(u)">
+										<v-list-tile-avatar color="blue-grey lighten-2"><v-icon dark>account_circle</v-icon></v-list-tile-avatar>
+										<v-list-tile-content><v-list-tile-title>{{ u }}</v-list-tile-title></v-list-tile-content>
+									</v-list-tile>
+								</v-list>
+							</v-card>
 						</v-menu>
 					</v-toolbar-items>
 				</v-toolbar>
@@ -337,7 +339,7 @@
 									</v-data-table>
 								</v-card>
 
-								<v-card v-if="stepperPage > 3 ">
+								<v-card v-if="stepperPage == 4 ">
 									<v-toolbar dark class="blue-grey darken-1">
 										<v-toolbar-title>
 											{{ wafer }}{{ chip }} Chip Summary Plots
@@ -346,22 +348,22 @@
 									
 									<!-- container gives a couple chip summary plots that present data from all experiments on this chip for comparisson (sn)-->
 									
-									<!-- <v-container fluid grid-list-sm>
+									<v-container fluid grid-list-sm>
 											<v-layout row wrap>
-												<v-flex xs12 sm6 md4 lg3 xl2 d-flex v-for="possiblePlot in experiment.possiblePlots">
+												<v-flex xs12 sm6 md4 lg3 xl2 d-flex v-for="possiblePlot in possibleChipPlots">
 													<v-card class="ma-1" tile>
 														<v-toolbar dark class="blue-grey lighten-1">
 															<v-toolbar-title>
 																 {{ possiblePlot }}
 															</v-toolbar-title>
-														</v-toolbar> 
+														</v-toolbar>
 														<div class="text-xs-center">
-															<zoomable-image :src="'/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(deviceSummaryPlotSettings))"></zoomable-image>
+															<zoomable-image src="" :data-src="'/chipPlots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></zoomable-image>
 														</div>
 													</v-card>
 												</v-flex>
 											</v-layout>
-									</v-container> -->
+									</v-container>
 
 								</v-card>
 
@@ -399,7 +401,7 @@
 									</v-data-table>
 								</v-card>
 								
-								<v-card v-if="stepperPage > 4">
+								<v-card v-if="stepperPage == 5">
 									<v-toolbar dark class="blue-grey darken-1">
 										<v-toolbar-title>
 											{{ wafer }}{{ chip }} {{ device }} Device Summary Plots
@@ -450,9 +452,44 @@
 														<v-toolbar-title>
 															{{ possiblePlot }}
 														</v-toolbar-title>
-														<v-btn icon @click="copyHTMLImageToClip('/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings)))"><v-icon>photo</v-icon></v-btn>
+														
+														<v-spacer></v-spacer>
+														
+														<v-menu bottom left offset-y>
+															<v-btn slot="activator" icon :loading="false"><v-icon>settings</v-icon></v-btn>
+															<!-- !this.$parent.getElementsByClassName('zoomableImage')[0].complete -->
+															<v-list light>
+																<v-list-tile @click="copyHTMLImageToClip('/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings)))">
+																	<v-list-tile-avatar>
+																		<v-icon>photo</v-icon>
+																	</v-list-tile-avatar>
+																	<v-list-tile-content><v-list-tile-title>
+																		Copy
+																	</v-list-tile-title></v-list-tile-content>
+																</v-list-tile>
+																
+																<v-list-tile @click="disabledPlots.push(possiblePlot)">
+																	<v-list-tile-avatar>
+																		<v-icon>photo</v-icon>
+																	</v-list-tile-avatar>
+																	<v-list-tile-content><v-list-tile-title>
+																		Disable
+																	</v-list-tile-title></v-list-tile-content>
+																</v-list-tile>
+																
+																<v-list-tile @click="removeValueFromArray(possiblePlot, disabledPlots)">
+																	<v-list-tile-avatar>
+																		<v-icon>photo</v-icon>
+																	</v-list-tile-avatar>
+																	<v-list-tile-content><v-list-tile-title>
+																		Enable
+																	</v-list-tile-title></v-list-tile-content>
+																</v-list-tile>
+															</v-list>
+														</v-menu>
+														
 													</v-toolbar>
-													<div class="text-xs-center">
+													<div class="text-xs-center" v-if="!disabledPlots.includes(possiblePlot)">
 														<!-- <img :src="'/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust" @click="console.log('clicked image')"> -->
 														<zoomable-image src="" :data-src="'/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></zoomable-image>
 													</div>
@@ -511,6 +548,19 @@
 												</v-data-table>
 											</v-expansion-panel-content>
 										</v-expansion-panel>
+									</v-card>
+									
+									<v-card class="ma-1">
+										<v-toolbar dark class="blue-grey darken-1">
+											<v-toolbar-title>
+												Data Export
+											</v-toolbar-title>
+										</v-toolbar>
+										<v-card-actions>
+											<v-btn :href="'/saveCSV/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/data.csv' + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))">Save CSV</v-btn>
+											
+											<v-btn @click="updateAFMRegistry()">Update AFM Registry</v-btn>
+										</v-card-actions>
 									</v-card>
 									
 								</v-card>
@@ -676,7 +726,7 @@
 														</v-btn>
 													</v-toolbar>
 													<v-list>
-														<v-list-tile v-for="(settingDescription, settingName) in scheduleObjectDefault['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']]" v-if="['bool','float','int','string','choice'].includes(settingDescription.type)">
+														<v-list-tile v-for="(settingDescription, settingName) in scheduleObjectDefault['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']]" v-if="['bool','float','int','string','choice','array'].includes(settingDescription.type)">
 															<v-switch v-if="settingDescription.type == 'bool'" :label="settingName"
 																v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]['default']"></v-switch>
 															<v-text-field v-if="settingDescription.type == 'float'" :label="settingName" :suffix="' ('+_.get(settingDescription,['units'])+')'"
@@ -689,12 +739,14 @@
 																v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]['default']"></v-text-field>
 															<v-select v-if="settingDescription.type == 'choice'" :label="settingName" :items="settingDescription.choices"
 																v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]['default']"></v-select>
+															<v-combobox v-if="settingDescription.type == 'array'" :label="settingName"
+																v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]['default']" :items="[]" multiple small-chips></v-combobox>
 														</v-list-tile>
 													</v-list>
 												</v-card>
 											</v-flex>
 											
-											<v-flex xs12 sm6 md4 lg3 xl2 d-flex v-for="dependency in _.get(scheduleObjectDefault, ['runConfigs', runType, 'dependencies', 'value'])">
+											<v-flex xs12 sm6 md4 lg3 xl2 d-flex v-for="dependency in _.get(scheduleObjectDefault, ['runConfigs', scheduleObjects[scheduleObjectIndex]['runType']['default'], 'dependencies', 'value'])">
 												<v-card ma-1 tile>
 													<v-toolbar dark class="blue-grey lighten-1">
 														<v-toolbar-title>
@@ -706,7 +758,7 @@
 														</v-btn>
 													</v-toolbar>
 													<v-list>
-														<v-list-tile v-for="(settingDescription, settingName) in scheduleObjectDefault['runConfigs'][dependency]" v-if="['bool','float','int','string','choice'].includes(settingDescription.type)">
+														<v-list-tile v-for="(settingDescription, settingName) in scheduleObjectDefault['runConfigs'][dependency]" v-if="['bool','float','int','string','choice','array'].includes(settingDescription.type)">
 															<v-switch v-if="settingDescription.type == 'bool'" :label="settingName"
 																v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][dependency][settingName]['default']"></v-switch>
 															<v-text-field v-if="settingDescription.type == 'float'" :label="settingName" :suffix="' ('+_.get(settingDescription,['units'])+')'"
@@ -717,6 +769,8 @@
 																v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][dependency][settingName]['default']"></v-text-field>
 															<v-select v-if="settingDescription.type == 'choice'" :label="settingName" :items="settingDescription.choices"
 																v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][dependency][settingName]['default']"></v-select>
+															<v-combobox v-if="settingDescription.type == 'array'" :label="settingName"
+																v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][dependency][settingName]['default']" :items="[]" multiple small-chips></v-combobox>
 														</v-list-tile>
 													</v-list>
 												</v-card>
@@ -803,8 +857,16 @@
 								</v-container>
 							</v-form>
 							
+							<template v-if="scheduleSaveUser && scheduleSaveProject && scheduleSaveFileName">
+								<p><i>Saving to:</i> AutexysData/{{ scheduleSaveUser }}/{{ scheduleSaveProject }}/schedules/{{ scheduleSaveFileName }}.json</p>
+								<p>
+									<i>Run by executing:</i><br/>
+									cd "{{ paths['sourceAbsPath'] }}"<br/>
+									python dispatcher.py "../../AutexysData/{{ scheduleSaveUser }}/{{ scheduleSaveProject }}/schedules/{{ scheduleSaveFileName }}.json"
+								</p>
+							</template>
+							
 							<v-card-actions>
-								<span v-if="scheduleSaveUser && scheduleSaveProject && scheduleSaveFileName">Saving to: AutexysData/{{ scheduleSaveUser }}/{{ scheduleSaveProject }}/schedules/{{ scheduleSaveFileName }}.json</span>
 								<v-spacer></v-spacer>
 								<v-btn @click="saveSchedule()">Save Schedule File</v-btn>
 							</v-card-actions>
@@ -1005,64 +1067,64 @@
 				currentPage: window.location.hash.substr(1) || "",
 				drawer: null,
 				online: navigator.onLine,
-				stepperPage: localStorage.stepperPage || 1,
-				topLevelPage: localStorage.topLevelPage || 'stepper',
+				stepperPage: localStorage.stepperPage ? JSON.parse(localStorage.stepperPage) : 1,
+				topLevelPage: localStorage.topLevelPage ? JSON.parse(localStorage.topLevelPage) : 'stepper',
 				pageNames: ['projects','wafers','chips','devices','experiments','experiment'],
 				parametersTab: 0,
 				parametersSection: '',
 				cacheBust: '',
 				
 				defaultPlotSettings: {
-					'startExperimentNumber': null,
-					'endExperimentNumber': null,
+					'minExperiment': null,
+					'maxExperiment': null,
 					'figureSize': null,
 					'sweepDirection': 'both',
-					'startRelativeIndex': 0,
-					'endRelativeIndex': 1e10,
+					'minRelativeIndex': 0,
+					'maxRelativeIndex': 1e10,
 					'plot_mode_parameters': null
 				},
 				
 				setPlotSettings: {
-					'startExperimentNumber': null,
-					'endExperimentNumber': null,
+					'minExperiment': null,
+					'maxExperiment': null,
 					'figureSize': null,
 					'sweepDirection': 'both',
-					'startRelativeIndex': 0,
-					'endRelativeIndex': 1e10,
+					'minRelativeIndex': 0,
+					'maxRelativeIndex': 1e10,
 					'plot_mode_parameters': null
 				},
 				
 				plotSettings: {
-					'startExperimentNumber': null,
-					'endExperimentNumber': null,
+					'minExperiment': null,
+					'maxExperiment': null,
 					'figureSize': null,
 					'sweepDirection': 'both',
-					'startRelativeIndex': 0,
-					'endRelativeIndex': 1e10,
+					'minRelativeIndex': 0,
+					'maxRelativeIndex': 1e10,
 					'plot_mode_parameters': null
 				},
 				
 				plotSettingTypes: {
-					'startExperimentNumber': {'type': 'int'},
-					'endExperimentNumber': {'type': 'int'},
+					'minExperiment': {'type': 'int'},
+					'maxExperiment': {'type': 'int'},
 					'figureSize': {'type': 'array'},
 					'sweepDirection': {'type': 'choice', 'choices': ['both', 'forward', 'reverse']},
-					'startRelativeIndex': {'type': 'int'},
-					'endRelativeIndex': {'type': 'int'},
+					'minRelativeIndex': {'type': 'int'},
+					'maxRelativeIndex': {'type': 'int'},
 					'plot_mode_parameters': {'type': 'object'}
 				},
 				
 				users: [],
-				user: localStorage.user || '',
+				user: localStorage.user ? JSON.parse(localStorage.user) : '',
 				
 				projects: [],
-				project: localStorage.project || '',
+				project: localStorage.project ? JSON.parse(localStorage.project) : '',
 				projectTableHeaders: [
 					{'text':'Name', 'value':'name'}],
 				projectTableSearch: '',
 				
 				wafers: [],
-				wafer: localStorage.wafer || '',
+				wafer: localStorage.wafer ? JSON.parse(localStorage.wafer) : '',
 				waferTableHeaders: [
 					{'text':'Name', 'value':'name'},
 					{'text':'Path', 'value':'path', 'searchable':false},
@@ -1074,7 +1136,7 @@
 				waferTableSearch: '',
 				
 				chips: [],
-				chip: localStorage.chip || '',
+				chip: localStorage.chip ? JSON.parse(localStorage.chip) : '',
 				chipTableHeaders: [
 					{'text':'Name', 'value':'name'},
 					{'text':'Path', 'value':'path', 'searchable':false},
@@ -1086,7 +1148,7 @@
 				chipTableSearch: '',
 				
 				devices: [],
-				device: localStorage.device || '',
+				device: localStorage.device ? JSON.parse(localStorage.device) : '',
 				deviceTableHeaders: [
 					{'text':'Name', 'value':'displayName'},
 					{'text':'Path', 'value':'path', 'searchable':false},
@@ -1097,7 +1159,7 @@
 				deviceTableSearch: '',
 				
 				experiments: [],
-				experimentIndex: localStorage.experimentIndex || 0,
+				experimentIndex: localStorage.experimentIndex ? JSON.parse(localStorage.experimentIndex) : 0,
 				experimentTableHeaders: [
 					{'text':'Experiment Number', 'value':'startIndexes.experimentNumber'},
 					{'text':'Run Type', 'value':'runType'},
@@ -1112,9 +1174,9 @@
 				defaultParameters: {},
 				parameters: {},
 				parametersDescription: {},
-				scheduleObjects: localStorage.scheduleObjects || {},
+				scheduleObjects: localStorage.scheduleObjects ? JSON.parse(localStorage.scheduleObjects) : {},
 				scheduleObjectDefault: {},
-				scheduleObjectClipboard: localStorage.scheduleObjectClipboard || {},
+				scheduleObjectClipboard: localStorage.scheduleObjectClipboard ? JSON.parse(localStorage.scheduleObjectClipboard) : {},
 				scheduleSaveUser: '',
 				scheduleSaveProject: '',
 				scheduleSaveFileName: '',
@@ -1128,7 +1190,10 @@
 				saveScheduleSuccessCode: {},
 				scheduleNames: {},
 				associatedAFMs: [],
-				addToNoteSuccessCode: {}
+				addToNoteSuccessCode: {},
+				paths: {},
+				disabledPlots: localStorage.disabledPlots ? JSON.parse(localStorage.disabledPlots) : [],
+				possibleChipPlots: []
 			},
 			methods: {
 				
@@ -1141,6 +1206,8 @@
 					this.getExperiments();
 					this.getDefaultParameters();
 					this.getScheduleNames();
+					this.getPaths();
+					this.getPossibleChipPlots();
 					
 					this.pageLoading = false;
 					this.newCacheBust();
@@ -1174,6 +1241,13 @@
 					if (path) {
 						$.getJSON(path, response => {app.$data.chips = response})
 						.fail(() => {console.log("Error getting chips")});
+					}
+				},
+				getPossibleChipPlots: function() {
+					var path = '/' + this.user + '/' + this.project + '/' + this.wafer + '/' + this.chip + '/availableChipPlots.json' + this.cacheBust;
+					if (path) {
+						$.getJSON(path, response => {app.$data.possibleChipPlots = response})
+						.fail(() => {console.log("Error getting possible chip plots")});
 					}
 				},
 				getDevices: function() {
@@ -1262,6 +1336,13 @@
 						.fail(() => {console.log("Error getting associated AFMs")});
 					}
 				},
+				getPaths: function() {
+					var path = '/paths.json' + this.cacheBust;
+					if (path) {
+						$.getJSON(path, response => {app.$data.paths = response})
+						.fail(() => {console.log("Error getting paths")});
+					}
+				},
 				
 				addToNote: function(experiment) {
 					var url = '/addToNote'
@@ -1316,39 +1397,49 @@
 						.fail(() => {console.log("Error stopping at next job")});
 					}
 				},
+				updateAFMRegistry: function() {
+					var path = '/updateAFMRegistry' + this.cacheBust;
+					if (path) {
+						$.getJSON(path, response => {
+							if (response['success']) {
+								app.$data.updateAFMRegistryTime = new Date();
+							}
+						}).fail(() => {console.log("Error updaing AFM registry")});
+					}
+				},
 				
 				goToUser: function(userName) {
 					this.user = userName;
-					localStorage.user = userName;
+					localStorage.user = JSON.stringify(userName);
 					this.getProjects();
 				},
 				goToProject: function(projectName) {
 					this.project = projectName;
-					localStorage.project = projectName;
+					localStorage.project = JSON.stringify(projectName);
 					this.getWafers();
 					this.stepperPage++;
 				},
 				goToWafer: function(waferName) {
 					this.wafer = waferName;
-					localStorage.wafer = waferName;
+					localStorage.wafer = JSON.stringify(waferName);
 					this.getChips();
 					this.stepperPage++;
 				},
 				goToChip: function(chipName) {
 					this.chip = chipName;
-					localStorage.chip = chipName;
+					localStorage.chip = JSON.stringify(chipName);
 					this.getDevices();
 					this.stepperPage++;
 				},
 				goToDevice: function(deviceName) {
 					this.device = deviceName;
-					localStorage.device = deviceName;
+					localStorage.device = JSON.stringify(deviceName);
 					this.getExperiments();
 					this.stepperPage++;
 				},
 				goToExperiment: function(experimentIndex) {
 					this.experimentIndex = experimentIndex;
-					localStorage.experimentIndex = experimentIndex;
+					localStorage.experimentIndex = JSON.stringify(experimentIndex);
 					// this.experiment = experimentParameters;
 					this.parametersTab = this.experiments[experimentIndex].runType;
 					this.parametersSection = this.experiments[experimentIndex].runType;
@@ -1375,7 +1466,7 @@
 				},
 				setTopLevelPage: function(name) {
 					this.topLevelPage = name;
-					localStorage.topLevelPage = name;
+					localStorage.topLevelPage = JSON.stringify(name);
 				},
 				
 				copyHTMLStringToClip: function (str) {
@@ -1436,12 +1527,17 @@
 				
 				updatePlotSettings: function() {
 					this.plotSettings = _.omitBy(this.setPlotSettings, (v,k) => ((this.defaultPlotSettings[k] == v) || v == '') );
+				},
+				
+				removeValueFromArray: function(value, array) {
+					while(array.includes(value)) { array.splice( array.indexOf(value), 1 ); }
 				}
 			},
 			watch: {
-				stepperPage: function(val) { localStorage.stepperPage = val; },
-				scheduleObjects: function(val) { localStorage.scheduleObjects = val; },
-				scheduleObjectClipboard: function(val) { localStorage.scheduleObjectClipboard = val; }
+				stepperPage: function(val) { localStorage.stepperPage = JSON.stringify(val); },
+				scheduleObjects: function(val) { localStorage.scheduleObjects = JSON.stringify(val); },
+				scheduleObjectClipboard: function(val) { localStorage.scheduleObjectClipboard = JSON.stringify(val); },
+				disabledPlots: function(val) { localStorage.disabledPlots = JSON.stringify(val); }
 			},
 			computed: {
 				experiment: function() {
@@ -1460,8 +1556,8 @@
 				},
 				deviceSummaryPlotSettings: function() {
 					var settings = _.omitBy(this.setPlotSettings, (v,k) => ((this.defaultPlotSettings[k] == v) || v == '') );
-					settings['startExperimentNumber'] = 1;
-					settings['endExperimentNumber'] = 1e10;
+					settings['minExperiment'] = 1;
+					settings['maxExperiment'] = 1e10;
 					return settings;
 					// return this.setPlotSettings;
 				},
@@ -1501,7 +1597,7 @@
 		window.onhashchange = function() { app.$data.currentPage = location.hash; };
 		
 		if (typeof(Storage) !== 'undefined') {
-			localStorage.exists = 'True';
+			localStorage.exists = JSON.stringify('True');
 		}
 		
 		app.getAll();

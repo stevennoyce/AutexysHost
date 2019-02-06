@@ -12,10 +12,16 @@ from utilities import DataLoggerUtility as dlu
 # The software that generates the files is based on IGOR, a plotting software
 # Gwyddion can be also used to view .ibw AFM files
 
+def getAFMRegistryDirectory(dataFolder):
+	return os.path.join(dataFolder, 'AFM')
+
+def loadAFMRegistry(dataFolder):
+	afm_registry_directory = getAFMRegistryDirectory(dataFolder)
+	return dlu.loadJSON(afm_registry_directory, 'AFM_Registry.json')
 
 def updateAFMRegistry(dataFolder):
 	afm_image_root_directories = ['/Users/jaydoherty/Documents/myResearch/Images/AFM/', '/Users/stevennoyce/Documents/']
-	afm_registry_directory = os.path.join(dataFolder, 'AFM')
+	afm_registry_directory = getAFMRegistryDirectory(dataFolder)
 	
 	# Load all AFM images found in one of the specific root directories
 	image_paths = []
@@ -25,7 +31,7 @@ def updateAFMRegistry(dataFolder):
 			image_paths.extend(ibwFiles)
 	
 	# Load the AFM registry and determine the list of new images that have not yet been entered in the registry	
-	afm_registry = dlu.loadJSON(afm_registry_directory, 'AFM_Registry.json')
+	afm_registry = loadAFMRegistry(dataFolder)
 	registered_paths = [entry['path'] for entry in afm_registry]
 	new_paths = list(set(image_paths) - set(registered_paths))
 	
@@ -45,17 +51,19 @@ def searchAFMRegistry(dataFolder, minTimestamp=0, maxTimestamp=float('inf')):
 	matches = []
 	afm_registry = updateAFMRegistry(dataFolder)
 	for entry in afm_registry:
-		if((minTimestamp <= entry['timestamp']) and (entry['timestamp'] <= maxTimestamp)):
-			matches.append(entry['path'])
+		if(os.path.exists(entry['path'])):
+			if((minTimestamp <= entry['timestamp']) and (entry['timestamp'] <= maxTimestamp)):
+				matches.append(entry['path'])
 	
 	return matches
 
 def bestMatchAFMRegistry(dataFolder, targetTimestamp, minTimestamp=0, maxTimestamp=float('inf')):
 	matches_in_range = []
-	afm_registry = updateAFMRegistry(dataFolder)
+	afm_registry = loadAFMRegistry(dataFolder)
 	for entry in afm_registry:
-		if((minTimestamp <= entry['timestamp']) and (entry['timestamp'] <= maxTimestamp)):
-			matches_in_range.append(entry)
+		if(os.path.exists(entry['path'])):
+			if((minTimestamp <= entry['timestamp']) and (entry['timestamp'] <= maxTimestamp)):
+				matches_in_range.append(entry)
 	
 	best_match = None
 	min_distance = float('inf')
@@ -134,12 +142,10 @@ def loadAFMImageData(path):
 	image_width = afm['wave']['note']['FastScanSize']
 	image_height = afm['wave']['note']['SlowScanSize']
 	image_rotation = afm['wave']['note']['ScanAngle']
-	
-	if(image_rotation % 90 == 0):
-		while(image_rotation > 0):
-			for key in image_data.keys():
-				image_data[key] = np.rot90(image_data[key])
-			image_rotation -= 90
+		
+	# Image data must be rotated in order to plot correctly with matplotlib
+	for key in image_data.keys():
+		image_data[key] = np.rot90(image_data[key])
 	
 	return (image_data, image_width, image_height)
 

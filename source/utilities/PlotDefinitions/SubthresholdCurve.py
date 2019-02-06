@@ -4,13 +4,14 @@ from utilities.MatplotlibUtility import *
 
 plotDescription = {
 	'plotCategory': 'device',
+	'priority': 20,
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(2,2.5),
 		'colorMap':'white_blue_black',
 		'colorDefault': ['#1f77b4'],
 		'xlabel':'$V_{{GS}}^{{Sweep}}$ (V)',
-		'ylabel':'$I_{{D}}$ (A)',
+		'ylabel':'|$I_{{D}}$| (A)',
 		'leg_vds_label':'$V_{{DS}}^{{Sweep}}$ = {:}V',
 		'leg_vds_range_label':'$V_{{DS}}^{{min}} = $ {:}V\n'+'$V_{{DS}}^{{max}} = $ {:}V'
 	},
@@ -33,6 +34,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		if(len(deviceHistory) == len(mode_parameters['legendLabels'])):
 			setLabel(line, mode_parameters['legendLabels'][i])
 
+	# Set Axis Labels and tick spacing
 	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=plotDescription['plotDefaults']['ylabel'])
 	ax.yaxis.set_major_locator(matplotlib.ticker.LogLocator(numticks=10))
 	

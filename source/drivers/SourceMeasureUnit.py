@@ -34,12 +34,34 @@ smu_system_configurations = {
 			'settings': {}
 		}
 	},
+	'slowSMU1': {
+		'SMU': {
+			'uniqueID': 'USB0::0x0957::0x8C18::MY51142879::INSTR',
+			'type': 'B2912A',
+			'settings': {}
+		}
+	},
+	'fastSMU1': {
+		'SMU': {
+			'uniqueID': 'USB0::0x0957::0x8E18::MY51141244::INSTR',
+			'type': 'B2912A',
+			'settings': {}
+		}
+	},
+	'fastSMU2': {
+		'SMU': {
+			'uniqueID': 'USB0::0x0957::0x8E18::MY51141241::INSTR',
+			'type': 'B2912A',
+			'settings': {}
+		}
+	},
 	'double': {
 		'deviceSMU':{
 			'uniqueID': 'USB0::0x0957::0x8E18::MY51141244::INSTR',
 			'type': 'B2912A',
 			'settings': {
 				'reset': False,
+				'turnChannelsOn': False,
 				'channel1SourceMode': 'voltage',
 				'channel2SourceMode': 'voltage'
 			}
@@ -49,6 +71,7 @@ smu_system_configurations = {
 			'type': 'B2912A',
 			'settings': {
 				'reset': False,
+				'turnChannelsOn': False,
 				'channel1SourceMode': 'current',
 				'channel2SourceMode': 'current'
 			}
@@ -82,13 +105,22 @@ def getSystemConfiguration(systemType):
 def getConnectionToVisaResource(uniqueIdentifier='', system_settings=None, defaultComplianceCurrent=100e-6, smuTimeout=60000):
 	import visa
 	
-	rm = visa.ResourceManager()
-	if(uniqueIdentifier == ''):
-		uniqueIdentifier = rm.list_resources()[0]
-	instance = rm.open_resource(uniqueIdentifier)
+	try:
+		rm = visa.ResourceManager()
+		if(uniqueIdentifier == ''):
+			uniqueIdentifier = rm.list_resources()[0]
+		instance = rm.open_resource(uniqueIdentifier)
+		print(instance.query('*IDN?'))
+		print('Opened VISA connection through NI-VISA backend.')
+	except:
+		rm = visa.ResourceManager('@py')
+		if(uniqueIdentifier == ''):
+			uniqueIdentifier = rm.list_resources()[0]
+		instance = rm.open_resource(uniqueIdentifier)
+		print(instance.query('*IDN?'))
+		print('Opened VISA connection through PyVISA-py backend.')
+		
 	instance.timeout = smuTimeout
-	print(instance.query('*IDN?'))
-	#print(uniqueIdentifier)
 	return B2912A(instance, uniqueIdentifier, defaultComplianceCurrent, system_settings)
 
 def getConnectionToPCB(pcb_port='', system_settings=None):
@@ -215,7 +247,7 @@ class B2912A(SourceMeasureUnit):
 		self.smu.write(':sense2:curr:range:auto ON')
 		self.smu.write(':sense2:curr:range:auto:llim 1e-8')
 		
-		if((self.system_settings is not None) and ('channel1SourceMode' in self.system_settings)):
+		if ((self.system_settings is not None) and ('channel1SourceMode' in self.system_settings)):
 			self.setChannel1SourceMode(self.system_settings['channel1SourceMode'])
 			self.setChannel2SourceMode(self.system_settings['channel2SourceMode'])
 		else:
@@ -228,11 +260,12 @@ class B2912A(SourceMeasureUnit):
 		self.smu.write(":sense1:curr:nplc 1")
 		self.smu.write(":sense2:curr:nplc 1")
 		
-		self.smu.write(":outp1 ON")
-		self.smu.write(":outp2 ON")
+		if ((self.system_settings is not None) and ('turnChannelsOn' in self.system_settings) and (self.system_settings['turnChannelsOn'])):
+			self.smu.write(":outp1 ON")
+			self.smu.write(":outp2 ON")
 		
 		self.smu.write("*WAI") # Explicitly wait for all of these commands to finish before handling new commands
-
+	
 	def setDevice(self, deviceID):
 		pass
 
@@ -310,18 +343,18 @@ class B2912A(SourceMeasureUnit):
 		self.smu.write(":source2:{}:points {}".format(self.source2_mode, points))
 		
 		if triggerInterval is None:
-			self.smu.write(":trig1:source aint")
-			self.smu.write(":trig1:count {}".format(points))
-			self.smu.write(":trig2:source aint")
-			self.smu.write(":trig2:count {}".format(points))
+			self.smu.write(":trigger1:source aint")
+			self.smu.write(":trigger1:count {}".format(points))
+			self.smu.write(":trigger2:source aint")
+			self.smu.write(":trigger2:count {}".format(points))
 			timeToTakeMeasurements = (self.nplc)*(points/self.measurementsPerSecond)
 		else:
-			self.smu.write(":trig1:source timer")
-			self.smu.write(":trig1:timer {}".format(triggerInterval))
-			self.smu.write(":trig1:count {}".format(points))
-			self.smu.write(":trig2:source timer")
-			self.smu.write(":trig2:timer {}".format(triggerInterval))
-			self.smu.write(":trig2:count {}".format(points))
+			self.smu.write(":trigger1:source timer")
+			self.smu.write(":trigger1:timer {}".format(triggerInterval))
+			self.smu.write(":trigger1:count {}".format(points))
+			self.smu.write(":trigger2:source timer")
+			self.smu.write(":trigger2:timer {}".format(triggerInterval))
+			self.smu.write(":trigger2:count {}".format(points))
 			timeToTakeMeasurements = (triggerInterval*points)
 		
 		self.smu.write("*WAI")
@@ -365,6 +398,52 @@ class B2912A(SourceMeasureUnit):
 		time.sleep(timeToTakeMeasurements)
 		
 		return self.endSweep(endMode='fixed')
+	
+	def arm(self, count=1):
+		"""Arm the instrument.
+		
+		Take the instrument from the idle state to the armed state, enabling it to recieve hardware triggers.
+		
+		:param count: The number of hardware triggers that can be recieved before returning to the idle state. This can be float('inf') for a permanent armed state.
+		:type count: int, float"""
+		
+		print('Arming the instrument')
+		
+		if count != float('inf'):
+			count = int(count)
+		
+		self.smu.write(':arm1:acq:count {}'.format(count))
+		self.smu.write(':arm2:acq:count {}'.format(count))
+	
+	def enableHardwareTriggerReception(self, pin=1):
+		"""Configure the instrument to enable the reception of hardware triggers whenever it is armed."""
+		
+		print('Enabling hardware trigger reception on pin {}'.format(pin))
+		
+		# Configure the digital pin
+		self.smu.write(':source:digital:ext{}:function tinp'.format(pin))
+		self.smu.write(':source:digital:ext{}:polarity pos'.format(pin))
+		self.smu.write(':source:digital:ext{}:toutput:type level'.format(pin))
+		self.smu.write(':source:digital:ext{}:toutput:width 0.01'.format(pin))
+		
+		# Set the input pin as the trigger source
+		self.smu.write(':trigger1:acq:source:signal ext{}'.format(pin))
+		self.smu.write(':trigger2:acq:source:signal ext{}'.format(pin))
+	
+	def enableHardwareArmReception(self, pin=1):
+		"""Configure the instrument to enable the reception of hardware arm events whenever it is initiated."""
+		
+		print('Enabling hardware arm reception on pin {}'.format(pin))
+		
+		# Configure the digital pin
+		self.smu.write(':source:digital:ext{}:function tinp'.format(pin))
+		self.smu.write(':source:digital:ext{}:polarity pos'.format(pin))
+		self.smu.write(':source:digital:ext{}:toutput:type level'.format(pin))
+		self.smu.write(':source:digital:ext{}:toutput:width 0.01'.format(pin))
+		
+		# Set the input pin as the trigger source
+		self.smu.write(':arm1:all:source:signal ext{}'.format(pin))
+		self.smu.write(':arm2:all:source:signal ext{}'.format(pin))
 	
 	def disconnect(self):
 		pass

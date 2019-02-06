@@ -4,6 +4,7 @@ import copy
 
 plotDescription = {
 	'plotCategory': 'device',
+	'priority': 110,
 	'dataFileDependencies': ['StaticBias.json'],
 	'plotDefaults': {
 		'figsize':(3,2.5),#(2*2.2,2*1.6),#(5,4),
@@ -13,7 +14,7 @@ plotDescription = {
 		'colorDefault': ['#56638A'],
 		'xlabel':'Time ({:})',
 		'ylabel':'$I_{{D}}$ ($\\mu$A)',
-		'neg_label':'$-I_{{D}}$ ($\\mu$A)',
+		'neg_ylabel':'$-I_{{D}}$ ($\\mu$A)',
 		'vds_label': '$V_{{DS}}^{{Hold}}$ (V)',
 		'vgs_label': '$V_{{GS}}^{{Hold}}$ (V)',
 		'vds_legend': '$V_{{DS}}^{{Hold}}$ = {:.2f}V',
@@ -68,7 +69,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# If first segment of device history is mostly negative current, flip data
 	if((len(deviceHistory) > 0) and ((np.array(deviceHistory[0]['Results']['id_data']) < 0).sum() > (np.array(deviceHistory[0]['Results']['id_data']) >= 0).sum())):
 		deviceHistory = scaledData(deviceHistory, 'Results', 'id_data', -1)
-		plotDescrip_current['plotDefaults']['ylabel'] = plotDescrip_current['plotDefaults']['neg_label']
+		plotDescrip_current['plotDefaults']['ylabel'] = plotDescrip_current['plotDefaults']['neg_ylabel']
 	
 	# === Begin Plotting Data ===
 	time_offset = 0

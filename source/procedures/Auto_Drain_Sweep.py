@@ -30,6 +30,10 @@ def runAutoDrainSweep(parameters, smu_instance, arduino_instance):
 			drainSweepScript.run(drainSweepParameters, smu_instance, isSavingResults=True, isPlottingResults=False)
 			print('Completed sweep #'+str(sweepCount+1)+' of '+str(numberOfSweeps))
 			sweepCount += 1
-			if((ads_parameters['delayBetweenSweeps'] > 0) and (sweepCount < numberOfSweeps)):
+			if(ads_parameters['timedSweepStarts']):
+				print('Starting next sweep ' + str(ads_parameters['delayBetweenSweeps']) + ' seconds after start of current sweep...')
+				waitDuration = startTime + ads_parameters['delayBetweenSweeps']*(sweepCount) - time.time()
+				time.sleep(max(0, waitDuration))
+			elif((ads_parameters['delayBetweenSweeps'] > 0) and (sweepCount < numberOfSweeps)):
 				print('Waiting for ' + str(ads_parameters['delayBetweenSweeps']) + ' seconds...')
 				time.sleep(ads_parameters['delayBetweenSweeps'])

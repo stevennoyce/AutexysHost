@@ -2,17 +2,21 @@ import os
 import json
 import glob
 import re
-
 import time
-
+import numpy as np
+import io
 
 
 # === File System ===
 def makeFolder(folderPath):
 	"""Create all of the folders in folderPath if they do not already exist."""
-	if (not os.path.exists(folderPath)):
-		print('New Folder: ' + str(folderPath))
-		os.makedirs(folderPath)
+	try:
+		if (not os.path.exists(folderPath)):
+			print('New Folder: ' + str(folderPath))
+			os.makedirs(folderPath)
+	except Exception as e:
+		print('Cannot make folder: "' + folderPath + '"')
+
 
 def emptyFolder(folderPath):
 	"""Remove all png files from a folder."""
@@ -30,7 +34,6 @@ def emptyFile(folderPath, fileName):
 	
 	with open(os.path.join(folderPath, fileName), 'w') as file:
 		file.write('')
-
 
 
 # === CSV ===
@@ -70,10 +73,64 @@ def loadCSV(directory, loadFileName, dataNamesLabel=None, dataValuesLabel=None):
 	
 	return formatted_data
 	
-
-def appendTextToFile(directory, saveFileName, textToAppend):
+def saveCSV(deviceHistory, saveFileName, directory='', separateDataByEmptyRows=True):
 	makeFolder(directory)
 	
+	savePath = ''
+	if(isinstance(saveFileName, io.StringIO)):
+	 	savePath = saveFileName
+	else:
+	 	savePath = os.path.join(directory, saveFileName)
+	
+	# Look at the first line in the data and extract the data lists to save
+	data_columns = {}
+	if(len(deviceHistory) >= 1):
+		for key in deviceHistory[0]['Results'].keys():
+			data_columns[key] = []
+				
+	# Flatten the data into 			
+	for jsonData in deviceHistory:
+		for key in jsonData['Results']:
+			if(key in data_columns.keys()):
+				data_columns[key].extend(np.hstack(jsonData['Results'][key]).flatten())
+				if(separateDataByEmptyRows):
+					data_columns[key].append('')
+					
+	lines = []
+	
+	# Write all of the variable names in the first line of the CSV
+	header = ','.join(data_columns.keys()) + '\n' 
+	lines.append(header)
+	
+	# Write all of the data row-by-row to the file
+	index = 0
+	isDone = False
+	while(not isDone):
+		isDone = True
+		values = []
+		for key in data_columns.keys():
+			if(index < len(data_columns[key])):
+				values.append(str(data_columns[key][index]))
+				isDone = False
+			else:
+				values.append('')
+				
+		row = ','.join(values) + '\n'
+		lines.append(row)
+		index += 1
+	
+	if(isinstance(saveFileName, io.StringIO)):
+		file = savePath
+		for line in lines:
+			file.write(line)
+	else:
+		with open(savePath, 'w') as file:
+			for line in lines:
+				file.write(line)
+
+
+def appendTextToFile(directory, saveFileName, textToAppend):
+	makeFolder(directory)	
 	with open(os.path.join(directory, saveFileName), 'a') as file:
 		file.write(textToAppend)
 		file.write('\n')
@@ -425,4 +482,5 @@ def filterFileLinesLessThan(fileLines, property, value):
 
 if(__name__ == '__main__'):
 	#loadSpecificDeviceHistory('../../../AutexysData/jay/MoS2FET/JM3/B/53-54', 'GateSweep.json', minExperiment=0, maxExperiment=20)
-	pass
+	deviceHistory = loadJSON('/Users/jaydoherty/Documents/myWorkspaces/Research/Autexys/AutexysData/joey/CNT_TFT/190108/unknown/34-35/Ex3/', 'GateSweep.json')
+	saveCSV(deviceHistory, 'test.csv', '/Users/jaydoherty/Desktop/')
