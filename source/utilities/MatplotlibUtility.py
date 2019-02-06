@@ -140,16 +140,19 @@ def plotSweep(axis, jsonData, lineColor, direction='both', x_data='gate voltage'
 		'drain voltage': 'vds_data',
 		'gate current': 'ig_data',
 		'drain current': 'id_data',
-		
+
 		'input voltage': 'vin_data',
 		'output voltage': 'vout_data',
 		'input current': 'iin_data',
 		'output current': 'iout_data',
+
+		'gate voltage for snr':'vgs_data_to_plot',
+		'snr':'snr_to_plot'
 	}
-	
+
 	y_data = data_save_names[y_data]
 	x_data = data_save_names[x_data]
-	
+
 	x = jsonData['Results'][x_data]
 	y = jsonData['Results'][y_data]
 
@@ -208,7 +211,7 @@ def plotSweep(axis, jsonData, lineColor, direction='both', x_data='gate voltage'
 
 def plotSubthresholdCurve(axis, jsonData, lineColor, direction='both', fitSubthresholdSwing=False, includeLabel=False, lineStyle=None, errorBars=True):
 	line = plotSweep(axis, jsonData, lineColor, direction, x_data='gate voltage', y_data='drain current', logScale=True, scaleCurrentBy=1, lineStyle=lineStyle, errorBars=errorBars)
-	if(includeLabel): 
+	if(includeLabel):
 		#setLabel(line, '$log_{10}(I_{on}/I_{off})$'+': {:.1f}'.format(np.log10(jsonData['Computed']['onOffRatio'])))
 		setLabel(line, 'max $|I_{g}|$'+': {:.2e}'.format(jsonData['Computed']['ig_max']))
 	if(fitSubthresholdSwing):
@@ -218,6 +221,10 @@ def plotSubthresholdCurve(axis, jsonData, lineColor, direction='both', fitSubthr
 		fitted_region = semilogFit(vgs_region, id_region)['fitted_data']
 		print(avgSubthresholdSwing(vgs_region, fitted_region))
 		axis.plot(vgs_region, fitted_region, color='b', linestyle='--')
+	return line
+
+def plotSNR(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True):
+	line = plotSweep(axis, jsonData, lineColor, direction ='both', x_data='gate voltage for snr', y_data='snr', logScale=False, scaleCurrentBy=scaleCurrentBy, lineStyle=lineStyle, errorBars=errorBars)
 	return line
 
 def plotTransferCurve(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True):
@@ -242,20 +249,23 @@ def plotBurnOut(axis1, axis2, axis3, jsonData, lineColor, lineStyle=None, annota
 		currentThreshold = np.percentile(np.array(jsonData['Results']['id_data']), 90) * jsonData['runConfigs']['BurnOut']['thresholdProportion'] * 10**6
 		axis1.plot([0, jsonData['Results']['vds_data'][-1]], [currentThreshold, currentThreshold], color=lineColor, linestyle='--', linewidth=1)
 		axis1.annotate(annotation, xy=(0, currentThreshold), xycoords='data', horizontalalignment='left', verticalalignment='bottom', color=lineColor)
-	
+
 	if(plotLine2):
-		line2 = plotOverTime(axis2, jsonData['Results']['timestamps'], (np.array(jsonData['Results']['id_data'])*10**6), lineColor)	
+		line2 = plotOverTime(axis2, jsonData['Results']['timestamps'], (np.array(jsonData['Results']['id_data'])*10**6), lineColor)
 	if(plotLine3):
 		line3 = plotOverTime(axis3, jsonData['Results']['timestamps'], jsonData['Results']['vds_data'], lineColor)
 	return (line1, line2, line3)
 
 def plotStaticBias(axis, jsonData, lineColor, timeOffset, currentData='id_data', timescale='seconds', lineStyle=None, gradient=False, gradientColors=None):
-	line = plotOverTime(axis, jsonData['Results']['timestamps'], (np.array(jsonData['Results'][currentData])*(10**6)), lineColor, offset=timeOffset, plotInnerGradient=gradient, innerGradientColors=gradientColors)	
+	line = plotOverTime(axis, jsonData['Results']['timestamps'], (np.array(jsonData['Results'][currentData])*(10**6)), lineColor, offset=timeOffset, plotInnerGradient=gradient, innerGradientColors=gradientColors)
 	return line
 
 def plotInverterVTC(axis, jsonData, lineColor, direction='both', lineStyle=None, errorBars=True):
 	line = plotSweep(axis, jsonData, lineColor, direction, x_data='input voltage', y_data='output voltage', logScale=False, scaleCurrentBy=1, lineStyle=lineStyle, errorBars=errorBars)
 	return line
+
+
+
 
 # === Figures ===
 def initFigure(rows, columns, figsizeDefault, figsizeOverride=None, shareX=False, subplotWidthRatio=None, subplotHeightRatio=None):
@@ -273,7 +283,7 @@ def initFigure(rows, columns, figsizeDefault, figsizeOverride=None, shareX=False
 def adjustAndSaveFigure(figure, plotType, mode_parameters, subplotWidthPad=0, subplotHeightPad=0):
 	# figure.set_size_inches(2.2,1.6) # Static Bias
 	# figure.set_size_inches(1.4,1.6) # Subthreshold Curve
-	# figure.set_size_inches(2.2,1.7) # On/Off-Current	
+	# figure.set_size_inches(2.2,1.7) # On/Off-Current
 	# figure.align_labels()
 	figure.tight_layout()
 	plt.subplots_adjust(wspace=subplotWidthPad, hspace=subplotHeightPad)
@@ -290,11 +300,11 @@ def adjustAndSaveFigure(figure, plotType, mode_parameters, subplotWidthPad=0, su
 	if(not mode_parameters['showFigures']):
 		print('Closing figures.')
 		plt.close(figure)
-	
 
 
 
-# === Plots === 
+
+# === Plots ===
 def plotWithErrorBars(axis, x, y, lineColor, errorBars=True, alpha=1):
 	x_unique, avg, std = avgAndStdAtEveryPoint(x, y)
 	if(not errorBars):
@@ -315,14 +325,14 @@ def plotOverTime(axis, timestamps, y, lineColor, offset=0, markerSize=1, lineWid
 
 def boxplot(axis, data):
 	return axis.boxplot(data, meanline=True, showmeans=True, showfliers=False, medianprops={'color':'#000000'}, meanprops={'color':'#000000'})
-	
+
 
 
 # === Colors ===
 def setupColors(fig, numberOfColors, colorOverride=[], colorDefault=['#1f77b4', '#f2b134', '#4fb99f', '#ed553b', '#56638A'], colorMapName='plasma', colorMapStart=0, colorMapEnd=0.87, enableColorBar=False, colorBarTicks=[0,1], colorBarTickLabels=['End','Start'], colorBarAxisLabel=''):
 	if(numberOfColors == len(colorOverride)):
 		return colorOverride
-	
+
 	colors = None
 	if(numberOfColors <= len(colorDefault)):
 		colors = colorDefault.copy()
@@ -331,10 +341,10 @@ def setupColors(fig, numberOfColors, colorOverride=[], colorDefault=['#1f77b4', 
 		colors = colorMap['colors']
 		if(enableColorBar and numberOfColors >= 5):
 			colorBar(fig, colorMap['smap'], ticks=colorBarTicks, tick_labels=colorBarTickLabels, axisLabel=colorBarAxisLabel)
-	
+
 	#for color in colors:
 	#	print(pltc.to_hex(color))
-		
+
 	return colors
 
 def colorsFromMap(mapName, colorStartPoint, colorEndPoint, numberOfColors):
@@ -378,12 +388,12 @@ def includeOriginOnYaxis(axis, include=True):
 		if(axis.get_ylim()[1] < 0):
 			axis.set_ylim(top=0)
 		elif(axis.get_ylim()[0] > 0):
-			axis.set_ylim(bottom=0)	
-		
+			axis.set_ylim(bottom=0)
+
 def getTestLabel(deviceHistory, identifiers):
 	if(identifiers is None):
 		return ''
-	
+
 	label = str(identifiers['wafer']) + str(identifiers['chip']) + ':' + identifiers['device']
 	if len(deviceHistory) > 0:
 		test1Num = deviceHistory[0]['experimentNumber']
@@ -403,9 +413,65 @@ def addLegend(axis, loc, title, mode_parameters=None):
 	lines, labels = axis.get_legend_handles_labels()
 	axis.legend(lines, labels, loc=loc, title=title, labelspacing=(0) if(len(labels) == 0) else (0.3))
 
-def getLegendTitle(deviceHistory, identifiers, plottype_parameters, parameterSuperType, parameterType, mode_parameters=None, includeVdsSweep=False, includeVgsSweep=False, includeIdVgsFit=False, includeVdsHold=False, includeVgsHold=False, includeHoldTime=False, includeTimeHold=False, includeChannelLength=True):
+# Helper. Will return list of indices with all occurances of min value, and min value.
+def minIndicesAndValue(lst):
+	minValue = lst[0]
+	minIndices = [0]
+	for i in range(1, len(lst)):
+		if lst[i] < minValue:
+			minValue = lst[i]
+			minIndices = [i]
+		elif lst[i] == minValue:
+			minIndices.append(i)
+	return (minIndices, minValue)
+
+def maxIndicesAndValue(lst):
+	maxValue = lst[0]
+	maxIndices = [0]
+	for i in range(1, len(lst)):
+		if lst[i] > maxValue:
+			maxValue = lst[i]
+			maxIndices = [i]
+		elif lst[i] == maxValue:
+			maxIndices.append(i)
+	return (maxIndices, maxValue)
+
+def getLegendTitle(deviceHistory, identifiers, plottype_parameters, parameterSuperType, parameterType, mode_parameters=None, includeDataMin=False, includeDataMax=False,includeVgsChange=False, includeVdsSweep=False, includeVgsSweep=False, includeIdVgsFit=False, includeVdsHold=False, includeVgsHold=False, includeHoldTime=False, includeTimeHold=False, includeChannelLength=True):
 	legend_title = ''
 	legend_entries = []
+	if(includeDataMin):
+		rawXData = getParameterArray(deviceHistory, 'Results', '', 'vgs_data_to_plot')[0]
+		rawYData = getParameterArray(deviceHistory, 'Results', '', 'snr_to_plot')[0]
+		xData = []
+		yData = []
+		for sublist in rawXData:
+			xData = xData + sublist
+		for sublist in rawYData:
+			yData = yData + sublist
+		(minIndices, minValue) = minIndicesAndValue(yData)
+		correspondingXValues = [xData[i] for i in minIndices]
+		for x in correspondingXValues:
+			legend_entries.append('Min = ' + plottype_parameters['leg_data_min_x'].format(round(x, 2)) + ', ' + plottype_parameters['leg_data_min_y'].format(round(minValue, 2)))
+	if(includeDataMax):
+		rawXData = getParameterArray(deviceHistory, 'Results', '', 'vgs_data_to_plot')[0]
+		rawYData = getParameterArray(deviceHistory, 'Results', '', 'snr_to_plot')[0]
+		xData = []
+		yData = []
+		for sublist in rawXData:
+			xData = xData + sublist
+		for sublist in rawYData:
+			yData = yData + sublist
+		(maxIndices, maxValue) = maxIndicesAndValue(yData)
+		correspondingXValues = [xData[i] for i in maxIndices]
+		for x in correspondingXValues:
+			legend_entries.append('Max = ' + plottype_parameters['leg_data_max_x'].format(round(x, 2)) + ', ' + plottype_parameters['leg_data_max_y'].format(round(maxValue, 2)))
+	if(includeVgsChange):
+		vgs_max = getParameterArray(deviceHistory, 'runConfigs', 'GateSweep', 'gateVoltageMaximum')
+		vgs_min = getParameterArray(deviceHistory, 'runConfigs', 'GateSweep', 'gateVoltageMinimum')
+		vgs_steps = getParameterArray(deviceHistory, 'runConfigs', 'GateSweep', 'stepsInVGSPerDirection')
+		vgs_change = (vgs_max[0] - vgs_min[0])/(vgs_steps[0] - 1)
+		print("vgs_change = ", vgs_change)
+		legend_entries.append(plottype_parameters['leg_vgs_change'].format(round(vgs_change, 2)))
 	if(includeVdsSweep):
 		vds_list = getParameterArray(deviceHistory, parameterSuperType, parameterType, 'drainVoltageSetPoint')
 		vds_min = min(vds_list)
@@ -435,12 +501,12 @@ def getLegendTitle(deviceHistory, identifiers, plottype_parameters, parameterSup
 					all_fitted_parameters[parameter].append(rev_model_parameters_kw[parameter])
 		#plt.gca().plot(deviceRun['Results']['vgs_data'][0], 10**6 * np.array(fwd_id_fitted), color='#f2b134')
 		VT_avg = np.mean(all_fitted_parameters['V_T'])
-		gm_avg = np.mean(all_fitted_parameters['g_m_max'])	
+		gm_avg = np.mean(all_fitted_parameters['g_m_max'])
 		SS_avg = np.mean(all_fitted_parameters['SS_mV_dec'])
 		legend_entries.append('$V_{{T}}^{{avg}} = $ {:.2f}V'.format(VT_avg))
 		legend_entries.append('$g_{{m \\cdot max}}^{{avg}} = $ {:.1f}$\\mu$A/V'.format(gm_avg * 10**6))
 		legend_entries.append('$SS^{{avg}} = $ {:.0f}mV/dec'.format(SS_avg))
-	if(includeVdsHold):	
+	if(includeVdsHold):
 		legend_entries.append(plottype_parameters['vds_legend'].format(deviceHistory[0][parameterSuperType][parameterType]['drainVoltageSetPoint']))
 	if(includeVgsHold):
 		legend_entries.append(plottype_parameters['vgs_legend'].format(deviceHistory[0][parameterSuperType][parameterType]['gateVoltageSetPoint']))
@@ -457,10 +523,10 @@ def getLegendTitle(deviceHistory, identifiers, plottype_parameters, parameterSup
 					legend_entries.append('$L_{{ch}} = $ {:.1f} $\\mu$m'.format(L_ch/1000))
 			except:
 				print('Unable to find L_ch for device: ' + str(identifiers) + ' in the provided wafer.json.')
-				
+
 	if((mode_parameters is not None) and (mode_parameters['legendTitleSuffix'] != '')):
 		legend_entries.append(mode_parameters['legendTitleSuffix'])
-	
+
 	# Concatentate legend entries with new lines
 	for i in range(len(legend_entries)):
 		if(i != 0):
@@ -468,7 +534,7 @@ def getLegendTitle(deviceHistory, identifiers, plottype_parameters, parameterSup
 		legend_title += legend_entries[i]
 
 	return legend_title
-	
+
 
 
 # === Curve Fitting ===
@@ -552,14 +618,14 @@ def secondsPer(amountOfTime):
 		return 3600*24*7
 	elif(amountOfTime == 'months'):
 		return 3600*24*30
-	else: 
+	else:
 		return 0
 
 def timeWithUnits(seconds):
 	time = seconds
 	unit = 's'
 	threshold = 2
-	
+
 	if seconds >= 60*60*24*30:
 		time = seconds/(60*60*24*30)
 		unit = 'month'
@@ -578,7 +644,7 @@ def timeWithUnits(seconds):
 	elif seconds >= 60:
 		time = seconds/(1)
 		unit = 's'
-	
+
 	return '{} {}'.format(int(time), unit)
 
 def bestTimeScaleFor(seconds):
@@ -626,6 +692,3 @@ def getParameterArray(deviceHistory, parameterSuperType, parameterSubType, param
 			element = element[parameterSubType]
 		result.append(element[parameterName])
 	return result
-
-
-
