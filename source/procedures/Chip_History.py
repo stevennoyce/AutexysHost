@@ -142,6 +142,8 @@ if(__name__ == '__main__'):
 	#print(dlu.getDataFileNamesForChipExperiments(dlu.getChipDirectory(parameters), minExperiment=0, maxExperiment=float('inf')))
 	#print(plotsForExperiments(parameters, minExperiment=0, maxExperiment=float('inf')))
 	#makePlots('jay', 'MoS2FET', 'JM4', 'C', specificPlot='ChipSubthresholdCurve', specificDeviceList={'3-6', '5-6', '4-5', '27-30', '28-29', '24-25', '34-35', '20-31', '31-32', '19-32'})
-	makePlots('jay', 'MoS2FET', 'JM4', 'D', specificPlot='ChipSubthresholdCurve', specificDeviceList={'3-4', '3-6', '7-11'})
-
+	#makePlots('jay', 'MoS2FET', 'JM4', 'D', specificPlot='ChipTransferCurve', specificDeviceList={'3-6', '3-4', '1-2', '53-58', '28-29', '24-25', '59-63', '7-11', '43-44'})
+	#makePlots('jay', 'MoS2FET', 'JM4', 'D', specificPlot='ChipSubthresholdCurve', specificDeviceList={'3-6', '3-4', '1-2', '53-58', '28-29', '24-25', '59-63', '7-11', '43-44'}, sweepDirection='forward')
+	makePlots('jay', 'MoS2FET', 'JM4', 'D', specificPlot='ChipSubthresholdCurve', specificDeviceList={'3-6', '3-4', '1-2', '28-29', '24-25', '7-11', '43-44'}, sweepDirection='forward')
+	
 
