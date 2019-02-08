@@ -74,9 +74,18 @@ def bestMatchAFMRegistry(dataFolder, targetTimestamp, minTimestamp=0, maxTimesta
 			min_distance = distance
 	
 	return best_match
-			
 	
 	
+def deepDecodeASCII(input):
+	if isinstance(input, dict):
+		return {deepDecodeASCII(key): deepDecodeASCII(value) for key, value in input.items()}
+	elif isinstance(input, list):
+		return [deepDecodeASCII(element) for element in input]
+	elif isinstance(input, bytes):
+		return str(input, encoding='ascii')
+	else:
+		return input
+
 
 def loadAFM(path):
 	data = igorbinary.load(path)
@@ -108,6 +117,7 @@ def loadAFM(path):
 		noteData[key] = value
 		
 	data['wave']['note'] = noteData
+	data = deepDecodeASCII(data)
 	
 	return data
 
@@ -119,8 +129,8 @@ def loadAFMImageData(path):
 	for binary_labels in afm['wave']['labels']:
 		for label in binary_labels:
 			if(len(label) > 0):
-				image_types.append(label.decode('utf-8'))
-				image_data[label.decode('utf-8')] = []
+				image_types.append(label)
+				image_data[label] = []
 	
 	# data_array = afm['wave']['wData']
 	# for row in range(len(data_array)):
@@ -142,7 +152,7 @@ def loadAFMImageData(path):
 	image_width = afm['wave']['note']['FastScanSize']
 	image_height = afm['wave']['note']['SlowScanSize']
 	image_rotation = afm['wave']['note']['ScanAngle']
-		
+	
 	# Image data must be rotated in order to plot correctly with matplotlib
 	for key in image_data.keys():
 		image_data[key] = np.rot90(image_data[key])
