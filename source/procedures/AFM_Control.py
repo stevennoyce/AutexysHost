@@ -42,12 +42,17 @@ def fitTriangleWave(times, values):
 		# guesses['phase'] = guesses['period'] - guesses['phase'] # Use this for always positive phase
 		guesses['phase'] *= -1 # Use this for smallest phase, positive or negative
 	
-	optParamVals, optParamCov = scipy.optimize.curve_fit(triangleCosWave, times, values,
-		p0 = [guesses[parameterName] for parameterName in parameterNames], 
-		bounds=[[0,0,-np.inf,-np.inf],[max(values)-min(values),4*(max(times)-min(times)),np.inf,np.inf]])
+	try:
+		optParamVals, optParamCov = scipy.optimize.curve_fit(triangleCosWave, times, values,
+			p0 = [guesses[parameterName] for parameterName in parameterNames], 
+			bounds=[[0,0,-np.inf,-np.inf],[max(values)-min(values),4*(max(times)-min(times)),np.inf,np.inf]])
 	
-	for parameterName, value in zip(parameterNames, optParamVals):
-		optParams[parameterName] = value
+		for parameterName, value in zip(parameterNames, optParamVals):
+			optParams[parameterName] = value
+	except RuntimeError as e:
+		print('Could not fit:')
+		print(list(values))
+		optParams = guesses
 	
 	possiblePhases = optParams['phase'] + np.arange(-20,20,1)*optParams['period']
 	optParams['phase'] = min(possiblePhases, key=abs)
@@ -173,8 +178,8 @@ def getRasteredMatrix(Vx, Vy, Id):
 	min_Vx = min([min(seg) for seg in Vx])
 	max_Vy = max([max(seg) for seg in Vy])
 	min_Vy = min([min(seg) for seg in Vy])
-	physicalWidth = abs(max_Vx - min_Vx)/0.157
-	physicalHeight = abs(max_Vy - min_Vy)/0.138
+	physicalWidth = abs(max_Vx - min_Vx)/0.157e6
+	physicalHeight = abs(max_Vy - min_Vy)/0.138e6
 	
 	return matrix, physicalWidth, physicalHeight
 			
