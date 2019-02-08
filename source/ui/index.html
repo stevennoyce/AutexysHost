@@ -534,6 +534,7 @@
 											</v-toolbar-title>
 										</v-toolbar>
 										{{ associatedAFMs }}
+										
 									</v-card>
 									
 									<v-card class="ma-1">
@@ -1323,7 +1324,7 @@
 					}
 				},
 				getAssociatedAFMs: function(experiment) {
-					if (!experiment.runType.includes('AFM')) {
+					if (!experiment.runType.includes('FM')) {
 						this.associatedAFMs = [];
 						return;
 					}
@@ -1333,7 +1334,7 @@
 					var path = '/AFMFilesInTimestampRange/' + startTime + '/' + endTime + '.json' + this.cacheBust;
 					if (path) {
 						$.getJSON(path, response => {this.associatedAFMs = response})
-						.fail(() => {console.log("Error getting associated AFMs")});
+						.fail((xhr, status, error) => {console.log("Error getting associated AFMs"); console.log(error)});
 					}
 				},
 				getPaths: function() {
