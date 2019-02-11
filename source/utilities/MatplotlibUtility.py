@@ -165,7 +165,7 @@ def plotSweep(axis, jsonData, lineColor, direction='both', x_data='gate voltage'
 			y = [list(forward_y), list(reverse_y)]
 	except:
 		pass
-	
+
 	# Figure out if data was collected with multiple points per x-value
 	pointsPerX = 1
 	try:
@@ -488,7 +488,6 @@ def getLegendTitle(deviceHistory, identifiers, plottype_parameters, parameterSup
 		vgs_min = getParameterArray(deviceHistory, 'runConfigs', 'GateSweep', 'gateVoltageMinimum')
 		vgs_steps = getParameterArray(deviceHistory, 'runConfigs', 'GateSweep', 'stepsInVGSPerDirection')
 		vgs_change = (vgs_max[0] - vgs_min[0])/(vgs_steps[0] - 1)
-		print("vgs_change = ", vgs_change)
 		legend_entries.append(plottype_parameters['leg_vgs_change'].format(round(vgs_change, 2)))
 	if(includeVdsSweep):
 		vds_list = getParameterArray(deviceHistory, parameterSuperType, parameterType, 'drainVoltageSetPoint')
