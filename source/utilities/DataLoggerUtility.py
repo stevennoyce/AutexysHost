@@ -28,10 +28,10 @@ def emptyFolder(folderPath):
 def emptyFile(folderPath, fileName):
 	"""Make an empty file called fileName.json in the folderPath directory."""
 	makeFolder(folderPath)
-	
+
 	if '.json' not in fileName:
 		fileName += '.json'
-	
+
 	with open(os.path.join(folderPath, fileName), 'w') as file:
 		file.write('')
 
@@ -40,18 +40,18 @@ def emptyFile(folderPath, fileName):
 def loadCSV(directory, loadFileName, dataNamesLabel=None, dataValuesLabel=None):
 	"""Load a specified CSV file in directory. If the CSV file has a row that names every data column and the data rows are labeled,
 	then the data columns can be extracted to arrays in a dictionary. For the B1500A, these labels are 'DataName' and 'DataValue'. """
-	
+
 	# Load generic CSV data
 	csv_data = []
 	with open(os.path.join(directory, loadFileName), encoding='utf-8') as file:
 		for line in file:
 			row = line.strip().split(',')
 			csv_data.append(row)
-	
+
 	# By default, just return the entire 2D array of CSV data
 	if((dataNamesLabel is None) or (dataValuesLabel is None)):
 		return csv_data
-	
+
 	# Locate the names of each data column
 	column_index = {}
 	formatted_data = {}
@@ -61,47 +61,47 @@ def loadCSV(directory, loadFileName, dataNamesLabel=None, dataValuesLabel=None):
 				column_index[i] = row[i].strip()
 				formatted_data[row[i].strip()] = []
 			break
-	
+
 	# Extract data values to the appropriate array for their column
 	for row in csv_data:
 		if(row[0] == dataValuesLabel):
 			for i in range(1, len(row)):
 				try:
-					formatted_data[column_index[i]].append(float(row[i]))	
+					formatted_data[column_index[i]].append(float(row[i]))
 				except:
-					formatted_data[column_index[i]].append(row[i])	
-	
+					formatted_data[column_index[i]].append(row[i])
+
 	return formatted_data
-	
+
 def saveCSV(deviceHistory, saveFileName, directory='', separateDataByEmptyRows=True):
 	makeFolder(directory)
-	
+
 	savePath = ''
 	if(isinstance(saveFileName, io.StringIO)):
 	 	savePath = saveFileName
 	else:
 	 	savePath = os.path.join(directory, saveFileName)
-	
+
 	# Look at the first line in the data and extract the data lists to save
 	data_columns = {}
 	if(len(deviceHistory) >= 1):
 		for key in deviceHistory[0]['Results'].keys():
 			data_columns[key] = []
-				
-	# Flatten the data into 			
+
+	# Flatten the data into
 	for jsonData in deviceHistory:
 		for key in jsonData['Results']:
 			if(key in data_columns.keys()):
 				data_columns[key].extend(np.hstack(jsonData['Results'][key]).flatten())
 				if(separateDataByEmptyRows):
 					data_columns[key].append('')
-					
+
 	lines = []
-	
+
 	# Write all of the variable names in the first line of the CSV
-	header = ','.join(data_columns.keys()) + '\n' 
+	header = ','.join(data_columns.keys()) + '\n'
 	lines.append(header)
-	
+
 	# Write all of the data row-by-row to the file
 	index = 0
 	isDone = False
@@ -114,11 +114,11 @@ def saveCSV(deviceHistory, saveFileName, directory='', separateDataByEmptyRows=T
 				isDone = False
 			else:
 				values.append('')
-				
+
 		row = ','.join(values) + '\n'
 		lines.append(row)
 		index += 1
-	
+
 	if(isinstance(saveFileName, io.StringIO)):
 		file = savePath
 		for line in lines:
@@ -130,24 +130,24 @@ def saveCSV(deviceHistory, saveFileName, directory='', separateDataByEmptyRows=T
 
 
 def appendTextToFile(directory, saveFileName, textToAppend):
-	makeFolder(directory)	
+	makeFolder(directory)
 	with open(os.path.join(directory, saveFileName), 'a') as file:
 		file.write(textToAppend)
 		file.write('\n')
 
 # === JSON ===
 def saveJSON(directory, saveFileName, jsonData, subDirectory=None, incrementIndex=True):
-	"""Save the jsonData dictionary to as saveFileName.json in directory. 
+	"""Save the jsonData dictionary to as saveFileName.json in directory.
 	If incrementIndex is True, also create an index.json file that tracks the index and experimentNumber of this jsonData.
 	If subDirectory is not None, put saveFileName.json in a folder specified by directory + subDirectory. index.json is still put in directory."""
 	savePath = directory
 	if(subDirectory is not None):
 		savePath = os.path.join(directory, subDirectory)
 	makeFolder(savePath)
-	
+
 	if '.json' not in saveFileName:
 		saveFileName += '.json'
-	
+
 	with open(os.path.join(savePath, saveFileName), 'a') as file:
 		if(incrementIndex):
 			indexData = loadJSONIndex(directory)
@@ -168,7 +168,7 @@ def loadJSONIndex(directory):
 	try:
 		with open(os.path.join(directory, 'index.json'), 'r') as file:
 			indexData = json.loads(file.readline())
-	except FileNotFoundError:	
+	except FileNotFoundError:
 		indexData = {'index':0, 'experimentNumber':0, 'timestamp':0}
 	return indexData
 
@@ -191,10 +191,12 @@ def incrementJSONExperimentNumber(directory):
 		json.dump(indexData, file)
 		file.write('\n')
 	return indexData['experimentNumber']
-	
+
 def loadJSON_slow(directory, loadFileName):
 	"""Private method. This is the traditional way of parsing json data files, but it can be slow if you only need to see one line in a large file."""
 	jsonData = []
+	print("Directory = ", directory)
+	print("loadFileName = ", loadFileName)
 	with open(os.path.join(directory, loadFileName)) as file:
 		for line in file:
 			try:
@@ -224,7 +226,7 @@ def getExperimentDirectory(parameters, experimentNumber):
 	return os.path.join(getDeviceDirectory(parameters), 'Ex'+str(experimentNumber)) + os.sep
 
 def loadSpecificDeviceHistory(directory, fileName, minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf')):
-	"""Given a folder path and fileName, load data for a device over a range of indices or experiments. 
+	"""Given a folder path and fileName, load data for a device over a range of indices or experiments.
 	If minIndex/maxIndex or minExperiment/maxExperiment are negative, then index backwards (-1 == the most recent index/experiment)"""
 	indexData = loadJSONIndex(directory)
 	if(minExperiment < 0):
@@ -235,9 +237,9 @@ def loadSpecificDeviceHistory(directory, fileName, minIndex=0, maxIndex=float('i
 		minIndex = indexData['index'] + minIndex
 	if(maxIndex < 0):
 		maxIndex = indexData['index'] + maxIndex
-	
+
 	filteredHistory = []
-	
+
 	#folderlist = set()
 	#for name in os.listdir(directory):
 	#	if (os.path.isdir(os.path.join(directory, name)) and os.path.exists(os.path.join(directory, name, fileName)) and (name[0:2] == 'Ex' and name[2:].isdigit()) and (int(name[2:]) >= minExperiment) and (int(name[2:]) <= maxExperiment)):
@@ -245,13 +247,13 @@ def loadSpecificDeviceHistory(directory, fileName, minIndex=0, maxIndex=float('i
 
 	#for experimentSubdirectory in ["Ex" + str(val) for val in folderlist]:
 	#	filteredHistory += loadJSON_fast(os.path.join(directory, experimentSubdirectory), fileName, minIndex, maxIndex, minExperiment, maxExperiment, minRelativeIndex, maxRelativeIndex)
-	
+
 	string_to_int = lambda text: int(text) if text.isdigit() else text
 	natural_keys = lambda text: [string_to_int(c) for c in re.split('(\d+)', text)]
-	
+
 	for experimentSubdirectory in sorted([name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and os.path.exists(os.path.join(directory, name, fileName)) and (name[0:2] == 'Ex' and name[2:].isdigit()) and (int(name[2:]) >= minExperiment) and (int(name[2:]) <= maxExperiment))], key=natural_keys):
-		filteredHistory += loadJSON_fast(os.path.join(directory, experimentSubdirectory), fileName, minIndex, maxIndex, minExperiment, maxExperiment, minRelativeIndex, maxRelativeIndex)	
-			
+		filteredHistory += loadJSON_fast(os.path.join(directory, experimentSubdirectory), fileName, minIndex, maxIndex, minExperiment, maxExperiment, minRelativeIndex, maxRelativeIndex)
+
 	return filteredHistory
 
 def loadOldestDeviceHistory(directory, fileName, numberOfOldestExperiments=1, numberOfOldestIndexes=1):
@@ -285,7 +287,7 @@ def getDataFileNamesForDeviceExperiments(directory, minExperiment=0, maxExperime
 def getIndexesForExperiments(directory, minExperiment, maxExperiment):
 	"""Given a device folder path and range of experiments, get a list of the indices for the data in those experiments."""
 	indexes = []
-	for experimentSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and (name[0:2] == 'Ex' and name[2:].isdigit()) and (int(name[2:]) >= minExperiment) and (int(name[2:]) <= maxExperiment))]:	
+	for experimentSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and (name[0:2] == 'Ex' and name[2:].isdigit()) and (int(name[2:]) >= minExperiment) and (int(name[2:]) <= maxExperiment))]:
 		for filePath in glob.glob(os.path.join(directory, experimentSubdirectory) + '/*.json'):
 			jsonData = loadJSON_fast('', filePath, minExperiment=minExperiment, maxExperiment=maxExperiment)
 			for deviceRun in jsonData:
@@ -293,7 +295,7 @@ def getIndexesForExperiments(directory, minExperiment, maxExperiment):
 					indexes.append(deviceRun['index'])
 	indexes.sort()
 	return indexes
-		
+
 
 
 # === Chip History API ===
@@ -322,7 +324,7 @@ def loadSpecificChipHistory(directory, fileName, specificDeviceList=None, minInd
 	return chipHistory
 
 def loadOldestChipHistory(directory, fileName, numberOfOldestExperiments=1, numberOfOldestIndexes=1, specificDeviceList=None):
-	"""Given a chip's folder path and a data fileName, load the oldest saved jsonData for devices on that chip. 
+	"""Given a chip's folder path and a data fileName, load the oldest saved jsonData for devices on that chip.
 	The default loads all devices on the chip but specific devices can also be specified."""
 	chipHistory = []
 	for deviceSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and (specificDeviceList is None or name in specificDeviceList))]:
@@ -332,7 +334,7 @@ def loadOldestChipHistory(directory, fileName, numberOfOldestExperiments=1, numb
 	return chipHistory
 
 def loadMostRecentChipHistory(directory, fileName, numberOfRecentExperiments=1, numberOfRecentIndexes=1, specificDeviceList=None):
-	"""Given a chip's folder path and a data fileName, load the most recently saved jsonData for devices on that chip. 
+	"""Given a chip's folder path and a data fileName, load the most recently saved jsonData for devices on that chip.
 	The default loads all devices on the chip but specific devices can also be specified."""
 	chipHistory = []
 	for deviceSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and (specificDeviceList is None or name in specificDeviceList))]:
@@ -397,7 +399,7 @@ def filterStringArrayByIndexAndExperiment(directory, fileLines, minIndex=0, maxI
 			filteredFileLines = filterFileLinesGreaterThan(filteredFileLines, 'index', minIndex)
 		if(maxIndex < float('inf')):
 			filteredFileLines = filterFileLinesLessThan(filteredFileLines, 'index', maxIndex)
-	
+
 	if(minRelativeIndex > 0 or maxRelativeIndex < 1e10):
 		experimentBaseIndex = min(getIndexesForExperiments(os.path.join(directory, '../'), minExperiment, maxExperiment))
 		if(minRelativeIndex > 0):

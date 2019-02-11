@@ -27,6 +27,14 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Testing/debugging
 	# deviceHistory[0]['Results']['vgs_data'] = [[1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4]]
 	# deviceHistory[0]['Results']['gateVoltages'] = [[1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4]]
+	# deviceHistory[0]['Results']['id_data'] = [[15,20,13, 14,14,14, 15,15,15, 20,19,23]]
+	# deviceHistory[0]['runConfigs']['GateSweep']['stepsInVGSPerDirection'] = 4
+	# deviceHistory[0]['runConfigs']['GateSweep']['pointsPerVGS'] = 3
+	# deviceHistory[0]['runConfigs']['GateSweep']['gateVoltageMaximum'] = 4
+	# deviceHistory[0]['runConfigs']['GateSweep']['gateVoltageMinimum'] = 1
+	# mode_parameters['sweepDirection'] = 'forward'
+	# deviceHistory[0]['Results']['vgs_data'] = [[1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4]]
+	# deviceHistory[0]['Results']['gateVoltages'] = [[1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4]]
 	# deviceHistory[0]['Results']['id_data'] = [[5, 4, 5, 10, 11, 11, 15, 14, 13, 20, 20, 19]]
 	# deviceHistory[0]['runConfigs']['GateSweep']['stepsInVGSPerDirection'] = 4
 	# deviceHistory[0]['runConfigs']['GateSweep']['pointsPerVGS'] = 3
@@ -46,7 +54,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	colors = setupColors(fig, len(deviceHistory), colorOverride=mode_parameters['colorsOverride'], colorDefault=plotDescription['plotDefaults']['colorDefault'], colorMapName=plotDescription['plotDefaults']['colorMap'], colorMapStart=0.8, colorMapEnd=0.15, enableColorBar=mode_parameters['enableColorBar'], colorBarTicks=[0,0.6,1], colorBarTickLabels=[totalTime, holdTime, '$t_0$'], colorBarAxisLabel='')
 
 	# Calculate means and standard deviations
-	normalize = True # Normalize by Vgs? (divides all SNRs by Vgs)
+	normalize = False # Normalize by Vgs? (divides all SNRs by Vgs)
 
 	for i in range(len(deviceHistory)):
 		vgs_data_to_plot = [] # Measured, mean is used (better for plotting)
@@ -66,9 +74,6 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 			for step in range(steps-1): # -1 because the last iteration does not have a step afterwards for mean calculation
 				index = pointsPerVGS * step
 
-				# Gate voltages
-				my_direction_vgs_data_to_plot.append(statistics.mean(deviceHistory[i]['Results']['vgs_data'][0][index:index+pointsPerVGS]))
-
 				# Drain currents
 				my_drain_current_list = deviceHistory[i]['Results']['id_data'][0][index:index+pointsPerVGS]
 
@@ -80,6 +85,9 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 					if normalize:
 						normTerm = deviceHistory[i]['Results']['vgs_data'][0][index+pointsPerVGS-1] - deviceHistory[i]['Results']['vgs_data'][0][index+pointsPerVGS] # Don't care about negative
 					my_direction_snr_to_plot.append(abs(my_drain_current_mean / (my_drain_current_stDev * normTerm)))  # abs value takes care of negative case
+
+					# Gate voltages - put inside the if statement so that the two lists are same length
+					my_direction_vgs_data_to_plot.append(statistics.mean(deviceHistory[i]['Results']['vgs_data'][0][index:index+pointsPerVGS]))
 
 			vgs_data_to_plot.append(my_direction_vgs_data_to_plot)
 			snr_to_plot.append(my_direction_snr_to_plot)
@@ -97,9 +105,6 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 			for step in range(1, steps):  # skips the first value like skipping last value with forward direction
 				index = pointsPerVGS * step
 
-				# Gate voltages
-				my_direction_vgs_data_to_plot.append(statistics.mean(deviceHistory[i]['Results']['vgs_data'][sweep_index][index:index+pointsPerVGS]))
-
 				# Drain currents
 				my_drain_current_list = deviceHistory[i]['Results']['id_data'][sweep_index][index:index+pointsPerVGS]
 
@@ -112,6 +117,9 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 						normTerm = deviceHistory[i]['Results']['vgs_data'][sweep_index][index] - deviceHistory[i]['Results']['vgs_data'][sweep_index][index-1] # Don't care about negative
 					my_direction_snr_to_plot.append(abs(my_drain_current_mean / (my_drain_current_stDev * normTerm)))  # abs value takes care of negative case
 
+					# Gate voltages - inside if statement so that lists are same length
+					my_direction_vgs_data_to_plot.append(statistics.mean(deviceHistory[i]['Results']['vgs_data'][sweep_index][index:index+pointsPerVGS]))
+
 			vgs_data_to_plot.append(my_direction_vgs_data_to_plot)
 			snr_to_plot.append(my_direction_snr_to_plot)
 
@@ -122,10 +130,6 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		line = plotSNR(ax, deviceHistory[i], colors[i], direction=mode_parameters['sweepDirection'], scaleCurrentBy=1, lineStyle=None, errorBars=mode_parameters['enableErrorBars'])
 		if(len(deviceHistory) == len(mode_parameters['legendLabels'])):
 			setLabel(line, mode_parameters['legendLabels'][i])
-
-
-
-	print('snr_to_plot entry =', deviceHistory[0]['Results']['snr_to_plot'][1][-1])
 
 	# Set axis labels
 	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=plotDescription['plotDefaults']['ylabel'])
