@@ -27,6 +27,14 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Testing/debugging
 	# deviceHistory[0]['Results']['vgs_data'] = [[1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4]]
 	# deviceHistory[0]['Results']['gateVoltages'] = [[1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4]]
+	# deviceHistory[0]['Results']['id_data'] = [[15,20,13, 14,14,14, 15,15,15, 20,19,23]]
+	# deviceHistory[0]['runConfigs']['GateSweep']['stepsInVGSPerDirection'] = 4
+	# deviceHistory[0]['runConfigs']['GateSweep']['pointsPerVGS'] = 3
+	# deviceHistory[0]['runConfigs']['GateSweep']['gateVoltageMaximum'] = 4
+	# deviceHistory[0]['runConfigs']['GateSweep']['gateVoltageMinimum'] = 1
+	# mode_parameters['sweepDirection'] = 'forward'
+	# deviceHistory[0]['Results']['vgs_data'] = [[1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4]]
+	# deviceHistory[0]['Results']['gateVoltages'] = [[1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4]]
 	# deviceHistory[0]['Results']['id_data'] = [[5, 4, 5, 10, 11, 11, 15, 14, 13, 20, 20, 19]]
 	# deviceHistory[0]['runConfigs']['GateSweep']['stepsInVGSPerDirection'] = 4
 	# deviceHistory[0]['runConfigs']['GateSweep']['pointsPerVGS'] = 3
@@ -80,6 +88,9 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 					# Gate voltages
 					my_direction_vgs_data_to_plot.append(statistics.mean(deviceHistory[i]['Results']['vgs_data'][0][index:index+pointsPerVGS]))
 
+					# Gate voltages - put inside the if statement so that the two lists are same length
+					my_direction_vgs_data_to_plot.append(statistics.mean(deviceHistory[i]['Results']['vgs_data'][0][index:index+pointsPerVGS]))
+
 			vgs_data_to_plot.append(my_direction_vgs_data_to_plot)
 			snr_to_plot.append(my_direction_snr_to_plot)
 
@@ -110,6 +121,9 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 					# Gate voltages
 					my_direction_vgs_data_to_plot.append(statistics.mean(deviceHistory[i]['Results']['vgs_data'][sweep_index][index:index+pointsPerVGS]))
 
+					# Gate voltages - inside if statement so that lists are same length
+					my_direction_vgs_data_to_plot.append(statistics.mean(deviceHistory[i]['Results']['vgs_data'][sweep_index][index:index+pointsPerVGS]))
+
 			vgs_data_to_plot.append(my_direction_vgs_data_to_plot)
 			snr_to_plot.append(my_direction_snr_to_plot)
 
@@ -120,10 +134,6 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		line = plotSNR(ax, deviceHistory[i], colors[i], direction=mode_parameters['sweepDirection'], scaleCurrentBy=1, lineStyle=None, errorBars=mode_parameters['enableErrorBars'])
 		if(len(deviceHistory) == len(mode_parameters['legendLabels'])):
 			setLabel(line, mode_parameters['legendLabels'][i])
-
-
-
-	print('snr_to_plot entry =', deviceHistory[0]['Results']['snr_to_plot'][1][-1])
 
 	# Set axis labels
 	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=plotDescription['plotDefaults']['ylabel'])
