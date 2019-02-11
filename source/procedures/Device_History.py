@@ -179,7 +179,7 @@ if __name__ == '__main__':
 	#makePlots('stevenjay', 'BiasStress1', 'C127', 'E', '15-16', 10, 18, 'OnAndOffCurrentHistory', None, dataFolder='../../AutexysData', saveFolder='../../../AutexysPlots/', plotSaveName='Figure S17b full - ', saveFigures=False, showFigures=True, plot_mode_parameters={'publication_mode':False, 'staticBiasChangeDividers':False, 'enableGradient':False, 'legendLoc':'best'})
 	#makePlots('steven', 'SGM1', 'F1', 'E', 'E08N_10000', 51, 51, 'AFMdeviationsVsX', None, dataFolder='../data', showFigures=True)
 	#makePlots('jay', 'MoS2FET', 'JM3', 'B', '53-54', 9, 9, 'StaticBias', None, plotSaveName='Figure S17b full - ', saveFigures=True, showFigures=True, plot_mode_parameters={'publication_mode':False, 'staticBiasChangeDividers':False, 'enableGradient':False, 'legendLoc':'best', 'colorsOverride':['#56638A','#56638A','#56638A']})
-	makePlots('matthew', 'TFTBiasStress1', 'C144', 'T', '13-14', 1, 1, 'GateCurrent', None, plotSaveName='Matthew4', dataFolder='../../AutexysData', showFigures=True, saveFigures=True)
+	#makePlots('matthew', 'TFTBiasStress1', 'C144', 'T', '13-14', 1, 1, 'GateCurrent', None, plotSaveName='Matthew4', dataFolder='C:\\Users\\Matthew\\Documents\\SeniorSpring\\FranklinLab\\software\\AutexysData', showFigures=True, saveFigures=True)
 	#makePlots('jay', 'MoS2FET', 'JM3', 'B', '53-54', 277, 277, 'TransferCurve', None, plotSaveName='Figure S17b full - ', saveFigures=True, showFigures=True, minRelativeIndex=1, maxRelativeIndex=16, plot_mode_parameters={'publication_mode':False, 'staticBiasChangeDividers':False, 'enableGradient':False, 'legendLoc':'best'})
 	#makePlots('stevenjay', 'BiasStress1', 'C127', 'E', '15-16', 6, 10, 'OnOffCurrent', None, plotSaveName='Figure S17b full - ', saveFigures=False, showFigures=True, plot_mode_parameters={'publication_mode':False, 'staticBiasChangeDividers':False, 'enableGradient':False, 'legendLoc':'best'})
 	#makePlots('stevenjay', 'BiasStress1', 'C127', 'E', '14-15', 14, 17, 'StaticBias', None, plotSaveName='Figure S17b full - ', saveFigures=False, showFigures=True, plot_mode_parameters={'publication_mode':False, 'staticBiasChangeDividers':False, 'enableGradient':False, 'legendLoc':'best'})
@@ -187,6 +187,6 @@ if __name__ == '__main__':
 	#makePlots('stevenjay', 'BiasStress1', 'C127', 'E', '14-15', 15, 15, 'OnOffCurrent', None, plotSaveName='Figure S17b full - ', saveFigures=False, showFigures=True, plot_mode_parameters={'publication_mode':False, 'staticBiasChangeDividers':False, 'enableGradient':False, 'legendLoc':'best', 'includeDualAxis':False, 'includeOffCurrent':False, 'enableLegend':False})
 	#makePlots('stevenjay', 'BiasStress1', 'C127', 'E', '14-15', 16, 16, 'OnOffCurrent', None, plotSaveName='Figure S17b full - ', saveFigures=False, showFigures=True, plot_mode_parameters={'publication_mode':False, 'staticBiasChangeDividers':False, 'enableGradient':False, 'legendLoc':'best', 'includeDualAxis':False, 'includeOffCurrent':False, 'enableLegend':False})
 
-	#makePlots('matthew', 'breadboard_FET', '1', '1', '1', 1, 1, 'SignalToNoiseRatio', None, dataFolder='../../AutexysData', showFigures=True)
+	makePlots('matthew', 'breadboard_FET', '1', '1', '1', 1, 1, 'SignalToNoiseRatio', None, dataFolder='C:\\Users\\Matthew\\Documents\\SeniorSpring\\FranklinLab\\software\\AutexysData', showFigures=True)
 
 	pass
