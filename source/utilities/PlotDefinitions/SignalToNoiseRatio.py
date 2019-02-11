@@ -46,7 +46,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	colors = setupColors(fig, len(deviceHistory), colorOverride=mode_parameters['colorsOverride'], colorDefault=plotDescription['plotDefaults']['colorDefault'], colorMapName=plotDescription['plotDefaults']['colorMap'], colorMapStart=0.8, colorMapEnd=0.15, enableColorBar=mode_parameters['enableColorBar'], colorBarTicks=[0,0.6,1], colorBarTickLabels=[totalTime, holdTime, '$t_0$'], colorBarAxisLabel='')
 
 	# Calculate means and standard deviations
-	normalize = True # Normalize by Vgs? (divides all SNRs by Vgs)
+	normalize = False # Normalize by Vgs? (divides all SNRs by Vgs)
 
 	for i in range(len(deviceHistory)):
 		vgs_data_to_plot = [] # Measured, mean is used (better for plotting)
@@ -66,9 +66,6 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 			for step in range(steps-1): # -1 because the last iteration does not have a step afterwards for mean calculation
 				index = pointsPerVGS * step
 
-				# Gate voltages
-				my_direction_vgs_data_to_plot.append(statistics.mean(deviceHistory[i]['Results']['vgs_data'][0][index:index+pointsPerVGS]))
-
 				# Drain currents
 				my_drain_current_list = deviceHistory[i]['Results']['id_data'][0][index:index+pointsPerVGS]
 
@@ -80,6 +77,8 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 					if normalize:
 						normTerm = deviceHistory[i]['Results']['vgs_data'][0][index+pointsPerVGS-1] - deviceHistory[i]['Results']['vgs_data'][0][index+pointsPerVGS] # Don't care about negative
 					my_direction_snr_to_plot.append(abs(my_drain_current_mean / (my_drain_current_stDev * normTerm)))  # abs value takes care of negative case
+					# Gate voltages
+					my_direction_vgs_data_to_plot.append(statistics.mean(deviceHistory[i]['Results']['vgs_data'][0][index:index+pointsPerVGS]))
 
 			vgs_data_to_plot.append(my_direction_vgs_data_to_plot)
 			snr_to_plot.append(my_direction_snr_to_plot)
@@ -97,9 +96,6 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 			for step in range(1, steps):  # skips the first value like skipping last value with forward direction
 				index = pointsPerVGS * step
 
-				# Gate voltages
-				my_direction_vgs_data_to_plot.append(statistics.mean(deviceHistory[i]['Results']['vgs_data'][sweep_index][index:index+pointsPerVGS]))
-
 				# Drain currents
 				my_drain_current_list = deviceHistory[i]['Results']['id_data'][sweep_index][index:index+pointsPerVGS]
 
@@ -111,6 +107,8 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 					if normalize:
 						normTerm = deviceHistory[i]['Results']['vgs_data'][sweep_index][index] - deviceHistory[i]['Results']['vgs_data'][sweep_index][index-1] # Don't care about negative
 					my_direction_snr_to_plot.append(abs(my_drain_current_mean / (my_drain_current_stDev * normTerm)))  # abs value takes care of negative case
+					# Gate voltages
+					my_direction_vgs_data_to_plot.append(statistics.mean(deviceHistory[i]['Results']['vgs_data'][sweep_index][index:index+pointsPerVGS]))
 
 			vgs_data_to_plot.append(my_direction_vgs_data_to_plot)
 			snr_to_plot.append(my_direction_snr_to_plot)
