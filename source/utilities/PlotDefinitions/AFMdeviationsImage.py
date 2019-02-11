@@ -10,20 +10,20 @@ plotDescription = {
 	'priority': 530,
 	'dataFileDependencies': ['AFMControl.json'],
 	'plotDefaults': {
-		'figsize':(5,4),
-		'colorMap':'viridis'
+		'figsize':(4,3),
+		'colorMap':'plasma'
 	},
 }
 
 
 def interpolate_nans(X):
-    """Overwrite NaNs with column value interpolations."""
-    for j in range(X.shape[1]):
-        mask_j = np.isnan(X[:,j])
-        X[mask_j,j] = np.interp(np.flatnonzero(mask_j), np.flatnonzero(~mask_j), X[~mask_j,j])
-    return X
+	"""Overwrite NaNs with column value interpolations."""
+	for j in range(X.shape[1]):
+		mask_j = np.isnan(X[:,j])
+		X[mask_j,j] = np.interp(np.flatnonzero(mask_j), np.flatnonzero(~mask_j), X[~mask_j,j])
+	return X
 
-def plot(deviceHistory, identifiers, mode_parameters=None, showBackgroundAFMImage=False, interpolateNans=True):
+def plot(deviceHistory, identifiers, mode_parameters=None, showBackgroundAFMImage=True, interpolateNans=False):
 	startTime = time.time()
 	
 	# Init Figure
@@ -57,21 +57,27 @@ def plot(deviceHistory, identifiers, mode_parameters=None, showBackgroundAFMImag
 	imageWidth = 0
 	imageHeight = 0
 	
-	# Determine the path to the correct AFM image to use
-	image_path = None
-	if(mode_parameters['AFMImagePath'] is not None):
-		image_path = mode_parameters['AFMImagePath']
-	else:
-		min_timestamp = min(times)
-		max_timestamp = max(times)
-		avg_timestamp = np.mean(times)
-		image_path = afm_reader.bestMatchAFMRegistry(deviceHistory[0]['dataFolder'], targetTimestamp=avg_timestamp)
-	
-	# Draw the image (if there is one to show)
-	if((image_path is not None) and showBackgroundAFMImage):
-		full_data, imageWidth, imageHeight = afm_reader.loadAFMImageData(image_path)
-		ax.imshow(full_data['HeightRetrace'], cmap='Greys_r', extent=(0, imageWidth*10**6, 0, imageHeight*10**6), interpolation='spline36')
-		# ax2.imshow(full_data['HeightRetrace'], cmap='Greys_r', extent=(0, imageWidth*10**6, 0, imageHeight*10**6), interpolation='spline36')
+	if showBackgroundAFMImage:
+		# Determine the path to the correct AFM image to use
+		image_path = None
+		if(mode_parameters['AFMImagePath'] is not None):
+			image_path = mode_parameters['AFMImagePath']
+		else:
+			min_timestamp = min(times)
+			max_timestamp = max(times)
+			avg_timestamp = np.mean(times)
+			deviceHistory[0]['dataFolder'] = '../../AutexysData'
+			image_path = afm_reader.bestMatchAFMRegistry(deviceHistory[0]['dataFolder'], targetTimestamp=avg_timestamp)
+		
+		# Draw the image (if there is one to show)
+		if (image_path is not None):
+			full_data, imageWidth, imageHeight = afm_reader.loadAFMImageData(image_path)
+			heightline = ax.imshow(np.array(full_data['HeightRetrace'])*1e9, cmap='Greys_r', extent=(0, imageWidth*10**6, 0, imageHeight*10**6), interpolation='spline36')
+			
+			cbar = fig.colorbar(heightline, pad=0.015, aspect=50)
+			cbar.set_label('Height [nm]', rotation=270, labelpad=11)
+			cbar.solids.set(alpha=1)
+			# ax2.imshow(full_data['HeightRetrace'], cmap='Greys_r', extent=(0, imageWidth*10**6, 0, imageHeight*10**6), interpolation='spline36')
 	
 	# Axis Labels
 	ax.set_ylabel('Y Position ($\\mu$m)')
@@ -81,7 +87,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None, showBackgroundAFMImag
 	
 	IdAlpha = 1
 	if showBackgroundAFMImage:
-		IdAlpha = 0.5
+		IdAlpha = 0.0
 	
 	rmStartTime = time.time()
 	print('Time elapsed before rastered matrix is {} s'.format(rmStartTime - etEndTime))
@@ -98,7 +104,11 @@ def plot(deviceHistory, identifiers, mode_parameters=None, showBackgroundAFMImag
 	isStartTime = time.time()
 	print('Time taken to interpolate nans is {} s'.format(isStartTime - inStartTime))
 	
-	ax.imshow(afm_data, cmap=plotDescription['plotDefaults']['colorMap'], extent=(0, dataWidth, 0, dataHeight), interpolation='spline36', alpha=IdAlpha)
+	img = ax.imshow(afm_data*1e9, cmap=plotDescription['plotDefaults']['colorMap'], extent=(0, dataWidth*1e6, 0, dataHeight*1e6), interpolation='spline36', alpha=IdAlpha, aspect=None, vmin=None, vmax=None)
+	
+	# cbar = fig.colorbar(img, pad=0.015, aspect=50)
+	# cbar.set_label('Drain Current [nA]', rotation=270, labelpad=11)
+	# cbar.solids.set(alpha=1)
 	
 	# afm_data_2, dataWidth_2, dataHeight_2 = afm_ctrl.getRasteredMatrix(Vx_vals_2, Vy_vals_2, Id_vals_2)
 	# if interpolateNans:

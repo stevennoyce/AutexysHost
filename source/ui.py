@@ -6,6 +6,7 @@ import flask
 import json
 import copy
 import time
+import numpy
 import webbrowser
 import threading
 import flask_socketio
@@ -38,7 +39,7 @@ from collections import Mapping, Sequence
 
 def replaceInfNan(obj):
 	if isinstance(obj, float):
-		if obj == float('nan'):
+		if numpy.isnan(obj):
 			return None
 		if obj == float('inf'):
 			return 1e99
@@ -366,8 +367,21 @@ def loadScheduleNames():
 
 @app.route('/AFMFilesInTimestampRange/<startTime>/<endTime>.json')
 def AFMFilesInTimestampRange(startTime, endTime):
-	afms = glob.glob(default_data_path + '../../**/*.ibw', recursive=True)
-	return jsonvalid(afms)
+	from utilities import AFMReader
+	
+	startTime = float(startTime)
+	endTime = float(endTime)
+	
+	avg_timestamp = (endTime - startTime)/2
+	
+	image_path = AFMReader.bestMatchAFMRegistry(default_data_path, targetTimestamp=avg_timestamp)
+	
+	if (image_path is not None):
+		metaData = AFMReader.getAFMMetaData(image_path)
+		
+		return jsonvalid({**metaData, 'image_path':image_path})
+	
+	return jsonvalid({})
 
 @app.route('/addToNote', methods=['POST'])
 def addToNote():
@@ -423,6 +437,7 @@ def updateAFMRegistry():
 	AFMReader.updateAFMRegistry(default_data_path)
 	
 	return jsonvalid({'success':True})
+
 
 @app.route('/getJSONData/<user>/<project>/<wafer>/<chip>/<device>/<experiment>/data.json')
 def getJSONData(user, project, wafer, chip, device, experiment):
