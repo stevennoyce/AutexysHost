@@ -527,12 +527,19 @@
 									</v-card>
 									
 									
-									<v-card class="ma-1" v-if="experiment.runType.includes('AFM')">
+									<v-card class="ma-1" v-if="experiment.runType.includes('AFM') || experiment.runType.includes('SGM')">
 										<v-toolbar dark class="blue-grey darken-1">
 											<v-toolbar-title>
 												Corresponding AFM Images
 											</v-toolbar-title>
 										</v-toolbar>
+										<div>
+											V<sub>GS</sub> = {{_.get(experiment, 'runConfigs.' + experiment['runType'] + '.gateVoltageSetPoint', '')}} V</br>
+											V<sub>DS</sub> = {{_.get(experiment, 'runConfigs.' + experiment['runType'] + '.drainVoltageSetPoint', '')}} V</br>
+											V<sub>tip</sub> = {{_.get(associatedAFMs, 'bestMatch.NapTipVoltage', '')}} V</br>
+											d<sub>tip</sub> = {{1e9*_.get(associatedAFMs, 'bestMatch.NapHeight', '')}} nm</br>
+										</div>
+										
 										{{ associatedAFMs }}
 										
 									</v-card>
@@ -1324,7 +1331,7 @@
 					}
 				},
 				getAssociatedAFMs: function(experiment) {
-					if (!experiment.runType.includes('FM')) {
+					if (!(experiment.runType.includes('AFM') || experiment.runType.includes('SGM'))) {
 						this.associatedAFMs = [];
 						return;
 					}
@@ -1445,7 +1452,6 @@
 					this.parametersTab = this.experiments[experimentIndex].runType;
 					this.parametersSection = this.experiments[experimentIndex].runType;
 					this.getExperiment();
-					this.getAssociatedAFMs(this.experiments[experimentIndex]);
 					
 					this.stepperPage++;
 				},
@@ -1538,7 +1544,11 @@
 				stepperPage: function(val) { localStorage.stepperPage = JSON.stringify(val); },
 				scheduleObjects: function(val) { localStorage.scheduleObjects = JSON.stringify(val); },
 				scheduleObjectClipboard: function(val) { localStorage.scheduleObjectClipboard = JSON.stringify(val); },
-				disabledPlots: function(val) { localStorage.disabledPlots = JSON.stringify(val); }
+				disabledPlots: function(val) { localStorage.disabledPlots = JSON.stringify(val); },
+				
+				experimentIndex: function(val) {
+					this.getAssociatedAFMs(this.experiments[this.experimentIndex]);
+				}
 			},
 			computed: {
 				experiment: function() {
