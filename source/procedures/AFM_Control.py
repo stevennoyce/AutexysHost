@@ -45,7 +45,7 @@ def fitTriangleWave(times, values):
 	try:
 		optParamVals, optParamCov = scipy.optimize.curve_fit(triangleCosWave, times, values,
 			p0 = [guesses[parameterName] for parameterName in parameterNames], 
-			bounds=[[0,0,-np.inf,-np.inf],[max(values)-min(values),4*(max(times)-min(times)),np.inf,np.inf]])
+			bounds=[[-np.inf,-np.inf,-np.inf,-np.inf],[2*(max(values)-min(values)),4*(max(times)-min(times)),np.inf,np.inf]])
 	
 		for parameterName, value in zip(parameterNames, optParamVals):
 			optParams[parameterName] = value

@@ -23,7 +23,7 @@ def interpolate_nans(X):
 		X[mask_j,j] = np.interp(np.flatnonzero(mask_j), np.flatnonzero(~mask_j), X[~mask_j,j])
 	return X
 
-def plot(deviceHistory, identifiers, mode_parameters=None, showBackgroundAFMImage=True, interpolateNans=False):
+def plot(deviceHistory, identifiers, mode_parameters=None, showBackgroundAFMImage=False, interpolateNans=True):
 	startTime = time.time()
 	
 	# Init Figure
@@ -46,13 +46,11 @@ def plot(deviceHistory, identifiers, mode_parameters=None, showBackgroundAFMImag
 	etEndTime = time.time()
 	print('Time taken to extract traces is {} s'.format(etEndTime - etStartTime))
 	
-	Vx_vals_1 = traces['Vx'][0]
-	Vy_vals_1 = traces['Vy'][0]
-	Id_vals_1 = traces['Id'][0]
+	traceNumber = 1
 	
-	Vx_vals_2 = traces['Vx'][1]
-	Vy_vals_2 = traces['Vy'][1]
-	Id_vals_2 = traces['Id'][1]
+	Vx_vals = traces['Vx'][traceNumber]
+	Vy_vals = traces['Vy'][traceNumber]
+	Id_vals = traces['Id'][traceNumber]
 	
 	imageWidth = 0
 	imageHeight = 0
@@ -72,7 +70,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None, showBackgroundAFMImag
 		# Draw the image (if there is one to show)
 		if (image_path is not None):
 			full_data, imageWidth, imageHeight = afm_reader.loadAFMImageData(image_path)
-			heightline = ax.imshow(np.array(full_data['HeightRetrace'])*1e9, cmap='Greys_r', extent=(0, imageWidth*10**6, 0, imageHeight*10**6), interpolation='spline36')
+			heightline = ax.imshow(np.array(full_data['HeightRetrace'])*1e9, cmap='Greys', extent=(0, imageWidth*10**6, 0, imageHeight*10**6), interpolation='spline36')
 			
 			cbar = fig.colorbar(heightline, pad=0.015, aspect=50)
 			cbar.set_label('Height [nm]', rotation=270, labelpad=11)
@@ -87,13 +85,13 @@ def plot(deviceHistory, identifiers, mode_parameters=None, showBackgroundAFMImag
 	
 	IdAlpha = 1
 	if showBackgroundAFMImage:
-		IdAlpha = 0.0
+		IdAlpha = 0.5
 	
 	rmStartTime = time.time()
 	print('Time elapsed before rastered matrix is {} s'.format(rmStartTime - etEndTime))
 	
 	# Plot data on top of AFM image
-	afm_data, dataWidth, dataHeight = afm_ctrl.getRasteredMatrix(Vx_vals_1, Vy_vals_1, Id_vals_1)
+	afm_data, dataWidth, dataHeight = afm_ctrl.getRasteredMatrix(Vx_vals, Vy_vals, Id_vals)
 	
 	inStartTime = time.time()
 	print('Time taken to rastere matrix is {} s'.format(inStartTime - rmStartTime))
@@ -106,9 +104,9 @@ def plot(deviceHistory, identifiers, mode_parameters=None, showBackgroundAFMImag
 	
 	img = ax.imshow(afm_data*1e9, cmap=plotDescription['plotDefaults']['colorMap'], extent=(0, dataWidth*1e6, 0, dataHeight*1e6), interpolation='spline36', alpha=IdAlpha, aspect=None, vmin=None, vmax=None)
 	
-	# cbar = fig.colorbar(img, pad=0.015, aspect=50)
-	# cbar.set_label('Drain Current [nA]', rotation=270, labelpad=11)
-	# cbar.solids.set(alpha=1)
+	cbar = fig.colorbar(img, pad=0.015, aspect=50)
+	cbar.set_label('Drain Current [nA]', rotation=270, labelpad=11)
+	cbar.solids.set(alpha=1)
 	
 	# afm_data_2, dataWidth_2, dataHeight_2 = afm_ctrl.getRasteredMatrix(Vx_vals_2, Vy_vals_2, Id_vals_2)
 	# if interpolateNans:
