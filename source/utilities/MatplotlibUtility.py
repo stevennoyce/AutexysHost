@@ -134,7 +134,7 @@ def show():
 """Every method in this utility is intended to assist the creation of new plotDefintions in the plotDefinitions folder."""
 
 # === Device Plots ===
-def plotSweep(axis, jsonData, lineColor, direction='both', x_data='gate voltage', y_data='drain current', logScale=True, scaleCurrentBy=1, lineStyle=None, errorBars=True):
+def plotSweep(axis, jsonData, lineColor, direction='both', x_data='gate voltage', y_data='drain current', logScale=True, scaleCurrentBy=1, lineStyle=None, errorBars=True, derivative=False):
 	data_save_names = {
 		'gate voltage': 'vgs_data',
 		'drain voltage': 'vds_data',
@@ -149,11 +149,11 @@ def plotSweep(axis, jsonData, lineColor, direction='both', x_data='gate voltage'
 		'gate voltage for snr':'vgs_data_to_plot',
 		'snr':'snr_to_plot'
 	}
-
-	y_data = data_save_names[y_data]
+	
 	x_data = data_save_names[x_data]
-
 	x = jsonData['Results'][x_data]
+	
+	y_data = data_save_names[y_data]
 	y = jsonData['Results'][y_data]
 
 	# Sort data if it was collected in an unordered fashion
@@ -165,18 +165,6 @@ def plotSweep(axis, jsonData, lineColor, direction='both', x_data='gate voltage'
 			y = [list(forward_y), list(reverse_y)]
 	except:
 		pass
-
-	# Figure out if data was collected with multiple points per x-value
-	pointsPerX = 1
-	try:
-		if(x_data == 'vgs_data'):
-			pointsPerX = jsonData['runConfigs']['GateSweep']['pointsPerVGS']
-		elif(x_data == 'vds_data'):
-			pointsPerX = jsonData['runConfigs']['DrainSweep']['pointsPerVDS']
-		elif(x_data == 'vin_data'):
-			pointsPerX = jsonData['runConfigs']['InverterSweep']['pointsPerVIN']
-	except:
-		pointsPerX = 1
 
 	# Figure out if data was collected with multiple points per x-value
 	pointsPerX = 1
@@ -208,8 +196,6 @@ def plotSweep(axis, jsonData, lineColor, direction='both', x_data='gate voltage'
 		x = reverse_x
 		y = reverse_y
 
-	# x and y are flattened and plotted as a single array at this point to be backwards compatible with old data and to simplify data scaling
-
 	# Make y-axis a logarithmic scale
 	if(logScale):
 		y = abs(np.array(y))
@@ -222,6 +208,19 @@ def plotSweep(axis, jsonData, lineColor, direction='both', x_data='gate voltage'
 	if(not isinstance(x[0], list)):
 		x = [x]
 		y = [y]
+
+	# If desired, can calculate the derivative of y with respect to x at each point and plot this instead
+	if(derivative):
+		N = 5
+		dy_dx = []
+		for i in range(len(x)):
+			x_segment = x[i]
+			y_segment = y[i]
+			#dy_dx_segment = [(y_segment[j+N] - y_segment[j-N])/(x_segment[j+N] - x_segment[j-N]) for j in range(N, len(x_segment) - N)]
+			dy_dx_segment = [linearFit(x_segment[j-N:j+N+1],y_segment[j-N:j+N+1])['slope'] for j in range(N, len(x_segment) - N)]
+			x[i] = x_segment[N:-N]
+			dy_dx.append(dy_dx_segment)
+		y = dy_dx
 
 	# Iterate through segments of x and y
 	for i in range(len(x)):
@@ -283,6 +282,14 @@ def plotStaticBias(axis, jsonData, lineColor, timeOffset, currentData='id_data',
 
 def plotInverterVTC(axis, jsonData, lineColor, direction='both', lineStyle=None, errorBars=True):
 	line = plotSweep(axis, jsonData, lineColor, direction, x_data='input voltage', y_data='output voltage', logScale=False, scaleCurrentBy=1, lineStyle=lineStyle, errorBars=errorBars)
+	return line
+	
+def plotInverterGain(axis, jsonData, lineColor, direction='both', lineStyle=None, errorBars=True):
+	line = plotSweep(axis, jsonData, lineColor, direction, x_data='input voltage', y_data='output voltage', logScale=False, scaleCurrentBy=-1, lineStyle=lineStyle, errorBars=errorBars, derivative=True)
+	return line
+	
+def plotTransferCurveSlope(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True):
+	line = plotSweep(axis, jsonData, lineColor, direction, x_data='gate voltage', y_data='drain current', logScale=False, scaleCurrentBy=scaleCurrentBy, lineStyle=lineStyle, errorBars=errorBars, derivative=True)
 	return line
 
 # === Figures ===
@@ -569,7 +576,7 @@ def getLegendTitle(deviceHistory, identifiers, plottype_parameters, parameterSup
 def linearFit(x, y):
 	slope, intercept = np.polyfit(x, y, 1)
 	fitted_data = [slope*x[i] + intercept for i in range(len(x))]
-	return {'fitted_data': fitted_data,'slope':slope, 'intercept':intercept}
+	return {'fitted_data': fitted_data,'slope':slope, 'y_intercept':intercept, 'x_intercept':-intercept/slope}
 
 def quadraticFit(x, y):
 	a, b, c = np.polyfit(x, y, 2)
