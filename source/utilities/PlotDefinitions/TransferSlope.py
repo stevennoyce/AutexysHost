@@ -9,7 +9,7 @@ plotDescription = {
 	'plotDefaults': {
 		'figsize':(2,2.5),
 		'includeOrigin':True,
-		'colorMap':'white_blue_black',
+		'colorMap':'white_orange_black',
 		'colorDefault': ['#f2b134'],
 		'xlabel':'$V_{{GS}}^{{Sweep}}$ (V)',
 		'micro_ylabel':'$g_{{m}}$ ($\\mu$S)',
