@@ -102,7 +102,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None, showBackgroundAFMImag
 	isStartTime = time.time()
 	print('Time taken to interpolate nans is {} s'.format(isStartTime - inStartTime))
 	
-	img = ax.imshow(afm_data*1e9, cmap=plotDescription['plotDefaults']['colorMap'], extent=(0, dataWidth*1e6, 0, dataHeight*1e6), interpolation='spline36', alpha=IdAlpha, aspect=None, vmin=None, vmax=None)
+	img = ax.imshow(afm_data*1e9, cmap=plotDescription['plotDefaults']['colorMap'], extent=(0, dataWidth*1e6, 0, dataHeight*1e6), interpolation='spline36', alpha=IdAlpha, aspect='auto', vmin=None, vmax=None)
 	
 	cbar = fig.colorbar(img, pad=0.015, aspect=50)
 	cbar.set_label('Drain Current [nA]', rotation=270, labelpad=11)

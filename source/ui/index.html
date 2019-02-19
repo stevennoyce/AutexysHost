@@ -536,11 +536,11 @@
 										<div>
 											V<sub>GS</sub> = {{_.get(experiment, 'runConfigs.' + experiment['runType'] + '.gateVoltageSetPoint', '')}} V</br>
 											V<sub>DS</sub> = {{_.get(experiment, 'runConfigs.' + experiment['runType'] + '.drainVoltageSetPoint', '')}} V</br>
-											V<sub>tip</sub> = {{_.get(associatedAFMs, 'bestMatch.NapTipVoltage', '')}} V</br>
-											d<sub>tip</sub> = {{1e9*_.get(associatedAFMs, 'bestMatch.NapHeight', '')}} nm</br>
+											V<sub>tip</sub> = {{_.get(experiment, 'associatedAFMs.bestMatch.NapTipVoltage', '')}} V</br>
+											d<sub>tip</sub> = {{1e9*_.get(experiment, 'associatedAFMs.bestMatch.NapHeight', '')}} nm</br>
 										</div>
 										
-										{{ associatedAFMs }}
+										{{ experiment.associatedAFMs }}
 										
 									</v-card>
 									
@@ -1197,7 +1197,6 @@
 				scheduleExperimentSuccessCode: {},
 				saveScheduleSuccessCode: {},
 				scheduleNames: {},
-				associatedAFMs: [],
 				addToNoteSuccessCode: {},
 				paths: {},
 				disabledPlots: localStorage.disabledPlots ? JSON.parse(localStorage.disabledPlots) : [],
@@ -1332,15 +1331,15 @@
 				},
 				getAssociatedAFMs: function(experiment) {
 					if (!(experiment.runType.includes('AFM') || experiment.runType.includes('SGM'))) {
-						this.associatedAFMs = [];
+						experiment.associatedAFMs = {};
 						return;
 					}
 					
 					startTime = experiment.startIndexes.timestamp;
 					endTime = experiment.endIndexes.timestamp;
-					var path = '/AFMFilesInTimestampRange/' + startTime + '/' + endTime + '.json' + this.cacheBust;
+					var path = '/AFMFilesInTimestampRange/' + startTime + '/' + endTime + '/associatedAFMs.json' + this.cacheBust;
 					if (path) {
-						$.getJSON(path, response => {this.associatedAFMs = response})
+						$.getJSON(path, response => {Vue.set(experiment.associatedAFMs, response)})
 						.fail((xhr, status, error) => {console.log("Error getting associated AFMs"); console.log(error)});
 					}
 				},
