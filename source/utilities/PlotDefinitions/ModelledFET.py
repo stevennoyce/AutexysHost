@@ -21,8 +21,6 @@ plotDescription = {
 def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Init Figure
 	fig, ax = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
-	if(not mode_parameters['publication_mode']):
-		ax.set_title(getTestLabel(deviceHistory, identifiers))
 	ax2 = ax.twinx()
 	
 	# If first segment of device history is mostly negative current, flip data
@@ -65,5 +63,5 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Label axes
 	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=ylabel)
 
-	return (fig, ax)
+	return (fig, (ax, ax2))
 

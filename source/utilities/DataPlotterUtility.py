@@ -86,6 +86,18 @@ def makeDevicePlot(plotType, deviceHistory, identifiers, mode_parameters=None):
 		raise
 	print('Finished plotting ' + str(plotType) + ' plot.')
 	
+	# If axis labels are the standard 'xlabel', 'ylabel' go ahead and make sure those are on the plot
+	if(('automaticAxisLabels' in plotDefinitions[plotType]['description']['plotDefaults']) and (plotDefinitions[plotType]['description']['plotDefaults']['automaticAxisLabels'])):
+		mplu.axisLabels(axes[0], x_label=plotDefinitions[plotType]['description']['plotDefaults']['xlabel'], y_label=plotDefinitions[plotType]['description']['plotDefaults']['ylabel'])
+	
+	# Adjust figure y-limits if desired
+	if('includeOriginOnYaxis' in plotDefinitions[plotType]['description']['plotDefaults']):
+		mplu.includeOriginOnYaxis(axes[0], include=plotDefinitions[plotType]['description']['plotDefaults']['includeOriginOnYaxis'])
+	
+	# Add title label to figure
+	if(not updated_mode_parameters['publication_mode']):
+		axes[0].set_title(mplu.getTestLabel(deviceHistory, identifiers))
+	
 	# Save figure
 	subplotWidthPad  = (0) if(not 'subplotWidthPad'  in plotDefinitions[plotType]['description']['plotDefaults']) else (plotDefinitions[plotType]['description']['plotDefaults']['subplotWidthPad'])
 	subplotHeightPad = (0) if(not 'subplotHeightPad' in plotDefinitions[plotType]['description']['plotDefaults']) else (plotDefinitions[plotType]['description']['plotDefaults']['subplotHeightPad'])
@@ -124,9 +136,23 @@ def makeChipPlot(plotType, identifiers, chipIndexes=None, firstRunChipHistory=No
 		print('Error plotting "plotType": ' + str(plotType))
 		raise
 		
-	# Save figure	
-	mplu.adjustAndSaveFigure(fig, plotType, updated_mode_parameters)
+	# If axis labels are the standard 'xlabel', 'ylabel' go ahead and make sure those are on the plot
+	if(('automaticAxisLabels' in plotDefinitions[plotType]['description']['plotDefaults']) and (plotDefinitions[plotType]['description']['plotDefaults']['automaticAxisLabels'])):
+		mplu.axisLabels(axes[0], x_label=plotDefinitions[plotType]['description']['plotDefaults']['xlabel'], y_label=plotDefinitions[plotType]['description']['plotDefaults']['ylabel'])
 		
+	# Adjust figure y-limits if desired
+	if('includeOriginOnYaxis' in plotDefinitions[plotType]['description']['plotDefaults']):
+		mplu.includeOriginOnYaxis(axes[0], include=plotDefinitions[plotType]['description']['plotDefaults']['includeOriginOnYaxis'])
+		
+	# Add title label to figure
+	if(not updated_mode_parameters['publication_mode']):
+		axes[0].set_title('Chip ' + str(identifiers['wafer']) + str(identifiers['chip']))		
+	
+	# Save figure
+	subplotWidthPad  = (0) if(not 'subplotWidthPad'  in plotDefinitions[plotType]['description']['plotDefaults']) else (plotDefinitions[plotType]['description']['plotDefaults']['subplotWidthPad'])
+	subplotHeightPad = (0) if(not 'subplotHeightPad' in plotDefinitions[plotType]['description']['plotDefaults']) else (plotDefinitions[plotType]['description']['plotDefaults']['subplotHeightPad'])
+	mplu.adjustAndSaveFigure(fig, plotType, updated_mode_parameters, subplotWidthPad=subplotWidthPad, subplotHeightPad=subplotHeightPad)
+	
 	return fig, axes
 
 def makeBlankPlot(figsize=None):

@@ -8,6 +8,7 @@ plotDescription = {
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(5,4),
+		'automaticAxisLabels':True,
 		'xlabel':'Device',
 		'ylabel':'On/Off Ratio, (Order of Mag)'
 	},
@@ -35,11 +36,10 @@ def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, sp
 	line = ax.plot(range(len(devices)), lastOnOffRatios, color=plt.rcParams['axes.prop_cycle'].by_key()['color'][0], marker='o', markersize=4, linewidth=0, linestyle=None)[0]
 	setLabel(line, 'Most Recent Run')
 
-	# Label axes
-	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=plotDescription['plotDefaults']['ylabel'])
+	# Set tick label rotation
 	tickLabels(ax, devices, rotation=90)
 	
 	# Add Legend and save figure
 	ax.legend(loc=mode_parameters['legendLoc'])
-	return (fig, ax)
+	return (fig, (ax,))
 	

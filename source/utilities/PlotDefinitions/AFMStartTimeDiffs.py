@@ -17,8 +17,6 @@ plotDescription = {
 def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Init Figure
 	fig, ax = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
-	if(not mode_parameters['publication_mode']):
-		ax.set_title(getTestLabel(deviceHistory, identifiers))
 	
 	startTime = min(deviceHistory[0]['Results']['timestamps_device'])
 	
@@ -36,5 +34,5 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	ax.set_ylabel('Start Time Diffs [s]')
 	ax.set_xlabel('Line Number [#]')
 		
-	return (fig, ax)
+	return (fig, (ax,))
 

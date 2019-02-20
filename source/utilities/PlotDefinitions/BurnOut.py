@@ -27,8 +27,6 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	fig, (ax1, ax2) = initFigure(1, 2, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'], shareX=False, subplotWidthRatio=plotDescription['plotDefaults']['subplot_width_ratio'], subplotHeightRatio=plotDescription['plotDefaults']['subplot_height_ratio'])
 	ax2 = plt.subplot(222)
 	ax3 = plt.subplot(224)
-	if(not mode_parameters['publication_mode']):
-		ax1.set_title(getTestLabel(deviceHistory, identifiers))
 
 	# Build Color Map and Color Bar
 	plt.sca(ax1)

@@ -9,8 +9,6 @@ plotDescription = {
 	'dataFileDependencies': ['AFMControl.json'],
 	'plotDefaults': {
 		'figsize':(5,4),
-		'xlabel':'Time',
-		'ylabel':'Current'
 	},
 }
 
@@ -62,8 +60,6 @@ def fitTriangleWave(times, values):
 def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Init Figure
 	fig, ax = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
-	if(not mode_parameters['publication_mode']):
-		ax.set_title(getTestLabel(deviceHistory, identifiers))
 	
 	ax2 = ax.twinx()
 	startTime = min(deviceHistory[0]['Results']['timestamps_device'])
@@ -94,9 +90,5 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	ax.set_xlabel('Time (s)')
 	ax2.set_ylabel('AFM Voltages (V)', rotation=-90, va='bottom', labelpad=5)
 	
-	
-	# Add Legend and save figure
-	adjustAndSaveFigure(fig, 'FullSubthresholdCurves', mode_parameters)
-	
-	return (fig, ax)
+	return (fig, (ax,))
 

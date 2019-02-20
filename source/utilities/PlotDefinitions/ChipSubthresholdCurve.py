@@ -8,6 +8,7 @@ plotDescription = {
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(2.8,3.2),
+		'automaticAxisLabels':True,
 		'colorMap':'viridis',
 		'colorDefault': ['#f2b134'],
 		'xlabel':'$V_{{GS}}^{{Sweep}}$ (V)',
@@ -18,8 +19,6 @@ plotDescription = {
 def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory, groupedChipHistory, mode_parameters=None):
 	# Init Figure
 	fig, ax = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
-	if(not mode_parameters['publication_mode']):
-		ax.set_title('Chip ' + str(identifiers['wafer']) + str(identifiers['chip']))
 	
 	# Colors
 	colors = setupColors(fig, len(specificRunChipHistory), colorOverride=mode_parameters['colorsOverride'], colorDefault=plotDescription['plotDefaults']['colorDefault'], colorMapName=plotDescription['plotDefaults']['colorMap'], colorMapStart=0.85, colorMapEnd=0, enableColorBar=False, colorBarTicks=[0,0.6,1], colorBarTickLabels=['', '', ''], colorBarAxisLabel='')		
@@ -30,9 +29,8 @@ def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, sp
 		if(len(specificRunChipHistory) == len(mode_parameters['legendLabels'])):
 			setLabel(line, mode_parameters['legendLabels'][i])
 		
-	# Label axes
-	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=plotDescription['plotDefaults']['ylabel'])
+	# Set tick spacing
 	ax.yaxis.set_major_locator(matplotlib.ticker.LogLocator(numticks=10))
 	
-	return (fig, ax)
+	return (fig, (ax,))
 	

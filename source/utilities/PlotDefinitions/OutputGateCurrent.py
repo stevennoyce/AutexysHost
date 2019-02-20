@@ -8,7 +8,7 @@ plotDescription = {
 	'dataFileDependencies': ['DrainSweep.json'],
 	'plotDefaults': {
 		'figsize':(2,2.5),
-		'includeOrigin':False,
+		'includeOriginOnYaxis':False,
 		'colorMap':'white_green_black',
 		'colorDefault': ['#4FB99F'],
 		'xlabel':'$V_{{DS}}^{{Sweep}}$ (V)',
@@ -24,8 +24,6 @@ plotDescription = {
 def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Init Figure
 	fig, ax = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
-	if(not mode_parameters['publication_mode']):
-		ax.set_title(getTestLabel(deviceHistory, identifiers))
 
 	# Build Color Map and Color Bar
 	totalTime = timeWithUnits(deviceHistory[-1]['Results']['timestamps'][0][0] - deviceHistory[0]['Results']['timestamps'][-1][-1])
@@ -45,10 +43,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Set Axis Labels
 	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=ylabel)
 
-	# Adjust Y-lim (if desired)
-	includeOriginOnYaxis(ax, include=plotDescription['plotDefaults']['includeOrigin'])
-
 	# Add Legend and save figure
 	addLegend(ax, loc=mode_parameters['legendLoc'], title=getLegendTitle(deviceHistory, identifiers, plotDescription['plotDefaults'], 'runConfigs', 'DrainSweep', mode_parameters, includeVgsSweep=True), mode_parameters=mode_parameters)
 
-	return (fig, ax)
+	return (fig, (ax,))

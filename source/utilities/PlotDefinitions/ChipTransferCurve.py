@@ -8,7 +8,7 @@ plotDescription = {
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(2.8,3.2),
-		'includeOrigin':True,
+		'includeOriginOnYaxis':True,
 		'colorMap':'magma',
 		'colorDefault': ['#f2b134'],
 		'xlabel':'$V_{{GS}}^{{Sweep}}$ (V)',
@@ -20,8 +20,6 @@ plotDescription = {
 def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory, groupedChipHistory, mode_parameters=None):
 	# Init Figure
 	fig, ax = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
-	if(not mode_parameters['publication_mode']):
-		ax.set_title('Chip ' + str(identifiers['wafer']) + str(identifiers['chip']))
 	
 	# Colors
 	colors = setupColors(fig, len(specificRunChipHistory), colorOverride=mode_parameters['colorsOverride'], colorDefault=plotDescription['plotDefaults']['colorDefault'], colorMapName=plotDescription['plotDefaults']['colorMap'], colorMapStart=0.85, colorMapEnd=0, enableColorBar=False, colorBarTicks=[0,0.6,1], colorBarTickLabels=['', '', ''], colorBarAxisLabel='')		
@@ -40,9 +38,6 @@ def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, sp
 		
 	# Set Axis Labels
 	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=ylabel)
-	
-	# Adjust Y-lim (if desired)
-	includeOriginOnYaxis(ax, include=plotDescription['plotDefaults']['includeOrigin'])
-	
-	return (fig, ax)
+		
+	return (fig, (ax,))
 	

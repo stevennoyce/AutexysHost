@@ -8,7 +8,7 @@ plotDescription = {
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(2,2.5),
-		'includeOrigin':True,
+		'includeOriginOnYaxis':True,
 		'colorMap':'white_orange_black',
 		'colorDefault': ['#f2b134'],
 		'xlabel':'$V_{{GS}}^{{Sweep}}$ (V)',
@@ -24,8 +24,6 @@ plotDescription = {
 def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Init Figure
 	fig, ax = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
-	if(not mode_parameters['publication_mode']):
-		ax.set_title(getTestLabel(deviceHistory, identifiers))
 
 	# Build Color Map and Color Bar
 	totalTime = timeWithUnits(deviceHistory[-1]['Results']['timestamps'][0][0] - deviceHistory[0]['Results']['timestamps'][-1][-1])
@@ -52,19 +50,12 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 
 	# Add gate current to axis
 	if(mode_parameters['includeGateCurrent']):
-		if(len(deviceHistory) == 1):
-			gate_colors = [plt.rcParams['axes.prop_cycle'].by_key()['color'][2]]
-			gate_linestyle = None
-		else:
-			gate_colors = colors
-			gate_linestyle = '--'
+		gate_colors    = ['#4FB99F'] if(len(deviceHistory) == 1) else (colors)
+		gate_linestyle = None        if(len(deviceHistory) == 1) else ('--')
 		for i in range(len(deviceHistory)):
-			plotGateCurrent(ax, deviceHistory[i], gate_colors[i], direction=mode_parameters['sweepDirection'], scaleCurrentBy=current_scale, lineStyle=gate_linestyle, errorBars=mode_parameters['enableErrorBars'])
-
-	# Adjust Y-lim (if desired)
-	includeOriginOnYaxis(ax, include=plotDescription['plotDefaults']['includeOrigin'])
+			plotGateCurrent(ax, deviceHistory[i], gate_colors[i], direction=mode_parameters['sweepDirection'], scaleCurrentBy=current_scale, lineStyle=gate_linestyle, errorBars=mode_parameters['enableErrorBars'])	
 
 	# Add Legend and save figure
 	addLegend(ax, loc=mode_parameters['legendLoc'], title=getLegendTitle(deviceHistory, identifiers, plotDescription['plotDefaults'], 'runConfigs', 'GateSweep', mode_parameters, includeVdsSweep=True, includeIdVgsFit=True), mode_parameters=mode_parameters)
 
-	return (fig, ax)
+	return (fig, (ax,))

@@ -48,8 +48,6 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		fig, ax1 = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
 		ax3, ax4 = None, None
 	ax2 = ax1.twinx() if(mode_parameters['includeOffCurrent']) else None
-	if(not mode_parameters['publication_mode']):
-		ax1.set_title(getTestLabel(deviceHistory, identifiers))
 	
 	# If timescale is unspecified, choose an appropriate one based on the data range
 	if(timescale == ''):
@@ -73,9 +71,6 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Get rid of V_DS = 0 sweeps (not meaningful)
 	for i in blacklisted:
 		del deviceHistory[i]
-	
-	if(len(deviceHistory) <= 0):
-		return 
 	
 	# Plot On Current
 	if(plotInRealTime):

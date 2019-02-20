@@ -10,7 +10,8 @@ plotDescription = {
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(2.8,3.2),
-		'includeOrigin':True,
+		'includeOriginOnYaxis':True,
+		'automaticAxisLabels':True,
 		'colorMap':'white_yellow_black',
 		'colorDefault': ['#1f77b4'],
 		'xlabel':'Trial',
@@ -21,8 +22,6 @@ plotDescription = {
 def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Init Figure
 	fig, ax = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
-	if(not mode_parameters['publication_mode']):
-		ax.set_title(getTestLabel(deviceHistory, identifiers))
 		
 	# Compute device metrics
 	all_fitted_parameters = {'V_T':[], 'mu_Cox_W_L':[], 'SS_mV_dec':[], 'I_OFF':[], 'g_m_max':[]}
@@ -51,12 +50,9 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	for i in range(len(VT_list)):
 		line = ax.plot([i+1], [VT_list[i]], color=colors[i], marker='o', markersize=4, linewidth=0, linestyle=None)
 
-	# Set Axis Labels
-	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=plotDescription['plotDefaults']['ylabel'])
-
 	# Adjust Y-lim (if desired)
-	includeOriginOnYaxis(ax, include=plotDescription['plotDefaults']['includeOrigin'])
+	includeOriginOnYaxis(ax, include=plotDescription['plotDefaults']['includeOriginOnYaxis'])
 	ax.set_ylim(bottom=ax.get_ylim()[0]*1.1, top=ax.get_ylim()[1]*1.1)
 
-	return (fig, ax)
+	return (fig, (ax,))
 

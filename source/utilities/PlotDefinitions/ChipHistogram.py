@@ -8,6 +8,7 @@ plotDescription = {
 	'dataFileDependencies': ['index.json'],
 	'plotDefaults': {
 		'figsize':(5,4),
+		'automaticAxisLabels':True,
 		'xlabel':'Device',
 		'ylabel':'Experiments'
 	},
@@ -28,9 +29,8 @@ def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, sp
 	# Plot
 	ax.bar(devices, deviceExperiments)
 
-	# Label axes
-	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=plotDescription['plotDefaults']['ylabel'])
+	# Label ticks
 	tickLabels(ax, devices, rotation=90)
 
-	return (fig, ax)
+	return (fig, (ax,))
 

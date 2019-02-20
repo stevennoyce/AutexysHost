@@ -17,8 +17,6 @@ plotDescription = {
 def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory, groupedChipHistory, mode_parameters=None):
 	# Init Figure
 	fig, ax = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
-	if(not mode_parameters['publication_mode']):
-		ax.set_title('Chip ' + str(identifiers['wafer']) + str(identifiers['chip']))
 		
 	# Plot
 	if groupedChipHistory == None or len(groupedChipHistory) <= 0:
@@ -38,5 +36,5 @@ def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, sp
 	else:
 		axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=plotDescription['plotDefaults']['ylabel'])
 
-	return (fig, ax)
+	return (fig, (ax,))
 

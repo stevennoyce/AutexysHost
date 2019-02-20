@@ -8,7 +8,7 @@ plotDescription = {
 	'dataFileDependencies': ['GateSweep.json', 'ThisPlotIsStillInProgressDontUseItYet'],
 	'plotDefaults': {
 		'figsize':(2.8,3.2),
-		'includeOrigin':True,
+		'includeOriginOnYaxis':True,
 		'colorMap':'viridis',
 		'colorDefault': ['#f2b134'],
 		'xlabel':'$V_{{GS}}^{{Sweep}}$ (V)',
@@ -27,8 +27,6 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 
 	# Init Figure
 	fig, ax = initFigure(1, 1, plotDescrip_current['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
-	if(not mode_parameters['publication_mode']):
-		ax.set_title(getTestLabel(deviceHistory, identifiers))
 	
 	# Build Color Map and Color Bar
 	totalTime = timeWithUnits(deviceHistory[-1]['Results']['timestamps'][0][0] - deviceHistory[0]['Results']['timestamps'][-1][-1])
@@ -74,10 +72,10 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		axisLabels(ax, x_label=plotDescrip_current['plotDefaults']['xlabel'], y_label=plotDescrip_current['plotDefaults']['ylabel'])
 
 	# Adjust Y-lim (if desired)
-	includeOriginOnYaxis(ax, include=plotDescrip_current['plotDefaults']['includeOrigin'])
+	includeOriginOnYaxis(ax, include=plotDescrip_current['plotDefaults']['includeOriginOnYaxis'])
 
 	# Add Legend and save figure	
 	addLegend(ax, loc=mode_parameters['legendLoc'], title=getLegendTitle(deviceHistory, identifiers, plotDescrip_current['plotDefaults'], 'runConfigs', 'GateSweep', mode_parameters, includeVdsSweep=True), mode_parameters=mode_parameters)
 
-	return (fig, ax)
+	return (fig, (ax,))
 
