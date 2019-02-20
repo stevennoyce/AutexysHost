@@ -29,8 +29,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None,
 		showSMUData=True,
 		aspectRatio='auto',
 		interpolateNans=True, 
-		solidSGMcurrentAlpha=1,
-		translucentSGMcurrentAlpha=0):
+		translucentSGM=False):
 	
 	startTime = time.time()
 	
@@ -52,7 +51,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None,
 		etEndTime = time.time()
 		print('Time taken to extract traces is {} s'.format(etEndTime - etStartTime))
 		
-		traceNumber = 1
+		traceNumber = 0
 		
 		Vx_vals = traces['Vx'][traceNumber]
 		Vy_vals = traces['Vy'][traceNumber]
@@ -77,11 +76,15 @@ def plot(deviceHistory, identifiers, mode_parameters=None,
 		if (image_path is not None):
 			full_data, imageWidth, imageHeight = afm_reader.loadAFMImageData(image_path)
 			traceName = difflib.get_close_matches('HeightTrace', full_data.keys(), n=1, cutoff=0)[0]
-			heightline = ax.imshow(np.array(full_data[traceName])*1e9, cmap='Greys', extent=(0, imageWidth*10**6, 0, imageHeight*10**6), interpolation='spline36', aspect=aspectRatio)
+			
+			heightValues = np.array(full_data[traceName])
+			heightValues -= np.nanmin(heightValues)
+			heightValues *= 1e9
+			
+			heightline = ax.imshow(heightValues, cmap='Greys', extent=(0, imageWidth*1e6, 0, imageHeight*1e6), interpolation='spline36', aspect=aspectRatio)
 			
 			cbar = fig.colorbar(heightline, pad=0.015, aspect=50)
 			cbar.set_label('Height [nm]', rotation=270, labelpad=11)
-			cbar.solids.set(alpha=1)
 			# ax2.imshow(full_data['HeightRetrace'], cmap='Greys_r', extent=(0, imageWidth*10**6, 0, imageHeight*10**6), interpolation='spline36')
 	
 	# Axis Labels
@@ -110,11 +113,14 @@ def plot(deviceHistory, identifiers, mode_parameters=None,
 		isStartTime = time.time()
 		print('Time taken to interpolate nans is {} s'.format(isStartTime - inStartTime))
 		
-		img = ax.imshow(afm_data*1e9, cmap=plotDescription['plotDefaults']['colorMap'], extent=(0, dataWidth*1e6, 0, dataHeight*1e6), interpolation='spline36', alpha=IdAlpha, aspect=aspectRatio, vmin=None, vmax=None)
+		colorMap = plotDescription['plotDefaults']['colorMap']
+		if translucentSGM:
+			colorMap = rgba_to_rgba_map((255, 200, 0, 255),	(255, 200, 0, 0))
+		
+		img = ax.imshow(afm_data*1e9, cmap=colorMap, extent=(0, dataWidth*1e6, 0, dataHeight*1e6), interpolation='spline36', aspect=aspectRatio, vmin=None, vmax=None)
 		
 		cbar = fig.colorbar(img, pad=0.015, aspect=50)
 		cbar.set_label('Drain Current [nA]', rotation=270, labelpad=11)
-		cbar.solids.set(alpha=1)
 		
 		# afm_data_2, dataWidth_2, dataHeight_2 = afm_ctrl.getRasteredMatrix(Vx_vals_2, Vy_vals_2, Id_vals_2)
 		# if interpolateNans:
