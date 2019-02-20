@@ -59,8 +59,5 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		ax.plot([ax.get_xlim()[0], ax.get_xlim()[1]], [60, 60], color='black', lw=1, ls='--')
 		ax.set_ylim(bottom=0, top=ax.get_ylim()[1]*1.1)
 
-	# Save figure	
-	adjustAndSaveFigure(fig, 'SubthresholdSwing', mode_parameters)
-
 	return (fig, ax)
 

@@ -56,10 +56,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None, showBackgroundAFMImag
 	ax.set_ylabel('Power Spectral Density [dB/Hz]')
 	
 	fig.tight_layout()
-	
-	# Save figure
-	adjustAndSaveFigure(fig, 'AFMdeviationsImage', mode_parameters)
-	
+		
 	return (fig, ax)
 
 

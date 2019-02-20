@@ -32,7 +32,5 @@ def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, sp
 	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=plotDescription['plotDefaults']['ylabel'])
 	tickLabels(ax, devices, rotation=90)
 
-	# Save figure
-	adjustAndSaveFigure(fig, 'ChipHistogram', mode_parameters)
 	return (fig, ax)
 

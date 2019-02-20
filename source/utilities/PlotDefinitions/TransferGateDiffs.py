@@ -10,7 +10,7 @@ plotDescription = {
 		'figsize':(2.8,3.2),
 		'includeOrigin':True,
 		'colorMap':'viridis',
-		'colorDefault': [plt.rcParams['axes.prop_cycle'].by_key()['color'][1]],
+		'colorDefault': ['#f2b134'],
 		'xlabel':'$V_{{GS}}^{{Sweep}}$ (V)',
 		'ylabel':'$I_{{D}}$ ($\\mu$A)',
 		'neg_label':'$-I_{{D}}$ ($\\mu$A)',
@@ -78,7 +78,6 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 
 	# Add Legend and save figure	
 	addLegend(ax, loc=mode_parameters['legendLoc'], title=getLegendTitle(deviceHistory, identifiers, plotDescrip_current['plotDefaults'], 'runConfigs', 'GateSweep', mode_parameters, includeVdsSweep=True), mode_parameters=mode_parameters)
-	adjustAndSaveFigure(fig, 'FullTransferCurves', mode_parameters)
 
 	return (fig, ax)
 

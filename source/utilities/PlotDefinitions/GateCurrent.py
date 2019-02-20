@@ -50,6 +50,5 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 
 	# Add Legend and save figure
 	addLegend(ax, loc=mode_parameters['legendLoc'], title=getLegendTitle(deviceHistory, identifiers, plotDescription['plotDefaults'], 'runConfigs', 'GateSweep', mode_parameters, includeVdsSweep=True), mode_parameters=mode_parameters)
-	adjustAndSaveFigure(fig, 'GateCurrent', mode_parameters)
-
+	
 	return (fig, ax)

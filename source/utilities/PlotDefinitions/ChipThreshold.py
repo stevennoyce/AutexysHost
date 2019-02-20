@@ -38,8 +38,5 @@ def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, sp
 	else:
 		axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=plotDescription['plotDefaults']['ylabel'])
 
-	# Save figure	
-	adjustAndSaveFigure(fig, 'ChipThreshold', mode_parameters)
-
 	return (fig, ax)
 

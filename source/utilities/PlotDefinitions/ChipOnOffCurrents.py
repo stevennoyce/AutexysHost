@@ -43,6 +43,4 @@ def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, sp
 	# Add Legend
 	ax.legend(loc=mode_parameters['legendLoc'])
 	
-	# Save Figure
-	adjustAndSaveFigure(fig, 'ChipOnOffCurrents', mode_parameters)
 	return (fig, ax)

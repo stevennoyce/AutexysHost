@@ -125,10 +125,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None, showBackgroundAFMImag
 	# ax.set_ylim((0, imageHeight*10**6))
 	# ax2.set_xlim((0, imageWidth*10**6))
 	# ax2.set_ylim((0, imageHeight*10**6))
-	
-	# Save figure
-	adjustAndSaveFigure(fig, 'AFMdeviationsImage', mode_parameters)
-	
+		
 	print('Total time is {} s'.format(time.time() - startTime))
 	
 	return (fig, ax)

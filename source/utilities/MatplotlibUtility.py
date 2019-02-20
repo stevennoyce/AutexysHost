@@ -306,9 +306,6 @@ def initFigure(rows, columns, figsizeDefault, figsizeOverride=None, shareX=False
 	return fig, axes
 
 def adjustAndSaveFigure(figure, plotType, mode_parameters, subplotWidthPad=0, subplotHeightPad=0):
-	# figure.set_size_inches(2.2,1.6) # Static Bias
-	# figure.set_size_inches(1.4,1.6) # Subthreshold Curve
-	# figure.set_size_inches(2.2,1.7) # On/Off-Current
 	# figure.align_labels()
 	figure.tight_layout()
 	plt.subplots_adjust(wspace=subplotWidthPad, hspace=subplotHeightPad)
@@ -319,8 +316,6 @@ def adjustAndSaveFigure(figure, plotType, mode_parameters, subplotWidthPad=0, su
 			plt.savefig(mode_parameters['plotSaveName'], transparent=True, dpi=pngDPI, format='png')
 		else:
 			plt.savefig(os.path.join(mode_parameters['plotSaveFolder'], mode_parameters['plotSaveName'] + plotType + mode_parameters['plotSaveExtension']), transparent=True, dpi=pngDPI)
-			# plt.savefig(os.path.join(mode_parameters['plotSaveFolder'], mode_parameters['plotSaveName'] + plotType + '.pdf'), transparent=True, dpi=pngDPI)
-			# plt.savefig(os.path.join(mode_parameters['plotSaveFolder'], mode_parameters['plotSaveName'] + plotType + '.eps'), transparent=True, dpi=pngDPI)
 		print('Figures saved.')
 	if(not mode_parameters['showFigures']):
 		print('Closing figures.')

@@ -34,7 +34,5 @@ def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, sp
 	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=plotDescription['plotDefaults']['ylabel'])
 	ax.yaxis.set_major_locator(matplotlib.ticker.LogLocator(numticks=10))
 	
-	# Save Figure
-	adjustAndSaveFigure(fig, 'ChipTransferCurves', mode_parameters)
 	return (fig, ax)
 	

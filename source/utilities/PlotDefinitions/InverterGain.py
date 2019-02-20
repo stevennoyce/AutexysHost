@@ -41,8 +41,5 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Adjust Y-lim (if desired)
 	includeOriginOnYaxis(ax, include=plotDescription['plotDefaults']['includeOrigin'])
 
-	# Add Legend and save figure	
-	adjustAndSaveFigure(fig, 'InverterVTC', mode_parameters)
-
 	return (fig, ax)
 

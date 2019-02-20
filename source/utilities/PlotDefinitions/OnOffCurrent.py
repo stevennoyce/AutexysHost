@@ -16,7 +16,7 @@ plotDescription = {
 		'vgs_label': '$V_{{GS}}^{{Hold}}$ (V)',
 		'subplot_height_ratio':[3,1],
 		'subplot_width_ratio': [1],
-		'subplot_spacing': 0.03
+		'subplotHeightPad': 0.03
 	},
 }
 
@@ -134,13 +134,11 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 			vds_ax.set_ylabel(plotDescription['plotDefaults']['vds_label'])
 		if(vgs_setpoint_changes):
 			vgs_ax.set_ylabel(plotDescription['plotDefaults']['vgs_label'])
-		adjustAndSaveFigure(fig, 'OnAndOffCurrents', mode_parameters, subplotHeightPad=plotDescription['plotDefaults']['subplot_spacing'])
 	else:
 		if(plotInRealTime):
 			ax1.set_xlabel(plotDescription['plotDefaults']['time_label'].format(timescale))
 		else:
 			ax1.set_xlabel(plotDescription['plotDefaults']['index_label'])
-		adjustAndSaveFigure(fig, 'OnAndOffCurrents', mode_parameters)
 	
 	return (fig, (ax1, ax2, ax3, ax4))
 	

@@ -29,7 +29,4 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 
 	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=plotDescription['plotDefaults']['ylabel'])
 
-	# Save figure	
-	adjustAndSaveFigure(fig, 'Threshold', mode_parameters)
-
 	return (fig, ax)

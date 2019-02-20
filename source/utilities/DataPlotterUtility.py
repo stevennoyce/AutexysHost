@@ -67,10 +67,13 @@ def makeDevicePlot(plotType, deviceHistory, identifiers, mode_parameters=None):
 	mode_parameters is an optional dictionary of plotting parameters that affect the style of many of the plots. mode_parameters should
 	be a dictionary that includes some of the keys shown above in default_mode_parameters, and the union of these two dictionaries will
 	be passed to the plots."""
+	
+	# If no data is available, do not proceed
 	if(len(deviceHistory) <= 0):
 		print('No ' + str(plotType) + ' device history to plot.')
 		return
 	
+	# Merge mode_parameters with defaults
 	updated_mode_parameters = default_mode_parameters.copy()
 	if(mode_parameters is not None):
 		updated_mode_parameters.update(mode_parameters)
@@ -82,6 +85,11 @@ def makeDevicePlot(plotType, deviceHistory, identifiers, mode_parameters=None):
 		print('Error plotting "plotType": ' + str(plotType))
 		raise
 	print('Finished plotting ' + str(plotType) + ' plot.')
+	
+	# Save figure
+	subplotWidthPad  = (0) if(not 'subplotWidthPad'  in plotDefinitions[plotType]['description']['plotDefaults']) else (plotDefinitions[plotType]['description']['plotDefaults']['subplotWidthPad'])
+	subplotHeightPad = (0) if(not 'subplotHeightPad' in plotDefinitions[plotType]['description']['plotDefaults']) else (plotDefinitions[plotType]['description']['plotDefaults']['subplotHeightPad'])
+	mplu.adjustAndSaveFigure(fig, plotType, updated_mode_parameters, subplotWidthPad=subplotWidthPad, subplotHeightPad=subplotHeightPad)
 	
 	return fig, axes
 
@@ -95,6 +103,7 @@ def makeChipPlot(plotType, identifiers, chipIndexes=None, firstRunChipHistory=No
 	be a dictionary that includes some of the keys shown above in default_mode_parameters, and the union of these two dictionaries will
 	be passed to the plots."""	
 	
+	# If no data is available, do not proceed
 	if(plotType == 'ChipHistogram'):
 		if((chipIndexes is None) or len(chipIndexes.keys()) <= 0):
 			print('No chip histogram to plot.')
@@ -103,15 +112,20 @@ def makeChipPlot(plotType, identifiers, chipIndexes=None, firstRunChipHistory=No
 		print('No ' + str(plotType) + ' chip history to plot.')
 		return
 	
+	# Merge mode_parameters with defaults
 	updated_mode_parameters = default_mode_parameters.copy()
 	if(mode_parameters is not None):
 		updated_mode_parameters.update(mode_parameters)
 	
+	print('Plotting ' + str(plotType) + ' plot.')
 	try:
 		fig, axes = plotDefinitions[plotType]['function'](identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory, groupedChipHistory, mode_parameters=updated_mode_parameters)
 	except:
 		print('Error plotting "plotType": ' + str(plotType))
 		raise
+		
+	# Save figure	
+	mplu.adjustAndSaveFigure(fig, plotType, updated_mode_parameters)
 		
 	return fig, axes
 

@@ -44,7 +44,5 @@ def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, sp
 	# Adjust Y-lim (if desired)
 	includeOriginOnYaxis(ax, include=plotDescription['plotDefaults']['includeOrigin'])
 	
-	# Save Figure
-	adjustAndSaveFigure(fig, 'ChipTransferCurves', mode_parameters)
 	return (fig, ax)
 	

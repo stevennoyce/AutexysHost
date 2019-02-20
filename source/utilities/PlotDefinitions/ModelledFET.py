@@ -65,8 +65,5 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Label axes
 	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=ylabel)
 
-	# Save figure	
-	adjustAndSaveFigure(fig, 'ModelledFET', mode_parameters)
-
 	return (fig, ax)
 

@@ -35,9 +35,6 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	
 	ax.set_ylabel('Start Time Diffs [s]')
 	ax.set_xlabel('Line Number [#]')
-	
-	# Add Legend and save figure
-	adjustAndSaveFigure(fig, 'FullSubthresholdCurves', mode_parameters)
-	
+		
 	return (fig, ax)
 
