@@ -365,7 +365,7 @@ def loadScheduleNames():
 	
 	return jsonvalid(scheduleNames)
 
-@app.route('/AFMFilesInTimestampRange/<startTime>/<endTime>.json')
+@app.route('/AFMFilesInTimestampRange/<startTime>/<endTime>/associatedAFMs.json')
 def AFMFilesInTimestampRange(startTime, endTime):
 	from utilities import AFMReader
 	

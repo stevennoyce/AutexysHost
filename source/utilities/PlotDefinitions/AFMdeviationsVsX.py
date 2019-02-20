@@ -18,6 +18,8 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	if(not mode_parameters['publication_mode']):
 		ax.set_title(getTestLabel(deviceHistory, identifiers))
 	
+	print('Device History length is {}'.format(len(deviceHistory)))
+	
 	# Build Color Map
 	colors = colorsFromMap(plotDescription['plotDefaults']['colorMap'], 0, 0.87, len(deviceHistory))['colors']
 	# E07N is a sister device, E22N_10000 is another with 40nm device, 5 fin devices E33N E64N, Bigger cavity E27N and E27P 5 fin
