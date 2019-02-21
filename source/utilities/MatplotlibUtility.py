@@ -97,6 +97,7 @@ plt.rcParams['ps.fonttype'] = 42
 
 # Add custom color-maps
 light_to_dark_map = lambda R, G, B: dict({'red':((0.0, 0/255, 0/255), (0.5, R/255, R/255), (1.0, 255/255, 255/255)), 'green':((0.0, 0/255, 0/255), (0.5, G/255, G/255), (1.0, 255/255, 255/255)), 'blue':((0.0, 0/255, 0/255), (0.5, B/255, B/255), (1.0, 255/255, 255/255))})
+dark_to_light_map = lambda R, G, B: dict({'red':((0.0, 255/255, 255/255), (0.5, R/255, R/255), (1.0, 0/255, 0/255)), 'green':((0.0, 255/255, 255/255), (0.5, G/255, G/255), (1.0, 0/255, 0/255)), 'blue':((0.0, 255/255, 255/255), (0.5, B/255, B/255), (1.0, 0/255, 0/255))})
 color_to_color_map = lambda R1, G1, B1, R2, G2, B2: dict({'red':((0.0, R1/255, R1/255), (0.5, 0.5*(R1+R2)/255, 0.5*(R1+R2)/255), (1.0, R2/255, R2/255)), 'green':((0.0, G1/255, G1/255), (0.5, 0.5*(G1+G2)/255, 0.5*(G1+G2)/255), (1.0, G2/255, G2/255)), 'blue':((0.0, B1/255, B1/255), (0.5, 0.5*(B1+B2)/255, 0.5*(B1+B2)/255), (1.0, B2/255, B2/255))})
 color_to_color_to_color_map = lambda R1, G1, B1, R2, G2, B2, R3, G3, B3: dict({'red':((0.0, R1/255, R1/255), (0.5, R2/255, R2/255), (1.0, R3/255, R3/255)), 'green':((0.0, G1/255, G1/255), (0.5, G2/255, G2/255), (1.0, G3/255, G3/255)), 'blue':((0.0, B1/255, B1/255), (0.5, B2/255, B2/255), (1.0, B3/255, B3/255))})
 
@@ -120,7 +121,7 @@ plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_green_black', light_t
 plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_blue_black', light_to_dark_map(31, 119, 180) ))
 
 plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_yellow_black', light_to_dark_map(242, 177, 52) ))
-plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_purple_black', light_to_dark_map(86, 99, 175) ))
+plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_purple_black', light_to_dark_map(115, 99, 175) ))
 plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_orange_black', light_to_dark_map(238, 117, 57) ))
 
 plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_teal_black', light_to_dark_map(28, 206, 167) ))
@@ -366,7 +367,11 @@ def boxplot(axis, data):
 
 # === Colors ===
 def setupColors(fig, numberOfColors, colorOverride=[], colorDefault=['#1f77b4', '#f2b134', '#4fb99f', '#ed553b', '#56638A'], colorMapName='plasma', colorMapStart=0, colorMapEnd=0.87, enableColorBar=False, colorBarTicks=[0,1], colorBarTickLabels=['End','Start'], colorBarAxisLabel=''):
-	if(numberOfColors == len(colorOverride)):
+	if(isinstance(colorOverride, tuple)):
+		colorMapName = colorOverride[0]
+		colorMapStart = colorOverride[1]
+		colorMapEnd = colorOverride[2]
+	elif(numberOfColors == len(colorOverride)):
 		return colorOverride
 
 	colors = None
