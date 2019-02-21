@@ -131,6 +131,9 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		deviceHistory[i]['Results']['vgs_data_to_plot'] = vgs_data_to_plot
 		deviceHistory[i]['Results']['snr_to_plot'] = snr_to_plot
 
+		# print('vgs_data_to_plot', vgs_data_to_plot)
+		# print('snr_to_plot', snr_to_plot)
+
 		line = plotSNR(ax, deviceHistory[i], colors[i], direction=mode_parameters['sweepDirection'], scaleCurrentBy=1, lineStyle=None, errorBars=mode_parameters['enableErrorBars'])
 		if(len(deviceHistory) == len(mode_parameters['legendLabels'])):
 			setLabel(line, mode_parameters['legendLabels'][i])
