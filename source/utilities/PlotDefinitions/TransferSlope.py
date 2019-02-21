@@ -4,18 +4,18 @@ from utilities.MatplotlibUtility import *
 
 plotDescription = {
 	'plotCategory': 'device',
-	'priority': 10,
+	'priority': 40,
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(2,2.5),
 		'includeOriginOnYaxis':True,
-		'colorMap':'white_blue_black',
+		'colorMap':'white_orange_black',
 		'colorDefault': ['#f2b134'],
 		'xlabel':'$V_{{GS}}^{{Sweep}}$ (V)',
-		'micro_ylabel':'$I_{{D}}$ ($\\mu$A)',
-		'nano_ylabel':'$I_{{D}}$ (nA)',
-		'neg_micro_ylabel':'$-I_{{D}}$ ($\\mu$A)',
-		'neg_nano_ylabel':'$-I_{{D}}$ (nA)',
+		'micro_ylabel':'$g_{{m}}$ ($\\mu$S)',
+		'nano_ylabel':'$g_{{m}}$ (nS)',
+		'neg_micro_ylabel':'$g_{{m}}$ ($\\mu$S)',
+		'neg_nano_ylabel':'$g_{{m}}$ (nS)',
 		'leg_vds_label':'$V_{{DS}}^{{Sweep}}$  = {:}V',
 		'leg_vds_range_label':'$V_{{DS}}^{{min}} = $ {:}V\n'+'$V_{{DS}}^{{max}} = $ {:}V',
 	},
@@ -41,7 +41,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 
 	# Plot
 	for i in range(len(deviceHistory)):
-		line = plotTransferCurve(ax, deviceHistory[i], colors[i], direction=mode_parameters['sweepDirection'], scaleCurrentBy=current_scale, lineStyle=None, errorBars=mode_parameters['enableErrorBars'])
+		line = plotTransferCurveSlope(ax, deviceHistory[i], colors[i], direction=mode_parameters['sweepDirection'], scaleCurrentBy=current_scale, lineStyle=None, errorBars=mode_parameters['enableErrorBars'])
 		if(len(deviceHistory) == len(mode_parameters['legendLabels'])):
 			setLabel(line, mode_parameters['legendLabels'][i])
 
@@ -56,6 +56,6 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 			plotGateCurrent(ax, deviceHistory[i], gate_colors[i], direction=mode_parameters['sweepDirection'], scaleCurrentBy=current_scale, lineStyle=gate_linestyle, errorBars=mode_parameters['enableErrorBars'])	
 
 	# Add Legend and save figure
-	addLegend(ax, loc=mode_parameters['legendLoc'], title=getLegendTitle(deviceHistory, identifiers, plotDescription['plotDefaults'], 'runConfigs', 'GateSweep', mode_parameters, includeVdsSweep=True), mode_parameters=mode_parameters)
+	addLegend(ax, loc=mode_parameters['legendLoc'], title=getLegendTitle(deviceHistory, identifiers, plotDescription['plotDefaults'], 'runConfigs', 'GateSweep', mode_parameters, includeVdsSweep=True, includeIdVgsFit=True), mode_parameters=mode_parameters)
 
 	return (fig, (ax,))

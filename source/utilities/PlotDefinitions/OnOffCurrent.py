@@ -16,7 +16,7 @@ plotDescription = {
 		'vgs_label': '$V_{{GS}}^{{Hold}}$ (V)',
 		'subplot_height_ratio':[3,1],
 		'subplot_width_ratio': [1],
-		'subplot_spacing': 0.03
+		'subplotHeightPad': 0.03
 	},
 }
 
@@ -48,8 +48,6 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		fig, ax1 = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
 		ax3, ax4 = None, None
 	ax2 = ax1.twinx() if(mode_parameters['includeOffCurrent']) else None
-	if(not mode_parameters['publication_mode']):
-		ax1.set_title(getTestLabel(deviceHistory, identifiers))
 	
 	# If timescale is unspecified, choose an appropriate one based on the data range
 	if(timescale == ''):
@@ -73,9 +71,6 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Get rid of V_DS = 0 sweeps (not meaningful)
 	for i in blacklisted:
 		del deviceHistory[i]
-	
-	if(len(deviceHistory) <= 0):
-		return 
 	
 	# Plot On Current
 	if(plotInRealTime):
@@ -134,13 +129,11 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 			vds_ax.set_ylabel(plotDescription['plotDefaults']['vds_label'])
 		if(vgs_setpoint_changes):
 			vgs_ax.set_ylabel(plotDescription['plotDefaults']['vgs_label'])
-		adjustAndSaveFigure(fig, 'OnAndOffCurrents', mode_parameters, subplotHeightPad=plotDescription['plotDefaults']['subplot_spacing'])
 	else:
 		if(plotInRealTime):
 			ax1.set_xlabel(plotDescription['plotDefaults']['time_label'].format(timescale))
 		else:
 			ax1.set_xlabel(plotDescription['plotDefaults']['index_label'])
-		adjustAndSaveFigure(fig, 'OnAndOffCurrents', mode_parameters)
 	
 	return (fig, (ax1, ax2, ax3, ax4))
 	

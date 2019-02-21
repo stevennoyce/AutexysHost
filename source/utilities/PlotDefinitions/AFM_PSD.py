@@ -19,9 +19,6 @@ plotDescription = {
 def plot(deviceHistory, identifiers, mode_parameters=None, showBackgroundAFMImage=False, interpolateNans=True):
 	# Init Figure
 	fig, ax = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
-	if(not mode_parameters['publication_mode']):
-		fig.suptitle(getTestLabel(deviceHistory, identifiers))
-		ax.set_title(' ')
 	
 	Xps = []
 	Yps = []
@@ -56,11 +53,8 @@ def plot(deviceHistory, identifiers, mode_parameters=None, showBackgroundAFMImag
 	ax.set_ylabel('Power Spectral Density [dB/Hz]')
 	
 	fig.tight_layout()
-	
-	# Save figure
-	adjustAndSaveFigure(fig, 'AFMdeviationsImage', mode_parameters)
-	
-	return (fig, ax)
+		
+	return (fig, (ax,))
 
 
 if(__name__=='__main__'):

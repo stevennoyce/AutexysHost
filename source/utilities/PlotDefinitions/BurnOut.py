@@ -16,7 +16,9 @@ plotDescription = {
 		'id_micro_label':'$I_{{D}}$ ($\\mu$A)',
 		'time_label':'Time (s)',
 		'id_annotation':'burn current',
-		'legend_title':'$V_{{GS}}$ = {:}V'
+		'legend_title':'$V_{{GS}}$ = {:}V',
+		'subplotWidthPad':0.25,
+		'subplotHeightPad':0.8
 	},
 }
 
@@ -25,8 +27,6 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	fig, (ax1, ax2) = initFigure(1, 2, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'], shareX=False, subplotWidthRatio=plotDescription['plotDefaults']['subplot_width_ratio'], subplotHeightRatio=plotDescription['plotDefaults']['subplot_height_ratio'])
 	ax2 = plt.subplot(222)
 	ax3 = plt.subplot(224)
-	if(not mode_parameters['publication_mode']):
-		ax1.set_title(getTestLabel(deviceHistory, identifiers))
 
 	# Build Color Map and Color Bar
 	plt.sca(ax1)
@@ -44,7 +44,6 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	addLegend(ax1, loc=mode_parameters['legendLoc'], title=plotDescription['plotDefaults']['legend_title'].format(np.mean([deviceRun['runConfigs']['BurnOut']['gateVoltageSetPoint'] for deviceRun in deviceHistory])), mode_parameters=mode_parameters)
 	addLegend(ax2, loc=mode_parameters['legendLoc'], title=plotDescription['plotDefaults']['legend_title'].format(np.mean([deviceRun['runConfigs']['BurnOut']['gateVoltageSetPoint'] for deviceRun in deviceHistory])), mode_parameters=mode_parameters)
 	addLegend(ax3, loc=mode_parameters['legendLoc'], title=plotDescription['plotDefaults']['legend_title'].format(np.mean([deviceRun['runConfigs']['BurnOut']['gateVoltageSetPoint'] for deviceRun in deviceHistory])), mode_parameters=mode_parameters)
-	adjustAndSaveFigure(fig, 'BurnOut', mode_parameters, subplotWidthPad=0.25, subplotHeightPad=0.8)
 
 	return (fig, (ax1, ax2, ax3))
 

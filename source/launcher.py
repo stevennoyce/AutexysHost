@@ -71,7 +71,7 @@ def runAction(parameters, schedule_parameters, smu_systems, arduino_instance, co
 	dlu.makeFolder(dlu.getDeviceDirectory(parameters))
 	
 	experiment = dlu.incrementJSONExperimentNumber(dlu.getDeviceDirectory(parameters))
-	print('About to begin experiment #' + str(experiment))
+	print('About to begin experiment #' + str(experiment) + ' for device ' + str(parameters['Identifiers']['wafer']) + str(parameters['Identifiers']['chip']) + ':' + str(parameters['Identifiers']['device']))
 	parameters['startIndexes'] = dlu.loadJSONIndex(dlu.getDeviceDirectory(parameters))
 	parameters['startIndexes']['timestamp'] = time.time()
 	

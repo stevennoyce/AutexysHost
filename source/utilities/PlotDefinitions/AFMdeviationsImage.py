@@ -4,6 +4,7 @@ from utilities import AFMReader as afm_reader
 
 import time
 import numpy as np
+import difflib
 
 plotDescription = {
 	'plotCategory': 'device',
@@ -23,14 +24,17 @@ def interpolate_nans(X):
 		X[mask_j,j] = np.interp(np.flatnonzero(mask_j), np.flatnonzero(~mask_j), X[~mask_j,j])
 	return X
 
-def plot(deviceHistory, identifiers, mode_parameters=None, showBackgroundAFMImage=True, interpolateNans=False):
+def plot(deviceHistory, identifiers, mode_parameters=None, 
+		showBackgroundAFMImage=False,
+		showSMUData=True,
+		aspectRatio='auto',
+		interpolateNans=True, 
+		translucentSGM=False):
+	
 	startTime = time.time()
 	
 	# Init Figure
 	fig, ax = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
-	if(not mode_parameters['publication_mode']):
-		fig.suptitle(getTestLabel(deviceHistory, identifiers))
-		ax.set_title(' ')
 	
 	# Get X/Y limits
 	times = []
@@ -40,19 +44,18 @@ def plot(deviceHistory, identifiers, mode_parameters=None, showBackgroundAFMImag
 	etStartTime = time.time()
 	print('Time elapsed before extracting Traces is {} s'.format(etStartTime - startTime))
 	
-	# Get data
-	traces = extractTraces(deviceHistory)
-	
-	etEndTime = time.time()
-	print('Time taken to extract traces is {} s'.format(etEndTime - etStartTime))
-	
-	Vx_vals_1 = traces['Vx'][0]
-	Vy_vals_1 = traces['Vy'][0]
-	Id_vals_1 = traces['Id'][0]
-	
-	Vx_vals_2 = traces['Vx'][1]
-	Vy_vals_2 = traces['Vy'][1]
-	Id_vals_2 = traces['Id'][1]
+	if showSMUData:
+		# Get data
+		traces = extractTraces(deviceHistory)
+		
+		etEndTime = time.time()
+		print('Time taken to extract traces is {} s'.format(etEndTime - etStartTime))
+		
+		traceNumber = 0
+		
+		Vx_vals = traces['Vx'][traceNumber]
+		Vy_vals = traces['Vy'][traceNumber]
+		Id_vals = traces['Id'][traceNumber]
 	
 	imageWidth = 0
 	imageHeight = 0
@@ -72,11 +75,16 @@ def plot(deviceHistory, identifiers, mode_parameters=None, showBackgroundAFMImag
 		# Draw the image (if there is one to show)
 		if (image_path is not None):
 			full_data, imageWidth, imageHeight = afm_reader.loadAFMImageData(image_path)
-			heightline = ax.imshow(np.array(full_data['HeightRetrace'])*1e9, cmap='Greys_r', extent=(0, imageWidth*10**6, 0, imageHeight*10**6), interpolation='spline36')
+			traceName = difflib.get_close_matches('HeightTrace', full_data.keys(), n=1, cutoff=0)[0]
+			
+			heightValues = np.array(full_data[traceName])
+			heightValues -= np.nanmin(heightValues)
+			heightValues *= 1e9
+			
+			heightline = ax.imshow(heightValues, cmap='Greys', extent=(0, imageWidth*1e6, 0, imageHeight*1e6), interpolation='spline36', aspect=aspectRatio)
 			
 			cbar = fig.colorbar(heightline, pad=0.015, aspect=50)
 			cbar.set_label('Height [nm]', rotation=270, labelpad=11)
-			cbar.solids.set(alpha=1)
 			# ax2.imshow(full_data['HeightRetrace'], cmap='Greys_r', extent=(0, imageWidth*10**6, 0, imageHeight*10**6), interpolation='spline36')
 	
 	# Axis Labels
@@ -85,35 +93,39 @@ def plot(deviceHistory, identifiers, mode_parameters=None, showBackgroundAFMImag
 	# ax2.set_ylabel('Y Position ($\\mu$m)')
 	# ax2.set_xlabel('X Position ($\\mu$m)')
 	
-	IdAlpha = 1
-	if showBackgroundAFMImage:
-		IdAlpha = 0.0
-	
-	rmStartTime = time.time()
-	print('Time elapsed before rastered matrix is {} s'.format(rmStartTime - etEndTime))
-	
-	# Plot data on top of AFM image
-	afm_data, dataWidth, dataHeight = afm_ctrl.getRasteredMatrix(Vx_vals_1, Vy_vals_1, Id_vals_1)
-	
-	inStartTime = time.time()
-	print('Time taken to rastere matrix is {} s'.format(inStartTime - rmStartTime))
-	
-	if interpolateNans:
-		afm_data = interpolate_nans(afm_data)
-	
-	isStartTime = time.time()
-	print('Time taken to interpolate nans is {} s'.format(isStartTime - inStartTime))
-	
-	img = ax.imshow(afm_data*1e9, cmap=plotDescription['plotDefaults']['colorMap'], extent=(0, dataWidth*1e6, 0, dataHeight*1e6), interpolation='spline36', alpha=IdAlpha, aspect=None, vmin=None, vmax=None)
-	
-	# cbar = fig.colorbar(img, pad=0.015, aspect=50)
-	# cbar.set_label('Drain Current [nA]', rotation=270, labelpad=11)
-	# cbar.solids.set(alpha=1)
-	
-	# afm_data_2, dataWidth_2, dataHeight_2 = afm_ctrl.getRasteredMatrix(Vx_vals_2, Vy_vals_2, Id_vals_2)
-	# if interpolateNans:
-	# 	afm_data_2 = interpolate_nans(afm_data_2)
-	# ax2.imshow(afm_data_2, cmap=plotDescription['plotDefaults']['colorMap'], extent=(0, dataWidth_2, 0, dataHeight_2), alpha=IdAlpha, interpolation='spline36', aspect='auto')
+	if showSMUData:
+		IdAlpha = 1
+		if showBackgroundAFMImage:
+			IdAlpha = 0.5
+		
+		rmStartTime = time.time()
+		print('Time elapsed before rastered matrix is {} s'.format(rmStartTime - etEndTime))
+		
+		# Plot data on top of AFM image
+		afm_data, dataWidth, dataHeight = afm_ctrl.getRasteredMatrix(Vx_vals, Vy_vals, Id_vals)
+		
+		inStartTime = time.time()
+		print('Time taken to rastere matrix is {} s'.format(inStartTime - rmStartTime))
+		
+		if interpolateNans:
+			afm_data = interpolate_nans(afm_data)
+		
+		isStartTime = time.time()
+		print('Time taken to interpolate nans is {} s'.format(isStartTime - inStartTime))
+		
+		colorMap = plotDescription['plotDefaults']['colorMap']
+		if translucentSGM:
+			colorMap = rgba_to_rgba_map((255, 200, 0, 255),	(255, 200, 0, 0))
+		
+		img = ax.imshow(afm_data*1e9, cmap=colorMap, extent=(0, dataWidth*1e6, 0, dataHeight*1e6), interpolation='spline36', aspect=aspectRatio, vmin=None, vmax=None)
+		
+		cbar = fig.colorbar(img, pad=0.015, aspect=50)
+		cbar.set_label('Drain Current [nA]', rotation=270, labelpad=11)
+		
+		# afm_data_2, dataWidth_2, dataHeight_2 = afm_ctrl.getRasteredMatrix(Vx_vals_2, Vy_vals_2, Id_vals_2)
+		# if interpolateNans:
+		# 	afm_data_2 = interpolate_nans(afm_data_2)
+		# ax2.imshow(afm_data_2, cmap=plotDescription['plotDefaults']['colorMap'], extent=(0, dataWidth_2, 0, dataHeight_2), alpha=IdAlpha, interpolation='spline36', aspect='auto')
 	
 	fig.tight_layout()
 	
@@ -127,13 +139,10 @@ def plot(deviceHistory, identifiers, mode_parameters=None, showBackgroundAFMImag
 	# ax.set_ylim((0, imageHeight*10**6))
 	# ax2.set_xlim((0, imageWidth*10**6))
 	# ax2.set_ylim((0, imageHeight*10**6))
-	
-	# Save figure
-	adjustAndSaveFigure(fig, 'AFMdeviationsImage', mode_parameters)
-	
+		
 	print('Total time is {} s'.format(time.time() - startTime))
 	
-	return (fig, ax)
+	return (fig, (ax,))
 	
 	
 

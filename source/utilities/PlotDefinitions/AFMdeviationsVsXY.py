@@ -15,8 +15,6 @@ plotDescription = {
 def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Init Figure
 	fig, ax = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
-	if(not mode_parameters['publication_mode']):
-		ax.set_title(getTestLabel(deviceHistory, identifiers))
 	
 	# Build Color Map and Color Bar	
 	colors = colorsFromMap(plotDescription['plotDefaults']['colorMap'], 0, 0.87, len(deviceHistory))['colors']
@@ -60,14 +58,9 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		# setLabel(line, mode_parameters['legendLabels'][i])
 	
 	ax.set_ylabel('Y Position ($\\mu$m)')
-	ax.set_xlabel('X Position ($\\mu$m)')
+	ax.set_xlabel('X Position ($\\mu$m)')	
 	
-	# Add Legend and save figure
-	adjustAndSaveFigure(fig, 'AFMdeviationsVsXY', mode_parameters)
-	
-	
-	
-	return (fig, ax)
+	return (fig, (ax,))
 	
 	
 

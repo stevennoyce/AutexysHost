@@ -8,9 +8,11 @@ plotDescription = {
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(5,4),
+		'automaticAxisLabels':True,
 		'xlabel':'Device',
-		'ylabel':'$I_{{ON}}$ ($\\mu$A)',
-		'ylabel_dual_axis':'$I_{{OFF}}$ ($\\mu$A)'
+		'ylabel':'$I_{{D}}$ ($\\mu$A)',
+		'leg_label1':'Off Currents',
+		'leg_label2':'On Currents',
 	},
 }
 	
@@ -31,18 +33,13 @@ def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, sp
 
 	# Plot
 	if(mode_parameters['includeOffCurrent']):
-		line = ax.plot(range(len(devices)), recentOffCurrents, color=plt.rcParams['axes.prop_cycle'].by_key()['color'][1], marker='o', markersize=8, linewidth=0, linestyle=None)[0]
-		setLabel(line, 'Off Currents')
-	line = ax.plot(range(len(devices)), recentOnCurrents, color=plt.rcParams['axes.prop_cycle'].by_key()['color'][0], marker='o', markersize=4, linewidth=0, linestyle=None)[0]
-	setLabel(line, 'On Currents')
+		line1 = ax.plot(range(len(devices)), recentOffCurrents, color=plt.rcParams['axes.prop_cycle'].by_key()['color'][1], marker='o', markersize=8, linewidth=0, linestyle=None)[0]	
+	line2 = ax.plot(range(len(devices)), recentOnCurrents, color=plt.rcParams['axes.prop_cycle'].by_key()['color'][0], marker='o', markersize=4, linewidth=0, linestyle=None)[0]
 
-	# Label axes
-	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=plotDescription['plotDefaults']['ylabel'])
+	# Set tick labels
 	tickLabels(ax, devices, rotation=90)
 	
 	# Add Legend
-	ax.legend(loc=mode_parameters['legendLoc'])
+	ax.legend([line1, line2], [plotDescription['plotDefaults']['leg_label1'], plotDescription['plotDefaults']['leg_label2']], loc=mode_parameters['legendLoc'])
 	
-	# Save Figure
-	adjustAndSaveFigure(fig, 'ChipOnOffCurrents', mode_parameters)
-	return (fig, ax)
+	return (fig, (ax,))

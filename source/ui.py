@@ -365,21 +365,21 @@ def loadScheduleNames():
 	
 	return jsonvalid(scheduleNames)
 
-@app.route('/AFMFilesInTimestampRange/<startTime>/<endTime>.json')
+@app.route('/AFMFilesInTimestampRange/<startTime>/<endTime>/associatedAFMs.json')
 def AFMFilesInTimestampRange(startTime, endTime):
 	from utilities import AFMReader
 	
 	startTime = float(startTime)
 	endTime = float(endTime)
 	
-	avg_timestamp = (endTime - startTime)/2
+	avg_timestamp = startTime + (endTime - startTime)/2
 	
 	image_path = AFMReader.bestMatchAFMRegistry(default_data_path, targetTimestamp=avg_timestamp)
 	
 	if (image_path is not None):
 		metaData = AFMReader.getAFMMetaData(image_path)
 		
-		return jsonvalid({**metaData, 'image_path':image_path})
+		return jsonvalid({'bestMatch':{**metaData, 'image_path':image_path}})
 	
 	return jsonvalid({})
 

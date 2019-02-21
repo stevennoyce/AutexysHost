@@ -22,7 +22,7 @@ plotDescription = {
 		't_legend': '$t_{{Hold}}$ = {:}',
 		'subplot_height_ratio':[3,1],
 		'subplot_width_ratio': [1],
-		'subplot_spacing': 0.03
+		'subplotHeightPad': 0.03
 	},
 }
 
@@ -53,8 +53,6 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	else:
 		fig, ax1 = initFigure(1, 1, plotDescrip_current['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
 		ax2, ax3 = None, None
-	if(not mode_parameters['publication_mode']):
-		ax1.set_title(getTestLabel(deviceHistory, identifiers))
 	
 	# Build Color Map
 	colors = setupColors(fig, len(deviceHistory), colorOverride=mode_parameters['colorsOverride'], colorDefault=plotDescrip_current['plotDefaults']['colorDefault'], colorMapName=plotDescrip_current['plotDefaults']['colorMap'], colorMapStart=0, colorMapEnd=0.87, enableColorBar=False)		
@@ -165,9 +163,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		
 		# Adjust tick alignment
 		[tick.set_verticalalignment('top') for tick in ax2.yaxis.get_majorticklabels()]
-		adjustAndSaveFigure(fig, 'FullStaticBias', mode_parameters, subplotHeightPad=plotDescrip_current['plotDefaults']['subplot_spacing'])
 	else:
 		axisLabels(ax1, x_label=plotDescrip_current['plotDefaults']['xlabel'].format(timescale), y_label=plotDescrip_current['plotDefaults']['ylabel'])
-		adjustAndSaveFigure(fig, 'StaticBias', mode_parameters)
 
 	return (fig, (ax1, ax2, ax3))
