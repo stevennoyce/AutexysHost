@@ -117,7 +117,12 @@ def plot(deviceHistory, identifiers, mode_parameters=None,
 		if translucentSGM:
 			colorMap = rgba_to_rgba_map((255, 200, 0, 255),	(255, 200, 0, 0))
 		
-		img = ax.imshow(afm_data*1e9, cmap=colorMap, extent=(0, dataWidth*1e6, 0, dataHeight*1e6), interpolation='spline36', aspect=aspectRatio, vmin=None, vmax=None)
+		if imageWidth == 0:
+			imageWidth = dataWidth
+		if imageHeight == 0:
+			imageHeight = dataHeight
+		
+		img = ax.imshow(afm_data*1e9, cmap=colorMap, extent=(0, imageWidth*1e6, 0, imageHeight*1e6), interpolation='spline36', aspect=aspectRatio, vmin=None, vmax=None)
 		
 		cbar = fig.colorbar(img, pad=0.015, aspect=50)
 		cbar.set_label('Drain Current [nA]', rotation=270, labelpad=11)
@@ -129,14 +134,9 @@ def plot(deviceHistory, identifiers, mode_parameters=None,
 	
 	fig.tight_layout()
 	
-	if imageWidth == 0:
-		imageWidth = dataWidth
-	if imageHeight == 0:
-		imageHeight = dataHeight
-	
 	# Re-adjust the axes to be centered on the image
-	# ax.set_xlim((0, imageWidth*10**6))
-	# ax.set_ylim((0, imageHeight*10**6))
+	# ax.set_xlim((0, imageWidth*1e6))
+	# ax.set_ylim((0, imageHeight*1e6))
 	# ax2.set_xlim((0, imageWidth*10**6))
 	# ax2.set_ylim((0, imageHeight*10**6))
 		
