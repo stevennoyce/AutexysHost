@@ -27,7 +27,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Testing/debugging
 	# deviceHistory[0]['Results']['vgs_data'] = [[1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4]]
 	# deviceHistory[0]['Results']['gateVoltages'] = [[1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4]]
-	# deviceHistory[0]['Results']['id_data'] = [[15,20,13, 14,14,14, 15,15,15, 20,19,23]]
+	# deviceHistory[0]['Results']['id_data'] = [[15,20,13, 14,13,14, 15,18,17, 20,19,23]]
 	# deviceHistory[0]['runConfigs']['GateSweep']['stepsInVGSPerDirection'] = 4
 	# deviceHistory[0]['runConfigs']['GateSweep']['pointsPerVGS'] = 3
 	# deviceHistory[0]['runConfigs']['GateSweep']['gateVoltageMaximum'] = 4
@@ -45,8 +45,6 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 
 	# Init Figure
 	fig, ax = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
-	if(not mode_parameters['publication_mode']):
-		ax.set_title(getTestLabel(deviceHistory, identifiers))
 
 	# Build Color Map and Color Bar
 	totalTime = timeWithUnits(deviceHistory[-1]['Results']['timestamps'][0][0] - deviceHistory[0]['Results']['timestamps'][-1][-1])
@@ -142,7 +140,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	addLegend(ax, loc=mode_parameters['legendLoc'], title=getLegendTitle(deviceHistory, identifiers, plotDescription['plotDefaults'], 'runConfigs', 'GateSweep', mode_parameters, includeDataMin=True, includeDataMax=True, includeVgsChange=True, includeVdsSweep=True, includeIdVgsFit=True), mode_parameters=mode_parameters)
 	adjustAndSaveFigure(fig, 'SignalToNoiseRatio', mode_parameters)
 
-	return (fig, ax)
+	return (fig, (ax,))
 
 def debuggingInfo(deviceHistory, identifiers, mode_parameters):
 	print("Debugging info for SignalToNoiseRatio.py")
