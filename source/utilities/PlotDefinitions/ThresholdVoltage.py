@@ -15,7 +15,7 @@ plotDescription = {
 		'colorMap':'white_yellow_black',
 		'colorDefault': ['#1f77b4'],
 		'xlabel':'Trial',
-		'ylabel':'$V_{{T}}$ ($\\mu$A/V)',
+		'ylabel':'$V_{{T}}$ (V)',
 	},
 }
 

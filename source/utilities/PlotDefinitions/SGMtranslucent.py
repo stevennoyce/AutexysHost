@@ -22,7 +22,6 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		showBackgroundAFMImage=True,
 		showSMUData=True,
 		translucentSGM=True,
-		aspectRatio=None,
 		interpolateNans=True,
 	)
 

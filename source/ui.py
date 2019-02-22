@@ -273,10 +273,12 @@ def experiments(user, project, wafer, chip, device):
 	
 	for experimentNumber in experimentDictionary.keys():
 		# If an experiment had no "ParametersHistory.json", load the last known data entry for that experiment and use it to reconstruct as much info as possible
+		experimentFolder = os.path.join(folder, 'Ex' + str(experimentNumber))
+		experimentFiles = glob.glob(os.path.join(experimentFolder, '*.json'))
+		
 		if(experimentDictionary[experimentNumber] is None):
-			experimentFolder = os.path.join(folder, 'Ex' + str(experimentNumber))
 			lastDataEntryParameters = None
-			for dataFile in glob.glob(os.path.join(experimentFolder, '*.json')):
+			for dataFile in experimentFiles:
 				dataParameters = dlu.loadJSON(experimentFolder, os.path.basename(dataFile))[-1]
 				if((lastDataEntryParameters is None) or (dataParameters['index'] > lastDataEntryParameters['index'])):
 					lastDataEntryParameters = dataParameters
@@ -290,6 +292,10 @@ def experiments(user, project, wafer, chip, device):
 		# Get the possible plots for this experiment and save that with the parameters 
 		parameter_identifiers = {'dataFolder':default_data_path, 'Identifiers':{'user':user,'project':project,'wafer':wafer,'chip':chip,'device':device}}
 		experimentDictionary[experimentNumber]['possiblePlots'] = DH.plotsForExperiments(parameter_identifiers, minExperiment=experimentNumber, maxExperiment=experimentNumber)
+		
+		experimentDictionary[experimentNumber]['dataFolderSpecific'] = experimentFolder
+		experimentDictionary[experimentNumber]['dataFolderSpecificAbs'] = os.path.abspath(experimentFolder)
+		experimentDictionary[experimentNumber]['dataFiles'] = [os.path.basename(f) for f in experimentFiles]
 		
 	# Finally, extract all of the experiments from the dictionary that we built and return the list of their parameters
 	experiments = [experimentDictionary[key] for key in sorted(experimentDictionary.keys())]

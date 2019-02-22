@@ -569,6 +569,15 @@
 											
 											<v-btn @click="updateAFMRegistry()">Update AFM Registry</v-btn>
 										</v-card-actions>
+										
+										<p>This experiment has the following data files: {{ experiment['dataFiles'] }}</p>
+										<p>The data for this experiment is stored in <a :href="'file://///' + experiment['dataFolderSpecificAbs']">{{ experiment['dataFolderSpecificAbs'] }}</a></p>
+										<p>To load data, use:</p>
+										<p>from utilities import DataLoggerUtility as dlu</p>
+										<p>
+											dlu.loadSpecificDeviceHistory('{{ experiment['dataFolderSpecific'] }}', '{{ experiment['dataFiles'][0] }}', minIndex=0, maxIndex=float('inf'), minExperiment={{ experiment.startIndexes.experimentNumber }}, maxExperiment={{ experiment.startIndexes.experimentNumber }}, minRelativeIndex=0, maxRelativeIndex=float('inf'))
+										</p>
+										
 									</v-card>
 									
 								</v-card>

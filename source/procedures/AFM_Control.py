@@ -112,6 +112,64 @@ def getSegmentsOfTriangle(times, values, minSegmentLength=0, maxSegmentLength=fl
 			
 	return segments
 
+def extractTraces(deviceHistory):
+	Vx_topology_trace = []
+	Vx_topology_retrace = []
+	Vx_nap_trace = []
+	Vx_nap_retrace = []
+	
+	Vy_topology_trace = []
+	Vy_topology_retrace = []
+	Vy_nap_trace = []
+	Vy_nap_retrace = []
+	
+	Id_topology_trace = []
+	Id_topology_retrace = []
+	Id_nap_trace = []
+	Id_nap_retrace = []
+	
+	for i in range(len(deviceHistory)):
+		timestamps = deviceHistory[i]['Results']['timestamps_smu2']
+		Vx = deviceHistory[i]['Results']['smu2_v2_data']
+		Vy = deviceHistory[i]['Results']['smu2_v1_data']
+		current = np.array(deviceHistory[i]['Results']['id_data'])
+		currentLinearFit = np.polyval(np.polyfit(range(len(current)), current, 1), range(len(current)))
+		currentLinearized = current - currentLinearFit
+		currentLinearized = currentLinearized - np.median(currentLinearized)
+		
+		segments = getSegmentsOfTriangle(timestamps, Vx, discardThreshold=0.5, smoothSegmentsByOverlapping=False)
+		
+		for j in range(len(segments)):
+			if((j % 4) == 0):
+				Vx_topology_trace.append(list(np.array(Vx)[segments[j]]))
+				Vy_topology_trace.append(list(np.array(Vy)[segments[j]]))
+				Id_topology_trace.append(list(np.array(currentLinearized)[segments[j]]))
+			elif((j % 4) == 1):
+				Vx_topology_retrace.append(list(np.array(Vx)[segments[j]]))
+				Vy_topology_retrace.append(list(np.array(Vy)[segments[j]]))
+				Id_topology_retrace.append(list(np.array(currentLinearized)[segments[j]]))
+			elif((j % 4) == 2):
+				Vx_nap_trace.append(list(np.array(Vx)[segments[j]]))
+				Vy_nap_trace.append(list(np.array(Vy)[segments[j]]))
+				Id_nap_trace.append(list(np.array(currentLinearized)[segments[j]]))
+			elif((j % 4) == 3):
+				Vx_nap_retrace.append(list(np.array(Vx)[segments[j]]))
+				Vy_nap_retrace.append(list(np.array(Vy)[segments[j]]))
+				Id_nap_retrace.append(list(np.array(currentLinearized)[segments[j]]))
+	
+	return {
+		'Vx': [Vx_topology_trace, Vx_topology_retrace, Vx_nap_trace, Vx_nap_retrace],
+		'Vy': [Vy_topology_trace, Vy_topology_retrace, Vy_nap_trace, Vy_nap_retrace],
+		'Id': [Id_topology_trace, Id_topology_retrace, Id_nap_trace, Id_nap_retrace]
+	}
+
+def interpolate_nans(X):
+	"""Overwrite NaNs with column value interpolations."""
+	for j in range(X.shape[1]):
+		mask_j = np.isnan(X[:,j])
+		X[mask_j,j] = np.interp(np.flatnonzero(mask_j), np.flatnonzero(~mask_j), X[~mask_j,j])
+	return X
+
 def getRasteredMatrix(Vx, Vy, Id):
 	# Determine matrix X-dimentions
 	max_row_length = max([len(segment) for segment in Vx])
