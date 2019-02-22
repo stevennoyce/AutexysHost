@@ -45,6 +45,8 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 
 	# Init Figure
 	fig, ax = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
+	if(not mode_parameters['publication_mode']):
+		ax.set_title(getTestLabel(deviceHistory, identifiers))
 
 	# Build Color Map and Color Bar
 	totalTime = timeWithUnits(deviceHistory[-1]['Results']['timestamps'][0][0] - deviceHistory[0]['Results']['timestamps'][-1][-1])
@@ -83,8 +85,6 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 					if normalize:
 						normTerm = deviceHistory[i]['Results']['vgs_data'][0][index+pointsPerVGS-1] - deviceHistory[i]['Results']['vgs_data'][0][index+pointsPerVGS] # Don't care about negative
 					my_direction_snr_to_plot.append(abs(my_drain_current_mean / (my_drain_current_stDev * normTerm)))  # abs value takes care of negative case
-					# Gate voltages
-					my_direction_vgs_data_to_plot.append(statistics.mean(deviceHistory[i]['Results']['vgs_data'][0][index:index+pointsPerVGS]))
 
 					# Gate voltages - put inside the if statement so that the two lists are same length
 					my_direction_vgs_data_to_plot.append(statistics.mean(deviceHistory[i]['Results']['vgs_data'][0][index:index+pointsPerVGS]))
@@ -116,8 +116,6 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 					if normalize:
 						normTerm = deviceHistory[i]['Results']['vgs_data'][sweep_index][index] - deviceHistory[i]['Results']['vgs_data'][sweep_index][index-1] # Don't care about negative
 					my_direction_snr_to_plot.append(abs(my_drain_current_mean / (my_drain_current_stDev * normTerm)))  # abs value takes care of negative case
-					# Gate voltages
-					my_direction_vgs_data_to_plot.append(statistics.mean(deviceHistory[i]['Results']['vgs_data'][sweep_index][index:index+pointsPerVGS]))
 
 					# Gate voltages - inside if statement so that lists are same length
 					my_direction_vgs_data_to_plot.append(statistics.mean(deviceHistory[i]['Results']['vgs_data'][sweep_index][index:index+pointsPerVGS]))
@@ -142,8 +140,9 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 
 	# Add Legend and save figure
 	addLegend(ax, loc=mode_parameters['legendLoc'], title=getLegendTitle(deviceHistory, identifiers, plotDescription['plotDefaults'], 'runConfigs', 'GateSweep', mode_parameters, includeDataMin=True, includeDataMax=True, includeVgsChange=True, includeVdsSweep=True, includeIdVgsFit=True), mode_parameters=mode_parameters)
+	adjustAndSaveFigure(fig, 'SignalToNoiseRatio', mode_parameters)
 
-	return (fig, (ax,))
+	return (fig, ax)
 
 def debuggingInfo(deviceHistory, identifiers, mode_parameters):
 	print("Debugging info for SignalToNoiseRatio.py")

@@ -103,7 +103,7 @@ color_to_color_to_color_map = lambda R1, G1, B1, R2, G2, B2, R3, G3, B3: dict({'
 def rgba_to_rgba_map(RGBA1, RGBA2):
 	R1, G1, B1, A1 = RGBA1
 	R2, G2, B2, A2 = RGBA2
-	
+
 	description = dict({
 		'red':((0.0, R1/255, R1/255), (0.5, 0.5*(R1+R2)/255, 0.5*(R1+R2)/255), (1.0, R2/255, R2/255)),
 		'green':((0.0, G1/255, G1/255), (0.5, 0.5*(G1+G2)/255, 0.5*(G1+G2)/255), (1.0, G2/255, G2/255)),
@@ -111,7 +111,7 @@ def rgba_to_rgba_map(RGBA1, RGBA2):
 		'alpha':((0.0, A1/255, A1/255), (0.5, 0.5*(A1+A2)/255, 0.5*(A1+A2)/255), (1.0, A2/255, A2/255))
 	})
 	name = 'rgba_to_rgba_map' + ''.join([str(c) for c in [R1, G1, B1, A1, R2, G2, B2, A2]])
-	
+
 	return pltc.LinearSegmentedColormap(name, description)
 
 
@@ -162,10 +162,10 @@ def plotSweep(axis, jsonData, lineColor, direction='both', x_data='gate voltage'
 		'gate voltage for snr':'vgs_data_to_plot',
 		'snr':'snr_to_plot'
 	}
-	
+
 	x_data = data_save_names[x_data]
 	x = jsonData['Results'][x_data]
-	
+
 	y_data = data_save_names[y_data]
 	y = jsonData['Results'][y_data]
 
@@ -234,7 +234,7 @@ def plotSweep(axis, jsonData, lineColor, direction='both', x_data='gate voltage'
 			x[i] = x_segment[N:-N]
 			dy_dx.append(dy_dx_segment)
 		y = dy_dx
-		
+
 	if(absoluteValue):
 		y = np.abs(y)
 
@@ -299,11 +299,11 @@ def plotStaticBias(axis, jsonData, lineColor, timeOffset, currentData='id_data',
 def plotInverterVTC(axis, jsonData, lineColor, direction='both', lineStyle=None, errorBars=True):
 	line = plotSweep(axis, jsonData, lineColor, direction, x_data='input voltage', y_data='output voltage', logScale=False, scaleYaxisBy=1, lineStyle=lineStyle, errorBars=errorBars)
 	return line
-	
+
 def plotInverterGain(axis, jsonData, lineColor, direction='both', lineStyle=None, errorBars=True):
 	line = plotSweep(axis, jsonData, lineColor, direction, x_data='input voltage', y_data='output voltage', logScale=False, scaleYaxisBy=1, lineStyle=lineStyle, errorBars=errorBars, derivative=True, absoluteValue=True)
 	return line
-	
+
 def plotTransferCurveSlope(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True):
 	line = plotSweep(axis, jsonData, lineColor, direction, x_data='gate voltage', y_data='drain current', logScale=False, scaleYaxisBy=scaleCurrentBy, lineStyle=lineStyle, errorBars=errorBars, derivative=True, absoluteValue=True)
 	return line
@@ -484,7 +484,10 @@ def getLegendTitle(deviceHistory, identifiers, plottype_parameters, parameterSup
 			xData = xData + sublist
 		for sublist in rawYData:
 			yData = yData + sublist
-		(minIndices, minValue) = minIndicesAndValue(yData)
+		if len(xData) > 0 and len(yData) > 0:
+			(minIndices, minValue) = minIndicesAndValue(yData)
+		else:
+			minIndices = []
 		correspondingXValues = [xData[i] for i in minIndices]
 		for x in correspondingXValues:
 			legend_entries.append('Min = ' + plottype_parameters['leg_data_min_x'].format(round(x, 2)) + ', ' + plottype_parameters['leg_data_min_y'].format(round(minValue, 2)))
@@ -497,7 +500,10 @@ def getLegendTitle(deviceHistory, identifiers, plottype_parameters, parameterSup
 			xData = xData + sublist
 		for sublist in rawYData:
 			yData = yData + sublist
-		(maxIndices, maxValue) = maxIndicesAndValue(yData)
+		if len(xData) > 0 and len(yData) > 0:
+			(maxIndices, maxValue) = maxIndicesAndValue(yData)
+		else:
+			maxIndices = []
 		correspondingXValues = [xData[i] for i in maxIndices]
 		for x in correspondingXValues:
 			legend_entries.append('Max = ' + plottype_parameters['leg_data_max_x'].format(round(x, 2)) + ', ' + plottype_parameters['leg_data_max_y'].format(round(maxValue, 2)))
