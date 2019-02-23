@@ -135,8 +135,19 @@ default_parameters = {
 			'vddSupplyVoltageSetPoint':	{'type':'float', 'units':'V', 'default': 1.0},
 			'inputVoltageMinimum': 		{'type':'float', 'units':'V', 'default': 0.0},
 			'inputVoltageMaximum': 		{'type':'float', 'units':'V', 'default': 1.0}
+		},
+		'RapidBias':{
+			'dependencies':				{'ignore':True, 'value':[]},
+			'saveFileName': 			{'type':'constant', 'default': 'RapidBias'},
+			'complianceCurrent':		{'type':'float', 'units':'A', 'default': 100e-6},
+			'waveform': 				{'type':'constant', 'default': 'square'},
+			'drainVoltageSetPoints':	{'type':'array', 'units':'V', 'default': [0.05]},
+			'gateVoltageSetPoints':		{'type':'array', 'units':'V', 'default': [0.0]},
+			'measurementPoints':		{'type':'array', 'units':'#', 'default': [50]},
+			'maxStepInVDS': 			{'type':'float', 'units':'V', 'default': 0.025},
+			'maxStepInVGS': 			{'type':'float', 'units':'V', 'default': 0.1},
+			'startGrounded': 			{'type':'bool', 'default': True}
 		}
-
 	},
 	'Results':{
 		
