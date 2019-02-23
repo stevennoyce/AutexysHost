@@ -99,6 +99,8 @@ def runRapidBias(smu_instance, waveform, drainVoltageSetPoints, gateVoltageSetPo
 			'vgs_data':vgs_data,
 			'ig_data':ig_data,
 			'timestamps':timestamps,
+			'gateVoltages':gateVoltages,
+			'drainVoltages':drainVoltages,
 		},
 		'Computed':{
 		
