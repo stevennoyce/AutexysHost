@@ -77,13 +77,14 @@ def runRapidBias(smu_instance, waveform, drainVoltageSetPoints, gateVoltageSetPo
 
 	# Step through all voltage points to measure
 	for i in range(len(gateVoltages)):
-		# Apply V_GS and V_DS
-		smu_instance.setVgs(gateVoltages[i])
-		smu_instance.setVds(drainVoltages[i])
+		# Apply V_GS and V_DS (only issue commands that affect the voltage)
+		if((i == 0) or (gateVoltages[i] != gateVoltages[i-1])):
+			smu_instance.setVgs(gateVoltages[i])
+		if((i == 0) or (drainVoltages[i] != drainVoltages[i-1])):
+			smu_instance.setVds(drainVoltages[i])
 
 		# Take Measurement and save it
 		measurement = smu_instance.takeMeasurement()
-
 		timestamp = time.time()
 		
 		vds_data.append(measurement['V_ds'])

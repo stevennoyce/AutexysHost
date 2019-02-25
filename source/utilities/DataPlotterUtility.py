@@ -2,10 +2,12 @@ from utilities import MatplotlibUtility as mplu
 
 import pkgutil
 import os
+import glob
 
 # Import all Plot Definitions and save a reference to run their 'plot' function
 plotDefinitions = {}
-for importer, packageName, isPackage in pkgutil.iter_modules([os.path.join(os.path.dirname(os.path.realpath(__file__)), 'PlotDefinitions')]):
+plotDefinitionsBasePath = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'PlotDefinitions')
+for importer, packageName, isPackage in pkgutil.iter_modules([plotDefinitionsBasePath] + glob.glob(plotDefinitionsBasePath + '/*/')):
 	module = importer.find_module(packageName).load_module(packageName)
 	plotDefinitions[packageName] = {}
 	plotDefinitions[packageName]['module'] = module

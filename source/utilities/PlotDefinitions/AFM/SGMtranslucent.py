@@ -15,12 +15,13 @@ plotDescription = {
 	},
 }
 
-from utilities.PlotDefinitions import AFMdeviationsImage
+from utilities.PlotDefinitions.AFM import AFMdeviationsImage
 
 def plot(deviceHistory, identifiers, mode_parameters=None):
 	return AFMdeviationsImage.plot(deviceHistory, identifiers, mode_parameters, 
 		showBackgroundAFMImage=True,
-		showSMUData=False,
+		showSMUData=True,
+		translucentSGM=True,
 		interpolateNans=True,
 	)
 
