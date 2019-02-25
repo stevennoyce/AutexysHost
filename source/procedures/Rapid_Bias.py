@@ -54,12 +54,16 @@ def runRapidBias(smu_instance, waveform, drainVoltageSetPoints, gateVoltageSetPo
 	ig_data = []
 	timestamps = []
 	
-	# In the normal case where the terminals start out grounded, just make sure the waveforms correctly start out at 0
+	# If you start the terminals as grounded, then you can see all of the starting transients and miss nothing
 	if(startGrounded):
 		smu_instance.rampDownVoltages()
 		drainVoltageSetPoints = [0] + drainVoltageSetPoints
 		gateVoltageSetPoints = [0] + gateVoltageSetPoints
 		measurementPoints = [1] + measurementPoints
+	else:
+		# Otherwise just ramp to your starting voltages to simplify whats happening
+		smu_instance.rampGateVoltageTo(gateVoltageSetPoints[0])
+		smu_instance.rampDrainVoltageTo(drainVoltageSetPoints[0])
 	
 	# Generate waveforms from arrays of set-point values and a corresponding array of the number of times that each set-point should be measured
 	gateVoltages = dgu.waveformValues(waveform, gateVoltageSetPoints, measurementPoints, maxStepInVGS)

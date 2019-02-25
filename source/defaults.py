@@ -146,8 +146,8 @@ default_parameters = {
 			'measurementPoints':		{'type':'array', 'units':'#', 'default': [50]},
 			'averageOverPoints': 		{'type':'int', 'units':'#', 'default': 1},
 			'maxStepInVDS': 			{'type':'float', 'units':'V', 'default': 0.025},
-			'maxStepInVGS': 			{'type':'float', 'units':'V', 'default': 0.1},
-			'startGrounded': 			{'type':'bool', 'default': True}
+			'maxStepInVGS': 			{'type':'float', 'units':'V', 'default': 0.4},
+			'startGrounded': 			{'type':'bool', 'default': False}
 		}
 	},
 	'Results':{
