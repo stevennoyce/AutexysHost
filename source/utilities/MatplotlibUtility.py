@@ -89,7 +89,7 @@ plt.rcParams['ytick.minor.width'] = 0.5
 plt.rcParams['xtick.minor.size'] = 1
 plt.rcParams['ytick.minor.size'] = 1
 
-plt.rcParams['axes.formatter.limits'] = [-2, 3]
+plt.rcParams['axes.formatter.limits'] = [-2, 4]
 
 # Change to Type 2/TrueType fonts (editable text)
 plt.rcParams['pdf.fonttype'] = 42

@@ -38,7 +38,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Plot
 	for i in range(len(deviceHistory)):
 		line = ax.plot(np.array(deviceHistory[i]['Results']['timestamps']) - min(deviceHistory[i]['Results']['timestamps']),  np.array(deviceHistory[i]['Results']['id_data'])*current_scale, color=colors[i], marker='o', markersize=2, linewidth=1)
-		
+				
 	# Set Axis Labels
 	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=ylabel)	
 			

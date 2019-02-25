@@ -22,6 +22,7 @@ def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False)
 							drainVoltageSetPoints=rb_parameters['drainVoltageSetPoints'],
 							gateVoltageSetPoints=rb_parameters['gateVoltageSetPoints'],
 							measurementPoints= rb_parameters['measurementPoints'],
+							averageOverPoints=rb_parameters['averageOverPoints'],
 							maxStepInVDS=rb_parameters['maxStepInVDS'],
 							maxStepInVGS=rb_parameters['maxStepInVGS'],
 							startGrounded=rb_parameters['startGrounded'])
@@ -46,7 +47,7 @@ def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False)
 	return jsonData
 
 # === Data Collection ===
-def runRapidBias(smu_instance, waveform, drainVoltageSetPoints, gateVoltageSetPoints, measurementPoints, maxStepInVDS, maxStepInVGS, startGrounded):
+def runRapidBias(smu_instance, waveform, drainVoltageSetPoints, gateVoltageSetPoints, measurementPoints, averageOverPoints, maxStepInVDS, maxStepInVGS, startGrounded):
 	vds_data = []
 	id_data = []
 	vgs_data = []
@@ -76,6 +77,7 @@ def runRapidBias(smu_instance, waveform, drainVoltageSetPoints, gateVoltageSetPo
 	# -- at this point gateVoltages and drainVoltages are vectors of points to measure
 
 	# Step through all voltage points to measure
+	measurement_buffer = []
 	for i in range(len(gateVoltages)):
 		# Apply V_GS and V_DS (only issue commands that affect the voltage)
 		if((i == 0) or (gateVoltages[i] != gateVoltages[i-1])):
@@ -83,15 +85,20 @@ def runRapidBias(smu_instance, waveform, drainVoltageSetPoints, gateVoltageSetPo
 		if((i == 0) or (drainVoltages[i] != drainVoltages[i-1])):
 			smu_instance.setVds(drainVoltages[i])
 
-		# Take Measurement and save it
+		# Take Measurement and add it to the buffer
 		measurement = smu_instance.takeMeasurement()
 		timestamp = time.time()
 		
-		vds_data.append(measurement['V_ds'])
-		id_data.append(measurement['I_d'])
-		vgs_data.append(measurement['V_gs'])
-		ig_data.append(measurement['I_g'])
-		timestamps.append(timestamp)
+		measurement_buffer.append([measurement, timestamp])
+		
+		# Once the buffer reaches the desired number of measurements to average over, save the mean data and timestamp and reset the buffer
+		if(len(measurement_buffer) >= averageOverPoints):
+			vds_data.append(np.mean([entry[0]['V_ds'] for entry in measurement_buffer]))
+			id_data.append(np.mean([entry[0]['I_d'] for entry in measurement_buffer]))
+			vgs_data.append(np.mean([entry[0]['V_gs'] for entry in measurement_buffer]))
+			ig_data.append(np.mean([entry[0]['I_g'] for entry in measurement_buffer]))
+			timestamps.append(np.mean([entry[1] for entry in measurement_buffer]))
+			measurement_buffer = []
 		
 	return {
 		'Raw':{

@@ -144,6 +144,7 @@ default_parameters = {
 			'drainVoltageSetPoints':	{'type':'array', 'units':'V', 'default': [0.05]},
 			'gateVoltageSetPoints':		{'type':'array', 'units':'V', 'default': [0.0]},
 			'measurementPoints':		{'type':'array', 'units':'#', 'default': [50]},
+			'averageOverPoints': 		{'type':'int', 'units':'#', 'default': 1},
 			'maxStepInVDS': 			{'type':'float', 'units':'V', 'default': 0.025},
 			'maxStepInVGS': 			{'type':'float', 'units':'V', 'default': 0.1},
 			'startGrounded': 			{'type':'bool', 'default': True}
