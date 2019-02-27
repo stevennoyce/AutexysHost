@@ -267,7 +267,7 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 			if len(meanYs) > 1:
 				deltaMeanYs.append(meanYs[-1] - meanYs[-2])
 			if len(meanYs) > 6:
-				if deltaMeanYs[-1]*np.median(deltaMeanYs) < 0:
+				if (deltaMeanYs[-1]*np.median(deltaMeanYs) < 0) and (deltaMeanYs[-2]*np.median(deltaMeanYs) < 0):
 					print('Ending scan due to detected frame reversal')
 					print(meanYs)
 					print(deltaMeanYs)
