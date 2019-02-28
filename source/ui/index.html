@@ -540,8 +540,6 @@
 											d<sub>tip</sub> = {{1e9*_.get(experiment, 'associatedAFMs.bestMatch.NapHeight', '')}} nm</br>
 										</div>
 										
-										{{ experiment.associatedAFMs }}
-										
 									</v-card>
 									
 									<v-card class="ma-1">
@@ -1227,6 +1225,7 @@
 					
 					this.pageLoading = false;
 					this.newCacheBust();
+					this.getAssociatedAFMs();
 				},
 				
 				getUsers: function() {
@@ -1338,7 +1337,9 @@
 						.fail(() => {console.log("Error getting schedule names")});
 					}
 				},
-				getAssociatedAFMs: function(experiment) {
+				getAssociatedAFMs: function() {
+					var experiment = this.experiments[this.experimentIndex];
+					
 					if (!(experiment.runType.includes('AFM') || experiment.runType.includes('SGM'))) {
 						experiment.associatedAFMs = {};
 						return;
@@ -1348,7 +1349,7 @@
 					endTime = experiment.endIndexes.timestamp;
 					var path = '/AFMFilesInTimestampRange/' + startTime + '/' + endTime + '/associatedAFMs.json' + this.cacheBust;
 					if (path) {
-						$.getJSON(path, response => {Vue.set(experiment.associatedAFMs, response)})
+						$.getJSON(path, response => {Vue.set(experiment, 'associatedAFMs', response)})
 						.fail((xhr, status, error) => {console.log("Error getting associated AFMs"); console.log(error)});
 					}
 				},
@@ -1554,9 +1555,7 @@
 				scheduleObjectClipboard: function(val) { localStorage.scheduleObjectClipboard = JSON.stringify(val); },
 				disabledPlots: function(val) { localStorage.disabledPlots = JSON.stringify(val); },
 				
-				experimentIndex: function(val) {
-					this.getAssociatedAFMs(this.experiments[this.experimentIndex]);
-				}
+				experimentIndex: function(val) { this.getAssociatedAFMs(); }
 			},
 			computed: {
 				experiment: function() {
