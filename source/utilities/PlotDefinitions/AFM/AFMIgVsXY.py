@@ -44,7 +44,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	line = ax.scatter(a, b, c=c, cmap=plotDescription['plotDefaults']['colorMap'], alpha=0.6, marker='o', s=14)
 	
 	cbar = fig.colorbar(line, pad=0.015, aspect=50)
-	cbar.set_label('Drain Current [nA]', rotation=270, labelpad=11)
+	cbar.set_label('Gate Current [nA]', rotation=270, labelpad=11)
 	cbar.solids.set(alpha=1)
 	
 	ax.set_ylabel('Y Position ($\\mu$m)')
