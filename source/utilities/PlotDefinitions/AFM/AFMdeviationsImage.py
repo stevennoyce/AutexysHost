@@ -71,8 +71,11 @@ def plot(deviceHistory, identifiers, mode_parameters=None,
 			full_data, imageWidth, imageHeight = afm_reader.loadAFMImageData(image_path)
 			traceName = difflib.get_close_matches(afmImageChannel, full_data.keys(), n=1, cutoff=0)[0]
 			traceNameReadable = traceName.replace('Retrace', '')
-			traceNameReadable = traceName.replace('Tracee', '')
+			traceNameReadable = traceNameReadable.replace('Trace', '')
 			traceNameReadable = ''.join(' ' + char if char.isupper() else char.strip() for char in traceNameReadable).strip()
+			traceNameReadable = traceNameReadable.replace('ee', 'e')
+			traceNameReadable = traceNameReadable.replace('ee', 'e')
+			
 			channelTypes = {
 				'Amplitude': {'units':'nm', 'multiplier':1e9, 'subtractMin':False},
 				'Height': {'units':'nm', 'multiplier':1e9, 'subtractMin':True},
