@@ -416,7 +416,7 @@ def parseLines(fileLines):
 			jsonData.append(parseLine(line))
 		except Exception as e:
 			print(e)
-			print('Error loading JSON line in file {:}/{:}'.format(directory, loadFileName))
+			print('Error loading JSON line')
 	return jsonData
 
 def parseLine(line, correctLengths=True):
