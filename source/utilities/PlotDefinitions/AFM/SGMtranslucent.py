@@ -23,6 +23,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		showSMUData=True,
 		translucentSGM=True,
 		interpolateNans=True,
+		afmImageChannel='AmplitudeTrace'
 	)
 
 if(__name__=='__main__'):
