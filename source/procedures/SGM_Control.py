@@ -246,6 +246,9 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 	for scan in range(afm_parameters['scans']):
 		print('Starting scan {} of {}'.format(scan+1, afm_parameters['scans']))
 		
+		meanYs = []
+		deltaMeanYs = []
+		
 		for line in range(afm_parameters['lines']):
 			print('Starting line {} of {} (scan {} of {})'.format(line+1, afm_parameters['lines'], scan+1, afm_parameters['scans']))
 			
@@ -260,17 +263,29 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 			
 			# Determine frame switch
 			meanY = np.mean(results['Raw']['smu2_v1_data'])
-			if line == 1:
-				Vy_1 = float(meanY)
-			elif line == 2:
-				Vy_2 = float(meanY)
-				originalStepVy = Vy_2 - Vy_1
-			elif line > 2:
-				Vy_1 = float(Vy_2)
-				Vy_2 = float(meanY)
-				stepVy = Vy_2 - Vy_1
-				if originalStepVy*stepVy < 0:
+			meanYs.append(meanY)
+			if len(meanYs) > 1:
+				deltaMeanYs.append(meanYs[-1] - meanYs[-2])
+			if len(meanYs) > 6:
+				if (deltaMeanYs[-1]*np.median(deltaMeanYs) < 0) and (deltaMeanYs[-2]*np.median(deltaMeanYs) < 0):
+					print('Ending scan due to detected frame reversal')
+					print(meanYs)
+					print(deltaMeanYs)
+					print(np.median(deltaMeanYs))
 					break
+			
+			# if line == 1:
+			# 	Vy_1 = float(meanY)
+			# elif line == 2:
+			# 	Vy_2 = float(meanY)
+			# 	originalStepVy = Vy_2 - Vy_1
+			# elif line > 2:
+			# 	Vy_1 = float(Vy_2)
+			# 	Vy_2 = float(meanY)
+			# 	stepVy = Vy_2 - Vy_1
+			# 	if originalStepVy*stepVy < 0:
+			# 		print('Ending scan due to detected frame reversal')
+			# 		break
 			
 			# Save results as a JSON object
 			if(isSavingResults):
@@ -280,7 +295,7 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 					args=(dlu.getDeviceDirectory(parameters), afm_parameters['saveFileName'], jsonData, 'Ex'+str(parameters['startIndexes']['experimentNumber']))
 				).start()
 	
-	smu_device.turnChannelsOff()
+	# smu_device.turnChannelsOff()
 
 
 
@@ -313,6 +328,12 @@ def runAFMline(parameters, smu_systems, sleep_time1, sleep_time2):
 	timestamps_device = [startTime + t for t in results_device['timestamps']]
 	timestamps_smu2 = [startTime + t for t in results_secondary['timestamps']]
 	
+	XVoltageKey = 'Vds_data'
+	YVoltageKey = 'Vgs_data'
+	
+	if afm_parameters['XYCableSwap']:
+		XVoltageKey, YVoltageKey = YVoltageKey, XVoltageKey
+	
 	return {
 		'Raw':{
 			'vds_data':	results_device['Vds_data'],
@@ -320,9 +341,9 @@ def runAFMline(parameters, smu_systems, sleep_time1, sleep_time2):
 			'vgs_data':	results_device['Vgs_data'],
 			'ig_data':	results_device['Ig_data'],
 			'timestamps_device': timestamps_device,
-			'smu2_v1_data':	results_secondary['Vds_data'],
+			'smu2_v1_data':	results_secondary[YVoltageKey],
 			'smu2_i1_data':	results_secondary['Id_data'],
-			'smu2_v2_data':	results_secondary['Vgs_data'],
+			'smu2_v2_data':	results_secondary[XVoltageKey],
 			'smu2_i2_data':	results_secondary['Ig_data'],
 			'timestamps_smu2': timestamps_smu2,
 		},

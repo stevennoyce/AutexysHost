@@ -47,7 +47,9 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	
 	# currents[np.where(Xs < 0.5)[0]] = 0
 	
-	c, a, b = zip(*sorted(zip(np.array(currents)*1e9, Xs, Ys), reverse=True))
+	# c, a, b = zip(*sorted(zip(np.array(currents)*1e9, Xs, Ys), reverse=True))
+	c, a, b = zip(*zip(np.array(currents)*1e9, Xs, Ys))
+	
 	line = ax.scatter(a, b, c=c, cmap=plotDescription['plotDefaults']['colorMap'], alpha=0.6, marker='o', s=14)
 	# line = ax.scatter(Xs, Ys, c=np.array(currents)*1e9, cmap=plotDescription['plotDefaults']['colorMap'], alpha=0.6)
 	cbar = fig.colorbar(line, pad=0.015, aspect=50)

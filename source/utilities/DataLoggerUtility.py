@@ -200,7 +200,7 @@ def loadJSON_slow(directory, loadFileName):
 	with open(os.path.join(directory, loadFileName)) as file:
 		for line in file:
 			try:
-				jsonData.append(json.loads(str(line)))
+				jsonData.append(parseLine(line))
 			except:
 				print('Error loading JSON line in file {:}/{:}'.format(directory, loadFileName))
 	return jsonData
@@ -209,7 +209,7 @@ def loadJSON_fast(directory, loadFileName, minIndex=0, maxIndex=float('inf'), mi
 	"""Private method. Given filters of min/max index, experimentNumber, and relativeIndex this loads individual file lines much faster."""
 	fileLines = loadJSONtoStringArray(directory, loadFileName)
 	filteredFileLines = filterStringArrayByIndexAndExperiment(directory, fileLines, minIndex, maxIndex, minExperiment, maxExperiment, minRelativeIndex, maxRelativeIndex)
-	jsonData = parseJSON(filteredFileLines)
+	jsonData = parseLines(filteredFileLines)
 	return jsonData
 
 
@@ -409,14 +409,31 @@ def filterStringArrayByIndexAndExperiment(directory, fileLines, minIndex=0, maxI
 
 	return filteredFileLines
 
-def parseJSON(fileLines):
+def parseLines(fileLines):
 	jsonData = []
 	for line in fileLines:
 		try:
-			jsonData.append(json.loads(str(line)))
-		except:
-			print('Error loading JSON line in file {:}/{:}'.format(directory, loadFileName))
+			jsonData.append(parseLine(line))
+		except Exception as e:
+			print(e)
+			print('Error loading JSON line')
 	return jsonData
+
+def parseLine(line, correctLengths=True):
+	data = json.loads(str(line))
+	
+	if correctLengths and ('Results' in data):
+		equalLengthNames = ['id_data', 'ig_data', 'vds_data', 'vgs_data', 'smu2_i1_data', 'smu2_i2_data', 'smu2_v1_data', 'smu2_v2_data', 'timestamps', 'timestamps_smu2']
+		lengths = [len(data['Results'][n]) for n in equalLengthNames if n in data['Results']]
+		
+		if max(lengths) - min(lengths) == 1:
+			print('Unequal Lengths, altering data length by 1! Beware!')
+			for n in equalLengthNames:
+				if n in data['Results']:
+					if len(data['Results'][n]) == min(lengths):
+						data['Results'][n].append(data['Results'][n][-1])
+	
+	return data
 
 
 

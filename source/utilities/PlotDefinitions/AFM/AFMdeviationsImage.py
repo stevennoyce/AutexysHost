@@ -22,7 +22,8 @@ def plot(deviceHistory, identifiers, mode_parameters=None,
 		showSMUData=True,
 		aspectRatio='auto',
 		interpolateNans=True, 
-		translucentSGM=False):
+		translucentSGM=False,
+		afmImageChannel='HeightTrace'):
 	
 	startTime = time.time()
 	
@@ -68,16 +69,32 @@ def plot(deviceHistory, identifiers, mode_parameters=None,
 		# Draw the image (if there is one to show)
 		if (image_path is not None):
 			full_data, imageWidth, imageHeight = afm_reader.loadAFMImageData(image_path)
-			traceName = difflib.get_close_matches('HeightTrace', full_data.keys(), n=1, cutoff=0)[0]
+			traceName = difflib.get_close_matches(afmImageChannel, full_data.keys(), n=1, cutoff=0)[0]
+			traceNameReadable = traceName.replace('Retrace', '')
+			traceNameReadable = traceNameReadable.replace('Trace', '')
+			traceNameReadable = ''.join(' ' + char if char.isupper() else char.strip() for char in traceNameReadable).strip()
+			traceNameReadable = traceNameReadable.replace('ee', 'e')
+			traceNameReadable = traceNameReadable.replace('ee', 'e')
 			
-			heightValues = np.array(full_data[traceName])
-			heightValues -= np.nanmin(heightValues)
-			heightValues *= 1e9
+			channelTypes = {
+				'Amplitude': {'units':'nm', 'multiplier':1e9, 'subtractMin':False},
+				'Height': {'units':'nm', 'multiplier':1e9, 'subtractMin':True},
+				'Phase': {'units':'Degrees', 'multiplier':1, 'subtractMin':False},
+				'Z Sensor': {'units':'nm', 'multiplier':1e9, 'subtractMin':True}
+			}
 			
-			heightline = ax.imshow(heightValues, cmap='Greys', extent=(0, imageWidth*1e6, 0, imageHeight*1e6), interpolation='spline36', aspect=aspectRatio)
+			channelProperties = channelTypes[difflib.get_close_matches(traceNameReadable, channelTypes.keys(), n=1, cutoff=0)[0]]
+			
+			channelValues = np.array(full_data[traceName])
+			if channelProperties['subtractMin']:
+				channelValues -= np.nanmin(channelValues)
+			
+			channelValues *= channelProperties['multiplier']
+			
+			heightline = ax.imshow(channelValues, cmap='Greys', extent=(0, imageWidth*1e6, 0, imageHeight*1e6), interpolation='spline36', aspect=aspectRatio)
 			
 			cbar = fig.colorbar(heightline, pad=0.015, aspect=50)
-			cbar.set_label('Height [nm]', rotation=270, labelpad=11)
+			cbar.set_label(traceNameReadable + ' [{}]'.format(channelProperties['units']), rotation=270, labelpad=11)
 			# ax2.imshow(full_data['HeightRetrace'], cmap='Greys_r', extent=(0, imageWidth*10**6, 0, imageHeight*10**6), interpolation='spline36')
 	
 	# Axis Labels
