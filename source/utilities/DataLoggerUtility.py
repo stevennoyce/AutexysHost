@@ -201,8 +201,9 @@ def loadJSON_slow(directory, loadFileName):
 		for line in file:
 			try:
 				jsonData.append(parseLine(line))
-			except:
+			except Exception as e:
 				print('Error loading JSON line in file {:}/{:}'.format(directory, loadFileName))
+				print(e)
 	return jsonData
 
 def loadJSON_fast(directory, loadFileName, minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf')):
@@ -415,8 +416,8 @@ def parseLines(fileLines):
 		try:
 			jsonData.append(parseLine(line))
 		except Exception as e:
-			print(e)
 			print('Error loading JSON line')
+			print(e)
 	return jsonData
 
 def parseLine(line, correctLengths=True):
@@ -426,12 +427,13 @@ def parseLine(line, correctLengths=True):
 		equalLengthNames = ['id_data', 'ig_data', 'vds_data', 'vgs_data', 'smu2_i1_data', 'smu2_i2_data', 'smu2_v1_data', 'smu2_v2_data', 'timestamps', 'timestamps_smu2']
 		lengths = [len(data['Results'][n]) for n in equalLengthNames if n in data['Results']]
 		
-		if max(lengths) - min(lengths) == 1:
-			print('Unequal Lengths, altering data length by 1! Beware!')
-			for n in equalLengthNames:
-				if n in data['Results']:
-					if len(data['Results'][n]) == min(lengths):
-						data['Results'][n].append(data['Results'][n][-1])
+		if len(lengths) > 0:
+			if max(lengths) - min(lengths) == 1:
+				print('Unequal Lengths, altering data length by 1! Beware!')
+				for n in equalLengthNames:
+					if n in data['Results']:
+						if len(data['Results'][n]) == min(lengths):
+							data['Results'][n].append(data['Results'][n][-1])
 	
 	return data
 
