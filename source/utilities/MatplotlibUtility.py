@@ -429,6 +429,14 @@ def axisLabels(axis, x_label=None, y_label=None):
 	if(y_label is not None):
 		axis.set_ylabel(y_label)
 
+def axisColors(axis, x_color=None, y_color=None):
+	if(x_color is not None):
+		axis.xaxis.label.set_color(x_color)
+		axis.tick_params(axis='x', colors=x_color)
+	if(y_color is not None):
+		axis.yaxis.label.set_color(y_color)
+		axis.tick_params(axis='y', colors=y_color)
+
 def tickLabels(axis, labelList, rotation=0):
 	axis.set_xticklabels(labelList)
 	axis.set_xticks(range(len(labelList)))

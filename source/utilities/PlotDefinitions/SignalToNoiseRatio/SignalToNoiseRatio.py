@@ -153,12 +153,14 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 			if noiseAxis:
 				setLabel(line2, mode_parameters['legendLabels'][i])
 
-	# Set axis labels
+	# Set axis labels and colors
 	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=plotDescription['plotDefaults']['ylabel'])
 	ax.yaxis.set_major_locator(matplotlib.ticker.LinearLocator(numticks=10))
+	axisColors(ax, y_color=plotDescription['plotDefaults']['colorDefault'][0])
 	if noiseAxis:
 		axisLabels(ax2, x_label=None, y_label=plotDescription['plotDefaults']['y2label'])
 		ax2.yaxis.set_major_locator(matplotlib.ticker.LinearLocator(numticks=10))
+		axisColors(ax2, y_color=plotDescription['plotDefaults']['color2Default'][0])
 
 	# Add Legend and save figure
 	addLegend(ax, loc=mode_parameters['legendLoc'], title=getLegendTitle(deviceHistory, identifiers, plotDescription['plotDefaults'], 'runConfigs', 'GateSweep', mode_parameters, includeDataMin=True, includeDataMax=True, includeVgsChange=True, includeVdsSweep=True, includeIdVgsFit=True), mode_parameters=mode_parameters)
