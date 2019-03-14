@@ -256,6 +256,16 @@ def plotSNR(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineS
 	line = plotSweep(axis, jsonData, lineColor, direction ='both', x_data='gate voltage for snr', y_data='snr', logScale=False, scaleYaxisBy=scaleCurrentBy, lineStyle=lineStyle, errorBars=errorBars)
 	return line
 
+def plotNoiseAxis(axis, x, y, lineColor, lineStyle=None):
+	axis2 = axis.twinx()
+	# Iterate through segments of x and y
+	for i in range(len(x)):
+		if(lineStyle == ''):
+			line2 = axis2.plot(x[i], y[i], color=lineColor, marker='o', markersize=2, linewidth=0, alpha=(1 if(i >= len(x)-2) else 0.25))[0]
+		else:
+			line2 = axis2.plot(x[i], y[i], color=lineColor, marker='o', markersize=2, linewidth=1, alpha=(1 if(i >= len(x)-2) else 0.25), linestyle=lineStyle)[0]
+	return axis2, line2
+
 def plotSubthresholdCurve(axis, jsonData, lineColor, direction='both', fitSubthresholdSwing=False, includeLabel=False, lineStyle=None, errorBars=True):
 	line = plotSweep(axis, jsonData, lineColor, direction, x_data='gate voltage', y_data='drain current', logScale=True, scaleYaxisBy=1, lineStyle=lineStyle, errorBars=errorBars)
 	return line

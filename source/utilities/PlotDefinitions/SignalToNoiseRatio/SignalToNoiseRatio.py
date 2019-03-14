@@ -12,6 +12,7 @@ plotDescription = {
 		'colorDefault': ['#1f77b4'],
 		'xlabel':'$V_{{GS}}^{{Sweep}}$ (V)',
 		'ylabel':'Signal-to-Noise Ratio',
+		'y2label':'Noise (A)',   #TODO figure out how to change unit here
 		'leg_vds_label':'$V_{{DS}}^{{Sweep}}$ = {:}V',
 		'leg_vds_range_label':'$V_{{DS}}^{{min}} = $ {:}V\n'+'$V_{{DS}}^{{max}} = $ {:}V',
 		'leg_vgs_change':'$V_{{GS}}^{{Incr}}$ = {:}V',
@@ -53,11 +54,12 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 
 	# Calculate means and standard deviations
 	normalize = False # Normalize by Vgs? (divides all SNRs by Vgs)
+	noiseAxis = True # Plot noise on second y axis?
 
 	for i in range(len(deviceHistory)):
 		vgs_data_to_plot = [] # Measured, mean is used (better for plotting)
-		gateVoltages_to_plot = [] # Set by system (better for labels)
 		snr_to_plot = []
+		noise_to_plot = []
 
 		steps = deviceHistory[i]['runConfigs']['GateSweep']['stepsInVGSPerDirection']
 
@@ -69,6 +71,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		if mode_parameters['sweepDirection'] == 'both' or mode_parameters['sweepDirection'] == 'forward':
 			my_direction_vgs_data_to_plot = []
 			my_direction_snr_to_plot = []
+			my_direction_noise_to_plot = []
 			for step in range(steps-1): # -1 because the last iteration does not have a step afterwards for mean calculation
 				index = pointsPerVGS * step
 
@@ -87,14 +90,18 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 					# Gate voltages - put inside the if statement so that the two lists are same length
 					my_direction_vgs_data_to_plot.append(statistics.mean(deviceHistory[i]['Results']['vgs_data'][0][index:index+pointsPerVGS]))
 
+					# Same with noise axis data - inside if statement so the two lists are same length
+					my_direction_noise_to_plot.append(my_drain_current_stDev)
+
 			vgs_data_to_plot.append(my_direction_vgs_data_to_plot)
 			snr_to_plot.append(my_direction_snr_to_plot)
+			noise_to_plot.append(my_direction_noise_to_plot)
 
 		# Reverse direction
 		if mode_parameters['sweepDirection'] == 'both' or mode_parameters['sweepDirection'] == 'reverse':
 			my_direction_vgs_data_to_plot = []
-			my_direction_gateVoltages_to_plot = []
 			my_direction_snr_to_plot = []
+			my_direction_noise_to_plot = []
 
 			if mode_parameters['sweepDirection'] == 'both':
 				sweep_index = 1
@@ -118,8 +125,12 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 					# Gate voltages - inside if statement so that lists are same length
 					my_direction_vgs_data_to_plot.append(statistics.mean(deviceHistory[i]['Results']['vgs_data'][sweep_index][index:index+pointsPerVGS]))
 
+					# Same with noise axis data - inside if statement so the two lists are same length
+					my_direction_noise_to_plot.append(my_drain_current_stDev)
+
 			vgs_data_to_plot.append(my_direction_vgs_data_to_plot)
 			snr_to_plot.append(my_direction_snr_to_plot)
+			noise_to_plot.append(my_direction_noise_to_plot)
 
 		# Plot (both directions on same plot)
 		deviceHistory[i]['Results']['vgs_data_to_plot'] = vgs_data_to_plot
@@ -129,12 +140,20 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		# print('snr_to_plot', snr_to_plot)
 
 		line = plotSNR(ax, deviceHistory[i], colors[i], direction=mode_parameters['sweepDirection'], scaleCurrentBy=1, lineStyle=None, errorBars=mode_parameters['enableErrorBars'])
+
+		# Add second noise axis
+		if noiseAxis:
+			ax2, line2 = plotNoiseAxis(ax, vgs_data_to_plot, noise_to_plot, colors[i], lineStyle=None)
+
 		if(len(deviceHistory) == len(mode_parameters['legendLabels'])):
 			setLabel(line, mode_parameters['legendLabels'][i])
+			setLabel(line2, mode_parameters['legendLabels'][i])
 
 	# Set axis labels
 	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=plotDescription['plotDefaults']['ylabel'])
+	axisLabels(ax2, x_label=None, y_label=plotDescription['plotDefaults']['y2label'])
 	ax.yaxis.set_major_locator(matplotlib.ticker.LinearLocator(numticks=10))
+	ax2.yaxis.set_major_locator(matplotlib.ticker.LinearLocator(numticks=10))
 
 	# Add Legend and save figure
 	addLegend(ax, loc=mode_parameters['legendLoc'], title=getLegendTitle(deviceHistory, identifiers, plotDescription['plotDefaults'], 'runConfigs', 'GateSweep', mode_parameters, includeDataMin=True, includeDataMax=True, includeVgsChange=True, includeVdsSweep=True, includeIdVgsFit=True), mode_parameters=mode_parameters)
