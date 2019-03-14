@@ -10,9 +10,10 @@ plotDescription = {
 		'figsize':(2,2.5),
 		'colorMap':'white_blue_black',
 		'colorDefault': ['#1f77b4'],
+		'color2Default': ['#009933'],
 		'xlabel':'$V_{{GS}}^{{Sweep}}$ (V)',
 		'ylabel':'Signal-to-Noise Ratio',
-		'y2label':'Noise (A)',   #TODO figure out how to change unit here
+		'y2label':'Noise (A)',
 		'leg_vds_label':'$V_{{DS}}^{{Sweep}}$ = {:}V',
 		'leg_vds_range_label':'$V_{{DS}}^{{min}} = $ {:}V\n'+'$V_{{DS}}^{{max}} = $ {:}V',
 		'leg_vgs_change':'$V_{{GS}}^{{Incr}}$ = {:}V',
@@ -46,11 +47,13 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 
 	# Init Figure
 	fig, ax = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
+	ax2 = None
 
 	# Build Color Map and Color Bar
 	totalTime = timeWithUnits(deviceHistory[-1]['Results']['timestamps'][0][0] - deviceHistory[0]['Results']['timestamps'][-1][-1])
 	holdTime = '[$t_{{Hold}}$ = {}]'.format(timeWithUnits(deviceHistory[1]['Results']['timestamps'][-1][-1] - deviceHistory[0]['Results']['timestamps'][0][0])) if(len(deviceHistory) >= 2) else ('[$t_{{Hold}}$ = 0]')
 	colors = setupColors(fig, len(deviceHistory), colorOverride=mode_parameters['colorsOverride'], colorDefault=plotDescription['plotDefaults']['colorDefault'], colorMapName=plotDescription['plotDefaults']['colorMap'], colorMapStart=0.8, colorMapEnd=0.15, enableColorBar=mode_parameters['enableColorBar'], colorBarTicks=[0,0.6,1], colorBarTickLabels=[totalTime, holdTime, '$t_0$'], colorBarAxisLabel='')
+	colors2 = setupColors(fig, len(deviceHistory), colorOverride=mode_parameters['colorsOverride'], colorDefault=plotDescription['plotDefaults']['color2Default'], colorMapName=plotDescription['plotDefaults']['colorMap'], colorMapStart=0.8, colorMapEnd=0.15, enableColorBar=mode_parameters['enableColorBar'], colorBarTicks=[0,0.6,1], colorBarTickLabels=[totalTime, holdTime, '$t_0$'], colorBarAxisLabel='')
 
 	# Calculate means and standard deviations
 	normalize = False # Normalize by Vgs? (divides all SNRs by Vgs)
@@ -143,17 +146,19 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 
 		# Add second noise axis
 		if noiseAxis:
-			ax2, line2 = plotNoiseAxis(ax, vgs_data_to_plot, noise_to_plot, colors[i], lineStyle=None)
+			ax2, line2 = plotNoiseAxis(ax, vgs_data_to_plot, noise_to_plot, colors2[i], lineStyle=None)
 
 		if(len(deviceHistory) == len(mode_parameters['legendLabels'])):
 			setLabel(line, mode_parameters['legendLabels'][i])
-			setLabel(line2, mode_parameters['legendLabels'][i])
+			if noiseAxis:
+				setLabel(line2, mode_parameters['legendLabels'][i])
 
 	# Set axis labels
 	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=plotDescription['plotDefaults']['ylabel'])
-	axisLabels(ax2, x_label=None, y_label=plotDescription['plotDefaults']['y2label'])
 	ax.yaxis.set_major_locator(matplotlib.ticker.LinearLocator(numticks=10))
-	ax2.yaxis.set_major_locator(matplotlib.ticker.LinearLocator(numticks=10))
+	if noiseAxis:
+		axisLabels(ax2, x_label=None, y_label=plotDescription['plotDefaults']['y2label'])
+		ax2.yaxis.set_major_locator(matplotlib.ticker.LinearLocator(numticks=10))
 
 	# Add Legend and save figure
 	addLegend(ax, loc=mode_parameters['legendLoc'], title=getLegendTitle(deviceHistory, identifiers, plotDescription['plotDefaults'], 'runConfigs', 'GateSweep', mode_parameters, includeDataMin=True, includeDataMax=True, includeVgsChange=True, includeVdsSweep=True, includeIdVgsFit=True), mode_parameters=mode_parameters)
