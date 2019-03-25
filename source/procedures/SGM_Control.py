@@ -191,27 +191,30 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 	smu_device.turnChannelsOn()
 	for i in range(5):
 		print(smu_device.takeMeasurement())
-		time.sleep(0.5)
+		time.sleep(0.1)
 	
 	# Turn the voltage measurement channels on and wait
 	print('Turning voltage measurement channels on')
 	smu_secondary.turnChannelsOn()
-	time.sleep(0.5)
+	time.sleep(0.1)
 	
 	# Set SMU compliance to setpoints
 	print('Setting device compliance to setpoint')
 	smu_device.setComplianceCurrent(afm_parameters['complianceCurrent'])
-	time.sleep(0.5)
+	time.sleep(0.1)
 	
 	print('Setting voltage measurement compliance to setpoint')
 	smu_secondary.setComplianceVoltage(afm_parameters['complianceVoltage'])
-	time.sleep(0.5)
+	time.sleep(0.1)
+	
+	print('Waiting for specified delay time before applying voltages')
+	time.sleep(afm_parameters['delayBeforeApplyingVoltages'])
 	
 	# Apply Vgs and Vds to the device
 	print('Ramping drain to source voltage')
-	smu_device.rampDrainVoltageTo(vds, steps=150)
+	smu_device.rampDrainVoltageTo(vds, steps=40)
 	print('Ramping gate to source voltage')
-	smu_device.rampGateVoltageTo(vgs, steps=150)
+	smu_device.rampGateVoltageTo(vgs, steps=40)
 	
 	# Take a measurement to update the SMU visual displays
 	smu_device.takeMeasurement()
@@ -322,11 +325,11 @@ def runAFMline(parameters, smu_systems, sleep_time1, sleep_time2):
 	results_device = smu_device.endSweep()
 	results_secondary = smu_secondary.endSweep()
 	
-	# print(results_secondary) # Temporary debug line
+	endTime = time.time()
 	
 	# Adjust timestamps to be in realtime values
-	timestamps_device = [startTime + t for t in results_device['timestamps']]
-	timestamps_smu2 = [startTime + t for t in results_secondary['timestamps']]
+	timestamps_device = [endTime + t for t in results_device['timestamps']]
+	timestamps_smu2 = [endTime + t for t in results_secondary['timestamps']]
 	
 	XVoltageKey = 'Vds_data'
 	YVoltageKey = 'Vgs_data'
