@@ -17,6 +17,10 @@ def runAutoGateSweep(parameters, smu_instance, arduino_instance):
 	sweepCount = 0
 	startTime = time.time()
 	
+	# If no drain voltage set-point list given, use the set-point from the GateSweep runConfig
+	if(len(ags_parameters['drainVoltageSetPoints']) == 0):
+		ags_parameters['drainVoltageSetPoints'] = [parameters['runConfigs']['GateSweep']['drainVoltageSetPoint']]
+	
 	# === START ===
 	for i in range(len(ags_parameters['drainVoltageSetPoints'])):
 		# Make copy of parameters to run GateSweep, but modify the Vds setpoint
