@@ -53,23 +53,27 @@ t_inv = 45e-8			#[cm] Inversion Layer Thickness (Howard and Stern Nov. 15, 1967)
 # Level 1 SPICE NMOSFET Model
 NMOSFET_V_DSat_fn = lambda V_GS, V_TN: (V_GS - V_TN)
 NMOSFET_g_m_fn = lambda V_GS, V_DS, V_TN, K_N: ( (K_N*V_DS) if(V_DS < NMOSFET_V_DSat_fn(V_GS, V_TN)) else (K_N)*(V_GS - V_TN) )
-NMOSFET_I_D_subth_fn = lambda V_GS, V_DS, V_TN, K_N, SS_mV_dec: ((7.5*K_N) * ((SS_mV_dec/1000)/(ln(10)*kB_T_q) - 1) * ((kB_T_q)**2) * exp((V_GS - V_TN) * ln(10)/(SS_mV_dec/1000)) * (1 - exp(-V_DS/kB_T_q)))
+NMOSFET_body_factor_fn = lambda SS_mV_dec: ((SS_mV_dec/1000)/(ln(10)*kB_T_q))
+NMOSFET_I_D0_fn = lambda K_N, SS_mV_dec: (10 * (K_N) * sqrt(SS_mV_dec/1000)*(NMOSFET_body_factor_fn(SS_mV_dec)-1) * ((kB_T_q)**2))		# Cannonical: ((K_N) * ((SS_mV_dec/1000)/(ln(10)*kB_T_q) - 1) * ((kB_T_q)**2))
+NMOSFET_I_D_subth_fn = lambda V_GS, V_DS, V_TN, K_N, SS_mV_dec: (NMOSFET_I_D0_fn(K_N, SS_mV_dec) * exp((V_GS - V_TN) * ln(10)/(SS_mV_dec/1000)) * (1 - exp(-V_DS/kB_T_q)))
 NMOSFET_I_D_lin_fn = lambda V_GS, V_DS, V_TN, K_N: ((K_N)*((V_GS - V_TN)*V_DS - 0.5*(V_DS**2)))
 NMOSFET_I_D_sat_fn = lambda V_GS, V_TN, K_N: ((K_N/2)*((V_GS - V_TN)**2))
 NMOSFET_I_D_on_fn = lambda V_GS, V_DS, V_TN, K_N: (NMOSFET_I_D_lin_fn(V_GS, V_DS, V_TN, K_N) if (V_DS < NMOSFET_V_DSat_fn(V_GS, V_TN)) else NMOSFET_I_D_sat_fn(V_GS, V_TN, K_N))
-NMOSFET_I_D_intermed_fn = lambda V_GS, V_DS, V_TN, K_N, SS_mV_dec: (NMOSFET_I_D_subth_fn(V_GS, V_DS, V_TN, K_N, SS_mV_dec))
-NMOSFET_I_D_fn = lambda V_GS, V_DS, V_TN, K_N, SS_mV_dec, I_OFF, smooth_over=0.25: (max(NMOSFET_I_D_subth_fn(V_GS, V_DS, V_TN, K_N, SS_mV_dec) if(V_GS < V_TN) else ((NMOSFET_I_D_intermed_fn(V_GS, V_DS, V_TN, K_N, SS_mV_dec)) if(V_GS < V_TN + smooth_over*SS_mV_dec/1000) else((NMOSFET_I_D_intermed_fn(V_TN + smooth_over*SS_mV_dec/1000, V_DS, V_TN, K_N, SS_mV_dec) - NMOSFET_I_D_on_fn(V_TN + smooth_over*SS_mV_dec/1000, V_DS, V_TN, K_N)) + NMOSFET_I_D_on_fn(V_GS, V_DS, V_TN, K_N))), I_OFF))
+NMOSFET_I_D_intermed_fn = lambda V_GS, V_DS, V_TN, K_N, SS_mV_dec, smooth_over: (((exp(-(V_GS-V_TN)/(smooth_over*SS_mV_dec/1000)))*NMOSFET_I_D_subth_fn(V_GS, V_DS, V_TN, K_N, SS_mV_dec) + (1-exp(-(V_GS-V_TN)/(smooth_over*SS_mV_dec/1000)))*(NMOSFET_I_D_subth_fn(0, V_DS, 0, K_N, SS_mV_dec) + NMOSFET_I_D_on_fn(V_GS, V_DS, V_TN, K_N))) if(smooth_over > 0) else (NMOSFET_I_D_subth_fn(0, V_DS, 0, K_N, SS_mV_dec)))
+NMOSFET_I_D_fn = lambda V_GS, V_DS, V_TN, K_N, SS_mV_dec, I_OFF, smooth_over=0.5: (max(NMOSFET_I_D_subth_fn(V_GS, V_DS, V_TN, K_N, SS_mV_dec) if(V_GS < V_TN) else ((NMOSFET_I_D_intermed_fn(V_GS, V_DS, V_TN, K_N, SS_mV_dec, smooth_over=smooth_over)) if(V_GS < V_TN + smooth_over*SS_mV_dec/1000) else((NMOSFET_I_D_intermed_fn(V_TN + smooth_over*SS_mV_dec/1000, V_DS, V_TN, K_N, SS_mV_dec, smooth_over=smooth_over) - NMOSFET_I_D_on_fn(V_TN + smooth_over*SS_mV_dec/1000, V_DS, V_TN, K_N)) + NMOSFET_I_D_on_fn(V_GS, V_DS, V_TN, K_N))), I_OFF))
 #NMOSFET_I_D_ChLenMod_fn = lambda V_GS, V_DS, V_TN, K_N, SS_mV_dec, I_OFF, lambda_N: (NMOSFET_I_D_fn(V_GS, V_DS, V_TN, K_N, SS_mV_dec, I_OFF) * (1 + lambda_N*V_DS))
 
 # Level 1 SPICE PMOSFET Model
 PMOSFET_V_DSat_fn = lambda V_GS, V_TP: (V_GS - V_TP)
 PMOSFET_g_m_fn = lambda V_GS, V_DS, V_TP, K_P: ( (K_P*V_DS) if(V_DS > PMOSFET_V_DSat_fn(V_GS, V_TP)) else (K_P)*(V_GS - V_TP) )
-PMOSFET_I_D_subth_fn = lambda V_GS, V_DS, V_TP, K_P, SS_mV_dec: ((-7.5*K_P) * ((SS_mV_dec/1000)/(ln(10)*kB_T_q) - 1) * ((kB_T_q)**2) * exp(-(V_GS - V_TP) * ln(10)/(SS_mV_dec/1000)) * (1 - exp(-abs(V_DS)/kB_T_q)))
+PMOSFET_body_factor_fn = lambda SS_mV_dec: ((SS_mV_dec/1000)/(ln(10)*kB_T_q))
+PMOSFET_I_D0_fn = lambda K_P, SS_mV_dec: (10 * (K_P) * sqrt(SS_mV_dec/1000)*(PMOSFET_body_factor_fn(SS_mV_dec)-1) * ((kB_T_q)**2))		# Cannonical: ((K_P) * ((SS_mV_dec/1000)/(ln(10)*kB_T_q) - 1) * ((kB_T_q)**2))
+PMOSFET_I_D_subth_fn = lambda V_GS, V_DS, V_TP, K_P, SS_mV_dec: (-PMOSFET_I_D0_fn(K_P, SS_mV_dec) * exp(-(V_GS - V_TP) * ln(10)/(SS_mV_dec/1000)) * (1 - exp(-abs(V_DS)/kB_T_q)))
 PMOSFET_I_D_lin_fn = lambda V_GS, V_DS, V_TP, K_P: ((-K_P)*((V_GS - V_TP)*V_DS - 0.5*(V_DS**2)))
 PMOSFET_I_D_sat_fn = lambda V_GS, V_TP, K_P: ((-K_P/2)*((V_GS - V_TP)**2))
 PMOSFET_I_D_on_fn = lambda V_GS, V_DS, V_TP, K_P: (PMOSFET_I_D_lin_fn(V_GS, V_DS, V_TP, K_P) if (V_DS > PMOSFET_V_DSat_fn(V_GS, V_TP)) else PMOSFET_I_D_sat_fn(V_GS, V_TP, K_P))
-PMOSFET_I_D_intermed_fn = lambda V_GS, V_DS, V_TP, K_P, SS_mV_dec: (PMOSFET_I_D_subth_fn(V_GS, V_DS, V_TP, K_P, SS_mV_dec))
-PMOSFET_I_D_fn = lambda V_GS, V_DS, V_TP, K_P, SS_mV_dec, I_OFF, smooth_over=0.25: (min(PMOSFET_I_D_subth_fn(V_GS, V_DS, V_TP, K_P, SS_mV_dec) if(V_GS > V_TP) else ((PMOSFET_I_D_intermed_fn(V_GS, V_DS, V_TP, K_P, SS_mV_dec)) if(V_GS > V_TP - smooth_over*SS_mV_dec/1000) else((PMOSFET_I_D_intermed_fn(V_TP - smooth_over*SS_mV_dec/1000, V_DS, V_TP, K_P, SS_mV_dec) - PMOSFET_I_D_on_fn(V_TP - smooth_over*SS_mV_dec/1000, V_DS, V_TP, K_P)) + PMOSFET_I_D_on_fn(V_GS, V_DS, V_TP, K_P))), -abs(I_OFF)))
+PMOSFET_I_D_intermed_fn = lambda V_GS, V_DS, V_TP, K_P, SS_mV_dec, smooth_over: (((exp((V_GS-V_TP)/(smooth_over*SS_mV_dec/1000)))*PMOSFET_I_D_subth_fn(V_GS, V_DS, V_TP, K_P, SS_mV_dec) + (1-exp((V_GS-V_TP)/(smooth_over*SS_mV_dec/1000)))*(PMOSFET_I_D_subth_fn(0, V_DS, 0, K_P, SS_mV_dec) + PMOSFET_I_D_on_fn(V_GS, V_DS, V_TP, K_P))) if(smooth_over > 0) else (NMOSFET_I_D_subth_fn(0, V_DS, 0, K_N, SS_mV_dec)))
+PMOSFET_I_D_fn = lambda V_GS, V_DS, V_TP, K_P, SS_mV_dec, I_OFF, smooth_over=0.5: (min(PMOSFET_I_D_subth_fn(V_GS, V_DS, V_TP, K_P, SS_mV_dec) if(V_GS > V_TP) else ((PMOSFET_I_D_intermed_fn(V_GS, V_DS, V_TP, K_P, SS_mV_dec, smooth_over=smooth_over)) if(V_GS > V_TP - smooth_over*SS_mV_dec/1000) else((PMOSFET_I_D_intermed_fn(V_TP - smooth_over*SS_mV_dec/1000, V_DS, V_TP, K_P, SS_mV_dec, smooth_over=smooth_over) - PMOSFET_I_D_on_fn(V_TP - smooth_over*SS_mV_dec/1000, V_DS, V_TP, K_P)) + PMOSFET_I_D_on_fn(V_GS, V_DS, V_TP, K_P))), -abs(I_OFF)))
 #PMOSFET_I_D_ChLenMod_fn = lambda  V_GS, V_DS, V_TP, K_P, SS_mV_dec, lambda_P: (PMOSFET_I_D_fn(V_GS, V_DS, V_TP, K_P, SS_mV_dec) * (1 + lambda_P*V_DS))
 
 fet_mobility_fn = lambda g_m_max, V_DS, C_ox, W_ch, L_ch: (g_m_max/(C_ox * W_ch/L_ch * V_DS))
@@ -195,12 +199,12 @@ if __name__ == '__main__':
 		
 	V_DS_data = np.linspace(0, 4, 500)
 	V_GS = 1.0	
-	V_GS_data = np.linspace(-4, 4, 500)
+	V_GS_data = np.linspace(-3, 3, 500)
 	V_DS = 1.0
 	
 	if(True):
 		I_DN = (np.array([NMOSFET_I_D_fn(vgs,  abs(V_DS), 0, 1e-6, 500, 1e-10)*(1+random.random()/10) for vgs in V_GS_data]))
-		I_DP = (np.array([PMOSFET_I_D_fn(vgs, -abs(V_DS), 0, 1e-6, 500, 1e-10)*(1+random.random()/10) for vgs in V_GS_data]))
+		I_DP = (np.array([PMOSFET_I_D_fn(vgs, -abs(V_DS), 0, 1e-6, 300, 1e-10)*(1+random.random()/10) for vgs in V_GS_data]))
 		
 		fitted_vals_N, fitted_model_parameters_N, fitted_model_parameters_kw_N = NMOSFET_Fit(V_GS_data, I_DN, abs(V_DS))
 		fitted_vals_P, fitted_model_parameters_P, fitted_model_parameters_kw_P = PMOSFET_Fit(V_GS_data, I_DP, -abs(V_DS))
@@ -208,25 +212,26 @@ if __name__ == '__main__':
 		print(fitted_model_parameters_kw_N)
 		print(fitted_model_parameters_kw_P)
 		
-		plot_data = I_DN
-		plot_model = fitted_vals_N
+		plot_data = I_DP
+		plot_model = fitted_vals_P
 		xvals = V_GS_data
 		
-		fig1, ax1 = plt.subplots(1,1, figsize=(3,3))
+		fig1, ax1 = plt.subplots(1,1, figsize=(4,4))
 		ax1.plot(xvals, abs(plot_data), marker='o', markersize=2, linewidth=1)
 		ax1.plot(xvals, abs(np.array(plot_model)))
 		ax1.set_ylabel('$I_{{D}}$ ($\\mu A$)')
 		ax1.set_xlabel('$V_{{GS}}$ ($V$)')
 		ax1.set_yscale('log')
+		fig1.tight_layout()
 		plt.show()
 	else:
-		I_DN_1 = (np.array([NMOSFET_I_D_fn(1, vds, 0, 1e-6, 1000, 1e-10)*(1) for vds in V_DS_data]))
-		I_DN_2 = (np.array([NMOSFET_I_D_fn(2, vds, 0, 1e-6, 1000, 1e-10)*(1) for vds in V_DS_data]))
-		I_DN_3 = (np.array([NMOSFET_I_D_fn(3, vds, 0, 1e-6, 1000, 1e-10)*(1) for vds in V_DS_data]))
-		I_DN_4 = (np.array([NMOSFET_I_D_fn(4, vds, 0, 1e-6, 1000, 1e-10)*(1) for vds in V_DS_data]))
-		I_DN_5 = (np.array([NMOSFET_I_D_fn(5, vds, 0, 1e-6, 1000, 1e-10)*(1) for vds in V_DS_data]))
+		I_DN_1 = (np.array([NMOSFET_I_D_fn(vgs, V_DS, 0, 5e-6, 300, 1e-10)*(1) for vgs in V_GS_data]))
+		I_DN_2 = (np.array([NMOSFET_I_D_fn(vgs, V_DS, 0, 5e-6, 500, 1e-10)*(1) for vgs in V_GS_data]))*10
+		I_DN_3 = (np.array([NMOSFET_I_D_fn(vgs, V_DS, 0, 5e-6, 1000, 1e-10)*(1) for vgs in V_GS_data]))*100
+		I_DN_4 = (np.array([NMOSFET_I_D_fn(vgs, V_DS, 0, 5e-6, 2000, 1e-10)*(1) for vgs in V_GS_data]))*1000
+		I_DN_5 = (np.array([NMOSFET_I_D_fn(vgs, V_DS, 0, 5e-6, 4000, 1e-10)*(1) for vgs in V_GS_data]))*10000
 		
-		fig1, ax1 = plt.subplots(1,1, figsize=(3,3))
+		fig1, ax1 = plt.subplots(1,1, figsize=(4,4))
 		ax1.plot(V_DS_data, abs(I_DN_1), marker='o', markersize=2, linewidth=1)
 		ax1.plot(V_DS_data, abs(I_DN_2), marker='o', markersize=2, linewidth=1)
 		ax1.plot(V_DS_data, abs(I_DN_3), marker='o', markersize=2, linewidth=1)
@@ -234,6 +239,8 @@ if __name__ == '__main__':
 		ax1.plot(V_DS_data, abs(I_DN_5), marker='o', markersize=2, linewidth=1)
 		ax1.set_ylabel('$I_{{D}}$ ($\\mu A$)')
 		ax1.set_xlabel('$V_{{GS}}$ ($V$)')
+		ax1.set_yscale('log')
+		fig1.tight_layout()
 		plt.show()
 	
 	
