@@ -35,6 +35,7 @@ def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False)
 	print('Beginning to sweep drain voltage.')
 	results = runDrainSweep( smu_instance, 
 							isFastSweep=ds_parameters['isFastSweep'],
+							fastSweepSpeed=ds_parameters['fastSweepSpeed'],
 							gateVoltageSetPoint=ds_parameters['gateVoltageSetPoint'],
 							drainVoltageMinimum=ds_parameters['drainVoltageMinimum'], 
 							drainVoltageMaximum=ds_parameters['drainVoltageMaximum'], 
@@ -68,7 +69,7 @@ def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False)
 	return jsonData
 
 # === Data Collection ===
-def runDrainSweep(smu_instance, isFastSweep, gateVoltageSetPoint, drainVoltageMinimum, drainVoltageMaximum, stepsInVDSPerDirection, pointsPerVDS, drainVoltageRamps):
+def runDrainSweep(smu_instance, isFastSweep, fastSweepSpeed, gateVoltageSetPoint, drainVoltageMinimum, drainVoltageMaximum, stepsInVDSPerDirection, pointsPerVDS, drainVoltageRamps):
 	# Generate list of drain voltages to apply
 	drainVoltages = dgu.sweepValuesWithDuplicates(drainVoltageMinimum, drainVoltageMaximum, stepsInVDSPerDirection*2*pointsPerVDS, pointsPerVDS, ramps=drainVoltageRamps)
 	
@@ -83,9 +84,11 @@ def runDrainSweep(smu_instance, isFastSweep, gateVoltageSetPoint, drainVoltageMi
 	time.sleep(1)
 
 	if(isFastSweep):
+		triggerInterval = 1/fastSweepSpeed
+		
 		# Use SMU built-in sweep to sweep the drain forwards and backwards
-		forward_measurements = smu_instance.takeSweep(drainVoltageMinimum, drainVoltageMaximum, gateVoltageSetPoint, gateVoltageSetPoint, stepsInVDSPerDirection)
-		reverse_measurements = smu_instance.takeSweep(drainVoltageMaximum, drainVoltageMinimum, gateVoltageSetPoint, gateVoltageSetPoint, stepsInVDSPerDirection)
+		forward_measurements = smu_instance.takeSweep(drainVoltageMinimum, drainVoltageMaximum, gateVoltageSetPoint, gateVoltageSetPoint, stepsInVDSPerDirection, , triggerInterval=triggerInterval)
+		reverse_measurements = smu_instance.takeSweep(drainVoltageMaximum, drainVoltageMinimum, gateVoltageSetPoint, gateVoltageSetPoint, stepsInVDSPerDirection, , triggerInterval=triggerInterval)
 
 		# Save forward measurements
 		vds_data[0] = forward_measurements['Vds_data']

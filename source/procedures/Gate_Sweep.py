@@ -35,6 +35,7 @@ def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False)
 	print('Beginning to sweep gate voltage.')
 	results = runGateSweep( smu_instance, 
 							isFastSweep=gs_parameters['isFastSweep'],
+							fastSweepSpeed=gs_parameters['fastSweepSpeed'],
 							drainVoltageSetPoint=gs_parameters['drainVoltageSetPoint'],
 							gateVoltageMinimum=gs_parameters['gateVoltageMinimum'], 
 							gateVoltageMaximum=gs_parameters['gateVoltageMaximum'], 
@@ -69,7 +70,7 @@ def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False)
 	return jsonData
 
 # === Data Collection ===
-def runGateSweep(smu_instance, isFastSweep, drainVoltageSetPoint, gateVoltageMinimum, gateVoltageMaximum, stepsInVGSPerDirection, pointsPerVGS, gateVoltageRamps):
+def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint, gateVoltageMinimum, gateVoltageMaximum, stepsInVGSPerDirection, pointsPerVGS, gateVoltageRamps):
 	# Generate list of gate voltages to apply
 	gateVoltages = dgu.sweepValuesWithDuplicates(gateVoltageMinimum, gateVoltageMaximum, stepsInVGSPerDirection*2*pointsPerVGS, pointsPerVGS, ramps=gateVoltageRamps)
 	
@@ -84,9 +85,11 @@ def runGateSweep(smu_instance, isFastSweep, drainVoltageSetPoint, gateVoltageMin
 	time.sleep(1)
 
 	if(isFastSweep):
+		triggerInterval = 1/fastSweepSpeed
+		
 		# Use SMU built-in sweep to sweep the gate forwards and backwards
-		forward_measurements = smu_instance.takeSweep(drainVoltageSetPoint, drainVoltageSetPoint, gateVoltageMinimum, gateVoltageMaximum, stepsInVGSPerDirection)
-		reverse_measurements = smu_instance.takeSweep(drainVoltageSetPoint, drainVoltageSetPoint, gateVoltageMaximum, gateVoltageMinimum, stepsInVGSPerDirection)
+		forward_measurements = smu_instance.takeSweep(drainVoltageSetPoint, drainVoltageSetPoint, gateVoltageMinimum, gateVoltageMaximum, stepsInVGSPerDirection, triggerInterval=triggerInterval)
+		reverse_measurements = smu_instance.takeSweep(drainVoltageSetPoint, drainVoltageSetPoint, gateVoltageMaximum, gateVoltageMinimum, stepsInVGSPerDirection, triggerInterval=triggerInterval)
 
 		# Save forward measurements
 		vds_data[0] = forward_measurements['Vds_data']
