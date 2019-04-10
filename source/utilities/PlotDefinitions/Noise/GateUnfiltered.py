@@ -37,7 +37,8 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 
 	# Plot	
 	for i in range(len(drainVoltages)):
-		line 	 = ax.plot(gateVoltages[i], np.array(unfilteredNoise[i]) * current_scale, color=colors[i], marker='o', markersize=4, linewidth=1, linestyle=None, label='$V_{{DS}}$ = {:.2f} V'.format(drainVoltages[i]))
+		line 	 = ax.plot(gateVoltages[i], np.array(unfilteredNoise[i]) * current_scale, color=colors[i], marker='o', markersize=4, linewidth=1, linestyle=None)
+		line[0].set_label('$V_{{DS}}$ = {:.2f} V'.format(drainVoltages[i]))
 		if(plotDescription['plotDefaults']['includeFiltered']):
 			line = ax.plot(gateVoltages[i], np.array(filteredNoise[i]) * current_scale, color=colors[i], marker='o', markersize=4, linewidth=1, linestyle=None)
 
