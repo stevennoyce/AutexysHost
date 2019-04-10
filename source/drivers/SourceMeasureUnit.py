@@ -335,9 +335,9 @@ class B2912A(SourceMeasureUnit):
 	def setupSweep(self, src1start, src1stop, src2start, src2stop, points, triggerInterval=None, src1vals=None, src2vals=None):
 		points = int(points)
 		
+		# Set up voltages to apply
 		if src1vals is None:
 			self.smu.write(":source1:{}:mode sweep".format(self.source1_mode))
-			
 			self.smu.write(":source1:{}:start {}".format(self.source1_mode, src1start))
 			self.smu.write(":source1:{}:stop {}".format(self.source1_mode, src1stop)) 
 			self.smu.write(":source1:{}:points {}".format(self.source1_mode, points))
@@ -347,7 +347,6 @@ class B2912A(SourceMeasureUnit):
 		
 		if src2vals is None:
 			self.smu.write(":source2:{}:mode sweep".format(self.source2_mode))
-			
 			self.smu.write(":source2:{}:start {}".format(self.source2_mode, src2start))
 			self.smu.write(":source2:{}:stop {}".format(self.source2_mode, src2stop)) 
 			self.smu.write(":source2:{}:points {}".format(self.source2_mode, points))
@@ -355,6 +354,7 @@ class B2912A(SourceMeasureUnit):
 			self.smu.write(':source2:{}:mode list'.format(self.source2_mode))
 			self.smu.write(':source2:list:{} {}'.format(self.source2_mode, ','.join(map(str, src2vals))))
 		
+		# Set up number of measurements to take
 		if triggerInterval is None:
 			self.smu.write(":trigger1:source aint")
 			self.smu.write(":trigger1:count {}".format(points))
@@ -386,12 +386,17 @@ class B2912A(SourceMeasureUnit):
 		
 		return timeToTakeMeasurements
 	
-	def endSweep(self, endMode=None):
-		current1s = self.smu.query_ascii_values(":fetch:arr:curr? (@1)")
-		voltage1s = self.smu.query_ascii_values(":fetch:arr:voltage? (@1)")
-		current2s = self.smu.query_ascii_values(":fetch:arr:curr? (@2)")
-		voltage2s = self.smu.query_ascii_values(":fetch:arr:voltage? (@2)")
-		timestamps = self.smu.query_ascii_values(":fetch:array:time? (@2)")
+	def endSweep(self, endMode=None, includeCurrents=[True, True], includeVoltages=[True,True], includeTimes=True):
+		if(not isinstance(includeCurrents, list)):
+			includeCurrents = [includeCurrents, includeCurrents]
+		if(not isinstance(includeVoltages, list)):
+			includeVoltages = [includeVoltages, includeVoltages]
+		
+		current1s = self.smu.query_ascii_values(":fetch:arr:curr? (@1)") 	if(includeCurrents[0]) else None
+		voltage1s = self.smu.query_ascii_values(":fetch:arr:voltage? (@1)") if(includeVoltages[0]) else None
+		current2s = self.smu.query_ascii_values(":fetch:arr:curr? (@2)")	if(includeCurrents[1]) else None
+		voltage2s = self.smu.query_ascii_values(":fetch:arr:voltage? (@2)") if(includeVoltages[1]) else None
+		timestamps = self.smu.query_ascii_values(":fetch:array:time? (@2)") if(includeTimes) else None
 		
 		if(endMode is not None):
 			self.smu.write(":source1:{}:mode {}".format(self.source1_mode, endMode))
@@ -405,12 +410,12 @@ class B2912A(SourceMeasureUnit):
 			'timestamps': timestamps
 		}
 	
-	def takeSweep(self, src1start, src1stop, src2start, src2stop, points, triggerInterval=None, src1vals=None, src2vals=None):
+	def takeSweep(self, src1start, src1stop, src2start, src2stop, points, triggerInterval=None, src1vals=None, src2vals=None, includeCurrents=True, includeVoltages=True, includeTimes=True):
 		timeToTakeMeasurements = self.startSweep(src1start, src1stop, src2start, src2stop, points, triggerInterval=triggerInterval, src1vals=src1vals, src2vals=src2vals)
 		
 		time.sleep(timeToTakeMeasurements)
 		
-		return self.endSweep(endMode='fixed')
+		return self.endSweep(endMode='fixed', includeCurrents=includeCurrents, includeVoltages=includeVoltages, includeTimes=includeTimes)
 	
 	def arm(self, count=1):
 		"""Arm the instrument.
