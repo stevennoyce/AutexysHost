@@ -4,20 +4,20 @@ import numpy as np
 
 plotDescription = {
 	'plotCategory': 'device',
-	'priority': 540,
+	'priority': 600,
 	'dataFileDependencies': ['NoiseCollection.json'],
 	'plotDefaults': {
 		'figsize':(2,2.5),
 		'includeOriginOnYaxis':True,
 		'automaticAxisLabels':False,
 		'includeFiltered': False,
-		'colorMap':'white_purple_black',
-		'colorDefault': ['#7363af'],
-		'xlabel':'$V_{{GS}}^{{Sweep}}$ (V)',
-		'ylabel':'$I_{{D}}$ (A)',
-		'micro_ylabel':'$I_{{D}}$ ($\\mu$A)',
-		'nano_ylabel':'$I_{{D}}$ (nA)',
-		'pico_ylabel':'$I_{{D}}$ (pA)',
+		'colorMap':'white_blue_black',
+		'colorDefault': ['#f2b134'],
+		'xlabel':'$V_{{GS}}$ (V)',
+		'ylabel':'$\\Delta$ $I_{{D}}$ (A)',
+		'micro_ylabel':'$\\Delta$ $I_{{D}}$ ($\\mu$A)',
+		'nano_ylabel':'$\\Delta$ $I_{{D}}$ (nA)',
+		'pico_ylabel':'$\\Delta$ $I_{{D}}$ (pA)',
 	},
 }
 
@@ -46,6 +46,10 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	
 	# Legend
 	ax.legend()
+	
+	# Adjust Y-lim (if desired)
+	includeOriginOnYaxis(ax, include=plotDescription['plotDefaults']['includeOriginOnYaxis'])
+	ax.set_ylim(bottom=ax.get_ylim()[0]*1.1, top=ax.get_ylim()[1]*1.1)
 	
 	return (fig, (ax,))
 	
