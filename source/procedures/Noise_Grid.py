@@ -29,8 +29,8 @@ def runNoiseGrid(parameters, smu_instance):
 	startTime = time.time()
 	
 	# === START ===
-	for gateVoltage in gateVoltages:
-		for drainVoltage in drainVoltages:
+	for gateVoltage in ng_parameters['gateVoltages']:
+		for drainVoltage in ng_parameters['drainVoltages']:
 			# Make copy of parameters to run NoiseCollection, but modify the setpoints
 			noiseCollectionParameters = dict(parameters)
 			noiseCollectionParameters['runType'] = 'NoiseCollection'
