@@ -31,25 +31,24 @@ def runNoiseGrid(parameters, smu_instance):
 	# === START ===
 	for gateVoltage in gateVoltages:
 		for drainVoltage in drainVoltages:
+			# Make copy of parameters to run NoiseCollection, but modify the setpoints
+			noiseCollectionParameters = dict(parameters)
+			noiseCollectionParameters['runType'] = 'NoiseCollection'
+			noiseCollectionParameters['runConfigs']['NoiseCollection']['gateVoltage'] = gateVoltage
+			noiseCollectionParameters['runConfigs']['NoiseCollection']['drainVoltage'] = drainVoltage
+			print('V_GS set to: ' + str(gateVoltage) + ' V.')
+			print('V_DS set to: ' + str(drainVoltage) + ' V.')
 			
-		# Make copy of parameters to run NoiseCollection, but modify the setpoints
-		noiseCollectionParameters = dict(parameters)
-		noiseCollectionParameters['runType'] = 'NoiseCollection'
-		noiseCollectionParameters['runConfigs']['NoiseCollection']['gateVoltage'] = gateVoltage
-		noiseCollectionParameters['runConfigs']['NoiseCollection']['drainVoltage'] = drainVoltage
-		print('V_GS set to: ' + str(gateVoltage) + ' V.')
-		print('V_DS set to: ' + str(drainVoltage) + ' V.')
-		
-		# === Run ===
-		print('Starting noise collection #'+str(count+1)+' of '+str(numberOfNoiseCollections))
-		noiseCollectionScript.run(noiseCollectionParameters, smu_instance, isSavingResults=True, isPlottingResults=False)
-		print('Completed noise collection #'+str(count+1)+' of '+str(numberOfNoiseCollections))
-		count += 1
-		
-		# Delay if groundingTime > 0
-		if((ng_parameters['groundingTime'] > 0) and (count < numberOfNoiseCollections)):
-			print('Waiting for ' + str(ng_parameters['groundingTime']) + ' seconds...')
-			time.sleep(ng_parameters['groundingTime'])
+			# === Run ===
+			print('Starting noise collection #'+str(count+1)+' of '+str(numberOfNoiseCollections))
+			noiseCollectionScript.run(noiseCollectionParameters, smu_instance, isSavingResults=True, isPlottingResults=False)
+			print('Completed noise collection #'+str(count+1)+' of '+str(numberOfNoiseCollections))
+			count += 1
+			
+			# Delay if groundingTime > 0
+			if((ng_parameters['groundingTime'] > 0) and (count < numberOfNoiseCollections)):
+				print('Waiting for ' + str(ng_parameters['groundingTime']) + ' seconds...')
+				time.sleep(ng_parameters['groundingTime'])
 
 
 	
