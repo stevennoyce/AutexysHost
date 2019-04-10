@@ -13,13 +13,14 @@ def run(parameters, smu_instance, arduino_instance):
 def runAutoGateSweep(parameters, smu_instance, arduino_instance):
 	ags_parameters = parameters['runConfigs']['AutoGateSweep']
 
-	numberOfSweeps = len(ags_parameters['drainVoltageSetPoints'])*ags_parameters['sweepsPerVDS']
-	sweepCount = 0
-	startTime = time.time()
-	
 	# If no drain voltage set-point list given, use the set-point from the GateSweep runConfig
 	if(len(ags_parameters['drainVoltageSetPoints']) == 0):
 		ags_parameters['drainVoltageSetPoints'] = [parameters['runConfigs']['GateSweep']['drainVoltageSetPoint']]
+
+	# Set up counters
+	numberOfSweeps = len(ags_parameters['drainVoltageSetPoints'])*ags_parameters['sweepsPerVDS']
+	sweepCount = 0
+	startTime = time.time()
 	
 	# === START ===
 	for i in range(len(ags_parameters['drainVoltageSetPoints'])):
@@ -42,4 +43,3 @@ def runAutoGateSweep(parameters, smu_instance, arduino_instance):
 			elif((ags_parameters['delayBetweenSweeps'] > 0) and (sweepCount < numberOfSweeps)):
 				print('Waiting for ' + str(ags_parameters['delayBetweenSweeps']) + ' seconds...')
 				time.sleep(ags_parameters['delayBetweenSweeps'])
-

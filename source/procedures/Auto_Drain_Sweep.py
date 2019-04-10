@@ -13,12 +13,14 @@ def run(parameters, smu_instance, arduino_instance):
 def runAutoDrainSweep(parameters, smu_instance, arduino_instance):
 	ads_parameters = parameters['runConfigs']['AutoDrainSweep']
 
-	numberOfSweeps = len(ads_parameters['gateVoltageSetPoints'])*ads_parameters['sweepsPerVGS']
-	sweepCount = 0
-	
 	# If no gate voltage set-point list given, use the set-point from the DrainSweep runConfig
 	if(len(ads_parameters['gateVoltageSetPoints']) == 0):
 		ads_parameters['gateVoltageSetPoints'] = [parameters['runConfigs']['DrainSweep']['gateVoltageSetPoint']]
+
+	# Set up counters
+	numberOfSweeps = len(ads_parameters['gateVoltageSetPoints'])*ads_parameters['sweepsPerVGS']
+	sweepCount = 0
+	startTime = time.time()
 	
 	# === START ===
 	for i in range(len(ads_parameters['gateVoltageSetPoints'])):

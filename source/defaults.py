@@ -164,9 +164,6 @@ default_parameters = {
 		'NoiseGrid':{
 			'dependencies':				{'ignore':True, 'value':['NoiseCollection']},
 			'saveFileName': 			{'type':'constant', 'default': 'NoiseGrid'},
-			'measurementSpeed':	 		{'type':'float', 'units':'Hz', 'default': 1e5},
-			'pointsPerSetpoint': 		{'type':'int', 'units':'#', 'default': 1e4},
-			'complianceCurrent':		{'type':'float', 'units':'A', 'default': 100e-6},
 			'gateVoltages':				{'type':'array', 'units':'V', 'default': [-0.5,0,0.5]},
 			'drainVoltages':			{'type':'array', 'units':'V', 'default': [0.05,0.10,0.15]},
 			'groundingTime':			{'type':'float', 'units':'s', 'default': 1}
