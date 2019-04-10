@@ -7,7 +7,7 @@ default_parameters = {
 			'dependencies':				{'ignore':True, 'value':[]},
 			'saveFileName': 			{'type':'constant', 'default': 'GateSweep'},
 			'isFastSweep': 				{'type':'bool', 'default': False},
-			'fastSweepSpeed':			{'type':'int', 'units':'Hz', 'default': 60}
+			'fastSweepSpeed':			{'type':'int', 'units':'Hz', 'default': 60},
 			'isAlternatingSweep': 		{'type':'bool', 'default': False},
 			'pulsedMeasurementOnTime': 	{'type':'float', 'units':'s', 'default': 0},
 			'pulsedMeasurementOffTime': {'type':'float', 'units':'s', 'default': 0},
@@ -23,7 +23,7 @@ default_parameters = {
 			'dependencies': 			{'ignore':True, 'value':[]},
 			'saveFileName': 			{'type':'constant', 'default':'DrainSweep'},
 			'isFastSweep': 				{'type':'bool', 'default':False},
-			'fastSweepSpeed':			{'type':'int', 'units':'Hz', 'default': 60}
+			'fastSweepSpeed':			{'type':'int', 'units':'Hz', 'default': 60},
 			'stepsInVDSPerDirection': 	{'type':'int', 'units':'#', 'default':100},
 			'pointsPerVDS': 			{'type':'int', 'units':'#', 'default':1},
 			'drainVoltageRamps':		{'type':'int', 'units':'#', 'default': 2},
@@ -117,7 +117,7 @@ default_parameters = {
 			'gateVoltageSetPoint': 			{'type':'float', 'units':'V', 'default': 0},
 			'complianceCurrent': 			{'type':'float', 'units':'A', 'default': 1e-6},
 			'complianceVoltage': 			{'type':'float', 'units':'V', 'default': 10},
-			'deviceMeasurementSpeed': 		{'type':'float', 'units':'Hz', 'default': 60},  # what are the units for this?
+			'deviceMeasurementSpeed': 		{'type':'float', 'units':'Hz', 'default': 60},
 			'XYCableSwap':					{'type':'bool', 'default':False},
 			'tracesToMeasure':				{'type':'int', 'units':'#', 'default': 1},
 			'scans':						{'type':'int', 'units':'#', 'default':1},
@@ -151,6 +151,25 @@ default_parameters = {
 			'maxStepInVDS': 			{'type':'float', 'units':'V', 'default': 0.025},
 			'maxStepInVGS': 			{'type':'float', 'units':'V', 'default': 0.4},
 			'startGrounded': 			{'type':'bool', 'default': False}
+		},
+		'NoiseCollection':{
+			'dependencies':				{'ignore':True, 'value':[]},
+			'saveFileName': 			{'type':'constant', 'default': 'NoiseCollection'},
+			'measurementSpeed':	 		{'type':'float', 'units':'Hz', 'default': 1e5},
+			'pointsPerSetpoint': 		{'type':'int', 'units':'#', 'default': None},
+			'complianceCurrent':		{'type':'float', 'units':'A', 'default': 100e-6},
+			'gateVoltages':				{'type':'array', 'units':'V', 'default': [0]},
+			'drainVoltages':			{'type':'array', 'units':'V', 'default': [0.1]}
+		},
+		'NoiseGrid':{
+			'dependencies':				{'ignore':True, 'value':['NoiseCollection']},
+			'saveFileName': 			{'type':'constant', 'default': 'NoiseGrid'},
+			'measurementSpeed':	 		{'type':'float', 'units':'Hz', 'default': 1e5},
+			'pointsPerSetpoint': 		{'type':'int', 'units':'#', 'default': 1e4},
+			'complianceCurrent':		{'type':'float', 'units':'A', 'default': 100e-6},
+			'gateVoltages':				{'type':'array', 'units':'V', 'default': [-0.5,0,0.5]},
+			'drainVoltages':			{'type':'array', 'units':'V', 'default': [0.05,0.10,0.15]},
+			'groundingTime':			{'type':'float', 'units':'s', 'default': 1}
 		}
 	},
 	'Results':{

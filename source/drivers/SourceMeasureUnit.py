@@ -237,15 +237,18 @@ class B2912A(SourceMeasureUnit):
 		if((self.system_settings is not None) and ('reset' in self.system_settings) and (not self.system_settings['reset'])):
 			pass # don't reset on startup if you are specifically told not to by the system settings
 		else:
+			self.smu.write('*CLS') # Clear
 			self.smu.write("*RST") # Reset
 		
 		self.smu.write(':system:lfrequency 60')
 		
 		self.smu.write(':sense1:curr:range:auto ON')
 		self.smu.write(':sense1:curr:range:auto:llim 1e-8')
-
+		# self.smu.write(':sense1:curr:range 10E-6')
+		
 		self.smu.write(':sense2:curr:range:auto ON')
 		self.smu.write(':sense2:curr:range:auto:llim 1e-8')
+		# self.smu.write(':sense2:curr:range 10E-6')
 		
 		if ((self.system_settings is not None) and ('channel1SourceMode' in self.system_settings)):
 			self.setChannel1SourceMode(self.system_settings['channel1SourceMode'])
@@ -319,7 +322,7 @@ class B2912A(SourceMeasureUnit):
 
 	def setVgs(self, voltage):
 		self.setParameter(":source2:voltage {}".format(voltage))
-
+	
 	def takeMeasurement(self):
 		data = self.smu.query_ascii_values(':MEAS? (@1:2)')
 		return {
@@ -329,18 +332,28 @@ class B2912A(SourceMeasureUnit):
 			'I_g':  data[7]
 		}
 	
-	def setupSweep(self, src1start, src1stop, src2start, src2stop, points, triggerInterval=None):
+	def setupSweep(self, src1start, src1stop, src2start, src2stop, points, triggerInterval=None, src1vals=None, src2vals=None):
 		points = int(points)
 		
-		self.smu.write(":source1:{}:mode sweep".format(self.source1_mode))
-		self.smu.write(":source2:{}:mode sweep".format(self.source2_mode))
+		if src1vals is None:
+			self.smu.write(":source1:{}:mode sweep".format(self.source1_mode))
+			
+			self.smu.write(":source1:{}:start {}".format(self.source1_mode, src1start))
+			self.smu.write(":source1:{}:stop {}".format(self.source1_mode, src1stop)) 
+			self.smu.write(":source1:{}:points {}".format(self.source1_mode, points))
+		else:
+			self.smu.write(':source1:{}:mode list'.format(self.source1_mode))
+			self.smu.write(':source1:list:{} {}'.format(self.source2_mode, ','.join(map(str, src1vals))))
 		
-		self.smu.write(":source1:{}:start {}".format(self.source1_mode, src1start))
-		self.smu.write(":source1:{}:stop {}".format(self.source1_mode, src1stop)) 
-		self.smu.write(":source1:{}:points {}".format(self.source1_mode, points))
-		self.smu.write(":source2:{}:start {}".format(self.source2_mode, src2start))
-		self.smu.write(":source2:{}:stop {}".format(self.source2_mode, src2stop)) 
-		self.smu.write(":source2:{}:points {}".format(self.source2_mode, points))
+		if src2vals is None:
+			self.smu.write(":source2:{}:mode sweep".format(self.source2_mode))
+			
+			self.smu.write(":source2:{}:start {}".format(self.source2_mode, src2start))
+			self.smu.write(":source2:{}:stop {}".format(self.source2_mode, src2stop)) 
+			self.smu.write(":source2:{}:points {}".format(self.source2_mode, points))
+		else:
+			self.smu.write(':source2:{}:mode list'.format(self.source2_mode))
+			self.smu.write(':source2:list:{} {}'.format(self.source2_mode, ','.join(map(str, src2vals))))
 		
 		if triggerInterval is None:
 			self.smu.write(":trigger1:source aint")
@@ -365,8 +378,8 @@ class B2912A(SourceMeasureUnit):
 		self.smu.write(":init (@1:2)")
 		self.smu.write("*WAI")
 	
-	def startSweep(self, src1start, src1stop, src2start, src2stop, points, triggerInterval=None):
-		timeToTakeMeasurements = self.setupSweep(src1start, src1stop, src2start, src2stop, points, triggerInterval=triggerInterval)
+	def startSweep(self, src1start, src1stop, src2start, src2stop, points, triggerInterval=None, src1vals=None, src2vals=None):
+		timeToTakeMeasurements = self.setupSweep(src1start, src1stop, src2start, src2stop, points, triggerInterval=triggerInterval, src1vals=src1vals, src2vals=src2vals)
 		
 		self.smu.write("*WAI")
 		self.initSweep()
@@ -392,8 +405,8 @@ class B2912A(SourceMeasureUnit):
 			'timestamps': timestamps
 		}
 	
-	def takeSweep(self, src1start, src1stop, src2start, src2stop, points, triggerInterval=None):
-		timeToTakeMeasurements = self.startSweep(src1start, src1stop, src2start, src2stop, points, triggerInterval=triggerInterval)
+	def takeSweep(self, src1start, src1stop, src2start, src2stop, points, triggerInterval=None, src1vals=None, src2vals=None):
+		timeToTakeMeasurements = self.startSweep(src1start, src1stop, src2start, src2stop, points, triggerInterval=triggerInterval, src1vals=src1vals, src2vals=src2vals)
 		
 		time.sleep(timeToTakeMeasurements)
 		

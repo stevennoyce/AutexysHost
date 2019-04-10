@@ -83,7 +83,7 @@ def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint
 	# Ramp gate and wait a second for everything to settle down
 	smu_instance.rampGateVoltageTo(gateVoltageMinimum)
 	time.sleep(1)
-
+	
 	if(isFastSweep):
 		triggerInterval = 1/fastSweepSpeed
 		

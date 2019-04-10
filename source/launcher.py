@@ -23,6 +23,8 @@ from procedures import SGM_Control as sgmControlScript
 from procedures import Delay as delayScript
 from procedures import Inverter_Sweep as inverterSweepScript
 from procedures import Rapid_Bias as rapidBiasScript
+from procedures import Noise_Collection as noiseCollectionScript
+from procedures import Noise_Grid as noiseGridScript
 
 from utilities import DataLoggerUtility as dlu
 from drivers import SourceMeasureUnit as smu
@@ -114,6 +116,10 @@ def runAction(parameters, schedule_parameters, smu_systems, arduino_instance, co
 			inverterSweepScript.run(parameters, smu_systems)
 		elif(parameters['runType'] == 'RapidBias'):
 			rapidBiasScript.run(parameters, smu_default_instance)
+		elif(parameters['runType'] == 'NoiseCollection'):
+			noiseCollectionScript.run(parameters, smu_default_instance)
+		elif(parameters['runType'] == 'NoiseGrid'):
+			noiseGridScript.run(parameters, smu_default_instance)
 		else:
 			raise NotImplementedError("Invalid action for the Source Measure Unit")
 	except Exception as e:
