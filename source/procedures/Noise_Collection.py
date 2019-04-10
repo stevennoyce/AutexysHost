@@ -12,14 +12,12 @@ def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False)
 	# Get shorthand name to easily refer to configuration parameters
 	rt_params = parameters['runConfigs']['NoiseCollection']
 	
-	# Print the starting message
-	print('Starting Noise Collection')
-	smu_instance.setComplianceCurrent(rt_params['complianceCurrent'])	
-	
-	# === START ===
-	print('Ramping drain voltage.')
+	smu_instance.setComplianceCurrent(rt_params['complianceCurrent'])
+	print('Rampint Voltages')
 	smu_instance.rampDrainVoltageTo(rt_params['drainVoltage'])
 	smu_instance.rampGateVoltageTo(rt_params['gateVoltage'])
+	
+	print('Starting Noise Collection')
 	
 	results = runNoiseCollection(smu_instance, 
 								measurementSpeed=rt_params['measurementSpeed'],
@@ -47,16 +45,17 @@ def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False)
 def runNoiseCollection(smu_instance, measurementSpeed, drainVoltage, gateVoltage, points):
 	triggerInterval = 1/measurementSpeed
 	points = min(points, 100e3)
+	startTime = time.time()
 	
-	measurements = smu_instance.takeSweep(drainVoltage, drainVoltage, gateVoltage, gateVoltage, points, triggerInterval=triggerInterval)
+	measurements = smu_instance.takeSweep(drainVoltage, drainVoltage, gateVoltage, gateVoltage, points, triggerInterval=triggerInterval, includeVoltages=False)
+	
+	print('Time elapsed is {} s'.format(time.time() - startTime))
 	
 	return {
 		'Raw':{
-			'vds_data': measurements['Vds_data'],
 			'id_data': measurements['Id_data'],
-			'vgs_data':measurements['Vgs_data'],
 			'ig_data': measurements['Ig_data'],
-			'timestamps': measurements['timestamps']
+			'timestamps': [t + startTime for t in measurements['timestamps']]
 		},
 		'Computed':{
 			
