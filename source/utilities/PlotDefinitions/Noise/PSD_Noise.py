@@ -16,17 +16,19 @@ plotDescription = {
 def plot(deviceHistory, identifiers, mode_parameters=None):
 	fig, ax = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
 	
-	times = np.array([dh['Results']['timestamps'] for dh in deviceHistory])
-	
-	Fs = 1/np.median(np.diff(times.flatten()))
-	
-	Ids = np.array([dh['Results']['id_data'] for dh in deviceHistory])
-	Igs = np.array([dh['Results']['ig_data'] for dh in deviceHistory])
-	
-	
-	
-	ax.psd(Ids.flatten()*1e9, Fs=Fs, NFFT=2**15, noverlap=2**14-1, label='Drain Current')
-	ax.psd(Igs.flatten()*1e9, Fs=Fs, NFFT=2**15, noverlap=2**14-1, label='Gate Current')
+	for dh in deviceHistory:
+		times = np.array(dh['Results']['timestamps'])
+		
+		Fs = 1/np.median(np.diff(times.flatten()))
+		
+		Ids = np.array(dh['Results']['id_data'])
+		Igs = np.array(dh['Results']['ig_data'])
+		
+		if len(deviceHistory) == 1:
+			ax.psd(Ids.flatten()*1e9, Fs=Fs, NFFT=2**13, noverlap=2**12-1, label='Drain Current')
+			ax.psd(Igs.flatten()*1e9, Fs=Fs, NFFT=2**13, noverlap=2**12-1, label='Gate Current')
+		else:
+			ax.psd(Ids.flatten()*1e9, Fs=Fs, NFFT=2**13, noverlap=2**12-1, label='Drain Current')
 	
 	ax.set_xscale('log')
 	# ax.set_ylabel('$I_D$ (nA)')

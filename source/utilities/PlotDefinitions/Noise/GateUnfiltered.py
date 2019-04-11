@@ -53,14 +53,37 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	ax.set_ylim(bottom=ax.get_ylim()[0]*1.1, top=ax.get_ylim()[1]*1.1)
 	
 	return (fig, (ax,))
-	
+
 def noiseFromData(data):
 	return np.percentile(data, 99.5)-np.percentile(data, 0.5) # peak-to-peak noise
 
-def filter60HzAndHarmonics(id_data, timestamps):
-	id_filtered = id_data
-	return id_filtered	# TODO: given id_data and timestamps, return the data after filtering 60 Hz and harmonic noise
+def filter60HzAndHarmonics(Id, timestamps):
+	Id = np.array(Id)
+	timestamps = np.array(timestamps)
 	
+	dt = np.median(np.diff(timestamps))
+	Fs = np.fft.rfftfreq(Id.size, d=dt)
+	Xs = np.fft.rfft(Id)
+	As = np.abs(Xs)*dt
+	
+	minAmbientIndex = np.argmax(Fs > 50)
+	ambientNoiseIndexes = np.argpartition(As[minAmbientIndex:], -100)[-100:] + minAmbientIndex
+	ambientNoiseFs = Fs[ambientNoiseIndexes]
+	
+	distances = np.abs(ambientNoiseFs - np.round(ambientNoiseFs/60)*60)
+	maxDistance = np.clip(3*Fs[1], 2, 8)
+	ambientNoiseIndexes = ambientNoiseIndexes[distances < maxDistance]
+	
+	ambientNoiseFs = Fs[ambientNoiseIndexes]
+	ambientNoiseAs = As[ambientNoiseIndexes]
+	
+	for i in np.sort(ambientNoiseIndexes):
+		Xs[i] = Xs[i-1]
+	
+	IdFiltered = np.fft.irfft(Xs)
+	
+	return IdFiltered
+
 def extractNoiseMagnitude(deviceHistory, groupBy=None):
 	# === Extract noise magnitude from data ===
 	gateVoltages = []

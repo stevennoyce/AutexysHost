@@ -5,7 +5,7 @@ from utilities.PlotDefinitions.Noise.GateUnfiltered import filter60HzAndHarmonic
 
 plotDescription = {
 	'plotCategory': 'device',
-	'priority': 300,
+	'priority': 540,
 	'dataFileDependencies': ['NoiseCollection.json'],
 	'plotDefaults': {
 		'figsize':(5,4),
@@ -19,19 +19,22 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	
 	for dh in deviceHistory:
 		times = np.array(dh['Results']['timestamps'])
-		times -= np.min(times)
+		
+		Fs = 1/np.median(np.diff(times.flatten()))
 		
 		Ids = filter60HzAndHarmonics(np.array(dh['Results']['id_data']), times)
 		Igs = filter60HzAndHarmonics(np.array(dh['Results']['ig_data']), times)
 		
-		ax.plot(times, Ids*1e9, label='Drain Current', alpha=0.5*(1+1/len(deviceHistory)))
-		
 		if len(deviceHistory) == 1:
-			ax.plot(times, Igs*1e9, label='Gate Current')
+			ax.psd(Ids.flatten()*1e9, Fs=Fs, NFFT=2**13, noverlap=2**12-1, label='Drain Current')
+			ax.psd(Igs.flatten()*1e9, Fs=Fs, NFFT=2**13, noverlap=2**12-1, label='Gate Current')
+		else:
+			ax.psd(Ids.flatten()*1e9, Fs=Fs, NFFT=2**13, noverlap=2**12-1, label='Drain Current')
 	
-	ax.set_ylabel('$I_D$ (nA)')
-	ax.set_xlabel('Time (s)')
+	ax.set_xscale('log')
+	# ax.set_ylabel('$I_D$ (nA)')
+	# ax.set_xlabel('Time (s)')
 	ax.legend()
-	
+		
 	return (fig, (ax,))
 
