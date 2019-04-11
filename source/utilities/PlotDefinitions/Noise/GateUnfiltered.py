@@ -55,7 +55,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	return (fig, (ax,))
 
 def noiseFromData(data):
-	return np.percentile(data, 99.5)-np.percentile(data, 0.5) # peak-to-peak noise
+	return 3*np.std(data) # 98% interval
 
 def filter60HzAndHarmonics(Id, timestamps):
 	Id = np.array(Id)

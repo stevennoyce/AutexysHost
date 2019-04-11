@@ -155,8 +155,8 @@ default_parameters = {
 		'NoiseCollection':{
 			'dependencies':				{'ignore':True, 'value':[]},
 			'saveFileName': 			{'type':'constant', 'default': 'NoiseCollection'},
-			'measurementSpeed':	 		{'type':'float', 'units':'Hz', 'default': 50e3},
-			'points':			 		{'type':'int', 'units':'#', 'default': 25e3},
+			'measurementSpeed':	 		{'type':'float', 'units':'Hz', 'default': 10e3},
+			'points':			 		{'type':'int', 'units':'#', 'default': 10e3},
 			'complianceCurrent':		{'type':'float', 'units':'A', 'default': 100e-6},
 			'gateVoltage':				{'type':'float', 'units':'V', 'default': 0},
 			'drainVoltage':				{'type':'float', 'units':'V', 'default': 0.1}
