@@ -28,7 +28,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	fig, ax = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
 	
 	# Get noise magnitude vs. VGS and VDS
-	gateVoltages, drainVoltages, unfilteredNoise, filteredNoise = extractNoiseMagnitude(deviceHistory, groupBy='gate')
+	gateVoltages, drainVoltages, currentAverages, unfilteredNoise, filteredNoise = extractNoiseMagnitude(deviceHistory, groupBy='gate')
 	
 	# Adjust y-scale and y-axis labels 
 	max_current = np.max(np.abs(np.array(unfilteredNoise)))

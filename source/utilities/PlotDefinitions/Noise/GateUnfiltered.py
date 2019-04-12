@@ -27,7 +27,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	fig, ax = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
 	
 	# Get noise magnitude vs. VGS and VDS
-	gateVoltages, drainVoltages, unfilteredNoise, filteredNoise = extractNoiseMagnitude(deviceHistory, groupBy='drain')
+	gateVoltages, drainVoltages, currentAverages, unfilteredNoise, filteredNoise = extractNoiseMagnitude(deviceHistory, groupBy='drain')
 	
 	# Adjust y-scale and y-axis labels 
 	max_current = np.max(np.abs(np.array(unfilteredNoise)))
@@ -94,6 +94,7 @@ def extractNoiseMagnitude(deviceHistory, groupBy=None):
 	# === Extract noise magnitude from data ===
 	gateVoltages = []
 	drainVoltages = []
+	currentAverages = []
 	unfilteredNoise = []
 	filteredNoise = []
 	for i in range(len(deviceHistory)):
@@ -107,10 +108,12 @@ def extractNoiseMagnitude(deviceHistory, groupBy=None):
 		drainVoltages.append(vds)
 		unfilteredNoise.append(noiseFromData(id_unfiltered))
 		filteredNoise.append(noiseFromData(id_filtered))
+		currentAverages.append(np.mean(id_unfiltered))
 		
 	# === Group data into sub-arrays ===
 	gateVoltages_sorted = []
 	drainVoltages_sorted = []
+	currentAverages_sorted = []
 	unfilteredNoise_sorted = []
 	filteredNoise_sorted = []
 	if(groupBy == 'drain'):
@@ -119,44 +122,49 @@ def extractNoiseMagnitude(deviceHistory, groupBy=None):
 			if(drainVoltages[i] in drainVoltages_sorted):
 				index = drainVoltages_sorted.index(drainVoltages[i])
 				gateVoltages_sorted[index].append(gateVoltages[i])
+				currentAverages_sorted[index].append(currentAverages[i])
 				unfilteredNoise_sorted[index].append(unfilteredNoise[i])
 				filteredNoise_sorted[index].append(filteredNoise[i])
 			else:
 				drainVoltages_sorted.append(drainVoltages[i])
 				gateVoltages_sorted.append([gateVoltages[i]])
+				currentAverages_sorted.append([currentAverages[i]])
 				unfilteredNoise_sorted.append([unfilteredNoise[i]])
 				filteredNoise_sorted.append([filteredNoise[i]])
 		
 		# Sort outer-level arrays by V_DS
-		drainVoltages_sorted, gateVoltages_sorted, unfilteredNoise_sorted, filteredNoise_sorted = (list(elem) for elem in zip(*sorted(zip(drainVoltages_sorted, gateVoltages_sorted, unfilteredNoise_sorted, filteredNoise_sorted))))	
+		drainVoltages_sorted, gateVoltages_sorted, currentAverages_sorted, unfilteredNoise_sorted, filteredNoise_sorted = (list(elem) for elem in zip(*sorted(zip(drainVoltages_sorted, gateVoltages_sorted, currentAverages_sorted, unfilteredNoise_sorted, filteredNoise_sorted))))	
 		for i in range(len(gateVoltages_sorted)):
 			# Sort inner-level arrays by V_GS
-			gateVoltages_sorted[i], unfilteredNoise_sorted[i], filteredNoise_sorted[i] = (list(elem) for elem in zip(*sorted(zip(gateVoltages_sorted[i], unfilteredNoise_sorted[i], filteredNoise_sorted[i]))))	
+			gateVoltages_sorted[i], currentAverages_sorted[i], unfilteredNoise_sorted[i], filteredNoise_sorted[i] = (list(elem) for elem in zip(*sorted(zip(gateVoltages_sorted[i], currentAverages_sorted[i], unfilteredNoise_sorted[i], filteredNoise_sorted[i]))))	
 	elif(groupBy == 'gate'):	
 		# Get a set of unique gateVoltages, and group other arrays accordingly
 		for i in range(len(gateVoltages)):	
 			if(gateVoltages[i] in gateVoltages_sorted):
 				index = gateVoltages_sorted.index(gateVoltages[i])
 				drainVoltages_sorted[index].append(drainVoltages[i])
+				currentAverages_sorted[index].append(currentAverages[i])
 				unfilteredNoise_sorted[index].append(unfilteredNoise[i])
 				filteredNoise_sorted[index].append(filteredNoise[i])
 			else:
 				gateVoltages_sorted.append(gateVoltages[i])
 				drainVoltages_sorted.append([drainVoltages[i]])
+				currentAverages_sorted.append([currentAverages[i]])
 				unfilteredNoise_sorted.append([unfilteredNoise[i]])
 				filteredNoise_sorted.append([filteredNoise[i]])
 		
 		# Sort outer-level arrays by V_GS
-		gateVoltages_sorted, drainVoltages_sorted, unfilteredNoise_sorted, filteredNoise_sorted = (list(elem) for elem in zip(*sorted(zip(gateVoltages_sorted, drainVoltages_sorted, unfilteredNoise_sorted, filteredNoise_sorted))))	
+		gateVoltages_sorted, drainVoltages_sorted, currentAverages_sorted, unfilteredNoise_sorted, filteredNoise_sorted = (list(elem) for elem in zip(*sorted(zip(gateVoltages_sorted, drainVoltages_sorted, currentAverages_sorted, unfilteredNoise_sorted, filteredNoise_sorted))))	
 		for i in range(len(gateVoltages_sorted)):
 			# Sort inner-level arrays by V_DS
-			drainVoltages_sorted[i], unfilteredNoise_sorted[i], filteredNoise_sorted[i] = (list(elem) for elem in zip(*sorted(zip(drainVoltages_sorted[i], unfilteredNoise_sorted[i], filteredNoise_sorted[i]))))	
+			drainVoltages_sorted[i], currentAverages_sorted[i], unfilteredNoise_sorted[i], filteredNoise_sorted[i] = (list(elem) for elem in zip(*sorted(zip(drainVoltages_sorted[i], currentAverages_sorted[i], unfilteredNoise_sorted[i], filteredNoise_sorted[i]))))	
 	else:
 		# Don't group into sub-arrays
 		gateVoltages_sorted = gateVoltages
 		drainVoltages_sorted = drainVoltages
+		currentAverages_sorted = currentAverages
 		unfilteredNoise_sorted = unfilteredNoise
 		filteredNoise_sorted = filteredNoise
 		
-	return gateVoltages_sorted, drainVoltages_sorted, unfilteredNoise_sorted, filteredNoise_sorted
+	return gateVoltages_sorted, drainVoltages_sorted, currentAverages_sorted, unfilteredNoise_sorted, filteredNoise_sorted
 	
