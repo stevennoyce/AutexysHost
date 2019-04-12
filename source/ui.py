@@ -98,6 +98,7 @@ def sendPlot(user, project, wafer, chip, device, experiment, plotType):
 	
 	plotSettings = copy.deepcopy(default_makePlot_parameters)
 	receivedPlotSettings = json.loads(flask.request.args.get('plotSettings'))
+	
 	#afmPath = json.loads(flask.request.args.get('afmPath'))
 	plotSettings.update(receivedPlotSettings)
 	
@@ -113,6 +114,8 @@ def sendPlot(user, project, wafer, chip, device, experiment, plotType):
 	plotSettings['saveFigures'] = True
 	plotSettings['showFigures'] = False
 	plotSettings['specificPlot'] = plotType
+	
+	plotSettings['cacheBust'] = flask.request.args.get('cb')
 	
 	# mode parameter 'AFMImagePath'
 	#if(plotType == 'AFMdeviationsImage'):

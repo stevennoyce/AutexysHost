@@ -15,6 +15,7 @@ from utilities import DataPlotterUtility as dpu
 from utilities import DataLoggerUtility as dlu
 from utilities import PlotPostingUtility as plotPoster
 
+import time
 
 
 # === Defaults ===
@@ -33,7 +34,10 @@ default_dh_parameters = {
 
 
 # === External Interface ===
-def makePlots(userID, projectID, waferID, chipID, deviceID, minExperiment=0, maxExperiment=float('inf'), specificPlot='', figureSize=None, sweepDirection='both', dataFolder=None, saveFolder=None, plotSaveName='', saveFigures=False, showFigures=True, minRelativeIndex=0, maxRelativeIndex=float('inf'), plot_mode_parameters=None):
+def makePlots(userID, projectID, waferID, chipID, deviceID, minExperiment=0, 
+				maxExperiment=float('inf'), specificPlot='', figureSize=None, sweepDirection='both', 
+				dataFolder=None, saveFolder=None, plotSaveName='', saveFigures=False, showFigures=True, 
+				minRelativeIndex=0, maxRelativeIndex=float('inf'), plot_mode_parameters=None, cacheBust=None):
 	"""Make plots for the device found in the userID/projectID/waferID/chipID/deviceID folder.
 
 	minExperiment and maxExperiment specify a range of experiments to include in the plot(s).
@@ -80,12 +84,12 @@ def makePlots(userID, projectID, waferID, chipID, deviceID, minExperiment=0, max
 	mode_parameters['figureSizeOverride'] = figureSize
 	mode_parameters['sweepDirection'] = sweepDirection
 
-	return run(parameters, plot_mode_parameters=mode_parameters)
+	return run(parameters, plot_mode_parameters=mode_parameters, cacheBust=cacheBust)
 
 
 
 # === Main ===
-def run(additional_parameters, plot_mode_parameters=None):
+def run(additional_parameters, plot_mode_parameters=None, cacheBust=None):
 	"""Legacy 'run' function from when DeviceHistory was treated more like a typical procedure with parameters."""
 
 	parameters = default_dh_parameters.copy()
@@ -120,7 +124,9 @@ def run(additional_parameters, plot_mode_parameters=None):
 		deviceHistory = []
 		try:
 			for dataFile in dataFileDependencies:
-				deviceHistory += dlu.loadSpecificDeviceHistory(dlu.getDeviceDirectory(parameters), dataFile, minIndex=p['minJSONIndex'], maxIndex=p['maxJSONIndex'], minExperiment=p['minJSONExperimentNumber'], maxExperiment=p['maxJSONExperimentNumber'], minRelativeIndex=p['minJSONRelativeIndex'], maxRelativeIndex=p['maxJSONRelativeIndex'])
+				if cacheBust is None:
+					cacheBust = str(time.time())
+				deviceHistory += dlu.loadSpecificDeviceHistoryWithCaching(cacheBust, dlu.getDeviceDirectory(parameters), dataFile, minIndex=p['minJSONIndex'], maxIndex=p['maxJSONIndex'], minExperiment=p['minJSONExperimentNumber'], maxExperiment=p['maxJSONExperimentNumber'], minRelativeIndex=p['minJSONRelativeIndex'], maxRelativeIndex=p['maxJSONRelativeIndex'])
 			plot = dpu.makeDevicePlot(plotType, deviceHistory, parameters['Identifiers'], mode_parameters=mode_parameters)
 			plotList.append(plot)
 		except FileNotFoundError as e:
