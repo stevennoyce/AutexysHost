@@ -5,7 +5,7 @@ import numpy as np
 
 plotDescription = {
 	'plotCategory': 'device',
-	'priority': 540,
+	'priority': 750,
 	'dataFileDependencies': ['NoiseCollection.json'],
 	'plotDefaults': {
 		'figsize':(5,4),

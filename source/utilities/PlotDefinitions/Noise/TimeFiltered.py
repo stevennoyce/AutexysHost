@@ -5,7 +5,7 @@ from utilities.PlotDefinitions.Noise.GateUnfiltered import filter60HzAndHarmonic
 
 plotDescription = {
 	'plotCategory': 'device',
-	'priority': 300,
+	'priority': 770,
 	'dataFileDependencies': ['NoiseCollection.json'],
 	'plotDefaults': {
 		'figsize':(5,4),

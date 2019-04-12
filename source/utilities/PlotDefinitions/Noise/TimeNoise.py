@@ -4,7 +4,7 @@ from utilities.MatplotlibUtility import *
 
 plotDescription = {
 	'plotCategory': 'device',
-	'priority': 100,
+	'priority': 760,
 	'dataFileDependencies': ['NoiseCollection.json'],
 	'plotDefaults': {
 		'figsize':(5,4),

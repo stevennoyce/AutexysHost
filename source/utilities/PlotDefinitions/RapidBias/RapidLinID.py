@@ -4,7 +4,7 @@ from utilities.MatplotlibUtility import *
 
 plotDescription = {
 	'plotCategory': 'device',
-	'priority': 510,
+	'priority': 610,
 	'dataFileDependencies': ['RapidBias.json'],
 	'plotDefaults': {
 		'figsize':(2,2.5),

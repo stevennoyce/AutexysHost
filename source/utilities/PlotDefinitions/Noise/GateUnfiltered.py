@@ -5,7 +5,7 @@ import scipy.signal
 
 plotDescription = {
 	'plotCategory': 'device',
-	'priority': 600,
+	'priority': 713,
 	'dataFileDependencies': ['NoiseCollection.json'],
 	'plotDefaults': {
 		'figsize':(2,2.5),

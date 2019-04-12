@@ -7,6 +7,7 @@ from matplotlib import cm
 import numpy as np
 import io
 import os
+import time
 
 from utilities import FET_Modeling as fet_model
 
@@ -339,11 +340,13 @@ def adjustAndSaveFigure(figure, plotType, mode_parameters, subplotWidthPad=0, su
 	pngDPI = (300) if(mode_parameters['publication_mode']) else (mode_parameters['default_png_dpi'])
 	if(mode_parameters['saveFigures']):
 		print('Saving figures.')
+		start = time.time()
 		if isinstance(mode_parameters['plotSaveName'], io.BytesIO):
 			plt.savefig(mode_parameters['plotSaveName'], transparent=True, dpi=pngDPI, format='png')
 		else:
 			plt.savefig(os.path.join(mode_parameters['plotSaveFolder'], mode_parameters['plotSaveName'] + plotType + mode_parameters['plotSaveExtension']), transparent=True, dpi=pngDPI)
-		print('Figures saved.')
+		end = time.time()
+		print('Figures saved. (Seconds elapsed: {:})'.format(end-start))
 	if(not mode_parameters['showFigures']):
 		print('Closing figures.')
 		plt.close(figure)

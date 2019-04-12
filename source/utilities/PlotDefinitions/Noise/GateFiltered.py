@@ -6,7 +6,7 @@ from utilities.PlotDefinitions.Noise.GateUnfiltered import extractNoiseMagnitude
 
 plotDescription = {
 	'plotCategory': 'device',
-	'priority': 600,
+	'priority': 714,
 	'dataFileDependencies': ['NoiseCollection.json'],
 	'plotDefaults': {
 		'figsize':(2,2.5),

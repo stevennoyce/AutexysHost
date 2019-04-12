@@ -5,7 +5,7 @@ import numpy as np
 
 plotDescription = {
 	'plotCategory': 'device',
-	'priority': 200,
+	'priority': 720,
 	'dataFileDependencies': ['NoiseCollection.json'],
 	'plotDefaults': {
 		'figsize':(5,4),
@@ -29,7 +29,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		IdXs = np.fft.rfft(Ids.flatten())
 		IdAs = np.abs(IdXs)*dt
 		
-		ax.loglog(IdFs[1:], IdAs[1:], '.-', label='Drain Current')
+		ax.loglog(IdFs[1:], IdAs[1:], label='Drain Current')
 		
 		minAmbientIndex = np.argmax(IdFs > 50)
 		ambientNoiseIndexes = np.argpartition(IdAs[minAmbientIndex:], -100)[-100:] + minAmbientIndex
