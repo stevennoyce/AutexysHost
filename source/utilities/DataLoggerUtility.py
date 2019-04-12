@@ -6,6 +6,8 @@ import time
 import numpy as np
 import io
 
+from functools import lru_cache
+
 
 # === File System ===
 def makeFolder(folderPath):
@@ -256,6 +258,10 @@ def loadSpecificDeviceHistory(directory, fileName, minIndex=0, maxIndex=float('i
 		filteredHistory += loadJSON_fast(os.path.join(directory, experimentSubdirectory), fileName, minIndex, maxIndex, minExperiment, maxExperiment, minRelativeIndex, maxRelativeIndex)
 
 	return filteredHistory
+
+@lru_cache(maxsize=32)
+def loadSpecificDeviceHistoryWithCaching(cacheBust, *args, **kwargs):
+	return loadSpecificDeviceHistory(*args, **kwargs)
 
 def loadOldestDeviceHistory(directory, fileName, numberOfOldestExperiments=1, numberOfOldestIndexes=1):
 	"""Given a folder path and fileName, load oldest data for a device. Can specify the number of oldest experiments to include, and the number of data entries within each old experiment to include."""
