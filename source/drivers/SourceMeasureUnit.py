@@ -242,6 +242,11 @@ class B2912A(SourceMeasureUnit):
 		
 		self.smu.write(':system:lfrequency 60')
 		
+		if True:
+			self.smu.write(':form real,32')
+			self.smu.write(':form:border swap')
+			self.smu.values_format.use_binary('d', False, list)
+		
 		self.smu.write(':sense1:curr:range:auto ON')
 		self.smu.write(':sense1:curr:range:auto:llim 1e-8')
 		# self.smu.write(':sense1:curr:range 10E-6')
@@ -324,7 +329,7 @@ class B2912A(SourceMeasureUnit):
 		self.setParameter(":source2:voltage {}".format(voltage))
 	
 	def takeMeasurement(self):
-		data = self.smu.query_ascii_values(':MEAS? (@1:2)')
+		data = self.smu.query_values(':MEAS? (@1:2)')
 		return {
 			'V_ds': data[0],
 			'I_d':  data[1],
@@ -392,11 +397,11 @@ class B2912A(SourceMeasureUnit):
 		if(not isinstance(includeVoltages, list)):
 			includeVoltages = [includeVoltages, includeVoltages]
 		
-		current1s = self.smu.query_ascii_values(":fetch:arr:curr? (@1)") 	if(includeCurrents[0]) else None
-		voltage1s = self.smu.query_ascii_values(":fetch:arr:voltage? (@1)") if(includeVoltages[0]) else None
-		current2s = self.smu.query_ascii_values(":fetch:arr:curr? (@2)")	if(includeCurrents[1]) else None
-		voltage2s = self.smu.query_ascii_values(":fetch:arr:voltage? (@2)") if(includeVoltages[1]) else None
-		timestamps = self.smu.query_ascii_values(":fetch:array:time? (@2)") if(includeTimes) else None
+		current1s = self.smu.query_values(":fetch:arr:curr? (@1)") 	if(includeCurrents[0]) else None
+		voltage1s = self.smu.query_values(":fetch:arr:voltage? (@1)") if(includeVoltages[0]) else None
+		current2s = self.smu.query_values(":fetch:arr:curr? (@2)")	if(includeCurrents[1]) else None
+		voltage2s = self.smu.query_values(":fetch:arr:voltage? (@2)") if(includeVoltages[1]) else None
+		timestamps = self.smu.query_values(":fetch:array:time? (@2)") if(includeTimes) else None
 		
 		if(endMode is not None):
 			self.smu.write(":source1:{}:mode {}".format(self.source1_mode, endMode))
