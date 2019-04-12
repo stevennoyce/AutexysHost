@@ -28,10 +28,10 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		
 		if len(deviceHistory) == 1:
 			ax.plot(times, Igs*1e9, label='Gate Current')
+			ax.legend()
 	
 	ax.set_ylabel('$I_D$ (nA)')
 	ax.set_xlabel('Time (s)')
-	ax.legend()
 	
 	return (fig, (ax,))
 

@@ -1,6 +1,7 @@
 from utilities.MatplotlibUtility import *
 import numpy as np
 
+import scipy.signal
 
 plotDescription = {
 	'plotCategory': 'device',
@@ -62,6 +63,7 @@ def filter60HzAndHarmonics(Id, timestamps):
 	timestamps = np.array(timestamps)
 	
 	dt = np.median(np.diff(timestamps))
+	Fsamp = 1/dt
 	Fs = np.fft.rfftfreq(Id.size, d=dt)
 	Xs = np.fft.rfft(Id)
 	As = np.abs(Xs)*dt
@@ -81,6 +83,9 @@ def filter60HzAndHarmonics(Id, timestamps):
 		Xs[i] = Xs[i-1]
 	
 	IdFiltered = np.fft.irfft(Xs)
+	
+	b, a = scipy.signal.butter(1, 1000/50000, btype='highpass', analog=False) #, fs=Fsamp
+	IdFiltered = np.mean(IdFiltered) + scipy.signal.filtfilt(b, a, IdFiltered)
 	
 	return IdFiltered
 

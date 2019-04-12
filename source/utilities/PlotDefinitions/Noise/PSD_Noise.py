@@ -27,13 +27,13 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		if len(deviceHistory) == 1:
 			ax.psd(Ids.flatten()*1e9, Fs=Fs, NFFT=2**13, noverlap=2**12-1, label='Drain Current')
 			ax.psd(Igs.flatten()*1e9, Fs=Fs, NFFT=2**13, noverlap=2**12-1, label='Gate Current')
+			ax.legend()
 		else:
 			ax.psd(Ids.flatten()*1e9, Fs=Fs, NFFT=2**13, noverlap=2**12-1, label='Drain Current')
 	
 	ax.set_xscale('log')
 	# ax.set_ylabel('$I_D$ (nA)')
 	# ax.set_xlabel('Time (s)')
-	ax.legend()
 		
 	return (fig, (ax,))
 

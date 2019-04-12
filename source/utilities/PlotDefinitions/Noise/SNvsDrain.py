@@ -34,7 +34,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	
 	ax.set_xlabel('Frequency [Hz]')
 	ax.set_ylabel('Amplitude')
-	ax.legend()
+	# ax.legend()
 	
 	return (fig, (ax,))
 

@@ -53,10 +53,10 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 			ax.semilogx(IgFs[1:], IgAs[1:], '.-', label='Gate Current')
 			
 			ax.semilogx(ambientNoiseFs, ambientNoiseAs, 'o', label='Ambient Noise')
+			ax.legend()
 	
 	ax.set_ylabel('Current Noise [A]')
 	ax.set_xlabel('Frequency [Hz]')
-	ax.legend()
 	
 	return (fig, (ax,))
 
