@@ -13,7 +13,7 @@ plotDescription = {
 		'include60mV':True,
 		'automaticAxisLabels':True,
 		'colorMap':'white_purple_black',
-		'colorDefault': ['#1f77b4'],
+		'colorDefault': ['#7363af'],
 		'xlabel':'Trial',
 		'ylabel':'SS (mV/dec)',
 	},

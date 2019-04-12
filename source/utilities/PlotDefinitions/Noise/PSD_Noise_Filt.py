@@ -8,9 +8,7 @@ plotDescription = {
 	'priority': 740,
 	'dataFileDependencies': ['NoiseCollection.json'],
 	'plotDefaults': {
-		'figsize':(5,4),
-		'xlabel':'Time (s)',
-		'ylabel':'I (nA)'
+		'figsize':(3.125,2.5),
 	},
 }
 
@@ -33,8 +31,6 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 			ax.psd(Ids.flatten()*1e9, Fs=Fs, NFFT=2**13, noverlap=2**12-1, label='Drain Current')
 	
 	ax.set_xscale('log')
-	# ax.set_ylabel('$I_D$ (nA)')
-	# ax.set_xlabel('Time (s)')
 		
 	return (fig, (ax,))
 

@@ -445,12 +445,13 @@ def tickLabels(axis, labelList, rotation=0):
 	axis.set_xticks(range(len(labelList)))
 	axis.xaxis.set_tick_params(rotation=rotation)
 
-def includeOriginOnYaxis(axis, include=True):
+def includeOriginOnYaxis(axis, include=True, stretchfactor=1):
 	if(include):
 		if(axis.get_ylim()[1] < 0):
 			axis.set_ylim(top=0)
 		elif(axis.get_ylim()[0] > 0):
 			axis.set_ylim(bottom=0)
+	axis.set_ylim(bottom=axis.get_ylim()[0]*stretchfactor, top=axis.get_ylim()[1]*stretchfactor)
 
 def getTestLabel(deviceHistory, identifiers):
 	if(identifiers is None):

@@ -8,9 +8,11 @@ plotDescription = {
 	'priority': 720,
 	'dataFileDependencies': ['NoiseCollection.json'],
 	'plotDefaults': {
-		'figsize':(5,4),
-		'xlabel':'Time (s)',
-		'ylabel':'I (nA)'
+		'figsize':(3.125,2.5),
+		'automaticAxisLabels':True,
+		
+		'xlabel':'Frequency [Hz]',
+		'ylabel':'Current Noise [A]'
 	},
 }
 
@@ -54,9 +56,6 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 			
 			ax.semilogx(ambientNoiseFs, ambientNoiseAs, 'o', label='Ambient Noise')
 			ax.legend()
-	
-	ax.set_ylabel('Current Noise [A]')
-	ax.set_xlabel('Frequency [Hz]')
 	
 	return (fig, (ax,))
 

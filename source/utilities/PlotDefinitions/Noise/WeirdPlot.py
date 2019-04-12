@@ -8,7 +8,7 @@ plotDescription = {
 	'priority': 750,
 	'dataFileDependencies': ['NoiseCollection.json'],
 	'plotDefaults': {
-		'figsize':(5,4),
+		'figsize':(3.75,3),
 		'xlabel':'Time (s)',
 		'ylabel':'I (nA)'
 	},
