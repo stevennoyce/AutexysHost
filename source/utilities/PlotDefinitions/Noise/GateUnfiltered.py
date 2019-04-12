@@ -39,7 +39,8 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Plot	
 	for i in range(len(drainVoltages)):
 		line 	 = ax.plot(gateVoltages[i], np.array(unfilteredNoise[i]) * current_scale, color=colors[i], marker='o', markersize=4, linewidth=1, linestyle=None)
-		line[0].set_label('$V_{{DS}}$ = {:.2f} V'.format(drainVoltages[i]))
+		if((i == 0) or (i == int(len(drainVoltages)/2)) or (i == len(drainVoltages)-1)):
+			line[0].set_label('$V_{{DS}}$ = {:.2f} V'.format(drainVoltages[i]))
 		if(plotDescription['plotDefaults']['includeFiltered']):
 			line = ax.plot(gateVoltages[i], np.array(filteredNoise[i]) * current_scale, color=colors[i], marker='o', markersize=4, linewidth=1, linestyle=None)
 
@@ -56,7 +57,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	return (fig, (ax,))
 
 def noiseFromData(data):
-	return np.percentile(data, 99.5)-np.percentile(data, 0.5) # peak-to-peak noise
+	return 3*np.std(data) # 98% interval
 
 def filter60HzAndHarmonics(Id, timestamps):
 	Id = np.array(Id)
