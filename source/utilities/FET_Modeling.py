@@ -78,8 +78,21 @@ PMOSFET_I_D_fn = lambda V_GS, V_DS, V_TP, K_P, SS_mV_dec, I_OFF, smooth_over=0.5
 
 fet_mobility_fn = lambda g_m_max, V_DS, C_ox, W_ch, L_ch: (g_m_max/(C_ox * W_ch/L_ch * V_DS))
 
+# Fast metric extraction from simple linear fits in the linear and subthreshold regions
+def FET_Metrics_Multiple(V_GS_data_list, I_D_data_list, gm_region_length_override=None, ss_region_length_override=None):
+	metrics = [FET_Metrics(V_GS_data_list[i], I_D_data_list[i], gm_region_length_override=gm_region_length_override, ss_region_length_override=ss_region_length_override) for i in range(len(V_GS_data_list))]
+	V_T_steepest_list = [entry['V_T'] for entry in metrics]
+	g_m_steepest_list = [entry['g_m_max'] for entry in metrics]
+	SS_mV_dec_steepest_list = [entry['SS_mV_dec'] for entry in metrics]
+	return {'V_T':V_T_steepest_list, 'g_m_max':g_m_steepest_list, 'SS_mV_dec':SS_mV_dec_steepest_list, 'metrics_all':metrics}
 
+def FET_Metrics(V_GS_data, I_D_data, gm_region_length_override=None, ss_region_length_override=None):
+	# Find steepest region metrics
+	SS_mV_dec_steepest_region, log_steepest_region = _max_subthreshold_swing(V_GS_data, I_D_data, ss_region_length_override)
+	g_m_steepest_region, V_T_steepest_region, linear_steepest_region = _max_transconductance(V_GS_data, I_D_data, gm_region_length_override)
+	return {'V_T':V_T_steepest_region, 'g_m_max':g_m_steepest_region, 'SS_mV_dec':SS_mV_dec_steepest_region}
 
+# Generic fit function for NMOSFET and PMOSFET
 def FET_Fit(V_GS_data, I_D_data, V_DS, I_OFF_guess=100e-12, gm_region_length_override=None, ss_region_length_override=None):
 	if((V_GS_data[0] < V_GS_data[-1]) and abs(I_D_data[0]) > abs(I_D_data[-1]) or (V_GS_data[0] > V_GS_data[-1]) and (abs(I_D_data[0]) < abs(I_D_data[-1]))):
 		print('Fitting to PMOSFET Model.')
@@ -148,7 +161,7 @@ def PMOSFET_Fit(V_GS_data, I_D_data, V_DS, V_TP_guess=0, V_TP_min=-100, V_TP_max
 	fitted_yvals = [PMOSFET_I_D_fn(vgs, V_DS, *fitted_model_parameters) for vgs in V_GS_data]
 	return (fitted_yvals, fitted_model_parameters, fitted_model_parameters_kw)
 
-def _max_subthreshold_swing(V_GS_data, I_D_data, region_length_override):
+def _max_subthreshold_swing(V_GS_data, I_D_data, region_length_override=None):
 	region_length = (int(len(I_D_data)/10) + 1) if(region_length_override is None) else (region_length_override)
 	startIndex, endIndex = _find_steepest_region(V_GS_data, np.log10(np.abs(I_D_data)), region_length)
 	V_GS_steepest_region = V_GS_data[startIndex:endIndex]
