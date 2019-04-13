@@ -24,22 +24,16 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	fig, ax = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
 		
 	# Compute device metrics
-	all_fitted_parameters = {'V_T':[], 'mu_Cox_W_L':[], 'SS_mV_dec':[], 'I_OFF':[], 'g_m_max':[]}
-	for deviceRun in deviceHistory:
-		if(mode_parameters['sweepDirection'] in ['both', 'forward']):
-			fwd_id_fitted, fwd_model_parameters, fwd_model_parameters_kw = fet_model.FET_Fit(deviceRun['Results']['vgs_data'][0], deviceRun['Results']['id_data'][0], deviceRun['runConfigs']['GateSweep']['drainVoltageSetPoint'], I_OFF_guess=deviceRun['Computed']['offCurrent'])
-			for parameter in all_fitted_parameters.keys():
-				all_fitted_parameters[parameter].append(fwd_model_parameters_kw[parameter])
-		if(mode_parameters['sweepDirection'] in ['both', 'reverse']):
-			rev_id_fitted, rev_model_parameters, rev_model_parameters_kw = fet_model.FET_Fit(deviceRun['Results']['vgs_data'][1], deviceRun['Results']['id_data'][1], deviceRun['runConfigs']['GateSweep']['drainVoltageSetPoint'], I_OFF_guess=deviceRun['Computed']['offCurrent'])
-			for parameter in all_fitted_parameters.keys():
-				all_fitted_parameters[parameter].append(rev_model_parameters_kw[parameter])
-	VT_list = all_fitted_parameters['V_T']
-	gm_list = all_fitted_parameters['g_m_max']
-	SS_list = all_fitted_parameters['SS_mV_dec']
-	VT_avg = np.mean(all_fitted_parameters['V_T'])
-	gm_avg = np.mean(all_fitted_parameters['g_m_max'])	
-	SS_avg = np.mean(all_fitted_parameters['SS_mV_dec'])
+	directions = ([0]) if(mode_parameters['sweepDirection'] == 'forward') else (([1]) if(mode_parameters['sweepDirection'] == 'reverse') else([0,1]))
+	vgs_data_list = [deviceRun['Results']['vgs_data'][i]  for deviceRun in deviceHistory for i in directions]
+	id_data_list  = [deviceRun['Results']['id_data'][i]   for deviceRun in deviceHistory for i in directions]
+	metrics = fet_model.FET_Metrics_Multiple(vgs_data_list, id_data_list)
+	VT_list = metrics['V_T']
+	gm_list = metrics['g_m_max']
+	SS_list = metrics['SS_mV_dec']
+	VT_avg = np.mean(VT_list)
+	gm_avg = np.mean(gm_list)	
+	SS_avg = np.mean(SS_list)
 	
 	# Build Color Map and Color Bar	
 	totalTime = timeWithUnits(deviceHistory[-1]['Results']['timestamps'][0][0] - deviceHistory[0]['Results']['timestamps'][-1][-1])
