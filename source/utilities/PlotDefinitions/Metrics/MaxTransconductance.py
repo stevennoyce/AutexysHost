@@ -27,11 +27,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	directions = ([0]) if(mode_parameters['sweepDirection'] == 'forward') else (([1]) if(mode_parameters['sweepDirection'] == 'reverse') else([0,1]))
 	vgs_data_list = [deviceRun['Results']['vgs_data'][i]  for deviceRun in deviceHistory for i in directions]
 	id_data_list  = [deviceRun['Results']['id_data'][i]   for deviceRun in deviceHistory for i in directions]
-	
-	print(len(vgs_data_list))
-	print(len(id_data_list))
 	metrics = fet_model.FET_Metrics_Multiple(vgs_data_list, id_data_list)
-	
 	VT_list = metrics['V_T']
 	gm_list = metrics['g_m_max']
 	SS_list = metrics['SS_mV_dec']
