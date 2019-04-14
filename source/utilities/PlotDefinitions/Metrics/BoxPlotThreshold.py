@@ -12,7 +12,8 @@ plotDescription = {
 		'automaticAxisLabels':True,
 		
 		'xlabel':'Trial',
-		'ylabel':'Threshold Voltage (V)',
+		'ylabel':'$V_{{T}}$ (V)',
+		'legend_label':'$V_{{T}}^{{avg}} = {:.3g}$ V',
 	},
 }
 
@@ -33,9 +34,10 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	SS_avg = np.mean(SS_list)	
 				
 	# Plot
-	if mode_parameters['useBoxWhiskerPlot']: 
-		line = ax.boxplot(VT_list, meanline=True, showmeans=True, showfliers=False, medianprops={'color':'#000000'}, meanprops={'color':'#000000'})
-	else: 
-		line = ax.plot(range(len(VT_list)), VT_list, color=plt.rcParams['axes.prop_cycle'].by_key()['color'][0], marker='o', markersize=4, linewidth=0, linestyle=None)
-
+	line = ax.boxplot(VT_list, meanline=True, showmeans=True, showfliers=False, medianprops={'color':'#000000'}, meanprops={'color':'#000000'})
+	
+	# Legend
+	if(mode_parameters['enableLegend']):
+		ax.legend(title=plotDescription['plotDefaults']['legend_label'].format(VT_avg))
+	
 	return (fig, (ax,))

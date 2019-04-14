@@ -46,7 +46,6 @@ default_mode_parameters = {
 	'includeDualAxis': True,
 	'includeOffCurrent': True,
 	'includeGateCurrent': False,
-	'useBoxWhiskerPlot': True,
 	
 	'staticBiasSegmentDividers': False,
 	'staticBiasChangeDividers': True,

@@ -10,8 +10,10 @@ plotDescription = {
 	'plotDefaults': {
 		'figsize':(2.8,3.2),
 		'automaticAxisLabels':True,
+		
 		'xlabel':'Trial',
 		'ylabel':'SS (mV/dec)',
+		'legend_label':'$SS^{{avg}} = {:.3g}$ mV/dec',
 	},
 }
 
@@ -32,9 +34,10 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	SS_avg = np.mean(SS_list)	
 				
 	# Plot
-	if(mode_parameters['useBoxWhiskerPlot']): 
-		line = ax.boxplot(SS_list, meanline=True, showmeans=True, showfliers=False, medianprops={'color':'#000000'}, meanprops={'color':'#000000'})
-	else: 
-		line = ax.plot(range(len(SS_list)), SS_list, color=plt.rcParams['axes.prop_cycle'].by_key()['color'][0], marker='o', markersize=4, linewidth=0, linestyle=None)
-
+	line = ax.boxplot(SS_list, meanline=True, showmeans=True, showfliers=False, medianprops={'color':'#000000'}, meanprops={'color':'#000000'})
+	
+	# Legend
+	if(mode_parameters['enableLegend']):
+		ax.legend(title=plotDescription['plotDefaults']['legend_label'].format(SS_avg))
+	
 	return (fig, (ax,))

@@ -12,7 +12,8 @@ plotDescription = {
 		'automaticAxisLabels':True,
 		
 		'xlabel':'Trial',
-		'ylabel':'Transconductance ($\\mu$A/V)',
+		'ylabel':'$g_{{m}}^{{max}}$ ($\\mu$A/V)',
+		'legend_label':'$g_{{m}}^{{avg}} = {:.3g}$ $\\mu$A/V',
 	},
 }
 
@@ -33,9 +34,10 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	SS_avg = np.mean(SS_list)
 		
 	# Plot
-	if(mode_parameters['useBoxWhiskerPlot']):
-		line = axis.boxplot(np.array(gm_list) * 10**6, meanline=True, showmeans=True, showfliers=False, medianprops={'color':'#000000'}, meanprops={'color':'#000000'})
-	else:
-		line = ax.plot(range(len(gm_list)), np.array(gm_list) * 10**6, color=plt.rcParams['axes.prop_cycle'].by_key()['color'][0], marker='o', markersize=4, linewidth=0, linestyle=None)
-
+	line = ax.boxplot(np.array(gm_list) * 10**6, meanline=True, showmeans=True, showfliers=False, medianprops={'color':'#000000'}, meanprops={'color':'#000000'})
+	
+	# Legend
+	if(mode_parameters['enableLegend']):
+		ax.legend(title=plotDescription['plotDefaults']['legend_label'].format(gm_avg * 10**6))
+	
 	return (fig, (ax,))
