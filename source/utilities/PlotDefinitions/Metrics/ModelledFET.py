@@ -13,6 +13,7 @@ plotDescription = {
 		'includeOriginOnYaxis':True,
 		'colorMap':'white_yellow_black',
 		'colorDefault': ['#1f77b4'],
+		
 		'xlabel':'$V_{{GS}}^{{Sweep}}$ (V)',
 		'ylabel':'$I_{{D}}$ ($\\mu$A)',
 		'neg_ylabel':'$-I_{{D}}$ ($\\mu$A)'

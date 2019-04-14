@@ -14,6 +14,7 @@ plotDescription = {
 		'automaticAxisLabels':True,
 		'colorMap':'white_orange_black',
 		'colorDefault': ['#1f77b4'],
+		
 		'xlabel':'Trial',
 		'ylabel':'$g_{{m}}^{{max}}$ ($\\mu$A/V)',
 	},

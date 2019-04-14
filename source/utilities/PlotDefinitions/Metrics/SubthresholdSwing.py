@@ -14,6 +14,7 @@ plotDescription = {
 		'automaticAxisLabels':True,
 		'colorMap':'white_purple_black',
 		'colorDefault': ['#7363af'],
+		
 		'xlabel':'Trial',
 		'ylabel':'SS (mV/dec)',
 	},

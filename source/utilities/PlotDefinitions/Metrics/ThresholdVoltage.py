@@ -14,6 +14,7 @@ plotDescription = {
 		'automaticAxisLabels':True,
 		'colorMap':'white_yellow_black',
 		'colorDefault': ['#1f77b4'],
+		
 		'xlabel':'Trial',
 		'ylabel':'$V_{{T}}$ (V)',
 	},
