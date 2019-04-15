@@ -8,8 +8,10 @@ plotDescription = {
 	'priority': 2030,
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
-		'figsize':(2,2.5),
+		'figsize':(2,2.3),
 		'automaticAxisLabels':True,
+		'colorMap':'white_yellow_black',
+		'colorDefault': ['#f2b134'],
 		
 		'xlabel':'',
 		'ylabel':'$V_{{T}}$ (V)',
@@ -41,13 +43,21 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	category_segments = [sum(category_sizes[0:i]) for i in range(len(category_sizes)+1)]
 	VT_list_categorized = [VT_list[category_segments[i]:category_segments[i+1]] for i in range(len(category_segments)-1)]
 	total_points_plotted = sum([len(cat) for cat in VT_list_categorized])			
+	
+	# Colors
+	colors = setupColors(fig, len(VT_list_categorized), colorOverride=mode_parameters['colorsOverride'], colorDefault=plotDescription['plotDefaults']['colorDefault'], colorMapName=plotDescription['plotDefaults']['colorMap'], colorMapStart=0.8, colorMapEnd=0.15, enableColorBar=False, colorBarTicks=[0,0.6,1], colorBarTickLabels=['', '', ''], colorBarAxisLabel='')			
 				
 	# Plot
-	line = ax.boxplot(VT_list_categorized, positions=range(len(VT_list_categorized)), meanline=True, showmeans=True, showfliers=False, medianprops={'color':'#000000'}, meanprops={'color':'#000000'})
-	
+	for i in range(len(VT_list_categorized)):
+		line = ax.boxplot(VT_list_categorized[i], positions=[i], meanline=True, showmeans=True, showfliers=False, boxprops={'color':colors[i]}, capprops={'color':colors[i]}, whiskerprops={'color':colors[i]}, medianprops={'color':colors[i]}, meanprops={'color':colors[i]})
+		
 	# Tick Labels
 	ax.set_xticks(range(len(VT_list_categorized)))
 	ax.set_xticklabels(categories)
+	
+	# X-axis limits
+	x_padding = 0.25
+	ax.set_xlim(left=(0-(x_padding)), right=(len(VT_list_categorized)-1)+(x_padding))
 	
 	# Legend
 	if(mode_parameters['enableLegend']):
