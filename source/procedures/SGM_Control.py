@@ -186,6 +186,9 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 	# Set a low compliance current for startup
 	smu_device.setComplianceCurrent(10e-9)
 	
+	smu_device.setBinaryDataTransfer(True)
+	smu_secondary.setBinaryDataTransfer(True)
+	
 	# Turn the device channels on and wait for system capacitances to charge
 	print('Turning device channels on and waiting for equilibration')
 	smu_device.turnChannelsOn()

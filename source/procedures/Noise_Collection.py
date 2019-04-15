@@ -12,6 +12,7 @@ def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False)
 	# Get shorthand name to easily refer to configuration parameters
 	rt_params = parameters['runConfigs']['NoiseCollection']
 	
+	smu_instance.setBinaryDataTransfer(True)
 	smu_instance.setComplianceCurrent(rt_params['complianceCurrent'])
 	print('Rampint Voltages')
 	smu_instance.rampDrainVoltageTo(rt_params['drainVoltage'])
