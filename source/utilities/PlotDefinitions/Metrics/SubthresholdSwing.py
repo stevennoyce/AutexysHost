@@ -9,7 +9,7 @@ plotDescription = {
 	'priority': 1030,
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
-		'figsize':(2.8,3.2),
+		'figsize':(2,2.5),
 		'include60mV':True,
 		'automaticAxisLabels':True,
 		'colorMap':'white_purple_black',
@@ -32,9 +32,10 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	VT_list = metrics['V_T']
 	gm_list = metrics['g_m_max']
 	SS_list = metrics['SS_mV_dec']
-	VT_avg = np.mean(VT_list)
-	gm_avg = np.mean(gm_list)	
-	SS_avg = np.mean(SS_list)
+	VT_avg, VT_std = np.mean(VT_list), np.std(VT_list)
+	gm_avg, gm_std = np.mean(gm_list), np.std(gm_list)
+	SS_avg, SS_std = np.mean(SS_list), np.std(SS_list)
+	print('Extracted SS_mV_dec: ' + str(SS_list))
 	
 	# Build Color Map and Color Bar	
 	totalTime = timeWithUnits(deviceHistory[-1]['Results']['timestamps'][0][0] - deviceHistory[0]['Results']['timestamps'][-1][-1])

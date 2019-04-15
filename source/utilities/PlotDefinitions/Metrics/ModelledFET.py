@@ -9,7 +9,7 @@ plotDescription = {
 	'priority': 1050,
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
-		'figsize':(2.8,3.2),
+		'figsize':(2,2.5),
 		'includeOriginOnYaxis':True,
 		'colorMap':'white_yellow_black',
 		'colorDefault': ['#1f77b4'],

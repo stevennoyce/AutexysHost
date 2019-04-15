@@ -42,6 +42,7 @@ default_mode_parameters = {
 	'sweepDirection': ['both','forward','reverse'][0],
 	'timescale': ['','seconds','minutes','hours','days','weeks'][0],
 	'plotInRealTime': True,
+	'boxPlotCategories':[('',float('inf'))],
 	
 	'includeDualAxis': True,
 	'includeOffCurrent': True,

@@ -5,15 +5,15 @@ from utilities import DataProcessorUtility as dpu
 
 plotDescription = {
 	'plotCategory': 'device',
-	'priority': 2020,
+	'priority': 2030,
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(2,2.5),
 		'automaticAxisLabels':True,
 		
 		'xlabel':'',
-		'ylabel':'SS (mV/dec)',
-		'legend_label':'Trials: {:.5g} \n$SS^{{avg}} = {:.3g}$ mV/dec \n$SS^{{std}} = {:.3g}$ mV/dec',
+		'ylabel':'$V_{{T}}$ (V)',
+		'legend_label':'Trials: {:.5g} \n$V_{{T}}^{{avg}} = {:.3g}$ V \n$V_{{T}}^{{std}} = {:.3g}$ V',
 	},
 }
 
@@ -32,25 +32,25 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	VT_avg, VT_std = np.mean(VT_list), np.std(VT_list)
 	gm_avg, gm_std = np.mean(gm_list), np.std(gm_list)
 	SS_avg, SS_std = np.mean(SS_list), np.std(SS_list)
-	print('Extracted SS_mV_dec: ' + str(SS_list))
-			
+	print('Extracted VT: ' + str(VT_list))
+	
 	# Split data into categories (default is just a single category)
 	category_list = mode_parameters['boxPlotCategories']
 	categories = [elem[0] for elem in category_list]
-	category_sizes = [int(min(elem[1],len(SS_list))) for elem in category_list]
+	category_sizes = [int(min(elem[1],len(VT_list))) for elem in category_list]
 	category_segments = [sum(category_sizes[0:i]) for i in range(len(category_sizes)+1)]
-	SS_list_categorized = [SS_list[category_segments[i]:category_segments[i+1]] for i in range(len(category_segments)-1)]
-	total_points_plotted = sum([len(cat) for cat in SS_list_categorized])			
+	VT_list_categorized = [VT_list[category_segments[i]:category_segments[i+1]] for i in range(len(category_segments)-1)]
+	total_points_plotted = sum([len(cat) for cat in VT_list_categorized])			
 				
 	# Plot
-	line = ax.boxplot(SS_list_categorized, positions=range(len(SS_list_categorized)), meanline=True, showmeans=True, showfliers=False, medianprops={'color':'#000000'}, meanprops={'color':'#000000'})
+	line = ax.boxplot(VT_list_categorized, positions=range(len(VT_list_categorized)), meanline=True, showmeans=True, showfliers=False, medianprops={'color':'#000000'}, meanprops={'color':'#000000'})
 	
 	# Tick Labels
-	ax.set_xticks(range(len(SS_list_categorized)))
+	ax.set_xticks(range(len(VT_list_categorized)))
 	ax.set_xticklabels(categories)
 	
 	# Legend
 	if(mode_parameters['enableLegend']):
-		ax.legend(loc='upper right', title=plotDescription['plotDefaults']['legend_label'].format(total_points_plotted, SS_avg, SS_std))
+		ax.legend(loc='upper right', title=plotDescription['plotDefaults']['legend_label'].format(total_points_plotted, VT_avg, VT_std))
 	
 	return (fig, (ax,))
