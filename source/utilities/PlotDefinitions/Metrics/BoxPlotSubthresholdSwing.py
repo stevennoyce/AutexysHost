@@ -10,8 +10,13 @@ plotDescription = {
 	'plotDefaults': {
 		'figsize':(2,2.3),
 		'automaticAxisLabels':True,
+		'includeOriginOnYaxis':True,
 		'colorMap':'white_purple_black',
 		'colorDefault': ['#7363af'],
+		
+		'spacing':1,
+		'x_padding':0.8,
+		'width':0.5,
 		
 		'xlabel':'',
 		'ylabel':'SS (mV/dec)',
@@ -49,18 +54,25 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 				
 	# Plot	
 	for i in range(len(SS_list_categorized)):
-		line = ax.boxplot(SS_list_categorized[i], positions=[i], meanline=True, showmeans=True, showfliers=False, boxprops={'color':colors[i]}, capprops={'color':colors[i]}, whiskerprops={'color':colors[i]}, medianprops={'color':colors[i]}, meanprops={'color':colors[i]})
+		position = i*plotDescription['plotDefaults']['spacing']
+		if(mode_parameters['boxPlotBarChart']):
+			line = ax.bar(position, np.mean(SS_list_categorized[i]), yerr=np.std(SS_list_categorized[i]), color=colors[i], width=plotDescription['plotDefaults']['width'], capsize=3, ecolor='#333333', error_kw={'capthick':1})	
+		else:
+			line = ax.boxplot(SS_list_categorized[i], positions=[position], widths=[plotDescription['plotDefaults']['width']], meanline=False, showmeans=False, showfliers=False, boxprops={'color':colors[i]}, capprops={'color':colors[i]}, whiskerprops={'color':colors[i]}, medianprops={'color':colors[i]}, meanprops={'color':colors[i]})
+		
 	
 	# Tick Labels
 	ax.set_xticks(range(len(SS_list_categorized)))
 	ax.set_xticklabels(categories)
 	
-	# X-axis limits
-	x_padding = 0.25
-	ax.set_xlim(left=(0-(x_padding)), right=(len(SS_list_categorized)-1)+(x_padding))
-	
 	# Legend
 	if(mode_parameters['enableLegend']):
 		ax.legend(loc='upper right', title=plotDescription['plotDefaults']['legend_label'].format(total_points_plotted, SS_avg, SS_std))
+	
+	# X-axis limits
+	ax.set_xlim(left= -plotDescription['plotDefaults']['x_padding'], right=(len(SS_list_categorized)-1)*plotDescription['plotDefaults']['spacing']+(plotDescription['plotDefaults']['x_padding']))
+	
+	# Adjust Y-lim (if desired)
+	includeOriginOnYaxis(ax, include=plotDescription['plotDefaults']['includeOriginOnYaxis'], stretchfactor=1.1)
 	
 	return (fig, (ax,))

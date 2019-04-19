@@ -43,6 +43,7 @@ default_mode_parameters = {
 	'timescale': ['','seconds','minutes','hours','days','weeks'][0],
 	'plotInRealTime': True,
 	'boxPlotCategories':[('',float('inf'))],
+	'boxPlotBarChart':True,
 	
 	'includeDualAxis': True,
 	'includeOffCurrent': True,

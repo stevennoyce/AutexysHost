@@ -47,8 +47,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		line = ax.plot([i+1], np.array([gm_list[i]]) * 10**6, color=colors[i], marker='o', markersize=4, linewidth=0, linestyle=None)
 
 	# Adjust Y-lim (if desired)
-	includeOriginOnYaxis(ax, include=plotDescription['plotDefaults']['includeOriginOnYaxis'])
-	ax.set_ylim(bottom=ax.get_ylim()[0]*1.1, top=ax.get_ylim()[1]*1.1)
+	includeOriginOnYaxis(ax, include=plotDescription['plotDefaults']['includeOriginOnYaxis'], stretchfactor=1.1)
 
 	return (fig, (ax,))
 
