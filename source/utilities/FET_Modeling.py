@@ -79,18 +79,22 @@ PMOSFET_I_D_fn = lambda V_GS, V_DS, V_TP, K_P, SS_mV_dec, I_OFF, smooth_over=0.5
 fet_mobility_fn = lambda g_m_max, V_DS, C_ox, W_ch, L_ch: (g_m_max/(C_ox * W_ch/L_ch * V_DS))
 
 # Fast metric extraction from simple linear fits in the linear and subthreshold regions
-def FET_Metrics_Multiple(V_GS_data_list, I_D_data_list, gm_region_length_override=None, ss_region_length_override=None):
-	metrics = [FET_Metrics(V_GS_data_list[i], I_D_data_list[i], gm_region_length_override=gm_region_length_override, ss_region_length_override=ss_region_length_override) for i in range(len(V_GS_data_list))]
+def FET_Metrics_Multiple(V_GS_data_list, I_D_data_list, gm_region_length_override=None, ss_region_length_override=None, extraction_mode_VT=None):
+	metrics = [FET_Metrics(V_GS_data_list[i], I_D_data_list[i], gm_region_length_override=gm_region_length_override, ss_region_length_override=ss_region_length_override, extraction_mode_VT=extraction_mode_VT) for i in range(len(V_GS_data_list))]
 	V_T_steepest_list = [entry['V_T'] for entry in metrics]
 	g_m_steepest_list = [entry['g_m_max'] for entry in metrics]
 	SS_mV_dec_steepest_list = [entry['SS_mV_dec'] for entry in metrics]
 	return {'V_T':V_T_steepest_list, 'g_m_max':g_m_steepest_list, 'SS_mV_dec':SS_mV_dec_steepest_list, 'metrics_all':metrics}
 
-def FET_Metrics(V_GS_data, I_D_data, gm_region_length_override=None, ss_region_length_override=None):
+def FET_Metrics(V_GS_data, I_D_data, gm_region_length_override=None, ss_region_length_override=None, extraction_mode_VT=None):
 	# Find steepest region metrics
 	SS_mV_dec_steepest_region, log_steepest_region = _max_subthreshold_swing(V_GS_data, I_D_data, ss_region_length_override)
 	g_m_steepest_region, V_T_steepest_region, linear_steepest_region = _max_transconductance(V_GS_data, I_D_data, gm_region_length_override)
+	if(isinstance(extraction_mode_VT, list) and (extraction_mode_VT[0] == 'byDrainCurrent')):
+		V_T_by_drain_current = _gateVoltageAtDrainCurrent(V_GS_data, I_D_data, I_D_value=extraction_mode_VT[1])
+		return {'V_T':V_T_by_drain_current, 'g_m_max':g_m_steepest_region, 'SS_mV_dec':SS_mV_dec_steepest_region}
 	return {'V_T':V_T_steepest_region, 'g_m_max':g_m_steepest_region, 'SS_mV_dec':SS_mV_dec_steepest_region}
+	
 
 # Generic fit function for NMOSFET and PMOSFET
 def FET_Fit(V_GS_data, I_D_data, V_DS, I_OFF_guess=100e-12, gm_region_length_override=None, ss_region_length_override=None):
@@ -163,6 +167,7 @@ def PMOSFET_Fit(V_GS_data, I_D_data, V_DS, V_TP_guess=0, V_TP_min=-100, V_TP_max
 
 def _max_subthreshold_swing(V_GS_data, I_D_data, region_length_override=None):
 	region_length = (int(len(I_D_data)/10) + 1) if(region_length_override is None) else (region_length_override)
+	#print('SS region length: ' + str(region_length))
 	startIndex, endIndex = _find_steepest_region(V_GS_data, np.log10(np.abs(I_D_data)), region_length)
 	V_GS_steepest_region = V_GS_data[startIndex:endIndex]
 	I_D_steepest_region = I_D_data[startIndex:endIndex]
@@ -172,6 +177,7 @@ def _max_subthreshold_swing(V_GS_data, I_D_data, region_length_override=None):
 
 def _max_transconductance(V_GS_data, I_D_data, region_length_override=None):
 	region_length = (int(len(I_D_data)/10) + 1) if(region_length_override is None) else (region_length_override)
+	#print('gm region length: ' + str(region_length))
 	startIndex, endIndex = _find_steepest_region(V_GS_data, np.abs(I_D_data), region_length)
 	V_GS_steepest_region = V_GS_data[startIndex:endIndex]
 	I_D_steepest_region = I_D_data[startIndex:endIndex]
@@ -180,6 +186,20 @@ def _max_transconductance(V_GS_data, I_D_data, region_length_override=None):
 	V_T_approx = fit['x_intercept']
 	g_m_max = abs( fit['slope'] )  
 	return g_m_max, V_T_approx, (V_GS_steepest_region, fitted_steepest_region)
+
+def _gateVoltageAtDrainCurrent(V_GS_data, I_D_data, I_D_value):
+	# Find index of data where drain current is closest to target value
+	index = _indexOfValue(I_D_data, I_D_value)
+	if(index == -1):
+		raise NotImplementedError('Unable to find gate voltage for the given drain current value.')
+	elif((index <= 3) or (index >= len(I_D_data) - 3)):
+		raise NotImplementedError('Drain current value was too close to edge of data for VT extraction.')
+		
+	# Perform a local linear fit to increase effective measurement resolution at the point of interest, then solve for V_GS analytically
+	fit = _linearFit(V_GS_data[index-1:index+2], I_D_data[index-1:index+2])
+	V_GS = (I_D_value - fit['y_intercept'])/fit['slope']
+	
+	return V_GS
 
 def _find_steepest_region(V_GS_data, I_D_data, numberOfPoints):
 	maxSlope = 0
@@ -192,6 +212,13 @@ def _find_steepest_region(V_GS_data, I_D_data, numberOfPoints):
 	regionStart = max(0, index)
 	regionEnd = min(len(I_D_data)-1, index + numberOfPoints)
 	return (int(regionStart), int(regionEnd))
+
+def _indexOfValue(y, value):
+	index = -1
+	for i in range(len(y) - 1):
+		if(((y[i] < value) and (y[i+1] >= value)) or ((y[i] > value) and (y[i+1] <= value))):
+			index = i
+	return index
 
 def _linearFit(x, y):
 	slope, intercept = np.polyfit(x, y, 1)
