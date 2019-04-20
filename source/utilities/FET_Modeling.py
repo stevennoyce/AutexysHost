@@ -81,17 +81,18 @@ fet_mobility_fn = lambda g_m_max, V_DS, C_ox, W_ch, L_ch: (g_m_max/(C_ox * W_ch/
 # Fast metric extraction from simple linear fits in the linear and subthreshold regions
 def FET_Metrics_Multiple(V_GS_data_list, I_D_data_list, gm_region_length_override=None, ss_region_length_override=None, extraction_mode_VT=None):
 	metrics = [FET_Metrics(V_GS_data_list[i], I_D_data_list[i], gm_region_length_override=gm_region_length_override, ss_region_length_override=ss_region_length_override, extraction_mode_VT=extraction_mode_VT) for i in range(len(V_GS_data_list))]
-	V_T_steepest_list = [entry['V_T'] for entry in metrics]
-	g_m_steepest_list = [entry['g_m_max'] for entry in metrics]
-	SS_mV_dec_steepest_list = [entry['SS_mV_dec'] for entry in metrics]
-	return {'V_T':V_T_steepest_list, 'g_m_max':g_m_steepest_list, 'SS_mV_dec':SS_mV_dec_steepest_list, 'metrics_all':metrics}
+	V_T_list = [entry['V_T'] for entry in metrics]
+	g_m_list = [entry['g_m_max'] for entry in metrics]
+	SS_mV_dec_list = [entry['SS_mV_dec'] for entry in metrics]
+	return {'V_T':V_T_list, 'g_m_max':g_m_list, 'SS_mV_dec':SS_mV_dec_list, 'metrics_all':metrics}
 
 def FET_Metrics(V_GS_data, I_D_data, gm_region_length_override=None, ss_region_length_override=None, extraction_mode_VT=None):
 	# Find steepest region metrics
 	SS_mV_dec_steepest_region, log_steepest_region = _max_subthreshold_swing(V_GS_data, I_D_data, ss_region_length_override)
 	g_m_steepest_region, V_T_steepest_region, linear_steepest_region = _max_transconductance(V_GS_data, I_D_data, gm_region_length_override)
 	if(isinstance(extraction_mode_VT, list) and (extraction_mode_VT[0] == 'byDrainCurrent')):
-		V_T_by_drain_current = _gateVoltageAtDrainCurrent(V_GS_data, I_D_data, I_D_value=extraction_mode_VT[1])
+		drainCurrentValue = extraction_mode_VT[1] if((len(extraction_mode_VT) > 1) and (extraction_mode_VT[1] is not None)) else (I_D_data[int((_find_steepest_region(V_GS_data, I_D_data, None)[0] + _find_steepest_region(V_GS_data, I_D_data, None)[1])/2)])
+		V_T_by_drain_current = _gateVoltageAtDrainCurrent(V_GS_data, I_D_data, I_D_value=drainCurrentValue)
 		return {'V_T':V_T_by_drain_current, 'g_m_max':g_m_steepest_region, 'SS_mV_dec':SS_mV_dec_steepest_region}
 	return {'V_T':V_T_steepest_region, 'g_m_max':g_m_steepest_region, 'SS_mV_dec':SS_mV_dec_steepest_region}
 	
@@ -201,7 +202,8 @@ def _gateVoltageAtDrainCurrent(V_GS_data, I_D_data, I_D_value):
 	
 	return V_GS
 
-def _find_steepest_region(V_GS_data, I_D_data, numberOfPoints):
+def _find_steepest_region(V_GS_data, I_D_data, region_length): 
+	numberOfPoints = (int(len(I_D_data)/10) + 1) if(region_length is None) else (region_length)
 	maxSlope = 0
 	index = 0
 	for i in range(len(I_D_data) - numberOfPoints):
