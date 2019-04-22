@@ -2,6 +2,7 @@ from utilities.MatplotlibUtility import *
 
 
 
+
 plotDescription = {
 	'plotCategory': 'device',
 	'priority': 70,
@@ -13,7 +14,7 @@ plotDescription = {
 		'colorMap':'white_maroon_black',
 		'colorDefault': ['#800000'],
 		
-		'xlabel':'$V_{{GS}}^{{Sweep}}$ (V)',
+		'xlabel':'|$I_{{D}}$| (A)',
 		'ylabel':'Hysteresis (V)',
 		'leg_vds_label':'$V_{{DS}}^{{Sweep}}$  = {:}V',
 		'leg_vds_range_label':'$V_{{DS}}^{{min}} = $ {:}V\n'+'$V_{{DS}}^{{max}} = $ {:}V',
@@ -34,6 +35,8 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		line = plotHysteresisCurve(ax, deviceHistory[i], colors[i], lineStyle=None, errorBars=mode_parameters['enableErrorBars'])
 		if(len(deviceHistory) == len(mode_parameters['legendLabels'])):
 			setLabel(line, mode_parameters['legendLabels'][i])
+
+	ax.set_xscale('log')
 
 	# Add Legend and save figure
 	addLegend(ax, loc=mode_parameters['legendLoc'], title=getLegendTitle(deviceHistory, identifiers, plotDescription['plotDefaults'], 'runConfigs', 'GateSweep', mode_parameters, includeVdsSweep=True, includeIdVgsFit=True), mode_parameters=mode_parameters)

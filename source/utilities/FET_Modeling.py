@@ -105,6 +105,11 @@ def FET_Metrics(V_GS_data, I_D_data, gm_region_length_override=None, ss_region_l
 		V_T_by_drain_current = _gateVoltageAtDrainCurrent(V_GS_data, I_D_data, I_D_value=drainCurrentValue)
 		return {'V_T':V_T_by_drain_current, 'g_m_max':g_m_steepest_region, 'SS_mV_dec':SS_mV_dec_steepest_region}
 	return {'V_T':V_T_steepest_region, 'g_m_max':g_m_steepest_region, 'SS_mV_dec':SS_mV_dec_steepest_region}
+
+def FET_Hysteresis(V_GS_data1, I_D_data1, V_GS_data2, I_D_data2, I_D_extraction_point):
+	V_GS1 = _gateVoltageAtDrainCurrent(V_GS_data1, I_D_data1, I_D_extraction_point)
+	V_GS2 = _gateVoltageAtDrainCurrent(V_GS_data2, I_D_data2, I_D_extraction_point)
+	return abs(V_GS1 - V_GS2)
 ## ===============
 
 
