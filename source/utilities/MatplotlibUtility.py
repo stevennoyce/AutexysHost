@@ -116,21 +116,28 @@ def rgba_to_rgba_map(RGBA1, RGBA2):
 
 	return pltc.LinearSegmentedColormap(name, description)
 
-
+# RGB
 plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_red_black', light_to_dark_map(237, 85, 59) ))		#ed553b
 plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_green_black', light_to_dark_map(79, 185, 159) ))		#4FB99F
 plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_blue_black', light_to_dark_map(31, 119, 180) ))		#1f77b4
 
+# RGB - secondary
 plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_yellow_black', light_to_dark_map(242, 177, 52) ))	#f2b134
 plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_purple_black', light_to_dark_map(115, 99, 175) ))	#7363af
 plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_orange_black', light_to_dark_map(238, 117, 57) ))	#ee7539
 
+# RGB - tertiary
+plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_maroon_black', light_to_dark_map(128, 0, 0) ))		#800000
+plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_violet_black', light_to_dark_map(53, 25, 150) ))		#351996
+plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_turquoise_black', light_to_dark_map(64, 224, 208) ))	#40E0D0
 plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_teal_black', light_to_dark_map(28, 206, 167) ))		#1ccea7
 plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_lime_black', light_to_dark_map(58, 226, 75) ))		#3ae24b
-plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_violet_black', light_to_dark_map(53, 25, 150) ))		#351996
+
+# Other
 plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_magenta_black', light_to_dark_map(159, 50, 133) ))	#9F3285
 plt.register_cmap(cmap=pltc.LinearSegmentedColormap('white_peach_black', light_to_dark_map(255, 142, 101) ))	#ff8e65
 
+# Multi-colored
 plt.register_cmap(cmap=pltc.LinearSegmentedColormap('blue_teal_orange', color_to_color_to_color_map(10, 30, 150, 100, 175, 170, 250, 200, 100) ))
 
 

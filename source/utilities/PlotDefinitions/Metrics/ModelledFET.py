@@ -6,7 +6,7 @@ from utilities import FET_Modeling as fet_model
 
 plotDescription = {
 	'plotCategory': 'device',
-	'priority': 1050,
+	'priority': 3010,
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(2,2.5),

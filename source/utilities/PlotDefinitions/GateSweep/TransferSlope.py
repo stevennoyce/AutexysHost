@@ -10,7 +10,7 @@ plotDescription = {
 		'figsize':(2,2.5),
 		'includeOriginOnYaxis':True,
 		'colorMap':'white_orange_black',
-		'colorDefault': ['#f2b134'],
+		'colorDefault': ['#ee7539'],
 		'xlabel':'$V_{{GS}}^{{Sweep}}$ (V)',
 		'micro_ylabel':'$g_{{m}}$ ($\\mu$S)',
 		'nano_ylabel':'$g_{{m}}$ (nS)',

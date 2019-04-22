@@ -2,21 +2,22 @@ from utilities.MatplotlibUtility import *
 from utilities import DataProcessorUtility as dpu
 from utilities import FET_Modeling as fet_model
 
+import numpy as np
 
 
 plotDescription = {
 	'plotCategory': 'device',
-	'priority': 1030,
+	'priority': 1040,
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(2,2.5),
 		'includeOriginOnYaxis':True,
 		'automaticAxisLabels':True,
-		'colorMap':'white_yellow_black',
-		'colorDefault': ['#f2b134'],
+		'colorMap':'white_maroon_black',
+		'colorDefault': ['#800000'],
 		
 		'xlabel':'Trial',
-		'ylabel':'$V_{{T}}$ (V)',
+		'ylabel':'Hysteresis (V)',
 	},
 }
 
@@ -25,7 +26,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	fig, ax = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
 		
 	# Compute device metrics
-	directions = ([0]) if(mode_parameters['sweepDirection'] == 'forward') else (([1]) if(mode_parameters['sweepDirection'] == 'reverse') else([0,1]))
+	directions = [0,1]
 	vgs_data_list = [deviceRun['Results']['vgs_data'][i]  for deviceRun in deviceHistory for i in directions]
 	id_data_list  = [deviceRun['Results']['id_data'][i]   for deviceRun in deviceHistory for i in directions]
 	metrics = fet_model.FET_Metrics_Multiple(vgs_data_list, id_data_list)
@@ -35,16 +36,19 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	VT_avg, VT_std = np.mean(VT_list), np.std(VT_list)
 	gm_avg, gm_std = np.mean(gm_list), np.std(gm_list)
 	SS_avg, SS_std = np.mean(SS_list), np.std(SS_list)
-	print('Extracted VT: ' + str(VT_list))
+	
+	# Compute Hysteresis from VT for every pair of transfer curves
+	H_list = [abs(VT_list[i] - VT_list[i+1]) for i in np.array(range(int(len(VT_list)/2))) * 2] if(len(VT_list) >= 2) else []
+	print('Extracted H: ' + str(VT_list))
 	
 	# Build Color Map and Color Bar	
 	totalTime = timeWithUnits(deviceHistory[-1]['Results']['timestamps'][0][0] - deviceHistory[0]['Results']['timestamps'][-1][-1])
 	holdTime = '[$t_{{Hold}}$ = {}]'.format(timeWithUnits(deviceHistory[1]['Results']['timestamps'][-1][-1] - deviceHistory[0]['Results']['timestamps'][0][0])) if(len(deviceHistory) >= 2) else ('[$t_{{Hold}}$ = 0]')
-	colors = setupColors(fig, len(VT_list), colorOverride=mode_parameters['colorsOverride'], colorDefault=plotDescription['plotDefaults']['colorDefault'], colorMapName=plotDescription['plotDefaults']['colorMap'], colorMapStart=0.8, colorMapEnd=0.15, enableColorBar=mode_parameters['enableColorBar'], colorBarTicks=[0,0.6,1], colorBarTickLabels=[totalTime, holdTime, '$t_0$'], colorBarAxisLabel='')			
+	colors = setupColors(fig, len(H_list), colorOverride=mode_parameters['colorsOverride'], colorDefault=plotDescription['plotDefaults']['colorDefault'], colorMapName=plotDescription['plotDefaults']['colorMap'], colorMapStart=0.8, colorMapEnd=0.15, enableColorBar=mode_parameters['enableColorBar'], colorBarTicks=[0,0.6,1], colorBarTickLabels=[totalTime, holdTime, '$t_0$'], colorBarAxisLabel='')			
 	
 	# Plot
-	for i in range(len(VT_list)):
-		line = ax.plot([i+1], [VT_list[i]], color=colors[i], marker='o', markersize=4, linewidth=0, linestyle=None)
+	for i in range(len(H_list)):
+		line = ax.plot([i+1], [H_list[i]], color=colors[i], marker='o', markersize=4, linewidth=0, linestyle=None)
 
 	# Adjust Y-lim (if desired)
 	includeOriginOnYaxis(ax, include=plotDescription['plotDefaults']['includeOriginOnYaxis'], stretchfactor=1.1)
