@@ -9,8 +9,6 @@ import io
 import os
 import time
 
-from utilities import FET_Modeling as fet_model
-
 # ********** Matplotlib Parameters **********
 
 plt.style.use('seaborn-paper')

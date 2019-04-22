@@ -62,6 +62,9 @@ NMOSFET_I_D_on_fn = lambda V_GS, V_DS, V_TN, K_N: (NMOSFET_I_D_lin_fn(V_GS, V_DS
 NMOSFET_I_D_intermed_fn = lambda V_GS, V_DS, V_TN, K_N, SS_mV_dec, smooth_over: (((exp(-(V_GS-V_TN)/(smooth_over*SS_mV_dec/1000)))*NMOSFET_I_D_subth_fn(V_GS, V_DS, V_TN, K_N, SS_mV_dec) + (1-exp(-(V_GS-V_TN)/(smooth_over*SS_mV_dec/1000)))*(NMOSFET_I_D_subth_fn(0, V_DS, 0, K_N, SS_mV_dec) + NMOSFET_I_D_on_fn(V_GS, V_DS, V_TN, K_N))) if(smooth_over > 0) else (NMOSFET_I_D_subth_fn(0, V_DS, 0, K_N, SS_mV_dec)))
 NMOSFET_I_D_fn = lambda V_GS, V_DS, V_TN, K_N, SS_mV_dec, I_OFF, smooth_over=0.5: (max(NMOSFET_I_D_subth_fn(V_GS, V_DS, V_TN, K_N, SS_mV_dec) if(V_GS < V_TN) else ((NMOSFET_I_D_intermed_fn(V_GS, V_DS, V_TN, K_N, SS_mV_dec, smooth_over=smooth_over)) if(V_GS < V_TN + smooth_over*SS_mV_dec/1000) else((NMOSFET_I_D_intermed_fn(V_TN + smooth_over*SS_mV_dec/1000, V_DS, V_TN, K_N, SS_mV_dec, smooth_over=smooth_over) - NMOSFET_I_D_on_fn(V_TN + smooth_over*SS_mV_dec/1000, V_DS, V_TN, K_N)) + NMOSFET_I_D_on_fn(V_GS, V_DS, V_TN, K_N))), I_OFF))
 #NMOSFET_I_D_ChLenMod_fn = lambda V_GS, V_DS, V_TN, K_N, SS_mV_dec, I_OFF, lambda_N: (NMOSFET_I_D_fn(V_GS, V_DS, V_TN, K_N, SS_mV_dec, I_OFF) * (1 + lambda_N*V_DS))
+NMOSFET_TransferCurve_fn = lambda V_GS_list, V_DS, V_TN, K_N, SS_mV_dec, I_OFF: ([NMOSFET_I_D_fn(vgs, V_DS, V_TN, K_N, SS_mV_dec, I_OFF) for vgs in V_GS_list])
+NMOSFET_OutputCurve_fn   = lambda V_GS, V_DS_list, V_TN, K_N, SS_mV_dec, I_OFF: ([NMOSFET_I_D_fn(V_GS, vds, V_TN, K_N, SS_mV_dec, I_OFF) for vds in V_DS_list])
+
 
 # Level 1 SPICE PMOSFET Model
 PMOSFET_V_DSat_fn = lambda V_GS, V_TP: (V_GS - V_TP)
@@ -75,9 +78,16 @@ PMOSFET_I_D_on_fn = lambda V_GS, V_DS, V_TP, K_P: (PMOSFET_I_D_lin_fn(V_GS, V_DS
 PMOSFET_I_D_intermed_fn = lambda V_GS, V_DS, V_TP, K_P, SS_mV_dec, smooth_over: (((exp((V_GS-V_TP)/(smooth_over*SS_mV_dec/1000)))*PMOSFET_I_D_subth_fn(V_GS, V_DS, V_TP, K_P, SS_mV_dec) + (1-exp((V_GS-V_TP)/(smooth_over*SS_mV_dec/1000)))*(PMOSFET_I_D_subth_fn(0, V_DS, 0, K_P, SS_mV_dec) + PMOSFET_I_D_on_fn(V_GS, V_DS, V_TP, K_P))) if(smooth_over > 0) else (NMOSFET_I_D_subth_fn(0, V_DS, 0, K_N, SS_mV_dec)))
 PMOSFET_I_D_fn = lambda V_GS, V_DS, V_TP, K_P, SS_mV_dec, I_OFF, smooth_over=0.5: (min(PMOSFET_I_D_subth_fn(V_GS, V_DS, V_TP, K_P, SS_mV_dec) if(V_GS > V_TP) else ((PMOSFET_I_D_intermed_fn(V_GS, V_DS, V_TP, K_P, SS_mV_dec, smooth_over=smooth_over)) if(V_GS > V_TP - smooth_over*SS_mV_dec/1000) else((PMOSFET_I_D_intermed_fn(V_TP - smooth_over*SS_mV_dec/1000, V_DS, V_TP, K_P, SS_mV_dec, smooth_over=smooth_over) - PMOSFET_I_D_on_fn(V_TP - smooth_over*SS_mV_dec/1000, V_DS, V_TP, K_P)) + PMOSFET_I_D_on_fn(V_GS, V_DS, V_TP, K_P))), -abs(I_OFF)))
 #PMOSFET_I_D_ChLenMod_fn = lambda  V_GS, V_DS, V_TP, K_P, SS_mV_dec, lambda_P: (PMOSFET_I_D_fn(V_GS, V_DS, V_TP, K_P, SS_mV_dec) * (1 + lambda_P*V_DS))
+PMOSFET_TransferCurve_fn = lambda V_GS_list, V_DS, V_TP, K_P, SS_mV_dec, I_OFF: ([PMOSFET_I_D_fn(vgs, V_DS, V_TP, K_P, SS_mV_dec, I_OFF) for vgs in V_GS_list])
+PMOSFET_OutputCurve_fn   = lambda V_GS, V_DS_list, V_TP, K_P, SS_mV_dec, I_OFF: ([PMOSFET_I_D_fn(V_GS, vds, V_TP, K_P, SS_mV_dec, I_OFF) for vds in V_DS_list])
 
 fet_mobility_fn = lambda g_m_max, V_DS, C_ox, W_ch, L_ch: (g_m_max/(C_ox * W_ch/L_ch * V_DS))
 
+# ===================================================
+
+
+
+# === Metrics ===
 # Fast metric extraction from simple linear fits in the linear and subthreshold regions
 def FET_Metrics_Multiple(V_GS_data_list, I_D_data_list, gm_region_length_override=None, ss_region_length_override=None, extraction_mode_VT=None):
 	metrics = [FET_Metrics(V_GS_data_list[i], I_D_data_list[i], gm_region_length_override=gm_region_length_override, ss_region_length_override=ss_region_length_override, extraction_mode_VT=extraction_mode_VT) for i in range(len(V_GS_data_list))]
@@ -95,11 +105,21 @@ def FET_Metrics(V_GS_data, I_D_data, gm_region_length_override=None, ss_region_l
 		V_T_by_drain_current = _gateVoltageAtDrainCurrent(V_GS_data, I_D_data, I_D_value=drainCurrentValue)
 		return {'V_T':V_T_by_drain_current, 'g_m_max':g_m_steepest_region, 'SS_mV_dec':SS_mV_dec_steepest_region}
 	return {'V_T':V_T_steepest_region, 'g_m_max':g_m_steepest_region, 'SS_mV_dec':SS_mV_dec_steepest_region}
+## ===============
+
+
 	
+## === Fitting ===
+# Condition for classifying data belonging to NMOS or PMOS transistors
+def FET_Type(V_GS_data, I_D_data):
+	if((V_GS_data[0] < V_GS_data[-1]) and abs(I_D_data[0]) > abs(I_D_data[-1]) or (V_GS_data[0] > V_GS_data[-1]) and (abs(I_D_data[0]) < abs(I_D_data[-1]))):
+		return 'PMOS'
+	else:
+		return 'NMOS'
 
 # Generic fit function for NMOSFET and PMOSFET
 def FET_Fit(V_GS_data, I_D_data, V_DS, I_OFF_guess=100e-12, gm_region_length_override=None, ss_region_length_override=None):
-	if((V_GS_data[0] < V_GS_data[-1]) and abs(I_D_data[0]) > abs(I_D_data[-1]) or (V_GS_data[0] > V_GS_data[-1]) and (abs(I_D_data[0]) < abs(I_D_data[-1]))):
+	if(FET_Type(V_GS_data, I_D_data) == 'PMOS'):
 		print('Fitting to PMOSFET Model.')
 		return PMOSFET_Fit(V_GS_data, -abs(np.array(I_D_data)), -abs(V_DS), I_OFF_guess=abs(I_OFF_guess), I_OFF_min=abs(I_OFF_guess)/2, I_OFF_max=abs(I_OFF_guess)*2, gm_region_length_override=gm_region_length_override, ss_region_length_override=ss_region_length_override)
 	else:
@@ -166,6 +186,27 @@ def PMOSFET_Fit(V_GS_data, I_D_data, V_DS, V_TP_guess=0, V_TP_min=-100, V_TP_max
 	fitted_yvals = [PMOSFET_I_D_fn(vgs, V_DS, *fitted_model_parameters) for vgs in V_GS_data]
 	return (fitted_yvals, fitted_model_parameters, fitted_model_parameters_kw)
 
+# Simple model for a MOSFET with metrics that match the given data
+def FET_Fit_Simple(V_GS_data, I_D_data, V_DS, I_OFF_guess=100e-12, gm_region_length_override=None, ss_region_length_override=None):
+	metrics = FET_Metrics(V_GS_data, I_D_data, gm_region_length_override=gm_region_length_override, ss_region_length_override=gm_region_length_override)
+	
+	V_T = metrics['V_T']
+	gm = metrics['g_m_max']
+	SS_mV_dec = metrics['SS_mV_dec']
+	K = abs(gm/V_DS)
+	
+	if(FET_Type(V_GS_data, I_D_data) == 'PMOS'):
+		print('Fitting to PMOSFET Model.')
+		return PMOSFET_TransferCurve_fn(V_GS_data, -abs(V_DS), V_T, K, SS_mV_dec, I_OFF_guess)
+	else:
+		print('Fitting to NMOSFET Model.')
+		return NMOSFET_TransferCurve_fn(V_GS_data, abs(V_DS), V_T, K, SS_mV_dec, I_OFF_guess)
+	
+## ================
+
+
+
+## === Internal ===
 def _max_subthreshold_swing(V_GS_data, I_D_data, region_length_override=None):
 	region_length = (int(len(I_D_data)/10) + 1) if(region_length_override is None) else (region_length_override)
 	#print('SS region length: ' + str(region_length))

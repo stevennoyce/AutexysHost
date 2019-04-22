@@ -39,10 +39,10 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	all_fitted_values = {'fwd_id_fitted':[], 'rev_id_fitted':[]}
 	for deviceRun in deviceHistory:
 		if(mode_parameters['sweepDirection'] in ['both', 'forward']):
-			fwd_id_fitted, fwd_model_parameters, fwd_model_parameters_kw = fet_model.FET_Fit(deviceRun['Results']['vgs_data'][0], deviceRun['Results']['id_data'][0], deviceRun['runConfigs']['GateSweep']['drainVoltageSetPoint'], I_OFF_guess=deviceRun['Computed']['offCurrent'], gm_region_length_override=gm_region_length_override, ss_region_length_override=ss_region_length_override)
+			fwd_id_fitted = fet_model.FET_Fit_Simple(deviceRun['Results']['vgs_data'][0], deviceRun['Results']['id_data'][0], deviceRun['runConfigs']['GateSweep']['drainVoltageSetPoint'], I_OFF_guess=deviceRun['Computed']['offCurrent'], gm_region_length_override=gm_region_length_override, ss_region_length_override=ss_region_length_override)
 			all_fitted_values['fwd_id_fitted'].append(fwd_id_fitted)
 		if(mode_parameters['sweepDirection'] in ['both', 'reverse']):
-			rev_id_fitted, rev_model_parameters, rev_model_parameters_kw = fet_model.FET_Fit(deviceRun['Results']['vgs_data'][1], deviceRun['Results']['id_data'][1], deviceRun['runConfigs']['GateSweep']['drainVoltageSetPoint'], I_OFF_guess=deviceRun['Computed']['offCurrent'], gm_region_length_override=gm_region_length_override, ss_region_length_override=ss_region_length_override)
+			rev_id_fitted = fet_model.FET_Fit_Simple(deviceRun['Results']['vgs_data'][1], deviceRun['Results']['id_data'][1], deviceRun['runConfigs']['GateSweep']['drainVoltageSetPoint'], I_OFF_guess=deviceRun['Computed']['offCurrent'], gm_region_length_override=gm_region_length_override, ss_region_length_override=ss_region_length_override)
 			all_fitted_values['rev_id_fitted'].append(rev_id_fitted)
 	
 	# Build Color Map and Color Bar	
