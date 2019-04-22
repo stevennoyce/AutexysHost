@@ -17,7 +17,7 @@ plotDescription = {
 		'colorDefault': ['#800000'],
 		
 		'xlabel':'Trial',
-		'ylabel':'Hysteresis (V)',
+		'ylabel':'Hysteresis (mV)',
 	},
 }
 
@@ -48,7 +48,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	
 	# Plot
 	for i in range(len(H_list)):
-		line = ax.plot([i+1], [H_list[i]], color=colors[i], marker='o', markersize=4, linewidth=0, linestyle=None)
+		line = ax.plot([i+1], [H_list[i] * 1000], color=colors[i], marker='o', markersize=4, linewidth=0, linestyle=None)
 
 	# Adjust Y-lim (if desired)
 	includeOriginOnYaxis(ax, include=plotDescription['plotDefaults']['includeOriginOnYaxis'], stretchfactor=1.1)

@@ -19,7 +19,7 @@ plotDescription = {
 		'width':0.5,
 		
 		'xlabel':'',
-		'ylabel':'Hysteresis (V)',
+		'ylabel':'Hysteresis (mV)',
 		'legend_label':'Trials: {:.5g} \n$V_{{T}}^{{avg}} = {:.3g}$ V \n$V_{{T}}^{{std}} = {:.3g}$ V',
 	},
 }
@@ -42,6 +42,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	
 	# Compute Hysteresis from VT for every pair of transfer curves
 	H_list = [abs(VT_list[i] - VT_list[i+1]) for i in np.array(range(int(len(VT_list)/2))) * 2] if(len(VT_list) >= 2) else []
+	H_avg, H_std = np.mean(H_list), np.std(H_list)
 	print('Extracted H: ' + str(H_list))
 	
 	# Split data into categories (default is just a single category)
@@ -59,9 +60,9 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	for i in range(len(H_list_categorized)):
 		position = i*plotDescription['plotDefaults']['spacing']
 		if(mode_parameters['boxPlotBarChart']):
-			line = ax.bar(position, np.mean(H_list_categorized[i]), yerr=np.std(H_list_categorized[i]), color=colors[i], width=plotDescription['plotDefaults']['width'], capsize=3, ecolor='#333333', error_kw={'capthick':1})	
+			line = ax.bar(position, np.mean(H_list_categorized[i]) * 1000, yerr=np.std(H_list_categorized[i]), color=colors[i], width=plotDescription['plotDefaults']['width'], capsize=3, ecolor='#333333', error_kw={'capthick':1})	
 		else:
-			line = ax.boxplot(H_list_categorized[i], positions=[position], widths=[plotDescription['plotDefaults']['width']], meanline=False, showmeans=False, showfliers=False, boxprops={'color':colors[i]}, capprops={'color':colors[i]}, whiskerprops={'color':colors[i]}, medianprops={'color':colors[i]}, meanprops={'color':colors[i]})
+			line = ax.boxplot((np.array(H_list_categorized) * 1000).tolist()[i], positions=[position], widths=[plotDescription['plotDefaults']['width']], meanline=False, showmeans=False, showfliers=False, boxprops={'color':colors[i]}, capprops={'color':colors[i]}, whiskerprops={'color':colors[i]}, medianprops={'color':colors[i]}, meanprops={'color':colors[i]})
 		
 	# Tick Labels
 	ax.set_xticks(range(len(H_list_categorized)))
@@ -69,7 +70,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	
 	# Legend
 	if(mode_parameters['enableLegend']):
-		ax.legend(loc='upper right', title=plotDescription['plotDefaults']['legend_label'].format(total_points_plotted, VT_avg, VT_std))
+		ax.legend(loc='upper right', title=plotDescription['plotDefaults']['legend_label'].format(total_points_plotted, H_avg, H_std))
 	
 	# X-axis limits
 	ax.set_xlim(left= -plotDescription['plotDefaults']['x_padding'], right=(len(H_list_categorized)-1)*plotDescription['plotDefaults']['spacing']+(plotDescription['plotDefaults']['x_padding']))

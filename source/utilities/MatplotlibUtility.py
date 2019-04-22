@@ -350,8 +350,8 @@ def plotSubthresholdCurveSlope(axis, jsonData, lineColor, direction='both', line
 	return line
 	
 def plotHysteresisCurve(axis, jsonData, lineColor, direction='both', lineStyle=None, errorBars=True):
-	x, y, pointsPerX = extractSweep(axis, jsonData, direction, x_data='gate voltage', y_data='drain current', logScale=True, scaleYaxisBy=1, derivative=True, absoluteValue=True, reciprocal=True)
-	line = plotAll(axis, x, y, lineColor, pointsPerX=pointsPerX, lineStyle=lineStyle, errorBars=errorBars)
+	#x, y, pointsPerX = extractSweep(axis, jsonData, direction, x_data='gate voltage', y_data='drain current')
+	#line = plotAll(axis, x, y, lineColor, pointsPerX=pointsPerX, lineStyle=lineStyle, errorBars=errorBars)
 	return line
 
 # === Figures ===

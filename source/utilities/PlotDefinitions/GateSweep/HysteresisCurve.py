@@ -30,10 +30,10 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	colors = setupColors(fig, len(deviceHistory), colorOverride=mode_parameters['colorsOverride'], colorDefault=plotDescription['plotDefaults']['colorDefault'], colorMapName=plotDescription['plotDefaults']['colorMap'], colorMapStart=0.8, colorMapEnd=0.15, enableColorBar=mode_parameters['enableColorBar'], colorBarTicks=[0,0.6,1], colorBarTickLabels=[totalTime, holdTime, '$t_0$'], colorBarAxisLabel='')
 		
 	# Plot
-	#for i in range(len(deviceHistory)):
-	#	line = plotHysteresisCurve(ax, deviceHistory[i], colors[i], lineStyle=None, errorBars=mode_parameters['enableErrorBars'])
-	#	if(len(deviceHistory) == len(mode_parameters['legendLabels'])):
-	#		setLabel(line, mode_parameters['legendLabels'][i])
+	for i in range(len(deviceHistory)):
+		line = plotHysteresisCurve(ax, deviceHistory[i], colors[i], lineStyle=None, errorBars=mode_parameters['enableErrorBars'])
+		if(len(deviceHistory) == len(mode_parameters['legendLabels'])):
+			setLabel(line, mode_parameters['legendLabels'][i])
 
 	# Add Legend and save figure
 	addLegend(ax, loc=mode_parameters['legendLoc'], title=getLegendTitle(deviceHistory, identifiers, plotDescription['plotDefaults'], 'runConfigs', 'GateSweep', mode_parameters, includeVdsSweep=True, includeIdVgsFit=True), mode_parameters=mode_parameters)
