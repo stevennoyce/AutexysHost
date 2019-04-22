@@ -156,7 +156,7 @@ def show():
 """Every method in this utility is intended to assist the creation of new plotDefintions in the plotDefinitions folder."""
 
 # === Device Plots ===
-def plotSweep(axis, jsonData, lineColor, direction='both', x_data='gate voltage', y_data='drain current', logScale=True, scaleYaxisBy=1, lineStyle=None, errorBars=True, derivative=False, absoluteValue=False):
+def extractSweep(axis, jsonData, direction='both', x_data='gate voltage', y_data='drain current', logScale=True, scaleYaxisBy=1, derivative=False, absoluteValue=False, reciprocal=False):
 	data_save_names = {
 		'gate voltage': 'vgs_data',
 		'drain voltage': 'vds_data',
@@ -173,10 +173,10 @@ def plotSweep(axis, jsonData, lineColor, direction='both', x_data='gate voltage'
 	}
 
 	x_data = data_save_names[x_data]
-	x = jsonData['Results'][x_data]
+	x = list(jsonData['Results'][x_data])
 
 	y_data = data_save_names[y_data]
-	y = jsonData['Results'][y_data]
+	y = list(jsonData['Results'][y_data])
 
 	# Sort data if it was collected in an unordered fashion
 	try:
@@ -223,13 +223,9 @@ def plotSweep(axis, jsonData, lineColor, direction='both', x_data='gate voltage'
 		x = [x]
 		y = [y]
 
-	# Make y-axis a logarithmic scale
+	# Take absolute value of y-data if showing on log scale
 	if(logScale):
 		y = np.abs(y)
-		semiLogScale(axis)
-
-	# Scale the data by a given factor
-	y = np.array(y)*scaleYaxisBy
 
 	# If desired, can calculate the derivative of y with respect to x at each point and plot this instead
 	if(derivative):
@@ -237,31 +233,42 @@ def plotSweep(axis, jsonData, lineColor, direction='both', x_data='gate voltage'
 		dy_dx = []
 		for i in range(len(x)):
 			x_segment = x[i]
-			y_segment = y[i]
+			y_segment = y[i] if(not logScale) else (np.log10(y[i]))
 			#dy_dx_segment = [(y_segment[j+N] - y_segment[j-N])/(x_segment[j+N] - x_segment[j-N]) for j in range(N, len(x_segment) - N)]
 			dy_dx_segment = [linearFit(x_segment[j-N:j+N+1],y_segment[j-N:j+N+1])['slope'] for j in range(N, len(x_segment) - N)]
 			x[i] = x_segment[N:-N]
 			dy_dx.append(dy_dx_segment)
 		y = dy_dx
 
+	# If desired, calculate 1/data	
+	if(reciprocal):
+		y = np.reciprocal(y)
+
+	# If desired, force data to be all positive values
 	if(absoluteValue):
 		y = np.abs(y)
+		
+	# Scale the data by a given factor
+	y = np.array(y)*scaleYaxisBy
 
+	return (x, y, pointsPerX)
+
+def plotAll(axis, x_list, y_list, lineColor, lineStyle=None, pointsPerX=1, errorBars=True):
 	# Iterate through segments of x and y
-	for i in range(len(x)):
+	for i in range(len(x_list)):
 		# data contains multiple y-values per x-value
 		if(pointsPerX > 1):
-			line = plotWithErrorBars(axis, x[i], y[i], lineColor, errorBars=errorBars)
+			line = plotWithErrorBars(axis, x_list[i], y_list[i], lineColor, errorBars=errorBars)
 		else:
 			if(lineStyle == ''):
-				line = axis.plot(x[i], y[i], color=lineColor, marker='o', markersize=2, linewidth=0, alpha=(1 if(i >= len(x)-2) else 0.25))[0]
+				line = axis.plot(x_list[i], y_list[i], color=lineColor, marker='o', markersize=2, linewidth=0, alpha=(1 if(i >= len(x_list)-2) else 0.25))[0]
 			else:
-				line = axis.plot(x[i], y[i], color=lineColor, marker='o', markersize=2, linewidth=1, alpha=(1 if(i >= len(x)-2) else 0.25), linestyle=lineStyle)[0]
-
+				line = axis.plot(x_list[i], y_list[i], color=lineColor, marker='o', markersize=2, linewidth=1, alpha=(1 if(i >= len(x_list)-2) else 0.25), linestyle=lineStyle)[0]
 	return line
 
 def plotSNR(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True):
-	line = plotSweep(axis, jsonData, lineColor, direction ='both', x_data='gate voltage for snr', y_data='snr', logScale=False, scaleYaxisBy=scaleCurrentBy, lineStyle=lineStyle, errorBars=errorBars)
+	x, y, pointsPerX = extractSweep(axis, jsonData, direction='both', x_data='gate voltage for snr', y_data='snr', logScale=False, scaleYaxisBy=scaleCurrentBy)
+	line = plotAll(axis, x, y, lineColor, lineStyle=lineStyle, pointsPerX=pointsPerX, errorBars=errorBars)
 	return line
 
 def plotNoiseAxis(axis, x, y, lineColor, lineStyle=None):
@@ -275,23 +282,29 @@ def plotNoiseAxis(axis, x, y, lineColor, lineStyle=None):
 	return axis2, line2
 
 def plotSubthresholdCurve(axis, jsonData, lineColor, direction='both', fitSubthresholdSwing=False, includeLabel=False, lineStyle=None, errorBars=True):
-	line = plotSweep(axis, jsonData, lineColor, direction, x_data='gate voltage', y_data='drain current', logScale=True, scaleYaxisBy=1, lineStyle=lineStyle, errorBars=errorBars)
+	x, y, pointsPerX = extractSweep(axis, jsonData, direction, x_data='gate voltage', y_data='drain current', logScale=True, scaleYaxisBy=1)
+	axis.set_yscale('log')
+	line = plotAll(axis, x, y, lineColor, lineStyle=lineStyle, pointsPerX=pointsPerX, errorBars=errorBars)
 	return line
 
 def plotTransferCurve(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True):
-	line = plotSweep(axis, jsonData, lineColor, direction, x_data='gate voltage', y_data='drain current', logScale=False, scaleYaxisBy=scaleCurrentBy, lineStyle=lineStyle, errorBars=errorBars)
+	x, y, pointsPerX = extractSweep(axis, jsonData, direction, x_data='gate voltage', y_data='drain current', logScale=False, scaleYaxisBy=scaleCurrentBy)
+	line = plotAll(axis, x, y, lineColor, pointsPerX=pointsPerX, lineStyle=lineStyle, errorBars=errorBars)
 	return line
 
 def plotGateCurrent(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True):
-	line = plotSweep(axis, jsonData, lineColor, direction, x_data='gate voltage', y_data='gate current', logScale=False, scaleYaxisBy=scaleCurrentBy, lineStyle=lineStyle, errorBars=errorBars)
+	x, y, pointsPerX = extractSweep(axis, jsonData, direction, x_data='gate voltage', y_data='gate current', logScale=False, scaleYaxisBy=scaleCurrentBy)
+	line = plotAll(axis, x, y, lineColor, pointsPerX=pointsPerX, lineStyle=lineStyle, errorBars=errorBars)
 	return line
 
 def plotOutputCurve(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True):
-	line = plotSweep(axis, jsonData, lineColor, direction, x_data='drain voltage', y_data='drain current', logScale=False, scaleYaxisBy=scaleCurrentBy, lineStyle=lineStyle, errorBars=errorBars)
+	x, y, pointsPerX = extractSweep(axis, jsonData, direction, x_data='drain voltage', y_data='drain current', logScale=False, scaleYaxisBy=scaleCurrentBy)
+	line = plotAll(axis, x, y, lineColor, pointsPerX=pointsPerX, lineStyle=lineStyle, errorBars=errorBars)
 	return line
 
 def plotOutputGateCurrent(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True):
-	line = plotSweep(axis, jsonData, lineColor, direction, x_data='drain voltage', y_data='gate current', logScale=False, scaleYaxisBy=scaleCurrentBy, lineStyle=lineStyle, errorBars=errorBars)
+	x, y, pointsPerX = extractSweep(axis, jsonData, direction, x_data='drain voltage', y_data='gate current', logScale=False, scaleYaxisBy=scaleCurrentBy)
+	line = plotAll(axis, x, y, lineColor, pointsPerX=pointsPerX, lineStyle=lineStyle, errorBars=errorBars)
 	return line
 
 def plotBurnOut(axis1, axis2, axis3, jsonData, lineColor, lineStyle=None, annotate=False, annotation='', plotLine1=True, plotLine2=True, plotLine3=True):
@@ -316,15 +329,29 @@ def plotStaticBias(axis, jsonData, lineColor, timeOffset, currentData='id_data',
 	return line
 
 def plotInverterVTC(axis, jsonData, lineColor, direction='both', lineStyle=None, errorBars=True):
-	line = plotSweep(axis, jsonData, lineColor, direction, x_data='input voltage', y_data='output voltage', logScale=False, scaleYaxisBy=1, lineStyle=lineStyle, errorBars=errorBars)
+	x, y, pointsPerX = extractSweep(axis, jsonData, direction, x_data='input voltage', y_data='output voltage', logScale=False, scaleYaxisBy=1)
+	line = plotAll(axis, x, y, lineColor, pointsPerX=pointsPerX, lineStyle=lineStyle, errorBars=errorBars)
 	return line
 
 def plotInverterGain(axis, jsonData, lineColor, direction='both', lineStyle=None, errorBars=True):
-	line = plotSweep(axis, jsonData, lineColor, direction, x_data='input voltage', y_data='output voltage', logScale=False, scaleYaxisBy=1, lineStyle=lineStyle, errorBars=errorBars, derivative=True, absoluteValue=True)
+	x, y, pointsPerX = extractSweep(axis, jsonData, direction, x_data='input voltage', y_data='output voltage', logScale=False, scaleYaxisBy=1, derivative=True, absoluteValue=True)
+	line = plotAll(axis, x, y, lineColor, pointsPerX=pointsPerX, lineStyle=lineStyle, errorBars=errorBars)
 	return line
 
 def plotTransferCurveSlope(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True):
-	line = plotSweep(axis, jsonData, lineColor, direction, x_data='gate voltage', y_data='drain current', logScale=False, scaleYaxisBy=scaleCurrentBy, lineStyle=lineStyle, errorBars=errorBars, derivative=True, absoluteValue=True)
+	x, y, pointsPerX = extractSweep(axis, jsonData, direction, x_data='gate voltage', y_data='drain current', logScale=False, scaleYaxisBy=scaleCurrentBy, derivative=True, absoluteValue=True)
+	line = plotAll(axis, x, y, lineColor, pointsPerX=pointsPerX, lineStyle=lineStyle, errorBars=errorBars)
+	return line
+
+def plotSubthresholdCurveSlope(axis, jsonData, lineColor, direction='both', lineStyle=None, errorBars=True, x_axis='gate voltage'):
+	x1, y1, pointsPerX1 = extractSweep(axis, jsonData, direction, x_data='gate voltage', y_data='drain current', logScale=True, scaleYaxisBy=1000, derivative=True, absoluteValue=True, reciprocal=True)
+	x2, y2, pointsPerX2 = extractSweep(axis, jsonData, direction, x_data=x_axis, 		 y_data='drain current', derivative=True)
+	line = plotAll(axis, x2, y1, lineColor, pointsPerX=pointsPerX1, lineStyle=lineStyle, errorBars=errorBars)
+	return line
+	
+def plotHysteresisCurve(axis, jsonData, lineColor, direction='both', lineStyle=None, errorBars=True):
+	x, y, pointsPerX = extractSweep(axis, jsonData, direction, x_data='gate voltage', y_data='drain current', logScale=True, scaleYaxisBy=1, derivative=True, absoluteValue=True, reciprocal=True)
+	line = plotAll(axis, x, y, lineColor, pointsPerX=pointsPerX, lineStyle=lineStyle, errorBars=errorBars)
 	return line
 
 # === Figures ===

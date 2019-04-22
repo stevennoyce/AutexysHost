@@ -39,7 +39,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	
 	# Compute Hysteresis from VT for every pair of transfer curves
 	H_list = [abs(VT_list[i] - VT_list[i+1]) for i in np.array(range(int(len(VT_list)/2))) * 2] if(len(VT_list) >= 2) else []
-	print('Extracted H: ' + str(VT_list))
+	print('Extracted H: ' + str(H_list))
 	
 	# Build Color Map and Color Bar	
 	totalTime = timeWithUnits(deviceHistory[-1]['Results']['timestamps'][0][0] - deviceHistory[0]['Results']['timestamps'][-1][-1])
