@@ -238,6 +238,9 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 	measurementTime = traceTime*afm_parameters['tracesToMeasure']
 	passPoints = int(afm_parameters['deviceMeasurementSpeed']*measurementTime*1.02 + 2)
 	
+	# print('Waiting for 4 line times to ensure that previous scan has completed')
+	# time.sleep(4*lineTime)
+	
 	# Choose the amount of time it takes for the SMU to measure one point
 	interval = 1/afm_parameters['deviceMeasurementSpeed']
 	
@@ -255,8 +258,15 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 		meanYs = []
 		deltaMeanYs = []
 		
+		smu_device.setTimeout(self, timeout_ms=int(120e3))
+		smu_secondary.setTimeout(self, timeout_ms=int(120e3))
+		
 		for line in range(afm_parameters['lines']):
 			print('Starting line {} of {} (scan {} of {})'.format(line+1, afm_parameters['lines'], scan+1, afm_parameters['scans']))
+			
+			if line == 1:
+				smu_device.setTimeout(self, timeout_ms=int(2*lineTime*1e3))
+				smu_secondary.setTimeout(self, timeout_ms=int(2*lineTime*1e3))
 			
 			results = runAFMline(parameters, smu_systems, sleep_time1, sleep_time2)
 			
@@ -294,7 +304,7 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 			# 		break
 			
 			# Save results as a JSON object
-			if(isSavingResults):
+			if(isSavingResults and results['timestamps_device'] is not None and results['timestamps_smu2'] is not None):
 				print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
 				# Spin a new thread to save the data in the background
 				threading.Thread(target=dlu.saveJSON,
@@ -325,8 +335,8 @@ def runAFMline(parameters, smu_systems, sleep_time1, sleep_time2):
 	# time.sleep(0.5*min(sleep_time1, sleep_time2))
 	
 	# Request data from the SMUs
-	results_device = smu_device.endSweep()
-	results_secondary = smu_secondary.endSweep()
+	results_device = smu_device.endSweep(includeVoltages=False)
+	results_secondary = smu_secondary.endSweep(includeCurrents=False)
 	
 	endTime = time.time()
 	
@@ -342,16 +352,16 @@ def runAFMline(parameters, smu_systems, sleep_time1, sleep_time2):
 	
 	return {
 		'Raw':{
-			'vds_data':	results_device['Vds_data'],
+			# 'vds_data':	results_device['Vds_data'],
 			'id_data':	results_device['Id_data'],
-			'vgs_data':	results_device['Vgs_data'],
+			# 'vgs_data':	results_device['Vgs_data'],
 			'ig_data':	results_device['Ig_data'],
 			'timestamps_device': timestamps_device,
 			'smu2_v1_data':	results_secondary[YVoltageKey],
-			'smu2_i1_data':	results_secondary['Id_data'],
+			# 'smu2_i1_data':	results_secondary['Id_data'],
 			'smu2_v2_data':	results_secondary[XVoltageKey],
-			'smu2_i2_data':	results_secondary['Ig_data'],
-			'timestamps_smu2': timestamps_smu2,
+			# 'smu2_i2_data':	results_secondary['Ig_data'],
+			'timestamps_smu2': timestamps_smu2
 		},
 		'Computed':{
 			
