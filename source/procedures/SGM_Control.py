@@ -107,20 +107,20 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 		meanYs = []
 		deltaMeanYs = []
 		
-		smu_device.setTimeout(self, timeout_ms=int(120e3))
-		smu_secondary.setTimeout(self, timeout_ms=int(120e3))
+		smu_device.setTimeout(timeout_ms=int(120e3))
+		smu_secondary.setTimeout(timeout_ms=int(120e3))
 		
 		for line in range(afm_parameters['lines']):
 			print('Starting line {} of {} (scan {} of {})'.format(line+1, afm_parameters['lines'], scan+1, afm_parameters['scans']))
 			
 			if line == 1:
-				smu_device.setTimeout(self, timeout_ms=int(2*lineTime*1e3))
-				smu_secondary.setTimeout(self, timeout_ms=int(2*lineTime*1e3))
+				smu_device.setTimeout(timeout_ms=int(2*lineTime*1e3))
+				smu_secondary.setTimeout(timeout_ms=int(2*lineTime*1e3))
 			
 			results = runAFMline(parameters, smu_systems, sleep_time1, sleep_time2)
 			
 			# Detect line timeout
-			if results['timestamps_device'] is None or results['timestamps_smu2'] is None:
+			if results['Raw']['timestamps_device'] is None or results['Raw']['timestamps_smu2'] is None:
 				print('Ending scan due to line timeout')
 				break
 			
@@ -182,8 +182,8 @@ def runAFMline(parameters, smu_systems, sleep_time1, sleep_time2):
 	endTime = time.time()
 	
 	# Adjust timestamps to be in realtime values
-	timestamps_device = [endTime + t for t in results_device['timestamps']]
-	timestamps_smu2 = [endTime + t for t in results_secondary['timestamps']]
+	timestamps_device = [endTime + t for t in results_device['timestamps']] if results_device['timestamps'] is not None else None
+	timestamps_smu2 = [endTime + t for t in results_secondary['timestamps']] if results_secondary['timestamps'] is not None else None
 	
 	XVoltageKey = 'Vds_data'
 	YVoltageKey = 'Vgs_data'
