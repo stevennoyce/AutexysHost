@@ -119,12 +119,10 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 			
 			results = runAFMline(parameters, smu_systems, sleep_time1, sleep_time2)
 			
-			# Copy parameters and add in the test results
-			parameters['Computed'] = results['Computed']
-			parameters['Computed']['scan'] = int(scan)
-			jsonData = dict(parameters)
-			jsonData['Results'] = results['Raw']
-			jsonData['Results']['scan'] = int(scan)
+			# Detect line timeout
+			if results['timestamps_device'] is None or results['timestamps_smu2'] is None:
+				print('Ending scan due to line timeout')
+				break
 			
 			# Determine frame switch
 			meanY = np.mean(results['Raw']['smu2_v1_data'])
@@ -139,21 +137,15 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 					print(np.median(deltaMeanYs))
 					break
 			
-			# if line == 1:
-			# 	Vy_1 = float(meanY)
-			# elif line == 2:
-			# 	Vy_2 = float(meanY)
-			# 	originalStepVy = Vy_2 - Vy_1
-			# elif line > 2:
-			# 	Vy_1 = float(Vy_2)
-			# 	Vy_2 = float(meanY)
-			# 	stepVy = Vy_2 - Vy_1
-			# 	if originalStepVy*stepVy < 0:
-			# 		print('Ending scan due to detected frame reversal')
-			# 		break
+			# Copy parameters and add in the test results
+			parameters['Computed'] = results['Computed']
+			parameters['Computed']['scan'] = int(scan)
+			jsonData = dict(parameters)
+			jsonData['Results'] = results['Raw']
+			jsonData['Results']['scan'] = int(scan)
 			
 			# Save results as a JSON object
-			if(isSavingResults and results['timestamps_device'] is not None and results['timestamps_smu2'] is not None):
+			if(isSavingResults):
 				print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
 				# Spin a new thread to save the data in the background
 				threading.Thread(target=dlu.saveJSON,
