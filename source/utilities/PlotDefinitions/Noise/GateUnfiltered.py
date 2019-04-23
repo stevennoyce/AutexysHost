@@ -52,10 +52,12 @@ def noiseFromData(data):
 
 def filter60HzAndHarmonics(Id, timestamps):
 	Id = np.array(Id)
+	Id = Id - np.poly1d(np.polyfit(timestamps, Id, 3))(timestamps)
 	timestamps = np.array(timestamps)
 	
 	dt = np.median(np.diff(timestamps))
 	Fsamp = 1/dt
+	FNyquist = Fsamp/2
 	Fs = np.fft.rfftfreq(Id.size, d=dt)
 	Xs = np.fft.rfft(Id)
 	As = np.abs(Xs)*dt
@@ -76,8 +78,13 @@ def filter60HzAndHarmonics(Id, timestamps):
 	
 	IdFiltered = np.fft.irfft(Xs)
 	
-	b, a = scipy.signal.butter(1, 1000/50000, btype='highpass', analog=False) #, fs=Fsamp
-	IdFiltered = np.mean(IdFiltered) + scipy.signal.filtfilt(b, a, IdFiltered)
+	print('FNyquist is', FNyquist)
+	
+	b, a = scipy.signal.butter(1, min(60, FNyquist/2)/FNyquist, btype='highpass', analog=False) #, fs=Fsamp
+	# IdFiltered = 0*np.mean(IdFiltered) + scipy.signal.filtfilt(b, a, IdFiltered)
+	
+	# IdFiltered = scipy.signal.filtfilt(b, a, IdFiltered)
+	# IdFiltered = Id - np.poly1d(np.polyfit(timestamps, Id, 3))(timestamps)
 	
 	return IdFiltered
 
