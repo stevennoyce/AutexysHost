@@ -286,6 +286,10 @@ def getStartTime(timestamps, Vxs, skipNumberOfLines=1):
 	if fitParams['amplitude'] < 0:
 		fitParams['phase'] += fitParams['period']/2
 	
+	possiblePhases = fitParams['phase'] + np.arange(-10,10,1)*fitParams['period']
+	
+	fitParams['phase'] = min(possiblePhases, key=abs)
+	
 	startTime = min(timestamps) + fitParams['phase']
 	startTime += (lineTime)*(math.ceil(linesMeasured) + skipNumberOfLines)
 	
@@ -298,19 +302,30 @@ def getStartTime(timestamps, Vxs, skipNumberOfLines=1):
 def sleepUntil(startTime):
 	time.sleep(startTime - time.time())
 
+def medianMeasurement(smu, key, count):
+	results = []
+	
+	for i in range(count):
+		results.append(smu.takeMeasurement()[key])
+	
+	return np.median(results)
+
 def waitForFrameSwitch(smu_secondary, lineTime):
 	print('Waiting for frame switch')
-	Vy_1 = smu_secondary.takeMeasurement()['V_ds']
-	time.sleep(1.1*lineTime)
-	Vy_2 = smu_secondary.takeMeasurement()['V_ds']
-	oritinalStepVy = Vy_2 - Vy_1
-	stepVy = oritinalStepVy
+	samples = 5
+	
+	Vy_1 = medianMeasurement(smu_secondary, 'V_ds', samples)
+	time.sleep(1.01*lineTime)
+	Vy_2 = medianMeasurement(smu_secondary, 'V_ds', samples)
+	
+	originalStepVy = Vy_2 - Vy_1
+	stepVy = originalStepVy
 	
 	# While the original step and current step are both positive or both negative
-	while(oritinalStepVy*stepVy > 0): 
-		time.sleep(1.1*lineTime)
+	while(originalStepVy*stepVy > 0): 
+		time.sleep(1.01*lineTime)
 		Vy_1 = Vy_2
-		Vy_2 = smu_secondary.takeMeasurement()['V_ds']
+		Vy_2 = medianMeasurement(smu_secondary, 'V_ds', samples)
 		stepVy = Vy_2 - Vy_1
 
 	
