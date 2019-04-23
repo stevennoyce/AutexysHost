@@ -99,10 +99,12 @@ smu_system_configurations = {
 	}
 }
 
+defaultTimeout = 60000
+
 def getSystemConfiguration(systemType):
 	return copy.deepcopy(smu_system_configurations[systemType])
 
-def getConnectionToVisaResource(uniqueIdentifier='', system_settings=None, defaultComplianceCurrent=100e-6, smuTimeout=60000):
+def getConnectionToVisaResource(uniqueIdentifier='', system_settings=None, defaultComplianceCurrent=100e-6, smuTimeout=defaultTimeout):
 	import visa
 	
 	try:
@@ -238,6 +240,7 @@ class B2912A(SourceMeasureUnit):
 		if((self.system_settings is not None) and ('reset' in self.system_settings) and (not self.system_settings['reset'])):
 			pass # don't reset on startup if you are specifically told not to by the system settings
 		else:
+			self.clearAndDisarm()
 			self.smu.write('*CLS') # Clear
 			self.smu.write("*RST") # Reset
 		
@@ -343,8 +346,22 @@ class B2912A(SourceMeasureUnit):
 	def setVgs(self, voltage):
 		self.setParameter(":source2:voltage {}".format(voltage))
 	
-	def takeMeasurement(self):
-		data = self.query_values(':MEAS? (@1:2)')
+	def setTimeout(self, timeout_ms=defaultTimeout):
+		self.smu.timeout = timeout_ms
+	
+	def clearAndDisarm(self):
+		self.smu.clear()
+		self.smu.write(':abort:all (@1,2)')
+	
+	def takeMeasurement(self, retries=3):
+		for i in range(retries):
+			try:
+				data = self.query_values(':MEAS? (@1:2)')
+				break
+			except Exception as e:
+				self.clearAndDisarm()
+				data = [0 for j in range(10)]
+		
 		return {
 			'V_ds': data[0],
 			'I_d':  data[1],
@@ -412,11 +429,19 @@ class B2912A(SourceMeasureUnit):
 		if(not isinstance(includeVoltages, list)):
 			includeVoltages = [includeVoltages, includeVoltages]
 		
-		current1s = self.query_values(":fetch:arr:curr? (@1)") 	if(includeCurrents[0]) else None
-		voltage1s = self.query_values(":fetch:arr:voltage? (@1)") if(includeVoltages[0]) else None
-		current2s = self.query_values(":fetch:arr:curr? (@2)")	if(includeCurrents[1]) else None
-		voltage2s = self.query_values(":fetch:arr:voltage? (@2)") if(includeVoltages[1]) else None
-		timestamps = self.query_values(":fetch:array:time? (@2)") if(includeTimes) else None
+		try:
+			current1s = self.query_values(":fetch:arr:curr? (@1)") 	if(includeCurrents[0]) else None
+			voltage1s = self.query_values(":fetch:arr:voltage? (@1)") if(includeVoltages[0]) else None
+			current2s = self.query_values(":fetch:arr:curr? (@2)")	if(includeCurrents[1]) else None
+			voltage2s = self.query_values(":fetch:arr:voltage? (@2)") if(includeVoltages[1]) else None
+			timestamps = self.query_values(":fetch:array:time? (@2)") if(includeTimes) else None
+		except Exception as e:
+			self.clearAndDisarm()
+			current1s = None
+			voltage1s = None
+			current2s = None
+			voltage2s = None
+			timestamps = None
 		
 		if(endMode is not None):
 			self.smu.write(":source1:{}:mode {}".format(self.source1_mode, endMode))
