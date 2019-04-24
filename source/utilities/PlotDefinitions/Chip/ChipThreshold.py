@@ -9,6 +9,11 @@ plotDescription = {
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(2.8,3.2),
+		
+		'spacing':1,
+		'x_padding':0.8,
+		'width':0.5,
+		
 		'xlabel':'Device',
 		'ylabel':'Threshold Voltage (V)',
 	},
@@ -25,16 +30,13 @@ def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, sp
 	vtVals = list()
 	for chipHistory in groupedChipHistory:
 		gm, vt, r2 = dpu.fitBasicDeviceModel(chipHistory)
-		if not mode_parameters['useBoxWhiskerPlot']:
-			line = ax.plot(range(len(vt)), vt, color=plt.rcParams['axes.prop_cycle'].by_key()['color'][0], marker='o', markersize=4, linewidth=0, linestyle=None)
-		else: 
-			vtVals.append(vt)
-			
-	if mode_parameters['useBoxWhiskerPlot']: 
-		line = boxplot(ax, vtVals)
-		axisLabels(ax, y_label=plotDescription['plotDefaults']['ylabel'])
-	else:
-		axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=plotDescription['plotDefaults']['ylabel'])
-
+		vtVals.append(vt)
+		
+	colors = ['#000000']		
+	for i in [0]:
+		line = ax.boxplot(vtVals, positions=range(len(vtVals)), widths=[plotDescription['plotDefaults']['width']], meanline=False, showmeans=False, showfliers=False, boxprops={'color':colors[i]}, capprops={'color':colors[i]}, whiskerprops={'color':colors[i]}, medianprops={'color':colors[i]}, meanprops={'color':colors[i]})	
+	
+	axisLabels(ax, y_label=plotDescription['plotDefaults']['ylabel'])
+	
 	return (fig, (ax,))
 
