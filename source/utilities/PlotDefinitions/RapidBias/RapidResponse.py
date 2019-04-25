@@ -14,9 +14,9 @@ plotDescription = {
 		'colorDefault': ['#1f77b4'],
 		'xlabel':'Time (s)',
 		'ylabel':'Signal/Maximum (a.u.)',
-		'micro_ylabel':'$I_{{D}}$ ($\\mu$A)',
+		'micro_ylabel':'$I_{{D}}$ ($\\mathregular{\\mu}$A)',
 		'nano_ylabel':'$I_{{D}}$ (nA)',
-		'neg_micro_ylabel':'$-I_{{D}}$ ($\\mu$A)',
+		'neg_micro_ylabel':'$-I_{{D}}$ ($\\mathregular{\\mu}$A)',
 		'neg_nano_ylabel':'$-I_{{D}}$ (nA)',
 	},
 }

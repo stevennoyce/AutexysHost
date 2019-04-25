@@ -20,7 +20,7 @@ plotDescription = {
 		'width':0.5,
 		
 		'xlabel':'',
-		'ylabel':'$g_{{m}}^{{max}}$ ($\\mu$A/V)',
+		'ylabel':'$g_{{m}}^{{max}}$ ($\\mathregular{\\mu}$S)',
 		'legend_label':'Trials: {:.5g} \n$g_{{m}}^{{avg}} = {:.3g}$ $\\mu$A/V \n$g_{{m}}^{{std}} = {:.3g}$ $\\mu$A/V',
 	},
 }

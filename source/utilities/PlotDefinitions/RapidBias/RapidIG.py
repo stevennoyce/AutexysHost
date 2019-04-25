@@ -13,7 +13,7 @@ plotDescription = {
 		'colorDefault': ['#4FB99F'],
 		'xlabel':'Time (s)',
 		'ylabel':'$I_{{G}}$ (A)',
-		'micro_ylabel':'$I_{{G}}$ ($\\mu$A)',
+		'micro_ylabel':'$I_{{G}}$ ($\\mathregular{\\mu}$A)',
 		'nano_ylabel':'$I_{{G}}$ (nA)',
 		'pico_ylabel':'$I_{{G}}$ (pA)',
 	},

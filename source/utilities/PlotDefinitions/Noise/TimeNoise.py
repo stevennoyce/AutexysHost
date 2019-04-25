@@ -11,7 +11,7 @@ plotDescription = {
 		
 		'xlabel':'Time (s)',
 		'ylabel':'$I_{{D}}$ (A)',
-		'micro_ylabel':'$I_{{D}}$ ($\\mu$A)',
+		'micro_ylabel':'$I_{{D}}$ ($\\mathregular{\\mu}$A)',
 		'nano_ylabel':'$I_{{D}}$ (nA)',
 		'pico_ylabel':'$I_{{D}}$ (pA)',
 	},

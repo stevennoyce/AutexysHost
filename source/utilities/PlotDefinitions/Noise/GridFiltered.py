@@ -17,7 +17,7 @@ plotDescription = {
 		'colorDefault': ['#f2b134'],
 		'xlabel':'$V_{{GS}}$ (V)',
 		'ylabel':'$V_{{DS}}$ (V)',
-		'micro_ylabel':'$\\Delta$ $I_{{D}}$ ($\\mu$A)',
+		'micro_ylabel':'$\\Delta$ $I_{{D}}$ ($\\mathregular{\\mu}$A)',
 		'nano_ylabel':'$\\Delta$ $I_{{D}}$ (nA)',
 		'pico_ylabel':'$\\Delta$ $I_{{D}}$ (pA)',
 	},

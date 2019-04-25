@@ -10,7 +10,7 @@ plotDescription = {
 		'figsize':(5,4),
 		'automaticAxisLabels':True,
 		'xlabel':'Device',
-		'ylabel':'$I_{{D}}$ ($\\mu$A)',
+		'ylabel':'$I_{{D}}$ ($\\mathregular{\\mu}$A)',
 		'leg_label1':'Off Currents',
 		'leg_label2':'On Currents',
 	},

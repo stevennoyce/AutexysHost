@@ -14,7 +14,7 @@ plotDescription = {
 		'x_padding':0.8,
 		'width':0.5,
 		
-		'ylabel':'Transconductance ($\\mu$A/V)',
+		'ylabel':'Transconductance ($\\mathregular{\\mu}$S)',
 	},
 }
 

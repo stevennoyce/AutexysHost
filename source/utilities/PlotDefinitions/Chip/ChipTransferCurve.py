@@ -12,8 +12,8 @@ plotDescription = {
 		'colorMap':'magma',
 		'colorDefault': ['#f2b134'],
 		'xlabel':'$V_{{GS}}^{{Sweep}}$ (V)',
-		'ylabel':'$I_{{D}}$ ($\\mu$A)',
-		'neg_ylabel':'$-I_{{D}}$ ($\\mu$A)',
+		'ylabel':'$I_{{D}}$ ($\\mathregular{\\mu}$A)',
+		'neg_ylabel':'$-I_{{D}}$ ($\\mathregular{\\mu}$A)',
 	},
 }
 

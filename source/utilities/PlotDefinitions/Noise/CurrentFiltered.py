@@ -16,12 +16,12 @@ plotDescription = {
 		'colorDefault': ['#ee7539'],
 		
 		'xlabel':'$I_{{D}}$ (A)',
-		'micro_xlabel':'$I_{{D}}$ ($\\mu$A)',
+		'micro_xlabel':'$I_{{D}}$ ($\\mathregular{\\mu}$A)',
 		'nano_xlabel':'$I_{{D}}$ (nA)',
 		'pico_xlabel':'$I_{{D}}$ (pA)',
 		
 		'ylabel':'$\\Delta$  $I_{{D}}$ (A)',
-		'micro_ylabel':'$\\Delta$ $I_{{D}}$ ($\\mu$A)',
+		'micro_ylabel':'$\\Delta$ $I_{{D}}$ ($\\mathregular{\\mu}$A)',
 		'nano_ylabel':'$\\Delta$ $I_{{D}}$ (nA)',
 		'pico_ylabel':'$\\Delta$ $I_{{D}}$ (pA)',
 	},

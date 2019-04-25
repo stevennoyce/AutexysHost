@@ -13,7 +13,7 @@ plotDescription = {
 		'colorMap':'hot',
 		'colorDefault': ['#1f77b4'],
 		'vds_label':'$V_{{DS}}$ (V)',
-		'id_micro_label':'$I_{{D}}$ ($\\mu$A)',
+		'id_micro_label':'$I_{{D}}$ ($\\mathregular{\\mu}$A)',
 		'time_label':'Time (s)',
 		'id_annotation':'burn current',
 		'legend_title':'$V_{{GS}}$ = {:}V',

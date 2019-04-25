@@ -16,7 +16,7 @@ plotDescription = {
 		'colorDefault': ['#ee7539'],
 		
 		'xlabel':'Trial',
-		'ylabel':'$g_{{m}}^{{max}}$ ($\\mu$A/V)',
+		'ylabel':'$g_{{m}}^{{max}}$ ($\\mathregular{\\mu}$S)',
 	},
 }
 

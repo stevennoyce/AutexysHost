@@ -10,7 +10,7 @@ plotDescription = {
 		'figsize':(3.1,2.4),#(2*2.2,2*1.7),#(5,4),
 		'time_label':'Time ({:})',
 		'index_label':'Time Index of Gate Sweep (#)',
-		'ylabel':'$I_{{ON}}$ ($\\mu$A)',
+		'ylabel':'$I_{{ON}}$ ($\\mathregular{\\mu}$A)',
 		'ylabel_dual_axis':'$I_{{OFF}}$ (nA)',
 		'vds_label': '$V_{{DS}}^{{Hold}}$ (V)',
 		'vgs_label': '$V_{{GS}}^{{Hold}}$ (V)',
