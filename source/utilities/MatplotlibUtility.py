@@ -254,7 +254,7 @@ def extractSweep(axis, jsonData, direction='both', x_data='gate voltage', y_data
 
 	return (x, y, pointsPerX)
 
-def plotAll(axis, x_list, y_list, lineColor, lineStyle=None, pointsPerX=1, errorBars=True):
+def plotAll(axis, x_list, y_list, lineColor, lineStyle=None, pointsPerX=1, errorBars=True, alpha=1):
 	# Iterate through segments of x and y
 	for i in range(len(x_list)):
 		# data contains multiple y-values per x-value
@@ -262,9 +262,9 @@ def plotAll(axis, x_list, y_list, lineColor, lineStyle=None, pointsPerX=1, error
 			line = plotWithErrorBars(axis, x_list[i], y_list[i], lineColor, errorBars=errorBars)
 		else:
 			if(lineStyle == ''):
-				line = axis.plot(x_list[i], y_list[i], color=lineColor, marker='o', markersize=2, linewidth=0, alpha=(1 if(i >= len(x_list)-2) else 0.25))[0]
+				line = axis.plot(x_list[i], y_list[i], color=lineColor, marker='o', markersize=2, linewidth=0, alpha=(alpha if(i >= len(x_list)-2) else 0.25))[0]
 			else:
-				line = axis.plot(x_list[i], y_list[i], color=lineColor, marker='o', markersize=2, linewidth=1, alpha=(1 if(i >= len(x_list)-2) else 0.25), linestyle=lineStyle)[0]
+				line = axis.plot(x_list[i], y_list[i], color=lineColor, marker='o', markersize=2, linewidth=1, alpha=(alpha if(i >= len(x_list)-2) else 0.25), linestyle=lineStyle)[0]
 	return line
 
 def plotSNR(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True):
@@ -282,30 +282,30 @@ def plotNoiseAxis(axis, x, y, lineColor, lineStyle=None):
 			line2 = axis2.plot(x[i], y[i], color=lineColor, marker='o', markersize=2, linewidth=1, alpha=(1 if(i >= len(x)-2) else 0.25), linestyle=lineStyle)[0]
 	return axis2, line2
 
-def plotSubthresholdCurve(axis, jsonData, lineColor, direction='both', fitSubthresholdSwing=False, includeLabel=False, lineStyle=None, errorBars=True):
+def plotSubthresholdCurve(axis, jsonData, lineColor, direction='both', lineStyle=None, errorBars=True, alpha=1):
 	x, y, pointsPerX = extractSweep(axis, jsonData, direction, x_data='gate voltage', y_data='drain current', logScale=True, scaleYaxisBy=1)
 	axis.set_yscale('log')
-	line = plotAll(axis, x, y, lineColor, lineStyle=lineStyle, pointsPerX=pointsPerX, errorBars=errorBars)
+	line = plotAll(axis, x, y, lineColor, lineStyle=lineStyle, pointsPerX=pointsPerX, errorBars=errorBars, alpha=alpha)
 	return line
 
-def plotTransferCurve(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True):
+def plotTransferCurve(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True, alpha=1):
 	x, y, pointsPerX = extractSweep(axis, jsonData, direction, x_data='gate voltage', y_data='drain current', logScale=False, scaleYaxisBy=scaleCurrentBy)
-	line = plotAll(axis, x, y, lineColor, pointsPerX=pointsPerX, lineStyle=lineStyle, errorBars=errorBars)
+	line = plotAll(axis, x, y, lineColor, pointsPerX=pointsPerX, lineStyle=lineStyle, errorBars=errorBars, alpha=alpha)
 	return line
 
-def plotGateCurrent(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True):
+def plotGateCurrent(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True, alpha=1):
 	x, y, pointsPerX = extractSweep(axis, jsonData, direction, x_data='gate voltage', y_data='gate current', logScale=False, scaleYaxisBy=scaleCurrentBy)
-	line = plotAll(axis, x, y, lineColor, pointsPerX=pointsPerX, lineStyle=lineStyle, errorBars=errorBars)
+	line = plotAll(axis, x, y, lineColor, pointsPerX=pointsPerX, lineStyle=lineStyle, errorBars=errorBars, alpha=alpha)
 	return line
 
-def plotOutputCurve(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True):
+def plotOutputCurve(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True, alpha=1):
 	x, y, pointsPerX = extractSweep(axis, jsonData, direction, x_data='drain voltage', y_data='drain current', logScale=False, scaleYaxisBy=scaleCurrentBy)
-	line = plotAll(axis, x, y, lineColor, pointsPerX=pointsPerX, lineStyle=lineStyle, errorBars=errorBars)
+	line = plotAll(axis, x, y, lineColor, pointsPerX=pointsPerX, lineStyle=lineStyle, errorBars=errorBars, alpha=alpha)
 	return line
 
-def plotOutputGateCurrent(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True):
+def plotOutputGateCurrent(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True, alpha=1):
 	x, y, pointsPerX = extractSweep(axis, jsonData, direction, x_data='drain voltage', y_data='gate current', logScale=False, scaleYaxisBy=scaleCurrentBy)
-	line = plotAll(axis, x, y, lineColor, pointsPerX=pointsPerX, lineStyle=lineStyle, errorBars=errorBars)
+	line = plotAll(axis, x, y, lineColor, pointsPerX=pointsPerX, lineStyle=lineStyle, errorBars=errorBars, alpha=alpha)
 	return line
 
 def plotBurnOut(axis1, axis2, axis3, jsonData, lineColor, lineStyle=None, annotate=False, annotation='', plotLine1=True, plotLine2=True, plotLine3=True):
@@ -329,25 +329,25 @@ def plotStaticBias(axis, jsonData, lineColor, timeOffset, currentData='id_data',
 	line = plotOverTime(axis, jsonData['Results']['timestamps'], (np.array(jsonData['Results'][currentData])*(10**6)), lineColor, offset=timeOffset, plotInnerGradient=gradient, innerGradientColors=gradientColors)
 	return line
 
-def plotInverterVTC(axis, jsonData, lineColor, direction='both', lineStyle=None, errorBars=True):
+def plotInverterVTC(axis, jsonData, lineColor, direction='both', lineStyle=None, errorBars=True, alpha=1):
 	x, y, pointsPerX = extractSweep(axis, jsonData, direction, x_data='input voltage', y_data='output voltage', logScale=False, scaleYaxisBy=1)
-	line = plotAll(axis, x, y, lineColor, pointsPerX=pointsPerX, lineStyle=lineStyle, errorBars=errorBars)
+	line = plotAll(axis, x, y, lineColor, pointsPerX=pointsPerX, lineStyle=lineStyle, errorBars=errorBars, alpha=alpha)
 	return line
 
-def plotInverterGain(axis, jsonData, lineColor, direction='both', lineStyle=None, errorBars=True):
+def plotInverterGain(axis, jsonData, lineColor, direction='both', lineStyle=None, errorBars=True, alpha=1):
 	x, y, pointsPerX = extractSweep(axis, jsonData, direction, x_data='input voltage', y_data='output voltage', logScale=False, scaleYaxisBy=1, derivative=True, absoluteValue=True)
-	line = plotAll(axis, x, y, lineColor, pointsPerX=pointsPerX, lineStyle=lineStyle, errorBars=errorBars)
+	line = plotAll(axis, x, y, lineColor, pointsPerX=pointsPerX, lineStyle=lineStyle, errorBars=errorBars, alpha=alpha)
 	return line
 
-def plotTransferCurveSlope(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True):
+def plotTransferCurveSlope(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True, alpha=1):
 	x, y, pointsPerX = extractSweep(axis, jsonData, direction, x_data='gate voltage', y_data='drain current', logScale=False, scaleYaxisBy=scaleCurrentBy, derivative=True, absoluteValue=True)
-	line = plotAll(axis, x, y, lineColor, pointsPerX=pointsPerX, lineStyle=lineStyle, errorBars=errorBars)
+	line = plotAll(axis, x, y, lineColor, pointsPerX=pointsPerX, lineStyle=lineStyle, errorBars=errorBars, alpha=alpha)
 	return line
 
-def plotSubthresholdCurveSlope(axis, jsonData, lineColor, direction='both', lineStyle=None, errorBars=True, x_axis='gate voltage'):
+def plotSubthresholdCurveSlope(axis, jsonData, lineColor, direction='both', x_axis='gate voltage', lineStyle=None, errorBars=True, alpha=1):
 	x1, y1, pointsPerX1 = extractSweep(axis, jsonData, direction, x_data='gate voltage', y_data='drain current', logScale=True, scaleYaxisBy=1000, derivative=True, absoluteValue=True, reciprocal=True)
 	x2, y2, pointsPerX2 = extractSweep(axis, jsonData, direction, x_data=x_axis, 		 y_data='drain current', derivative=True)
-	line = plotAll(axis, x2, y1, lineColor, pointsPerX=pointsPerX1, lineStyle=lineStyle, errorBars=errorBars)
+	line = plotAll(axis, x2, y1, lineColor, pointsPerX=pointsPerX1, lineStyle=lineStyle, errorBars=errorBars, alpha=alpha)
 	return line
 	
 def plotHysteresisCurve(axis, jsonData, lineColor, lineStyle=None, errorBars=True):

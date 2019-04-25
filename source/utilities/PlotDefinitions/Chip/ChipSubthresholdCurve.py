@@ -25,7 +25,7 @@ def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, sp
 	
 	# Plot
 	for i in range(len(specificRunChipHistory)):
-		line = plotSubthresholdCurve(ax, specificRunChipHistory[i], colors[i], direction=mode_parameters['sweepDirection'], fitSubthresholdSwing=False, includeLabel=False, lineStyle=None, errorBars=mode_parameters['enableErrorBars'])			
+		line = plotSubthresholdCurve(ax, specificRunChipHistory[i], colors[i], direction=mode_parameters['sweepDirection'], lineStyle=None, errorBars=mode_parameters['enableErrorBars'])			
 		if(len(specificRunChipHistory) == len(mode_parameters['legendLabels'])):
 			setLabel(line, mode_parameters['legendLabels'][i])
 		

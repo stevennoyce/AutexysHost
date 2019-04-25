@@ -60,7 +60,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 			line = ax.plot(deviceHistory[i]['Results']['vgs_data'][1], np.abs(np.array(all_fitted_values['rev_id_fitted'][i])) * 1e6, color=colors[i], linewidth=0.7)
 
 		# Plot subthreshold curve fit to show SS
-		line = plotSubthresholdCurve(ax2, deviceHistory[i], colors[i], direction=mode_parameters['sweepDirection'], fitSubthresholdSwing=False, includeLabel=False, lineStyle='', errorBars=mode_parameters['enableErrorBars'])
+		line = plotSubthresholdCurve(ax2, deviceHistory[i], colors[i], direction=mode_parameters['sweepDirection'], lineStyle='', errorBars=mode_parameters['enableErrorBars'])
 		if(mode_parameters['sweepDirection'] in ['both', 'forward']):
 			line = ax2.plot(deviceHistory[i]['Results']['vgs_data'][0], np.abs(np.array(all_fitted_values['fwd_id_fitted'][i])), color=colors[i], linewidth=0.7)
 		if(mode_parameters['sweepDirection'] in ['both', 'reverse']):
