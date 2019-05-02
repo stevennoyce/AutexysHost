@@ -60,6 +60,12 @@ The dispatcher can be launched and given a schedule file without the use of the 
 python dispatcher.py ../../AutexysData/user/project/schedules/scheduleFile.json
 ```
 
+To run a script in high priority (to avoid timing delays, especially important for real time procedures like SGM Control), on Windows run
+
+```console
+start /high /b python dispatcher.py ../../AutexysData/user/project/schedules/scheduleFile.json
+```
+
 The user interface can also be run standalone if desired.
 
 ```console
