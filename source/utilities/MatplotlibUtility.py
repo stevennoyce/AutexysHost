@@ -1,12 +1,18 @@
 """A utility designed to help with the creation a plots with matplotlib that all use a consistent style."""
 
 import matplotlib
+import os
+import sys
+
+pathParents = os.getcwd().split('/')
+if(('AutexysHost' in pathParents) and ('ipykernel_launcher' not in sys.argv[0])):
+	matplotlib.use('agg')
+	
 from matplotlib import pyplot as plt
 from matplotlib import colors as pltc
 from matplotlib import cm
 import numpy as np
 import io
-import os
 import time
 
 from utilities import FET_Modeling as fet_model
