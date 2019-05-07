@@ -5,7 +5,9 @@ import os
 import sys
 
 pathParents = os.getcwd().split('/')
-if(('AutexysHost' in pathParents) and ('ipykernel_launcher' not in sys.argv[0])):
+if('ipykernel_launcher' in sys.argv[0]):
+	pass
+elif('AutexysHost' in pathParents):
 	matplotlib.use('agg')
 	
 from matplotlib import pyplot as plt
