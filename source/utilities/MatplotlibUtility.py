@@ -703,9 +703,9 @@ def nextIndexToBeDifferent(data, i):
 def secondsPer(amountOfTime):
 	if(amountOfTime == 'seconds'):
 		return 1
-	elif(amountOfTime == 'minutes'):
+	elif(amountOfTime == 'min'):
 		return 60
-	elif(amountOfTime == 'hours'):
+	elif(amountOfTime == 'hr'):
 		return 3600
 	elif(amountOfTime == 'days'):
 		return 3600*24
@@ -746,9 +746,9 @@ def bestTimeScaleFor(seconds):
 	if(seconds < 2*60):
 		return 'seconds'
 	elif(seconds < 2*60*60):
-		return 'minutes'
+		return 'min'
 	elif(seconds < 2*60*60*24):
-		return 'hours'
+		return 'hr'
 	elif(seconds < 2*60*60*24*7):
 		return 'days'
 	elif(seconds < 2*60*60*24*30):
