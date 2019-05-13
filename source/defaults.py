@@ -85,7 +85,7 @@ default_parameters = {
 			'applyGateSweepBetweenBiases': 			{'type':'bool', 'default': False},
 			'firstDelayBeforeMeasurementsBegin':	{'type':'float', 'units':'s', 'default': 0},
 			'numberOfBiasesBetweenIncrements': 		{'type':'int', 'units':'#', 'default': 1},
-			'incrementTotalBiasTime':				{'type':'float', 'units':'s', 'default': 0}
+			'biasTimeList':							{'type':'array', 'units':'s', 'default': [0]}
 			'incrementStaticGateVoltage': 			{'type':'float', 'units':'V', 'default': 0},
 			'incrementStaticDrainVoltage': 			{'type':'float', 'units':'V', 'default': 0},
 			'incrementGateVoltageWhenDone': 		{'type':'float', 'units':'V', 'default': 0},
