@@ -26,11 +26,12 @@ def runAutoStaticBias(parameters, smu_instance, arduino_instance, gateSweepParam
 	numberOfStaticBiases = asb_parameters['numberOfStaticBiases']
 	
 	# Build arrays of all parameters that could change over the course of any given experiement
-	gateVoltageSetPointList = [sb_parameters['gateVoltageSetPoint']]*numberOfStaticBiases
-	drainVoltageSetPointList = [sb_parameters['drainVoltageSetPoint']]*numberOfStaticBiases
-	gateVoltageWhenDoneList = [sb_parameters['gateVoltageWhenDone']]*numberOfStaticBiases
-	drainVoltageWhenDoneList = [sb_parameters['drainVoltageWhenDone']]*numberOfStaticBiases
-	delayWhenDoneList = [sb_parameters['delayWhenDone']]*numberOfStaticBiases
+	biasTimeList 				= [sb_parameters['totalBiasTime']]*numberOfStaticBiases
+	gateVoltageSetPointList 	= [sb_parameters['gateVoltageSetPoint']]*numberOfStaticBiases
+	drainVoltageSetPointList 	= [sb_parameters['drainVoltageSetPoint']]*numberOfStaticBiases
+	gateVoltageWhenDoneList 	= [sb_parameters['gateVoltageWhenDone']]*numberOfStaticBiases
+	drainVoltageWhenDoneList 	= [sb_parameters['drainVoltageWhenDone']]*numberOfStaticBiases
+	delayWhenDoneList 			= [sb_parameters['delayWhenDone']]*numberOfStaticBiases
 	delayBeforeMeasurementsList = [sb_parameters['delayBeforeMeasurementsBegin']]*numberOfStaticBiases
 
 	# Modify parameter arrays so that they increment there values as desired
@@ -38,11 +39,12 @@ def runAutoStaticBias(parameters, smu_instance, arduino_instance, gateSweepParam
 	for i in range(numberOfStaticBiases):
 		if(i >= asb_parameters['numberOfBiasesBetweenIncrements']*currentIncrementNumber):
 			currentIncrementNumber += 1
-		gateVoltageSetPointList[i] += asb_parameters['incrementStaticGateVoltage']*(currentIncrementNumber-1)
+		biasTimeList				+= asb_parameters['incrementTotalBiasTime']*(currentIncrementNumber-1)
+		gateVoltageSetPointList[i] 	+= asb_parameters['incrementStaticGateVoltage']*(currentIncrementNumber-1)
 		drainVoltageSetPointList[i] += asb_parameters['incrementStaticDrainVoltage']*(currentIncrementNumber-1)
-		gateVoltageWhenDoneList[i] += asb_parameters['incrementGateVoltageWhenDone']*(currentIncrementNumber-1)
+		gateVoltageWhenDoneList[i] 	+= asb_parameters['incrementGateVoltageWhenDone']*(currentIncrementNumber-1)
 		drainVoltageWhenDoneList[i] += asb_parameters['incrementDrainVoltageWhenDone']*(currentIncrementNumber-1)
-		delayWhenDoneList[i] += asb_parameters['incrementDelayBeforeReapplyingVoltage']*(currentIncrementNumber-1)	
+		delayWhenDoneList[i] 		+= asb_parameters['incrementDelayBeforeReapplyingVoltage']*(currentIncrementNumber-1)	
 	delayBeforeMeasurementsList[0] = asb_parameters['firstDelayBeforeMeasurementsBegin']
 
 	# Randomize the time spent grounding the terminals if desired
@@ -53,7 +55,7 @@ def runAutoStaticBias(parameters, smu_instance, arduino_instance, gateSweepParam
 
 	## === START ===
 	print('Beginning AutoStaticBias test with the following parameter lists:')
-	print(' Gate Voltages:  {:} \n Drain Voltages:  {:} \n Gate Voltages between biases:  {:} \n Drain Voltages between biases:  {:} \n Delay Between Applying Voltages:  {:} \n Delay Before Measurements Begin:  {:}'.format(gateVoltageSetPointList, drainVoltageSetPointList, gateVoltageWhenDoneList, drainVoltageWhenDoneList, delayWhenDoneList, delayBeforeMeasurementsList))
+	print('Total Bias Times: {:} \n Gate Voltages:  {:} \n Drain Voltages:  {:} \n Gate Voltages between biases:  {:} \n Drain Voltages between biases:  {:} \n Delay Between Applying Voltages:  {:} \n Delay Before Measurements Begin:  {:}'.format(biasTimeList, gateVoltageSetPointList, drainVoltageSetPointList, gateVoltageWhenDoneList, drainVoltageWhenDoneList, delayWhenDoneList, delayBeforeMeasurementsList))
 	
 	# Run a pre-test gate sweep just to make sure everything looks good
 	if(asb_parameters['doInitialGateSweep']):
@@ -65,6 +67,7 @@ def runAutoStaticBias(parameters, smu_instance, arduino_instance, gateSweepParam
 		print('Starting static bias #'+str(i+1)+' of '+str(numberOfStaticBiases))
 		
 		# Get the parameters for this StaticBias from the pre-built arrays
+		sb_parameters['totalBiasTime'] = biasTimeList[i]
 		sb_parameters['gateVoltageSetPoint'] = gateVoltageSetPointList[i]
 		sb_parameters['drainVoltageSetPoint'] = drainVoltageSetPointList[i]
 		sb_parameters['gateVoltageWhenDone'] = gateVoltageWhenDoneList[i]
