@@ -75,6 +75,8 @@ def runAutoStaticBias(parameters, smu_instance, arduino_instance, gateSweepParam
 		sb_parameters['delayBeforeMeasurementsBegin'] = delayBeforeMeasurementsList[i]
 		
 		# Run StaticBias, GateSweep (if desired)
+		if(asb_parameters['applyGateSweepBetweenBiases'] and asb_parameters['applyGateSweepBothBeforeAndAfter']):
+			gateSweepScript.run(gateSweepParameters, smu_instance, isSavingResults=True, isPlottingResults=False)
 		staticBiasScript.run(staticBiasParameters, smu_instance, arduino_instance, isSavingResults=True, isPlottingResults=False)
 		if(asb_parameters['applyGateSweepBetweenBiases']):
 			gateSweepScript.run(gateSweepParameters, smu_instance, isSavingResults=True, isPlottingResults=False)
