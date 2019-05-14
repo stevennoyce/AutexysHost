@@ -83,6 +83,7 @@ default_parameters = {
 			'numberOfStaticBiases': 				{'type':'int', 'units':'#', 'default': 1},
 			'doInitialGateSweep': 					{'type':'bool', 'default': True},
 			'applyGateSweepBetweenBiases': 			{'type':'bool', 'default': False},
+			'delayBetweenBiases':					{'type':'float', 'units':'s', 'default': 0},
 			'firstDelayBeforeMeasurementsBegin':	{'type':'float', 'units':'s', 'default': 0},
 			'numberOfBiasesBetweenIncrements': 		{'type':'int', 'units':'#', 'default': 1},
 			'biasTimeList':							{'type':'array', 'units':'s', 'default': [0]},
