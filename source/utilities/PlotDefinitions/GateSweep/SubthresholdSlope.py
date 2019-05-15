@@ -13,9 +13,9 @@ plotDescription = {
 		'colorMap':'white_purple_black',
 		'colorDefault': ['#7363af'],
 		
-		'xlabel':'$V_{{GS}}^{{Sweep}}$ (V)',
+		'xlabel':'$V_{{GS}}$ (V)',
 		'ylabel':'SS (mV/dec)',
-		'leg_vds_label':'$V_{{DS}}^{{Sweep}}$  = {:}V',
+		'leg_vds_label':'$V_{{DS}}$  = {:}V',
 		'leg_vds_range_label':'$V_{{DS}}^{{min}} = $ {:}V\n'+'$V_{{DS}}^{{max}} = $ {:}V',
 	},
 }

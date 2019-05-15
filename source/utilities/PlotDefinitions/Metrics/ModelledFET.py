@@ -14,7 +14,7 @@ plotDescription = {
 		'colorMap':'white_yellow_black',
 		'colorDefault': ['#1f77b4'],
 		
-		'xlabel':'$V_{{GS}}^{{Sweep}}$ (V)',
+		'xlabel':'$V_{{GS}}$ (V)',
 		'ylabel':'$I_{{D}}$ ($\\mu$A)',
 		'neg_ylabel':'$-I_{{D}}$ ($\\mu$A)'
 	},

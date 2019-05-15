@@ -11,7 +11,7 @@ plotDescription = {
 		'includeOriginOnYaxis':True,
 		'colorMap':'magma',
 		'colorDefault': ['#f2b134'],
-		'xlabel':'$V_{{GS}}^{{Sweep}}$ (V)',
+		'xlabel':'$V_{{GS}}$ (V)',
 		'ylabel':'$I_{{D}}$ ($\\mathregular{\\mu}$A)',
 		'neg_ylabel':'$-I_{{D}}$ ($\\mathregular{\\mu}$A)',
 	},

@@ -11,12 +11,12 @@ plotDescription = {
 		'includeOriginOnYaxis':False,
 		'colorMap':'white_green_black',
 		'colorDefault': ['#4FB99F'],
-		'xlabel':'$V_{{DS}}^{{Sweep}}$ (V)',
+		'xlabel':'$V_{{DS}}$ (V)',
 		'ylabel':'$I_{{G}}$ (A)',
 		'micro_ylabel':'$I_{{G}}$ ($\\mathregular{\\mu}$A)',
 		'nano_ylabel':'$I_{{G}}$ (nA)',
 		'pico_ylabel':'$I_{{G}}$ (pA)',
-		'leg_vgs_label':'$V_{{GS}}^{{Sweep}} = ${:}V',
+		'leg_vgs_label':'$V_{{GS}} = ${:}V',
 		'leg_vgs_range_label':'$V_{{GS}}^{{min}} = $ {:}V\n'+'$V_{{GS}}^{{max}} = $ {:}V'
 	},
 }

@@ -11,7 +11,7 @@ plotDescription = {
 		'automaticAxisLabels':True,
 		'colorMap':'viridis',
 		'colorDefault': ['#f2b134'],
-		'xlabel':'$V_{{GS}}^{{Sweep}}$ (V)',
+		'xlabel':'$V_{{GS}}$ (V)',
 		'ylabel':'|$I_{{D}}$| (A)',
 	},
 }

@@ -11,9 +11,9 @@ plotDescription = {
 		'automaticAxisLabels':True,
 		'colorMap':'white_blue_black',
 		'colorDefault': ['#1f77b4'],
-		'xlabel':'$V_{{GS}}^{{Sweep}}$ (V)',
+		'xlabel':'$V_{{GS}}$ (V)',
 		'ylabel':'|$I_{{D}}$| (A)',
-		'leg_vds_label':'$V_{{DS}}^{{Sweep}}$ = {:}V',
+		'leg_vds_label':'$V_{{DS}}$ = {:}V',
 		'leg_vds_range_label':'$V_{{DS}}^{{min}} = $ {:}V\n'+'$V_{{DS}}^{{max}} = $ {:}V'
 	},
 }
