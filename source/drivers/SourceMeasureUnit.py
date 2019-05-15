@@ -184,7 +184,12 @@ class SourceMeasureUnit:
 
 	def rampGateVoltage(self, voltageStart, voltageSetPoint, steps=None):
 		if(steps == None):
-			steps = self.stepsPerRamp
+			steps = abs(voltageStart - voltageSetPoint)//1e-6
+			steps = min(steps, self.stepsPerRamp)
+		
+		if(steps <= 1):
+			self.setVgs(voltageSetPoint)
+				
 		gateVoltages = np.linspace(voltageStart, voltageSetPoint, steps).tolist()
 		for gateVoltage in gateVoltages:
 			self.setVgs(gateVoltage)
@@ -198,7 +203,12 @@ class SourceMeasureUnit:
 
 	def rampDrainVoltage(self, voltageStart, voltageSetPoint, steps=None):
 		if(steps == None):
-			steps = self.stepsPerRamp
+			steps = abs(voltageStart - voltageSetPoint)//1e-6
+			steps = min(steps, self.stepsPerRamp)
+		
+		if(steps <= 1):
+			self.setVds(voltageSetPoint)	
+			
 		drainVoltages = np.linspace(voltageStart, voltageSetPoint, steps).tolist()
 		for drainVoltage in drainVoltages:
 			self.setVds(drainVoltage)
