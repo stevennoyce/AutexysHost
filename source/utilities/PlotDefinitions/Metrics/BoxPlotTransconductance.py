@@ -63,7 +63,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	
 	# Tick Labels
 	ax.set_xticks(range(len(gm_list_categorized)))
-	ax.set_xticklabels(categories, va='center', y=(-0.03))
+	ax.set_xticklabels(categories)
 	
 	# Legend
 	if(mode_parameters['enableLegend']):

@@ -388,7 +388,7 @@ def adjustAndSaveFigure(figure, plotType, mode_parameters, subplotWidthPad=0, su
 	# figure.align_labels()
 	figure.tight_layout()
 	plt.subplots_adjust(wspace=subplotWidthPad, hspace=subplotHeightPad)
-	pngDPI = (300) if(mode_parameters['publication_mode']) else (mode_parameters['default_png_dpi'])
+	pngDPI = (600) if(mode_parameters['publication_mode']) else (mode_parameters['default_png_dpi'])
 	if(mode_parameters['saveFigures']):
 		print('Saving figures.')
 		start = time.time()
