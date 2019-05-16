@@ -110,6 +110,9 @@ def FET_Hysteresis(V_GS_data1, I_D_data1, V_GS_data2, I_D_data2, I_D_extraction_
 	V_GS1 = _gateVoltageAtDrainCurrent(V_GS_data1, I_D_data1, I_D_extraction_point)
 	V_GS2 = _gateVoltageAtDrainCurrent(V_GS_data2, I_D_data2, I_D_extraction_point)
 	return abs(V_GS1 - V_GS2)
+	
+def FET_Gate_Voltage_From_Current(V_GS_data, I_D_data, I_D_value):
+	return _gateVoltageAtDrainCurrent(V_GS_data, I_D_data, I_D_value)
 ## ===============
 
 
