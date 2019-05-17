@@ -106,13 +106,48 @@ def FET_Metrics(V_GS_data, I_D_data, gm_region_length_override=None, ss_region_l
 		return {'V_T':V_T_by_drain_current, 'g_m_max':g_m_steepest_region, 'SS_mV_dec':SS_mV_dec_steepest_region}
 	return {'V_T':V_T_steepest_region, 'g_m_max':g_m_steepest_region, 'SS_mV_dec':SS_mV_dec_steepest_region}
 
-def FET_Hysteresis(V_GS_data1, I_D_data1, V_GS_data2, I_D_data2, I_D_extraction_point):
-	V_GS1 = _gateVoltageAtDrainCurrent(V_GS_data1, I_D_data1, I_D_extraction_point)
-	V_GS2 = _gateVoltageAtDrainCurrent(V_GS_data2, I_D_data2, I_D_extraction_point)
-	return abs(V_GS1 - V_GS2)
+def FET_Hysteresis(V_GS_data1, I_D_data1, V_GS_data2, I_D_data2, trim_ends=5, max_percentile=99, min_percentile=5, noise_floor=1e-12):
+	# Get the upper and lower limits of the range of current values to consider
+	I_D_data1_min, I_D_data1_max, I_D_data2_min, I_D_data2_max = np.percentile(I_D_data1, 5), np.percentile(I_D_data1, 99), np.percentile(I_D_data2, 5), np.percentile(I_D_data2, 99)
+	I_D_data1_min = max(noise_floor, I_D_data1_min)
+	I_D_data2_min = max(noise_floor, I_D_data2_min)
 	
-def FET_Gate_Voltage_From_Current(V_GS_data, I_D_data, I_D_value):
-	return _gateVoltageAtDrainCurrent(V_GS_data, I_D_data, I_D_value)
+	# Obtain the list of drain currents (and relevant gate voltages) that exist in both I_D_data1 and I_D_data2
+	index_fwd_extraction_points = [i for i in range(trim_ends, len(I_D_data1) - trim_ends) if(I_D_data1[i] > I_D_data2_min and I_D_data1[i] < I_D_data2_max)]
+	index_rev_extraction_points = [i for i in range(trim_ends, len(I_D_data2) - trim_ends) if(I_D_data2[i] > I_D_data1_min and I_D_data2[i] < I_D_data1_max)]
+	I_D_data1_extraction_points  = [ I_D_data1[i] for i in index_fwd_extraction_points]
+	V_GS_data1_extraction_points = [V_GS_data1[i] for i in index_fwd_extraction_points]
+	I_D_data2_extraction_points  = [ I_D_data2[i] for i in index_rev_extraction_points]
+	V_GS_data2_extraction_points = [V_GS_data2[i] for i in index_rev_extraction_points]
+	
+	# Combine into one list of points to use to find hysteresis
+	I_D_overlap_region  = I_D_data1_extraction_points + I_D_data2_extraction_points
+	V_GS_overlap_region = V_GS_data1_extraction_points + V_GS_data2_extraction_points
+	V_GS_overlap_region, I_D_overlap_region = zip(*sorted(zip(V_GS_overlap_region, I_D_overlap_region)))
+	
+	# Extract hysteresis
+	hysteresis = [FET_Hysteresis_Value(V_GS_data1, I_D_data1, V_GS_data2, I_D_data2, id_val) for id_val in I_D_overlap_region]
+	
+	# Remove points where the hysteresis extraction failed
+	V_GS_overlap_region = [V_GS_overlap_region[i] for i in range(len(V_GS_overlap_region)) if((hysteresis[i] is not None))]
+	hysteresis          = [hysteresis[i]          for i in range(len(hysteresis))          if((hysteresis[i] is not None))]
+	
+	# Remove points where the hysteresis extraction gave an erroneously high value
+	V_GS_overlap_region = [V_GS_overlap_region[i] for i in range(len(V_GS_overlap_region)) if((hysteresis[i] <= 100*np.median(hysteresis)))]
+	hysteresis          = [hysteresis[i]          for i in range(len(hysteresis))          if((hysteresis[i] <= 100*np.median(hysteresis)))]
+	
+	return {'V_GS':V_GS_overlap_region, 'H':hysteresis}
+
+def FET_Hysteresis_Value(V_GS_data1, I_D_data1, V_GS_data2, I_D_data2, I_D_extraction_point):
+	try:
+		V_GS1 = _gateVoltageAtDrainCurrent(V_GS_data1, I_D_data1, I_D_extraction_point)
+		V_GS2 = _gateVoltageAtDrainCurrent(V_GS_data2, I_D_data2, I_D_extraction_point)
+		return abs(V_GS1 - V_GS2)
+	except:
+		return None
+	
+def FET_Gate_Voltage_From_Current(V_GS_reference_data, I_D_reference_data, I_D_value):
+	return _gateVoltageAtDrainCurrent(V_GS_reference_data, I_D_reference_data, I_D_value)
 ## ===============
 
 

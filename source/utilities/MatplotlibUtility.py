@@ -358,17 +358,15 @@ def plotSubthresholdCurveSlope(axis, jsonData, lineColor, direction='both', x_ax
 	line = plotAll(axis, x2, y1, lineColor, pointsPerX=pointsPerX1, lineStyle=lineStyle, errorBars=errorBars, alpha=alpha)
 	return line
 	
-def plotHysteresisCurve(axis, jsonData, lineColor, lineStyle=None, errorBars=True):
+def plotHysteresisCurve(axis, jsonData, lineColor, scaleYaxisBy=1, lineStyle=None, errorBars=True):
 	x, y, pointsPerX = extractSweep(axis, jsonData, direction='both', x_data='gate voltage', y_data='drain current')
 	vgs_fwd, vgs_rev, id_fwd, id_rev  = x[0], x[1], y[0], y[1]
-	N = 10
-	id_fwd_min, id_fwd_max, id_rev_min, id_rev_max = np.percentile(id_fwd, N), np.percentile(id_fwd, 100-N), np.percentile(id_rev, N), np.percentile(id_rev, 100-N)
 	
-	id_overlap_region = [val1 for val1 in id_fwd if(val1 > id_rev_min and val1 < id_rev_max)] + [val2 for val2 in id_rev if(val2 > id_fwd_min and val2 < id_fwd_max)]
-	id_overlap_region = sorted(id_overlap_region)
-	hysteresis = [fet_model.FET_Hysteresis(vgs_fwd, id_fwd, vgs_rev, id_rev, id_val) for id_val in id_overlap_region]
+	hysteresis_extraction = fet_model.FET_Hysteresis(vgs_fwd, id_fwd, vgs_rev, id_rev, noise_floor=1e-10)
+	vgs_region = hysteresis_extraction['V_GS']
+	hysteresis = hysteresis_extraction['H']
 	
-	line = axis.plot(id_overlap_region, hysteresis, color=lineColor, marker='o', markersize=2, linewidth=(0 if(lineStyle == '') else 1))[0]				
+	line = axis.plot(vgs_region, np.array(hysteresis) * scaleYaxisBy, color=lineColor, marker='o', markersize=2, linewidth=(0 if(lineStyle == '') else 1))[0]				
 	return line
 
 # === Figures ===
