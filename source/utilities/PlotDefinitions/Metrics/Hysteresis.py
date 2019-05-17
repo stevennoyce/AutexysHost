@@ -12,12 +12,12 @@ plotDescription = {
 	'plotDefaults': {
 		'figsize':(2,2.5),
 		'includeOriginOnYaxis':True,
-		'automaticAxisLabels':True,
 		'colorMap':'white_maroon_black',
 		'colorDefault': ['#800000'],
 		
 		'xlabel':'Trial',
-		'ylabel':'Hysteresis (mV)',
+		'unity_ylabel':'Hysteresis (V)',
+		'milli_ylabel':'Hysteresis (mV)',
 	},
 }
 
@@ -41,6 +41,10 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	H_list = [abs(VT_list[i] - VT_list[i+1]) for i in np.array(range(int(len(VT_list)/2))) * 2] if(len(VT_list) >= 2) else []
 	print('Extracted H: ' + str(H_list))
 	
+	# Adjust y-scale and y-axis labels 
+	max_hysteresis = max(H_list)
+	voltage_scale, ylabel = (1, plotDescription['plotDefaults']['unity_ylabel']) if(max_hysteresis >= 1) else (1e3, plotDescription['plotDefaults']['milli_ylabel'])
+	
 	# Build Color Map and Color Bar	
 	totalTime = timeWithUnits(deviceHistory[-1]['Results']['timestamps'][0][0] - deviceHistory[0]['Results']['timestamps'][-1][-1])
 	holdTime = '[$t_{{Hold}}$ = {}]'.format(timeWithUnits(deviceHistory[1]['Results']['timestamps'][-1][-1] - deviceHistory[0]['Results']['timestamps'][0][0])) if(len(deviceHistory) >= 2) else ('[$t_{{Hold}}$ = 0]')
@@ -48,7 +52,10 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	
 	# Plot
 	for i in range(len(H_list)):
-		line = ax.plot([i+1], [H_list[i] * 1000], color=colors[i], marker='o', markersize=4, linewidth=0, linestyle=None)
+		line = ax.plot([i+1], [H_list[i] * voltage_scale], color=colors[i], marker='o', markersize=4, linewidth=0, linestyle=None)
+
+	# Set Axis Labels
+	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=ylabel)	
 
 	# Adjust Y-lim (if desired)
 	includeOriginOnYaxis(ax, include=plotDescription['plotDefaults']['includeOriginOnYaxis'], stretchfactor=1.1)

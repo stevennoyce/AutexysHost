@@ -10,7 +10,6 @@ plotDescription = {
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(2,2.3),
-		'automaticAxisLabels':True,
 		'includeOriginOnYaxis':True,
 		'colorMap':'white_maroon_black',
 		'colorDefault': ['#800000'],
@@ -20,7 +19,8 @@ plotDescription = {
 		'width':0.5,
 		
 		'xlabel':'',
-		'ylabel':'Hysteresis (mV)',
+		'unity_ylabel':'Hysteresis (V)',
+		'milli_ylabel':'Hysteresis (mV)',
 		'legend_label':'Trials: {:.5g} \n$V_{{T}}^{{avg}} = {:.3g}$ V \n$V_{{T}}^{{std}} = {:.3g}$ V',
 	},
 }
@@ -46,6 +46,10 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	H_avg, H_std = np.mean(H_list), np.std(H_list)
 	print('Extracted H: ' + str(H_list))
 	
+	# Adjust y-scale and y-axis labels 
+	max_hysteresis = max(H_list)
+	voltage_scale, ylabel = (1, plotDescription['plotDefaults']['unity_ylabel']) if(max_hysteresis >= 1) else (1e3, plotDescription['plotDefaults']['milli_ylabel'])
+	
 	# Split data into categories (default is just a single category)
 	category_list = mode_parameters['boxPlotCategories']
 	categories = [elem[0] for elem in category_list]
@@ -61,9 +65,12 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	for i in range(len(H_list_categorized)):
 		position = i*plotDescription['plotDefaults']['spacing']
 		if(mode_parameters['boxPlotBarChart']):
-			line = ax.bar(position, np.mean(H_list_categorized[i]) * 1000, yerr=np.std(H_list_categorized[i]), color=colors[i], width=plotDescription['plotDefaults']['width'], capsize=3, ecolor='#333333', error_kw={'capthick':1})	
+			line = ax.bar(position, np.mean(H_list_categorized[i]) * voltage_scale, yerr=np.std(H_list_categorized[i]) * voltage_scale, color=colors[i], width=plotDescription['plotDefaults']['width'], capsize=3, ecolor='#333333', error_kw={'capthick':1})	
 		else:
-			line = ax.boxplot((np.array(H_list_categorized) * 1000).tolist()[i], positions=[position], widths=[plotDescription['plotDefaults']['width']], meanline=False, showmeans=False, showfliers=False, boxprops={'color':colors[i]}, capprops={'color':colors[i]}, whiskerprops={'color':colors[i]}, medianprops={'color':colors[i]}, meanprops={'color':colors[i]})
+			line = ax.boxplot((np.array(H_list_categorized) * voltage_scale).tolist()[i], positions=[position], widths=[plotDescription['plotDefaults']['width']], meanline=False, showmeans=False, showfliers=False, boxprops={'color':colors[i]}, capprops={'color':colors[i]}, whiskerprops={'color':colors[i]}, medianprops={'color':colors[i]}, meanprops={'color':colors[i]})
+		
+	# Set Axis Labels
+	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=ylabel)	
 		
 	# Tick Labels
 	ax.set_xticks(range(len(H_list_categorized)))
