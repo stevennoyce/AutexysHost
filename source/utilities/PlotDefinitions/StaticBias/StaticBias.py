@@ -118,20 +118,20 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 			for i in range(len(dotted_lines)):
 				ax1.annotate('', xy=(dotted_lines[i]['x'], ax1.get_ylim()[0]), xytext=(dotted_lines[i]['x'], ax1.get_ylim()[1]), xycoords='data', arrowprops=dict(arrowstyle='-', color=(0,0,0,0.3), ls=':', lw=0.5))
 		
-		# If no dual axis included, then annotate the plot	
-		if(not includeDualAxis):
-			if(len(parameter_labels['drainVoltageSetPoint']) > 1) or (len(parameter_labels['gateVoltageSetPoint']) > 1):
-				# Make the data take up less of the vertical space to make room for the labels
-				ax1.set_ylim(top=1.2*ax1.get_ylim()[1])
-				
-				# Add V_DS annotation
-				for i in range(len(parameter_labels['drainVoltageSetPoint'])):
-					ax1.annotate(' $V_{DS} = $'+'{:.1f}V'.format(parameter_labels['drainVoltageSetPoint'][i]['drainVoltageSetPoint']), xy=(parameter_labels['drainVoltageSetPoint'][i]['x'], ax1.get_ylim()[1]*(0.99 - 0*0.03*i)), xycoords='data', ha='left', va='top', rotation=-90)
+			# If no dual axis included, then annotate the plot	
+			if(not includeDualAxis):
+				if(len(parameter_labels['drainVoltageSetPoint']) > 1) or (len(parameter_labels['gateVoltageSetPoint']) > 1):
+					# Make the data take up less of the vertical space to make room for the labels
+					ax1.set_ylim(top=1.2*ax1.get_ylim()[1])
+					
+					# Add V_DS annotation
+					for i in range(len(parameter_labels['drainVoltageSetPoint'])):
+						ax1.annotate(' $V_{DS} = $'+'{:.1f}V'.format(parameter_labels['drainVoltageSetPoint'][i]['drainVoltageSetPoint']), xy=(parameter_labels['drainVoltageSetPoint'][i]['x'], ax1.get_ylim()[1]*(0.99 - 0*0.03*i)), xycoords='data', ha='left', va='top', rotation=-90)
 
-				# Add V_GS annotation
-				for i in range(len(parameter_labels['gateVoltageSetPoint'])):
-					ax1.annotate(' $V_{GS} = $'+'{:.0f}V'.format(parameter_labels['gateVoltageSetPoint'][i]['gateVoltageSetPoint']), xy=(parameter_labels['gateVoltageSetPoint'][i]['x'], ax1.get_ylim()[1]*(0.90 - 0*0.03*i)), xycoords='data', ha='left', va='bottom', rotation=-90)
-	
+					# Add V_GS annotation
+					for i in range(len(parameter_labels['gateVoltageSetPoint'])):
+						ax1.annotate(' $V_{GS} = $'+'{:.0f}V'.format(parameter_labels['gateVoltageSetPoint'][i]['gateVoltageSetPoint']), xy=(parameter_labels['gateVoltageSetPoint'][i]['x'], ax1.get_ylim()[1]*(0.90 - 0*0.03*i)), xycoords='data', ha='left', va='bottom', rotation=-90)
+		
 	# Adjust Y-lim (if desired)
 	includeOriginOnYaxis(ax1, include=plotDescrip_current['plotDefaults']['mainIncludeOrigin'])
 	
