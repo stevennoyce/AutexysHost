@@ -102,7 +102,7 @@ def FET_Metrics(V_GS_data, I_D_data, gm_region_length_override=None, ss_region_l
 	g_m_steepest_region, V_T_steepest_region, linear_steepest_region = _max_transconductance(V_GS_data, I_D_data, gm_region_length_override)
 	if(isinstance(extraction_mode_VT, list) and (extraction_mode_VT[0] == 'byDrainCurrent')):
 		drainCurrentValue = extraction_mode_VT[1] if((len(extraction_mode_VT) > 1) and (extraction_mode_VT[1] is not None)) else (I_D_data[int((_find_steepest_region(V_GS_data, I_D_data, None)[0] + _find_steepest_region(V_GS_data, I_D_data, None)[1])/2)])
-		V_T_by_drain_current = _gateVoltageAtDrainCurrent(V_GS_data, I_D_data, I_D_value=drainCurrentValue)
+		V_T_by_drain_current = _getXValueAtYValue(V_GS_data, I_D_data, y_value=drainCurrentValue)
 		return {'V_T':V_T_by_drain_current, 'g_m_max':g_m_steepest_region, 'SS_mV_dec':SS_mV_dec_steepest_region}
 	return {'V_T':V_T_steepest_region, 'g_m_max':g_m_steepest_region, 'SS_mV_dec':SS_mV_dec_steepest_region}
 
@@ -120,34 +120,38 @@ def FET_Hysteresis(V_GS_data1, I_D_data1, V_GS_data2, I_D_data2, trim_ends=5, ma
 	I_D_data2_extraction_points  = [ I_D_data2[i] for i in index_rev_extraction_points]
 	V_GS_data2_extraction_points = [V_GS_data2[i] for i in index_rev_extraction_points]
 	
-	# Combine into one list of points to use to find hysteresis
-	I_D_overlap_region  = I_D_data1_extraction_points + I_D_data2_extraction_points
-	V_GS_overlap_region = V_GS_data1_extraction_points + V_GS_data2_extraction_points
-	V_GS_overlap_region, I_D_overlap_region = zip(*sorted(zip(V_GS_overlap_region, I_D_overlap_region)))
+	# Extract hysteresis for points from I_D_data1 and I_D_data2 and remove points where extraction failed
+	hysteresis_data1 = [FET_Hysteresis_Value(V_GS_data1, I_D_data1, V_GS_data2, I_D_data2, id_val) for id_val in I_D_data1_extraction_points]
+	hysteresis_data2 = [FET_Hysteresis_Value(V_GS_data1, I_D_data1, V_GS_data2, I_D_data2, id_val) for id_val in I_D_data2_extraction_points]
+	V_GS_data1_extraction_points = [V_GS_data1_extraction_points[i] for i in range(len(V_GS_data1_extraction_points)) if((hysteresis_data1[i] is not None))]
+	V_GS_data2_extraction_points = [V_GS_data2_extraction_points[i] for i in range(len(V_GS_data2_extraction_points)) if((hysteresis_data2[i] is not None))]
+	hysteresis_data1    		 = [hysteresis_data1[i]				for i in range(len(hysteresis_data1))			  if((hysteresis_data1[i] is not None))]
+	hysteresis_data2			 = [hysteresis_data2[i] 			for i in range(len(hysteresis_data2)) 			  if((hysteresis_data2[i] is not None))]
+
+	# Use linear interpolation to make both sets of hysteresis data have as many of the same V_GS values as possible
+	V_GS_hysteresis_data1, hysteresis_data1 = _includeAdditionalXValues(V_GS_data1_extraction_points, hysteresis_data1, V_GS_data2_extraction_points)
+	V_GS_hysteresis_data2, hysteresis_data2 = _includeAdditionalXValues(V_GS_data2_extraction_points, hysteresis_data2, V_GS_data1_extraction_points)
 	
-	# Extract hysteresis
-	hysteresis = [FET_Hysteresis_Value(V_GS_data1, I_D_data1, V_GS_data2, I_D_data2, id_val) for id_val in I_D_overlap_region]
+	# Combine into a single list of points and sort by V_GS
+	V_GS_combined = V_GS_hysteresis_data1 + V_GS_hysteresis_data2
+	hysteresis_combined = hysteresis_data1 + hysteresis_data2
+	V_GS_combined, hysteresis_combined = zip(*sorted(zip(V_GS_combined, hysteresis_combined)))
 	
-	# Remove points where the hysteresis extraction failed
-	V_GS_overlap_region = [V_GS_overlap_region[i] for i in range(len(V_GS_overlap_region)) if((hysteresis[i] is not None))]
-	hysteresis          = [hysteresis[i]          for i in range(len(hysteresis))          if((hysteresis[i] is not None))]
-	
-	# Remove points where the hysteresis extraction gave an erroneously high value
-	V_GS_overlap_region = [V_GS_overlap_region[i] for i in range(len(V_GS_overlap_region)) if((hysteresis[i] <= 100*np.median(hysteresis)))]
-	hysteresis          = [hysteresis[i]          for i in range(len(hysteresis))          if((hysteresis[i] <= 100*np.median(hysteresis)))]
-	
-	return {'V_GS':V_GS_overlap_region, 'H':hysteresis}
+	# Take final Hysteresis to be average of the two different extraction techniques (forward-sweep-mapped-to-reverse-sweep averaged w/ reverse-sweep-mapped-to-forward-sweep)
+	V_GS_hysteresis, hysteresis = _averageDuplicateX(V_GS_combined, hysteresis_combined, removePointsThatDoNotHaveDuplicate=True)
+		
+	return {'V_GS':V_GS_hysteresis, 'H':hysteresis}
 
 def FET_Hysteresis_Value(V_GS_data1, I_D_data1, V_GS_data2, I_D_data2, I_D_extraction_point):
 	try:
-		V_GS1 = _gateVoltageAtDrainCurrent(V_GS_data1, I_D_data1, I_D_extraction_point)
-		V_GS2 = _gateVoltageAtDrainCurrent(V_GS_data2, I_D_data2, I_D_extraction_point)
+		V_GS1 = _getXValueAtYValue(V_GS_data1, I_D_data1, I_D_extraction_point)
+		V_GS2 = _getXValueAtYValue(V_GS_data2, I_D_data2, I_D_extraction_point)
 		return abs(V_GS1 - V_GS2)
 	except:
 		return None
 	
 def FET_Gate_Voltage_From_Current(V_GS_reference_data, I_D_reference_data, I_D_value):
-	return _gateVoltageAtDrainCurrent(V_GS_reference_data, I_D_reference_data, I_D_value)
+	return _getXValueAtYValue(V_GS_reference_data, I_D_reference_data, I_D_value)
 ## ===============
 
 
@@ -272,20 +276,6 @@ def _max_transconductance(V_GS_data, I_D_data, region_length_override=None):
 	g_m_max = abs( fit['slope'] )  
 	return g_m_max, V_T_approx, (V_GS_steepest_region, fitted_steepest_region)
 
-def _gateVoltageAtDrainCurrent(V_GS_data, I_D_data, I_D_value):
-	# Find index of data where drain current is closest to target value
-	index = _indexOfValue(I_D_data, I_D_value)
-	if(index == -1):
-		raise NotImplementedError('Unable to find gate voltage for the given drain current value.')
-	elif((index <= 3) or (index >= len(I_D_data) - 3)):
-		raise NotImplementedError('Drain current value was too close to edge of data for VT extraction.')
-		
-	# Perform a local linear fit to increase effective measurement resolution at the point of interest, then solve for V_GS analytically
-	fit = _linearFit(V_GS_data[index-1:index+2], I_D_data[index-1:index+2])
-	V_GS = (I_D_value - fit['y_intercept'])/fit['slope']
-	
-	return V_GS
-
 def _find_steepest_region(V_GS_data, I_D_data, region_length): 
 	numberOfPoints = (int(len(I_D_data)/10) + 1) if(region_length is None) else (region_length)
 	maxSlope = 0
@@ -298,6 +288,49 @@ def _find_steepest_region(V_GS_data, I_D_data, region_length):
 	regionStart = max(0, index)
 	regionEnd = min(len(I_D_data)-1, index + numberOfPoints)
 	return (int(regionStart), int(regionEnd))
+
+def _getXValueAtYValue(x_data, y_data, y_value):
+	# Find index of data where y_data is closest to target y_value
+	index = _indexOfValue(y_data, y_value)
+	if(index == -1):
+		raise NotImplementedError('Unable to find gate voltage for the given drain current value.')
+	elif((index < 1) or (index > len(y_data) - 2)):
+		raise NotImplementedError('Drain current value was too close to edge of data for VT extraction.')
+		
+	# Perform a local linear fit to increase effective measurement resolution at the point of interest, then solve for x_value analytically
+	fit = _linearFit(x_data[index-1:index+2], y_data[index-1:index+2])
+	x_value = (y_value - fit['y_intercept'])/fit['slope']
+	
+	return x_value
+
+def _includeAdditionalXValues(x_data, y_data, x_values_to_add):
+	x_values_added = []
+	y_values_added = []
+	for xval in x_values_to_add:
+		if(xval not in x_data):
+			try:
+				yval = _getXValueAtYValue(y_data, x_data, xval)
+				x_values_added.append(xval)
+				y_values_added.append(yval)
+			except:
+				pass
+	x_full = x_data + x_values_added
+	y_full = y_data + y_values_added
+	x_full, y_full = zip(*sorted(zip(x_full, y_full)))
+	return x_full, y_full
+
+def _averageDuplicateX(x_data, y_data, removePointsThatDoNotHaveDuplicate=False):
+	value_dict = {}
+	for i in range(len(x_data)):
+		x = x_data[i]
+		y = y_data[i]
+		if(x in value_dict.keys()):
+			value_dict[x].append(y)
+		else:
+			value_dict[x] = [y]
+	x_combined = [key for key in value_dict.keys() if((not removePointsThatDoNotHaveDuplicate) or len(value_dict[key]) >= 2)]
+	y_combined = [sum(value_dict[xval])/len(value_dict[xval]) for xval in x_combined]
+	return x_combined, y_combined
 
 def _indexOfValue(y, value):
 	index = -1
@@ -319,56 +352,62 @@ def _semilogFit(x, y):
 
 
 if __name__ == '__main__':
-	import matplotlib as mpl
-	from matplotlib import pyplot as plt
-	import random
+	if(False):
+		import matplotlib as mpl
+		from matplotlib import pyplot as plt
+		import random
+			
+		V_DS_data = np.linspace(0, 4, 500)
+		V_GS = 1.0	
+		V_GS_data = np.linspace(-3, 3, 500)
+		V_DS = 1.0
 		
-	V_DS_data = np.linspace(0, 4, 500)
-	V_GS = 1.0	
-	V_GS_data = np.linspace(-3, 3, 500)
-	V_DS = 1.0
-	
-	if(True):
-		I_DN = (np.array([NMOSFET_I_D_fn(vgs,  abs(V_DS), 0, 1e-6, 500, 1e-10)*(1+random.random()/10) for vgs in V_GS_data]))
-		I_DP = (np.array([PMOSFET_I_D_fn(vgs, -abs(V_DS), 0, 1e-6, 300, 1e-10)*(1+random.random()/10) for vgs in V_GS_data]))
-		
-		fitted_vals_N, fitted_model_parameters_N, fitted_model_parameters_kw_N = NMOSFET_Fit(V_GS_data, I_DN, abs(V_DS))
-		fitted_vals_P, fitted_model_parameters_P, fitted_model_parameters_kw_P = PMOSFET_Fit(V_GS_data, I_DP, -abs(V_DS))
+		if(True):
+			I_DN = (np.array([NMOSFET_I_D_fn(vgs,  abs(V_DS), 0, 1e-6, 500, 1e-10)*(1+random.random()/10) for vgs in V_GS_data]))
+			I_DP = (np.array([PMOSFET_I_D_fn(vgs, -abs(V_DS), 0, 1e-6, 300, 1e-10)*(1+random.random()/10) for vgs in V_GS_data]))
+			
+			fitted_vals_N, fitted_model_parameters_N, fitted_model_parameters_kw_N = NMOSFET_Fit(V_GS_data, I_DN, abs(V_DS))
+			fitted_vals_P, fitted_model_parameters_P, fitted_model_parameters_kw_P = PMOSFET_Fit(V_GS_data, I_DP, -abs(V_DS))
 
-		print(fitted_model_parameters_kw_N)
-		print(fitted_model_parameters_kw_P)
+			print(fitted_model_parameters_kw_N)
+			print(fitted_model_parameters_kw_P)
+			
+			plot_data = I_DP
+			plot_model = fitted_vals_P
+			xvals = V_GS_data
+			
+			fig1, ax1 = plt.subplots(1,1, figsize=(4,4))
+			ax1.plot(xvals, abs(plot_data), marker='o', markersize=2, linewidth=1)
+			ax1.plot(xvals, abs(np.array(plot_model)))
+			ax1.set_ylabel('$I_{{D}}$ ($\\mu A$)')
+			ax1.set_xlabel('$V_{{GS}}$ ($V$)')
+			ax1.set_yscale('log')
+			fig1.tight_layout()
+			plt.show()
+		else:
+			I_DN_1 = (np.array([NMOSFET_I_D_fn(vgs, V_DS, 0, 5e-6, 300, 1e-10)*(1) for vgs in V_GS_data]))
+			I_DN_2 = (np.array([NMOSFET_I_D_fn(vgs, V_DS, 0, 5e-6, 500, 1e-10)*(1) for vgs in V_GS_data]))*10
+			I_DN_3 = (np.array([NMOSFET_I_D_fn(vgs, V_DS, 0, 5e-6, 1000, 1e-10)*(1) for vgs in V_GS_data]))*100
+			I_DN_4 = (np.array([NMOSFET_I_D_fn(vgs, V_DS, 0, 5e-6, 2000, 1e-10)*(1) for vgs in V_GS_data]))*1000
+			I_DN_5 = (np.array([NMOSFET_I_D_fn(vgs, V_DS, 0, 5e-6, 4000, 1e-10)*(1) for vgs in V_GS_data]))*10000
+			
+			fig1, ax1 = plt.subplots(1,1, figsize=(4,4))
+			ax1.plot(V_DS_data, abs(I_DN_1), marker='o', markersize=2, linewidth=1)
+			ax1.plot(V_DS_data, abs(I_DN_2), marker='o', markersize=2, linewidth=1)
+			ax1.plot(V_DS_data, abs(I_DN_3), marker='o', markersize=2, linewidth=1)
+			ax1.plot(V_DS_data, abs(I_DN_4), marker='o', markersize=2, linewidth=1)
+			ax1.plot(V_DS_data, abs(I_DN_5), marker='o', markersize=2, linewidth=1)
+			ax1.set_ylabel('$I_{{D}}$ ($\\mu A$)')
+			ax1.set_xlabel('$V_{{GS}}$ ($V$)')
+			ax1.set_yscale('log')
+			fig1.tight_layout()
+			plt.show()
 		
-		plot_data = I_DP
-		plot_model = fitted_vals_P
-		xvals = V_GS_data
-		
-		fig1, ax1 = plt.subplots(1,1, figsize=(4,4))
-		ax1.plot(xvals, abs(plot_data), marker='o', markersize=2, linewidth=1)
-		ax1.plot(xvals, abs(np.array(plot_model)))
-		ax1.set_ylabel('$I_{{D}}$ ($\\mu A$)')
-		ax1.set_xlabel('$V_{{GS}}$ ($V$)')
-		ax1.set_yscale('log')
-		fig1.tight_layout()
-		plt.show()
-	else:
-		I_DN_1 = (np.array([NMOSFET_I_D_fn(vgs, V_DS, 0, 5e-6, 300, 1e-10)*(1) for vgs in V_GS_data]))
-		I_DN_2 = (np.array([NMOSFET_I_D_fn(vgs, V_DS, 0, 5e-6, 500, 1e-10)*(1) for vgs in V_GS_data]))*10
-		I_DN_3 = (np.array([NMOSFET_I_D_fn(vgs, V_DS, 0, 5e-6, 1000, 1e-10)*(1) for vgs in V_GS_data]))*100
-		I_DN_4 = (np.array([NMOSFET_I_D_fn(vgs, V_DS, 0, 5e-6, 2000, 1e-10)*(1) for vgs in V_GS_data]))*1000
-		I_DN_5 = (np.array([NMOSFET_I_D_fn(vgs, V_DS, 0, 5e-6, 4000, 1e-10)*(1) for vgs in V_GS_data]))*10000
-		
-		fig1, ax1 = plt.subplots(1,1, figsize=(4,4))
-		ax1.plot(V_DS_data, abs(I_DN_1), marker='o', markersize=2, linewidth=1)
-		ax1.plot(V_DS_data, abs(I_DN_2), marker='o', markersize=2, linewidth=1)
-		ax1.plot(V_DS_data, abs(I_DN_3), marker='o', markersize=2, linewidth=1)
-		ax1.plot(V_DS_data, abs(I_DN_4), marker='o', markersize=2, linewidth=1)
-		ax1.plot(V_DS_data, abs(I_DN_5), marker='o', markersize=2, linewidth=1)
-		ax1.set_ylabel('$I_{{D}}$ ($\\mu A$)')
-		ax1.set_xlabel('$V_{{GS}}$ ($V$)')
-		ax1.set_yscale('log')
-		fig1.tight_layout()
-		plt.show()
 	
+	x = [1,2,2,3,4,4,5]
+	y = [1,2,3,4,5,6,7]
+	
+	print(_averageDuplicateX(x, y))
 	
 		
 	
