@@ -49,7 +49,10 @@ def alternatingSweepValues(maximum, points):
 # Every point is duplicated "duplicates" number of times.
 def rampValuesWithDuplicates(start, end, points, duplicates):
 	data = np.linspace(start, end, points/duplicates).tolist()
-	return sorted(duplicates*data)
+	if(start <= end):
+		return sorted(duplicates*data)
+	else:
+		return list(reversed(sorted(duplicates*data)))
 	
 # Generates a sequence that linearly ramps from start to end, and back to start. 
 # Every point is duplicated "duplicates" number of times.
@@ -131,6 +134,3 @@ def sineWaveValues(values, points, maxStep):
 		sequence.extend(segment)
 	return sequence
 	
-		
-	
-
