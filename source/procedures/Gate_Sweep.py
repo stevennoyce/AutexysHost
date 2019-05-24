@@ -87,26 +87,28 @@ def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint
 	if(isFastSweep):
 		triggerInterval = 1/fastSweepSpeed
 		
+		# Convert drain and gate voltages into 1-D arrays that the SMU can read
+		drainVoltageList = [drainVoltageSetPoint]
+		gateVoltageList = []
+		for i in range(len(gateVoltages)):
+			gateVoltageList.extend(gateVoltages[i])
+		
 		# Use SMU built-in sweep to sweep the gate forwards and backwards
-		forward_measurements = smu_instance.takeSweep(drainVoltageSetPoint, drainVoltageSetPoint, gateVoltageMinimum, gateVoltageMaximum, stepsInVGSPerDirection, triggerInterval=triggerInterval)
-		reverse_measurements = smu_instance.takeSweep(drainVoltageSetPoint, drainVoltageSetPoint, gateVoltageMaximum, gateVoltageMinimum, stepsInVGSPerDirection, triggerInterval=triggerInterval)
+		measurements = smu_instance.takeSweep(None, None, None, None, points=stepsInVGSPerDirection*2*pointsPerVGS, triggerInterval=triggerInterval, src1vals=drainVoltageList, src2vals=gateVoltageList)
 
 		# Save forward measurements
-		vds_data[0] = forward_measurements['Vds_data']
-		id_data[0]  = forward_measurements['Id_data']
-		vgs_data[0] = forward_measurements['Vgs_data']
-		ig_data[0]  = forward_measurements['Ig_data']
-		timestamps[0] = forward_measurements['timestamps']
+		vds_data[0]   = measurements['Vds_data'][0:stepsInVGSPerDirection*pointsPerVGS]
+		id_data[0]    = measurements['Id_data'][0:stepsInVGSPerDirection*pointsPerVGS]
+		vgs_data[0]   = measurements['Vgs_data'][0:stepsInVGSPerDirection*pointsPerVGS]
+		ig_data[0]    = measurements['Ig_data'][0:stepsInVGSPerDirection*pointsPerVGS]
+		timestamps[0] = measurements['timestamps'][0:stepsInVGSPerDirection*pointsPerVGS]
 
 		# Save reverse measurements
-		vds_data[1] = reverse_measurements['Vds_data']
-		id_data[1]  = reverse_measurements['Id_data']
-		vgs_data[1] = reverse_measurements['Vgs_data']
-		ig_data[1]  = reverse_measurements['Ig_data']
-		timestamps[1] = reverse_measurements['timestamps']
-
-		# Save true measured Vgs as the applied voltages
-		gateVoltages = vgs_data
+		vds_data[1]   = measurements['Vds_data'][stepsInVGSPerDirection*pointsPerVGS:]
+		id_data[1]    = measurements['Id_data'][stepsInVGSPerDirection*pointsPerVGS:]
+		vgs_data[1]   = measurements['Vgs_data'][stepsInVGSPerDirection*pointsPerVGS:]
+		ig_data[1]    = measurements['Ig_data'][stepsInVGSPerDirection*pointsPerVGS:]
+		timestamps[1] = measurements['timestamps'][stepsInVGSPerDirection*pointsPerVGS:]
 	else:
 		for direction in range(len(gateVoltages)):
 			for gateVoltage in gateVoltages[direction]:
