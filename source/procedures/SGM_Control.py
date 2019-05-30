@@ -93,9 +93,15 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 	# Choose the amount of time it takes for the SMU to measure one point
 	interval = 1/afm_parameters['deviceMeasurementSpeed']
 	
+	passPoints2 = 1*passPoints
+	interval2 = 1*interval
+	if False:
+		passPoints2 = min(passPoints, 100*afm_parameters['tracesToMeasure'])
+		interval2 = max(interval, int(measurementTime/passPoints2))
+	
 	# Prepare the SMUs to collect data in sweep mode
 	sleep_time1 = smu_device.setupSweep(vds, vds, vgs, vgs, passPoints, triggerInterval=interval)
-	sleep_time2 = smu_secondary.setupSweep(0, 0, 0, 0, passPoints, triggerInterval=interval)
+	sleep_time2 = smu_secondary.setupSweep(0, 0, 0, 0, passPoints2, triggerInterval=interval2)
 	
 	# If desired, wait for the AFM to reach the end of a scan before beginning
 	if(afm_parameters['startOnFrameSwitch']):
@@ -114,8 +120,8 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 			print('Starting line {} of {} (scan {} of {})'.format(line+1, afm_parameters['lines'], scan+1, afm_parameters['scans']))
 			
 			if line == 1:
-				smu_device.setTimeout(timeout_ms=int(2*lineTime*1e3))
-				smu_secondary.setTimeout(timeout_ms=int(2*lineTime*1e3))
+				smu_device.setTimeout(timeout_ms=int(4*lineTime*1e3))
+				smu_secondary.setTimeout(timeout_ms=int(4*lineTime*1e3))
 			
 			results = runAFMline(parameters, smu_systems, sleep_time1, sleep_time2)
 			
@@ -125,17 +131,18 @@ def runAFM(parameters, smu_systems, isSavingResults=True):
 				break
 			
 			# Determine frame switch
-			meanY = np.mean(results['Raw']['smu2_v1_data'])
-			meanYs.append(meanY)
-			if len(meanYs) > 1:
-				deltaMeanYs.append(meanYs[-1] - meanYs[-2])
-			if len(meanYs) > 6:
-				if (deltaMeanYs[-1]*np.median(deltaMeanYs) < 0) and (deltaMeanYs[-2]*np.median(deltaMeanYs) < 0):
-					print('Ending scan due to detected frame reversal')
-					print(meanYs)
-					print(deltaMeanYs)
-					print(np.median(deltaMeanYs))
-					break
+			if False:
+				meanY = np.mean(results['Raw']['smu2_v1_data'])
+				meanYs.append(meanY)
+				if len(meanYs) > 1:
+					deltaMeanYs.append(meanYs[-1] - meanYs[-2])
+				if len(meanYs) > 6:
+					if (deltaMeanYs[-1]*np.median(deltaMeanYs) < 0) and (deltaMeanYs[-2]*np.median(deltaMeanYs) < 0):
+						print('Ending scan due to detected frame reversal')
+						print(meanYs)
+						print(deltaMeanYs)
+						print(np.median(deltaMeanYs))
+						break
 			
 			# Copy parameters and add in the test results
 			parameters['Computed'] = results['Computed']
