@@ -702,13 +702,18 @@
 													<v-list>
 														<v-select box class="ma-3" label="Run Type" v-model="scheduleObjects[scheduleObjectIndex]['runType']['default']" :items="Object.keys(scheduleObjectDefault['runConfigs'])"></v-select>
 														<v-subheader>Identifiers</v-subheader>
-														<v-list-tile v-for="(setting, settingName) in scheduleObjectDefault['Identifiers']" v-if="['bool','float','int','string','choice'].includes(setting.type)">
-															<v-switch v-if="setting.type == 'bool'" :label="setting.title" v-model="scheduleObjects[scheduleObjectIndex]['Identifiers'][settingName]['default']"></v-switch>
-															<v-text-field v-if="setting.type == 'float'" :label="setting.title" v-model.number="scheduleObjects[scheduleObjectIndex]['Identifiers'][settingName]['default']"></v-text-field>
-															<v-text-field v-if="setting.type == 'int'" :label="setting.title" v-model.number="scheduleObjects[scheduleObjectIndex]['Identifiers'][settingName]['default']"></v-text-field>
-															<v-text-field v-if="setting.type == 'string'" :label="setting.title" v-model="scheduleObjects[scheduleObjectIndex]['Identifiers'][settingName]['default']"></v-text-field>
-															<v-select v-if="setting.type == 'choice'" :label="setting.title"  v-model="scheduleObjects[scheduleObjectIndex]['Identifiers'][settingName]['default']" :items="setting.choices"></v-select>
-														</v-list-tile>
+														<template v-for="(setting, settingName) in scheduleObjectDefault['Identifiers']" v-if="['bool','float','int','string','choice'].includes(setting.type)">
+															<v-tooltip top>
+																<v-list-tile slot="activator">
+																	<v-switch v-if="setting.type == 'bool'" :label="setting.title" v-model="scheduleObjects[scheduleObjectIndex]['Identifiers'][settingName]['default']"></v-switch>
+																	<v-text-field v-if="setting.type == 'float'" :label="setting.title" v-model.number="scheduleObjects[scheduleObjectIndex]['Identifiers'][settingName]['default']"></v-text-field>
+																	<v-text-field v-if="setting.type == 'int'" :label="setting.title" v-model.number="scheduleObjects[scheduleObjectIndex]['Identifiers'][settingName]['default']"></v-text-field>
+																	<v-text-field v-if="setting.type == 'string'" :label="setting.title" v-model="scheduleObjects[scheduleObjectIndex]['Identifiers'][settingName]['default']"></v-text-field>
+																	<v-select v-if="setting.type == 'choice'" :label="setting.title"  v-model="scheduleObjects[scheduleObjectIndex]['Identifiers'][settingName]['default']" :items="setting.choices"></v-select>
+																</v-list-tile>
+																<span>Description: {{ setting.description }}</span>
+															</v-tooltip>
+														</template>
 														
 														<v-subheader>Measurement System</v-subheader>
 														<v-list-tile v-for="(setting, settingName) in scheduleObjectDefault['MeasurementSystem']" v-if="['bool','float','int','string','choice','array'].includes(setting.type)" style="overflow:scroll; overscroll-behavior: contain">
