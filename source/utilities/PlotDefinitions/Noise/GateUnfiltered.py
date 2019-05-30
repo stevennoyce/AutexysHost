@@ -48,7 +48,17 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	return (fig, (ax,))
 
 def noiseFromData(data):
-	return 3*np.std(data) # 98% interval
+	return 4*np.std(data) # 95% interval
+
+def noiseFromData(data):
+    data = np.array(data)
+    data = data.flatten()
+    
+    windowSize = 50
+    slidingWindow = np.arange(windowSize)[None, :] + windowSize*np.arange(data.size//windowSize)[:, None]
+    stds = np.std(data[slidingWindow], axis=1)
+    
+    return 4*np.median(stds) # 95% interval
 
 def filter60HzAndHarmonics(Id, timestamps):
 	Id = np.array(Id)
@@ -81,7 +91,7 @@ def filter60HzAndHarmonics(Id, timestamps):
 	print('FNyquist is', FNyquist)
 	
 	b, a = scipy.signal.butter(1, min(60, FNyquist/2)/FNyquist, btype='highpass', analog=False) #, fs=Fsamp
-	# IdFiltered = 0*np.mean(IdFiltered) + scipy.signal.filtfilt(b, a, IdFiltered)
+	IdFiltered = np.mean(IdFiltered) + scipy.signal.filtfilt(b, a, IdFiltered)
 	
 	# IdFiltered = scipy.signal.filtfilt(b, a, IdFiltered)
 	# IdFiltered = Id - np.poly1d(np.polyfit(timestamps, Id, 3))(timestamps)
