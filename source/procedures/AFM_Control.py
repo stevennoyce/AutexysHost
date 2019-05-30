@@ -6,6 +6,7 @@ import threading
 from utilities import DataLoggerUtility as dlu
 
 import scipy.optimize
+import scipy.signal
 import math
 
 def triangleSine(x):
@@ -194,6 +195,75 @@ def extractTraces(deviceHistory):
 		'time': [time_topology_trace, time_topology_retrace, time_nap_trace, time_nap_retrace]
 	}
 
+def extractTraces(deviceHistory):
+	if deviceHistory[0]['runConfigs']['SGMControl']['tracesToMeasure'] == 1:
+		return {
+			'Vx': [[np.array(dh['Results']['smu2_v2_data']) for dh in deviceHistory]],
+			'Vy': [[np.array(dh['Results']['smu2_v1_data']) for dh in deviceHistory]],
+			'Id': [[np.array(dh['Results']['id_data']) for dh in deviceHistory]],
+			'Ig': [[np.array(dh['Results']['ig_data']) for dh in deviceHistory]],
+			'time': [[np.array(dh['Results']['timestamps_device']) for dh in deviceHistory]]
+		}
+	
+	result = {
+		'Vx': [],
+		'Vy': [],
+		'Id': [],
+		'Ig': [],
+		'time': []
+	}
+	
+	allXs = np.array([dh['Results']['smu2_v2_data'] for dh in deviceHistory])
+	medXs = np.median(allXs.T - np.median(allXs, axis=1).T, axis=1)
+	
+	derXs = scipy.signal.savgol_filter(medXs, 11, 2, 1)
+	zero_crossings = np.where(np.diff(np.signbit(derXs)))[0]
+	
+	if zero_crossings.size == 0:
+		zero_crossings = np.array([derXs.size])
+	if zero_crossings.size == 1 or np.abs(derXs[0]) < 0.8*np.median(np.abs(derXs)):
+		zero_crossings = np.append([0], zero_crossings)
+	
+	# Remove literal duplicates
+	zero_crossings = sorted(list(set(zero_crossings)))
+	
+	segLengths = np.diff(zero_crossings)
+	
+	# Remove short segments
+	segLengths = [l for l in segLengths if l > 0.8*np.median(segLengths)]
+	
+	segLength = int(np.median(segLengths))
+	
+	# Remove overlapping
+	# To do
+	
+	segs = [[int(zc), int(zc + segLength)] for zc in zero_crossings if zc + segLength < medXs.size]
+	
+	result['segs'] = segs
+	
+	Fsamp = deviceHistory[0]['runConfigs']['SGMControl']['deviceMeasurementSpeed']
+	b, a = scipy.signal.bessel(1, [50/(Fsamp/2), 70/(Fsamp/2)], btype='bandstop')
+	
+	for i in range(len(deviceHistory)):
+		Id = np.array(deviceHistory[i]['Results']['id_data'])
+		Ig = np.array(deviceHistory[i]['Results']['ig_data'])
+		
+		deviceHistory[i]['IdFilt'] = scipy.signal.filtfilt(b, a, Id)
+		deviceHistory[i]['IgFilt'] = scipy.signal.filtfilt(b, a, Ig)
+	
+	result['Vx'] = [[np.array(dh['Results']['smu2_v2_data'][s[0]:s[1]]) for dh in deviceHistory] for s in segs]
+	result['Vy'] = [[np.array(dh['Results']['smu2_v1_data'][s[0]:s[1]]) for dh in deviceHistory] for s in segs]
+	
+	result['IdNoFilt'] = [[dh['Results']['id_data'][s[0]:s[1]] for dh in deviceHistory] for s in segs]
+	result['IgNoFilt'] = [[dh['Results']['ig_data'][s[0]:s[1]] for dh in deviceHistory] for s in segs]
+	
+	result['Id'] = [[dh['IdFilt'][s[0]:s[1]] for dh in deviceHistory] for s in segs]
+	result['Ig'] = [[dh['IgFilt'][s[0]:s[1]] for dh in deviceHistory] for s in segs]
+	
+	result['time'] = [[np.array(dh['Results']['timestamps_device'][s[0]:s[1]]) for dh in deviceHistory] for s in segs]
+	
+	return result
+
 def interpolate_nans(X):
 	"""Overwrite NaNs with column value interpolations."""
 	for j in range(X.shape[1]):
@@ -207,7 +277,7 @@ def getRasteredMatrix(Vx, Vy, Id):
 	
 	# Convert each segment of Vy into a single value, then find what a reasonable "step" would be between values (need this to deal with noise)
 	Vy_averages = [np.mean(segment) for segment in Vy]
-	max_Vy_step = max([abs(Vy_averages[i+1] - Vy_averages[i]) for i in range(len(Vy_averages) - 1)])
+	med_Vy_step = np.median(np.diff(Vy_averages))
 	
 	# Find all of the unqiue values of Vy
 	min_distance_to_other_values = lambda candidate, values: min([abs(candidate - val) for val in values]) if(len(values) > 0) else float('inf')
@@ -215,7 +285,7 @@ def getRasteredMatrix(Vx, Vy, Id):
 	for Vy_avg in Vy_averages:
 		# A Vy segment is considered "different" if is at least half a step away from every other value
 		distance = min_distance_to_other_values(Vy_avg, Vy_unique_values)
-		if(distance >= 0.5*max_Vy_step):
+		if(distance >= 0.5*med_Vy_step):
 			Vy_unique_values.append(Vy_avg)
 	Vy_unique_values = list(reversed(sorted(Vy_unique_values))) ## TODO: determine which ordering of Vy will plot it not upside-down
 	
