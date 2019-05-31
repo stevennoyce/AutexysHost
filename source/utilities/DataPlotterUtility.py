@@ -34,7 +34,7 @@ default_mode_parameters = {
 	'legendLabels': [],
 	
 	'enableLegend': True,
-	'enableErrorBars': True,
+	'enableErrorBars': False,
 	'enableColorBar': True,
 	'enableGradient': False,
 	'enableModelFitting': False,
