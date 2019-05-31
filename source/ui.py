@@ -71,8 +71,12 @@ def root():
 	return flask.redirect('/ui/index.html')
 
 @app.route('/ui/<path:path>')
-def sendStatic(path):
+def sendStaticUI(path):
 	return flask.send_from_directory('ui', path)
+
+@app.route('/static/<path:path>')
+def sendStatic(path):
+	return flask.send_from_directory('../', path)
 
 default_makePlot_parameters = {
 	'minExperiment': None,
@@ -458,8 +462,13 @@ def getJSONData(user, project, wafer, chip, device, experiment):
 	path = os.path.join(default_data_path, user, project, wafer, chip, device, 'Ex' + experiment)
 	
 	deviceHistory = dlu.loadJSON(path, 'GateSweep.json')
-    
+	
 	return jsonvalid(deviceHistory)
+
+@app.route('/readme.md')
+def getReadMe():
+	with open('../README.md', 'r') as f:
+		return f.read()
 
 
 # C127X_15-16 vented before Ex210
