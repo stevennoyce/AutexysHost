@@ -5,7 +5,7 @@ default_parameters = {
 	'runConfigs': {
 		'GateSweep':{
 			'dependencies':				{'ignore':True, 'value':[]},
-			'saveFileName': 			{'type':'constant', 'default': 'GateSweep', 'title':'Save File Name', 'description':''},
+			'saveFileName': 			{'type':'constant', 'default': 'GateSweep', 'title':'Save File Name', 'description':'The name of the file that will be saved with the data from this experiment. This name should typically not be changed.'},
 			'isFastSweep': 				{'type':'bool', 'default': False, 'title':'Is Fast Sweep', 'description':''},
 			'fastSweepSpeed':			{'type':'int', 'units':'Hz', 'default': 1000, 'title':'Fast Sweep Speed', 'description':''},
 			'isAlternatingSweep': 		{'type':'bool', 'default': False, 'title':'Is Alternating Sweep', 'description':''},
@@ -21,7 +21,7 @@ default_parameters = {
 		},
 		'DrainSweep':{
 			'dependencies': 			{'ignore':True, 'value':[]},
-			'saveFileName': 			{'type':'constant', 'default':'DrainSweep', 'title':'Save File Name', 'description':''},
+			'saveFileName': 			{'type':'constant', 'default':'DrainSweep', 'title':'Save File Name', 'description':'The name of the file that will be saved with the data from this experiment. This name should typically not be changed.'},
 			'isFastSweep': 				{'type':'bool', 'default':False, 'title':'Is Fast Sweep', 'description':''},
 			'fastSweepSpeed':			{'type':'int', 'units':'Hz', 'default': 1000, 'title':'Fast Sweep Speed', 'description':''},
 			'stepsInVDSPerDirection': 	{'type':'int', 'units':'#', 'default':100, 'title':'Steps In VDSPer Direction', 'description':''},
@@ -34,8 +34,8 @@ default_parameters = {
 		},
 		'BurnOut':{
 			'dependencies':				{'ignore':True, 'value':[]},
-			'saveFileName': 			{'type:': 'constant', 'default': 'BurnOut'},
-			'pointsPerRamp': 			{'type:': 'int', 'units':'#', 'default':50},
+			'saveFileName': 			{'type:': 'constant', 'default': 'BurnOut', 'title':'Save File Name', 'description':'The name of the file that will be saved with the data from this experiment. This name should typically not be changed.'},
+			'pointsPerRamp': 			{'type:': 'int', 'units':'#', 'default':50, 'title':'Points Per Ramp', 'description':''},
 			'pointsPerHold': 			{'type':'int', 'units':'#', 'default': 50, 'title':'Points Per Hold', 'description':''},
 			'complianceCurrent':		{'type':'float', 'units':'V', 'default': 2e-3, 'title':'Compliance Current', 'description':''},
 			'thresholdProportion':		{'type':'float', 'units':'', 'default': 0.92, 'title':'Threshold Proportion', 'description':''},
@@ -46,7 +46,7 @@ default_parameters = {
 		},
 		'StaticBias':{
 			'dependencies':				{'ignore':True, 'value':[]},
-			'saveFileName': 			{'type':'constant', 'default':'StaticBias', 'title':'Save File Name', 'description':''},
+			'saveFileName': 			{'type':'constant', 'default':'StaticBias', 'title':'Save File Name', 'description':'The name of the file that will be saved with the data from this experiment. This name should typically not be changed.'},
 			'totalBiasTime': 			{'type':'float', 'units':'s', 'default': 60, 'title':'Total Bias Time', 'description':''},
 			'measurementTime': 			{'type':'float', 'units':'s', 'default': 10, 'title':'Measurement Time', 'description':''},
 			'complianceCurrent': 		{'type':'float', 'units':'A', 'default': 100e-6, 'title':'Compliance Current', 'description':''},
@@ -97,7 +97,7 @@ default_parameters = {
 		},
 		'AFMControl':{
 			'dependencies': 			{'ignore':True, 'value':[]},
-			'saveFileName': 			{'type':'constant', 'default':'AFMControl', 'title':'Save File Name', 'description':''},
+			'saveFileName': 			{'type':'constant', 'default':'AFMControl', 'title':'Save File Name', 'description':'The name of the file that will be saved with the data from this experiment. This name should typically not be changed.'},
 			'lines': 					{'type':'int', 'units':'#', 'default':3, 'title':'Lines', 'description':''},
 			'scanRate': 				{'type':'int', 'units':'#', 'default':1, 'title':'Scan Rate', 'description':''},
 			'napOn': 					{'type':'bool', 'default':True, 'title':'Nap On', 'description':''},
@@ -111,7 +111,7 @@ default_parameters = {
 		},
 		'SGMControl':{
 			'dependencies': 				{'ignore':True, 'value':[]},
-			'saveFileName': 				{'type':'constant', 'default':'AFMControl', 'title':'Save File Name', 'description':''},
+			'saveFileName': 				{'type':'constant', 'default':'AFMControl', 'title':'Save File Name', 'description':'The name of the file that will be saved with the data from this experiment. This name should typically not be changed.'},
 			'lines': 						{'type':'int', 'units':'#', 'default':3, 'title':'Lines', 'description':''},
 			'scanRate': 					{'type':'int', 'units':'#', 'default':1, 'title':'Scan Rate', 'description':''},
 			'napOn': 						{'type':'bool', 'default':True, 'title':'Nap On', 'description':''},
@@ -133,7 +133,7 @@ default_parameters = {
 		},
 		'InverterSweep':{
 			'dependencies':				{'ignore':True, 'value':[]},
-			'saveFileName': 			{'type':'constant', 'default': 'InverterSweep', 'title':'Save File Name', 'description':''},
+			'saveFileName': 			{'type':'constant', 'default': 'InverterSweep', 'title':'Save File Name', 'description':'The name of the file that will be saved with the data from this experiment. This name should typically not be changed.'},
 			'stepsInVINPerDirection': 	{'type':'int', 'units':'#', 'default': 100, 'title':'Steps In VINPer Direction', 'description':''},
 			'pointsPerVIN': 			{'type':'int', 'units':'#', 'default': 1, 'title':'Points Per VIN', 'description':''},
 			'inputVoltageRamps':		{'type':'int', 'units':'#', 'default': 2, 'title':'Input Voltage Ramps', 'description':''},
@@ -144,7 +144,7 @@ default_parameters = {
 		},
 		'RapidBias':{
 			'dependencies':				{'ignore':True, 'value':[]},
-			'saveFileName': 			{'type':'constant', 'default': 'RapidBias', 'title':'Save File Name', 'description':''},
+			'saveFileName': 			{'type':'constant', 'default': 'RapidBias', 'title':'Save File Name', 'description':'The name of the file that will be saved with the data from this experiment. This name should typically not be changed.'},
 			'complianceCurrent':		{'type':'float', 'units':'A', 'default': 100e-6, 'title':'Compliance Current', 'description':''},
 			'waveform': 				{'type':'constant', 'default': 'square', 'title':'Waveform', 'description':''},
 			'drainVoltageSetPoints':	{'type':'array', 'units':'V', 'default': [0.05], 'title':'Drain Voltage Set Points', 'description':''},
@@ -157,7 +157,7 @@ default_parameters = {
 		},
 		'NoiseCollection':{
 			'dependencies':				{'ignore':True, 'value':[]},
-			'saveFileName': 			{'type':'constant', 'default': 'NoiseCollection', 'title':'Save File Name', 'description':''},
+			'saveFileName': 			{'type':'constant', 'default': 'NoiseCollection', 'title':'Save File Name', 'description':'The name of the file that will be saved with the data from this experiment. This name should typically not be changed.'},
 			'measurementSpeed':	 		{'type':'float', 'units':'Hz', 'default': 10e3, 'title':'Measurement Speed', 'description':''},
 			'points':			 		{'type':'int', 'units':'#', 'default': 10e3, 'title':'Points', 'description':''},
 			'complianceCurrent':		{'type':'float', 'units':'A', 'default': 100e-6, 'title':'Compliance Current', 'description':''},
@@ -166,7 +166,7 @@ default_parameters = {
 		},
 		'NoiseGrid':{
 			'dependencies':				{'ignore':True, 'value':['NoiseCollection']},
-			'saveFileName': 			{'type':'constant', 'default': 'NoiseGrid', 'title':'Save File Name', 'description':''},
+			'saveFileName': 			{'type':'constant', 'default': 'NoiseGrid', 'title':'Save File Name', 'description':'The name of the file that will be saved with the data from this experiment. This name should typically not be changed.'},
 			'gateVoltages':				{'type':'array', 'units':'V', 'default': [-0.5,0,0.5], 'title':'Gate Voltages', 'description':''},
 			'drainVoltages':			{'type':'array', 'units':'V', 'default': [0.05,0.10,0.15], 'title':'Drain Voltages', 'description':''},
 			'groundingTime':			{'type':'float', 'units':'s', 'default': 1, 'title':'Grounding Time', 'description':''} 
