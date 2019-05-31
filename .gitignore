@@ -54,6 +54,8 @@ bitstream.txt
 autoseltemp/
 ComponentUpdateLog.txt
 
+#ignore python apps
+*.app/
 
 
 
