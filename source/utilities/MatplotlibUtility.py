@@ -267,7 +267,7 @@ def plotAll(axis, x_list, y_list, lineColor, lineStyle=None, pointsPerX=1, error
 	for i in range(len(x_list)):
 		# data contains multiple y-values per x-value
 		if(pointsPerX > 1):
-			line = plotWithErrorBars(axis, x_list[i], y_list[i], lineColor, errorBars=errorBars)
+			line = plotWithErrorBars(axis, x_list[i], y_list[i], lineColor, pointsPerX, errorBars=errorBars)
 		else:
 			if(lineStyle == ''):
 				line = axis.plot(x_list[i], y_list[i], color=lineColor, marker='o', markersize=2, linewidth=0, alpha=(alpha if(i >= len(x_list)-2) else 0.25))[0]
@@ -405,11 +405,11 @@ def adjustAndSaveFigure(figure, plotType, mode_parameters, subplotWidthPad=0, su
 
 
 # === Plots ===
-def plotWithErrorBars(axis, x, y, lineColor, errorBars=True, alpha=1):
-	x_unique, avg, std = avgAndStdAtEveryPoint(x, y)
+def plotWithErrorBars(axis, x, y, lineColor, pointsPerX, errorBars=True, alpha=1):
+	x_unique, avg, std = avgAndStdAtEveryPoint(x, y, pointsPerX)
 	if(not errorBars):
-		std = None
-	return axis.errorbar(x_unique, avg, yerr=std, color=lineColor, capsize=2, capthick=0.5, elinewidth=0.5, alpha=alpha)[0]
+		std=None
+	return axis.errorbar(x_unique, avg, yerr=std, color=lineColor, linewidth=1, capsize=2, capthick=0.5, elinewidth=0.5, alpha=alpha)[0]
 
 def plotOverTime(axis, timestamps, y, lineColor, offset=0, markerSize=1, lineWidth=1, lineStyle=None, plotInnerGradient=False, innerGradientColors=None):
 	zeroed_timestamps = list( np.array(timestamps) - timestamps[0] + offset )
@@ -679,13 +679,13 @@ def avgSubthresholdSwing(vgs_data, id_data):
 
 
 # === Statistics ===
-def avgAndStdAtEveryPoint(x, y):
+def avgAndStdAtEveryPoint(x, y, pointsPerX):
 	x_uniques = []
 	y_averages = []
 	y_standardDeviations = []
 	i = 0
 	while (i < len(y)):
-		j = nextIndexToBeDifferent(x, i)
+		j = i+pointsPerX
 		x_uniques.append(x[i])
 		y_averages.append(np.mean(y[i:j]))
 		y_standardDeviations.append(np.std(y[i:j]))
