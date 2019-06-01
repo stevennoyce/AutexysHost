@@ -47,9 +47,9 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		ax.plot(deviceHistory[i]['Results']['vgs_data'][0], deviceHistory[i]['Results']['id_data'][0] + deviceHistory[i]['Results']['ig_data'][0])
 		ax.plot(deviceHistory[i]['Results']['vgs_data'][1], deviceHistory[i]['Results']['id_data'][1] + deviceHistory[i]['Results']['ig_data'][0])
 		
-		# line1 = plotTransferCurve(ax, deviceHistory[i], colors[i], direction=mode_parameters['sweepDirection'], scaleCurrentBy=1e6, lineStyle=None, errorBars=mode_parameters['enableErrorBars'])
-		# line2 = plotTransferCurve(ax, deviceHistory[i], colors[i], direction=mode_parameters['sweepDirection'], scaleCurrentBy=1e6, lineStyle=None, errorBars=mode_parameters['enableErrorBars'])
-		# line3 = plotTransferCurve(ax, deviceHistory[i], colors[i], direction=mode_parameters['sweepDirection'], scaleCurrentBy=1e6, lineStyle=None, errorBars=mode_parameters['enableErrorBars'])
+		# line1 = plotTransferCurve(ax, deviceHistory[i], colors[i], direction=mode_parameters['sweepDirection'], scaleYaxisBy=1e6, lineStyle=None, errorBars=mode_parameters['enableErrorBars'])
+		# line2 = plotTransferCurve(ax, deviceHistory[i], colors[i], direction=mode_parameters['sweepDirection'], scaleYaxisBy=1e6, lineStyle=None, errorBars=mode_parameters['enableErrorBars'])
+		# line3 = plotTransferCurve(ax, deviceHistory[i], colors[i], direction=mode_parameters['sweepDirection'], scaleYaxisBy=1e6, lineStyle=None, errorBars=mode_parameters['enableErrorBars'])
 		# if(len(deviceHistory) == len(mode_parameters['legendLabels'])):
 		# 	setLabel(line, mode_parameters['legendLabels'][i])
 
@@ -64,7 +64,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 			gate_colors = colors
 			gate_linestyle = '--'
 		for i in range(len(deviceHistory)):
-			plotGateCurrent(ax, deviceHistory[i], gate_colors[i], direction=mode_parameters['sweepDirection'], scaleCurrentBy=1e6, lineStyle=gate_linestyle, errorBars=mode_parameters['enableErrorBars'])
+			plotGateCurrent(ax, deviceHistory[i], gate_colors[i], direction=mode_parameters['sweepDirection'], scaleYaxisBy=1e6, lineStyle=gate_linestyle, errorBars=mode_parameters['enableErrorBars'])
 		if(plotDescrip_current['plotDefaults']['ylabel'] == plotDescrip_current['plotDefaults']['neg_label']):
 			plotDescrip_current['plotDefaults']['ylabel'] = plotDescrip_current['plotDefaults']['neg_ii_label']
 		else:

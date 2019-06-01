@@ -296,23 +296,23 @@ def plotSubthresholdCurve(axis, jsonData, lineColor, direction='both', lineStyle
 	line = plotAll(axis, x, y, lineColor, lineStyle=lineStyle, pointsPerX=pointsPerX, errorBars=errorBars, alpha=alpha)
 	return line
 
-def plotTransferCurve(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True, alpha=1):
-	x, y, pointsPerX = extractSweep(axis, jsonData, direction, x_data='gate voltage', y_data='drain current', logScale=False, scaleYaxisBy=scaleCurrentBy)
+def plotTransferCurve(axis, jsonData, lineColor, direction='both', scaleYaxisBy=1, lineStyle=None, errorBars=True, alpha=1):
+	x, y, pointsPerX = extractSweep(axis, jsonData, direction, x_data='gate voltage', y_data='drain current', logScale=False, scaleYaxisBy=scaleYaxisBy)
 	line = plotAll(axis, x, y, lineColor, pointsPerX=pointsPerX, lineStyle=lineStyle, errorBars=errorBars, alpha=alpha)
 	return line
 
-def plotGateCurrent(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True, alpha=1):
-	x, y, pointsPerX = extractSweep(axis, jsonData, direction, x_data='gate voltage', y_data='gate current', logScale=False, scaleYaxisBy=scaleCurrentBy)
+def plotGateCurrent(axis, jsonData, lineColor, direction='both', scaleYaxisBy=1, lineStyle=None, errorBars=True, alpha=1):
+	x, y, pointsPerX = extractSweep(axis, jsonData, direction, x_data='gate voltage', y_data='gate current', logScale=False, scaleYaxisBy=scaleYaxisBy)
 	line = plotAll(axis, x, y, lineColor, pointsPerX=pointsPerX, lineStyle=lineStyle, errorBars=errorBars, alpha=alpha)
 	return line
 
-def plotOutputCurve(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True, alpha=1):
-	x, y, pointsPerX = extractSweep(axis, jsonData, direction, x_data='drain voltage', y_data='drain current', logScale=False, scaleYaxisBy=scaleCurrentBy)
+def plotOutputCurve(axis, jsonData, lineColor, direction='both', scaleYaxisBy=1, lineStyle=None, errorBars=True, alpha=1):
+	x, y, pointsPerX = extractSweep(axis, jsonData, direction, x_data='drain voltage', y_data='drain current', logScale=False, scaleYaxisBy=scaleYaxisBy)
 	line = plotAll(axis, x, y, lineColor, pointsPerX=pointsPerX, lineStyle=lineStyle, errorBars=errorBars, alpha=alpha)
 	return line
 
-def plotOutputGateCurrent(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True, alpha=1):
-	x, y, pointsPerX = extractSweep(axis, jsonData, direction, x_data='drain voltage', y_data='gate current', logScale=False, scaleYaxisBy=scaleCurrentBy)
+def plotOutputGateCurrent(axis, jsonData, lineColor, direction='both', scaleYaxisBy=1, lineStyle=None, errorBars=True, alpha=1):
+	x, y, pointsPerX = extractSweep(axis, jsonData, direction, x_data='drain voltage', y_data='gate current', logScale=False, scaleYaxisBy=scaleYaxisBy)
 	line = plotAll(axis, x, y, lineColor, pointsPerX=pointsPerX, lineStyle=lineStyle, errorBars=errorBars, alpha=alpha)
 	return line
 
@@ -333,8 +333,8 @@ def plotBurnOut(axis1, axis2, axis3, jsonData, lineColor, lineStyle=None, annota
 		line3 = plotOverTime(axis3, jsonData['Results']['timestamps'], jsonData['Results']['vds_data'], lineColor)
 	return (line1, line2, line3)
 
-def plotStaticBias(axis, jsonData, lineColor, timeOffset, currentData='id_data', timescale='seconds', lineStyle=None, gradient=False, gradientColors=None):
-	line = plotOverTime(axis, jsonData['Results']['timestamps'], (np.array(jsonData['Results'][currentData])*(10**6)), lineColor, offset=timeOffset, plotInnerGradient=gradient, innerGradientColors=gradientColors)
+def plotStaticBias(axis, jsonData, lineColor, timeOffset, y_data='id_data', scaleYaxisBy=1e6, timescale='seconds', lineStyle=None, gradient=False, gradientColors=None):
+	line = plotOverTime(axis, jsonData['Results']['timestamps'], (np.array(jsonData['Results'][y_data]) * scaleYaxisBy), lineColor, offset=timeOffset, plotInnerGradient=gradient, innerGradientColors=gradientColors)
 	return line
 
 def plotInverterVTC(axis, jsonData, lineColor, direction='both', lineStyle=None, errorBars=True, alpha=1):
@@ -347,8 +347,8 @@ def plotInverterGain(axis, jsonData, lineColor, direction='both', lineStyle=None
 	line = plotAll(axis, x, y, lineColor, pointsPerX=pointsPerX, lineStyle=lineStyle, errorBars=errorBars, alpha=alpha)
 	return line
 
-def plotTransferCurveSlope(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineStyle=None, errorBars=True, alpha=1):
-	x, y, pointsPerX = extractSweep(axis, jsonData, direction, x_data='gate voltage', y_data='drain current', logScale=False, scaleYaxisBy=scaleCurrentBy, derivative=True, absoluteValue=True)
+def plotTransferCurveSlope(axis, jsonData, lineColor, direction='both', scaleYaxisBy=1, lineStyle=None, errorBars=True, alpha=1):
+	x, y, pointsPerX = extractSweep(axis, jsonData, direction, x_data='gate voltage', y_data='drain current', logScale=False, scaleYaxisBy=scaleYaxisBy, derivative=True, absoluteValue=True)
 	line = plotAll(axis, x, y, lineColor, pointsPerX=pointsPerX, lineStyle=lineStyle, errorBars=errorBars, alpha=alpha)
 	return line
 

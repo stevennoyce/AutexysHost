@@ -4,19 +4,19 @@ import copy
 
 plotDescription = {
 	'plotCategory': 'device',
-	'priority': 110,
+	'priority': 120,
 	'dataFileDependencies': ['StaticBias.json'],
 	'plotDefaults': {
-		'figsize':(3,2.5),#(2*2.2,2*1.6),#(5,4),
+		'figsize':(3,2.5),
 		'mainIncludeOrigin':True,
 		'dualIncludeOrigin':False,
-		'colorMap':'plasma',
-		'colorDefault': ['#56638A'],
+		'colorMap':'white_green_black',
+		'colorDefault': ['#4FB99F'],
 		'xlabel':'Time ({:})',
-		'micro_ylabel':'$I_{{D}}$ ($\\mathregular{\\mu}$A)',
-		'nano_ylabel':'$I_{{D}}$ (nA)',
-		'neg_micro_ylabel':'$-I_{{D}}$ ($\\mathregular{\\mu}$A)',
-		'neg_nano_ylabel':'$-I_{{D}}$ (nA)',
+		'ylabel':'$I_{{G}}$ (A)',
+		'micro_ylabel':'$I_{{G}}$ ($\\mathregular{\\mu}$A)',
+		'nano_ylabel':'$I_{{G}}$ (nA)',
+		'pico_ylabel':'$I_{{G}}$ (pA)',
 		'vds_label': '$V_{{DS}}^{{Hold}}$ (V)',
 		'vgs_label': '$V_{{GS}}^{{Hold}}$ (V)',
 		'vds_legend': '$V_{{DS}}^{{Hold}}$ = {:.2f} V',
@@ -55,7 +55,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		ax2, ax3 = None, None
 	
 	# Build Color Map
-	colors = setupColors(fig, len(deviceHistory), colorOverride=mode_parameters['colorsOverride'], colorDefault=plotDescription['plotDefaults']['colorDefault'], colorMapName=plotDescription['plotDefaults']['colorMap'], colorMapStart=0, colorMapEnd=0.87, enableColorBar=False)		
+	colors = setupColors(fig, len(deviceHistory), colorOverride=mode_parameters['colorsOverride'], colorDefault=plotDescription['plotDefaults']['colorDefault'], colorMapName=plotDescription['plotDefaults']['colorMap'], colorMapStart=0.8, colorMapEnd=0.1, enableColorBar=False)		
 	
 	# If timescale is unspecified, choose an appropriate one based on the data range
 	if(timescale == ''):
@@ -65,13 +65,8 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	deviceHistory = scaledData(deviceHistory, 'Results', 'timestamps', 1/secondsPer(timescale))
 	
 	# Adjust y-scale and y-axis labels 
-	max_current = np.max(np.abs(np.array([deviceHistory[i]['Results']['id_data'] for i in range(len(deviceHistory))])))
-	current_scale, ylabel = (1e6, plotDescription['plotDefaults']['micro_ylabel']) if(max_current >= 1e-6) else (1e9, plotDescription['plotDefaults']['nano_ylabel'])
-	
-	# If first segment of device history is mostly negative current, flip data
-	if((len(deviceHistory) > 0) and ((np.array(deviceHistory[0]['Results']['id_data']) < 0).sum() > (np.array(deviceHistory[0]['Results']['id_data']) >= 0).sum())):
-		deviceHistory = scaledData(deviceHistory, 'Results', 'id_data', -1)
-		ylabel = plotDescription['plotDefaults']['neg_micro_ylabel'] if(max_current >= 1e-6) else (plotDescription['plotDefaults']['neg_nano_ylabel'])
+	max_current = np.max(np.abs(np.array(deviceHistory[0]['Results']['ig_data'])))
+	current_scale, ylabel = (1, plotDescription['plotDefaults']['ylabel']) if(max_current >= 1e-3) else ((1e6, plotDescription['plotDefaults']['micro_ylabel']) if(max_current >= 1e-6) else ((1e9, plotDescription['plotDefaults']['nano_ylabel']) if(max_current >= 1e-9) else (1e12, plotDescription['plotDefaults']['pico_ylabel'])))
 	
 	# === Begin Plotting Data ===
 	time_offset = 0
@@ -87,7 +82,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 			time_offset = (0) if(i == 0) else (time_offset + (t_prev_end - t_prev_start))
 		
 		# Plot
-		line = plotStaticBias(ax1, deviceHistory[i], colors[i], time_offset, y_data='id_data', scaleYaxisBy=current_scale, timescale=timescale, lineStyle=None, gradient=mode_parameters['enableGradient'], gradientColors=colorsFromMap(plotDescription['plotDefaults']['colorMap'], 0, 0.95, len(deviceHistory[i]['Results']['timestamps']))['colors'])
+		line = plotStaticBias(ax1, deviceHistory[i], colors[i], time_offset, y_data='ig_data', scaleYaxisBy=current_scale, timescale=timescale, lineStyle=None, gradient=mode_parameters['enableGradient'], gradientColors=colorsFromMap(plotDescription['plotDefaults']['colorMap'], 0, 0.95, len(deviceHistory[i]['Results']['timestamps']))['colors'])
 		if(len(deviceHistory) == len(mode_parameters['legendLabels'])):
 			setLabel(line, mode_parameters['legendLabels'][i])
 			
@@ -98,37 +93,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 			if(vgs_setpoint_changes):
 				vgs_line = plotOverTime(vgs_ax, deviceHistory[i]['Results']['timestamps'], [deviceHistory[i]['runConfigs']['StaticBias']['gateVoltageSetPoint']]*len(deviceHistory[i]['Results']['timestamps']), plt.rcParams['axes.prop_cycle'].by_key()['color'][3], offset=time_offset)
 				
-		## Compare current plot's parameters to the next ones, and save any differences
-		# if((i == 0) or (deviceHistory[i]['runConfigs']['StaticBias'] != deviceHistory[i-1]['runConfigs']['StaticBias']) or mode_parameters['staticBiasSegmentDividers']):
-		# 	dotted_lines.append({'x':time_offset})
-		# 	for key in set(deviceHistory[i]['runConfigs']['StaticBias'].keys()).intersection(deviceHistory[i-1]['runConfigs']['StaticBias'].keys()):
-		# 		if((i == 0) or deviceHistory[i]['runConfigs']['StaticBias'][key] != deviceHistory[i-1]['runConfigs']['StaticBias'][key]):
-		# 			if(key not in parameter_labels):
-		# 				parameter_labels[key] = []
-		# 			parameter_labels[key].append({'x':time_offset, key:deviceHistory[i]['runConfigs']['StaticBias'][key]})
-	
 	# === End Plotting Data ===
-	
-	# Draw annotations on the main plot
-	# if(len(dotted_lines) > 1):
-	# 	# Draw dotted lines
-	# 	if(mode_parameters['staticBiasChangeDividers'] or mode_parameters['staticBiasSegmentDividers']):
-	# 		for i in range(len(dotted_lines)):
-	# 			ax1.annotate('', xy=(dotted_lines[i]['x'], ax1.get_ylim()[0]), xytext=(dotted_lines[i]['x'], ax1.get_ylim()[1]), xycoords='data', arrowprops=dict(arrowstyle='-', color=(0,0,0,0.3), ls=':', lw=0.5))
-		
-	# 		# If no dual axis included, then annotate the plot	
-	# 		if(not includeDualAxis):
-	# 			if(len(parameter_labels['drainVoltageSetPoint']) > 1) or (len(parameter_labels['gateVoltageSetPoint']) > 1):
-	# 				# Make the data take up less of the vertical space to make room for the labels
-	# 				ax1.set_ylim(top=1.2*ax1.get_ylim()[1])
-					
-	# 				# Add V_DS annotation
-	# 				for i in range(len(parameter_labels['drainVoltageSetPoint'])):
-	# 					ax1.annotate(' $V_{DS} = $'+'{:.1f}V'.format(parameter_labels['drainVoltageSetPoint'][i]['drainVoltageSetPoint']), xy=(parameter_labels['drainVoltageSetPoint'][i]['x'], ax1.get_ylim()[1]*(0.99 - 0*0.03*i)), xycoords='data', ha='left', va='top', rotation=-90)
-
-	# 				# Add V_GS annotation
-	# 				for i in range(len(parameter_labels['gateVoltageSetPoint'])):
-	# 					ax1.annotate(' $V_{GS} = $'+'{:.0f}V'.format(parameter_labels['gateVoltageSetPoint'][i]['gateVoltageSetPoint']), xy=(parameter_labels['gateVoltageSetPoint'][i]['x'], ax1.get_ylim()[1]*(0.90 - 0*0.03*i)), xycoords='data', ha='left', va='bottom', rotation=-90)
 		
 	# Adjust Y-lim (if desired)
 	includeOriginOnYaxis(ax1, include=plotDescription['plotDefaults']['mainIncludeOrigin'])

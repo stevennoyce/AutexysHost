@@ -36,7 +36,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 
 	# Plot
 	for i in range(len(deviceHistory)):
-		line = plotOutputGateCurrent(ax, deviceHistory[i], colors[i], direction=mode_parameters['sweepDirection'], scaleCurrentBy=current_scale, lineStyle=None, errorBars=mode_parameters['enableErrorBars'])
+		line = plotOutputGateCurrent(ax, deviceHistory[i], colors[i], direction=mode_parameters['sweepDirection'], scaleYaxisBy=current_scale, lineStyle=None, errorBars=mode_parameters['enableErrorBars'])
 		if(len(deviceHistory) == len(mode_parameters['legendLabels'])):
 			setLabel(line, mode_parameters['legendLabels'][i])
 	

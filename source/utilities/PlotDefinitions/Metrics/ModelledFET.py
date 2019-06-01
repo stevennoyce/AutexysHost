@@ -53,7 +53,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Plot
 	for i in range(len(deviceHistory)):
 		# Plot transfer curve fit to show g_m
-		line = plotTransferCurve(ax, deviceHistory[i], colors[i], direction=mode_parameters['sweepDirection'], scaleCurrentBy=1e6, lineStyle='', errorBars=mode_parameters['enableErrorBars'])
+		line = plotTransferCurve(ax, deviceHistory[i], colors[i], direction=mode_parameters['sweepDirection'], scaleYaxisBy=1e6, lineStyle='', errorBars=mode_parameters['enableErrorBars'])
 		if(mode_parameters['sweepDirection'] in ['both', 'forward']):
 			line = ax.plot(deviceHistory[i]['Results']['vgs_data'][0], np.abs(np.array(all_fitted_values['fwd_id_fitted'][i])) * 1e6, color=colors[i], linewidth=0.7)
 		if(mode_parameters['sweepDirection'] in ['both', 'reverse']):

@@ -41,7 +41,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 
 	# Plot
 	for i in range(len(deviceHistory)):
-		line = plotTransferCurve(ax, deviceHistory[i], colors[i], direction=mode_parameters['sweepDirection'], scaleCurrentBy=current_scale, lineStyle=None, errorBars=mode_parameters['enableErrorBars'])
+		line = plotTransferCurve(ax, deviceHistory[i], colors[i], direction=mode_parameters['sweepDirection'], scaleYaxisBy=current_scale, lineStyle=None, errorBars=mode_parameters['enableErrorBars'])
 		if(len(deviceHistory) == len(mode_parameters['legendLabels'])):
 			setLabel(line, mode_parameters['legendLabels'][i])
 
@@ -53,7 +53,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		gate_colors    = ['#4FB99F'] if(len(deviceHistory) == 1) else (colors)
 		gate_linestyle = None        if(len(deviceHistory) == 1) else ('--')
 		for i in range(len(deviceHistory)):
-			plotGateCurrent(ax, deviceHistory[i], gate_colors[i], direction=mode_parameters['sweepDirection'], scaleCurrentBy=current_scale, lineStyle=gate_linestyle, errorBars=mode_parameters['enableErrorBars'])	
+			plotGateCurrent(ax, deviceHistory[i], gate_colors[i], direction=mode_parameters['sweepDirection'], scaleYaxisBy=current_scale, lineStyle=gate_linestyle, errorBars=mode_parameters['enableErrorBars'])	
 
 	# Add Legend and save figure
 	addLegend(ax, loc=mode_parameters['legendLoc'], title=getLegendTitle(deviceHistory, identifiers, plotDescription['plotDefaults'], 'runConfigs', 'GateSweep', mode_parameters, includeVdsSweep=True), mode_parameters=mode_parameters)
