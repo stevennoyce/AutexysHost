@@ -49,11 +49,11 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=ylabel)
 
 	# Add gate current to axis
-	if(mode_parameters['includeGateCurrent']):
-		gate_colors    = ['#4FB99F'] if(len(deviceHistory) == 1) else (colors)
-		gate_linestyle = None        if(len(deviceHistory) == 1) else ('--')
-		for i in range(len(deviceHistory)):
-			plotGateCurrent(ax, deviceHistory[i], gate_colors[i], direction=mode_parameters['sweepDirection'], scaleYaxisBy=current_scale, lineStyle=gate_linestyle, errorBars=mode_parameters['enableErrorBars'])	
+	#if(mode_parameters['includeGateCurrent']):
+	#	gate_colors    = ['#4FB99F'] if(len(deviceHistory) == 1) else (colors)
+	#	gate_linestyle = None        if(len(deviceHistory) == 1) else ('--')
+	#	for i in range(len(deviceHistory)):
+	#		plotGateCurrent(ax, deviceHistory[i], gate_colors[i], direction=mode_parameters['sweepDirection'], scaleYaxisBy=current_scale, lineStyle=gate_linestyle, errorBars=mode_parameters['enableErrorBars'])	
 
 	# Add Legend and save figure
 	addLegend(ax, loc=mode_parameters['legendLoc'], title=getLegendTitle(deviceHistory, identifiers, plotDescription['plotDefaults'], 'runConfigs', 'GateSweep', mode_parameters, includeVdsSweep=True), mode_parameters=mode_parameters)
