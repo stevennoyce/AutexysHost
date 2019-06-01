@@ -32,7 +32,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		
 	# Plot
 	for i in range(len(deviceHistory)):
-		line = plotSubthresholdCurveSlope(ax, deviceHistory[i], colors[i], direction=mode_parameters['sweepDirection'], x_axis='drain current', lineStyle=None, errorBars=mode_parameters['enableErrorBars'])
+		line = plotSubthresholdCurveSlope(ax, deviceHistory[i], colors[i], direction=mode_parameters['sweepDirection'], x_axis='drain current', absoluteXaxis=True, lineStyle=None, errorBars=mode_parameters['enableErrorBars'])
 		if(len(deviceHistory) == len(mode_parameters['legendLabels'])):
 			setLabel(line, mode_parameters['legendLabels'][i])
 

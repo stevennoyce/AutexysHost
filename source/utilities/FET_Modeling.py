@@ -109,9 +109,9 @@ def FET_Metrics(V_GS_data, I_D_data, gm_region_length_override=None, ss_region_l
 def FET_Hysteresis(V_GS_data1, I_D_data1, V_GS_data2, I_D_data2, trim_ends=5, max_percentile=99, min_percentile=5, noise_floor=1e-12):
 	# Get the upper and lower limits of the range of current values to consider
 	I_D_data1_min, I_D_data1_max, I_D_data2_min, I_D_data2_max = np.percentile(I_D_data1, 5), np.percentile(I_D_data1, 99), np.percentile(I_D_data2, 5), np.percentile(I_D_data2, 99)
-	I_D_data1_min = max(noise_floor, I_D_data1_min)
-	I_D_data2_min = max(noise_floor, I_D_data2_min)
-	
+	I_D_data1_min = max(noise_floor, abs(I_D_data1_min)) * ((-1) if(I_D_data1_min < 0) else (1))
+	I_D_data2_min = max(noise_floor, abs(I_D_data2_min)) * ((-1) if(I_D_data2_min < 0) else (1))
+				
 	# Obtain the list of drain currents (and relevant gate voltages) that exist in both I_D_data1 and I_D_data2
 	index_fwd_extraction_points = [i for i in range(trim_ends, len(I_D_data1) - trim_ends) if(I_D_data1[i] > I_D_data2_min and I_D_data1[i] < I_D_data2_max)]
 	index_rev_extraction_points = [i for i in range(trim_ends, len(I_D_data2) - trim_ends) if(I_D_data2[i] > I_D_data1_min and I_D_data2[i] < I_D_data1_max)]
@@ -119,7 +119,7 @@ def FET_Hysteresis(V_GS_data1, I_D_data1, V_GS_data2, I_D_data2, trim_ends=5, ma
 	V_GS_data1_extraction_points = [V_GS_data1[i] for i in index_fwd_extraction_points]
 	I_D_data2_extraction_points  = [ I_D_data2[i] for i in index_rev_extraction_points]
 	V_GS_data2_extraction_points = [V_GS_data2[i] for i in index_rev_extraction_points]
-	
+		
 	# Extract hysteresis for points from I_D_data1 and I_D_data2 and remove points where extraction failed
 	hysteresis_data1 = [FET_Hysteresis_Value(V_GS_data1, I_D_data1, V_GS_data2, I_D_data2, id_val) for id_val in I_D_data1_extraction_points]
 	hysteresis_data2 = [FET_Hysteresis_Value(V_GS_data1, I_D_data1, V_GS_data2, I_D_data2, id_val) for id_val in I_D_data2_extraction_points]
@@ -145,7 +145,8 @@ def FET_Hysteresis(V_GS_data1, I_D_data1, V_GS_data2, I_D_data2, trim_ends=5, ma
 def FET_Hysteresis_Value(V_GS_data1, I_D_data1, V_GS_data2, I_D_data2, I_D_extraction_point):
 	try:
 		V_GS1 = _getXValueAtYValue(V_GS_data1, I_D_data1, I_D_extraction_point)
-		V_GS2 = _getXValueAtYValue(V_GS_data2, I_D_data2, I_D_extraction_point)
+		index_VGS1 = _indexOfValue(V_GS_data1, V_GS1) 
+		V_GS2 = _getXValueAtYValue(V_GS_data2, I_D_data2, I_D_extraction_point, index_guess=len(V_GS_data2) - index_VGS1) # if V_GS1 near start of of V_GS_data1, then guess near the end of V_GS_data2 since everything is flipped between the forward/reverse
 		return abs(V_GS1 - V_GS2)
 	except:
 		return None
@@ -289,9 +290,9 @@ def _find_steepest_region(V_GS_data, I_D_data, region_length):
 	regionEnd = min(len(I_D_data)-1, index + numberOfPoints)
 	return (int(regionStart), int(regionEnd))
 
-def _getXValueAtYValue(x_data, y_data, y_value):
+def _getXValueAtYValue(x_data, y_data, y_value, index_guess=0):
 	# Find index of data where y_data is closest to target y_value
-	index = _indexOfValue(y_data, y_value)
+	index = _indexOfValue(y_data, y_value, guess=index_guess)
 	if(index == -1):
 		raise NotImplementedError('Unable to find gate voltage for the given drain current value.')
 	elif((index < 1) or (index > len(y_data) - 2)):
@@ -332,11 +333,21 @@ def _averageDuplicateX(x_data, y_data, removePointsThatDoNotHaveDuplicate=False)
 	y_combined = [sum(value_dict[xval])/len(value_dict[xval]) for xval in x_combined]
 	return x_combined, y_combined
 
-def _indexOfValue(y, value):
+def _indexOfValue(y, value, guess=0):
+	guess = min(max(0, int(guess)), len(y)-1)
+	part1 = list(reversed(range(0,guess)))
+	part2 = list(range(guess, len(y) - 1))
+	woven = [item for pair in zip(part2, part1) for item in pair]
+	longer = part1 if(len(part1) >= len(part2)) else part2
+	indices = woven + longer[len(longer) - abs(len(part1)-len(part2)):]
+		
 	index = -1
-	for i in range(len(y) - 1):
+	for i in indices:
 		if(((y[i] < value) and (y[i+1] >= value)) or ((y[i] > value) and (y[i+1] <= value))):
-			index = i
+			distance1 = abs(y[i]-value)
+			distance2 = abs(y[i+1]-value)
+			index = i if(distance1 < distance2) else i+1
+			break
 	return index
 
 def _linearFit(x, y):
@@ -407,7 +418,7 @@ if __name__ == '__main__':
 	x = [1,2,2,3,4,4,5]
 	y = [1,2,3,4,5,6,7]
 	
-	print(_averageDuplicateX(x, y))
+	print(_indexOfValue(x,3,guess=6))
 	
 		
 	
