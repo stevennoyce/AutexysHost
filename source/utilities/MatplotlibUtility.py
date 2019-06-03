@@ -256,6 +256,9 @@ def extractSweep(axis, jsonData, direction='both', x_data='gate voltage', y_data
 	# If desired, force data to be all positive values
 	if(absoluteValue):
 		y = np.abs(y)
+	
+	if(isinstance(scaleYaxisBy, str)):
+		scaleYaxisBy = jsonData['runConfigs'][jsonData['runType']][scaleYaxisBy]
 		
 	# Scale the data by a given factor
 	y = np.array(y)*scaleYaxisBy
@@ -303,6 +306,13 @@ def plotTransferCurve(axis, jsonData, lineColor, direction='both', scaleYaxisBy=
 
 def plotGateCurrent(axis, jsonData, lineColor, direction='both', scaleYaxisBy=1, lineStyle=None, errorBars=True, alpha=1):
 	x, y, pointsPerX = extractSweep(axis, jsonData, direction, x_data='gate voltage', y_data='gate current', logScale=False, scaleYaxisBy=scaleYaxisBy)
+	line = plotAll(axis, x, y, lineColor, pointsPerX=pointsPerX, lineStyle=lineStyle, errorBars=errorBars, alpha=alpha)
+	return line
+
+def plotResistanceCurve(axis, jsonData, lineColor, direction='both', scaleYaxisBy=1, lineStyle=None, errorBars=True, alpha=1):
+	x, y, pointsPerX = extractSweep(axis, jsonData, direction, x_data='gate voltage', y_data='drain current', logScale=True, scaleYaxisBy='drainVoltageSetPoint', absoluteValue=True, reciprocal=True)
+	y = scaleYaxisBy*np.array(y)
+	axis.set_yscale('log')
 	line = plotAll(axis, x, y, lineColor, pointsPerX=pointsPerX, lineStyle=lineStyle, errorBars=errorBars, alpha=alpha)
 	return line
 
