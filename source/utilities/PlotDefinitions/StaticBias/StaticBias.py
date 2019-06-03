@@ -65,7 +65,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	deviceHistory = scaledData(deviceHistory, 'Results', 'timestamps', 1/secondsPer(timescale))
 	
 	# Adjust y-scale and y-axis labels 
-	max_current = np.max(np.abs(np.array([deviceHistory[i]['Results']['id_data'] for i in range(len(deviceHistory))])))
+	max_current = np.max([max(max(deviceRun['Results']['id_data']),abs(min(deviceRun['Results']['id_data']))) for deviceRun in deviceHistory])
 	current_scale, ylabel = (1e6, plotDescription['plotDefaults']['micro_ylabel']) if(max_current >= 1e-6) else (1e9, plotDescription['plotDefaults']['nano_ylabel'])
 	
 	# If first segment of device history is mostly negative current, flip data
