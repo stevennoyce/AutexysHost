@@ -1,4 +1,4 @@
-#!/bin/sh
-cd "$(dirname "$0")"
+cd %~dp0
 cd source
-python ui.py
+python dispatcher.py
+pause
