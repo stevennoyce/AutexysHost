@@ -224,7 +224,21 @@ class SourceMeasureUnit:
 		print('Ramping down SMU channels.')
 		self.rampDrainVoltageDown(steps)
 		self.rampGateVoltageDown(steps)
+		
 	
+	def digitalWrite(self, pin, signal):
+		prior = self.smu.query(':source:digital:data?')
+		decBin = pow(2, pin-1)
+		
+		self.smu.write(":format:digital ascii")
+		self.smu.write(":source:digital:external", str(pin), ":function DIO")
+		self.smu.write(":source:digital:external", str(pin), ":polarity positive")
+		if signal == "HIGH":
+			self.smu.write(":source:digital:data ", str(prior | decBin))
+		
+		elif signal == "LOW":
+			self.smu.write(":source:digital:data ", str(prior & ~decBin))
+		
 	
 	
 class B2912A(SourceMeasureUnit):
