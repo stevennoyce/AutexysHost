@@ -12,6 +12,8 @@ import threading
 import flask_socketio
 
 import defaults
+import pipes
+
 from procedures import Device_History as DH
 DH.dpu.mplu.plt.switch_backend('agg')
 
@@ -350,14 +352,14 @@ def getSubDirectories(directory):
 def dispatchSchedule(user, project, fileName):
 	scheduleFilePath = os.path.join(default_data_path, user, project, 'schedules', fileName + '.json')
 	eprint('UI Sending RUN:')
-	pipeToManager.send('RUN: ' + scheduleFilePath)
+	pipes.send(pipeToManager, 'RUN: ' + scheduleFilePath)
 	eprint('UI Sent RUN:')
 	return jsonvalid({'success': True})
 
 @app.route('/stopAtNextJob')
 def stopAtNextJob():
 	eprint('UI stopping at next job')
-	pipeToManager.send('STOP')
+	pipes.send(pipeToManager, 'STOP')
 	
 	return jsonvalid({'success': True})
 
@@ -498,10 +500,10 @@ def findFirstOpenPort(startPort=1):
 def managerMessageForwarder():
 	global pipeToManager
 	while True:
-		if((pipeToManager is not None) and (pipeToManager.poll())):
+		if((pipeToManager is not None) and (pipes.poll(pipeToManager))):
 			print('Sending server message')
-			socketio.emit('Server Message', pipeToManager.recv())
-		time.sleep(0.1)
+			socketio.emit('Server Message', pipes.recv(pipeToManager))
+		socketio.sleep(0.1)
 
 
 @socketio.on('my event')
@@ -514,14 +516,15 @@ def connect():
 	global managerMessageForwarderthread                                                               
 	if managerMessageForwarderthread is None:
 		managerMessageForwarderthread = socketio.start_background_task(target=managerMessageForwarder)
+		pass
 
 def launchBrowser(url):
-	time.sleep(1)
+	socketio.sleep(1)
 	print('URL is "{}"'.format(url))
 	webbrowser.open_new(url)
 
 
-def start(managerPipe=None):
+def start(managerPipe=None, debug=True, use_reloader=True):
 	global pipeToManager
 	pipeToManager = managerPipe
 	
@@ -542,7 +545,7 @@ def start(managerPipe=None):
 		socketio.start_background_task(launchBrowser, url)
 	
 	# app.run(debug=True, threaded=False, port=int(os.environ['AutexysUIPort']))
-	socketio.run(app, debug=True, port=int(os.environ['AutexysUIPort']))
+	socketio.run(app, debug=debug, port=int(os.environ['AutexysUIPort']), use_reloader=False)
 
 
 

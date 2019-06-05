@@ -63,25 +63,28 @@ def startUI(priority=0):
 	pipeToUI, pipeForUI = mp.Pipe()
 	uiProcess = mp.Process(target=runUI, args=(pipeForUI,))
 	uiProcess.start()
-	changePriorityOfProcessAndChildren(uiProcess.pid, priority)
+	# changePriorityOfProcessAndChildren(uiProcess.pid, priority)
 	return {'process':uiProcess, 'pipe':pipeToUI}
 
 def runUI(pipeForUI):
 	"""A target method for running the UI that also imports the UI so the parent process does not have that dependency."""
 	import ui
-	ui.start(managerPipe=pipeForUI)
+	ui.start(managerPipe=pipeForUI, use_reloader=False)
 
 def startDispatcher(schedule_file_path, priority=0):
 	"""Start a Process running dispatcher.dispatch(schedule_file_path) and obtain a two-way Pipe for communication."""
 	pipeToDispatcher, pipeForDispatcher = mp.Pipe()
+	# stdoutPipeToDispatcher, stdoutPipeForDispatcher = mp.Pipe()
 	dispatcherProcess = mp.Process(target=runDispatcher, args=(schedule_file_path, pipeForDispatcher))
 	dispatcherProcess.start()
-	changePriorityOfProcessAndChildren(dispatcherProcess.pid, priority)
+	# changePriorityOfProcessAndChildren(dispatcherProcess.pid, priority)
 	return {'process':dispatcherProcess, 'pipe':pipeToDispatcher}
 
 def runDispatcher(schedule_file_path, pipeForDispatcher):
 	"""A target method for running the dispatcher that also imports the dispatcher so the parent process does not have that dependency."""
 	import dispatcher
+	# sys.stdout = os.fdopen(pipeForDispatcher.fileno(), 'r')
+	# os.dup2(pipeForDispatcher.fileno(), 1)
 	dispatcher.dispatch(schedule_file_path, pipeForDispatcher)
 
 def manage(on_startup_schedule_file=None):
@@ -96,34 +99,41 @@ def manage(on_startup_schedule_file=None):
 	
 	while(True):
 		# Listen to the UI pipe for 10 seconds, then yield to do other tasks
-		print('Hello from Manager')
-		pipes.send(ui['pipe'], {'message': 'Hello from the Manager'})
+		# print('Hello from Manager')
+		# pipes.send(ui['pipe'], {'message': 'Hello from the Manager'})
 		
-		if(ui['pipe'].poll(10)):
-			message = ui['pipe'].recv()
-			print('Manager received from UI: "' + str(message) + '"')
-			
-			if(message.startswith('RUN: ')):
-				if(dispatcher is None):
-					schedule_file_path = message[len('RUN: '):]
-					dispatcher = startDispatcher(schedule_file_path, priority=1)
-				else:
-					print('Error: dispatcher is already running; wait for it to finish before starting another job.')
-			elif(message == 'STOP'):
-				if(dispatcher is not None):
-					pipes.send(dispatcher['pipe'], 'STOP')
-				else:
-					print('Dispatcher has already stopped.')
-		
-		if dispatcher is not None:
-			if(dispatcher['pipe'].poll()):
-				message = dispatcher['pipe'].recv()
-				print('Manager received from Dispatcher: "' + str(message) + '"')
+		try:
+			if(pipes.poll(ui['pipe'], timeout=1)):
+				message = ui['pipe'].recv()
+				print('Manager received from UI: "' + str(message) + '"')
 				
-				if 'destination' in message:
-					# Forward messages that are intended for the UI to the UI
-					if message['destination'] == 'UI':
-						pipes.send(ui['pipe'], message)
+				if(message.startswith('RUN: ')):
+					if(dispatcher is None):
+						schedule_file_path = message[len('RUN: '):]
+						dispatcher = startDispatcher(schedule_file_path, priority=1)
+					else:
+						print('Error: dispatcher is already running; wait for it to finish before starting another job.')
+				elif(message == 'STOP'):
+					if(dispatcher is not None):
+						pipes.send(dispatcher['pipe'], 'STOP')
+					else:
+						print('Dispatcher has already stopped.')
+		except Exception as e:
+			print('Error managing UI')
+		
+		try:
+			if dispatcher is not None:
+				if(pipes.poll(dispatcher['pipe'], timeout=1)):
+					message = dispatcher['pipe'].recv()
+					print('Manager received from Dispatcher: "' + str(message) + '"')
+					
+					if 'destination' in message:
+						# Forward messages that are intended for the UI to the UI
+						if message['destination'] == 'UI':
+							print('Forwarding message from Dispatcher to UI')
+							pipes.send(ui['pipe'], message)
+		except Exception as e:
+			print('Error managing Dispatcher')
 		
 		# Check if dispatcher is running, if not join it to explicitly end
 		if((dispatcher is not None) and (not dispatcher['process'].is_alive())):

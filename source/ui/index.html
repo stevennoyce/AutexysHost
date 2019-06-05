@@ -1032,6 +1032,20 @@
 								
 							</v-container>
 						</v-card>
+						
+						<v-card v-if="dispatcherRunning">
+							<v-toolbar dark class="blue-grey darken-1">
+								<v-toolbar-title>
+									Run Progress
+								</v-toolbar-title>
+							</v-toolbar>
+							<v-list>
+								<v-list-tile v-for="progressObj, progressName in experimentRunnerProgress">
+									<v-list-tile-title>{{ progressName }} {{ progressObj.current }} of {{ progressObj.end }}</v-list-tile-title>
+									<v-progress-linear v-model="progressObj.percent">{{ progressObj.percent }}</v-progress-linear>
+								</v-list-tile>
+							</v-list>
+						</v-card>
 					</v-flex>
 					
 				</v-content>
@@ -1062,6 +1076,8 @@
 		
 		socket.on('Server Message', function(message) {
 			console.log('Receiving Server Message: ' + JSON.stringify(message));
+			
+			app.handleServerMessage(message);
 		});
 		
 		function groupBy(elements, groupKey) {
@@ -1276,7 +1292,9 @@
 				paths: {},
 				disabledPlots: localStorage.disabledPlots ? JSON.parse(localStorage.disabledPlots) : [],
 				possibleChipPlots: [],
-				ReadMeHTML: ''
+				ReadMeHTML: '',
+				dispatcherRunning: false,
+				experimentRunnerProgress: {}
 			},
 			methods: {
 				
@@ -1628,6 +1646,22 @@
 				toTitle: function(camelCaseString) {
 					var result = camelCaseString.replace(/([A-Z])/g, " $1");
 					return result.charAt(0).toUpperCase() + result.slice(1);
+				},
+				
+				handleServerMessage: function(message) {
+					if (message.type == 'Progress') {
+						this.dispatcherRunning = true;
+						
+						var newProg = Object.assign(this.experimentRunnerProgress, message.progress);
+						
+						for (var [key, value] of Object.entries(newProg)) {
+							newProg[key]['percent'] = parseFloat(newProg[key]['current']) - parseFloat(newProg[key]['start']);
+							newProg[key]['percent'] /= parseFloat(newProg[key]['end']) - parseFloat(newProg[key]['start']);
+							newProg[key]['percent'] *= 100;
+						}
+						
+						this.experimentRunnerProgress = JSON.parse(JSON.stringify(newProg));
+					}
 				}
 			},
 			watch: {

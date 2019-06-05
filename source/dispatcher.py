@@ -63,6 +63,19 @@ def run_file(schedule_file_path, pipe=None):
 		print('Launching job #' + str(schedule_index+1) + ' of ' + str(len(parameter_list)) + ' in schedule file ' + schedule_file_path)
 		print('Schedule contains ' + str(len(parameter_list) - schedule_index - 1) + ' other incomplete jobs.')
 		additional_parameters = parameter_list[schedule_index].copy()
+		
+		pipes.send(pipe, {
+			'destination':'UI',
+			'type':'Progress',
+			'progress': {
+				'Dispatcher Job': {
+					'start': 0,
+					'current': schedule_index,
+					'end': len(dlu.loadJSON(directory='', loadFileName=schedule_file_path))
+				}
+			}
+		})
+		
 		launcher.run(additional_parameters, pipe)
 		
 		schedule_index += 1
@@ -71,7 +84,7 @@ def run_file(schedule_file_path, pipe=None):
 			'destination':'UI',
 			'type':'Progress',
 			'progress': {
-				'points': {
+				'Dispatcher Job': {
 					'start': 0,
 					'current': schedule_index,
 					'end': len(dlu.loadJSON(directory='', loadFileName=schedule_file_path))
