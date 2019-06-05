@@ -113,16 +113,16 @@ def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint
 		timestamps[1] = measurements['timestamps'][stepsInVGSPerDirection*pointsPerVGS:]
 	else:
 		for direction in range(len(gateVoltages)):
-			for gateVoltage in gateVoltages[direction]:
+			for Vgi, gateVoltage in enumerate(gateVoltages[direction]):
 				# Send a progress message
 				pipes.send(communication_pipe, {
 					'destination':'UI',
 					'type':'Progress',
 					'progress': {
-						'Gate Sweep Direction': {
+						'Gate Sweep Point': {
 							'start': 1,
-							'current': direction+1,
-							'end': len(gateVoltages)
+							'current': direction*len(gateVoltages[0])+Vgi+1,
+							'end': len(gateVoltages)*len(gateVoltages[0])
 						}
 					}
 				})
