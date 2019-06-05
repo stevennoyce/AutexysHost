@@ -8,7 +8,7 @@ from utilities import DataLoggerUtility as dlu
 
 
 # === Main ===
-def run(parameters, smu_instance, arduino_instance, isSavingResults=True, isPlottingResults=False):
+def run(parameters, smu_instance, arduino_instance, isSavingResults=True, isPlottingResults=False, communication_pipe=None):
 	# Create distinct parameters for plotting the results
 	dh_parameters = {}
 	dh_parameters['Identifiers'] = dict(parameters['Identifiers'])
@@ -91,7 +91,7 @@ def run(parameters, smu_instance, arduino_instance, isSavingResults=True, isPlot
 	return jsonData
 
 # === Data Collection ===
-def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVoltageSetPoint, totalBiasTime, measurementTime):
+def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVoltageSetPoint, totalBiasTime, measurementTime, communication_pipe=None):
 	vds_data = []
 	id_data = []
 	vgs_data = []

@@ -9,7 +9,7 @@ from utilities import DataLoggerUtility as dlu
 
 
 # === Main ===
-def run(parameters, smu_instance, arduino_instance):
+def run(parameters, smu_instance, arduino_instance, communication_pipe=None):
 	# Create distinct parameters for all scripts that could be run
 	gateSweepParameters = dict(parameters)
 	gateSweepParameters['runType'] = 'GateSweep'
@@ -19,7 +19,7 @@ def run(parameters, smu_instance, arduino_instance):
 
 	runAutoStaticBias(parameters, smu_instance, arduino_instance, gateSweepParameters, staticBiasParameters)	
 
-def runAutoStaticBias(parameters, smu_instance, arduino_instance, gateSweepParameters, staticBiasParameters):
+def runAutoStaticBias(parameters, smu_instance, arduino_instance, gateSweepParameters, staticBiasParameters, communication_pipe=None):
 	sb_parameters = staticBiasParameters['runConfigs']['StaticBias']
 	asb_parameters = parameters['runConfigs']['AutoStaticBias']
 

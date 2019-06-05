@@ -545,7 +545,7 @@ def start(managerPipe=None, debug=True, use_reloader=True):
 		socketio.start_background_task(launchBrowser, url)
 	
 	# app.run(debug=True, threaded=False, port=int(os.environ['AutexysUIPort']))
-	socketio.run(app, debug=debug, port=int(os.environ['AutexysUIPort']), use_reloader=False)
+	socketio.run(app, debug=debug, port=int(os.environ['AutexysUIPort']), use_reloader=use_reloader)
 
 
 

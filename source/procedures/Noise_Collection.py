@@ -8,7 +8,7 @@ from utilities import SequenceGeneratorUtility as dgu
 
 
 # === Main ===
-def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False):
+def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False, communication_pipe=None):
 	# Get shorthand name to easily refer to configuration parameters
 	rt_params = parameters['runConfigs']['NoiseCollection']
 	
@@ -43,7 +43,7 @@ def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False)
 	return jsonData
 
 # === Data Collection ===
-def runNoiseCollection(smu_instance, measurementSpeed, drainVoltage, gateVoltage, points):
+def runNoiseCollection(smu_instance, measurementSpeed, drainVoltage, gateVoltage, points, communication_pipe=None):
 	triggerInterval = 1/measurementSpeed
 	points = min(points, 100e3)
 	startTime = time.time()

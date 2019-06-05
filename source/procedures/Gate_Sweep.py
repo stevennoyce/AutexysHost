@@ -2,6 +2,7 @@
 import time
 import numpy as np
 
+import pipes
 from procedures import Device_History as deviceHistoryScript
 from utilities import DataLoggerUtility as dlu
 from utilities import SequenceGeneratorUtility as dgu
@@ -9,7 +10,7 @@ from utilities import SequenceGeneratorUtility as dgu
 
 
 # === Main ===
-def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False):
+def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False, communication_pipe=None):
 	# Create distinct parameters for plotting the results
 	dh_parameters = {}
 	dh_parameters['Identifiers'] = dict(parameters['Identifiers'])
@@ -41,7 +42,8 @@ def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False)
 							gateVoltageMaximum=gs_parameters['gateVoltageMaximum'], 
 							stepsInVGSPerDirection=gs_parameters['stepsInVGSPerDirection'],
 							pointsPerVGS=gs_parameters['pointsPerVGS'],
-							gateVoltageRamps=gs_parameters['gateVoltageRamps'])
+							gateVoltageRamps=gs_parameters['gateVoltageRamps'],
+							communication_pipe=communication_pipe)
 	smu_instance.rampDownVoltages()
 	# === COMPLETE ===
 
@@ -70,7 +72,7 @@ def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False)
 	return jsonData
 
 # === Data Collection ===
-def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint, gateVoltageMinimum, gateVoltageMaximum, stepsInVGSPerDirection, pointsPerVGS, gateVoltageRamps):
+def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint, gateVoltageMinimum, gateVoltageMaximum, stepsInVGSPerDirection, pointsPerVGS, gateVoltageRamps, communication_pipe=None):
 	# Generate list of gate voltages to apply
 	gateVoltages = dgu.sweepValuesWithDuplicates(gateVoltageMinimum, gateVoltageMaximum, stepsInVGSPerDirection*2*pointsPerVGS, pointsPerVGS, ramps=gateVoltageRamps)
 	
@@ -125,6 +127,18 @@ def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint
 				vgs_data[direction].append(measurement['V_gs'])
 				ig_data[direction].append(measurement['I_g'])
 				timestamps[direction].append(timestamp)
+			
+			pipes.send(communication_pipe, {
+				'destination':'UI',
+				'type':'Progress',
+				'progress': {
+					'Gate Sweep Direction': {
+						'start': 0,
+						'current': direction,
+						'end': len(gateVoltages)
+					}
+				}
+			})
 
 	return {
 		'Raw':{
