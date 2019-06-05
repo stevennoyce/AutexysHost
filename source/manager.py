@@ -102,8 +102,13 @@ def manage(on_startup_schedule_file=None):
 		# print('Hello from Manager')
 		# pipes.send(ui['pipe'], {'message': 'Hello from the Manager'})
 		
+		if dispatcher is None:
+			uiTimeout = 0.1
+		else:
+			uiTimeout = 0
+		
 		try:
-			if(pipes.poll(ui['pipe'], timeout=0.1)):
+			if(pipes.poll(ui['pipe'], timeout=uiTimeout)):
 				message = ui['pipe'].recv()
 				print('Manager received from UI: "' + str(message) + '"')
 				
