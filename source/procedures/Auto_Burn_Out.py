@@ -1,4 +1,5 @@
 # === Imports ===
+import pipes
 from procedures import Burn_Out as burnOutScript
 from procedures import Gate_Sweep as gateSweepScript
 from utilities import DataLoggerUtility as dlu

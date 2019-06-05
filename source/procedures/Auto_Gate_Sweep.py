@@ -1,6 +1,7 @@
 # === Imports ===
 import time
 
+import pipes
 from procedures import Gate_Sweep as gateSweepScript
 from utilities import DataLoggerUtility as dlu
 

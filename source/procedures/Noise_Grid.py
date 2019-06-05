@@ -2,6 +2,7 @@
 import time
 import numpy as np
 
+import pipes
 from procedures import Noise_Collection as noiseCollectionScript
 from utilities import DataLoggerUtility as dlu
 

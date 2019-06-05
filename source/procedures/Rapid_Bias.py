@@ -2,6 +2,7 @@
 import time
 import numpy as np
 
+import pipes
 from utilities import DataLoggerUtility as dlu
 from utilities import SequenceGeneratorUtility as dgu
 

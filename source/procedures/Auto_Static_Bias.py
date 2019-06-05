@@ -2,6 +2,7 @@
 import random
 import time
 
+import pipes
 from procedures import Gate_Sweep as gateSweepScript
 from procedures import Static_Bias as staticBiasScript
 from utilities import DataLoggerUtility as dlu

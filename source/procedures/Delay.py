@@ -1,6 +1,8 @@
 # === Imports ===
 import time
 
+import pipes
+
 # === Main ===
 def run(parameters, communication_pipe=None):
 	# No setup required, just run

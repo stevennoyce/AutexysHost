@@ -3,6 +3,7 @@ import time
 import numpy as np
 import threading
 
+import pipes
 from utilities import DataLoggerUtility as dlu
 
 
