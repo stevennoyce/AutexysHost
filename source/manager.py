@@ -103,7 +103,7 @@ def manage(on_startup_schedule_file=None):
 		# pipes.send(ui['pipe'], {'message': 'Hello from the Manager'})
 		
 		try:
-			if(pipes.poll(ui['pipe'], timeout=1)):
+			if(pipes.poll(ui['pipe'], timeout=0.1)):
 				message = ui['pipe'].recv()
 				print('Manager received from UI: "' + str(message) + '"')
 				
@@ -123,7 +123,7 @@ def manage(on_startup_schedule_file=None):
 		
 		try:
 			if dispatcher is not None:
-				if(pipes.poll(dispatcher['pipe'], timeout=1)):
+				if(pipes.poll(dispatcher['pipe'], timeout=0.1)):
 					message = dispatcher['pipe'].recv()
 					print('Manager received from Dispatcher: "' + str(message) + '"')
 					
