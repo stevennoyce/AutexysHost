@@ -500,10 +500,10 @@ def findFirstOpenPort(startPort=1):
 def managerMessageForwarder():
 	global pipeToManager
 	while True:
-		if((pipeToManager is not None) and (pipes.poll(pipeToManager))):
+		if((pipeToManager is not None) and (pipes.poll(pipeToManager, timeout=0.1))):
 			print('Sending server message')
 			socketio.emit('Server Message', pipes.recv(pipeToManager))
-		socketio.sleep(0.1)
+		# socketio.sleep(0.1)
 
 
 @socketio.on('my event')
@@ -519,7 +519,7 @@ def connect():
 		pass
 
 def launchBrowser(url):
-	socketio.sleep(1)
+	socketio.sleep(2)
 	print('URL is "{}"'.format(url))
 	webbrowser.open_new(url)
 
