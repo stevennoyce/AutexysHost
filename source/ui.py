@@ -503,7 +503,7 @@ def managerMessageForwarder():
 		if((pipeToManager is not None) and (pipes.poll(pipeToManager, timeout=0.1))):
 			print('Sending server message')
 			socketio.emit('Server Message', pipes.recv(pipeToManager))
-		# socketio.sleep(0.1)
+		socketio.sleep(0.1)
 
 
 @socketio.on('my event')

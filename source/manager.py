@@ -98,17 +98,11 @@ def manage(on_startup_schedule_file=None):
 		dispatcher = startDispatcher(on_startup_schedule_file, priority=1)
 	
 	while(True):
-		# Listen to the UI pipe for 10 seconds, then yield to do other tasks
-		# print('Hello from Manager')
-		# pipes.send(ui['pipe'], {'message': 'Hello from the Manager'})
-		
-		if dispatcher is None:
-			uiTimeout = 0.1
-		else:
-			uiTimeout = 0
+		pipesList = [e['pipe'] for e in [ui, dispatcher] if e is not None]
+		mp.connection.wait(pipesList, timeout=0.1)
 		
 		try:
-			if(pipes.poll(ui['pipe'], timeout=uiTimeout)):
+			if(pipes.poll(ui['pipe'])):
 				message = ui['pipe'].recv()
 				print('Manager received from UI: "' + str(message) + '"')
 				
@@ -128,7 +122,7 @@ def manage(on_startup_schedule_file=None):
 		
 		try:
 			if dispatcher is not None:
-				if(pipes.poll(dispatcher['pipe'], timeout=0.1)):
+				if(pipes.poll(dispatcher['pipe'])):
 					message = dispatcher['pipe'].recv()
 					print('Manager received from Dispatcher: "' + str(message) + '"')
 					
