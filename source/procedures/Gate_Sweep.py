@@ -10,7 +10,7 @@ from utilities import SequenceGeneratorUtility as dgu
 
 
 # === Main ===
-def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False, communication_pipe=None):
+def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False, share=None):
 	# Create distinct parameters for plotting the results
 	dh_parameters = {}
 	dh_parameters['Identifiers'] = dict(parameters['Identifiers'])
@@ -43,7 +43,7 @@ def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False,
 							stepsInVGSPerDirection=gs_parameters['stepsInVGSPerDirection'],
 							pointsPerVGS=gs_parameters['pointsPerVGS'],
 							gateVoltageRamps=gs_parameters['gateVoltageRamps'],
-							communication_pipe=communication_pipe)
+							share=share)
 	smu_instance.rampDownVoltages()
 	# === COMPLETE ===
 
@@ -72,7 +72,7 @@ def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False,
 	return jsonData
 
 # === Data Collection ===
-def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint, gateVoltageMinimum, gateVoltageMaximum, stepsInVGSPerDirection, pointsPerVGS, gateVoltageRamps, communication_pipe=None):
+def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint, gateVoltageMinimum, gateVoltageMaximum, stepsInVGSPerDirection, pointsPerVGS, gateVoltageRamps, share=None):
 	# Generate list of gate voltages to apply
 	gateVoltages = dgu.sweepValuesWithDuplicates(gateVoltageMinimum, gateVoltageMaximum, stepsInVGSPerDirection*2*pointsPerVGS, pointsPerVGS, ramps=gateVoltageRamps)
 	
@@ -115,17 +115,18 @@ def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint
 		for direction in range(len(gateVoltages)):
 			for Vgi, gateVoltage in enumerate(gateVoltages[direction]):
 				# Send a progress message
-				pipes.send(communication_pipe, {
-					'destination':'UI',
-					'type':'Progress',
-					'progress': {
-						'Gate Sweep Point': {
-							'start': 1,
-							'current': direction*len(gateVoltages[0])+Vgi+1,
-							'end': len(gateVoltages)*len(gateVoltages[0])
+				if share is not None:
+					pipes.send(share['p'], {
+						'destination':'UI',
+						'type':'Progress',
+						'progress': {
+							'Gate Sweep Point': {
+								'start': 1,
+								'current': direction*len(gateVoltages[0])+Vgi+1,
+								'end': len(gateVoltages)*len(gateVoltages[0])
+							}
 						}
-					}
-				})
+					})
 				
 				# Apply V_GS
 				smu_instance.setVgs(gateVoltage)

@@ -27,3 +27,24 @@ def recv(pipe):
 		print('Pipe could not poll')
 		result = ''
 	return result
+
+def progressPipe(pipe, name, start, current, end):
+	if pipe is None:
+		return False
+	if poll(pipe):
+		message = recv(pipe)
+		if 'type' in message and message['type'] == 'Stop':
+			if 'stop' in message:
+				if name in message['stop']:
+					return True
+	send(pipe, {
+		'destination':'UI',
+		'type':'Progress',
+		'progress': {
+			name: {
+				'start': start,
+				'current': current,
+				'end': end
+			}
+		}
+	})

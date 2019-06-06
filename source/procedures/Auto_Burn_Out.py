@@ -7,7 +7,7 @@ from utilities import DataLoggerUtility as dlu
 
 
 # === Main ===
-def run(parameters, smu_instance, communication_pipe=None):
+def run(parameters, smu_instance, share=None):
 	# Create distinct parameters for all scripts that could be run
 	gateSweepParameters = dict(parameters)
 	gateSweepParameters['runType'] = 'GateSweep'
@@ -17,7 +17,7 @@ def run(parameters, smu_instance, communication_pipe=None):
 
 	runAutoBurnOut(parameters, smu_instance, gateSweepParameters, burnOutParameters)
 
-def runAutoBurnOut(parameters, smu_instance, gateSweepParameters, burnOutParameters, communication_pipe=None):
+def runAutoBurnOut(parameters, smu_instance, gateSweepParameters, burnOutParameters, share=None):
 	abo_parameters = parameters['runConfigs']['AutoBurnOut']
 
 	targetOnOffRatio = abo_parameters['targetOnOffRatio']

@@ -404,7 +404,7 @@ def waitForFrameSwitch(smu_secondary, lineTime):
 
 
 # === Main ===
-def run(parameters, smu_systems, isSavingResults=True, communication_pipe=None):
+def run(parameters, smu_systems, isSavingResults=True, share=None):
 	# Print the starting message
 	print('Beginning AFM-assisted measurements.')
 	runAFM(parameters, smu_systems, isSavingResults)	
@@ -413,7 +413,7 @@ def run(parameters, smu_systems, isSavingResults=True, communication_pipe=None):
 
 
 # === Data Collection ===
-def runAFM(parameters, smu_systems, isSavingResults=True, communication_pipe=None):
+def runAFM(parameters, smu_systems, isSavingResults=True, share=None):
 	# Duke label 184553 is 'USB0::0x0957::0x8E18::MY51141244::INSTR' - use for device drain (CH1) and gate (CH2)
 	# Duke Label 184554 is 'USB0::0x0957::0x8E18::MY51141241::INSTR' - use for AFM channels x (CH1) and y (CH2)
 	

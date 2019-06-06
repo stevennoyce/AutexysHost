@@ -23,7 +23,7 @@ if(__name__ == '__main__'):
 
 
 # === Main entry point for dispatching a schedule file ===
-def dispatch(schedule_file_path=None, pipe=None):
+def dispatch(schedule_file_path=None, share=None):
 	"""Given a schedule file path, begin executing the experiments in the schedule file, otherwise prompt the user for a schedule file."""
 	
 	if(schedule_file_path is not None):
@@ -35,7 +35,7 @@ def dispatch(schedule_file_path=None, pipe=None):
 	file = choice if(choice[-5:] == '.json') else (choice + '.json')
 	file = file.strip()
 	
-	run_file(file, pipe)
+	run_file(file, share)
 	
 	send_notification_via_pushbullet(
 		'Completed Main at {}'.format(time.strftime('%I:%M %p on %a')), 
@@ -44,9 +44,13 @@ def dispatch(schedule_file_path=None, pipe=None):
 
 
 
-def run_file(schedule_file_path, pipe=None):
+def run_file(schedule_file_path, share=None):
 	"""Given a shedule file path, open the file and step through each experiment."""
 	schedule_index = 0
+	
+	pipe = None
+	if share is not None:
+		pipe = share['p']
 	
 	print('Opening schedule file: ' + schedule_file_path)
 	
@@ -76,7 +80,7 @@ def run_file(schedule_file_path, pipe=None):
 			}
 		})
 		
-		launcher.run(additional_parameters, pipe)
+		launcher.run(additional_parameters, share)
 		
 		schedule_index += 1
 		

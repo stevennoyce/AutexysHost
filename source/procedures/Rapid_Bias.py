@@ -9,7 +9,7 @@ from utilities import SequenceGeneratorUtility as dgu
 
 
 # === Main ===
-def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False, communication_pipe=None):
+def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False, share=None):
 	# Get shorthand name to easily refer to configuration parameters
 	rb_parameters = parameters['runConfigs']['RapidBias']
 
@@ -48,7 +48,7 @@ def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False,
 	return jsonData
 
 # === Data Collection ===
-def runRapidBias(smu_instance, waveform, drainVoltageSetPoints, gateVoltageSetPoints, measurementPoints, averageOverPoints, maxStepInVDS, maxStepInVGS, startGrounded, communication_pipe=None):
+def runRapidBias(smu_instance, waveform, drainVoltageSetPoints, gateVoltageSetPoints, measurementPoints, averageOverPoints, maxStepInVDS, maxStepInVGS, startGrounded, share=None):
 	vds_data = []
 	id_data = []
 	vgs_data = []

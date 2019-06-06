@@ -58,44 +58,52 @@ def changePriorityOfProcessAndChildren(pid, priority):
 	for child in parent.children():
 		child.nice(priorityCode)
 
-def startUI(priority=0):
+def startUI(share, priority=0):
 	"""Start a Process running ui.start() and obtain a two-way Pipe for communication."""
 	pipeToUI, pipeForUI = mp.Pipe()
-	uiProcess = mp.Process(target=runUI, args=(pipeForUI,))
+	share['p'] = pipeForUI
+	uiProcess = mp.Process(target=runUI, args=(share,))
 	uiProcess.start()
 	# changePriorityOfProcessAndChildren(uiProcess.pid, priority)
 	return {'process':uiProcess, 'pipe':pipeToUI}
 
-def runUI(pipeForUI):
+def runUI(share):
 	"""A target method for running the UI that also imports the UI so the parent process does not have that dependency."""
 	import ui
-	ui.start(managerPipe=pipeForUI, use_reloader=False)
+	ui.start(share=share, use_reloader=False)
 
-def startDispatcher(schedule_file_path, priority=0):
+def startDispatcher(schedule_file_path, share, priority=0):
 	"""Start a Process running dispatcher.dispatch(schedule_file_path) and obtain a two-way Pipe for communication."""
 	pipeToDispatcher, pipeForDispatcher = mp.Pipe()
-	# stdoutPipeToDispatcher, stdoutPipeForDispatcher = mp.Pipe()
-	dispatcherProcess = mp.Process(target=runDispatcher, args=(schedule_file_path, pipeForDispatcher))
+	share['p'] = pipeForDispatcher
+	dispatcherProcess = mp.Process(target=runDispatcher, args=(schedule_file_path, share))
 	dispatcherProcess.start()
 	# changePriorityOfProcessAndChildren(dispatcherProcess.pid, priority)
 	return {'process':dispatcherProcess, 'pipe':pipeToDispatcher}
 
-def runDispatcher(schedule_file_path, pipeForDispatcher):
+def runDispatcher(schedule_file_path, share):
 	"""A target method for running the dispatcher that also imports the dispatcher so the parent process does not have that dependency."""
 	import dispatcher
-	# sys.stdout = os.fdopen(pipeForDispatcher.fileno(), 'r')
-	# os.dup2(pipeForDispatcher.fileno(), 1)
-	dispatcher.dispatch(schedule_file_path, pipeForDispatcher)
+	dispatcher.dispatch(schedule_file_path, share)
 
 def manage(on_startup_schedule_file=None):
 	"""Initialize a UI process and enter an event loop to handle communication with that UI. Manage the creation of dispatcher
 	processes to execute schedule files and facilitate communication between the UI and the currently running dispatcher."""
 	
-	ui = startUI(priority=0)	
+	sharedMemoryManager = mp.Manager()
+	sharedDict = sharedMemoryManager.dict({'dispatcherRunning':False})
+	sharedList = sharedMemoryManager.list([])
+	
+	share = {
+		'd': sharedDict,
+		'l': sharedList
+	}
+	
+	ui = startUI(share, priority=0)	
 	dispatcher = None
 	
 	if(on_startup_schedule_file is not None):
-		dispatcher = startDispatcher(on_startup_schedule_file, priority=1)
+		dispatcher = startDispatcher(on_startup_schedule_file, share, priority=1)
 	
 	while(True):
 		pipesList = [e['pipe'] for e in [ui, dispatcher] if e is not None]
@@ -109,7 +117,7 @@ def manage(on_startup_schedule_file=None):
 				if(message.startswith('RUN: ')):
 					if(dispatcher is None):
 						schedule_file_path = message[len('RUN: '):]
-						dispatcher = startDispatcher(schedule_file_path, priority=1)
+						dispatcher = startDispatcher(schedule_file_path, share, priority=1)
 					else:
 						print('Error: dispatcher is already running; wait for it to finish before starting another job.')
 				elif(message == 'STOP'):
@@ -121,7 +129,9 @@ def manage(on_startup_schedule_file=None):
 			print('Error managing UI')
 		
 		try:
-			if dispatcher is not None:
+			if dispatcher is None:
+				pass
+			else:
 				if(pipes.poll(dispatcher['pipe'])):
 					message = dispatcher['pipe'].recv()
 					print('Manager received from Dispatcher: "' + str(message) + '"')

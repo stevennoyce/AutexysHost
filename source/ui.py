@@ -524,9 +524,11 @@ def launchBrowser(url):
 	webbrowser.open_new(url)
 
 
-def start(managerPipe=None, debug=True, use_reloader=True):
+def start(share=None, debug=True, use_reloader=True):
 	global pipeToManager
-	pipeToManager = managerPipe
+	pipeToManager = None
+	if share is not None:
+		pipeToManager = share['p']
 	
 	if 'AutexysUIRunning' in os.environ:
 		print('Reload detected. Not opening browser.')
