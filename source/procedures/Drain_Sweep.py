@@ -10,7 +10,7 @@ from utilities import SequenceGeneratorUtility as dgu
 
 
 # === Main ===
-def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False, communication_pipe=None):
+def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False, share=None):
 	# Create distinct parameters for plotting the results
 	dh_parameters = {}
 	dh_parameters['Identifiers'] = dict(parameters['Identifiers'])
@@ -70,7 +70,7 @@ def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False,
 	return jsonData
 
 # === Data Collection ===
-def runDrainSweep(smu_instance, isFastSweep, fastSweepSpeed, gateVoltageSetPoint, drainVoltageMinimum, drainVoltageMaximum, stepsInVDSPerDirection, pointsPerVDS, drainVoltageRamps, communication_pipe=None):
+def runDrainSweep(smu_instance, isFastSweep, fastSweepSpeed, gateVoltageSetPoint, drainVoltageMinimum, drainVoltageMaximum, stepsInVDSPerDirection, pointsPerVDS, drainVoltageRamps, share=None):
 	# Generate list of drain voltages to apply
 	drainVoltages = dgu.sweepValuesWithDuplicates(drainVoltageMinimum, drainVoltageMaximum, stepsInVDSPerDirection*2*pointsPerVDS, pointsPerVDS, ramps=drainVoltageRamps)
 	

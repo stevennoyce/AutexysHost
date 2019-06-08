@@ -9,7 +9,7 @@ from utilities import SequenceGeneratorUtility as dgu
 
 
 # === Main ===
-def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False, communication_pipe=None):
+def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False, share=None):
 	# Get shorthand name to easily refer to configuration parameters
 	rt_params = parameters['runConfigs']['NoiseCollection']
 	
@@ -51,7 +51,7 @@ def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False,
 	return jsonData
 
 # === Data Collection ===
-def runNoiseCollection(smu_instance, measurementSpeed, drainVoltage, gateVoltages, pointsPerSetpoint, communication_pipe=None):
+def runNoiseCollection(smu_instance, measurementSpeed, drainVoltage, gateVoltages, pointsPerSetpoint, share=None):
 	Vds = drainVoltage
 	Vgs = gateVoltages[0]
 	

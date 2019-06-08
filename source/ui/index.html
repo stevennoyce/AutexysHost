@@ -717,7 +717,7 @@
 													</v-toolbar>
 													
 													<v-list>
-														<v-select box class="ma-3" label="Run Type" v-model="scheduleObjects[scheduleObjectIndex]['runType']['default']" :items="Object.keys(scheduleObjectDefault['runConfigs'])"></v-select>
+														<v-select box class="ma-3" label="Run Type" v-model="scheduleObjects[scheduleObjectIndex]['runType']['default']" :items="Object.keys(scheduleObjectDefault['runConfigs'] || {})"></v-select>
 														<v-subheader>Identifiers</v-subheader>
 														<template v-for="(setting, settingName) in scheduleObjectDefault['Identifiers']" v-if="['bool','float','int','string','choice'].includes(setting.type)">
 															<v-tooltip top>
@@ -747,7 +747,7 @@
 																	<v-select v-if="setting.type == 'choice'" :label="setting.title" :items="setting.choices"
 																		v-model="scheduleObjects[scheduleObjectIndex]['MeasurementSystem'][settingName]['default']"></v-select>
 																	<v-combobox v-if="setting.type == 'array'" :label="setting.title"
-																		v-model="scheduleObjects[scheduleObjectIndex]['MeasurementSystem'][settingName]['default']" :items="scheduleObjects[scheduleObjectIndex]['MeasurementSystem'][settingName]['choices']" multiple small-chips></v-combobox>
+																		v-model="scheduleObjects[scheduleObjectIndex]['MeasurementSystem'][settingName]['default']" :items="scheduleObjects[scheduleObjectIndex]['MeasurementSystem'][settingName]['choices']" multiple small-chips :delimiters="[',',' ',';']"></v-combobox>
 																</v-list-tile>
 																<span><b>{{ setting.title }}</b></br>Type: <{{ setting.type }}>, Units: [{{ setting.units }}]</br>{{ setting.description }}</span>
 															</v-tooltip>
@@ -784,7 +784,7 @@
 																	<v-select v-if="setting.type == 'choice'" :label="setting.title" :items="setting.choices"
 																		v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]['default']"></v-select>
 																	<v-combobox v-if="setting.type == 'array'" :label="setting.title"
-																		v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]['default']" :items="[]" multiple small-chips></v-combobox>
+																		v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]['default']" :items="[]" multiple small-chips :delimiters="[',',' ',';']"></v-combobox>
 																</v-list-tile>
 																<span><b>{{ setting.title }}</b></br>Type: <{{ setting.type }}>, Units: [{{ setting.units }}]</br>{{ setting.description }}</span>
 															</v-tooltip>
@@ -819,7 +819,7 @@
 																	<v-select v-if="setting.type == 'choice'" :label="setting.title" :items="setting.choices"
 																		v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][dependency][settingName]['default']"></v-select>
 																	<v-combobox v-if="setting.type == 'array'" :label="setting.title"
-																		v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][dependency][settingName]['default']" :items="[]" multiple small-chips></v-combobox>
+																		v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][dependency][settingName]['default']" :items="[]" multiple small-chips :delimiters="[',',' ',';']"></v-combobox>
 																</v-list-tile>
 															</v-list-tile>
 																<span><b>{{ setting.title }}</b></br>Type: <{{ setting.type }}>, Units: [{{ setting.units }}]</br>{{ setting.description }}</span>
@@ -851,7 +851,9 @@
 								<v-chip color="secondary" text-color="white" v-if="scheduleObject['runType']['default'] != ''">
 									{{ scheduleObject['runType']['default'] }}
 								</v-chip>
-								<v-chip color="primary" text-color="white" v-for="(setting, settingName) in scheduleObjectDefault['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']]" v-if="scheduleObjects[scheduleObjectIndex]['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]['default'] != scheduleObjectDefault['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]['default']">
+								<v-chip color="primary" text-color="white" v-for="setting, settingName in scheduleObject['runConfigs'][scheduleObject['runType']['default']]" v-if="
+									   _.get(scheduleObject,        ['runConfigs', scheduleObject['runType']['default'], settingName, 'default']) 
+									!= _.get(scheduleObjectDefault, ['runConfigs', scheduleObject['runType']['default'], settingName, 'default'])">
 									{{ settingName }}
 								</v-chip>
 							</v-card>
@@ -993,7 +995,7 @@
 								</v-toolbar-title>
 							</v-toolbar>
 							<v-container>
-								{{  }}
+								
 							</v-container>
 						</v-card>
 					</v-flex>
@@ -1146,7 +1148,7 @@
 					return;
 				}
 			}
-		}, 100)
+		}, 100);
 		
 		Vue.component('zoomable-image', {
 			data: function() {
@@ -1158,6 +1160,10 @@
 			template: '<img :src="src" v-bind:class="{ zoomedImage: zoomActive, zoomableImage: !zoomActive }" @click="zoomActive = !zoomActive">'
 			//.getBoundingClientRect();
 		});
+		
+		// Vue.component('list-input-box', {
+		// 	mixins: [Vue.options.components.VCombobox]
+		// });
 		
 		var app = new Vue({
 			el: '#app',
@@ -1428,6 +1434,8 @@
 				getAssociatedAFMs: function() {
 					var experiment = this.experiments[this.experimentIndex];
 					
+					if (!experiment) return;
+					
 					if (!(experiment.runType.includes('AFM') || experiment.runType.includes('SGM'))) {
 						experiment.associatedAFMs = {};
 						return;
@@ -1456,7 +1464,7 @@
 				},
 				
 				addToNote: function(experiment) {
-					var url = '/addToNote'
+					var url = '/addToNote';
 					
 					$.post(url, JSON.stringify(experiment), response => {
 						this.addToNoteSuccessCode = response;
@@ -1680,12 +1688,10 @@
 					return this.experiments[this.experimentIndex];
 				},
 				experimentsWithIndexes: function() {
-					return this.experiments.map((x, i) => { return {...x, i} })
+					return this.experiments.map((x, i) => { return {...x, i} });
 				},
-				chipSummaryPlotSettings: function(){
-
+				chipSummaryPlotSettings: function() {
 					return null;
-
 				},
 				deviceSummaryPlotSettings: function() {
 					var settings = _.omitBy(this.setPlotSettings, (v,k) => ((this.defaultPlotSettings[k] == v) || v == '') );

@@ -9,7 +9,7 @@ from utilities import SequenceGeneratorUtility as dgu
 
 
 # === Main ===
-def run(parameters, smu_systems, isSavingResults=True, communication_pipe=None):
+def run(parameters, smu_systems, isSavingResults=True, share=None):
 	# Get shorthand name to easily refer to configuration parameters
 	is_parameters = parameters['runConfigs']['InverterSweep']
 
@@ -63,7 +63,7 @@ def run(parameters, smu_systems, isSavingResults=True, communication_pipe=None):
 	return jsonData
 
 # === Data Collection ===
-def runInverterSweep(smu_sweep, inputVoltageMinimum, inputVoltageMaximum, stepsInVINPerDirection, pointsPerVIN, inputVoltageRamps, communication_pipe=None):
+def runInverterSweep(smu_sweep, inputVoltageMinimum, inputVoltageMaximum, stepsInVINPerDirection, pointsPerVIN, inputVoltageRamps, share=None):
 	# Generate list of input voltages to apply
 	inputVoltages = dgu.sweepValuesWithDuplicates(inputVoltageMinimum, inputVoltageMaximum, stepsInVINPerDirection*2*pointsPerVIN, pointsPerVIN, ramps=inputVoltageRamps)
 	

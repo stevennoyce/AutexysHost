@@ -7,11 +7,11 @@ from utilities import DataLoggerUtility as dlu
 
 
 # === Main ===
-def run(parameters, smu_instance, arduino_instance, communication_pipe=None):
+def run(parameters, smu_instance, arduino_instance, share=None):
 	# No setup required, just run
 	runAutoDrainSweep(parameters, smu_instance, arduino_instance)	
 
-def runAutoDrainSweep(parameters, smu_instance, arduino_instance, communication_pipe=None):
+def runAutoDrainSweep(parameters, smu_instance, arduino_instance, share=None):
 	ads_parameters = parameters['runConfigs']['AutoDrainSweep']
 
 	# If no gate voltage set-point list given, use the set-point from the DrainSweep runConfig

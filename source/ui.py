@@ -500,7 +500,7 @@ def findFirstOpenPort(startPort=1):
 def managerMessageForwarder():
 	global pipeToManager
 	while True:
-		if((pipeToManager is not None) and (pipes.poll(pipeToManager))):
+		if((pipeToManager is not None) and (pipes.poll(pipeToManager, timeout=0.1))):
 			print('Sending server message')
 			socketio.emit('Server Message', pipes.recv(pipeToManager))
 		socketio.sleep(0.1)
@@ -519,14 +519,16 @@ def connect():
 		pass
 
 def launchBrowser(url):
-	socketio.sleep(1)
+	socketio.sleep(2)
 	print('URL is "{}"'.format(url))
 	webbrowser.open_new(url)
 
 
-def start(managerPipe=None, debug=True, use_reloader=True):
+def start(share=None, debug=True, use_reloader=True):
 	global pipeToManager
-	pipeToManager = managerPipe
+	pipeToManager = None
+	if share is not None:
+		pipeToManager = share['p']
 	
 	if 'AutexysUIRunning' in os.environ:
 		print('Reload detected. Not opening browser.')

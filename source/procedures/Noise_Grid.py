@@ -9,11 +9,11 @@ from utilities import DataLoggerUtility as dlu
 
 
 # === Main ===
-def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False, communication_pipe=None):
+def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False, share=None):
 	# No setup required, just run
 	runNoiseGrid(parameters, smu_instance)	
 	
-def runNoiseGrid(parameters, smu_instance, communication_pipe=None):
+def runNoiseGrid(parameters, smu_instance, share=None):
 	ng_parameters = parameters['runConfigs']['NoiseGrid']
 
 	# If no gate/drain voltage set-point list given, use the set-points from the NoiseCollection runConfig

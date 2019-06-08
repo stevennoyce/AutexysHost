@@ -10,7 +10,7 @@ from utilities import SequenceGeneratorUtility as dgu
 
 
 # === Main ===
-def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False, communication_pipe=None):
+def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False, share=None):
 	# Create distinct parameters for plotting the results
 	dh_parameters = {}
 	dh_parameters['Identifiers'] = dict(parameters['Identifiers'])
@@ -68,7 +68,7 @@ def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False,
 	return jsonData
 
 # === Data Collection ===
-def runBurnOutSweep(smu_instance, thresholdProportion, minimumAppliedDrainVoltage, voltageStart, voltageSetPoint, voltagePlateaus, pointsPerRamp, pointsPerHold, communication_pipe=None):
+def runBurnOutSweep(smu_instance, thresholdProportion, minimumAppliedDrainVoltage, voltageStart, voltageSetPoint, voltagePlateaus, pointsPerRamp, pointsPerHold, share=None):
 	burned = False
 	vds_data = []
 	id_data = []
