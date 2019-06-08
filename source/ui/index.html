@@ -717,7 +717,7 @@
 													</v-toolbar>
 													
 													<v-list>
-														<v-select box class="ma-3" label="Run Type" v-model="scheduleObjects[scheduleObjectIndex]['runType']['default']" :items="Object.keys(scheduleObjectDefault['runConfigs'])"></v-select>
+														<v-select box class="ma-3" label="Run Type" v-model="scheduleObjects[scheduleObjectIndex]['runType']['default']" :items="Object.keys(scheduleObjectDefault['runConfigs'] || {})"></v-select>
 														<v-subheader>Identifiers</v-subheader>
 														<template v-for="(setting, settingName) in scheduleObjectDefault['Identifiers']" v-if="['bool','float','int','string','choice'].includes(setting.type)">
 															<v-tooltip top>
@@ -851,7 +851,9 @@
 								<v-chip color="secondary" text-color="white" v-if="scheduleObject['runType']['default'] != ''">
 									{{ scheduleObject['runType']['default'] }}
 								</v-chip>
-								<v-chip color="primary" text-color="white" v-for="(setting, settingName) in scheduleObjectDefault['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']]" v-if="scheduleObjects[scheduleObjectIndex]['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]['default'] != scheduleObjectDefault['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]['default']">
+								<v-chip color="primary" text-color="white" v-for="setting, settingName in scheduleObject['runConfigs'][scheduleObject['runType']['default']]" v-if="
+									   _.get(scheduleObject,        ['runConfigs', scheduleObject['runType']['default'], settingName, 'default']) 
+									!= _.get(scheduleObjectDefault, ['runConfigs', scheduleObject['runType']['default'], settingName, 'default'])">
 									{{ settingName }}
 								</v-chip>
 							</v-card>
@@ -1077,7 +1079,7 @@
 		socket.on('Server Message', function(message) {
 			console.log('Receiving Server Message: ' + JSON.stringify(message));
 			
-			// app.handleServerMessage(message);
+			app.handleServerMessage(message);
 		});
 		
 		function groupBy(elements, groupKey) {
@@ -1652,22 +1654,22 @@
 				toTitle: function(camelCaseString) {
 					var result = camelCaseString.replace(/([A-Z])/g, " $1");
 					return result.charAt(0).toUpperCase() + result.slice(1);
-				// },
+				},
 				
-				// handleServerMessage: function(message) {
-				// 	if (message.type == 'Progress') {
-				// 		this.dispatcherRunning = true;
+				handleServerMessage: function(message) {
+					if (message.type == 'Progress') {
+						this.dispatcherRunning = true;
 						
-				// 		var newProg = Object.assign(this.experimentRunnerProgress, message.progress);
+						var newProg = Object.assign(this.experimentRunnerProgress, message.progress);
 						
-				// 		for (var [key, value] of Object.entries(newProg)) {
-				// 			newProg[key]['percent'] = parseFloat(newProg[key]['current']) - parseFloat(newProg[key]['start']);
-				// 			newProg[key]['percent'] /= parseFloat(newProg[key]['end']) - parseFloat(newProg[key]['start']);
-				// 			newProg[key]['percent'] *= 100;
-				// 		}
+						for (var [key, value] of Object.entries(newProg)) {
+							newProg[key]['percent'] = parseFloat(newProg[key]['current']) - parseFloat(newProg[key]['start']);
+							newProg[key]['percent'] /= parseFloat(newProg[key]['end']) - parseFloat(newProg[key]['start']);
+							newProg[key]['percent'] *= 100;
+						}
 						
-				// 		this.experimentRunnerProgress = JSON.parse(JSON.stringify(newProg));
-				// 	}
+						this.experimentRunnerProgress = JSON.parse(JSON.stringify(newProg));
+					}
 				}
 			},
 			watch: {
