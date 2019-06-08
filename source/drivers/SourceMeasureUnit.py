@@ -227,17 +227,21 @@ class SourceMeasureUnit:
 		
 	
 	def digitalWrite(self, pin, signal):
+		
+		if pin < 0:
+			return
+		
 		prior = self.smu.query(':source:digital:data?')
 		decBin = pow(2, pin-1)
 		
 		self.smu.write(":format:digital ascii")
-		self.smu.write(":source:digital:external", str(pin), ":function DIO")
-		self.smu.write(":source:digital:external", str(pin), ":polarity positive")
+		self.smu.write(":source:digital:external" + str(pin) + ":function DIO")
+		self.smu.write(":source:digital:external" + str(pin) + ":polarity positive")
 		if signal == "HIGH":
-			self.smu.write(":source:digital:data ", str(prior | decBin))
+			self.smu.write(":source:digital:data " + str(int(prior) | decBin))
 		
 		elif signal == "LOW":
-			self.smu.write(":source:digital:data ", str(prior & ~decBin))
+			self.smu.write(":source:digital:data " + str(int(prior) & ~decBin))
 		
 	
 	

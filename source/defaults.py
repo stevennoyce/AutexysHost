@@ -58,6 +58,25 @@ default_parameters = {
 			'floatChannelsWhenDone': 	{'type':'bool', 'default': False, 'title':'Float Channels When Done', 'description':''},
 			'delayWhenDone': 			{'type':'float', 'units':'s', 'default': 0, 'title':'Delay When Done', 'description':''} 
 		},
+		'FlowStaticBias':{
+			'dependencies':				{'ignore':True, 'value':[]},
+			'saveFileName': 			{'type':'constant', 'default':'StaticBias', 'title':'Save File Name', 'description':'The name of the file that will be saved with the data from this experiment. This name should typically not be changed.'},
+			'measurementTime': 			{'type':'float', 'units':'s', 'default': 10, 'title':'Measurement Time', 'description':''},
+			'flowDurations':			{'type':'array', 'units':'s', 'default': [], 'title':'Flow Durations', 'description':'Duration of flow for each pump, in array format'},
+			'subCycleDurations':		{'type':'array', 'units':'s', 'default': [], 'title':'Subcycle Durations', 'description':'Duration of submersion, in array format'},
+			'pumpPins':					{'type':'array', 'units':'#', 'default': [], 'title':'Digital Pins', 'description':'digital pins, in array format'},
+			'cycleCount':				{'type':'int', 'units':'#', 'default': 3, 'title':'Cycle Count', 'description':'number of times all environments are exchanged (i.e: period of experiment)'},
+			'solutions':				{'type':'array', 'units':'', 'default': [], 'title':'Solution Environments', 'description':''},
+			'complianceCurrent': 		{'type':'float', 'units':'A', 'default': 100e-6, 'title':'Compliance Current', 'description':''},
+			'delayBeforeMeasurementsBegin': {'type':'float', 'units':'s', 'default': 0, 'title':'Delay Before Measurements Begin', 'description':''},
+			'gateVoltageSetPoint': 		{'type':'float', 'units':'V', 'default': 0, 'title':'Gate Voltage Set Point', 'description':''},
+			'drainVoltageSetPoint':		{'type':'float', 'units':'V', 'default': 0.5, 'title':'Drain Voltage Set Point', 'description':''},
+			'gateVoltageWhenDone':  	{'type':'float', 'units':'V', 'default': 0, 'title':'Gate Voltage When Done', 'description':''},
+			'drainVoltageWhenDone': 	{'type':'float', 'units':'V', 'default': 0, 'title':'Drain Voltage When Done', 'description':''},
+			'floatChannelsWhenDone': 	{'type':'bool', 'default': False, 'title':'Float Channels When Done', 'description':''},
+			'delayWhenDone': 			{'type':'float', 'units':'s', 'default': 0, 'title':'Delay When Done', 'description':''} 
+		},
+		
 		'AutoBurnOut':{
 			'dependencies':				{'ignore':True, 'value':['BurnOut']},
 			'targetOnOffRatio': 		{'type':'float', 'units':'', 'default': 80, 'title':'Target On Off Ratio', 'description':''},

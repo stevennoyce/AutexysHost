@@ -21,11 +21,13 @@ def run(parameters, smu_instance, arduino_instance, isSavingResults=True, isPlot
 	dh_parameters['excludeDataAfterJSONExperimentNumber'] =  parameters['startIndexes']['experimentNumber']
 
 	# Get shorthand name to easily refer to configuration parameters
-	sb_parameters = parameters['runConfigs']['StaticBias']
+	
+	
+	fsb_parameters = parameters['runConfigs']['FlowStaticBias']
 
 	# Print the starting message
-	print('Applying static bias of V_GS='+str(sb_parameters['gateVoltageSetPoint'])+'V, V_DS='+str(sb_parameters['drainVoltageSetPoint'])+'V for '+str(sb_parameters['totalBiasTime'])+' seconds...')
-	smu_instance.setComplianceCurrent(sb_parameters['complianceCurrent'])	
+	print('Applying flow static bias of V_GS='+str(fsb_parameters['gateVoltageSetPoint'])+'V, V_DS='+str(fsb_parameters['drainVoltageSetPoint'])+'V')
+	smu_instance.setComplianceCurrent(fsb_parameters['complianceCurrent'])	
 
 	# Ensure all sensor data is reset to empty lists so that there is one-to-one mapping between device and sensor measurements
 	sensor_data = arduino_instance.takeMeasurement()
@@ -35,35 +37,39 @@ def run(parameters, smu_instance, arduino_instance, isSavingResults=True, isPlot
 	# === START ===
 	# Apply voltages
 	print('Applying bias voltages.')
-	smu_instance.rampDrainVoltageTo(sb_parameters['drainVoltageSetPoint'])
-	smu_instance.rampGateVoltageTo(sb_parameters['gateVoltageSetPoint'])
+	smu_instance.rampDrainVoltageTo(fsb_parameters['drainVoltageSetPoint'])
+	smu_instance.rampGateVoltageTo(fsb_parameters['gateVoltageSetPoint'])
 
 	# Delay before measurements begin (only useful for allowing current to settle a little, not usually necessary)
-	if(sb_parameters['delayBeforeMeasurementsBegin'] > 0):
-		print('Waiting for: ' + str(sb_parameters['delayBeforeMeasurementsBegin']) + ' seconds before measurements begin.')
-		time.sleep(sb_parameters['delayBeforeMeasurementsBegin'])
+	if(fsb_parameters['delayBeforeMeasurementsBegin'] > 0):
+		print('Waiting for: ' + str(fsb_parameters['delayBeforeMeasurementsBegin']) + ' seconds before measurements begin.')
+		time.sleep(fsb_parameters['delayBeforeMeasurementsBegin'])
 
-	results = runStaticBias(smu_instance, 
+	results = runFlowStaticBias(smu_instance, 
 							arduino_instance,
-							drainVoltageSetPoint=sb_parameters['drainVoltageSetPoint'],
-							gateVoltageSetPoint=sb_parameters['gateVoltageSetPoint'],
-							totalBiasTime=sb_parameters['totalBiasTime'], 
-							measurementTime=sb_parameters['measurementTime'])
-	smu_instance.rampGateVoltageTo(sb_parameters['gateVoltageWhenDone'])
-	smu_instance.rampDrainVoltageTo(sb_parameters['drainVoltageWhenDone'])
+							drainVoltageSetPoint=fsb_parameters['drainVoltageSetPoint'],
+							gateVoltageSetPoint=fsb_parameters['gateVoltageSetPoint'],
+							measurementTime=fsb_parameters['measurementTime'],
+							flowDurations=fsb_parameters['flowDurations'], 
+							subCycleDurations=fsb_parameters['subCycleDurations'],
+							pumpPins=fsb_parameters['pumpPins'],
+							cycleCount=fsb_parameters['cycleCount'],
+							solutions=fsb_parameters['solutions'])
+	smu_instance.rampGateVoltageTo(fsb_parameters['gateVoltageWhenDone'])
+	smu_instance.rampDrainVoltageTo(fsb_parameters['drainVoltageWhenDone'])
 
 	# Float channels if desired
-	if(sb_parameters['floatChannelsWhenDone']):
+	if(fsb_parameters['floatChannelsWhenDone']):
 		print('Turning channels off.')
 		smu_instance.turnChannelsOff()
 
 	# Delay to allow channels to float or sit at their "WhenDone" values
-	if(sb_parameters['delayWhenDone'] > 0):
-		print('Waiting for: ' + str(sb_parameters['delayWhenDone']) + ' seconds...')
-		time.sleep(sb_parameters['delayWhenDone'])
+	if(fsb_parameters['delayWhenDone'] > 0):
+		print('Waiting for: ' + str(fsb_parameters['delayWhenDone']) + ' seconds...')
+		time.sleep(fsb_parameters['delayWhenDone'])
 	
 	# If the channels were turned off, need to turn them back on
-	if(sb_parameters['floatChannelsWhenDone']):
+	if(fsb_parameters['floatChannelsWhenDone']):
 		smu_instance.turnChannelsOn()
 		print('Channels are back on.')
 	# === COMPLETE ===
@@ -83,7 +89,7 @@ def run(parameters, smu_instance, arduino_instance, isSavingResults=True, isPlot
 	# Save results as a JSON object
 	if(isSavingResults):
 		print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
-		dlu.saveJSON(dlu.getDeviceDirectory(parameters), sb_parameters['saveFileName'], jsonData, subDirectory='Ex'+str(parameters['startIndexes']['experimentNumber']))
+		dlu.saveJSON(dlu.getDeviceDirectory(parameters), fsb_parameters['saveFileName'], jsonData, subDirectory='Ex'+str(parameters['startIndexes']['experimentNumber']))
 	
 	# Show plots to the user if desired
 	if(isPlottingResults):
@@ -91,18 +97,42 @@ def run(parameters, smu_instance, arduino_instance, isSavingResults=True, isPlot
 	
 	return jsonData
 
+# Turns ON "pin", turns every other pin OFF
+# if pin == -1, turn off every pin
+def turnOnlyPin(smu_instance, pumpPins, pin):
+	for i in pumpPins:
+		if i != pin:
+			smu_instance.digitalWrite(i, "LOW")
+	smu_instance.digitalWrite(pin, "HIGH")
+
 # === Data Collection ===
-def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVoltageSetPoint, totalBiasTime, measurementTime, communication_pipe=None):
+def runFlowStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVoltageSetPoint, measurementTime, flowDurations, subCycleDurations, pumpPins, cycleCount, solutions, communication_pipe=None):
+	
+	smu_instance.digitalWrite(1, "LOW")
+	
 	vds_data = []
 	id_data = []
 	vgs_data = []
 	ig_data = []
+	pump_on_intervals = []
 	timestamps = []
 	vds_std = []
 	id_std = []
 	vgs_std = []
 	ig_std = []
-
+	
+	# casting stuff as ints from strings
+	cycleCount = int(cycleCount)
+	for a in range(0, len(flowDurations)):
+		flowDurations[a] = int(flowDurations[a])
+		pumpPins[a] = int(pumpPins[a])
+		subCycleDurations[a] = int(subCycleDurations[a])
+	
+	# define totalBiasTime
+	totalBiasTime = 0
+	for tt in subCycleDurations:
+		totalBiasTime += int(tt) * int(cycleCount)
+	
 	# Get the SMU measurement speed
 	smu_measurementsPerSecond = smu_instance.measurementsPerSecond
 	smu_secondsPerMeasurement = 1/smu_measurementsPerSecond
@@ -110,7 +140,14 @@ def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVolt
 	# Compute the number of data points we will be collecting (unless measurementTime is unreasonably small)
 	steps = max(int(totalBiasTime/measurementTime), 1) if(measurementTime > 0) else None
 	
-	# Take a timestamp for the start of the StaticBias
+	# pour in first fluid prior to measurementCount starting (and thus prior to measurements starting)
+	print("Exchanging fluid for digitalPin: " + str(pumpPins[0]))
+	turnOnlyPin(smu_instance, pumpPins, pumpPins[0])
+	time.sleep(flowDurations[0])
+	print("Stopping fluid exchange")
+	turnOnlyPin(smu_instance, pumpPins, -1) # turn off everything else
+	
+	# Take a timestamp for the start of the FlowStaticBias
 	startTime = time.time()
 
 	# Criteria to keep taking measurements when measurementTime is relatively large
@@ -119,15 +156,37 @@ def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVolt
 		# Criteria to keep taking measurements when measurementTime is very small
 		continueCriterion = lambda i, measurementCount: (time.time() - startTime) < (totalBiasTime - (1/2)*smu_secondsPerMeasurement)
 		continueCriterion = lambda i, measurementCount: (time.time() - startTime) < (totalBiasTime - (1/2)*(time.time() - startTime)/max(measurementCount, 1))
-
+	
+	# initialize pump_on_intervals array
+	for cyc in range(0, len(pumpPins)):
+		pump_on_intervals.append([])
+	
+	# define array of all possible times when fluid exchange should happen, given the number of cycles
+	allPossibleExchangeTimesStart = []
+	timeCounter = 0
+	for cyc in range(0, cycleCount):
+		for cycDur in subCycleDurations:
+			timeCounter += cycDur
+			allPossibleExchangeTimesStart.append(timeCounter)	
+	
+	# define array of all possible times when fluid flow, upon initializing, should STOP flowing
+	allPossibleExchangeTimesEnd = []
+	timeCounter = 1 # offset due to initial flow prior to data collection
+	for cyc in allPossibleExchangeTimesStart:
+		allPossibleExchangeTimesEnd.append(cyc + flowDurations[(timeCounter) % len(flowDurations)])
+		timeCounter += 1
+	
 	i = 0
 	measurementCount = 0
+	pinAlternatingCounter = 1 # at least two motors, first environment was start, so first time pin exchange happens would require digital pin at index 1
+	
+	currentPin = 1
+	exchangeStartBool = True
+	exchangeEndBool = True
 	while(continueCriterion(i, measurementCount)):
-		
-		
-		
 		# Define buffers for data to fill during each "measurementTime"
-		measurements = {'Vds_data':[], 'Id_data':[], 'Vgs_data':[], 'Ig_data':[]}
+		measurements = {'Vds_data':[], 'Id_data':[], 'Vgs_data':[], 'Ig_data':[], 
+						'Vds_intervals':[], 'Id_intervals':[], 'Vgs_intervals':[], 'Ig_intervals':[]}
 		
 		# Take the first data point of this "measurementTime"
 		measurement = smu_instance.takeMeasurement()
@@ -140,12 +199,46 @@ def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVolt
 		# While the current measurementTime has not been exceeded, continuously collect data. (subtract half of the SMU's speed so on average we take the right amount of time)
 		while (time.time() - startTime) < (measurementTime*(i+1) - (1/2)*(time.time() - startTime)/measurementCount):
 			
+			# need this to prevent multiple time additions to pump_on_intervals
+			if currentPin == pinAlternatingCounter:
+				exchangeStartBool = True
+				exchangeEndBool = False
+			
+			# Check to see if it is time to start exchanging out fluids
+			currentTimeNotRounded = time.time() - startTime
+			roundCurrentTime = int(currentTimeNotRounded) # round to nearest integer due to slight time lag
+			
+			#print(roundCurrentTime, pinAlternatingCounter)
+			
+			pinToTurnOnIndex = pinAlternatingCounter % len(pumpPins)
+		
+			if roundCurrentTime in allPossibleExchangeTimesStart: # start exchanging fluids; pin will constantly be spammed ON but doesn't matter
+				turnOnlyPin(smu_instance, pumpPins, pumpPins[pinToTurnOnIndex])
+				if exchangeStartBool == True:
+					print("Exchanging fluid for digitalPin: " + str(pumpPins[pinToTurnOnIndex]))
+					#print("added start interval: " + str(currentTimeNotRounded))
+					pump_on_intervals[pinToTurnOnIndex].append(currentTimeNotRounded)	
+					exchangeStartBool = False
+					exchangeEndBool = True
+					currentPin += 1
+				
+			# Check to see if it is time to STOP exchanging out fluids. Turn off all pins when this condition holds true
+			if roundCurrentTime in allPossibleExchangeTimesEnd:
+				#pinToTurnOnIndex = (pinAlternatingCounter - 1) % len(pumpPins) # this doesn't actually matter, since the code stops ALL pins
+				turnOnlyPin(smu_instance, pumpPins, -1)
+				if exchangeEndBool == True:
+					print("Stopping fluid flow") # + str(pumpPins[pinToTurnOnIndex]))
+					#print("added end interval: " + str(currentTimeNotRounded))
+					pump_on_intervals[pinToTurnOnIndex].append(currentTimeNotRounded)	
+					exchangeEndBool = False
+					pinAlternatingCounter += 1
 			
 			measurement = smu_instance.takeMeasurement()
 			measurements['Vds_data'].append(measurement['V_ds'])
 			measurements['Id_data'].append(measurement['I_d'])
 			measurements['Vgs_data'].append(measurement['V_gs'])
 			measurements['Ig_data'].append(measurement['I_g'])
+			
 			measurementCount += 1
 			# Sleep for a fraction of the SMU's speed so we put a slight delay between consecutive queries
 			time.sleep((1/2)*(time.time() - startTime)/measurementCount)
@@ -156,6 +249,7 @@ def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVolt
 		id_data.append(np.median(measurements['Id_data']))
 		vgs_data.append(np.median(measurements['Vgs_data']))
 		ig_data.append(np.median(measurements['Ig_data']))
+
 		timestamps.append(timestamp)
 		
 		# If multiple data points were collected in this measurementTime, save their standard deviation
@@ -188,9 +282,10 @@ def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVolt
 			'id_data':id_data,
 			'vgs_data':vgs_data,
 			'ig_data':ig_data,
+			'pump_on_intervals':pump_on_intervals,
 			'timestamps':timestamps,
 			'id_std':id_std,
-			'ig_std':ig_std
+			'ig_std':ig_std,
 		},
 		'Computed':{
 			'id_max':max(id_data),
@@ -199,6 +294,9 @@ def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVolt
 			'tau_settle':settlingTimeConstant(timestamps, id_data)
 		}
 	}
+	
+	
+	
 	
 def settlingTimeConstant(timestamps, id_data):
 	id_start = id_data[0]
