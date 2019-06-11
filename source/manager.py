@@ -154,6 +154,7 @@ def manage(on_startup_schedule_file=None):
 			break
 	
 	# Join to all of the child processes to clean them up
+	ui['process'].terminate()
 	ui['process'].join()
 	if(dispatcher is not None):
 		dispatcher['process'].join()
