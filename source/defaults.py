@@ -60,7 +60,7 @@ default_parameters = {
 		},
 		'FlowStaticBias':{
 			'dependencies':				{'ignore':True, 'value':[]},
-			'saveFileName': 			{'type':'constant', 'default':'StaticBias', 'title':'Save File Name', 'description':'The name of the file that will be saved with the data from this experiment. This name should typically not be changed.'},
+			'saveFileName': 			{'type':'constant', 'default':'FlowStaticBias', 'title':'Save File Name', 'description':'The name of the file that will be saved with the data from this experiment. This name should typically not be changed.'},
 			'measurementTime': 			{'type':'float', 'units':'s', 'default': 10, 'title':'Measurement Time', 'description':''},
 			'flowDurations':			{'type':'array', 'units':'s', 'default': [], 'title':'Flow Durations', 'description':'Duration of flow for each pump, in array format'},
 			'subCycleDurations':		{'type':'array', 'units':'s', 'default': [], 'title':'Subcycle Durations', 'description':'Duration of submersion, in array format'},
@@ -100,6 +100,23 @@ default_parameters = {
 		'AutoStaticBias':{
 			'dependencies': 						{'ignore':True, 'value':['StaticBias','GateSweep']},
 			'numberOfStaticBiases': 				{'type':'int', 'units':'#', 'default': 1, 'title':'Number Of Static Biases', 'description':''},
+			'doInitialGateSweep': 					{'type':'bool', 'default': True, 'title':'Do Initial Gate Sweep', 'description':''},
+			'applyGateSweepBetweenBiases': 			{'type':'bool', 'default': False, 'title':'Apply Gate Sweep Between Biases', 'description':''},
+			'applyGateSweepBothBeforeAndAfter':		{'type':'bool', 'default': False, 'title':'Apply Gate Sweep Both Before And After', 'description':''},
+			'delayBetweenBiases':					{'type':'float', 'units':'s', 'default': 0, 'title':'Delay Between Biases', 'description':''},
+			'firstDelayBeforeMeasurementsBegin':	{'type':'float', 'units':'s', 'default': 0, 'title':'First Delay Before Measurements Begin', 'description':''},
+			'numberOfBiasesBetweenIncrements': 		{'type':'int', 'units':'#', 'default': 1, 'title':'Number Of Biases Between Increments', 'description':''},
+			'biasTimeList':							{'type':'array', 'units':'s', 'default': [], 'title':'Bias Time List', 'description':''},
+			'incrementStaticGateVoltage': 			{'type':'float', 'units':'V', 'default': 0, 'title':'Increment Static Gate Voltage', 'description':''},
+			'incrementStaticDrainVoltage': 			{'type':'float', 'units':'V', 'default': 0, 'title':'Increment Static Drain Voltage', 'description':''},
+			'incrementGateVoltageWhenDone': 		{'type':'float', 'units':'V', 'default': 0, 'title':'Increment Gate Voltage When Done', 'description':''},
+			'incrementDrainVoltageWhenDone':		{'type':'float', 'units':'V', 'default': 0, 'title':'Increment Drain Voltage When Done', 'description':''},
+			'incrementDelayBeforeReapplyingVoltage':{'type':'float', 'units':'s', 'default': 0, 'title':'Increment Delay Before Reapplying Voltage', 'description':''},
+			'shuffleDelaysBeforeReapplyingVoltage': {'type':'bool', 'default': False, 'title':'Shuffle Delays Before Reapplying Voltage', 'description':''} 
+		},
+		'AutoFlowStaticBias':{
+			'dependencies': 						{'ignore':True, 'value':['FlowStaticBias','GateSweep']},
+			'numberOfFlowStaticBiases': 			{'type':'int', 'units':'#', 'default': 1, 'title':'Number Of Flow Static Biases', 'description':''},
 			'doInitialGateSweep': 					{'type':'bool', 'default': True, 'title':'Do Initial Gate Sweep', 'description':''},
 			'applyGateSweepBetweenBiases': 			{'type':'bool', 'default': False, 'title':'Apply Gate Sweep Between Biases', 'description':''},
 			'applyGateSweepBothBeforeAndAfter':		{'type':'bool', 'default': False, 'title':'Apply Gate Sweep Both Before And After', 'description':''},

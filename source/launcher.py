@@ -19,6 +19,7 @@ from procedures import Flow_Static_Bias as flowStaticBiasScript
 from procedures import Auto_Gate_Sweep as autoGateScript
 from procedures import Auto_Drain_Sweep as autoDrainScript
 from procedures import Auto_Static_Bias as autoBiasScript
+from procedures import Auto_Flow_Static_Bias as autoFlowStaticBias
 from procedures import AFM_Control as afmControlScript
 from procedures import SGM_Control as sgmControlScript
 from procedures import Delay as delayScript
@@ -100,15 +101,17 @@ def runAction(parameters, schedule_parameters, smu_systems, arduino_instance, sh
 		elif(parameters['runType'] == 'AutoBurnOut'):
 			autoBurnScript.run(parameters, smu_default_instance, share=share)
 		elif(parameters['runType'] == 'StaticBias'):
-			staticBiasScript.run(parameters, smu_default_instance, arduino_instance, communication_pipe=communication_pipe)
+			staticBiasScript.run(parameters, smu_default_instance, arduino_instance, share=share) #communication_pipe=communication_pipe)
 		elif(parameters['runType'] == 'FlowStaticBias'):
-			flowStaticBiasScript.run(parameters, smu_default_instance, arduino_instance, communication_pipe=communication_pipe)
+			flowStaticBiasScript.run(parameters, smu_default_instance, arduino_instance) #, communication_pipe=communication_pipe)
 		elif(parameters['runType'] == 'AutoGateSweep'):
 			autoGateScript.run(parameters, smu_default_instance, arduino_instance, share=share)
 		elif(parameters['runType'] == 'AutoDrainSweep'):
 			autoDrainScript.run(parameters, smu_default_instance, arduino_instance, share=share)
 		elif(parameters['runType'] == 'AutoStaticBias'):
 			autoBiasScript.run(parameters, smu_default_instance, arduino_instance, share=share)
+		elif(parameters['runType'] == 'AutoFlowStaticBias'):
+			autoFlowStaticBias.run(parameters, smu_default_instance, arduino_instance, share=share)
 		elif(parameters['runType'] == 'AFMControl'):
 			afmControlScript.run(parameters, smu_systems, share=share)
 		elif(parameters['runType'] == 'SGMControl'):

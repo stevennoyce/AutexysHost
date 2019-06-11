@@ -44,7 +44,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# deviceHistory[0]['runConfigs']['GateSweep']['gateVoltageMinimum'] = 1
 	# mode_parameters['sweepDirection'] = 'forward'
 	# debuggingInfo(deviceHistory, identifiers, mode_parameters)
-
+	
 	# Init Figure
 	fig, ax = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
 	ax2 = None

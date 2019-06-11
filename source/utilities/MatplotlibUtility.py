@@ -282,6 +282,7 @@ def plotSNR(axis, jsonData, lineColor, direction='both', scaleCurrentBy=1, lineS
 	x, y, pointsPerX = extractSweep(axis, jsonData, direction='both', x_data='gate voltage for snr', y_data='snr', logScale=False, scaleYaxisBy=scaleCurrentBy)
 	line = plotAll(axis, x, y, lineColor, lineStyle=lineStyle, pointsPerX=pointsPerX, errorBars=errorBars)
 	return line
+	
 
 def plotNoiseAxis(axis, x, y, lineColor, lineStyle=None):
 	axis2 = axis.twinx()

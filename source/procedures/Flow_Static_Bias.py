@@ -115,6 +115,7 @@ def runFlowStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gate
 	vgs_data = []
 	ig_data = []
 	pump_on_intervals = []
+	pump_on_intervals_pin = []
 	timestamps = []
 	vds_std = []
 	id_std = []
@@ -181,6 +182,7 @@ def runFlowStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gate
 	pinAlternatingCounter = 1 # at least two motors, first environment was start, so first time pin exchange happens would require digital pin at index 1
 	
 	currentPin = 1
+	currentDigitalPin = pumpPins[0]
 	exchangeStartBool = True
 	exchangeEndBool = True
 	while(continueCriterion(i, measurementCount)):
@@ -214,6 +216,7 @@ def runFlowStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gate
 		
 			if roundCurrentTime in allPossibleExchangeTimesStart: # start exchanging fluids; pin will constantly be spammed ON but doesn't matter
 				turnOnlyPin(smu_instance, pumpPins, pumpPins[pinToTurnOnIndex])
+				currentDigitalPin = pumpPins[pinToTurnOnIndex]
 				if exchangeStartBool == True:
 					print("Exchanging fluid for digitalPin: " + str(pumpPins[pinToTurnOnIndex]))
 					#print("added start interval: " + str(currentTimeNotRounded))
@@ -249,6 +252,8 @@ def runFlowStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gate
 		id_data.append(np.median(measurements['Id_data']))
 		vgs_data.append(np.median(measurements['Vgs_data']))
 		ig_data.append(np.median(measurements['Ig_data']))
+		
+		pump_on_intervals_pin.append(currentDigitalPin)
 
 		timestamps.append(timestamp)
 		
@@ -283,6 +288,7 @@ def runFlowStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gate
 			'vgs_data':vgs_data,
 			'ig_data':ig_data,
 			'pump_on_intervals':pump_on_intervals,
+			'pump_on_intervals_pin':pump_on_intervals_pin,
 			'timestamps':timestamps,
 			'id_std':id_std,
 			'ig_std':ig_std,
