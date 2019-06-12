@@ -149,8 +149,8 @@ def manage(on_startup_schedule_file=None):
 			dispatcher['process'].join()
 			dispatcher = None
 		
-		# Check that UI is still running, if not exit the event loop
-		if(not ui['process'].is_alive()):
+		# If dispatcher is not running and UI is dead, exit the event loop
+		if(dispatcher is None and not ui['process'].is_alive()):
 			break
 	
 	# Join to all of the child processes to clean them up
