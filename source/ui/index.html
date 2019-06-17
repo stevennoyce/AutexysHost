@@ -1740,19 +1740,19 @@
 						this.dispatcherRunning = true;
 						
 						for (var label of Object.keys(message.xdata)) {
-							if (!livePlotXData.hasOwnProperty(label)) {
+							if (!this.livePlotXData.hasOwnProperty(label)) {
 								// this.livePlotXData[label] = [];
 								Vue.set(this.livePlotXData, label, []);
 							}
-							this.livePlotXData[label].push(message.xdata.label);
+							this.livePlotXData[label].push(message.xdata[label]);
 						}
 						
 						for (var label of Object.keys(message.ydata)) {
-							if (!livePlotYData.hasOwnProperty(label)) {
+							if (!this.livePlotYData.hasOwnProperty(label)) {
 								// this.livePlotYData[label] = [];
 								Vue.set(this.livePlotYData, label, []);
 							}
-							this.livePlotYData[label].push(message.ydata.label);
+							this.livePlotYData[label].push(message.ydata[label]);
 						}
 					}
 				}
