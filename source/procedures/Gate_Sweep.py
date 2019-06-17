@@ -148,7 +148,8 @@ def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint
 						'destination':'UI',
 						'type':'Data',
 						'xdata': {
-							'Gate Voltage [V]': measurement['V_gs']
+							'Gate Voltage [V]': measurement['V_gs'],
+							'Time [s]': timestamp - timestamps[0][0]
 						},
 						'ydata': {
 							'Drain Current [A]': measurement['I_d'],
