@@ -1057,8 +1057,8 @@
 								</v-toolbar-title>
 							</v-toolbar>
 							<v-card-media>
-								<div style="height:50vh" v-for="xdata, xlabel in livePlotXData">
-									<v-plotly v-bind:data="Object.entries(livePlotYData).map(([k, v]) => ({x: xdata, y: v, mode: 'lines'}))" v-bind:height="90" :column-number="1" :layout="{xaxis: {title: xlabel}, yaxis: {title: 'Current [A]', type: 'log', autorange: true}}"></v-plotly>
+								<div style="height:60vh" v-for="xdata, xlabel in livePlotXData">
+									<v-plotly v-bind:data="Object.entries(livePlotYData).map(([k, v]) => ({x: xdata, y: v.map(val => Math.abs(val)), mode: 'lines', name: k}))" v-bind:height="90" :column-number="1" :layout="{xaxis: {title: xlabel}, yaxis: {title: 'Current [A]', type: 'log', autorange: true}, legend: {'orientation': 'h', y: 1.1}}"></v-plotly>
 								</div>
 							</v-card-media>
 						</v-card>
