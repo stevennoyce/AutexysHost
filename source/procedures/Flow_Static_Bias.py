@@ -148,6 +148,9 @@ def runFlowStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gate
 	print("Stopping fluid exchange")
 	turnOnlyPin(smu_instance, pumpPins, -1) # turn off everything else
 	
+	# sleep for a bit to reduce initial noise
+	time.sleep(15);
+	
 	# Take a timestamp for the start of the FlowStaticBias
 	startTime = time.time()
 
