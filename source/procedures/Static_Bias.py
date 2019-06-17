@@ -103,6 +103,9 @@ def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVolt
 	vgs_std = []
 	ig_std = []
 
+	# Set the SMU timeout to be a few measurementTime's long
+	smu_instance.setTimeout(timeout_ms=3*measurementTime)
+
 	# Get the SMU measurement speed
 	smu_measurementsPerSecond = smu_instance.measurementsPerSecond
 	smu_secondsPerMeasurement = 1/smu_measurementsPerSecond
@@ -130,6 +133,7 @@ def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVolt
 		measurements = {'Vds_data':[], 'Id_data':[], 'Vgs_data':[], 'Ig_data':[]}
 		
 		# Take the first data point of this "measurementTime"
+		timestamp = time.time()
 		measurement = smu_instance.takeMeasurement()
 		measurements['Vds_data'].append(measurement['V_ds'])
 		measurements['Id_data'].append(measurement['I_d'])
@@ -139,8 +143,7 @@ def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVolt
 		
 		# While the current measurementTime has not been exceeded, continuously collect data. (subtract half of the SMU's speed so on average we take the right amount of time)
 		while (time.time() - startTime) < (measurementTime*(i+1) - (1/2)*(time.time() - startTime)/measurementCount):
-			
-			
+			timestamp = time.time()
 			measurement = smu_instance.takeMeasurement()
 			measurements['Vds_data'].append(measurement['V_ds'])
 			measurements['Id_data'].append(measurement['I_d'])
@@ -151,7 +154,6 @@ def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVolt
 			time.sleep((1/2)*(time.time() - startTime)/measurementCount)
 		
 		# Save the median of all the measurements taken in this measurementTime window
-		timestamp = time.time()
 		vds_data.append(np.median(measurements['Vds_data']))
 		id_data.append(np.median(measurements['Id_data']))
 		vgs_data.append(np.median(measurements['Vgs_data']))
