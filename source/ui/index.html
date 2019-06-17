@@ -1092,8 +1092,6 @@
 		});
 		
 		socket.on('Server Message', function(message) {
-			console.log('Receiving Server Message: ' + JSON.stringify(message));
-			
 			app.handleServerMessage(message);
 		});
 		
@@ -1128,7 +1126,6 @@
 				return d;
 			}
 			if (Object.keys(d).includes('default')) {
-				console.log('returning the default');
 				return d['default'];
 			}
 			if (_.isPlainObject(d) && Object.keys(d).length > 0) {
