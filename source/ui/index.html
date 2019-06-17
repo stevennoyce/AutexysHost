@@ -1044,7 +1044,7 @@
 							<v-list>
 								<v-list-tile v-for="progressObj, progressName in experimentRunnerProgress">
 									<v-list-tile-title>{{ progressName }} {{ progressObj.current }} of {{ progressObj.end }}</v-list-tile-title>
-									<v-progress-linear v-model="progressObj.percent">{{ progressObj.percent }}</v-progress-linear>
+									<v-progress-linear v-model="progressObj.percent"></v-progress-linear>
 								</v-list-tile>
 							</v-list>
 							
