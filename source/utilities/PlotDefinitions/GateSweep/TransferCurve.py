@@ -14,8 +14,10 @@ plotDescription = {
 		'xlabel':'$V_{{GS}}$ (V)',
 		'micro_ylabel':'$I_{{D}}$ ($\\mathregular{\\mu}$A)',
 		'nano_ylabel':'$I_{{D}}$ (nA)',
+		'pico_ylabel':'$I_{{D}}$ (pA)',
 		'neg_micro_ylabel':'$-I_{{D}}$ ($\\mathregular{\\mu}$A)',
 		'neg_nano_ylabel':'$-I_{{D}}$ (nA)',
+		'neg_pico_ylabel':'$-I_{{D}}$ (pA)',
 		'leg_vds_label':'$V_{{DS}}$  = {:}V',
 		'leg_vds_range_label':'$V_{{DS}}^{{min}} = $ {:}V\n'+'$V_{{DS}}^{{max}} = $ {:}V',
 	},
@@ -32,12 +34,12 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		
 	# Adjust y-scale and y-axis labels 
 	max_current = np.max(np.abs(np.array(deviceHistory[0]['Results']['id_data'])))
-	current_scale, ylabel = (1e6, plotDescription['plotDefaults']['micro_ylabel']) if(max_current >= 1e-6) else (1e9, plotDescription['plotDefaults']['nano_ylabel'])
+	current_scale, ylabel = (1e6, plotDescription['plotDefaults']['micro_ylabel']) if(max_current >= 1e-6) else ((1e9, plotDescription['plotDefaults']['nano_ylabel']) if(max_current >= 1e-9) else (1e12, plotDescription['plotDefaults']['pico_ylabel']))
 	
 	# If first segment of device history is mostly negative current, flip data
 	if((len(deviceHistory) > 0) and ((np.array(deviceHistory[0]['Results']['id_data']) < 0).sum() > (np.array(deviceHistory[0]['Results']['id_data']) >= 0).sum())):
 		deviceHistory = scaledData(deviceHistory, 'Results', 'id_data', -1)
-		ylabel = plotDescription['plotDefaults']['neg_micro_ylabel'] if(max_current >= 1e-6) else (plotDescription['plotDefaults']['neg_nano_ylabel'])
+		ylabel = plotDescription['plotDefaults']['neg_micro_ylabel'] if(max_current >= 1e-6) else (plotDescription['plotDefaults']['neg_nano_ylabel'] if(max_current >= 1e-9) else (plotDescription['plotDefaults']['neg_pico_ylabel']))
 
 	# Plot
 	for i in range(len(deviceHistory)):
@@ -47,13 +49,6 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 
 	# Set Axis Labels
 	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=ylabel)
-
-	# Add gate current to axis
-	#if(mode_parameters['includeGateCurrent']):
-	#	gate_colors    = ['#4FB99F'] if(len(deviceHistory) == 1) else (colors)
-	#	gate_linestyle = None        if(len(deviceHistory) == 1) else ('--')
-	#	for i in range(len(deviceHistory)):
-	#		plotGateCurrent(ax, deviceHistory[i], gate_colors[i], direction=mode_parameters['sweepDirection'], scaleYaxisBy=current_scale, lineStyle=gate_linestyle, errorBars=mode_parameters['enableErrorBars'])	
 
 	# Add Legend and save figure
 	addLegend(ax, loc=mode_parameters['legendLoc'], title=getLegendTitle(deviceHistory, identifiers, plotDescription['plotDefaults'], 'runConfigs', 'GateSweep', mode_parameters, includeVdsSweep=True), mode_parameters=mode_parameters)

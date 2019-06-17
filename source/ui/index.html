@@ -463,8 +463,8 @@
 									<v-container fluid grid-list-sm>
 										<v-layout row wrap>
 											
-											<v-flex xs12 sm6 md4 lg3 xl2 d-flex v-for="possiblePlot in experiment.possiblePlots">
-												<v-card class="ma-1" tile>
+											<v-flex xs12 sm6 md4 lg3 xl2 v-for="possiblePlot in experiment.possiblePlots">
+												<v-card class="ma-1" height="100%">
 													<v-toolbar dark class="blue-grey lighten-1">
 														<v-toolbar-title>
 															{{ possiblePlot }}
@@ -506,8 +506,8 @@
 														</v-menu>
 														
 													</v-toolbar>
+													
 													<div class="text-xs-center" v-if="!disabledPlots.includes(possiblePlot)">
-														<!-- <img :src="'/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust" @click="console.log('clicked image')"> -->
 														<zoomable-image src="" :data-src="'/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></zoomable-image>
 													</div>
 												</v-card>
@@ -852,7 +852,7 @@
 									{{ scheduleObject['runType']['default'] }}
 								</v-chip>
 								<v-chip color="primary" text-color="white" v-for="setting, settingName in scheduleObject['runConfigs'][scheduleObject['runType']['default']]" v-if="
-									   _.get(scheduleObject,        ['runConfigs', scheduleObject['runType']['default'], settingName, 'default']) 
+										 _.get(scheduleObject,        ['runConfigs', scheduleObject['runType']['default'], settingName, 'default']) 
 									!= _.get(scheduleObjectDefault, ['runConfigs', scheduleObject['runType']['default'], settingName, 'default'])">
 									{{ settingName }}
 								</v-chip>
@@ -878,7 +878,7 @@
 																No results. Continuing will create a new user.
 															</v-list-tile-title>
 														</v-list-tile-content>
-												  	</v-list-tile>
+														</v-list-tile>
 												</template>
 											</v-combobox>
 										</v-flex>
@@ -891,7 +891,7 @@
 																No results. Continuing will create a new project.
 															</v-list-tile-title>
 														</v-list-tile-content>
-												  	</v-list-tile>
+														</v-list-tile>
 												</template>
 											</v-combobox>
 										</v-flex>
@@ -904,7 +904,7 @@
 																No results. Continuing will create a new file.
 															</v-list-tile-title>
 														</v-list-tile-content>
-												  	</v-list-tile>
+														</v-list-tile>
 												</template>
 											</v-combobox>
 										</v-flex>
