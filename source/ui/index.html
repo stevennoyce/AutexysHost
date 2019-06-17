@@ -1047,6 +1047,20 @@
 									<v-progress-linear v-model="progressObj.percent">{{ progressObj.percent }}</v-progress-linear>
 								</v-list-tile>
 							</v-list>
+							
+						</v-card>
+						
+						<v-card>
+							<v-toolbar dark class="blue-grey darken-1">
+								<v-toolbar-title>
+									Test Plot
+								</v-toolbar-title>
+							</v-toolbar>
+							<v-card-media>
+								<div style="height:50vh" v-for="xdata, xlabel in livePlotXData">
+									<v-plotly v-bind:data="Object.entries(livePlotYData).map(([k, v]) => ({x: xdata, y: v, mode: 'lines'}))" v-bind:height="90" :column-number="1" :layout="{xaxis: {title: xlabel}, yaxis: {title: 'Current [A]', type: 'log', autorange: true}}"></v-plotly>
+								</div>
+							</v-card-media>
 						</v-card>
 					</v-flex>
 					
@@ -1065,6 +1079,7 @@
 	<script src="/ui/vuetify.js"></script>
 	<script src="/ui/showdown.js"></script>
 	<script src="/ui/socketio.js"></script>
+	<script src="/ui/plotly.js"></script>
 	
 	<!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script> -->
 	<!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.0/showdown.min.js"></script> -->
@@ -1149,6 +1164,58 @@
 				}
 			}
 		}, 100);
+		
+		Vue.component('v-plotly', {
+			template: "<div :class='{ resizePlot: resize }' :style='{ height: height +  \"%\", width: \"40vw\"}'></div>",
+			props: {
+				data: {
+					type: Array
+				},
+				layout: {
+					type: Object
+				},
+				resize: {
+					type: Boolean,
+					default: true
+				},
+				height: {
+					type: Number,
+					default: 100
+				},
+				columnNumber: {
+					type: Number,
+					default: 1
+				}
+			},
+			mounted() {
+				this.Plot();
+				$('#' + this._uid).on('plotly_hover', this.hover);
+				this.$watch('data', this.Plot, { deep: true });
+				$(window).bind('resize', this.onResize);
+			},
+			beforeDestroy() {
+				this.$el.off('plotly_hover', this.hover);
+			},
+			methods: {
+				hover: function (event, eventData) {
+					this.$emit('hover', eventData.points, this._uid);
+				},
+				Plot() {
+					return Plotly.newPlot(this.$el, this.data, this.layout, {responsive: true});
+				},
+				onResize() {
+				  if(this.resize) {
+					var d3 = Plotly.d3;
+					gd3 = d3.select('#' + this._uid);
+					gd3.style({
+						width: '40vw',
+						height: this.height + '%'
+					});
+					Plotly.Plots.resize(gd3[0][0]);
+				  }
+				}
+			}
+		});
 		
 		Vue.component('zoomable-image', {
 			data: function() {
@@ -1301,6 +1368,8 @@
 				ReadMeHTML: '',
 				dispatcherRunning: false,
 				experimentRunnerProgress: {}
+				livePlotXData: {},
+				livePlotYData: {},
 			},
 			methods: {
 				
@@ -1669,6 +1738,25 @@
 						}
 						
 						this.experimentRunnerProgress = JSON.parse(JSON.stringify(newProg));
+					}
+					if (message.type == 'Data') {
+						this.dispatcherRunning = true;
+						
+						for (var label of Object.keys(message.xdata)) {
+							if (!livePlotXData.hasOwnProperty(label)) {
+								// this.livePlotXData[label] = [];
+								Vue.set(this.livePlotXData, label, []);
+							}
+							this.livePlotXData[label].push(message.xdata.label);
+						}
+						
+						for (var label of Object.keys(message.ydata)) {
+							if (!livePlotYData.hasOwnProperty(label)) {
+								// this.livePlotYData[label] = [];
+								Vue.set(this.livePlotYData, label, []);
+							}
+							this.livePlotYData[label].push(message.ydata.label);
+						}
 					}
 				}
 			},
