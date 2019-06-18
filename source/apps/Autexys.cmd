@@ -1,4 +1,4 @@
 cd %~dp0
 cd source
-python dispatcher.py
+python manager.py
 pause
