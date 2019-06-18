@@ -1055,13 +1055,44 @@
 								<v-toolbar-title>
 									Live Plots
 								</v-toolbar-title>
+								
+								<v-spacer></v-spacer>
+								
+								<v-menu bottom left offset-y>
+									<v-btn slot="activator" icon :loading="false"><v-icon>settings</v-icon></v-btn>
+									<v-list light>
+										
+										<v-list-tile @click="">
+											<v-list-tile-avatar>
+												<v-icon>photo</v-icon>
+											</v-list-tile-avatar>
+											<v-list-tile-content><v-list-tile-title>
+												Toggle Y-Axis Log
+											</v-list-tile-title></v-list-tile-content>
+										</v-list-tile>
+										
+									</v-list>
+								</v-menu>
+								
 							</v-toolbar>
-							<v-card-media>
-								<div style="height:60vh" v-for="xdata, xlabel in livePlotXData">
-									<v-plotly v-bind:data="Object.entries(livePlotYData).map(([k, v]) => ({x: xdata, y: v.map(val => Math.abs(val)), mode: 'lines', name: k}))" v-bind:height="90" :column-number="1" :layout="{xaxis: {title: xlabel}, yaxis: {title: 'Current [A]', type: 'log', autorange: true}, legend: {'orientation': 'h', y: 1.1}}"></v-plotly>
-								</div>
-							</v-card-media>
+							<v-container fluid grid-list-sm>
+									<v-layout row wrap>
+										<v-flex xs12 sm12 md6 lg6 xl4 d-flex v-for="xdata, xlabel, i in livePlotXData">
+											<v-card class="ma-1" tile>
+												<v-toolbar dark class="blue-grey lighten-1">
+													<v-toolbar-title>
+														 Plot #{{ i+1 }}
+													</v-toolbar-title>
+												</v-toolbar>
+												<div class="text-xs-center">
+													<v-plotly v-bind:data="Object.entries(livePlotYData).map(([k, v]) => ({x: xdata, y: v.map(val => Math.abs(val)), mode: 'lines', name: k}))" v-bind:height="90" :column-number="1" :layout="{xaxis: {title: xlabel}, yaxis: {title: 'Current [A]', type: 'log', autorange: true}, legend: {'orientation': 'h', y: 1.1}, margin: {l: 60,r: 20,b: 70,t: 20,pad: 4}, automargin: true, autosize: true, exponentformat:'SI'}"></v-plotly>
+												</div>
+											</v-card>
+										</v-flex>
+									</v-layout>
+							</v-container>
 						</v-card>
+						
 					</v-flex>
 					
 				</v-content>
@@ -1163,21 +1194,13 @@
 		}, 100);
 		
 		Vue.component('v-plotly', {
-			template: "<div :class='{ resizePlot: resize }' :style='{ height: height +  \"%\", width: \"60vw\"}'></div>",
+			template: '<div style="width: 100%"></div>',
 			props: {
 				data: {
 					type: Array
 				},
 				layout: {
 					type: Object
-				},
-				resize: {
-					type: Boolean,
-					default: true
-				},
-				height: {
-					type: Number,
-					default: 100
 				},
 				columnNumber: {
 					type: Number,
@@ -1186,30 +1209,11 @@
 			},
 			mounted() {
 				this.Plot();
-				$('#' + this._uid).on('plotly_hover', this.hover);
 				this.$watch('data', this.Plot, { deep: true });
-				$(window).bind('resize', this.onResize);
-			},
-			beforeDestroy() {
-				this.$el.off('plotly_hover', this.hover);
 			},
 			methods: {
-				hover: function (event, eventData) {
-					this.$emit('hover', eventData.points, this._uid);
-				},
 				Plot() {
 					return Plotly.newPlot(this.$el, this.data, this.layout, {responsive: true});
-				},
-				onResize() {
-				  if(this.resize) {
-					var d3 = Plotly.d3;
-					gd3 = d3.select('#' + this._uid);
-					gd3.style({
-						width: '40vw',
-						height: this.height + '%'
-					});
-					Plotly.Plots.resize(gd3[0][0]);
-				  }
 				}
 			}
 		});
