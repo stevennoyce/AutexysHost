@@ -29,14 +29,16 @@ def runAutoDrainSweep(parameters, smu_instance, arduino_instance, share=None):
 		drainSweepParameters = dict(parameters)
 		drainSweepParameters['runType'] = 'DrainSweep'
 		drainSweepParameters['runConfigs']['DrainSweep']['gateVoltageSetPoint'] = ads_parameters['gateVoltageSetPoints'][i]
-		
 		print('Sweep V_GS set to: ' + str(ads_parameters['gateVoltageSetPoints'][i]) + ' V.')
 		
 		for j in range(ads_parameters['sweepsPerVGS']):
+			# Run sweep
 			print('Starting sweep #'+str(sweepCount+1)+' of '+str(numberOfSweeps))
 			drainSweepScript.run(drainSweepParameters, smu_instance, isSavingResults=True, isPlottingResults=False)
 			print('Completed sweep #'+str(sweepCount+1)+' of '+str(numberOfSweeps))
 			sweepCount += 1
+			
+			# If desired, delay until next sweep should start
 			if(ads_parameters['timedSweepStarts']):
 				print('Starting next sweep ' + str(ads_parameters['delayBetweenSweeps']) + ' seconds after start of current sweep...')
 				waitDuration = startTime + ads_parameters['delayBetweenSweeps']*(sweepCount) - time.time()
@@ -44,3 +46,5 @@ def runAutoDrainSweep(parameters, smu_instance, arduino_instance, share=None):
 			elif((ads_parameters['delayBetweenSweeps'] > 0) and (sweepCount < numberOfSweeps)):
 				print('Waiting for ' + str(ads_parameters['delayBetweenSweeps']) + ' seconds...')
 				time.sleep(ads_parameters['delayBetweenSweeps'])
+				
+				

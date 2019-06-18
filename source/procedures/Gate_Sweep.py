@@ -3,7 +3,7 @@ import time
 import numpy as np
 
 import pipes
-from procedures import Device_History as deviceHistoryScript
+#from procedures import Device_History as deviceHistoryScript
 from utilities import DataLoggerUtility as dlu
 from utilities import SequenceGeneratorUtility as dgu
 
@@ -11,16 +11,6 @@ from utilities import SequenceGeneratorUtility as dgu
 
 # === Main ===
 def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False, share=None):
-	# Create distinct parameters for plotting the results
-	dh_parameters = {}
-	dh_parameters['Identifiers'] = dict(parameters['Identifiers'])
-	dh_parameters['dataFolder'] = parameters['dataFolder']
-	dh_parameters['plotGateSweeps'] = True
-	dh_parameters['plotBurnOuts'] = False
-	dh_parameters['plotStaticBias'] = False
-	dh_parameters['excludeDataBeforeJSONExperimentNumber'] = parameters['startIndexes']['experimentNumber']
-	dh_parameters['excludeDataAfterJSONExperimentNumber'] =  parameters['startIndexes']['experimentNumber']
-
 	# Get shorthand name to easily refer to configuration parameters
 	gs_parameters = parameters['runConfigs']['GateSweep']
 
@@ -64,10 +54,6 @@ def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False,
 	if(isSavingResults):
 		print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
 		dlu.saveJSON(dlu.getDeviceDirectory(parameters), gs_parameters['saveFileName'], jsonData, subDirectory='Ex'+str(parameters['startIndexes']['experimentNumber']))
-
-	# Show plots to the user
-	if(isPlottingResults):
-		deviceHistoryScript.run(dh_parameters)
 		
 	return jsonData
 

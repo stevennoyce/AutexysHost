@@ -15,19 +15,21 @@ def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False,
 	
 	smu_instance.setBinaryDataTransfer(True)
 	smu_instance.setComplianceCurrent(rt_params['complianceCurrent'])
-	print('Rampint Voltages')
+	
+	# === START ===
+	# Apply voltages
+	print('Ramping Voltages')
 	smu_instance.rampDrainVoltageTo(rt_params['drainVoltage'])
 	smu_instance.rampGateVoltageTo(rt_params['gateVoltage'])
 	
-	print('Starting Noise Collection')
-	
+	print('Starting Noise Collection.')
 	results = runNoiseCollection(smu_instance, 
 								measurementSpeed=rt_params['measurementSpeed'],
 								drainVoltage=rt_params['drainVoltage'],
 								gateVoltage=rt_params['gateVoltage'], 
 								points=rt_params['points'])
-	
 	smu_instance.rampDownVoltages()
+	# === COMPLETE ===
 	
 	# Add important metrics from the run to the parameters for easy access later in ParametersHistory
 	parameters['Computed'] = results['Computed']
