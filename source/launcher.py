@@ -45,6 +45,13 @@ def run(additional_parameters, share=None):
 	
 	parameters = defaults.with_added(additional_parameters)
 
+	# additional_parameters is required to specify valid user, project, wafer, chip, device
+	parameters['Identifiers']['user']    = 'User'    if(parameters['Identifiers']['user']    == '') else parameters['Identifiers']['user']
+	parameters['Identifiers']['project'] = 'Project' if(parameters['Identifiers']['project'] == '') else parameters['Identifiers']['project']
+	parameters['Identifiers']['wafer']   = 'Wafer'   if(parameters['Identifiers']['wafer']   == '') else parameters['Identifiers']['wafer']
+	parameters['Identifiers']['chip']    = 'Chip'    if(parameters['Identifiers']['chip']    == '') else parameters['Identifiers']['chip']
+	parameters['Identifiers']['device']  = 'Device'  if(parameters['Identifiers']['device']  == '') else parameters['Identifiers']['device']
+
 	# Initialize measurement system
 	smu_systems = initMeasurementSystems(parameters)		
 

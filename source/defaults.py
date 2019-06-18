@@ -217,12 +217,12 @@ default_parameters = {
 		
 	},
 	'Identifiers':{
-		'user':   {'type':'string', 'default':'unknown', 'title':'User',    'description':''},
-		'project':{'type':'string', 'default':'unknown', 'title':'Project', 'description':''},
-		'wafer':  {'type':'string', 'default':'unknown', 'title':'Wafer',   'description':''},
-		'chip':   {'type':'string', 'default':'unknown', 'title':'Chip',    'description':''},
-		'device': {'type':'string', 'default':'unknown', 'title':'Device',  'description':''},
-		'step':   {'type':'int',    'default': 0,        'title':'Step',    'description':''},
+		'user':   {'type':'string', 'default':'', 'title':'User',    'description':''},
+		'project':{'type':'string', 'default':'', 'title':'Project', 'description':''},
+		'wafer':  {'type':'string', 'default':'', 'title':'Wafer',   'description':''},
+		'chip':   {'type':'string', 'default':'', 'title':'Chip',    'description':''},
+		'device': {'type':'string', 'default':'', 'title':'Device',  'description':''},
+		'step':   {'type':'int',    'default': 0, 'title':'Step',    'description':''},
 	},
 	'MeasurementSystem':{
 		'systemType': {'type':'choice', 'choices':['single', 'standalone', 'double'], 'default':['single', 'standalone', 'double'][1], 'title':'System Type', 'description':''},
