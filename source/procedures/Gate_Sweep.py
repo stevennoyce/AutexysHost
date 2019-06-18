@@ -130,10 +130,10 @@ def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint
 				
 				# Apply V_GS
 				smu_instance.setVgs(gateVoltage)
-
+				
 				# Take Measurement and save it
 				measurement = smu_instance.takeMeasurement()
-
+				
 				timestamp = time.time()
 				
 				vds_data[direction].append(measurement['V_ds'])
@@ -141,19 +141,21 @@ def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint
 				vgs_data[direction].append(measurement['V_gs'])
 				ig_data[direction].append(measurement['I_g'])
 				timestamps[direction].append(timestamp)
-			
+				
 				# Send a data message
 				if share is not None:
 					pipes.send(share['p'], {
 						'destination':'UI',
 						'type':'Data',
 						'xdata': {
-							'Gate Voltage [V]': measurement['V_gs'],
+							'Gate Voltage [V]': gateVoltage if abs((gateVoltage - measurement['V_gs'])/gateVoltage) < 0.1 else measurement['V_gs'],
 							'Time [s]': timestamp - timestamps[0][0]
 						},
 						'ydata': {
-							'Drain Current [A]': measurement['I_d'],
-							'Gate Current [A]': measurement['I_g']
+							# 'Drain Current [A]': measurement['I_d'],
+							# 'Gate Current [A]': measurement['I_g']
+							'Drain Current {} [A]'.format(direction+1): measurement['I_d'],
+							'Gate Current {} [A]'.format(direction+1): measurement['I_g']
 						}
 					})
 
