@@ -1059,15 +1059,15 @@
 								<v-spacer></v-spacer>
 								
 								<v-menu bottom left offset-y>
-									<v-btn slot="activator" icon :loading="false"><v-icon>settings</v-icon></v-btn>
+									<v-btn slot="activator" icon><v-icon>settings</v-icon></v-btn>
 									<v-list light>
 										
-										<v-list-tile @click="">
+										<v-list-tile @click="livePlotXData={}; livePlotYData={};">
 											<v-list-tile-avatar>
-												<v-icon>photo</v-icon>
+												<v-icon>clear</v-icon>
 											</v-list-tile-avatar>
 											<v-list-tile-content><v-list-tile-title>
-												Toggle Y-Axis Log
+												Clear All Plots
 											</v-list-tile-title></v-list-tile-content>
 										</v-list-tile>
 										
@@ -1083,7 +1083,36 @@
 													<v-toolbar-title>
 														 Plot #{{ i+1 }}
 													</v-toolbar-title>
+												
+												<v-spacer></v-spacer>
+												
+												<v-menu bottom left offset-y>
+													<v-btn slot="activator" icon><v-icon>settings</v-icon></v-btn>
+													<v-list light>
+														
+														<v-list-tile @click="">
+															<v-list-tile-avatar>
+																<v-icon>linear_scale</v-icon>
+															</v-list-tile-avatar>
+															<v-list-tile-content><v-list-tile-title>
+																Toggle Y-Axis Log
+															</v-list-tile-title></v-list-tile-content>
+														</v-list-tile>
+														
+														<v-list-tile @click="clearLivePlotXLabel(xlabel)">
+															<v-list-tile-avatar>
+																<v-icon>clear</v-icon>
+															</v-list-tile-avatar>
+															<v-list-tile-content><v-list-tile-title>
+																Clear Plot Type
+															</v-list-tile-title></v-list-tile-content>
+														</v-list-tile>
+														
+													</v-list>
+												</v-menu>
+												
 												</v-toolbar>
+												
 												<div class="text-xs-center">
 													<v-plotly v-bind:data="Object.entries(livePlotYData).map(([k, v]) => ({x: xdata, y: v.map(val => Math.abs(val)), mode: 'lines', name: k}))" v-bind:height="90" :column-number="1" :layout="{xaxis: {title: xlabel}, yaxis: {title: 'Current [A]', type: 'log', autorange: true}, legend: {'orientation': 'h', y: 1.1}, margin: {l: 60,r: 20,b: 70,t: 20,pad: 4}, automargin: true, autosize: true, exponentformat:'SI'}"></v-plotly>
 												</div>
@@ -1750,7 +1779,6 @@
 						
 						for (var label of Object.keys(message.xdata)) {
 							if (!this.livePlotXData.hasOwnProperty(label)) {
-								// this.livePlotXData[label] = [];
 								Vue.set(this.livePlotXData, label, []);
 							}
 							this.livePlotXData[label].push(message.xdata[label]);
@@ -1758,12 +1786,16 @@
 						
 						for (var label of Object.keys(message.ydata)) {
 							if (!this.livePlotYData.hasOwnProperty(label)) {
-								// this.livePlotYData[label] = [];
-								Vue.set(this.livePlotYData, label, []);
+								var minLenX = Math.min(...Object.entries(this.livePlotXData).map(([k,v]) => v.length));
+								Vue.set(this.livePlotYData, label, new Array(minLenX));
+								// Vue.set(this.livePlotYData, label, []);
 							}
 							this.livePlotYData[label].push(message.ydata[label]);
 						}
 					}
+				},
+				clearLivePlotXLabel: function(xlabel) {
+					Vue.delete(this.livePlotXData, xlabel);
 				}
 			},
 			watch: {
