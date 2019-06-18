@@ -714,6 +714,7 @@
 											<!-- Schedule Creator: First Column -->
 											<v-flex xs12 sm6 md4 lg3 xl2 d-flex>
 												<v-card ma-1 tile>
+													<!-- Banner -->
 													<v-toolbar dark class="blue-grey lighten-1">
 														<v-toolbar-title>
 															Parameters
@@ -721,7 +722,9 @@
 													</v-toolbar>
 													
 													<v-list>
+														<!-- RunType Selector -->
 														<v-select box class="ma-3" label="Run Type" v-model="scheduleObjects[scheduleObjectIndex]['runType']['default']" :items="Object.keys(scheduleObjectDefault['runConfigs'] || {})"></v-select>
+														<!-- Identifiers -->
 														<v-subheader class="opaque">Identifiers</v-subheader>
 														<template v-for="(setting, settingName) in scheduleObjectDefault['Identifiers']" v-if="['bool','float','int','string','choice'].includes(setting.type)">
 															<v-tooltip top>
@@ -735,6 +738,7 @@
 																<span><b>{{ setting.title }}</b> <<i>{{ setting.type }}</i>> [{{ setting.units }}]</br>{{ setting.description }}</span>
 															</v-tooltip>
 														</template>
+														<!-- Measurement System -->
 														<v-subheader>Measurement System</v-subheader>
 														<template v-for="(setting, settingName) in scheduleObjectDefault['MeasurementSystem']" v-if="['bool','float','int','string','choice','array'].includes(setting.type)">
 															<v-tooltip top>
@@ -752,7 +756,12 @@
 																	<v-combobox v-if="setting.type == 'array'" :label="setting.title"
 																		v-model="scheduleObjects[scheduleObjectIndex]['MeasurementSystem'][settingName]['default']" :items="scheduleObjects[scheduleObjectIndex]['MeasurementSystem'][settingName]['choices']" multiple small-chips :delimiters="[',',' ',';']"></v-combobox>
 																</v-list-tile>
-																<span><b>{{ setting.title }}</b> <<i>{{ setting.type }}</i>> [{{ setting.units }}]</br>{{ setting.description }}</span>
+																
+																<!-- Tooltip text -->
+																<span>
+																	<b>{{ setting.title }}</b> <<i>{{ setting.type }}</i>> [{{ setting.units }}]</br>{{ setting.description }}
+																</span>
+																
 															</v-tooltip>
 														</template>
 													</v-list>
@@ -819,6 +828,7 @@
 																<span>
 																	<b>{{ setting.title }}</b> <<i>{{ setting.type }}</i>> [{{ setting.units }}]</br>{{ setting.description }}
 																</span>
+																
 															</v-tooltip>
 														</template>
 													</v-list>
@@ -828,6 +838,7 @@
 											<!-- Schedule Creator: Dependency RunType Columns -->
 											<v-flex xs12 sm6 md4 lg3 xl2 d-flex v-for="dependency in _.get(scheduleObjectDefault, ['runConfigs', scheduleObjects[scheduleObjectIndex]['runType']['default'], 'dependencies', 'value'])">
 												<v-card ma-1 tile>
+													<!-- Banner with reset button -->
 													<v-toolbar dark class="blue-grey lighten-1">
 														<v-toolbar-title>
 															{{ dependency }}
@@ -837,6 +848,8 @@
 															<v-icon>settings_backup_restore</v-icon>
 														</v-btn>
 													</v-toolbar>
+													
+													<!-- List of input features -->
 													<v-list>
 														<template v-for="(setting, settingName) in scheduleObjectDefault['runConfigs'][dependency]" v-if="['bool','float','int','string','choice','array'].includes(setting.type)">
 															<v-tooltip top>
@@ -854,8 +867,12 @@
 																	<s-json-field v-if="setting.type == 'array'" :label="setting.title"
 																		v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][dependency][settingName]['default']"></s-json-field>
 																</v-list-tile>
-															</v-list-tile>
-																<span><b>{{ setting.title }}</b> <<i>{{ setting.type }}</i>> [{{ setting.units }}]</br>{{ setting.description }}</span>
+																
+																<!-- Tooltip text -->
+																<span>
+																	<b>{{ setting.title }}</b> <<i>{{ setting.type }}</i>> [{{ setting.units }}]</br>{{ setting.description }}
+																</span>
+																
 															</v-tooltip>
 														</template>
 													</v-list>
