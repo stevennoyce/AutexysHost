@@ -24,7 +24,7 @@ def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False,
 	smu_instance.rampGateVoltageTo(ds_parameters['gateVoltageSetPoint'])
 	
 	print('Beginning to sweep drain voltage.')
-	results = runDrainSweep( smu_instance, 
+	results = runDrainSweep(smu_instance, 
 							isFastSweep=ds_parameters['isFastSweep'],
 							fastSweepSpeed=ds_parameters['fastSweepSpeed'],
 							gateVoltageSetPoint=ds_parameters['gateVoltageSetPoint'],
@@ -32,7 +32,8 @@ def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False,
 							drainVoltageMaximum=ds_parameters['drainVoltageMaximum'], 
 							stepsInVDSPerDirection=ds_parameters['stepsInVDSPerDirection'],
 							pointsPerVDS=ds_parameters['pointsPerVDS'],
-							drainVoltageRamps=ds_parameters['drainVoltageRamps'])
+							drainVoltageRamps=ds_parameters['drainVoltageRamps'],
+							share=share)
 	smu_instance.rampDownVoltages()
 	# === COMPLETE ===
 
@@ -73,29 +74,45 @@ def runDrainSweep(smu_instance, isFastSweep, fastSweepSpeed, gateVoltageSetPoint
 	if(isFastSweep):
 		triggerInterval = 1/fastSweepSpeed
 		
-		# Use SMU built-in sweep to sweep the drain forwards and backwards
-		forward_measurements = smu_instance.takeSweep(drainVoltageMinimum, drainVoltageMaximum, gateVoltageSetPoint, gateVoltageSetPoint, stepsInVDSPerDirection, triggerInterval=triggerInterval)
-		reverse_measurements = smu_instance.takeSweep(drainVoltageMaximum, drainVoltageMinimum, gateVoltageSetPoint, gateVoltageSetPoint, stepsInVDSPerDirection, triggerInterval=triggerInterval)
+		# Convert drain and gate voltages into 1-D arrays that the SMU can read
+		gateVoltageList = [gateVoltageSetPoint]
+		drainVoltageList = []
+		for i in range(len(drainVoltages)):
+			drainVoltageList.extend(drainVoltages[i])
+		
+		# Use SMU built-in sweep to sweep the gate forwards and backwards
+		measurements = smu_instance.takeSweep(None, None, None, None, points=stepsInVDSPerDirection*2*pointsPerVDS, triggerInterval=triggerInterval, src1vals=drainVoltageList, src2vals=gateVoltageList)
 
 		# Save forward measurements
-		vds_data[0] = forward_measurements['Vds_data']
-		id_data[0]  = forward_measurements['Id_data']
-		vgs_data[0] = forward_measurements['Vgs_data']
-		ig_data[0]  = forward_measurements['Ig_data']
-		timestamps[0] = forward_measurements['timestamps']
+		vds_data[0]   = measurements['Vds_data'][0:stepsInVDSPerDirection*pointsPerVDS]
+		id_data[0]    = measurements['Id_data'][0:stepsInVDSPerDirection*pointsPerVDS]
+		vgs_data[0]   = measurements['Vgs_data'][0:stepsInVDSPerDirection*pointsPerVDS]
+		ig_data[0]    = measurements['Ig_data'][0:stepsInVDSPerDirection*pointsPerVDS]
+		timestamps[0] = measurements['timestamps'][0:stepsInVDSPerDirection*pointsPerVDS]
 
 		# Save reverse measurements
-		vds_data[1] = reverse_measurements['Vds_data']
-		id_data[1]  = reverse_measurements['Id_data']
-		vgs_data[1] = reverse_measurements['Vgs_data']
-		ig_data[1]  = reverse_measurements['Ig_data']
-		timestamps[1] = reverse_measurements['timestamps']
-
-		# Save true measured Vgs as the applied voltages
-		drainVoltages = vds_data
+		vds_data[1]   = measurements['Vds_data'][stepsInVDSPerDirection*pointsPerVDS:]
+		id_data[1]    = measurements['Id_data'][stepsInVDSPerDirection*pointsPerVDS:]
+		vgs_data[1]   = measurements['Vgs_data'][stepsInVDSPerDirection*pointsPerVDS:]
+		ig_data[1]    = measurements['Ig_data'][stepsInVDSPerDirection*pointsPerVDS:]
+		timestamps[1] = measurements['timestamps'][stepsInVDSPerDirection*pointsPerVDS:]
 	else:
 		for direction in range(len(drainVoltages)):
-			for drainVoltage in drainVoltages[direction]:
+			for Vdi, drainVoltage in enumerate(drainVoltages[direction]):
+				# Send a progress message
+				if share is not None:
+					pipes.send(share['p'], {
+						'destination':'UI',
+						'type':'Progress',
+						'progress': {
+							'Drain Sweep Point': {
+								'start': 1,
+								'current': direction*len(drainVoltages[0])+Vdi+1,
+								'end': len(drainVoltages)*len(drainVoltages[0])
+							}
+						}
+					})
+					
 				# Apply V_DS
 				smu_instance.setVds(drainVoltage)
 
@@ -109,6 +126,23 @@ def runDrainSweep(smu_instance, isFastSweep, fastSweepSpeed, gateVoltageSetPoint
 				vgs_data[direction].append(measurement['V_gs'])
 				ig_data[direction].append(measurement['I_g'])
 				timestamps[direction].append(timestamp)
+
+				# Send a data message
+				if share is not None:
+					pipes.send(share['p'], {
+						'destination':'UI',
+						'type':'Data',
+						'xdata': {
+							'Drain Voltage [V]': drainVoltage if abs((drainVoltage - measurement['V_ds'])/drainVoltage) < 0.1 else measurement['V_ds'],
+							'Time [s]': timestamp - timestamps[0][0]
+						},
+						'ydata': {
+							# 'Drain Current [A]': measurement['I_d'],
+							# 'Gate Current [A]': measurement['I_g']
+							'Drain Current {} [A]'.format(direction+1): measurement['I_d'],
+							'Gate Current {} [A]'.format(direction+1): measurement['I_g']
+						}
+					})
 
 	return {
 		'Raw':{
