@@ -387,6 +387,7 @@ class B2912A(SourceMeasureUnit):
 				data = self.query_values(':MEAS? (@1:2)')
 				break
 			except Exception as e:
+				print('SMU measurement failed on try: ' + str(i+1) + (', retrying...' if(i+1 < retries) else (', aborting measurement.')))
 				self.clearAndDisarm()
 				data = [0 for j in range(10)]
 		
