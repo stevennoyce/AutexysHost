@@ -1430,8 +1430,13 @@
 					if (path) {
 						$.getJSON(path, response => {
 							response.map(function(device) {
-								var contacts = device.name.match(/\d+/g).map(num => num.padStart(2, '0'));
-								device.displayName = contacts.join('-');
+								var contacts = device.name.match(/\d+/g)
+								if(contacts != null) {
+									contacts = contacts.map(num => num.padStart(2, '0'));
+									device.displayName = contacts.join('-');
+								} else {
+									device.displayName = device.name;
+								}
 								return device;
 							});
 							app.$data.devices = response;
