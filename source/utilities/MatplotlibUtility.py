@@ -346,7 +346,7 @@ def plotBurnOut(axis1, axis2, axis3, jsonData, lineColor, lineStyle=None, annota
 	return (line1, line2, line3)
 
 def plotStaticBias(axis, jsonData, lineColor, timeOffset, y_data='id_data', scaleYaxisBy=1e6, timescale='seconds', lineStyle=None, gradient=False, gradientColors=None):
-	line = plotOverTime(axis, jsonData['Results']['timestamps'], (np.array(jsonData['Results'][y_data]) * scaleYaxisBy), lineColor, offset=timeOffset, plotInnerGradient=gradient, innerGradientColors=gradientColors)
+	line = plotOverTime(axis, jsonData['Results']['timestamps'], (np.array(jsonData['Results'][y_data]) * scaleYaxisBy), lineColor, offset=timeOffset, markerSize=1.5, lineWidth=0.5, plotInnerGradient=gradient, innerGradientColors=gradientColors)
 	return line
 
 def plotInverterVTC(axis, jsonData, lineColor, direction='both', lineStyle=None, errorBars=True, alpha=1):
