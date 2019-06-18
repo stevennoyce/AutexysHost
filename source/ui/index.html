@@ -783,8 +783,8 @@
 																		v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]['default']"></v-text-field>
 																	<v-select v-if="setting.type == 'choice'" :label="setting.title" :items="setting.choices"
 																		v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]['default']"></v-select>
-																	<v-combobox v-if="setting.type == 'array'" :label="setting.title"
-																		v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]['default']" :items="[]" multiple small-chips :delimiters="[',',' ',';']"></v-combobox>
+																	<s-json-field v-if="setting.type == 'array'" :label="setting.title"
+																		v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]['default']"></s-json-field>
 																</v-list-tile>
 																<span><b>{{ setting.title }}</b></br>Type: <{{ setting.type }}>, Units: [{{ setting.units }}]</br>{{ setting.description }}</span>
 															</v-tooltip>
@@ -818,8 +818,8 @@
 																		v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][dependency][settingName]['default']"></v-text-field>
 																	<v-select v-if="setting.type == 'choice'" :label="setting.title" :items="setting.choices"
 																		v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][dependency][settingName]['default']"></v-select>
-																	<v-combobox v-if="setting.type == 'array'" :label="setting.title"
-																		v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][dependency][settingName]['default']" :items="[]" multiple small-chips :delimiters="[',',' ',';']"></v-combobox>
+																	<s-json-field v-if="setting.type == 'array'" :label="setting.title"
+																		v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][dependency][settingName]['default']"></s-json-field>
 																</v-list-tile>
 															</v-list-tile>
 																<span><b>{{ setting.title }}</b></br>Type: <{{ setting.type }}>, Units: [{{ setting.units }}]</br>{{ setting.description }}</span>
@@ -1223,7 +1223,7 @@
 		}, 100);
 		
 		Vue.component('v-plotly', {
-			template: '<div style="width: 100%"></div>',
+			template: `<div style="width: 100%"></div>`,
 			props: {
 				data: {
 					type: Array
@@ -1254,13 +1254,30 @@
 				}
 			},
 			props: ['src'],
-			template: '<img :src="src" v-bind:class="{ zoomedImage: zoomActive, zoomableImage: !zoomActive }" @click="zoomActive = !zoomActive">'
+			template: `<img :src="src" v-bind:class="{ zoomedImage: zoomActive, zoomableImage: !zoomActive }" @click="zoomActive = !zoomActive">`
 			//.getBoundingClientRect();
 		});
 		
-		// Vue.component('list-input-box', {
-		// 	mixins: [Vue.options.components.VCombobox]
-		// });
+		Vue.component('s-json-field', {
+			template: `<v-text-field v-model="stringRepresentation"></v-text-field>`,
+			props: ['value'],
+			data: function() {
+				return {
+					stringRepresentation: JSON.stringify(this.value)
+				};
+			},
+			watch: {
+			 	stringRepresentation(val) {
+			 		try {
+			 			var objectRepresentation = JSON.parse(this.stringRepresentation);
+			 			this.$emit('input', objectRepresentation);
+			 		} catch (e) {
+			 			console.log('Invalid JSON input to <s-json-field> component');
+			 		}
+				}
+			}
+		});
+		
 		
 		var app = new Vue({
 			el: '#app',
