@@ -1221,10 +1221,6 @@
 				},
 				layout: {
 					type: Object
-				},
-				columnNumber: {
-					type: Number,
-					default: 1
 				}
 			},
 			mounted() {
@@ -1239,13 +1235,13 @@
 		});
 		
 		Vue.component('zoomable-image', {
+			template: `<img :src="src" v-bind:class="{ zoomedImage: zoomActive, zoomableImage: !zoomActive }" @click="zoomActive = !zoomActive">`,
+			props: ['src'],
 			data: function() {
 				return {
 					zoomActive: false
 				}
-			},
-			props: ['src'],
-			template: `<img :src="src" v-bind:class="{ zoomedImage: zoomActive, zoomableImage: !zoomActive }" @click="zoomActive = !zoomActive">`
+			}
 			//.getBoundingClientRect();
 		});
 		
@@ -1265,6 +1261,9 @@
 			 		} catch (e) {
 			 			console.log('Invalid JSON input to <s-json-field> component');
 			 		}
+				},
+				value(val) {
+					this.stringRepresentation = JSON.stringify(val);
 				}
 			}
 		});
