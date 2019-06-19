@@ -123,7 +123,7 @@ def runDrainSweep(smu_instance, isFastSweep, fastSweepSpeed, gateVoltageSetPoint
 						'destination':'UI',
 						'type':'Data',
 						'xdata': {
-							'Drain Voltage [V]': drainVoltage if abs((drainVoltage - measurement['V_ds'])/drainVoltage) < 0.1 else measurement['V_ds'],
+							'Drain Voltage [V]': drainVoltage if abs((drainVoltage - measurement['V_ds'])) < abs(0.1*drainVoltage) else measurement['V_ds'],
 							'Time [s]': timestamp - timestamps[0][0]
 						},
 						'ydata': {

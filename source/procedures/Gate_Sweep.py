@@ -124,7 +124,7 @@ def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint
 						'destination':'UI',
 						'type':'Data',
 						'xdata': {
-							'Gate Voltage [V]': gateVoltage if abs((gateVoltage - measurement['V_gs'])/gateVoltage) < 0.1 else measurement['V_gs'],
+							'Gate Voltage [V]': gateVoltage if abs((gateVoltage - measurement['V_gs'])) < abs(0.1*gateVoltage) else measurement['V_gs'],
 							'Time [s]': timestamp - timestamps[0][0]
 						},
 						'ydata': {
