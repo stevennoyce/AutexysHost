@@ -1273,16 +1273,15 @@
 					setting: this.value
 				};
 			},
-			mounted: function() {
-				console.log(JSON.stringify(this.setting));
-			},
 			watch: {
 				setting(val) {
-					this.$emit('input', setting);
+					this.$emit('input', val);
+				},
+				value(val) {
+					this.setting = val;
 				}
 			}
 		});
-		
 		
 		var app = new Vue({
 			el: '#app',
