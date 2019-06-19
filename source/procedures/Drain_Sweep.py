@@ -101,17 +101,7 @@ def runDrainSweep(smu_instance, isFastSweep, fastSweepSpeed, gateVoltageSetPoint
 			for Vdi, drainVoltage in enumerate(drainVoltages[direction]):
 				# Send a progress message
 				if share is not None:
-					pipes.send(share['p'], {
-						'destination':'UI',
-						'type':'Progress',
-						'progress': {
-							'Drain Sweep Point': {
-								'start': 1,
-								'current': direction*len(drainVoltages[0])+Vdi+1,
-								'end': len(drainVoltages)*len(drainVoltages[0])
-							}
-						}
-					})
+					pipes.progressPipe(share['p'], 'Drain Sweep Point', start=1, current=direction*len(drainVoltages[0])+Vdi+1, end=len(drainVoltages)*len(drainVoltages[0]))
 					
 				# Apply V_DS
 				smu_instance.setVds(drainVoltage)

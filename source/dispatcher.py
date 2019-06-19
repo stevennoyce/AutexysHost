@@ -68,33 +68,14 @@ def run_file(schedule_file_path, share=None):
 		print('Schedule contains ' + str(len(parameter_list) - schedule_index - 1) + ' other incomplete jobs.')
 		additional_parameters = parameter_list[schedule_index].copy()
 		
-		pipes.send(pipe, {
-			'destination':'UI',
-			'type':'Progress',
-			'progress': {
-				'Dispatcher Job': {
-					'start': 0,
-					'current': schedule_index,
-					'end': len(dlu.loadJSON(directory='', loadFileName=schedule_file_path))
-				}
-			}
-		})
+		# Send progress update if this dispatcher was run by a manager
+		pipes.progressPipe(share['p'], 'Dispatcher Job', start=0, current=schedule_index, end=len(parameter_list))
 		
 		launcher.run(additional_parameters, share)
-		
 		schedule_index += 1
 		
-		pipes.send(pipe, {
-			'destination':'UI',
-			'type':'Progress',
-			'progress': {
-				'Dispatcher Job': {
-					'start': 0,
-					'current': schedule_index,
-					'end': len(dlu.loadJSON(directory='', loadFileName=schedule_file_path))
-				}
-			}
-		})
+		# Send progress update if this dispatcher was run by a manager
+		pipes.progressPipe(share['p'], 'Dispatcher Job', start=0, current=schedule_index, end=len(parameter_list))
 	
 	print('Closing schedule file: ' + schedule_file_path)
 	
