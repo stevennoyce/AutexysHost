@@ -107,6 +107,15 @@
 		.opaque {
 			background-color: #EEEEEE
 		}
+		.opaque-dark-1 {
+			background-color: #DDDDDD
+		}
+		.opaque-warm-1 {
+			background-color: #EEDDDD
+		}
+		.opaque-cool-1 {
+			background-color: #DDDDEE
+		}
 	</style>
 </head>
 <body>
@@ -605,6 +614,7 @@
 					
 					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'scheduleCreator'">
+						<!-- Schedule Creator: Load File -->
 						<v-card class="mb-3">
 							<v-toolbar dark class="blue-grey darken-1">
 								<v-toolbar-title>
@@ -644,8 +654,9 @@
 							</v-card-actions>
 						</v-card>
 						
-						
+						<!-- Schedule Creator: Job Editor -->
 						<v-card class="mb-3">
+							<!-- Banner -->
 							<v-toolbar dark class="blue-grey darken-1">
 								<v-toolbar-title>
 									Define Jobs
@@ -656,10 +667,11 @@
 								</v-btn>
 							</v-toolbar>
 							
-							
+							<!-- Job List -->
 							<v-list expand>
 								<v-list-group v-for="scheduleObject, scheduleObjectIndex in scheduleObjects" :key="scheduleObjectIndex">
-									<v-list-tile slot="activator">
+									<!-- Job Info Expandable Header -->
+									<v-list-tile class="opaque-cool-1" slot="activator">
 										<v-list-tile-content>
 											<v-list-tile-title>
 												Job {{ scheduleObjectIndex + 1 }}: {{ _.get(scheduleObjects[scheduleObjectIndex], 'runType.default') }}
@@ -708,6 +720,8 @@
 											</v-tooltip>
 										</v-list-tile-action>
 									</v-list-tile>
+									
+									<!-- Job Info Dropdown -->
 									<v-container fluid grid-list-md>
 										<v-layout row wrap>
 											
@@ -886,6 +900,7 @@
 							<!-- <v-btn fab small dark bottom right absolute @click="addScheduleJob()"><v-icon>add</v-icon></v-btn> -->
 						</v-card>
 						
+						<!-- Schedule Creator: Editor Preview -->
 						<v-card class="mb-3" tile>
 							<v-toolbar dark class="blue-grey darken-1">
 								<v-toolbar-title>
@@ -910,6 +925,7 @@
 							</v-card>
 						</v-card>
 						
+						<!-- Schedule Creator: Save File -->
 						<v-card class="mb-3" tile>
 							<v-toolbar dark class="blue-grey darken-1">
 								<v-toolbar-title>
