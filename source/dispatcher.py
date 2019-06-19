@@ -55,12 +55,6 @@ def run_file(schedule_file_path, share=None):
 	print('Opening schedule file: ' + schedule_file_path)
 	
 	while( schedule_index < len(dlu.loadJSON(directory='', loadFileName=schedule_file_path)) ):
-		if(pipe is not None):
-			while(pipe.poll()):
-				message = pipe.recv()
-				if(message == 'STOP'):
-					print('Aborting schedule file: ' + schedule_file_path)
-					return
 		print('Loading line #' + str(schedule_index+1) + ' in schedule file ' + schedule_file_path)
 		parameter_list = dlu.loadJSON(directory='', loadFileName=schedule_file_path)
 
@@ -69,13 +63,15 @@ def run_file(schedule_file_path, share=None):
 		additional_parameters = parameter_list[schedule_index].copy()
 		
 		# Send progress update if this dispatcher was run by a manager
-		pipes.progressPipe(share['p'], 'Dispatcher Job', start=0, current=schedule_index, end=len(parameter_list))
+		if(share is not None):
+			pipes.progressPipe(share['p'], 'Dispatcher Job', start=0, current=schedule_index, end=len(parameter_list))
 		
 		launcher.run(additional_parameters, share)
 		schedule_index += 1
 		
 		# Send progress update if this dispatcher was run by a manager
-		pipes.progressPipe(share['p'], 'Dispatcher Job', start=0, current=schedule_index, end=len(parameter_list))
+		if(share is not None):
+			pipes.progressPipe(share['p'], 'Dispatcher Job', start=0, current=schedule_index, end=len(parameter_list))
 	
 	print('Closing schedule file: ' + schedule_file_path)
 	
