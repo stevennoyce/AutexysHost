@@ -379,8 +379,8 @@
 									
 									<v-container fluid grid-list-sm>
 											<v-layout row wrap>
-												<v-flex xs12 sm6 md4 lg3 xl2 d-flex v-for="possiblePlot in possibleChipPlots">
-													<v-card class="ma-1" tile>
+												<v-flex xs12 sm6 md4 lg3 xl2 v-for="possiblePlot in possibleChipPlots">
+													<v-card class="ma-1" height="100%">
 														<v-toolbar dark class="blue-grey lighten-1">
 															<v-toolbar-title>
 																 {{ possiblePlot }}
@@ -441,8 +441,8 @@
 									<!-- [Re: need to find way to use proper experiment item (nc)] Since we are doing a summary plot, there will essentially be one plot that shows all the experiments, instead of a plot for each experiment.  I may not have made that clear previously... In the end we may want a couple summary plots, but to begin with lets just get one working. (sn)-->
 									<v-container fluid grid-list-sm>
 											<!-- <v-layout row wrap>
-												<v-flex xs12 sm6 md4 lg3 xl2 d-flex v-for="possiblePlot in experiment.possiblePlots">
-													<v-card class="ma-1" tile>
+												<v-flex xs12 sm6 md4 lg3 xl2 v-for="possiblePlot in experiment.possiblePlots">
+													<v-card class="ma-1" height="100%">
 														<v-toolbar dark class="blue-grey lighten-1">
 															<v-toolbar-title>
 																 {{ possiblePlot }}
@@ -531,8 +531,8 @@
 									
 									<!-- <v-container fluid grid-list-sm>
 										<v-layout row wrap>
-											<v-flex xs12 md6 lg4 xl3 d-flex v-for="section in _.keys(experiment)" v-if="typeof experiment[section] == 'object'">
-												<v-card class="ma-1" tile>
+											<v-flex xs12 md6 lg4 xl3 v-for="section in _.keys(experiment)" v-if="typeof experiment[section] == 'object'">
+												<v-card class="ma-1" height="100%">
 													<v-card-title>{{ section }}</v-card-title>
 													<v-data-table :items="_.toPairs(experiment[section])" :headers="[{'text':'Property'},{'text':'Value'}]" hide-actions hide-headers>
 														<template slot="items" slot-scope="props">
@@ -719,8 +719,8 @@
 									<v-container fluid grid-list-md>
 										<v-layout row wrap>
 											
-											<v-flex xs12 sm6 md4 lg3 xl2 d-flex>
-												<v-card ma-1 tile>
+											<v-flex xs12 sm6 md4 lg3 xl2>
+												<v-card ma-1  height="100%">
 													<v-toolbar dark class="blue-grey lighten-1">
 														<v-toolbar-title>
 															Parameters
@@ -756,8 +756,8 @@
 												</v-card>
 											</v-flex>
 											
-											<v-flex xs12 sm6 md4 lg3 xl2 d-flex v-if="scheduleObjects[scheduleObjectIndex]['runType']['default'] != ''">
-												<v-card ma-1 tile>
+											<v-flex xs12 sm6 md4 lg3 xl2 v-if="scheduleObjects[scheduleObjectIndex]['runType']['default'] != ''">
+												<v-card ma-1 height="100%">
 													<v-toolbar dark class="blue-grey lighten-1">
 														<v-toolbar-title>
 															{{ scheduleObjects[scheduleObjectIndex]['runType']['default'] }}
@@ -786,8 +786,8 @@
 												</v-card>
 											</v-flex>
 											
-											<v-flex xs12 sm6 md4 lg3 xl2 d-flex v-for="dependency in _.get(scheduleObjectDefault, ['runConfigs', scheduleObjects[scheduleObjectIndex]['runType']['default'], 'dependencies', 'value'])">
-												<v-card ma-1 tile>
+											<v-flex xs12 sm6 md4 lg3 xl2 v-for="dependency in _.get(scheduleObjectDefault, ['runConfigs', scheduleObjects[scheduleObjectIndex]['runType']['default'], 'dependencies', 'value'])">
+												<v-card ma-1 height="100%">
 													<v-toolbar dark class="blue-grey lighten-1">
 														<v-toolbar-title>
 															{{ dependency }}
@@ -823,7 +823,7 @@
 							<!-- <v-btn fab small dark bottom right absolute @click="addScheduleJob()"><v-icon>add</v-icon></v-btn> -->
 						</v-card>
 						
-						<v-card class="mb-3" tile>
+						<v-card class="mb-3">
 							<v-toolbar dark class="blue-grey darken-1">
 								<v-toolbar-title>
 									Preview Schedule File
@@ -847,7 +847,7 @@
 							</v-card>
 						</v-card>
 						
-						<v-card class="mb-3" tile>
+						<v-card class="mb-3">
 							<v-toolbar dark class="blue-grey darken-1">
 								<v-toolbar-title>
 									Save Schedule File
@@ -1068,8 +1068,8 @@
 							</v-toolbar>
 							<v-container fluid grid-list-sm>
 									<v-layout row wrap>
-										<v-flex xs12 sm12 md6 lg6 xl4 d-flex v-for="xdata, xlabel, i in livePlotXData">
-											<v-card class="ma-1" tile>
+										<v-flex xs12 sm12 md6 lg6 xl4 v-for="xdata, xlabel, i in livePlotXData">
+											<v-card class="ma-1" height="100%">
 												<v-toolbar dark class="blue-grey lighten-1">
 													<v-toolbar-title>
 														 Plot #{{ i+1 }}
