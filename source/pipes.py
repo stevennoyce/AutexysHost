@@ -31,12 +31,14 @@ def recv(pipe):
 def progressPipe(pipe, name, start, current, end):
 	if pipe is None:
 		return
+		
 	if poll(pipe):
 		message = recv(pipe)
 		if 'type' in message and message['type'] == 'Stop':
 			if 'stop' in message:
 				if name in message['stop']:
 					raise Exception('Recieved stop message from UI. Aborting current procedure.')
+	
 	send(pipe, {
 		'destination':'UI',
 		'type':'Progress',
@@ -48,3 +50,13 @@ def progressPipe(pipe, name, start, current, end):
 			}
 		}
 	})
+
+def clearProgress(pipe):
+	if pipe is None:
+		return
+		
+	send(pipe, {
+		'destination':'UI',
+		'type':'Clear Progress',
+	})
+	
