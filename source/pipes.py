@@ -36,7 +36,7 @@ def progressPipe(pipe, name, start, current, end):
 		if 'type' in message and message['type'] == 'Stop':
 			if 'stop' in message:
 				if name in message['stop']:
-					raise
+					raise Exception('Recieved stop message from UI. Aborting current procedure.')
 	send(pipe, {
 		'destination':'UI',
 		'type':'Progress',
