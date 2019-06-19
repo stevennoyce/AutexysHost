@@ -923,10 +923,10 @@
 													
 													<v-list>
 														<v-select box class="ma-3" label="Run Type" v-model="scheduleObjects[scheduleObjectIndex]['runType']['default']" :items="Object.keys(scheduleObjectDefault['runConfigs'] || {})"></v-select>
-														<v-subheader>Identifiers</v-subheader>
+														<v-subheader class="opaque">Identifiers</v-subheader>
 														<template v-for="(setting, settingName) in scheduleObjectDefault['Identifiers']" v-if="['bool','float','int','string','choice'].includes(setting.type)">
 															<v-tooltip top>
-																<v-list-tile slot="activator">
+																<v-list-tile slot="activator" class="opaque">
 																	<s-item-edit v-model="scheduleObjects[scheduleObjectIndex]['Identifiers'][settingName]"></s-item-edit>
 																</v-list-tile>
 																<span><b>{{ setting.title }}</b></br>Type: <{{ setting.type }}>, Units: [{{ setting.units }}]</br>{{ setting.description }}</span>
