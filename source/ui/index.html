@@ -730,17 +730,13 @@
 													<v-list>
 														<v-select box class="ma-3" label="Run Type" v-model="scheduleObjects[scheduleObjectIndex]['runType']['default']" :items="Object.keys(scheduleObjectDefault['runConfigs'] || {})"></v-select>
 														<v-subheader class="opaque">Identifiers</v-subheader>
-														<template v-for="(setting, settingName) in scheduleObjectDefault['Identifiers']" v-if="['bool','float','int','string','choice'].includes(setting.type)">
-															<v-tooltip top>
-																<v-list-tile slot="activator" class="opaque">
-																	<s-item-edit v-model="scheduleObjects[scheduleObjectIndex]['Identifiers'][settingName]"></s-item-edit>
-																</v-list-tile>
-																<span><b>{{ setting.title }}</b></br>Type: <{{ setting.type }}>, Units: [{{ setting.units }}]</br>{{ setting.description }}</span>
-															</v-tooltip>
-														</template>
+														
+														<s-item-group-edit 
+															v-model="scheduleObjects[scheduleObjectIndex]['Identifiers']"
+															:default="scheduleObjectDefault['Identifiers']"></s-item-group-edit>
 														
 														<v-subheader>Measurement System</v-subheader>
-														<template v-for="(setting, settingName) in scheduleObjectDefault['MeasurementSystem']" v-if="['bool','float','int','string','choice','array'].includes(setting.type)">
+														<!-- <template v-for="(setting, settingName) in scheduleObjectDefault['MeasurementSystem']" v-if="['bool','float','int','string','choice','array'].includes(setting.type)">
 															<v-tooltip top>
 																<v-list-tile slot="activator" style="overflow:scroll; overscroll-behavior: contain">
 																	<s-item-edit v-model="scheduleObjects[scheduleObjectIndex]['MeasurementSystem'][settingName]"></s-item-edit>
@@ -750,7 +746,12 @@
 																</v-list-tile>
 																<span><b>{{ setting.title }}</b></br>Type: <{{ setting.type }}>, Units: [{{ setting.units }}]</br>{{ setting.description }}</span>
 															</v-tooltip>
-														</template>
+														</template> -->
+														
+														<s-item-group-edit 
+															v-model="scheduleObjects[scheduleObjectIndex]['MeasurementSystem']"
+															:default="scheduleObjectDefault['MeasurementSystem']"></s-item-group-edit>
+														
 													</v-list>
 												</v-card>
 											</v-flex>
@@ -767,7 +768,7 @@
 														</v-btn>
 													</v-toolbar>
 													<v-list>
-														<template v-for="(setting, settingName) in scheduleObjectDefault['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']]" v-if="['bool','float','int','string','choice','array'].includes(setting.type)">
+														<!-- <template v-for="(setting, settingName) in scheduleObjectDefault['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']]" v-if="['bool','float','int','string','choice','array'].includes(setting.type)">
 															<v-tooltip top>
 																<v-list-tile slot="activator">
 																	<s-item-edit v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]" :suffix="' ('+_.get(setting,['units'])+')'"></s-item-edit>
@@ -775,7 +776,12 @@
 																</v-list-tile>
 																<span><b>{{ setting.title }}</b></br>Type: <{{ setting.type }}>, Units: [{{ setting.units }}]</br>{{ setting.description }}</span>
 															</v-tooltip>
-														</template>
+														</template> -->
+														
+														<s-item-group-edit 
+															v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']]"
+															:default="scheduleObjectDefault['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']]"></s-item-group-edit>
+														
 													</v-list>
 												</v-card>
 											</v-flex>
@@ -792,7 +798,7 @@
 														</v-btn>
 													</v-toolbar>
 													<v-list>
-														<template v-for="(setting, settingName) in scheduleObjectDefault['runConfigs'][dependency]" v-if="['bool','float','int','string','choice','array'].includes(setting.type)">
+														<!-- <template v-for="(setting, settingName) in scheduleObjectDefault['runConfigs'][dependency]" v-if="['bool','float','int','string','choice','array'].includes(setting.type)">
 															<v-tooltip top>
 																<v-list-tile slot="activator">
 																	<s-item-edit v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][dependency][settingName]" :suffix="' ('+_.get(setting,['units'])+')'"></s-item-edit>
@@ -801,7 +807,12 @@
 															</v-list-tile>
 																<span><b>{{ setting.title }}</b></br>Type: <{{ setting.type }}>, Units: [{{ setting.units }}]</br>{{ setting.description }}</span>
 															</v-tooltip>
-														</template>
+														</template> -->
+														
+														<s-item-group-edit 
+															v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][dependency]"
+															:default="scheduleObjectDefault['runConfigs'][dependency]"></s-item-group-edit>
+														
 													</v-list>
 												</v-card>
 											</v-flex>
@@ -1282,6 +1293,42 @@
 				},
 				value(val) {
 					this.setting = val;
+				}
+			}
+		});
+	</script>
+	
+	<script type="text/html" id="s-item-group-edit">
+		<div>
+		<div v-for="(setting, settingName) in defaults" v-if="['bool','float','int','string','choice','array'].includes(setting.type)">
+			<v-tooltip top>
+				<v-list-tile slot="activator">
+					<s-item-edit v-model="settings[settingName]" :suffix="' ('+_.get(setting,['units'])+')'"></s-item-edit>
+				</v-list-tile>
+				<span><b>{{ setting.title }}</b></br>Type: <{{ setting.type }}>, Units: [{{ setting.units }}]</br>{{ setting.description }}</span>
+			</v-tooltip>
+		</div>
+	</div>
+	</script>
+	<script type="text/javascript">
+		Vue.component('s-item-group-edit', {
+			template: '#s-item-group-edit',
+			props: ['value', 'default'],
+			data: function() {
+				return {
+					settings: this.value,
+					defaults: this.default
+				};
+			},
+			watch: {
+				settings(val) {
+					this.$emit('input', val);
+				},
+				value(val) {
+					this.settings = val;
+				},
+				default(val) {
+					this.defaults = val;
 				}
 			}
 		});
