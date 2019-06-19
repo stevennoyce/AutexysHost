@@ -1250,8 +1250,8 @@
 		});
 		
 		Vue.component('s-json-field', {
-			template: `<v-text-field v-model="stringRepresentation"></v-text-field>`,
-			props: ['value'],
+			template: `<v-text-field v-model="stringRepresentation" :label="label" :suffix="suffix"></v-text-field>`,
+			props: ['value', 'label', 'suffix'],
 			data: function() {
 				return {
 					stringRepresentation: JSON.stringify(this.value)
@@ -1271,17 +1271,17 @@
 	</script>
 	
 	<script type="text/html" id="s-item-edit">
-		<v-switch 			 v-if="setting.type == 'bool'" 		:label="setting.title" :suffix="suffix" v-model="setting.default"></v-switch>
-		<v-text-field 	v-else-if="setting.type == 'float'" 	:label="setting.title" :suffix="suffix" v-model.number="setting.default"></v-text-field>
-		<v-text-field 	v-else-if="setting.type == 'int'" 		:label="setting.title" :suffix="suffix" v-model.number="setting.default"></v-text-field>
-		<v-text-field 	v-else-if="setting.type == 'string'" 	:label="setting.title" :suffix="suffix" v-model="setting.default"></v-text-field>
-		<v-select 		v-else-if="setting.type == 'choice'" 	:label="setting.title" :suffix="suffix" v-model="setting.default" :items="setting.choices"></v-select>
-		<s-json-field 	v-else-if="setting.type == 'array'" 	:label="setting.title" :suffix="suffix" v-model="setting.default"></s-json-field>
+		<v-switch 			 v-if="setting.type == 'bool'" 		:label="setting.title" :suffix="setting.units" v-model="setting.default"></v-switch>
+		<v-text-field 	v-else-if="setting.type == 'float'" 	:label="setting.title" :suffix="setting.units" v-model.number="setting.default"></v-text-field>
+		<v-text-field 	v-else-if="setting.type == 'int'" 		:label="setting.title" :suffix="setting.units" v-model.number="setting.default"></v-text-field>
+		<v-text-field 	v-else-if="setting.type == 'string'" 	:label="setting.title" :suffix="setting.units" v-model="setting.default"></v-text-field>
+		<v-select 		v-else-if="setting.type == 'choice'" 	:label="setting.title" :suffix="setting.units" v-model="setting.default" :items="setting.choices"></v-select>
+		<s-json-field 	v-else-if="setting.type == 'array'" 	:label="setting.title" :suffix="setting.units" v-model="setting.default"></s-json-field>
 	</script>
 	<script type="text/javascript">
 		Vue.component('s-item-edit', {
 			template: '#s-item-edit',
-			props: ['value', 'suffix'],
+			props: ['value'],
 			data: function() {
 				return {
 					setting: this.value
@@ -1303,7 +1303,7 @@
 		<div v-for="(setting, settingName) in defaults" v-if="['bool','float','int','string','choice','array'].includes(setting.type)">
 			<v-tooltip top>
 				<v-list-tile slot="activator">
-					<s-item-edit v-model="settings[settingName]" :suffix="' ('+_.get(setting,['units'])+')'"></s-item-edit>
+					<s-item-edit v-model="settings[settingName]"></s-item-edit>
 				</v-list-tile>
 				<span><b>{{ setting.title }}</b></br>Type: <{{ setting.type }}>, Units: [{{ setting.units }}]</br>{{ setting.description }}</span>
 			</v-tooltip>
