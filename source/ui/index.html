@@ -1257,16 +1257,19 @@
 				}
 			}
 		});
-		
+	</script>
+	
+	<script type="text/html" id="s-item-edit">
+		<v-switch 			 v-if="setting.type == 'bool'" 		:label="setting.title" :suffix="suffix" v-model="setting.default"></v-switch>
+		<v-text-field 	v-else-if="setting.type == 'float'" 	:label="setting.title" :suffix="suffix" v-model.number="setting.default"></v-text-field>
+		<v-text-field 	v-else-if="setting.type == 'int'" 		:label="setting.title" :suffix="suffix" v-model.number="setting.default"></v-text-field>
+		<v-text-field 	v-else-if="setting.type == 'string'" 	:label="setting.title" :suffix="suffix" v-model="setting.default"></v-text-field>
+		<v-select 		v-else-if="setting.type == 'choice'" 	:label="setting.title" :suffix="suffix" v-model="setting.default" :items="setting.choices"></v-select>
+		<s-json-field 	v-else-if="setting.type == 'array'" 	:label="setting.title" :suffix="suffix" v-model="setting.default"></s-json-field>
+	</script>
+	<script type="text/javascript">
 		Vue.component('s-item-edit', {
-			template: `
-				<v-switch 			 v-if="setting.type == 'bool'" 		:label="setting.title" :suffix="suffix" v-model="setting.default"></v-switch>
-				<v-text-field 	v-else-if="setting.type == 'float'" 	:label="setting.title" :suffix="suffix" v-model.number="setting.default"></v-text-field>
-				<v-text-field 	v-else-if="setting.type == 'int'" 		:label="setting.title" :suffix="suffix" v-model.number="setting.default"></v-text-field>
-				<v-text-field 	v-else-if="setting.type == 'string'" 	:label="setting.title" :suffix="suffix" v-model="setting.default"></v-text-field>
-				<v-select 		v-else-if="setting.type == 'choice'" 	:label="setting.title" :suffix="suffix" v-model="setting.default" :items="setting.choices"></v-select>
-				<s-json-field 	v-else-if="setting.type == 'array'" 	:label="setting.title" :suffix="suffix" v-model="setting.default"></s-json-field>
-			`,
+			template: '#s-item-edit',
 			props: ['value', 'suffix'],
 			data: function() {
 				return {
@@ -1282,7 +1285,9 @@
 				}
 			}
 		});
-		
+	</script>
+	
+	<script type="text/javascript">	
 		var app = new Vue({
 			el: '#app',
 			data: {
