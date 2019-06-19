@@ -32,6 +32,7 @@ if __name__ == '__main__':
 
 # Globals
 pipeToManager = None
+share = None
 
 def eprint(*args, **kwargs):
 	print(*args, file=sys.stderr, **kwargs)
@@ -499,10 +500,13 @@ def findFirstOpenPort(startPort=1):
 
 def managerMessageForwarder():
 	global pipeToManager
+	global share
+	
 	while True:
 		while pipes.poll(pipeToManager):
 			print('Sending server message')
 			socketio.emit('Server Message', pipes.recv(pipeToManager))
+		
 		socketio.sleep(0.1)
 
 
@@ -523,9 +527,15 @@ def launchBrowser(url):
 	print('URL is "{}"'.format(url))
 	webbrowser.open_new(url)
 
+def makeShareGlobal(localShare):
+	global share
+	share = localShare
 
 def start(share=None, debug=True, use_reloader=True):
 	global pipeToManager
+	
+	makeShareGlobal(share)
+	
 	pipeToManager = None
 	if share is not None:
 		pipeToManager = share['p']

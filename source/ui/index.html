@@ -2,9 +2,9 @@
 <html>
 <head>
 	<title>User Interface</title>
-	<link rel="shortcut icon" type="image/png" href="/icon.png"/>
+	<link rel="shortcut icon" type="image/png" href="/ui/icons/icon.png"/>
 	<link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons' rel="stylesheet">
-	<link href="/ui/vuetify.css" rel="stylesheet">
+	<link href="/ui/libs/vuetify.css" rel="stylesheet">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
 	
 	<meta http-equiv="cache-control" content="no-cache, must-revalidate, post-check=0, pre-check=0" />
@@ -730,17 +730,13 @@
 													<v-list>
 														<v-select box class="ma-3" label="Run Type" v-model="scheduleObjects[scheduleObjectIndex]['runType']['default']" :items="Object.keys(scheduleObjectDefault['runConfigs'] || {})"></v-select>
 														<v-subheader class="opaque">Identifiers</v-subheader>
-														<template v-for="(setting, settingName) in scheduleObjectDefault['Identifiers']" v-if="['bool','float','int','string','choice'].includes(setting.type)">
-															<v-tooltip top>
-																<v-list-tile slot="activator" class="opaque">
-																	<s-item-edit v-model="scheduleObjects[scheduleObjectIndex]['Identifiers'][settingName]"></s-item-edit>
-																</v-list-tile>
-																<span><b>{{ setting.title }}</b></br>Type: <{{ setting.type }}>, Units: [{{ setting.units }}]</br>{{ setting.description }}</span>
-															</v-tooltip>
-														</template>
+														
+														<s-item-group-edit 
+															v-model="scheduleObjects[scheduleObjectIndex]['Identifiers']"
+															:default="scheduleObjectDefault['Identifiers']"></s-item-group-edit>
 														
 														<v-subheader>Measurement System</v-subheader>
-														<template v-for="(setting, settingName) in scheduleObjectDefault['MeasurementSystem']" v-if="['bool','float','int','string','choice','array'].includes(setting.type)">
+														<!-- <template v-for="(setting, settingName) in scheduleObjectDefault['MeasurementSystem']" v-if="['bool','float','int','string','choice','array'].includes(setting.type)">
 															<v-tooltip top>
 																<v-list-tile slot="activator" style="overflow:scroll; overscroll-behavior: contain">
 																	<s-item-edit v-model="scheduleObjects[scheduleObjectIndex]['MeasurementSystem'][settingName]"></s-item-edit>
@@ -750,7 +746,12 @@
 																</v-list-tile>
 																<span><b>{{ setting.title }}</b></br>Type: <{{ setting.type }}>, Units: [{{ setting.units }}]</br>{{ setting.description }}</span>
 															</v-tooltip>
-														</template>
+														</template> -->
+														
+														<s-item-group-edit 
+															v-model="scheduleObjects[scheduleObjectIndex]['MeasurementSystem']"
+															:default="scheduleObjectDefault['MeasurementSystem']"></s-item-group-edit>
+														
 													</v-list>
 												</v-card>
 											</v-flex>
@@ -767,7 +768,7 @@
 														</v-btn>
 													</v-toolbar>
 													<v-list>
-														<template v-for="(setting, settingName) in scheduleObjectDefault['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']]" v-if="['bool','float','int','string','choice','array'].includes(setting.type)">
+														<!-- <template v-for="(setting, settingName) in scheduleObjectDefault['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']]" v-if="['bool','float','int','string','choice','array'].includes(setting.type)">
 															<v-tooltip top>
 																<v-list-tile slot="activator">
 																	<s-item-edit v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']][settingName]" :suffix="' ('+_.get(setting,['units'])+')'"></s-item-edit>
@@ -775,7 +776,12 @@
 																</v-list-tile>
 																<span><b>{{ setting.title }}</b></br>Type: <{{ setting.type }}>, Units: [{{ setting.units }}]</br>{{ setting.description }}</span>
 															</v-tooltip>
-														</template>
+														</template> -->
+														
+														<s-item-group-edit 
+															v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']]"
+															:default="scheduleObjectDefault['runConfigs'][scheduleObjects[scheduleObjectIndex]['runType']['default']]"></s-item-group-edit>
+														
 													</v-list>
 												</v-card>
 											</v-flex>
@@ -792,7 +798,7 @@
 														</v-btn>
 													</v-toolbar>
 													<v-list>
-														<template v-for="(setting, settingName) in scheduleObjectDefault['runConfigs'][dependency]" v-if="['bool','float','int','string','choice','array'].includes(setting.type)">
+														<!-- <template v-for="(setting, settingName) in scheduleObjectDefault['runConfigs'][dependency]" v-if="['bool','float','int','string','choice','array'].includes(setting.type)">
 															<v-tooltip top>
 																<v-list-tile slot="activator">
 																	<s-item-edit v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][dependency][settingName]" :suffix="' ('+_.get(setting,['units'])+')'"></s-item-edit>
@@ -801,7 +807,12 @@
 															</v-list-tile>
 																<span><b>{{ setting.title }}</b></br>Type: <{{ setting.type }}>, Units: [{{ setting.units }}]</br>{{ setting.description }}</span>
 															</v-tooltip>
-														</template>
+														</template> -->
+														
+														<s-item-group-edit 
+															v-model="scheduleObjects[scheduleObjectIndex]['runConfigs'][dependency]"
+															:default="scheduleObjectDefault['runConfigs'][dependency]"></s-item-group-edit>
+														
 													</v-list>
 												</v-card>
 											</v-flex>
@@ -1113,13 +1124,13 @@
 	</div>
 	
 	
-	<script src="/ui/jquery.js"></script>
-	<script src="/ui/lodash.js"></script>
-	<script src="/ui/vue.js"></script>
-	<script src="/ui/vuetify.js"></script>
-	<script src="/ui/showdown.js"></script>
-	<script src="/ui/socketio.js"></script>
-	<script src="/ui/plotly.js"></script>
+	<script src="/ui/libs/jquery.js"></script>
+	<script src="/ui/libs/lodash.js"></script>
+	<script src="/ui/libs/vue.js"></script>
+	<script src="/ui/libs/vuetify.js"></script>
+	<script src="/ui/libs/showdown.js"></script>
+	<script src="/ui/libs/socketio.js"></script>
+	<script src="/ui/libs/plotly.js"></script>
 	
 	<!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script> -->
 	<!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.0/showdown.min.js"></script> -->
@@ -1210,10 +1221,6 @@
 				},
 				layout: {
 					type: Object
-				},
-				columnNumber: {
-					type: Number,
-					default: 1
 				}
 			},
 			mounted() {
@@ -1228,19 +1235,19 @@
 		});
 		
 		Vue.component('zoomable-image', {
+			template: `<img :src="src" v-bind:class="{ zoomedImage: zoomActive, zoomableImage: !zoomActive }" @click="zoomActive = !zoomActive">`,
+			props: ['src'],
 			data: function() {
 				return {
 					zoomActive: false
 				}
-			},
-			props: ['src'],
-			template: `<img :src="src" v-bind:class="{ zoomedImage: zoomActive, zoomableImage: !zoomActive }" @click="zoomActive = !zoomActive">`
+			}
 			//.getBoundingClientRect();
 		});
 		
 		Vue.component('s-json-field', {
-			template: `<v-text-field v-model="stringRepresentation"></v-text-field>`,
-			props: ['value'],
+			template: `<v-text-field v-model="stringRepresentation" :label="label" :suffix="suffix"></v-text-field>`,
+			props: ['value', 'label', 'suffix'],
 			data: function() {
 				return {
 					stringRepresentation: JSON.stringify(this.value)
@@ -1254,36 +1261,79 @@
 			 		} catch (e) {
 			 			console.log('Invalid JSON input to <s-json-field> component');
 			 		}
+				},
+				value(val) {
+					this.stringRepresentation = JSON.stringify(val);
 				}
 			}
 		});
-		
+	</script>
+	
+	<script type="text/html" id="s-item-edit">
+		<v-switch 			 v-if="setting.type == 'bool'" 		:label="setting.title" :suffix="setting.units" v-model="setting.default"></v-switch>
+		<v-text-field 	v-else-if="setting.type == 'float'" 	:label="setting.title" :suffix="setting.units" v-model.number="setting.default"></v-text-field>
+		<v-text-field 	v-else-if="setting.type == 'int'" 		:label="setting.title" :suffix="setting.units" v-model.number="setting.default"></v-text-field>
+		<v-text-field 	v-else-if="setting.type == 'string'" 	:label="setting.title" :suffix="setting.units" v-model="setting.default"></v-text-field>
+		<v-select 		v-else-if="setting.type == 'choice'" 	:label="setting.title" :suffix="setting.units" v-model="setting.default" :items="setting.choices"></v-select>
+		<s-json-field 	v-else-if="setting.type == 'array'" 	:label="setting.title" :suffix="setting.units" v-model="setting.default"></s-json-field>
+	</script>
+	<script type="text/javascript">
 		Vue.component('s-item-edit', {
-			template: `
-				<v-switch 			 v-if="setting.type == 'bool'" 		:label="setting.title" :suffix="suffix" v-model="setting.default"></v-switch>
-				<v-text-field 	v-else-if="setting.type == 'float'" 	:label="setting.title" :suffix="suffix" v-model.number="setting.default"></v-text-field>
-				<v-text-field 	v-else-if="setting.type == 'int'" 		:label="setting.title" :suffix="suffix" v-model.number="setting.default"></v-text-field>
-				<v-text-field 	v-else-if="setting.type == 'string'" 	:label="setting.title" :suffix="suffix" v-model="setting.default"></v-text-field>
-				<v-select 		v-else-if="setting.type == 'choice'" 	:label="setting.title" :suffix="suffix" v-model="setting.default" :items="setting.choices"></v-select>
-				<s-json-field 	v-else-if="setting.type == 'array'" 	:label="setting.title" :suffix="suffix" v-model="setting.default"></s-json-field>
-			`,
-			props: ['value', 'suffix'],
+			template: '#s-item-edit',
+			props: ['value'],
 			data: function() {
 				return {
 					setting: this.value
 				};
 			},
-			mounted: function() {
-				console.log(JSON.stringify(this.setting));
-			},
 			watch: {
 				setting(val) {
-					this.$emit('input', setting);
+					this.$emit('input', val);
+				},
+				value(val) {
+					this.setting = val;
 				}
 			}
 		});
-		
-		
+	</script>
+	
+	<script type="text/html" id="s-item-group-edit">
+		<div>
+		<div v-for="(setting, settingName) in defaults" v-if="['bool','float','int','string','choice','array'].includes(setting.type)">
+			<v-tooltip top>
+				<v-list-tile slot="activator">
+					<s-item-edit v-model="settings[settingName]"></s-item-edit>
+				</v-list-tile>
+				<span><b>{{ setting.title }}</b></br>Type: <{{ setting.type }}>, Units: [{{ setting.units }}]</br>{{ setting.description }}</span>
+			</v-tooltip>
+		</div>
+	</div>
+	</script>
+	<script type="text/javascript">
+		Vue.component('s-item-group-edit', {
+			template: '#s-item-group-edit',
+			props: ['value', 'default'],
+			data: function() {
+				return {
+					settings: this.value,
+					defaults: this.default
+				};
+			},
+			watch: {
+				settings(val) {
+					this.$emit('input', val);
+				},
+				value(val) {
+					this.settings = val;
+				},
+				default(val) {
+					this.defaults = val;
+				}
+			}
+		});
+	</script>
+	
+	<script type="text/javascript">	
 		var app = new Vue({
 			el: '#app',
 			data: {
