@@ -360,7 +360,7 @@ def dispatchSchedule(user, project, fileName):
 @app.route('/stopAtNextJob')
 def stopAtNextJob():
 	eprint('UI stopping at next job')
-	pipes.send(pipeToManager, 'STOP')
+	pipes.send(pipeToManager, {'type':'Stop', 'stop':'Dispatcher Job'})
 	
 	return jsonvalid({'success': True})
 
