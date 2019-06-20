@@ -39,6 +39,9 @@ def progressPipe(pipe, name, start, current, end):
 				if name in message['stop']:
 					raise Exception('Recieved stop message from UI. Aborting current procedure.')
 	
+	# if name in share['procedureStopLocations']:
+	# 	raise Exception('Recieved stop command from UI. Aborting current procedure at {}.'.format(name))
+	
 	send(pipe, {
 		'destination':'UI',
 		'type':'Progress',

@@ -91,12 +91,12 @@ def manage(on_startup_schedule_file=None):
 	processes to execute schedule files and facilitate communication between the UI and the currently running dispatcher."""
 	
 	sharedMemoryManager = mp.Manager()
-	sharedDict = sharedMemoryManager.dict({'dispatcherRunning':False})
-	sharedList = sharedMemoryManager.list([])
 	
 	share = {
-		'd': sharedDict,
-		'l': sharedList
+		'sharedMemoryManager': sharedMemoryManager,
+		'd': sharedMemoryManager.dict({'dispatcherRunning':False}),
+		'l': sharedMemoryManager.list([]),
+		'procedureStopLocations': sharedMemoryManager.list([])
 	}
 	
 	ui = startUI(share, priority=0)	
