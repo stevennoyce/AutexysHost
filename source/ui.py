@@ -85,7 +85,13 @@ socketio = flask_socketio.SocketIO(app)
 @app.route('/ui/index')
 @app.route('/ui/index.html')
 def index():
-	return flask.render_template('index.html', title='Home')
+	# Obtain a list of components within the components folder and sub-folders
+	components = glob.glob('ui/components/**/*.html', recursive=True)
+	
+	# Get rid of the initial 'ui/' since paths should be relative from template folder
+	components = [c[len('ui/'):] for c in components]
+	
+	return flask.render_template('index.html', components=components)
 
 @app.route('/ui/<path:path>')
 def sendStaticUI(path):

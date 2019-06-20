@@ -1269,8 +1269,11 @@
 		});
 	</script>
 	
-	<% include 'components/s-item-edit.html' %>
-	<% include 'components/s-item-group-edit.html' %>
+	
+	<% for component in components %>
+		<% include component %>
+	<% endfor %>
+	
 	
 	<script type="text/javascript">	
 		var app = new Vue({
