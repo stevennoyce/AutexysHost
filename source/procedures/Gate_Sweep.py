@@ -101,8 +101,7 @@ def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint
 		for direction in range(len(gateVoltages)):
 			for Vgi, gateVoltage in enumerate(gateVoltages[direction]):
 				# Send a progress message
-				if share is not None:
-					pipes.progressPipe(share['p'], 'Gate Sweep Point', start=1, current=direction*len(gateVoltages[0])+Vgi+1, end=len(gateVoltages)*len(gateVoltages[0]))
+				pipes.progressUpdate(share, 'Gate Sweep Point', start=1, current=direction*len(gateVoltages[0])+Vgi+1, end=len(gateVoltages)*len(gateVoltages[0]))
 				
 				# Apply V_GS
 				smu_instance.setVgs(gateVoltage)
