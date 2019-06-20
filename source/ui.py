@@ -63,15 +63,29 @@ def replaceInfNan(obj):
 def jsonvalid(obj):
 	return json.dumps(replaceInfNan(obj))
 
+# Define custom delimiters for template rendering to not collide with Vue
+class CustomFlask(flask.Flask):
+	jinja_options = flask.Flask.jinja_options.copy()
+	jinja_options.update(dict(
+		block_start_string='<%',
+		block_end_string='%>',
+		variable_start_string='%%',
+		variable_end_string='%%',
+		comment_start_string='<#',
+		comment_end_string='#>',
+	))
 
-app = flask.Flask(__name__, static_url_path='', static_folder='ui')
+app = CustomFlask(__name__, static_url_path='', template_folder='ui')
 
 app.config['SECRET_KEY'] = 'secretkey'
 socketio = flask_socketio.SocketIO(app)
 
 @app.route('/')
-def root():
-	return flask.redirect('/ui/index.html')
+@app.route('/index')
+@app.route('/ui/index')
+@app.route('/ui/index.html')
+def index():
+	return flask.render_template('index.html', title='Home')
 
 @app.route('/ui/<path:path>')
 def sendStaticUI(path):
