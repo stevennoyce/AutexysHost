@@ -602,47 +602,8 @@
 					
 					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'scheduleCreator'">
-						<v-card class="mb-3">
-							<v-toolbar dark class="blue-grey darken-1">
-								<v-toolbar-title>
-									Load Schedule File
-								</v-toolbar-title>
-							</v-toolbar>
-							<!-- <v-menu attach bottom left offset-y>
-								<v-btn slot="activator" flat>{{ scheduleSaveUser }}<v-icon right>people</v-icon></v-btn>
-								<v-list light>
-									<v-list-tile v-for="u in users" @click="scheduleSaveUser = u">
-										<v-list-tile-avatar color="blue-grey lighten-2"><v-icon dark>account_circle</v-icon></v-list-tile-avatar>
-										<v-list-tile-content><v-list-tile-title>{{ u }}</v-list-tile-title></v-list-tile-content>
-									</v-list-tile>
-								</v-list>
-							</v-menu> -->
-							
-							<v-form>
-								<v-container>
-									<v-layout row wrap>
-										<v-flex xs12 sm6 md4 lg3 outline>
-											<v-autocomplete clearable v-model="scheduleLoadUser" label="User" :items="Object.keys(scheduleNames)"></v-autocomplete>
-										</v-flex>
-										<v-flex xs12 sm6 md4 lg3 solo>
-											<v-autocomplete clearable v-model="scheduleLoadProject" label="Project" :items="_.keys(_.get(scheduleNames, [scheduleLoadUser], {}))"></v-autocomplete>
-										</v-flex>
-										<v-flex xs12 sm6 md4 lg3 solo>
-											<v-autocomplete clearable v-model="scheduleLoadFileName" label="File Name" :items="_.get(scheduleNames, [scheduleLoadUser, scheduleLoadProject], [])"></v-autocomplete>
-										</v-flex>
-									</v-layout>
-								</v-container>
-							</v-form>
-							
-							<v-card-actions>
-								<span v-if="scheduleLoadUser && scheduleLoadProject && scheduleLoadFileName">Loading from: AutexysData/{{ scheduleLoadUser }}/{{ scheduleLoadProject }}/schedules/{{ scheduleLoadFileName }}.json</span>
-								<v-spacer></v-spacer>
-								<v-btn @click="loadSchedule()">Load Schedule File</v-btn>
-							</v-card-actions>
-						</v-card>
-						
-						<v-card class="mb-3">
-							<v-toolbar dark class="blue-grey darken-1">
+						<v-card class="mb-3 pb-1">
+							<v-toolbar dark class="indigo">
 								<v-toolbar-title>
 									Define Jobs
 								</v-toolbar-title>
@@ -746,7 +707,7 @@
 											
 											<v-flex xs12 sm6 md4 lg3 xl2 v-if="scheduleObjects[scheduleObjectIndex]['runType']['default'] != ''">
 												<v-card ma-1 height="100%">
-													<v-toolbar dark class="indigo darken-2">
+													<v-toolbar dark class="indigo darken-3">
 														<v-toolbar-title>
 															{{ scheduleObjects[scheduleObjectIndex]['runType']['default'] }}
 														</v-toolbar-title>
@@ -808,35 +769,37 @@
 									</v-container>
 								</v-list-group>
 							</v-list>
+							
+							<v-card class="ma-3">
+								<v-toolbar dark class="grey darken-1">
+									<v-toolbar-title>
+										Preview Schedule File
+									</v-toolbar-title>
+								</v-toolbar>
+								<v-card-text class="text-no-wrap" style="overflow-x: scroll">
+									<template v-for="schedLine in scheduleLines">
+										{{ schedLine }} <br>
+									</template>
+								</v-card-text>
+								
+								<!--<v-card v-for="scheduleObject, scheduleObjectIndex in scheduleObjects">
+									<v-chip color="secondary" text-color="white" v-if="scheduleObject['runType']['default'] != ''">
+										{{ scheduleObject['runType']['default'] }}
+									</v-chip>
+									<v-chip color="primary" text-color="white" v-for="setting, settingName in scheduleObject['runConfigs'][scheduleObject['runType']['default']]" v-if="
+											 _.get(scheduleObject,        ['runConfigs', scheduleObject['runType']['default'], settingName, 'default']) 
+										!= _.get(scheduleObjectDefault, ['runConfigs', scheduleObject['runType']['default'], settingName, 'default'])">
+										{{ settingName }}
+									</v-chip>
+								</v-card>-->
+							</v-card>
 							<!-- <v-btn fab small dark bottom right absolute @click="addScheduleJob()"><v-icon>add</v-icon></v-btn> -->
 						</v-card>
 						
+
+
 						<v-card class="mb-3">
-							<v-toolbar dark class="blue-grey darken-1">
-								<v-toolbar-title>
-									Preview Schedule File
-								</v-toolbar-title>
-							</v-toolbar>
-							<v-card-text class="text-no-wrap" style="overflow-x: scroll">
-								<template v-for="schedLine in scheduleLines">
-									{{ schedLine }} <br>
-								</template>
-							</v-card-text>
-							
-							<v-card v-for="scheduleObject, scheduleObjectIndex in scheduleObjects">
-								<v-chip color="secondary" text-color="white" v-if="scheduleObject['runType']['default'] != ''">
-									{{ scheduleObject['runType']['default'] }}
-								</v-chip>
-								<v-chip color="primary" text-color="white" v-for="setting, settingName in scheduleObject['runConfigs'][scheduleObject['runType']['default']]" v-if="
-										 _.get(scheduleObject,        ['runConfigs', scheduleObject['runType']['default'], settingName, 'default']) 
-									!= _.get(scheduleObjectDefault, ['runConfigs', scheduleObject['runType']['default'], settingName, 'default'])">
-									{{ settingName }}
-								</v-chip>
-							</v-card>
-						</v-card>
-						
-						<v-card class="mb-3">
-							<v-toolbar dark class="blue-grey darken-1">
+							<v-toolbar dark class="indigo lighten-2">
 								<v-toolbar-title>
 									Save Schedule File
 								</v-toolbar-title>
@@ -902,6 +865,46 @@
 								<v-btn @click="saveSchedule()">Save Schedule File</v-btn>
 							</v-card-actions>
 						</v-card>
+					
+						<v-card class="mb-3">
+							<v-toolbar dark class="indigo lighten-2">
+								<v-toolbar-title>
+									Load Schedule File
+								</v-toolbar-title>
+							</v-toolbar>
+							<!-- <v-menu attach bottom left offset-y>
+								<v-btn slot="activator" flat>{{ scheduleSaveUser }}<v-icon right>people</v-icon></v-btn>
+								<v-list light>
+									<v-list-tile v-for="u in users" @click="scheduleSaveUser = u">
+										<v-list-tile-avatar color="blue-grey lighten-2"><v-icon dark>account_circle</v-icon></v-list-tile-avatar>
+										<v-list-tile-content><v-list-tile-title>{{ u }}</v-list-tile-title></v-list-tile-content>
+									</v-list-tile>
+								</v-list>
+							</v-menu> -->
+							
+							<v-form>
+								<v-container>
+									<v-layout row wrap>
+										<v-flex xs12 sm6 md4 lg3 outline>
+											<v-autocomplete clearable v-model="scheduleLoadUser" label="User" :items="Object.keys(scheduleNames)"></v-autocomplete>
+										</v-flex>
+										<v-flex xs12 sm6 md4 lg3 solo>
+											<v-autocomplete clearable v-model="scheduleLoadProject" label="Project" :items="_.keys(_.get(scheduleNames, [scheduleLoadUser], {}))"></v-autocomplete>
+										</v-flex>
+										<v-flex xs12 sm6 md4 lg3 solo>
+											<v-autocomplete clearable v-model="scheduleLoadFileName" label="File Name" :items="_.get(scheduleNames, [scheduleLoadUser, scheduleLoadProject], [])"></v-autocomplete>
+										</v-flex>
+									</v-layout>
+								</v-container>
+							</v-form>
+							
+							<v-card-actions>
+								<span v-if="scheduleLoadUser && scheduleLoadProject && scheduleLoadFileName">Loading from: AutexysData/{{ scheduleLoadUser }}/{{ scheduleLoadProject }}/schedules/{{ scheduleLoadFileName }}.json</span>
+								<v-spacer></v-spacer>
+								<v-btn @click="loadSchedule()">Load Schedule File</v-btn>
+							</v-card-actions>
+						</v-card>
+							
 						
 					</v-flex>
 					
