@@ -1,0 +1,27 @@
+<script type="text/html" id="s-item-edit">
+	<v-switch 			 v-if="setting.type == 'bool'" 		:label="setting.title" :suffix="setting.units" v-model="setting.default"></v-switch>
+	<v-text-field 	v-else-if="setting.type == 'float'" 	:label="setting.title" :suffix="setting.units" v-model.number="setting.default"></v-text-field>
+	<v-text-field 	v-else-if="setting.type == 'int'" 		:label="setting.title" :suffix="setting.units" v-model.number="setting.default"></v-text-field>
+	<v-text-field 	v-else-if="setting.type == 'string'" 	:label="setting.title" :suffix="setting.units" v-model="setting.default"></v-text-field>
+	<v-select 		v-else-if="setting.type == 'choice'" 	:label="setting.title" :suffix="setting.units" v-model="setting.default" :items="setting.choices"></v-select>
+	<s-json-field 	v-else-if="setting.type == 'array'" 	:label="setting.title" :suffix="setting.units" v-model="setting.default"></s-json-field>
+</script>
+<script type="text/javascript">
+	Vue.component('s-item-edit', {
+		template: '#s-item-edit',
+		props: ['value'],
+		data: function() {
+			return {
+				setting: this.value
+			};
+		},
+		watch: {
+			setting(val) {
+				this.$emit('input', val);
+			},
+			value(val) {
+				this.setting = val;
+			}
+		}
+	});
+</script>
