@@ -1,0 +1,18 @@
+
+
+<script type="text/html" id="s-zoomable-image">
+	<img :src="src" v-bind:class="{ sZoomedImage: zoomActive, sZoomableImage: !zoomActive }" @click="zoomActive = !zoomActive">
+</script>
+
+<script type="text/javascript">
+	Vue.component('s-zoomable-image', {
+		template: '#s-zoomable-image',
+		props: ['src'],
+		data: function() {
+			return {
+				zoomActive: false
+			}
+		}
+		//.getBoundingClientRect();
+	});
+</script>
