@@ -104,18 +104,6 @@
 			right: 50vw;
 			transform: translate(50%, -50%);
 		}
-		.opaque {
-			background-color: #EEEEEE
-		}
-		.opaque-dark-1 {
-			background-color: #DDDDDD
-		}
-		.opaque-warm-1 {
-			background-color: #EEDDDD
-		}
-		.opaque-cool-1 {
-			background-color: #DDDDEE
-		}
 	</style>
 </head>
 <body>
@@ -721,7 +709,7 @@
 											
 											<v-flex xs12 sm6 md4 lg3 xl2>
 												<v-card ma-1  height="100%">
-													<v-toolbar dark class="blue-grey lighten-1">
+													<v-toolbar dark class="indigo lighten-1">
 														<v-toolbar-title>
 															Parameters
 														</v-toolbar-title>
@@ -729,9 +717,9 @@
 													
 													<v-list>
 														<v-select box class="ma-3" label="Run Type" v-model="scheduleObjects[scheduleObjectIndex]['runType']['default']" :items="Object.keys(scheduleObjectDefault['runConfigs'] || {})"></v-select>
-														<v-subheader class="opaque">Identifiers</v-subheader>
+														<v-subheader class="grey lighten-3">Identifiers</v-subheader>
 														
-														<s-item-group-edit 
+														<s-item-group-edit class="grey lighten-3"
 															v-model="scheduleObjects[scheduleObjectIndex]['Identifiers']"
 															:default="scheduleObjectDefault['Identifiers']"></s-item-group-edit>
 														
@@ -758,7 +746,7 @@
 											
 											<v-flex xs12 sm6 md4 lg3 xl2 v-if="scheduleObjects[scheduleObjectIndex]['runType']['default'] != ''">
 												<v-card ma-1 height="100%">
-													<v-toolbar dark class="blue-grey lighten-1">
+													<v-toolbar dark class="indigo darken-2">
 														<v-toolbar-title>
 															{{ scheduleObjects[scheduleObjectIndex]['runType']['default'] }}
 														</v-toolbar-title>
@@ -788,7 +776,7 @@
 											
 											<v-flex xs12 sm6 md4 lg3 xl2 v-for="dependency in _.get(scheduleObjectDefault, ['runConfigs', scheduleObjects[scheduleObjectIndex]['runType']['default'], 'dependencies', 'value'])">
 												<v-card ma-1 height="100%">
-													<v-toolbar dark class="blue-grey lighten-1">
+													<v-toolbar dark class="indigo lighten-1">
 														<v-toolbar-title>
 															{{ dependency }}
 														</v-toolbar-title>
