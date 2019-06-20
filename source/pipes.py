@@ -28,19 +28,20 @@ def recv(pipe):
 		result = ''
 	return result
 
-def progressPipe(pipe, name, start, current, end):
-	if pipe is None:
+def progressUpdate(share, name, start, current, end):
+	if((share is None) or (share['p'] is None)):
 		return
+	pipe = share['p']
 		
-	if poll(pipe):
-		message = recv(pipe)
-		if 'type' in message and message['type'] == 'Stop':
-			if 'stop' in message:
-				if name in message['stop']:
-					raise Exception('Recieved stop message from UI. Aborting current procedure.')
+	#if poll(pipe):
+	#	message = recv(pipe)
+	#	if 'type' in message and message['type'] == 'Stop':
+	#		if 'stop' in message:
+	#			if name in message['stop']:
+	#				raise Exception('Recieved stop message from UI. Aborting current procedure.')
 	
-	# if name in share['procedureStopLocations']:
-	# 	raise Exception('Recieved stop command from UI. Aborting current procedure at {}.'.format(name))
+	if name in share['procedureStopLocations']:
+	 	raise Exception('Recieved stop command from UI. Aborting current procedure at {}.'.format(name))
 	
 	send(pipe, {
 		'destination':'UI',
@@ -54,9 +55,10 @@ def progressPipe(pipe, name, start, current, end):
 		}
 	})
 
-def clearProgress(pipe):
-	if pipe is None:
+def clearProgress(share):
+	if((share is None) or (share['p'] is None)):
 		return
+	pipe = share['p']
 		
 	send(pipe, {
 		'destination':'UI',

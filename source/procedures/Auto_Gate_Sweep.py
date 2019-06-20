@@ -24,8 +24,7 @@ def runAutoGateSweep(parameters, smu_instance, arduino_instance, share=None):
 	startTime = time.time()
 	
 	# Send initial progress update
-	if(share is not None):
-		pipes.progressPipe(share['p'], 'Sweep', start=0, current=sweepCount, end=numberOfSweeps)
+	pipes.progressUpdate(share, 'Sweep', start=0, current=sweepCount, end=numberOfSweeps)
 	
 	# === START ===
 	for i in range(len(ags_parameters['drainVoltageSetPoints'])):
@@ -43,8 +42,7 @@ def runAutoGateSweep(parameters, smu_instance, arduino_instance, share=None):
 			sweepCount += 1
 			
 			# Send progress update
-			if(share is not None):
-				pipes.progressPipe(share['p'], 'Sweep', start=0, current=sweepCount, end=numberOfSweeps)
+			pipes.progressUpdate(share, 'Sweep', start=0, current=sweepCount, end=numberOfSweeps)
 			
 			# If desired, delay until next sweep should start
 			if(ags_parameters['timedSweepStarts']):
