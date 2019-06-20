@@ -90,11 +90,11 @@
 			margin-right: auto;
 		}
 		
-		.zoomableImage:hover {
+		.sZoomableImage:hover {
 			opacity: 0.7;
 			transition: opacity 0.5s;
 		}
-		.zoomedImage {
+		.sZoomedImage {
 			position: fixed;
 			z-index: 500;
 			background-color: rgb(255,255,255);
@@ -375,7 +375,7 @@
 															</v-toolbar-title>
 														</v-toolbar>
 														<div class="text-xs-center">
-															<zoomable-image src="" :data-src="'/chipPlots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></zoomable-image>
+															<s-zoomable-image src="" :data-src="'/chipPlots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></s-zoomable-image>
 														</div>
 													</v-card>
 												</v-flex>
@@ -437,7 +437,7 @@
 															</v-toolbar-title>
 														</v-toolbar> 
 														<div class="text-xs-center">
-															<zoomable-image :src="'/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(deviceSummaryPlotSettings))"></zoomable-image>
+															<s-zoomable-image :src="'/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(deviceSummaryPlotSettings))"></s-zoomable-image>
 														</div>
 													</v-card>
 												</v-flex>
@@ -474,7 +474,7 @@
 														
 														<v-menu bottom left offset-y>
 															<v-btn slot="activator" icon :loading="false"><v-icon>settings</v-icon></v-btn>
-															<!-- !this.$parent.getElementsByClassName('zoomableImage')[0].complete -->
+															<!-- !this.$parent.getElementsByClassName('sZoomableImage')[0].complete -->
 															<v-list light>
 																<v-list-tile @click="copyHTMLImageToClip('/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings)))">
 																	<v-list-tile-avatar>
@@ -508,7 +508,7 @@
 													</v-toolbar>
 													
 													<div class="text-xs-center" v-if="!disabledPlots.includes(possiblePlot)">
-														<zoomable-image src="" :data-src="'/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></zoomable-image>
+														<s-zoomable-image src="" :data-src="'/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></s-zoomable-image>
 													</div>
 												</v-card>
 											</v-flex>
@@ -1180,146 +1180,34 @@
 			if (imageRequestsLoading > 0) return;
 			if (imageRequestsLoading < 0) imageRequestsLoading = 0;
 			
-			let zoomableImages = document.getElementsByClassName("zoomableImage");
+			let sZoomableImages = document.getElementsByClassName("sZoomableImage");
 			
-			for (var i = 0; i < zoomableImages.length; i++) {
-				if (zoomableImages[i].getAttribute('data-src') != zoomableImages[i].getAttribute('src')) {
-					zoomableImages[i].setAttribute('src', zoomableImages[i].getAttribute('data-src'));
+			for (var i = 0; i < sZoomableImages.length; i++) {
+				if (sZoomableImages[i].getAttribute('data-src') != sZoomableImages[i].getAttribute('src')) {
+					sZoomableImages[i].setAttribute('src', sZoomableImages[i].getAttribute('data-src'));
 					
 					imageRequestsLoading++;
 					
-					zoomableImages[i].onload = function() {
+					sZoomableImages[i].onload = function() {
 						imageRequestsLoading--;
 					}
-					zoomableImages[i].onerror = function() {
+					sZoomableImages[i].onerror = function() {
 						imageRequestsLoading--;
 					}
 				}
-				if (!zoomableImages[i].complete) {
+				if (!sZoomableImages[i].complete) {
 					return;
 				}
 			}
 		}, 100);
 		
-		Vue.component('v-plotly', {
-			template: `<div style="width: 100%"></div>`,
-			props: {
-				data: {
-					type: Array
-				},
-				layout: {
-					type: Object
-				}
-			},
-			mounted() {
-				this.Plot();
-				this.$watch('data', this.Plot, { deep: true });
-			},
-			methods: {
-				Plot() {
-					return Plotly.newPlot(this.$el, this.data, this.layout, {responsive: true});
-				}
-			}
-		});
-		
-		Vue.component('zoomable-image', {
-			template: `<img :src="src" v-bind:class="{ zoomedImage: zoomActive, zoomableImage: !zoomActive }" @click="zoomActive = !zoomActive">`,
-			props: ['src'],
-			data: function() {
-				return {
-					zoomActive: false
-				}
-			}
-			//.getBoundingClientRect();
-		});
-		
-		Vue.component('s-json-field', {
-			template: `<v-text-field v-model="stringRepresentation" :label="label" :suffix="suffix"></v-text-field>`,
-			props: ['value', 'label', 'suffix'],
-			data: function() {
-				return {
-					stringRepresentation: JSON.stringify(this.value)
-				};
-			},
-			watch: {
-			 	stringRepresentation(val) {
-			 		try {
-			 			var objectRepresentation = JSON.parse(this.stringRepresentation);
-			 			this.$emit('input', objectRepresentation);
-			 		} catch (e) {
-			 			console.log('Invalid JSON input to <s-json-field> component');
-			 		}
-				},
-				value(val) {
-					this.stringRepresentation = JSON.stringify(val);
-				}
-			}
-		});
 	</script>
 	
-	<script type="text/html" id="s-item-edit">
-		<v-switch 			 v-if="setting.type == 'bool'" 		:label="setting.title" :suffix="setting.units" v-model="setting.default"></v-switch>
-		<v-text-field 	v-else-if="setting.type == 'float'" 	:label="setting.title" :suffix="setting.units" v-model.number="setting.default"></v-text-field>
-		<v-text-field 	v-else-if="setting.type == 'int'" 		:label="setting.title" :suffix="setting.units" v-model.number="setting.default"></v-text-field>
-		<v-text-field 	v-else-if="setting.type == 'string'" 	:label="setting.title" :suffix="setting.units" v-model="setting.default"></v-text-field>
-		<v-select 		v-else-if="setting.type == 'choice'" 	:label="setting.title" :suffix="setting.units" v-model="setting.default" :items="setting.choices"></v-select>
-		<s-json-field 	v-else-if="setting.type == 'array'" 	:label="setting.title" :suffix="setting.units" v-model="setting.default"></s-json-field>
-	</script>
-	<script type="text/javascript">
-		Vue.component('s-item-edit', {
-			template: '#s-item-edit',
-			props: ['value'],
-			data: function() {
-				return {
-					setting: this.value
-				};
-			},
-			watch: {
-				setting(val) {
-					this.$emit('input', val);
-				},
-				value(val) {
-					this.setting = val;
-				}
-			}
-		});
-	</script>
 	
-	<script type="text/html" id="s-item-group-edit">
-		<div>
-		<div v-for="(setting, settingName) in defaults" v-if="['bool','float','int','string','choice','array'].includes(setting.type)">
-			<v-tooltip top>
-				<v-list-tile slot="activator">
-					<s-item-edit v-model="settings[settingName]"></s-item-edit>
-				</v-list-tile>
-				<span><b>{{ setting.title }}</b></br>Type: <{{ setting.type }}>, Units: [{{ setting.units }}]</br>{{ setting.description }}</span>
-			</v-tooltip>
-		</div>
-	</div>
-	</script>
-	<script type="text/javascript">
-		Vue.component('s-item-group-edit', {
-			template: '#s-item-group-edit',
-			props: ['value', 'default'],
-			data: function() {
-				return {
-					settings: this.value,
-					defaults: this.default
-				};
-			},
-			watch: {
-				settings(val) {
-					this.$emit('input', val);
-				},
-				value(val) {
-					this.settings = val;
-				},
-				default(val) {
-					this.defaults = val;
-				}
-			}
-		});
-	</script>
+	<% for component in components %>
+		<% include component %>
+	<% endfor %>
+	
 	
 	<script type="text/javascript">	
 		var app = new Vue({

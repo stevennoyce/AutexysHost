@@ -1,0 +1,35 @@
+<script type="text/html" id="s-item-group-edit">
+	<div>
+	<div v-for="(setting, settingName) in defaults" v-if="['bool','float','int','string','choice','array'].includes(setting.type)">
+		<v-tooltip top>
+			<v-list-tile slot="activator">
+				<s-item-edit v-model="settings[settingName]"></s-item-edit>
+			</v-list-tile>
+			<span><b>{{ setting.title }}</b></br>Type: <{{ setting.type }}>, Units: [{{ setting.units }}]</br>{{ setting.description }}</span>
+		</v-tooltip>
+	</div>
+</div>
+</script>
+<script type="text/javascript">
+	Vue.component('s-item-group-edit', {
+		template: '#s-item-group-edit',
+		props: ['value', 'default'],
+		data: function() {
+			return {
+				settings: this.value,
+				defaults: this.default
+			};
+		},
+		watch: {
+			settings(val) {
+				this.$emit('input', val);
+			},
+			value(val) {
+				this.settings = val;
+			},
+			default(val) {
+				this.defaults = val;
+			}
+		}
+	});
+</script>
