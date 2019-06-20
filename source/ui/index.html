@@ -369,7 +369,7 @@
 											<v-layout row wrap>
 												<v-flex xs12 sm6 md4 lg3 xl2 v-for="possiblePlot in possibleChipPlots">
 													<v-card class="ma-1" height="100%">
-														<v-toolbar dark class="blue-grey lighten-1">
+														<v-toolbar dark dense class="blue-grey lighten-1">
 															<v-toolbar-title>
 																 {{ possiblePlot }}
 															</v-toolbar-title>
@@ -431,7 +431,7 @@
 											<!-- <v-layout row wrap>
 												<v-flex xs12 sm6 md4 lg3 xl2 v-for="possiblePlot in experiment.possiblePlots">
 													<v-card class="ma-1" height="100%">
-														<v-toolbar dark class="blue-grey lighten-1">
+														<v-toolbar dark dense class="blue-grey lighten-1">
 															<v-toolbar-title>
 																 {{ possiblePlot }}
 															</v-toolbar-title>
@@ -465,7 +465,7 @@
 											
 											<v-flex xs12 sm6 md4 lg3 xl2 v-for="possiblePlot in experiment.possiblePlots">
 												<v-card class="ma-1" height="100%">
-													<v-toolbar dark class="blue-grey lighten-1">
+													<v-toolbar dark dense class="blue-grey lighten-1">
 														<v-toolbar-title>
 															{{ possiblePlot }}
 														</v-toolbar-title>
@@ -534,7 +534,7 @@
 									</v-container> -->
 									
 									<v-card class="ma-1">
-										<v-toolbar dark class="blue-grey darken-1">
+										<v-toolbar dark dense class="blue-grey darken-1">
 											<v-toolbar-title>
 												Notes
 											</v-toolbar-title>
@@ -545,7 +545,7 @@
 									
 									
 									<v-card class="ma-1" v-if="experiment.runType.includes('AFM') || experiment.runType.includes('SGM')">
-										<v-toolbar dark class="blue-grey darken-1">
+										<v-toolbar dark dense class="blue-grey darken-1">
 											<v-toolbar-title>
 												Corresponding AFM Images
 											</v-toolbar-title>
@@ -574,7 +574,7 @@
 									</v-card>
 									
 									<v-card class="ma-1">
-										<v-toolbar dark class="blue-grey darken-1">
+										<v-toolbar dark dense class="blue-grey darken-1">
 											<v-toolbar-title>
 												Data Export
 											</v-toolbar-title>
@@ -603,7 +603,7 @@
 					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'scheduleCreator'">
 						<v-card class="mb-3 pb-1">
-							<v-toolbar dark class="indigo">
+							<v-toolbar dark dense class="indigo">
 								<v-toolbar-title>
 									Define Jobs
 								</v-toolbar-title>
@@ -670,7 +670,7 @@
 											
 											<v-flex xs12 sm6 md4 lg3 xl2>
 												<v-card ma-1  height="100%">
-													<v-toolbar dark class="indigo lighten-1">
+													<v-toolbar dark dense class="indigo lighten-1">
 														<v-toolbar-title>
 															Parameters
 														</v-toolbar-title>
@@ -707,7 +707,7 @@
 											
 											<v-flex xs12 sm6 md4 lg3 xl2 v-if="scheduleObjects[scheduleObjectIndex]['runType']['default'] != ''">
 												<v-card ma-1 height="100%">
-													<v-toolbar dark class="indigo darken-3">
+													<v-toolbar dark dense class="indigo darken-3">
 														<v-toolbar-title>
 															{{ scheduleObjects[scheduleObjectIndex]['runType']['default'] }}
 														</v-toolbar-title>
@@ -737,7 +737,7 @@
 											
 											<v-flex xs12 sm6 md4 lg3 xl2 v-for="dependency in _.get(scheduleObjectDefault, ['runConfigs', scheduleObjects[scheduleObjectIndex]['runType']['default'], 'dependencies', 'value'])">
 												<v-card ma-1 height="100%">
-													<v-toolbar dark class="indigo lighten-1">
+													<v-toolbar dark dense class="indigo lighten-1">
 														<v-toolbar-title>
 															{{ dependency }}
 														</v-toolbar-title>
@@ -771,7 +771,7 @@
 							</v-list>
 							
 							<v-card class="ma-3">
-								<v-toolbar dark class="grey darken-1">
+								<v-toolbar dark dense class="grey darken-1">
 									<v-toolbar-title>
 										Preview Schedule File
 									</v-toolbar-title>
@@ -799,7 +799,7 @@
 
 
 						<v-card class="mb-3">
-							<v-toolbar dark class="indigo lighten-2">
+							<v-toolbar dark dense class="indigo lighten-2">
 								<v-toolbar-title>
 									Save Schedule File
 								</v-toolbar-title>
@@ -867,7 +867,7 @@
 						</v-card>
 					
 						<v-card class="mb-3">
-							<v-toolbar dark class="indigo lighten-2">
+							<v-toolbar dark dense class="indigo lighten-2">
 								<v-toolbar-title>
 									Load Schedule File
 								</v-toolbar-title>
@@ -910,7 +910,7 @@
 					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'settings'">
 						<v-card>
-							<v-toolbar dark class="blue-grey darken-1">
+							<v-toolbar dark dense class="blue-grey darken-1">
 								<v-toolbar-title>
 									Settings
 								</v-toolbar-title>
@@ -925,7 +925,7 @@
 					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'dashboard'">
 						<v-card>
-							<v-toolbar dark class="blue-grey darken-1">
+							<v-toolbar dark dense class="blue-grey darken-1">
 								<v-toolbar-title>
 									Dashboard
 								</v-toolbar-title>
@@ -940,7 +940,7 @@
 					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'about'">
 						<v-card>
-							<v-toolbar dark class="blue-grey darken-1">
+							<v-toolbar dark dense class="blue-grey darken-1">
 								<v-toolbar-title>
 									About
 								</v-toolbar-title>
@@ -955,7 +955,7 @@
 					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'readme'">
 						<v-card>
-							<v-toolbar dark class="blue-grey darken-1">
+							<v-toolbar dark dense class="blue-grey darken-1">
 								<v-toolbar-title>
 									Read Me
 								</v-toolbar-title>
@@ -968,7 +968,7 @@
 					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'documentation'">
 						<v-card>
-							<v-toolbar dark class="blue-grey darken-1">
+							<v-toolbar dark dense class="blue-grey darken-1">
 								<v-toolbar-title>
 									Documentation
 								</v-toolbar-title>
@@ -984,7 +984,7 @@
 					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'experimentRunner'">
 						<v-card>
-							<v-toolbar dark class="blue-grey darken-1">
+							<v-toolbar dark dense class="blue-grey darken-1">
 								<v-toolbar-title>
 									Experiment Runner
 								</v-toolbar-title>
@@ -1018,7 +1018,7 @@
 						</v-card>
 						
 						<v-card v-if="dispatcherRunning">
-							<v-toolbar dark class="blue-grey darken-1">
+							<v-toolbar dark dense class="blue-grey darken-1">
 								<v-toolbar-title>
 									Run Progress
 								</v-toolbar-title>
@@ -1033,7 +1033,7 @@
 						</v-card>
 						
 						<v-card>
-							<v-toolbar dark class="blue-grey darken-1">
+							<v-toolbar dark dense class="blue-grey darken-1">
 								<v-toolbar-title>
 									Live Plots
 								</v-toolbar-title>
@@ -1061,7 +1061,7 @@
 									<v-layout row wrap>
 										<v-flex xs12 sm12 md6 lg6 xl4 v-for="xdata, xlabel, i in livePlotXData">
 											<v-card class="ma-1" height="100%">
-												<v-toolbar dark class="blue-grey lighten-1">
+												<v-toolbar dark dense class="blue-grey lighten-1">
 													<v-toolbar-title>
 														 Plot #{{ i+1 }}
 													</v-toolbar-title>
