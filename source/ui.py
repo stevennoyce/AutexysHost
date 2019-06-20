@@ -77,6 +77,9 @@ class CustomFlask(flask.Flask):
 
 app = CustomFlask(__name__, static_url_path='', template_folder='ui')
 
+# Disable caching of static files
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+
 app.config['SECRET_KEY'] = 'secretkey'
 socketio = flask_socketio.SocketIO(app)
 
@@ -494,15 +497,14 @@ def getReadMe():
 		return f.read()
 
 
-# C127X_15-16 vented before Ex210
-
-# @app.after_request
-# def add_header(response):
-# 	# response.cache_control.max_age = 300
-#	# response.cache_control.no_store = True
-#	# if 'Cache-Control' not in response.headers:
-#		# response.headers['Cache-Control'] = 'no-store'
-#	return response
+# Disable server side caching
+@app.after_request
+def add_header(response):
+	response.cache_control.max_age = 0
+	response.cache_control.no_store = True
+	if 'Cache-Control' not in response.headers:
+		response.headers['Cache-Control'] = 'no-store'
+	return response
 
 
 import socket
