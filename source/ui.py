@@ -94,6 +94,9 @@ def index():
 	# Get rid of the initial 'ui/' since paths should be relative from template folder
 	components = [c[len('ui/'):] for c in components]
 	
+	# Make sure we use forward slashes no matter what system we are on
+	components = [c.replace('\\', '/') for c in components]
+	
 	return flask.render_template('index.html', components=components)
 
 @app.route('/ui/<path:path>')
