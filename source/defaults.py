@@ -50,7 +50,7 @@ default_parameters = {
 			'gateVoltageSetPoint': 			{'type':'float', 'units':'V', 'default': 0,      'title':'Gate Voltage Set Point',          'description':'Gate voltage value.'},
 			'drainVoltageSetPoint':			{'type':'float', 'units':'V', 'default': 0.5,    'title':'Drain Voltage Set Point',         'description':'Drain voltage value.'},
 			'totalBiasTime': 				{'type':'float', 'units':'s', 'default': 60,     'title':'Total Bias Time',                 'description':'Total time to apply voltages.'},
-			'measurementTime': 				{'type':'float', 'units':'s', 'default': 10,     'title':'Measurement Time',                'description':'Time between measurements.'},
+			'measurementTime': 				{'type':'float', 'units':'s', 'default': 10,     'title':'Measurement Time',                'description':'Interval over which to average each measurement.'},
 			'complianceCurrent': 			{'type':'float', 'units':'A', 'default': 100e-6, 'title':'Compliance Current',              'description':'Maximum current limit for the SMU.'},
 			'delayBeforeMeasurementsBegin': {'type':'float', 'units':'s', 'default': 0,      'title':'Delay Before Measurements Begin', 'description':'Delay after applying voltages before taking the first measurement.'},
 			'gateVoltageWhenDone':  		{'type':'float', 'units':'V', 'default': 0,      'title':'Gate Voltage When Done',          'description':'When finished, ramp gate voltage to this value.'},
@@ -61,20 +61,20 @@ default_parameters = {
 		'FlowStaticBias':{
 			'dependencies':					{'ignore':True, 'value':[]},
 			'saveFileName': 				{'type':'constant', 'default':'FlowStaticBias', 'title':'Save File Name', 'description':'The name of the file that will be saved with the data from this experiment. This name should typically not be changed.'},
-			'measurementTime': 				{'type':'float', 'units':'s', 'default': 10,     'title':'Measurement Time',                'description':''},
+			'measurementTime': 				{'type':'float', 'units':'s', 'default': 10,     'title':'Measurement Time',                'description':'Interval over which to average each measurement.'},
 			'flowDurations':				{'type':'array', 'units':'s', 'default': [],     'title':'Flow Durations',                  'description':'Duration of flow for each pump, in array format'},
 			'subCycleDurations':			{'type':'array', 'units':'s', 'default': [],     'title':'Subcycle Durations',              'description':'Duration of submersion, in array format'},
 			'pumpPins':						{'type':'array', 'units':'#', 'default': [],     'title':'Digital Pins',                    'description':'digital pins, in array format'},
 			'cycleCount':					{'type':'int',   'units':'#', 'default': 3,      'title':'Cycle Count',                     'description':'number of times all environments are exchanged (i.e: period of experiment)'},
 			'solutions':					{'type':'array', 'units':'',  'default': [],     'title':'Solution Environments',           'description':''},
-			'complianceCurrent': 			{'type':'float', 'units':'A', 'default': 100e-6, 'title':'Compliance Current',              'description':''},
-			'delayBeforeMeasurementsBegin': {'type':'float', 'units':'s', 'default': 0,      'title':'Delay Before Measurements Begin', 'description':''},
-			'gateVoltageSetPoint': 			{'type':'float', 'units':'V', 'default': 0,      'title':'Gate Voltage Set Point',          'description':''},
-			'drainVoltageSetPoint':			{'type':'float', 'units':'V', 'default': 0.5,    'title':'Drain Voltage Set Point',         'description':''},
-			'gateVoltageWhenDone':  		{'type':'float', 'units':'V', 'default': 0,      'title':'Gate Voltage When Done',          'description':''},
-			'drainVoltageWhenDone': 		{'type':'float', 'units':'V', 'default': 0,      'title':'Drain Voltage When Done',         'description':''},
-			'floatChannelsWhenDone': 		{'type':'bool',               'default': False,  'title':'Float Channels When Done',        'description':''},
-			'delayWhenDone': 				{'type':'float', 'units':'s', 'default': 0,      'title':'Delay When Done',                 'description':''} 
+			'complianceCurrent': 			{'type':'float', 'units':'A', 'default': 100e-6, 'title':'Compliance Current',              'description':'Maximum current limit for the SMU.'},
+			'delayBeforeMeasurementsBegin': {'type':'float', 'units':'s', 'default': 0,      'title':'Delay Before Measurements Begin', 'description':'Delay after applying voltages before taking the first measurement.'},
+			'gateVoltageSetPoint': 			{'type':'float', 'units':'V', 'default': 0,      'title':'Gate Voltage Set Point',          'description':'Gate voltage value.'},
+			'drainVoltageSetPoint':			{'type':'float', 'units':'V', 'default': 0.5,    'title':'Drain Voltage Set Point',         'description':'Drain voltage value.'},
+			'gateVoltageWhenDone':  		{'type':'float', 'units':'V', 'default': 0,      'title':'Gate Voltage When Done',          'description':'When finished, ramp gate voltage to this value.'},
+			'drainVoltageWhenDone': 		{'type':'float', 'units':'V', 'default': 0,      'title':'Drain Voltage When Done',         'description':'When finished, ramp drain voltage to this value.'},
+			'floatChannelsWhenDone': 		{'type':'bool',               'default': False,  'title':'Float Channels When Done',        'description':'When finished, float the drain and gate voltages.'},
+			'delayWhenDone': 				{'type':'float', 'units':'s', 'default': 0,      'title':'Delay When Done',                 'description':'When finished, time to hold gate and drain voltages at their final value.'} 
 		},
 		'AutoBurnOut':{
 			'dependencies':					{'ignore':True, 'value':['BurnOut']},
@@ -84,17 +84,17 @@ default_parameters = {
 		},
 		'AutoGateSweep':{
 			'dependencies':					{'ignore':True, 'value':['GateSweep']},
-			'sweepsPerVDS': 				{'type':'int',   'units':'#', 'default': 3,     'title':'Sweeps Per VDS',           'description':''},
-			'drainVoltageSetPoints': 		{'type':'array', 'units':'V', 'default': [],    'title':'Drain Voltage Set Points', 'description':''},
-			'delayBetweenSweeps': 			{'type':'float', 'units':'s', 'default': 2,     'title':'Delay Between Sweeps',     'description':''},
-			'timedSweepStarts': 			{'type':'bool',               'default': False, 'title':'Timed Sweep Starts',       'description':''} 
+			'sweepsPerVDS': 				{'type':'int',   'units':'#', 'default': 3,     'title':'Sweeps Per VDS',           'description':'Number of gate sweeps to take at each value of drain voltage.'},
+			'drainVoltageSetPoints': 		{'type':'array', 'units':'V', 'default': [],    'title':'Drain Voltage Set Points', 'description':'List of drain voltage values to do sweeps at.'},
+			'delayBetweenSweeps': 			{'type':'float', 'units':'s', 'default': 2,     'title':'Delay Between Sweeps',     'description':'Delay between each sweep.'},
+			'timedSweepStarts': 			{'type':'bool',               'default': False, 'title':'Timed Sweeps',       		'description':'When enabled, the delay between sweeps is dynamically reduced by the amount of time the sweep took.'} 
 		},
 		'AutoDrainSweep':{
 			'dependencies': 				{'ignore':True, 'value':['DrainSweep']},
-			'sweepsPerVGS': 				{'type':'int',   'units':'#', 'default': 1,              'title':'Sweeps Per VGS',          'description':''},
-			'gateVoltageSetPoints':			{'type':'array', 'units':'V', 'default': [-0.5, 0, 0.5], 'title':'Gate Voltage Set Points', 'description':''},
-			'delayBetweenSweeps': 			{'type':'float', 'units':'s', 'default': 0,              'title':'Delay Between Sweeps',    'description':''},
-			'timedSweepStarts': 			{'type':'bool',               'default': False,          'title':'Timed Sweep Starts',      'description':''} 
+			'sweepsPerVGS': 				{'type':'int',   'units':'#', 'default': 1,              'title':'Sweeps Per VGS',          'description':'Number of drain sweeps to take at each value of gate voltage.'},
+			'gateVoltageSetPoints':			{'type':'array', 'units':'V', 'default': [-0.5, 0, 0.5], 'title':'Gate Voltage Set Points', 'description':'List of gate voltage values to do sweeps at.'},
+			'delayBetweenSweeps': 			{'type':'float', 'units':'s', 'default': 0,              'title':'Delay Between Sweeps',    'description':'Delay between each sweep.'},
+			'timedSweepStarts': 			{'type':'bool',               'default': False,          'title':'Timed Sweep Starts',      'description':'When enabled, the delay between sweeps is dynamically reduced by the amount of time the sweep took.'} 
 		},
 		'AutoStaticBias':{
 			'dependencies': 						{'ignore':True, 'value':['StaticBias','GateSweep']},
