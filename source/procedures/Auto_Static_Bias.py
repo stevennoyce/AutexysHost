@@ -24,7 +24,7 @@ def runAutoStaticBias(parameters, smu_instance, arduino_instance, gateSweepParam
 	sb_parameters = staticBiasParameters['runConfigs']['StaticBias']
 	asb_parameters = parameters['runConfigs']['AutoStaticBias']
 
-	importantListLengths = [len(asb_parameters['biasTimeList']), len(asb_parameters['gateVoltageSetPointList']), len(asb_parameters['drainVoltageSetPointList']), len(asb_parameters['gateVoltageWhenDoneList']), len(asb_parameters['drainVoltageWhenDoneList'])]
+	importantListLengths = [len(asb_parameters['biasTimeList']), len(asb_parameters['gateVoltageSetPointList']), len(asb_parameters['drainVoltageSetPointList']), len(asb_parameters['gateVoltageWhenDoneList']), len(asb_parameters['drainVoltageWhenDoneList']), len(asb_parameters['delayWhenDoneList'])]
 	numberOfStaticBiases = max(asb_parameters['numberOfStaticBiases'], max(importantListLengths))
 	
 	# Build arrays of all parameters that could change over the course of any given experiement
