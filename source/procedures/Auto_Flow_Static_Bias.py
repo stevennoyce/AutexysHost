@@ -51,10 +51,6 @@ def runAutoFlowStaticBias(parameters, smu_instance, arduino_instance, gateSweepP
 		delayWhenDoneList[i] 		+= asb_parameters['incrementDelayBeforeReapplyingVoltage']*(currentIncrementNumber-1)	
 	delayBeforeMeasurementsList[0] = asb_parameters['firstDelayBeforeMeasurementsBegin']
 
-	# Randomize the time spent grounding the terminals if desired
-	if(asb_parameters['shuffleDelaysBeforeReapplyingVoltage']):
-		random.shuffle(delayWhenDoneList)
-
 
 
 	## === START ===

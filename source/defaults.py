@@ -138,7 +138,6 @@ default_parameters = {
 			'incrementGateVoltageWhenDone': 		{'type':'float', 'units':'V', 'default': 0,     'title':'Increment Gate Voltage When Done',          'description':''},
 			'incrementDrainVoltageWhenDone':		{'type':'float', 'units':'V', 'default': 0,     'title':'Increment Drain Voltage When Done',         'description':''},
 			'incrementDelayBeforeReapplyingVoltage':{'type':'float', 'units':'s', 'default': 0,     'title':'Increment Delay Before Reapplying Voltage', 'description':''},
-			'shuffleDelaysBeforeReapplyingVoltage': {'type':'bool',               'default': False, 'title':'Shuffle Delays Before Reapplying Voltage',  'description':''}, 
 		},
 		'AFMControl':{
 			'dependencies': 			{'ignore':True, 'value':[]},
