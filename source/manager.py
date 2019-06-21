@@ -91,12 +91,12 @@ def manage(on_startup_schedule_file=None):
 	processes to execute schedule files and facilitate communication between the UI and the currently running dispatcher."""
 	
 	sharedMemoryManager = mp.Manager()
-	sharedDict = sharedMemoryManager.dict({'dispatcherRunning':False})
-	sharedList = sharedMemoryManager.list([])
 	
 	share = {
-		'd': sharedDict,
-		'l': sharedList
+		'sharedMemoryManager': sharedMemoryManager,
+		'd': sharedMemoryManager.dict({'dispatcherRunning':False}),
+		'l': sharedMemoryManager.list([]),
+		'procedureStopLocations': sharedMemoryManager.list([])
 	}
 	
 	ui = startUI(share, priority=0)	
@@ -120,9 +120,9 @@ def manage(on_startup_schedule_file=None):
 						dispatcher = startDispatcher(schedule_file_path, share, priority=1)
 					else:
 						print('Error: dispatcher is already running; wait for it to finish before starting another job.')
-				elif(message == 'STOP'):
+				elif('type' in message and message['type'] == 'Stop'):
 					if(dispatcher is not None):
-						pipes.send(dispatcher['pipe'], 'STOP')
+						pipes.send(dispatcher['pipe'], message)
 					else:
 						print('Dispatcher has already stopped.')
 		except Exception as e:

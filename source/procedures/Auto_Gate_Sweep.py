@@ -9,7 +9,7 @@ from utilities import DataLoggerUtility as dlu
 # === Main ===
 def run(parameters, smu_instance, arduino_instance, share=None):
 	# No setup required, just run
-	runAutoGateSweep(parameters, smu_instance, arduino_instance)	
+	runAutoGateSweep(parameters, smu_instance, arduino_instance, share=share)	
 
 def runAutoGateSweep(parameters, smu_instance, arduino_instance, share=None):
 	ags_parameters = parameters['runConfigs']['AutoGateSweep']
@@ -23,6 +23,9 @@ def runAutoGateSweep(parameters, smu_instance, arduino_instance, share=None):
 	sweepCount = 0
 	startTime = time.time()
 	
+	# Send initial progress update
+	pipes.progressUpdate(share, 'Sweep', start=0, current=sweepCount, end=numberOfSweeps)
+	
 	# === START ===
 	for i in range(len(ags_parameters['drainVoltageSetPoints'])):
 		# Make copy of parameters to run GateSweep, but modify the Vds setpoint
@@ -34,9 +37,12 @@ def runAutoGateSweep(parameters, smu_instance, arduino_instance, share=None):
 		for j in range(ags_parameters['sweepsPerVDS']):
 			# Run sweep
 			print('Starting sweep #'+str(sweepCount+1)+' of '+str(numberOfSweeps))
-			gateSweepScript.run(gateSweepParameters, smu_instance, isSavingResults=True, isPlottingResults=False)
+			gateSweepScript.run(gateSweepParameters, smu_instance, isSavingResults=True, isPlottingResults=False, share=share)
 			print('Completed sweep #'+str(sweepCount+1)+' of '+str(numberOfSweeps))
 			sweepCount += 1
+			
+			# Send progress update
+			pipes.progressUpdate(share, 'Sweep', start=0, current=sweepCount, end=numberOfSweeps)
 			
 			# If desired, delay until next sweep should start
 			if(ags_parameters['timedSweepStarts']):

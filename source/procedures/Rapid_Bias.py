@@ -62,7 +62,7 @@ def runRapidBias(smu_instance, waveform, drainVoltageSetPoints, gateVoltageSetPo
 		gateVoltageSetPoints = [0] + gateVoltageSetPoints
 		measurementPoints = [1] + measurementPoints
 	else:
-		# Otherwise just ramp to your starting voltages to simplify whats happening
+		# Otherwise just ramp to your starting voltages to simplify what is happening
 		smu_instance.rampGateVoltageTo(gateVoltageSetPoints[0])
 		smu_instance.rampDrainVoltageTo(drainVoltageSetPoints[0])
 	

@@ -1,0 +1,30 @@
+
+
+<script type="text/html" id="s-json-field">
+	<v-text-field v-model="stringRepresentation" :label="label" :suffix="suffix"></v-text-field>
+</script>
+
+<script type="text/javascript">
+	Vue.component('s-json-field', {
+		template: '#s-json-field',
+		props: ['value', 'label', 'suffix'],
+		data: function() {
+			return {
+				stringRepresentation: JSON.stringify(this.value)
+			};
+		},
+		watch: {
+		 	stringRepresentation(val) {
+		 		try {
+		 			var objectRepresentation = JSON.parse(this.stringRepresentation);
+		 			this.$emit('input', objectRepresentation);
+		 		} catch (e) {
+		 			console.log('Invalid JSON input to <s-json-field> component');
+		 		}
+			},
+			value(val) {
+				this.stringRepresentation = JSON.stringify(val);
+			}
+		}
+	});
+</script>

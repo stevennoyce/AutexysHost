@@ -65,8 +65,10 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	deviceHistory = scaledData(deviceHistory, 'Results', 'timestamps', 1/secondsPer(timescale))
 	
 	# Adjust y-scale and y-axis labels 
-	max_current = np.max([max(max(deviceRun['Results']['ig_data']),abs(min(deviceRun['Results']['ig_data']))) for deviceRun in deviceHistory])
-	current_scale, ylabel = (1, plotDescription['plotDefaults']['ylabel']) if(max_current >= 1e-3) else ((1e6, plotDescription['plotDefaults']['micro_ylabel']) if(max_current >= 1e-6) else ((1e9, plotDescription['plotDefaults']['nano_ylabel']) if(max_current >= 1e-9) else (1e12, plotDescription['plotDefaults']['pico_ylabel'])))
+	max_current = np.max([np.max(deviceRun['Results']['ig_data']) for deviceRun in deviceHistory])
+	min_current = np.min([np.min(deviceRun['Results']['ig_data']) for deviceRun in deviceHistory])
+	abs_max_current = max(max_current, abs(min_current))
+	current_scale, ylabel = (1, plotDescription['plotDefaults']['ylabel']) if(abs_max_current >= 1e-3) else ((1e6, plotDescription['plotDefaults']['micro_ylabel']) if(abs_max_current >= 1e-6) else ((1e9, plotDescription['plotDefaults']['nano_ylabel']) if(abs_max_current >= 1e-9) else (1e12, plotDescription['plotDefaults']['pico_ylabel'])))
 	
 	# === Begin Plotting Data ===
 	time_offset = 0

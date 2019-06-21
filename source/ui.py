@@ -32,6 +32,7 @@ if __name__ == '__main__':
 
 # Globals
 pipeToManager = None
+share = None
 
 def eprint(*args, **kwargs):
 	print(*args, file=sys.stderr, **kwargs)
@@ -62,15 +63,38 @@ def replaceInfNan(obj):
 def jsonvalid(obj):
 	return json.dumps(replaceInfNan(obj))
 
+# Define custom delimiters for template rendering to not collide with Vue
+class CustomFlask(flask.Flask):
+	jinja_options = flask.Flask.jinja_options.copy()
+	jinja_options.update(dict(
+		block_start_string='<%',
+		block_end_string='%>',
+		variable_start_string='%%',
+		variable_end_string='%%',
+		comment_start_string='<#',
+		comment_end_string='#>',
+	))
 
-app = flask.Flask(__name__, static_url_path='', static_folder='ui')
+app = CustomFlask(__name__, static_url_path='', template_folder='ui')
+
+# Disable caching of static files
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 app.config['SECRET_KEY'] = 'secretkey'
 socketio = flask_socketio.SocketIO(app)
 
 @app.route('/')
-def root():
-	return flask.redirect('/ui/index.html')
+@app.route('/index')
+@app.route('/ui/index')
+@app.route('/ui/index.html')
+def index():
+	# Obtain a list of components within the components folder and sub-folders
+	components = glob.glob('ui/components/**/*.html', recursive=True)
+	
+	# Get rid of the initial 'ui/' since paths should be relative from template folder
+	components = [c[len('ui/'):] for c in components]
+	
+	return flask.render_template('index.html', components=components)
 
 @app.route('/ui/<path:path>')
 def sendStaticUI(path):
@@ -359,7 +383,7 @@ def dispatchSchedule(user, project, fileName):
 @app.route('/stopAtNextJob')
 def stopAtNextJob():
 	eprint('UI stopping at next job')
-	pipes.send(pipeToManager, 'STOP')
+	pipes.send(pipeToManager, {'type':'Stop', 'stop':'Dispatcher Job'})
 	
 	return jsonvalid({'success': True})
 
@@ -473,15 +497,14 @@ def getReadMe():
 		return f.read()
 
 
-# C127X_15-16 vented before Ex210
-
-# @app.after_request
-# def add_header(response):
-# 	# response.cache_control.max_age = 300
-#	# response.cache_control.no_store = True
-#	# if 'Cache-Control' not in response.headers:
-#		# response.headers['Cache-Control'] = 'no-store'
-#	return response
+# Disable server side caching
+@app.after_request
+def add_header(response):
+	response.cache_control.max_age = 0
+	response.cache_control.no_store = True
+	if 'Cache-Control' not in response.headers:
+		response.headers['Cache-Control'] = 'no-store'
+	return response
 
 
 import socket
@@ -499,10 +522,13 @@ def findFirstOpenPort(startPort=1):
 
 def managerMessageForwarder():
 	global pipeToManager
+	global share
+	
 	while True:
 		while pipes.poll(pipeToManager):
 			print('Sending server message')
 			socketio.emit('Server Message', pipes.recv(pipeToManager))
+		
 		socketio.sleep(0.1)
 
 
@@ -523,9 +549,15 @@ def launchBrowser(url):
 	print('URL is "{}"'.format(url))
 	webbrowser.open_new(url)
 
+def makeShareGlobal(localShare):
+	global share
+	share = localShare
 
 def start(share=None, debug=True, use_reloader=True):
 	global pipeToManager
+	
+	makeShareGlobal(share)
+	
 	pipeToManager = None
 	if share is not None:
 		pipeToManager = share['p']

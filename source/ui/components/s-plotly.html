@@ -1,0 +1,28 @@
+
+
+<script type="text/html" id="s-plotly">
+	<div style="width: 100%"></div>
+</script>
+
+<script type="text/javascript">
+	Vue.component('s-plotly', {
+		template: '#s-plotly',
+		props: {
+			data: {
+				type: Array
+			},
+			layout: {
+				type: Object
+			}
+		},
+		mounted() {
+			this.Plot();
+			this.$watch('data', this.Plot, { deep: true });
+		},
+		methods: {
+			Plot() {
+				return Plotly.newPlot(this.$el, this.data, this.layout, {responsive: true});
+			}
+		}
+	});
+</script>
