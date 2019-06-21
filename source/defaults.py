@@ -32,6 +32,18 @@ default_parameters = {
 			'isFastSweep': 				{'type':'bool',                'default': False,  'title':'Fast Sweep',                   'description':'Use internal SMU timer to measure a faster sweep.'},
 			'fastSweepSpeed':			{'type':'int',   'units':'Hz', 'default': 1000,   'title':'Fast Sweep Speed',             'description':'Frequency of SMU internal timer.'},
 		},
+		'InverterSweep':{
+			'dependencies':				{'ignore':True, 'value':[]},
+			'saveFileName': 			{'type':'constant', 'default': 'InverterSweep', 'title':'Save File Name', 'description':'The name of the file that will be saved with the data from this experiment. This name should typically not be changed.'},
+			'inputVoltageMinimum': 		{'type':'float', 'units':'V', 'default': 0.0,    'title':'Input Voltage Minimum',        'description':'Input voltage starting value.'},
+			'inputVoltageMaximum': 		{'type':'float', 'units':'V', 'default': 1.0,    'title':'Input Voltage Maximum',        'description':'Input voltage final value.'},
+			'vddSupplyVoltageSetPoint':	{'type':'float', 'units':'V', 'default': 1.0,    'title':'Vdd Supply Voltage Set Point', 'description':'Inverter power supply voltage.'}, 
+			'complianceCurrent':		{'type':'float', 'units':'A', 'default': 100e-6, 'title':'Compliance Current',           'description':'Maximum current limit for the SMU.'},
+			'stepsInVINPerDirection': 	{'type':'int',   'units':'#', 'default': 100,    'title':'Steps In VIN (per Direction)', 'description':'Number of unique input voltage steps in the sweep.'},
+			'pointsPerVIN': 			{'type':'int',   'units':'#', 'default': 1,      'title':'Measurements Per VIN',         'description':'Number of measurements taken at each input voltage step.'},
+			'inputVoltageRamps':		{'type':'int',   'units':'#', 'default': 2,      'title':'Input Voltage Ramps',          'description':'Number of times to loop through input voltage values.'},
+			
+		},
 		'BurnOut':{
 			'dependencies':					{'ignore':True, 'value':[]},
 			'saveFileName': 				{'type':'constant', 'default': 'BurnOut', 'title':'Save File Name', 'description':'The name of the file that will be saved with the data from this experiment. This name should typically not be changed.'},
@@ -74,27 +86,27 @@ default_parameters = {
 			'gateVoltageWhenDone':  		{'type':'float', 'units':'V', 'default': 0,      'title':'Gate Voltage When Done',          'description':'When finished, ramp gate voltage to this value.'},
 			'drainVoltageWhenDone': 		{'type':'float', 'units':'V', 'default': 0,      'title':'Drain Voltage When Done',         'description':'When finished, ramp drain voltage to this value.'},
 			'floatChannelsWhenDone': 		{'type':'bool',               'default': False,  'title':'Float Channels When Done',        'description':'When finished, float the drain and gate voltages.'},
-			'delayWhenDone': 				{'type':'float', 'units':'s', 'default': 0,      'title':'Delay When Done',                 'description':'When finished, time to hold gate and drain voltages at their final value.'} 
+			'delayWhenDone': 				{'type':'float', 'units':'s', 'default': 0,      'title':'Delay When Done',                 'description':'When finished, time to hold gate and drain voltages at their final value.'}, 
 		},
 		'AutoBurnOut':{
 			'dependencies':					{'ignore':True, 'value':['BurnOut']},
-			'targetOnOffRatio': 			{'type':'float', 'units':'',  'default': 80,  'title':'Target On Off Ratio',            'description':''},
-			'limitBurnOutsAllowed': 		{'type':'int',   'units':'#', 'default': 8,   'title':'Limit Burn Outs Allowed',        'description':''},
-			'limitOnOffRatioDegradation': 	{'type':'float', 'units':'V', 'default': 0.7, 'title':'Limit On Off Ratio Degradation', 'description':''} 
+			'targetOnOffRatio': 			{'type':'float', 'units':'',  'default': 80,  'title':'Target On Off Ratio',            'description':'Stop burn out when the device on-off ratio increases above this absolute value.'},
+			'limitOnOffRatioDegradation': 	{'type':'float', 'units':'',  'default': 0.7, 'title':'Limit On Off Ratio Degradation', 'description':'Stop burn out if device on-off ratio decreases by this factor.'}, 
+			'limitBurnOutsAllowed': 		{'type':'int',   'units':'#', 'default': 8,   'title':'Limit Burn Outs Allowed',        'description':'Stop burn out after this many tries.'},
 		},
 		'AutoGateSweep':{
 			'dependencies':					{'ignore':True, 'value':['GateSweep']},
 			'sweepsPerVDS': 				{'type':'int',   'units':'#', 'default': 3,     'title':'Sweeps Per VDS',           'description':'Number of gate sweeps to take at each value of drain voltage.'},
 			'drainVoltageSetPoints': 		{'type':'array', 'units':'V', 'default': [],    'title':'Drain Voltage Set Points', 'description':'List of drain voltage values to do sweeps at.'},
 			'delayBetweenSweeps': 			{'type':'float', 'units':'s', 'default': 2,     'title':'Delay Between Sweeps',     'description':'Delay between each sweep.'},
-			'timedSweepStarts': 			{'type':'bool',               'default': False, 'title':'Timed Sweeps',       		'description':'When enabled, the delay between sweeps is dynamically reduced by the amount of time the sweep took.'} 
+			'timedSweepStarts': 			{'type':'bool',               'default': False, 'title':'Timed Sweeps',       		'description':'When enabled, the delay between sweeps is dynamically reduced by the amount of time the sweep took.'}, 
 		},
 		'AutoDrainSweep':{
 			'dependencies': 				{'ignore':True, 'value':['DrainSweep']},
 			'sweepsPerVGS': 				{'type':'int',   'units':'#', 'default': 1,              'title':'Sweeps Per VGS',          'description':'Number of drain sweeps to take at each value of gate voltage.'},
 			'gateVoltageSetPoints':			{'type':'array', 'units':'V', 'default': [-0.5, 0, 0.5], 'title':'Gate Voltage Set Points', 'description':'List of gate voltage values to do sweeps at.'},
 			'delayBetweenSweeps': 			{'type':'float', 'units':'s', 'default': 0,              'title':'Delay Between Sweeps',    'description':'Delay between each sweep.'},
-			'timedSweepStarts': 			{'type':'bool',               'default': False,          'title':'Timed Sweep Starts',      'description':'When enabled, the delay between sweeps is dynamically reduced by the amount of time the sweep took.'} 
+			'timedSweepStarts': 			{'type':'bool',               'default': False,          'title':'Timed Sweep Starts',      'description':'When enabled, the delay between sweeps is dynamically reduced by the amount of time the sweep took.'}, 
 		},
 		'AutoStaticBias':{
 			'dependencies': 						{'ignore':True, 'value':['StaticBias','GateSweep']},
@@ -111,7 +123,7 @@ default_parameters = {
 			'incrementGateVoltageWhenDone': 		{'type':'float', 'units':'V', 'default': 0,     'title':'Increment Gate Voltage When Done',          'description':''},
 			'incrementDrainVoltageWhenDone':		{'type':'float', 'units':'V', 'default': 0,     'title':'Increment Drain Voltage When Done',         'description':''},
 			'incrementDelayBeforeReapplyingVoltage':{'type':'float', 'units':'s', 'default': 0,     'title':'Increment Delay Before Reapplying Voltage', 'description':''},
-			'shuffleDelaysBeforeReapplyingVoltage': {'type':'bool',               'default': False, 'title':'Shuffle Delays Before Reapplying Voltage',  'description':''} 
+			'shuffleDelaysBeforeReapplyingVoltage': {'type':'bool',               'default': False, 'title':'Shuffle Delays Before Reapplying Voltage',  'description':''}, 
 		},
 		'AutoFlowStaticBias':{
 			'dependencies': 						{'ignore':True, 'value':['FlowStaticBias','GateSweep']},
@@ -128,7 +140,7 @@ default_parameters = {
 			'incrementGateVoltageWhenDone': 		{'type':'float', 'units':'V', 'default': 0,     'title':'Increment Gate Voltage When Done',          'description':''},
 			'incrementDrainVoltageWhenDone':		{'type':'float', 'units':'V', 'default': 0,     'title':'Increment Drain Voltage When Done',         'description':''},
 			'incrementDelayBeforeReapplyingVoltage':{'type':'float', 'units':'s', 'default': 0,     'title':'Increment Delay Before Reapplying Voltage', 'description':''},
-			'shuffleDelaysBeforeReapplyingVoltage': {'type':'bool',               'default': False, 'title':'Shuffle Delays Before Reapplying Voltage',  'description':''} 
+			'shuffleDelaysBeforeReapplyingVoltage': {'type':'bool',               'default': False, 'title':'Shuffle Delays Before Reapplying Voltage',  'description':''}, 
 		},
 		'AFMControl':{
 			'dependencies': 			{'ignore':True, 'value':[]},
@@ -142,7 +154,7 @@ default_parameters = {
 			'complianceCurrent': 		{'type':'float', 'units':'A',  'default': 1e-6,  'title':'Compliance Current',       'description':''},
 			'complianceVoltage': 		{'type':'float', 'units':'V',  'default': 10,    'title':'Compliance Voltage',       'description':''},
 			'deviceMeasurementSpeed': 	{'type':'float', 'units':'Hz', 'default': 60,    'title':'Device Measurement Speed', 'description':''},
-			'XYCableSwap':				{'type':'bool',                'default': False, 'title':'XYCable Swap',             'description':''} 
+			'XYCableSwap':				{'type':'bool',                'default': False, 'title':'XYCable Swap',             'description':''}, 
 		},
 		'SGMControl':{
 			'dependencies': 				{'ignore':True, 'value':[]},
@@ -159,52 +171,41 @@ default_parameters = {
 			'XYCableSwap':					{'type':'bool',                'default': False, 'title':'XYCable Swap',                   'description':''},
 			'tracesToMeasure':				{'type':'int',   'units':'#',  'default': 1,     'title':'Traces To Measure',              'description':''},
 			'scans':						{'type':'int',   'units':'#',  'default': 1,     'title':'Scans',                          'description':''},
-			'delayBeforeApplyingVoltages':	{'type':'float', 'units':'s',  'default': 0,     'title':'Delay Before Applying Voltages', 'description':''} 
+			'delayBeforeApplyingVoltages':	{'type':'float', 'units':'s',  'default': 0,     'title':'Delay Before Applying Voltages', 'description':''}, 
 		},
 		'Delay':{
 			'dependencies': 			{'ignore':True, 'value':[]},
-			'message':					{'type':'string',              'default': "",  'title':'Message',    'description':''},
-			'delayTime':				{'type':'int',    'units':'s', 'default': 300, 'title':'Delay Time', 'description':''} 
-		},
-		'InverterSweep':{
-			'dependencies':				{'ignore':True, 'value':[]},
-			'saveFileName': 			{'type':'constant', 'default': 'InverterSweep', 'title':'Save File Name', 'description':'The name of the file that will be saved with the data from this experiment. This name should typically not be changed.'},
-			'stepsInVINPerDirection': 	{'type':'int',   'units':'#', 'default': 100,    'title':'Steps In VINPer Direction',    'description':''},
-			'pointsPerVIN': 			{'type':'int',   'units':'#', 'default': 1,      'title':'Points Per VIN',               'description':''},
-			'inputVoltageRamps':		{'type':'int',   'units':'#', 'default': 2,      'title':'Input Voltage Ramps',          'description':''},
-			'complianceCurrent':		{'type':'float', 'units':'A', 'default': 100e-6, 'title':'Compliance Current',           'description':''},
-			'vddSupplyVoltageSetPoint':	{'type':'float', 'units':'V', 'default': 1.0,    'title':'Vdd Supply Voltage Set Point', 'description':''},
-			'inputVoltageMinimum': 		{'type':'float', 'units':'V', 'default': 0.0,    'title':'Input Voltage Minimum',        'description':''},
-			'inputVoltageMaximum': 		{'type':'float', 'units':'V', 'default': 1.0,    'title':'Input Voltage Maximum',        'description':''} 
+			'delayTime':				{'type':'int',    'units':'s', 'default': 300, 'title':'Delay Time', 'description':'Duration of delay.'}, 
+			'message':					{'type':'string',              'default': "",  'title':'Message',    'description':'Message to print at the start of delay.'},
 		},
 		'RapidBias':{
 			'dependencies':				{'ignore':True, 'value':[]},
 			'saveFileName': 			{'type':'constant', 'default': 'RapidBias', 'title':'Save File Name', 'description':'The name of the file that will be saved with the data from this experiment. This name should typically not be changed.'},
-			'complianceCurrent':		{'type':'float',   'units':'A', 'default': 100e-6,   'title':'Compliance Current',       'description':''},
-			'waveform': 				{'type':'string',               'default': 'square', 'title':'Waveform',                 'description':''},
-			'drainVoltageSetPoints':	{'type':'array',   'units':'V', 'default': [0.05],   'title':'Drain Voltage Set Points', 'description':''},
-			'gateVoltageSetPoints':		{'type':'array',   'units':'V', 'default': [0.0],    'title':'Gate Voltage Set Points',  'description':''},
-			'measurementPoints':		{'type':'array',   'units':'#', 'default': [50],     'title':'Measurement Points',       'description':''},
-			'averageOverPoints': 		{'type':'int',     'units':'#', 'default': 1,        'title':'Average Over Points',      'description':''},
-			'maxStepInVDS': 			{'type':'float',   'units':'V', 'default': 0.025,    'title':'Max Step In VDS',          'description':''},
-			'maxStepInVGS': 			{'type':'float',   'units':'V', 'default': 0.4,      'title':'Max Step In VGS',          'description':''},
-			'startGrounded': 			{'type':'bool',                 'default': False,    'title':'Start Grounded',           'description':''} 
+			'waveform': 				{'type':'string',               'default': 'square',         'title':'Waveform',                 'description':'Type of waveform of voltages to apply. Options include: "square", "triangle", "sine", etc.'},
+			'drainVoltageSetPoints':	{'type':'array',   'units':'V', 'default': [0.01],   		 'title':'Drain Voltage Key Points', 'description':'List of drain voltages that the generated VDS waveform must include.'},
+			'gateVoltageSetPoints':		{'type':'array',   'units':'V', 'default': [0,  1, 0, 1, 0], 'title':'Gate Voltage Key Points',  'description':'List of gate voltages that the generated VGS waveform must include.'},
+			'measurementPoints':		{'type':'array',   'units':'#', 'default': [50,50,50,50,50], 'title':'Measurement Points',       'description':'List of the number of measurements to take in each segment of the waveform. The size of this list should match the size of the longest key point list.'},
+			'complianceCurrent':		{'type':'float',   'units':'A', 'default': 100e-6,           'title':'Compliance Current',       'description':'Maximum current limit for the SMU.'},
+			'averageOverPoints': 		{'type':'int',     'units':'#', 'default': 1,                'title':'Average Over Points',      'description':'When greater than one, consecutive measurements are averaged together to reduce size of saved data.'},
+			'maxStepInVDS': 			{'type':'float',   'units':'V', 'default': 0.025,            'title':'Max Step In VDS',          'description':'Maximum allowable step used in generating the drain voltage waveform.'},
+			'maxStepInVGS': 			{'type':'float',   'units':'V', 'default': 0.4,              'title':'Max Step In VGS',          'description':'Maximum allowable step used in generating the gate voltage waveform.'},
+			'startGrounded': 			{'type':'bool',                 'default': False,            'title':'Start Grounded',           'description':'When enabled, terminals start as grounded so that you can see all of the starting transients and miss nothing.'}, 
 		},
 		'NoiseCollection':{
 			'dependencies':				{'ignore':True, 'value':[]},
 			'saveFileName': 			{'type':'constant', 'default': 'NoiseCollection', 'title':'Save File Name', 'description':'The name of the file that will be saved with the data from this experiment. This name should typically not be changed.'},
 			'measurementSpeed':	 		{'type':'float', 'units':'Hz', 'default': 10e3,   'title':'Measurement Speed',  'description':''},
 			'points':			 		{'type':'int',   'units':'#',  'default': 10e3,   'title':'Points',             'description':''},
-			'complianceCurrent':		{'type':'float', 'units':'A',  'default': 100e-6, 'title':'Compliance Current', 'description':''},
+			'complianceCurrent':		{'type':'float', 'units':'A',  'default': 100e-6, 'title':'Compliance Current', 'description':'Maximum current limit for the SMU.'},
 			'gateVoltage':				{'type':'float', 'units':'V',  'default': 0,      'title':'Gate Voltage',       'description':''},
-			'drainVoltage':				{'type':'float', 'units':'V',  'default': 0.1,    'title':'Drain Voltage',      'description':''} 
+			'drainVoltage':				{'type':'float', 'units':'V',  'default': 0.1,    'title':'Drain Voltage',      'description':''}, 
 		},
 		'NoiseGrid':{
 			'dependencies':				{'ignore':True, 'value':['NoiseCollection']},
 			'saveFileName': 			{'type':'constant', 'default': 'NoiseGrid', 'title':'Save File Name', 'description':'The name of the file that will be saved with the data from this experiment. This name should typically not be changed.'},
 			'gateVoltages':				{'type':'array', 'units':'V', 'default': [-0.5,0,0.5],     'title':'Gate Voltages',  'description':''},
 			'drainVoltages':			{'type':'array', 'units':'V', 'default': [0.05,0.10,0.15], 'title':'Drain Voltages', 'description':''},
-			'groundingTime':			{'type':'float', 'units':'s', 'default': 1,                'title':'Grounding Time', 'description':''} 
+			'groundingTime':			{'type':'float', 'units':'s', 'default': 1,                'title':'Grounding Time', 'description':''}, 
 		}
 	},
 	'Results':{
