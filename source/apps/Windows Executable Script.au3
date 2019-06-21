@@ -5,4 +5,4 @@ RunWait("python source/dispatcher.py")
 #CE
 
 
-RunWait('"' & @ComSpec & '" /k ' & "cd source & python ui.py")
+RunWait('"' & @ComSpec & '" /k ' & "cd source & python manager.py")

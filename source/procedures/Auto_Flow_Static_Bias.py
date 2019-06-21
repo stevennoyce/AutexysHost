@@ -7,7 +7,11 @@ from procedures import Gate_Sweep as gateSweepScript
 from procedures import Flow_Static_Bias as flowStaticBiasScript
 from utilities import DataLoggerUtility as dlu
 
-
+def turnOnlyPin(smu_instance, pumpPins, pin):
+	for i in pumpPins:
+		if i != pin:
+			smu_instance.digitalWrite(i, "LOW")
+	smu_instance.digitalWrite(pin, "HIGH")
 
 # === Main ===
 def run(parameters, smu_instance, arduino_instance, share=None):
@@ -75,11 +79,27 @@ def runAutoFlowStaticBias(parameters, smu_instance, arduino_instance, gateSweepP
 		sb_parameters['delayWhenDone'] = delayWhenDoneList[i]
 		sb_parameters['delayBeforeMeasurementsBegin'] = delayBeforeMeasurementsList[i]
 		
-		# Run StaticBias, GateSweep (if desired)
-		if(asb_parameters['applyGateSweepBetweenBiases'] and asb_parameters['applyGateSweepBothBeforeAndAfter']):
-			gateSweepScript.run(gateSweepParameters, smu_instance, isSavingResults=True, isPlottingResults=False)
-		flowStaticBiasScript.run(flowStaticBiasParameters, smu_instance, arduino_instance, isSavingResults=True, isPlottingResults=False)
+		pumpPins = parameters['runConfigs']['FlowStaticBias']['pumpPins']
+		flowDurations = parameters['runConfigs']['FlowStaticBias']['flowDurations']
+		
+		for x in range(0, len(pumpPins)):
+			pumpPins[x] = int(pumpPins[x])
+			flowDurations[x] = int(flowDurations[x])
+		
+		# Run StaticBias, GateSweep (if desired) BEFORE
 		if(asb_parameters['applyGateSweepBetweenBiases']):
+			for x in range(0, len(pumpPins)):
+				print("Exchanging fluid for digitalPin: " + str(pumpPins[x]))
+				turnOnlyPin(smu_instance, pumpPins, int(pumpPins[x]))
+				time.sleep(int(flowDurations[x]))
+				print("Stopping fluid exchange")
+				turnOnlyPin(smu_instance, pumpPins, -1) # turn off everything else
+				time.sleep(5) # reduce noise
+				gateSweepScript.run(gateSweepParameters, smu_instance, isSavingResults=True, isPlottingResults=False)
+				
+
+		flowStaticBiasScript.run(flowStaticBiasParameters, smu_instance, arduino_instance, isSavingResults=True, isPlottingResults=False)
+		if(asb_parameters['applyGateSweepBetweenBiases'] and asb_parameters['applyGateSweepBothBeforeAndAfter']):
 			gateSweepScript.run(gateSweepParameters, smu_instance, isSavingResults=True, isPlottingResults=False)
 
 		print('Completed static bias #'+str(i+1)+' of '+str(numberOfFlowStaticBiases))

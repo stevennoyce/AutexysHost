@@ -68,6 +68,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	SNR = []
 	SNR_averaged_cycles = []
 	SNR_total = []
+	SNR_total_std = []
 	allVgs = []
 	for i in range(len(deviceHistory)):
 		
@@ -124,17 +125,19 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 			# go through every other pin, compare to control
 			for pinIndex in range(1, len(pumpPins)):
 				control_data = id_data_total[cycleIndex][0]
-				control_data = control_data[int(len(control_data)/2):] #int(len(control_data)*3/4)]
+				control_data = control_data[int(len(control_data)*1/4):int(len(control_data)*3/4)]
 				other_data = id_data_total[cycleIndex][pinIndex]
-				other_data = other_data[int(len(other_data)/2):] #int(len(other_data)*3/4)]
+				other_data = other_data[int(len(other_data)*1/4):int(len(other_data)*3/4)]
 				u1 = np.mean(control_data)
 				u2 = np.mean(other_data)
-				
+				#print("means")
+				#print(u1, u2)
 				
 				signal = abs(u1 - u2)
 				std1 = np.std(control_data)
 				std2 = np.std(other_data)
 				noise = (std1 + std2) / 2
+				#print(std1, std2)
 				
 				'''
 				print("gate voltage: ", str(currentVgs))
@@ -148,25 +151,33 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 				'''
 				individualPumpRatio.append(signal / noise)
 			SNR.append(individualPumpRatio)
+		#print("SNR")
+		#print(SNR)
 		
 		# go through every possible pin combination (i), and average up the cycles (k)
 		SNR_averaged_cycles = []
+		SNR_averaged_cycles_std = []
 		for i in range(0, len(pumpPins)-1):
 			SNR_averaged_cycles.append([])
-			for k in range(0, cycleCount):
+			SNR_averaged_cycles_std.append([])
+			for k in range(1, cycleCount):
 				SNR_averaged_cycles[i].append(SNR[k][i])
 			a = np.mean(SNR_averaged_cycles[i])
+			b = np.std(SNR_averaged_cycles[i])
 			SNR_averaged_cycles[i] = a
-		
+			SNR_averaged_cycles_std[i] = b
+					
 			SNR_total.append(SNR_averaged_cycles)
+			SNR_total_std.append(SNR_averaged_cycles_std)
 			
 		allVgs.append(currentVgs)
 	
-	print("SNR TOTAL")
-	print(SNR_total)
-	print(allVgs, SNR_total)
+	#print("SNR TOTAL")
+	#print(SNR_total)
+	#print(allVgs, SNR_total)
 	#plt.plot(allVgs, SNR_total, "ro")
 	
+	'''
 	# go through every possible pin combination, and plot
 	for x in range(0, len(pumpPins)-1):
 		correspondingSNR = []
@@ -175,13 +186,22 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 			correspondingSNR.append(SNR_total[y][x])
 			
 		ax.plot(allVgs, correspondingSNR, color=colors[x], linestyle=None, linewidth=0, marker='o', markersize=4)
+	'''
 	
 	for x in range(0, len(pumpPins)-1):
 		correspondingSNR = []
+		snr_max_per = 0
+		snr_max_per_index = 0
 		for y in range(0, len(allVgs)):
 			print(x, y)
 			correspondingSNR.append(SNR_total[y][x])
 			ax.plot([allVgs[y]], [SNR_total[y][x]], color=colors[y], linestyle=None, linewidth=0, marker='o', markersize=4)
+			ax.errorbar([allVgs[y]], [SNR_total[y][x]], yerr=SNR_total_std[y][x], color=colors[y], linewidth=1, capsize=2, capthick=0.5, elinewidth=0.5)
+			if SNR_total[y][x] > snr_max_per:
+				snr_max_per = SNR_total[y][x]
+				snr_max_per_index = y
+		ax.axvline(allVgs[snr_max_per_index])
+	
 	
 	includeOriginOnYaxis(ax, include=plotDescription['plotDefaults']['includeOriginOnYaxis'])
 	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=plotDescription['plotDefaults']['ylabel'])		

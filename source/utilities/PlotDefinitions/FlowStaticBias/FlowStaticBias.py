@@ -90,6 +90,14 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		line = plotStaticBias(ax1, deviceHistory[i], colors[i], time_offset, y_data='id_data', scaleYaxisBy=current_scale, timescale=timescale, lineStyle=None, gradient=mode_parameters['enableGradient'], gradientColors=colorsFromMap(plotDescription['plotDefaults']['colorMap'], 0, 0.95, len(deviceHistory[i]['Results']['timestamps']))['colors'])
 		if(len(deviceHistory) == len(mode_parameters['legendLabels'])):
 			setLabel(line, mode_parameters['legendLabels'][i])
+		
+		'''
+		# Plot lines to show when fluids stop/flow
+		print("starting lines")
+		for fluidflow in deviceHistory[i]["Results"]["pump_on_intervals"]:
+			for fluidflow_times in fluidflow:
+				ax1.axvline(x=(fluidflow_times//60))
+		'''
 			
 		# Plot Dual Axis (if desired)
 		if(includeDualAxis):
@@ -97,6 +105,8 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 				vds_line = plotOverTime(vds_ax, deviceHistory[i]['Results']['timestamps'], [deviceHistory[i]['runConfigs']['FlowStaticBias']['drainVoltageSetPoint']]*len(deviceHistory[i]['Results']['timestamps']), plt.rcParams['axes.prop_cycle'].by_key()['color'][0], offset=time_offset)
 			if(vgs_setpoint_changes):
 				vgs_line = plotOverTime(vgs_ax, deviceHistory[i]['Results']['timestamps'], [deviceHistory[i]['runConfigs']['FlowStaticBias']['gateVoltageSetPoint']]*len(deviceHistory[i]['Results']['timestamps']), plt.rcParams['axes.prop_cycle'].by_key()['color'][3], offset=time_offset)
+		
+		
 				
 		## Compare current plot's parameters to the next ones, and save any differences
 		# if((i == 0) or (deviceHistory[i]['runConfigs']['StaticBias'] != deviceHistory[i-1]['runConfigs']['StaticBias']) or mode_parameters['staticBiasSegmentDividers']):
