@@ -120,7 +120,7 @@
 		
 	<transition name="fade" mode="out-in" appear>
 		<v-app v-cloak>
-				<v-navigation-drawer clipped fixed v-model="drawer" class="color1 lighten-1" dark app>
+				<v-navigation-drawer clipped fixed v-model="drawer" class="color1" dark app>
 					<v-list dense>
 						<v-list-tile @click="setTopLevelPage('dashboard')">
 							<v-list-tile-action>
@@ -1109,7 +1109,7 @@
 												</v-toolbar>
 												
 												<div class="text-xs-center">
-													<v-plotly v-bind:data="Object.entries(livePlotYData).map(([k, v]) => ({x: xdata, y: v.map(val => Math.abs(val)), mode: 'lines', name: k}))" v-bind:height="90" :column-number="1" :layout="{xaxis: {title: xlabel}, yaxis: {title: 'Current [A]', type: 'log', autorange: true}, legend: {'orientation': 'h', y: 1.1}, margin: {l: 60,r: 20,b: 70,t: 20,pad: 4}, automargin: true, autosize: true, exponentformat:'SI'}"></v-plotly>
+													<s-plotly v-bind:data="Object.entries(livePlotYData).map(([k, v]) => ({x: xdata, y: v.map(val => Math.abs(val)), mode: 'lines', name: k}))" v-bind:height="90" :column-number="1" :layout="{xaxis: {title: xlabel}, yaxis: {title: 'Current [A]', type: 'log', autorange: true}, legend: {'orientation': 'h', y: 1.1}, margin: {l: 60,r: 20,b: 70,t: 20,pad: 4}, automargin: true, autosize: true, exponentformat:'SI'}"></s-plotly>
 												</div>
 											</v-card>
 										</v-flex>
@@ -1829,9 +1829,6 @@
 		// Teals theme
 		app.$data.colors = ['#10E7DC', '#0074E1', '#1B9CE5', '#6CDAEE', '#F79E02'];
 		
-		// Dark Business Theme
-		app.$data.colors = ['#265077', '#022140', '#494B68', '#1E4258', '#2D5F5D'];
-		
 		// Blue Red Theme
 		app.$data.colors = ['#314455', '#644E5B', '#9E5A63', '#C96567', '#97AABD'];
 		
@@ -1850,9 +1847,11 @@
 		// Diverse strongs theme 2 adjusted to 45% brightness
 		app.$data.colors = ['#2f75b6','#c8321e','#9e4786','#e68200','#44a269']
 		
-		// Diverse pastels theme 2 adjusted to roughly 50% brightness
-		app.$data.colors = ['#0095ff','#30cf6a','#af7dd9','#d83148','#edc912']
+		// Diverse pastels theme 2 adjusted to roughly 40% brightness
+		app.$data.colors = ['#0077cc','#27a555','#9755ce','#b42236','#d19a10']
 		
+		// Dark Business Theme
+		app.$data.colors = ['#3775ae', '#418b88', '#347298', '#4d53b3', '#1966b3'];
 		
 		for (var i = 0; i < app.$data.colors.length; i++) {
 			app.$vuetify.theme['color' + (i + 1)] = app.$data.colors[i];
