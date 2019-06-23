@@ -615,7 +615,7 @@
 							
 							
 							<v-list expand>
-								<v-list-group v-for="scheduleObject, scheduleObjectIndex in scheduleObjects" :key="scheduleObjectIndex" color="color2">
+								<v-list-group v-for="scheduleObject, scheduleObjectIndex in scheduleObjects" :key="scheduleObjectIndex" :prepend-icon="$vuetify.icons.expand">
 									<v-list-tile slot="activator">
 										<v-list-tile-content>
 											<v-list-tile-title>
@@ -1850,8 +1850,14 @@
 		// Diverse pastels theme 2 adjusted to roughly 40% brightness
 		app.$data.colors = ['#0077cc','#27a555','#9755ce','#b42236','#d19a10']
 		
+		// Mint theme adjusted
+		app.$data.colors = ['#05386B', '#379683', '#5CDB95', '#8EE4AF', '#EDF5E1'];
+		
 		// Dark Business Theme
-		app.$data.colors = ['#3775ae', '#418b88', '#347298', '#4d53b3', '#1966b3'];
+		app.$data.colors = ['#5981a6', '#509593', '#595ea6', '#3973ac', '#457da1'];
+		
+		// Decent sucess, info, warning, error colors
+		// app.$data.colors = ['#43a446', '#00b1c6', '#fe9100', '#e83b2b']
 		
 		for (var i = 0; i < app.$data.colors.length; i++) {
 			app.$vuetify.theme['color' + (i + 1)] = app.$data.colors[i];

@@ -1,10 +1,33 @@
 <script type="text/html" id="s-item-edit">
-	<v-switch 			 v-if="setting.type == 'bool'" 		:label="setting.title" :suffix="setting.units" v-model="setting.default"></v-switch>
-	<v-text-field 	v-else-if="setting.type == 'float'" 	:label="setting.title" :suffix="setting.units" v-model.number="setting.default"></v-text-field>
-	<v-text-field 	v-else-if="setting.type == 'int'" 		:label="setting.title" :suffix="setting.units" v-model.number="setting.default"></v-text-field>
-	<v-text-field 	v-else-if="setting.type == 'string'" 	:label="setting.title" :suffix="setting.units" v-model="setting.default"></v-text-field>
-	<v-select 		v-else-if="setting.type == 'choice'" 	:label="setting.title" :suffix="setting.units" v-model="setting.default" :items="setting.choices"></v-select>
-	<s-json-field 	v-else-if="setting.type == 'array'" 	:label="setting.title" :suffix="setting.units" v-model="setting.default"></s-json-field>
+	
+	<v-switch v-if="setting.type == 'bool'"
+		:label="setting.title" :suffix="setting.units" v-model="setting.default">
+	</v-switch>
+	
+	<v-text-field v-else-if="setting.type == 'float'"
+		:label="setting.title" :suffix="setting.units" v-model.number="setting.default"
+		placeholder=" " type="number" step="any" :rules="[rules.float]">
+	</v-text-field>
+	
+	<v-text-field v-else-if="setting.type == 'int'"
+		:label="setting.title" :suffix="setting.units" v-model.number="setting.default"
+		placeholder=" " type="number" :rules="[rules.integer]">
+	</v-text-field>
+	
+	<v-text-field v-else-if="setting.type == 'string'"
+		:label="setting.title" :suffix="setting.units" v-model="setting.default"
+		placeholder=" ">
+	</v-text-field>
+	
+	<v-select v-else-if="setting.type == 'choice'"
+		:label="setting.title" :suffix="setting.units" v-model="setting.default"
+		:items="setting.choices">
+	</v-select>
+	
+	<s-json-field v-else-if="setting.type == 'array'"
+		:label="setting.title" :suffix="setting.units" v-model="setting.default">
+	</s-json-field>
+	
 </script>
 <script type="text/javascript">
 	Vue.component('s-item-edit', {
@@ -12,7 +35,11 @@
 		props: ['value'],
 		data: function() {
 			return {
-				setting: this.value
+				setting: this.value,
+				rules: {
+					integer: val => Number.isInteger(val) || 'Must be an integer',
+					float: val => typeof(val) == 'number' || 'Must be a floating point number',
+				}
 			};
 		},
 		watch: {
