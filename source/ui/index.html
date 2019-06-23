@@ -666,7 +666,7 @@
 										</v-list-tile-action>
 									</v-list-tile>
 									
-									<s-schedule-job-edit v-model="scheduleObjects[scheduleObjectIndex]" :schedule-object-default="scheduleObjectDefault"></s-schedule-job-edit>
+									<s-schedule-job-edit :job.sync="scheduleObjects[scheduleObjectIndex]" :job-default="scheduleObjectDefault"></s-schedule-job-edit>
 									
 								</v-list-group>
 							</v-list>

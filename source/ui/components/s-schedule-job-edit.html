@@ -1,8 +1,8 @@
 
-<!-- <s-schedule-job-edit v-model="scheduleObject" :schedule-object-default="scheduleObjectDefault"></s-schedule-job-edit> -->
+<!-- <s-schedule-job-edit v-model="job" :schedule-object-default="scheduleObjectDefault"></s-schedule-job-edit> -->
 
 <script type="text/html" id="s-schedule-job-edit">
-<v-container fluid grid-list-md v-if="scheduleObject != undefined && scheduleObjectDefault != undefined">
+<v-container fluid grid-list-md v-if="job != undefined && jobDefault != undefined">
 	<v-layout row wrap>
 		
 		<v-flex xs12 sm6 md4 lg3 xl2>
@@ -14,50 +14,50 @@
 				</v-toolbar>
 				
 				<v-list>
-					<v-select box class="ma-3" label="Run Type" v-model="scheduleObject['runType']['default']" :items="Object.keys(scheduleObjectDefault['runConfigs'] || {})"></v-select>
+					<v-select box class="ma-3" label="Run Type" v-model="job['runType']['default']" :items="Object.keys(jobDefault['runConfigs'] || {})"></v-select>
 					<v-subheader class="grey lighten-3">Identifiers</v-subheader>
 					
 					<s-item-group-edit class="grey lighten-3"
-						v-model="scheduleObject['Identifiers']"
-						:default="scheduleObjectDefault['Identifiers']"></s-item-group-edit>
+						:settings.sync="job['Identifiers']"
+						:defaults="jobDefault['Identifiers']"></s-item-group-edit>
 					
 					<v-subheader>Measurement System</v-subheader>
-					<!-- <template v-for="(setting, settingName) in scheduleObjectDefault['MeasurementSystem']" v-if="['bool','float','int','string','choice','array'].includes(setting.type)">
+					<!-- <template v-for="(setting, settingName) in jobDefault['MeasurementSystem']" v-if="['bool','float','int','string','choice','array'].includes(setting.type)">
 						<v-tooltip top>
 							<v-list-tile slot="activator" style="overflow:scroll; overscroll-behavior: contain">
-								<s-item-edit v-model="scheduleObject['MeasurementSystem'][settingName]"></s-item-edit>
+								<s-item-edit v-model="job['MeasurementSystem'][settingName]"></s-item-edit>
 								
 								<v-combobox v-if="setting.type == 'array'" :label="setting.title"
-									v-model="scheduleObject['MeasurementSystem'][settingName]['default']" :items="scheduleObject['MeasurementSystem'][settingName]['choices']" multiple small-chips :delimiters="[',',' ',';']"></v-combobox>
+									v-model="job['MeasurementSystem'][settingName]['default']" :items="job['MeasurementSystem'][settingName]['choices']" multiple small-chips :delimiters="[',',' ',';']"></v-combobox>
 							</v-list-tile>
 							<span><b>{{ setting.title }}</b></br>Type: <{{ setting.type }}>, Units: [{{ setting.units }}]</br>{{ setting.description }}</span>
 						</v-tooltip>
 					</template> -->
 					
 					<s-item-group-edit 
-						v-model="scheduleObject['MeasurementSystem']"
-						:default="scheduleObjectDefault['MeasurementSystem']"></s-item-group-edit>
+						:settings.sync="job['MeasurementSystem']"
+						:defaults="jobDefault['MeasurementSystem']"></s-item-group-edit>
 					
 				</v-list>
 			</v-card>
 		</v-flex>
 		
-		<v-flex xs12 sm6 md4 lg3 xl2 v-if="scheduleObject['runType']['default'] != ''">
+		<v-flex xs12 sm6 md4 lg3 xl2 v-if="job['runType']['default'] != ''">
 			<v-card ma-1 height="100%">
 				<v-toolbar dark dense class="color2 ">
 					<v-toolbar-title>
-						{{ scheduleObject['runType']['default'] }}
+						{{ job['runType']['default'] }}
 					</v-toolbar-title>
 					<v-spacer></v-spacer>
-					<v-btn icon @click="scheduleObject['runConfigs'][scheduleObject['runType']['default']] = JSON.parse(JSON.stringify(scheduleObjectDefault['runConfigs'][scheduleObject['runType']['default']]))">
+					<v-btn icon @click="job['runConfigs'][job['runType']['default']] = JSON.parse(JSON.stringify(jobDefault['runConfigs'][job['runType']['default']]))">
 						<v-icon>settings_backup_restore</v-icon>
 					</v-btn>
 				</v-toolbar>
 				<v-list class="pt-3">
-					<!-- <template v-for="(setting, settingName) in scheduleObjectDefault['runConfigs'][scheduleObject['runType']['default']]" v-if="['bool','float','int','string','choice','array'].includes(setting.type)">
+					<!-- <template v-for="(setting, settingName) in jobDefault['runConfigs'][job['runType']['default']]" v-if="['bool','float','int','string','choice','array'].includes(setting.type)">
 						<v-tooltip top>
 							<v-list-tile slot="activator">
-								<s-item-edit v-model="scheduleObject['runConfigs'][scheduleObject['runType']['default']][settingName]" :suffix="' ('+_.get(setting,['units'])+')'"></s-item-edit>
+								<s-item-edit v-model="job['runConfigs'][job['runType']['default']][settingName]" :suffix="' ('+_.get(setting,['units'])+')'"></s-item-edit>
 								
 							</v-list-tile>
 							<span><b>{{ setting.title }}</b></br>Type: <{{ setting.type }}>, Units: [{{ setting.units }}]</br>{{ setting.description }}</span>
@@ -65,29 +65,29 @@
 					</template> -->
 					
 					<s-item-group-edit 
-						v-model="scheduleObject['runConfigs'][scheduleObject['runType']['default']]"
-						:default="scheduleObjectDefault['runConfigs'][scheduleObject['runType']['default']]"></s-item-group-edit>
+						:settings.sync="job['runConfigs'][job['runType']['default']]"
+						:defaults="jobDefault['runConfigs'][job['runType']['default']]"></s-item-group-edit>
 					
 				</v-list>
 			</v-card>
 		</v-flex>
 		
-		<v-flex xs12 sm6 md4 lg3 xl2 v-for="dependency in _.get(scheduleObjectDefault, ['runConfigs', scheduleObject['runType']['default'], 'dependencies', 'value'])">
+		<v-flex xs12 sm6 md4 lg3 xl2 v-for="dependency in _.get(jobDefault, ['runConfigs', job['runType']['default'], 'dependencies', 'value'])">
 			<v-card ma-1 height="100%">
 				<v-toolbar dark dense class="color2">
 					<v-toolbar-title>
 						{{ dependency }}
 					</v-toolbar-title>
 					<v-spacer></v-spacer>
-					<v-btn icon @click="scheduleObject['runConfigs'][dependency] = JSON.parse(JSON.stringify(scheduleObjectDefault['runConfigs'][dependency]))">
+					<v-btn icon @click="job['runConfigs'][dependency] = JSON.parse(JSON.stringify(jobDefault['runConfigs'][dependency]))">
 						<v-icon>settings_backup_restore</v-icon>
 					</v-btn>
 				</v-toolbar>
 				<v-list class="pt-3">
-					<!-- <template v-for="(setting, settingName) in scheduleObjectDefault['runConfigs'][dependency]" v-if="['bool','float','int','string','choice','array'].includes(setting.type)">
+					<!-- <template v-for="(setting, settingName) in jobDefault['runConfigs'][dependency]" v-if="['bool','float','int','string','choice','array'].includes(setting.type)">
 						<v-tooltip top>
 							<v-list-tile slot="activator">
-								<s-item-edit v-model="scheduleObject['runConfigs'][dependency][settingName]" :suffix="' ('+_.get(setting,['units'])+')'"></s-item-edit>
+								<s-item-edit v-model="job['runConfigs'][dependency][settingName]" :suffix="' ('+_.get(setting,['units'])+')'"></s-item-edit>
 								
 							</v-list-tile>
 						</v-list-tile>
@@ -96,8 +96,8 @@
 					</template> -->
 					
 					<s-item-group-edit 
-						v-model="scheduleObject['runConfigs'][dependency]"
-						:default="scheduleObjectDefault['runConfigs'][dependency]"></s-item-group-edit>
+						:settings.sync="job['runConfigs'][dependency]"
+						:defaults="jobDefault['runConfigs'][dependency]"></s-item-group-edit>
 					
 				</v-list>
 			</v-card>
@@ -109,19 +109,17 @@
 <script type="text/javascript">
 	Vue.component('s-schedule-job-edit', {
 		template: '#s-schedule-job-edit',
-		props: ['value', 'schedule-object-default'],
+		props: ['job', 'job-default'],
 		data: function() {
 			return {
-				scheduleObject: this.value,
+				
 			};
 		},
 		watch: {
-			scheduleObject(val) {
-				this.$emit('input', val);
+			job(val) {
+				this.$emit('update:job', val);
 			},
-			value(val) {
-				this.scheduleObject = val;
-			}
-		}
+		},
 	});
 </script>
+

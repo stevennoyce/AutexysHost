@@ -32,10 +32,9 @@
 <script type="text/javascript">
 	Vue.component('s-item-edit', {
 		template: '#s-item-edit',
-		props: ['value'],
+		props: ['setting'],
 		data: function() {
 			return {
-				setting: this.value,
 				rules: {
 					integer: val => Number.isInteger(val) || '',
 					float: val => typeof(val) == 'number' || '',
@@ -44,11 +43,9 @@
 		},
 		watch: {
 			setting(val) {
-				this.$emit('input', val);
+				this.$emit('update:setting', val);
 			},
-			value(val) {
-				this.setting = val;
-			}
 		}
 	});
 </script>
+
