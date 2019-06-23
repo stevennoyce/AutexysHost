@@ -37,8 +37,8 @@
 			return {
 				setting: this.value,
 				rules: {
-					integer: val => Number.isInteger(val) || 'Must be an integer',
-					float: val => typeof(val) == 'number' || 'Must be a floating point number',
+					integer: val => Number.isInteger(val) || '',
+					float: val => typeof(val) == 'number' || '',
 				}
 			};
 		},
