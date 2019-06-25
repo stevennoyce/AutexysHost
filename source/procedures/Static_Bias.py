@@ -91,6 +91,7 @@ def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVolt
 
 	# Set the SMU timeout to be a few measurementTime's long
 	timeout = max(1000, 3*measurementTime*1000)
+	timeout = 60000
 	smu_instance.setTimeout(timeout_ms=timeout)
 	print('SMU timeout set to ' + str(timeout) + ' ms.')
 
