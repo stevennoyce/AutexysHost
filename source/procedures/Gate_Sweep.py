@@ -119,8 +119,7 @@ def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint
 				
 				# Send a data message
 				if share is not None:
-					pipes.send(share['p'], {
-						'destination':'UI',
+					pipes.send(share['QueueUI'], {
 						'type':'Data',
 						'xdata': {
 							'Gate Voltage [V]': gateVoltage if abs((gateVoltage - measurement['V_gs'])) < abs(0.1*gateVoltage) else measurement['V_gs'],

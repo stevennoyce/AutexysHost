@@ -32,6 +32,7 @@ if __name__ == '__main__':
 
 # Globals
 pipeToManager = None
+QueueUI = None
 share = None
 
 def eprint(*args, **kwargs):
@@ -528,9 +529,15 @@ def managerMessageForwarder():
 	global share
 	
 	while True:
-		while pipes.poll(pipeToManager):
+		# while pipes.poll(pipeToManager):
+		# 	print('Sending server message')
+		# 	socketio.emit('Server Message', pipes.recv(pipeToManager))
+		
+		while pipes.poll(QueueUI):
 			print('Sending server message')
-			socketio.emit('Server Message', pipes.recv(pipeToManager))
+			# message = pipes.recv(QueueUI)
+			message = QueueUI.get()
+			socketio.emit('Server Message', message)
 		
 		socketio.sleep(0.1)
 
@@ -558,12 +565,14 @@ def makeShareGlobal(localShare):
 
 def start(share=None, debug=True, use_reloader=True):
 	global pipeToManager
+	global QueueUI
 	
 	makeShareGlobal(share)
 	
 	pipeToManager = None
 	if share is not None:
 		pipeToManager = share['p']
+		QueueUI = share['QueueUI']
 	
 	if 'AutexysUIRunning' in os.environ:
 		print('Reload detected. Not opening browser.')

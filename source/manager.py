@@ -94,6 +94,9 @@ def manage(on_startup_schedule_file=None):
 	
 	share = {
 		'sharedMemoryManager': sharedMemoryManager,
+		'QueueManager': mp.Queue(100),
+		'QueueUI': mp.Queue(100),
+		'QueueDispatcher': mp.Queue(100),
 		'd': sharedMemoryManager.dict({'dispatcherRunning':False}),
 		'l': sharedMemoryManager.list([]),
 		'procedureStopLocations': sharedMemoryManager.list([])
@@ -106,43 +109,53 @@ def manage(on_startup_schedule_file=None):
 		dispatcher = startDispatcher(on_startup_schedule_file, share, priority=1)
 	
 	while(True):
-		pipesList = [e['pipe'] for e in [ui, dispatcher] if e is not None]
-		mp.connection.wait(pipesList, timeout=0.1)
-		
 		try:
-			if(pipes.poll(ui['pipe'])):
-				message = ui['pipe'].recv()
-				print('Manager received from UI: "' + str(message) + '"')
+			message = share['QueueManager'].get(timeout=1)
+			# message = pipes.recv(share['QueueManager'], timeout=1)
+			
+			if message is not None:
+				print('Manager message: ', message)
+		
+		except Exception as e:
+			print('Manager loop exception')
+		
+		# pipesList = [e['pipe'] for e in [ui, dispatcher] if e is not None]
+		# mp.connection.wait(pipesList, timeout=0.1)
+		
+		# try:
+		# 	if(pipes.poll(ui['pipe'])):
+		# 		message = ui['pipe'].recv()
+		# 		print('Manager received from UI: "' + str(message) + '"')
 				
-				if(message.startswith('RUN: ')):
-					if(dispatcher is None):
-						schedule_file_path = message[len('RUN: '):]
-						dispatcher = startDispatcher(schedule_file_path, share, priority=1)
-					else:
-						print('Error: dispatcher is already running; wait for it to finish before starting another job.')
-				elif('type' in message and message['type'] == 'Stop'):
-					if(dispatcher is not None):
-						pipes.send(dispatcher['pipe'], message)
-					else:
-						print('Dispatcher has already stopped.')
-		except Exception as e:
-			print('Error managing UI')
+		# 		if(message.startswith('RUN: ')):
+		# 			if(dispatcher is None):
+		# 				schedule_file_path = message[len('RUN: '):]
+		# 				dispatcher = startDispatcher(schedule_file_path, share, priority=1)
+		# 			else:
+		# 				print('Error: dispatcher is already running; wait for it to finish before starting another job.')
+		# 		elif('type' in message and message['type'] == 'Stop'):
+		# 			if(dispatcher is not None):
+		# 				pipes.send(dispatcher['pipe'], message)
+		# 			else:
+		# 				print('Dispatcher has already stopped.')
+		# except Exception as e:
+		# 	print('Error managing UI')
 		
-		try:
-			if dispatcher is None:
-				pass
-			else:
-				if(pipes.poll(dispatcher['pipe'])):
-					message = dispatcher['pipe'].recv()
-					print('Manager received from Dispatcher: "' + str(message) + '"')
+		# try:
+		# 	if dispatcher is None:
+		# 		pass
+		# 	else:
+		# 		if(pipes.poll(dispatcher['pipe'])):
+		# 			message = dispatcher['pipe'].recv()
+		# 			print('Manager received from Dispatcher: "' + str(message) + '"')
 					
-					if 'destination' in message:
-						# Forward messages that are intended for the UI to the UI
-						if message['destination'] == 'UI':
-							print('Forwarding message from Dispatcher to UI')
-							pipes.send(ui['pipe'], message)
-		except Exception as e:
-			print('Error managing Dispatcher')
+		# 			if 'destination' in message:
+		# 				# Forward messages that are intended for the UI to the UI
+		# 				if message['destination'] == 'UI':
+		# 					print('Forwarding message from Dispatcher to UI')
+		# 					pipes.send(ui['pipe'], message)
+		# except Exception as e:
+		# 	print('Error managing Dispatcher')
 		
 		# Check if dispatcher is running, if not join it to explicitly end
 		if((dispatcher is not None) and (not dispatcher['process'].is_alive())):
