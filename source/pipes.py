@@ -67,8 +67,7 @@ def recv(q, timeout=0):
 	except queue.Empty as e:
 		return None
 	except Exception as e:
-		print('Queue could not get')
-		print(e)
+		print('Queue get exception: ', e)
 	return None
 
 # def progressUpdate(share, name, start, current, end):
