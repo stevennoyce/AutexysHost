@@ -110,14 +110,15 @@ def manage(on_startup_schedule_file=None):
 	
 	while(True):
 		try:
-			message = share['QueueToManager'].get(timeout=1)
-			# message = pipes.recv(share['QueueToManager'], timeout=1)
+			# message = share['QueueToManager'].get(timeout=1)
+			message = pipes.recv(share['QueueToManager'], timeout=1)
 			
 			if message is not None:
 				print('Manager message: ', message)
 		
 		except Exception as e:
 			print('Manager loop exception')
+			print(e)
 		
 		# pipesList = [e['pipe'] for e in [ui, dispatcher] if e is not None]
 		# mp.connection.wait(pipesList, timeout=0.1)

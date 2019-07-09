@@ -1,4 +1,6 @@
 
+import queue
+
 def send(pipe, message):
 	if pipe is None:
 		return
@@ -8,16 +10,17 @@ def send(pipe, message):
 		print('Pipe could not send message')
 		# print(e)
 
-def send(queue, message):
-	if queue is None:
+def send(q, message):
+	if q is None:
 		return
 	try:
-		if not queue.full():
-			queue.put_nowait(message)
+		if not q.full():
+			q.put_nowait(message)
 		else:
 			print('Queue is full')
 	except Exception as e:
 		print('Queue could not put message')
+		print(e)
 
 def poll(pipe, timeout=0):
 	if pipe is None:
@@ -29,15 +32,17 @@ def poll(pipe, timeout=0):
 		result = False
 	return result
 
-def poll(queue, timeout=0):
-	if queue is None:
+def poll(q, timeout=0):
+	if q is None:
 		return False
 	try:
-		result = not queue.empty()
+		if q.empty():
+			return False
+		else:
+			return True
 	except Exception as e:
 		print('Pipe could not poll')
-		result = False
-	return result
+		return False
 
 def recv(pipe):
 	if pipe is None:
@@ -49,21 +54,22 @@ def recv(pipe):
 		result = ''
 	return result
 
-def recv(queue, timeout=0):
-	if queue is None:
-		return None
-	if queue.empty():
+def recv(q, timeout=0):
+	if q is None:
 		return None
 	try:
 		if timeout > 0:
-			result = queue.get(block=True, timeout=timeout)
+			return q.get(block=True, timeout=timeout)
 		else:
-			result = queue.get_nowait()
+			if q.empty():
+				return None
+			return q.get_nowait()
+	except queue.Empty as e:
+		return None
 	except Exception as e:
 		print('Queue could not get')
 		print(e)
-		result = None
-	return result
+	return None
 
 # def progressUpdate(share, name, start, current, end):
 # 	if((share is None) or (share['p'] is None)):

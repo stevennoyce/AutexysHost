@@ -380,14 +380,14 @@ def getSubDirectories(directory):
 def dispatchSchedule(user, project, fileName):
 	scheduleFilePath = os.path.join(default_data_path, user, project, 'schedules', fileName + '.json')
 	eprint('UI Sending RUN:')
-	pipes.send(pipeToManager, 'RUN: ' + scheduleFilePath)
+	pipes.send(share['QueueToManager'], 'RUN: ' + scheduleFilePath)
 	eprint('UI Sent RUN:')
 	return jsonvalid({'success': True})
 
 @app.route('/stopAtNextJob')
 def stopAtNextJob():
 	eprint('UI stopping at next job')
-	pipes.send(pipeToManager, {'type':'Stop', 'stop':'Dispatcher Job'})
+	pipes.send(share['QueueToManager'], {'type':'Stop', 'stop':'Dispatcher Job'})
 	
 	return jsonvalid({'success': True})
 
