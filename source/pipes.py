@@ -88,7 +88,7 @@ def recv(queue, timeout=0):
 def progressUpdate(share, name, start, current, end):
 	if((share is None) or (share['p'] is None)):
 		return
-	q = share['QueueUI']
+	q = share['QueueToUI']
 	
 	if name in share['procedureStopLocations']:
 	 	raise Exception('Recieved stop command from UI. Aborting current procedure at {}.'.format(name))
@@ -107,7 +107,7 @@ def progressUpdate(share, name, start, current, end):
 def clearProgress(share):
 	if((share is None) or (share['p'] is None)):
 		return
-	pipe = share['QueueUI']
+	pipe = share['QueueToUI']
 		
 	send(pipe, {
 		'type':'Clear Progress'

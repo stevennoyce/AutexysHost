@@ -94,9 +94,9 @@ def manage(on_startup_schedule_file=None):
 	
 	share = {
 		'sharedMemoryManager': sharedMemoryManager,
-		'QueueManager': mp.Queue(100),
-		'QueueUI': mp.Queue(100),
-		'QueueDispatcher': mp.Queue(100),
+		'QueueToManager': mp.Queue(100),
+		'QueueToUI': mp.Queue(100),
+		'QueueToDispatcher': mp.Queue(100),
 		'd': sharedMemoryManager.dict({'dispatcherRunning':False}),
 		'l': sharedMemoryManager.list([]),
 		'procedureStopLocations': sharedMemoryManager.list([])
@@ -110,8 +110,8 @@ def manage(on_startup_schedule_file=None):
 	
 	while(True):
 		try:
-			message = share['QueueManager'].get(timeout=1)
-			# message = pipes.recv(share['QueueManager'], timeout=1)
+			message = share['QueueToManager'].get(timeout=1)
+			# message = pipes.recv(share['QueueToManager'], timeout=1)
 			
 			if message is not None:
 				print('Manager message: ', message)
