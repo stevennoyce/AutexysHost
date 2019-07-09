@@ -71,13 +71,20 @@ def recv(q, timeout=0):
 	return None
 
 def clear(q):
-	while not q.empty():
-		q.get()
+	try:
+		while not q.empty():
+			q.get()
+	except Exception as e:
+		print('Error clearing queue ', e)
 
 def progressUpdate(share, name, start, current, end):
-	if((share is None) or (share['p'] is None)):
+	if share is None:
 		return
+	
 	q = share['QueueToUI']
+	
+	if q is None:
+		return
 	
 	if name in share['procedureStopLocations']:
 	 	raise Exception('Recieved stop command from UI. Aborting current procedure at {}.'.format(name))
@@ -93,12 +100,4 @@ def progressUpdate(share, name, start, current, end):
 		}
 	})
 
-def clearProgress(share):
-	if((share is None) or (share['p'] is None)):
-		return
-	q = share['QueueToUI']
-	
-	send(q, {
-		'type':'Clear Progress'
-	})
 	
