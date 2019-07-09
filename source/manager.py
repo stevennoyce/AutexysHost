@@ -62,6 +62,10 @@ def startUI(share, priority=0):
 	"""Start a Process running ui.start() and obtain a two-way Pipe for communication."""
 	pipeToUI, pipeForUI = mp.Pipe()
 	share['p'] = pipeForUI
+	
+	# Clear the UI message queue of old messages before starting a new instance
+	pipes.clear(share['QueueToUI'])
+	
 	uiProcess = mp.Process(target=runUI, args=(share,))
 	uiProcess.start()
 	# changePriorityOfProcessAndChildren(uiProcess.pid, priority)
@@ -76,6 +80,13 @@ def startDispatcher(scheduleFilePath, share, priority=0):
 	"""Start a Process running dispatcher.dispatch(scheduleFilePath) and obtain a two-way Pipe for communication."""
 	pipeToDispatcher, pipeForDispatcher = mp.Pipe()
 	share['p'] = pipeForDispatcher
+	
+	# Clear the dispatcher message queue of old messages before starting a new instance
+	pipes.clear(share['QueueToDispatcher'])
+	
+	# Clear the procedure stop locations since dispatcher is just beginning
+	share['procedureStopLocations'][:] = []
+	
 	dispatcherProcess = mp.Process(target=runDispatcher, args=(scheduleFilePath, share))
 	dispatcherProcess.start()
 	# changePriorityOfProcessAndChildren(dispatcherProcess.pid, priority)

@@ -90,6 +90,10 @@ def recv(q, timeout=0):
 # 		}
 # 	})
 
+def clear(q):
+	while not q.empty():
+		q.get()
+
 def progressUpdate(share, name, start, current, end):
 	if((share is None) or (share['p'] is None)):
 		return
