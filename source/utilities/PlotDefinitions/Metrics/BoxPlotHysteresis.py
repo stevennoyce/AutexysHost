@@ -21,7 +21,8 @@ plotDescription = {
 		'xlabel':'',
 		'unity_ylabel':'Hysteresis (V)',
 		'milli_ylabel':'Hysteresis (mV)',
-		'legend_label':'Trials: {:.5g} \n$V_{{T}}^{{avg}} = {:.3g}$ V \n$V_{{T}}^{{std}} = {:.3g}$ V',
+		'unity_legend_label':'Trials: {:.5g} \n$V_{{H}}^{{avg}} = {:.3g}$ V \n$V_{{H}}^{{std}} = {:.3g}$ V',
+		'milli_legend_label':'Trials: {:.5g} \n$V_{{H}}^{{avg}} = {:.3g}$ mV \n$V_{{H}}^{{std}} = {:.3g}$ mV',
 	},
 }
 
@@ -46,10 +47,6 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	H_avg, H_std = np.mean(H_list), np.std(H_list)
 	print('Extracted H: ' + str(H_list))
 	
-	# Adjust y-scale and y-axis labels 
-	max_hysteresis = max(H_list)
-	voltage_scale, ylabel = (1, plotDescription['plotDefaults']['unity_ylabel']) if(max_hysteresis >= 1) else (1e3, plotDescription['plotDefaults']['milli_ylabel'])
-	
 	# Split data into categories (default is just a single category)
 	category_list = mode_parameters['boxPlotCategories']
 	categories = [elem[0] for elem in category_list]
@@ -60,6 +57,12 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	
 	# Colors
 	colors = setupColors(fig, len(H_list_categorized), colorOverride=mode_parameters['colorsOverride'], colorDefault=plotDescription['plotDefaults']['colorDefault'], colorMapName=plotDescription['plotDefaults']['colorMap'], colorMapStart=0.8, colorMapEnd=0.15, enableColorBar=False, colorBarTicks=[0,0.6,1], colorBarTickLabels=['', '', ''], colorBarAxisLabel='')			
+		
+	# Adjust y-scale and y-axis labels 
+	max_value = np.max(H_list_categorized)
+	min_value = np.min(H_list_categorized)
+	abs_max_value = max(max_value, abs(min_value))
+	voltage_scale, ylabel, legendlabel = (1, plotDescription['plotDefaults']['unity_ylabel'], plotDescription['plotDefaults']['unity_legend_label']) if(abs_max_value >= 1) else (1e3, plotDescription['plotDefaults']['milli_ylabel'], plotDescription['plotDefaults']['milli_legend_label'])	
 				
 	# Plot
 	for i in range(len(H_list_categorized)):
@@ -69,19 +72,19 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		else:
 			line = ax.boxplot((np.array(H_list_categorized) * voltage_scale).tolist()[i], positions=[position], widths=[plotDescription['plotDefaults']['width']], meanline=False, showmeans=False, showfliers=False, boxprops={'color':colors[i]}, capprops={'color':colors[i]}, whiskerprops={'color':colors[i]}, medianprops={'color':colors[i]}, meanprops={'color':colors[i]})
 		
-	# Set Axis Labels
-	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=ylabel)	
-		
 	# Tick Labels
 	ax.set_xticks(range(len(H_list_categorized)))
 	ax.set_xticklabels(categories)
 	
 	# Legend
 	if(mode_parameters['enableLegend']):
-		ax.legend(loc='upper right', title=plotDescription['plotDefaults']['legend_label'].format(total_points_plotted, H_avg, H_std))
+		ax.legend(loc='upper right', title=legendlabel.format(total_points_plotted, H_avg * voltage_scale, H_std * voltage_scale))
 	
 	# X-axis limits
 	ax.set_xlim(left= -plotDescription['plotDefaults']['x_padding'], right=(len(H_list_categorized)-1)*plotDescription['plotDefaults']['spacing']+(plotDescription['plotDefaults']['x_padding']))
+	
+	# Set Axis Labels
+	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=ylabel)	
 	
 	# Adjust Y-lim (if desired)
 	includeOriginOnYaxis(ax, include=plotDescription['plotDefaults']['includeOriginOnYaxis'], stretchfactor=1.1)

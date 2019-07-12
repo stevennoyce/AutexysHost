@@ -10,7 +10,6 @@ plotDescription = {
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(2,2.3),
-		'automaticAxisLabels':True,
 		'includeOriginOnYaxis':True,
 		'colorMap':'white_orange_black',
 		'colorDefault': ['#ee7539'],
@@ -20,8 +19,14 @@ plotDescription = {
 		'width':0.5,
 		
 		'xlabel':'',
-		'ylabel':'$g_{{m}}^{{max}}$ ($\\mathregular{\\mu}$S)',
-		'legend_label':'Trials: {:.5g} \n$g_{{m}}^{{avg}} = {:.3g}$ $\\mu$A/V \n$g_{{m}}^{{std}} = {:.3g}$ $\\mu$A/V',
+		'ylabel':      '$g_{{m}}^{{max}}$ (S)',
+		'micro_ylabel':'$g_{{m}}^{{max}}$ ($\\mathregular{\\mu}$S)',
+		'nano_ylabel': '$g_{{m}}^{{max}}$ (nS)',
+		'pico_ylabel': '$g_{{m}}^{{max}}$ (pS)',
+		'legend_label':      'Trials: {:.5g} \n$g_{{m}}^{{avg}} = {:.3g}$ S \n$g_{{m}}^{{std}} = {:.3g}$ S',
+		'micro_legend_label':'Trials: {:.5g} \n$g_{{m}}^{{avg}} = {:.3g}$ $\\mathregular{{\\mu}}$S \n$g_{{m}}^{{std}} = {:.3g}$ $\\mathregular{{\\mu}}$S',
+		'nano_legend_label': 'Trials: {:.5g} \n$g_{{m}}^{{avg}} = {:.3g}$ nS \n$g_{{m}}^{{std}} = {:.3g}$ nS',
+		'pico_legend_label': 'Trials: {:.5g} \n$g_{{m}}^{{avg}} = {:.3g}$ pS \n$g_{{m}}^{{std}} = {:.3g}$ pS',
 	},
 }
 
@@ -53,13 +58,19 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Colors
 	colors = setupColors(fig, len(gm_list_categorized), colorOverride=mode_parameters['colorsOverride'], colorDefault=plotDescription['plotDefaults']['colorDefault'], colorMapName=plotDescription['plotDefaults']['colorMap'], colorMapStart=0.8, colorMapEnd=0.15, enableColorBar=False, colorBarTicks=[0,0.6,1], colorBarTickLabels=['', '', ''], colorBarAxisLabel='')			
 		
+	# Adjust y-scale and y-axis labels 
+	max_value = np.max(gm_list_categorized)
+	min_value = np.min(gm_list_categorized)
+	abs_max_value = max(max_value, abs(min_value))
+	yscale, ylabel, legendlabel = (1, plotDescription['plotDefaults']['ylabel'], plotDescription['plotDefaults']['legend_label']) if(abs_max_value >= 1e-3) else ((1e6, plotDescription['plotDefaults']['micro_ylabel'], plotDescription['plotDefaults']['micro_legend_label']) if(abs_max_value >= 1e-6) else ((1e9, plotDescription['plotDefaults']['nano_ylabel'], plotDescription['plotDefaults']['nano_legend_label']) if(abs_max_value >= 1e-9) else (1e12, plotDescription['plotDefaults']['pico_ylabel'], plotDescription['plotDefaults']['pico_legend_label'])))	
+		
 	# Plot
 	for i in range(len(gm_list_categorized)):
 		position = i*plotDescription['plotDefaults']['spacing']
 		if(mode_parameters['boxPlotBarChart']):
-			line = ax.bar(position, np.mean(gm_list_categorized[i]) * 10**6, yerr=np.std(gm_list_categorized[i]) * 10**6, color=colors[i], width=plotDescription['plotDefaults']['width'], capsize=3, ecolor='#333333', error_kw={'capthick':1})	
+			line = ax.bar(position, np.mean(gm_list_categorized[i]) * yscale, yerr=np.std(gm_list_categorized[i]) * yscale, color=colors[i], width=plotDescription['plotDefaults']['width'], capsize=3, ecolor='#333333', error_kw={'capthick':1})	
 		else:
-			line = ax.boxplot((np.array(gm_list_categorized) * 10**6).tolist()[i], positions=[position], widths=[plotDescription['plotDefaults']['width']], meanline=False, showmeans=False, showfliers=False, boxprops={'color':colors[i]}, capprops={'color':colors[i]}, whiskerprops={'color':colors[i]}, medianprops={'color':colors[i]}, meanprops={'color':colors[i]})
+			line = ax.boxplot((np.array(gm_list_categorized) * yscale).tolist()[i], positions=[position], widths=[plotDescription['plotDefaults']['width']], meanline=False, showmeans=False, showfliers=False, boxprops={'color':colors[i]}, capprops={'color':colors[i]}, whiskerprops={'color':colors[i]}, medianprops={'color':colors[i]}, meanprops={'color':colors[i]})
 	
 	# Tick Labels
 	ax.set_xticks(range(len(gm_list_categorized)))
@@ -67,10 +78,13 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	
 	# Legend
 	if(mode_parameters['enableLegend']):
-		ax.legend(loc='upper right', title=plotDescription['plotDefaults']['legend_label'].format(total_points_plotted, gm_avg * 10**6, gm_std * 10**6))
+		ax.legend(loc='upper right', title=legendlabel.format(total_points_plotted, gm_avg * yscale, gm_std * yscale))
 	
 	# X-axis limits
 	ax.set_xlim(left= -plotDescription['plotDefaults']['x_padding'], right=(len(gm_list_categorized)-1)*plotDescription['plotDefaults']['spacing']+(plotDescription['plotDefaults']['x_padding']))
+	
+	# Set Axis Labels
+	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=ylabel)
 	
 	# Adjust Y-lim (if desired)
 	includeOriginOnYaxis(ax, include=plotDescription['plotDefaults']['includeOriginOnYaxis'], stretchfactor=1.1)
