@@ -1,4 +1,6 @@
 
+import queue
+
 def send(pipe, message):
 	if pipe is None:
 		return
@@ -7,6 +9,18 @@ def send(pipe, message):
 	except Exception as e:
 		print('Pipe could not send message')
 		# print(e)
+
+def send(q, message):
+	if q is None:
+		return
+	try:
+		if not q.full():
+			q.put_nowait(message)
+		else:
+			print('Queue is full')
+	except Exception as e:
+		print('Queue could not put message')
+		print(e)
 
 def poll(pipe, timeout=0):
 	if pipe is None:
@@ -18,33 +32,64 @@ def poll(pipe, timeout=0):
 		result = False
 	return result
 
+def poll(q, timeout=0):
+	if q is None:
+		return False
+	try:
+		if q.empty():
+			return False
+		else:
+			return True
+	except Exception as e:
+		print('Pipe could not poll')
+		return False
+
 def recv(pipe):
 	if pipe is None:
 		return ''
 	try:
 		result = pipe.recv()
 	except Exception as e:
-		print('Pipe could not poll')
+		print('Pipe could not receive')
 		result = ''
 	return result
 
+def recv(q, timeout=0):
+	if q is None:
+		return None
+	try:
+		if timeout > 0:
+			return q.get(block=True, timeout=timeout)
+		else:
+			if q.empty():
+				return None
+			return q.get_nowait()
+	except queue.Empty as e:
+		return None
+	except Exception as e:
+		print('Queue get exception: ', e)
+	return None
+
+def clear(q):
+	try:
+		while not q.empty():
+			q.get()
+	except Exception as e:
+		print('Error clearing queue ', e)
+
 def progressUpdate(share, name, start, current, end):
-	if((share is None) or (share['p'] is None)):
+	if share is None:
 		return
-	pipe = share['p']
-		
-	#if poll(pipe):
-	#	message = recv(pipe)
-	#	if 'type' in message and message['type'] == 'Stop':
-	#		if 'stop' in message:
-	#			if name in message['stop']:
-	#				raise Exception('Recieved stop message from UI. Aborting current procedure.')
+	
+	q = share['QueueToUI']
+	
+	if q is None:
+		return
 	
 	if name in share['procedureStopLocations']:
 	 	raise Exception('Recieved stop command from UI. Aborting current procedure at {}.'.format(name))
 	
-	send(pipe, {
-		'destination':'UI',
+	send(q, {
 		'type':'Progress',
 		'progress': {
 			name: {
@@ -55,13 +100,4 @@ def progressUpdate(share, name, start, current, end):
 		}
 	})
 
-def clearProgress(share):
-	if((share is None) or (share['p'] is None)):
-		return
-	pipe = share['p']
-		
-	send(pipe, {
-		'destination':'UI',
-		'type':'Clear Progress',
-	})
 	

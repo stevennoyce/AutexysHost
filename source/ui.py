@@ -32,6 +32,7 @@ if __name__ == '__main__':
 
 # Globals
 pipeToManager = None
+QueueToUI = None
 share = None
 
 def eprint(*args, **kwargs):
@@ -379,14 +380,14 @@ def getSubDirectories(directory):
 def dispatchSchedule(user, project, fileName):
 	scheduleFilePath = os.path.join(default_data_path, user, project, 'schedules', fileName + '.json')
 	eprint('UI Sending RUN:')
-	pipes.send(pipeToManager, 'RUN: ' + scheduleFilePath)
+	pipes.send(share['QueueToManager'], {'type':'Dispatch', 'scheduleFilePath': scheduleFilePath})
 	eprint('UI Sent RUN:')
 	return jsonvalid({'success': True})
 
 @app.route('/stopAtNextJob')
 def stopAtNextJob():
 	eprint('UI stopping at next job')
-	pipes.send(pipeToManager, {'type':'Stop', 'stop':'Dispatcher Job'})
+	pipes.send(share['QueueToDispatcher'], {'type':'Stop', 'stop':'Dispatcher Job'})
 	
 	return jsonvalid({'success': True})
 
@@ -528,9 +529,15 @@ def managerMessageForwarder():
 	global share
 	
 	while True:
-		while pipes.poll(pipeToManager):
+		# while pipes.poll(pipeToManager):
+		# 	print('Sending server message')
+		# 	socketio.emit('Server Message', pipes.recv(pipeToManager))
+		
+		while pipes.poll(QueueToUI):
 			print('Sending server message')
-			socketio.emit('Server Message', pipes.recv(pipeToManager))
+			# message = pipes.recv(QueueToUI)
+			message = QueueToUI.get()
+			socketio.emit('Server Message', message)
 		
 		socketio.sleep(0.1)
 
@@ -558,12 +565,14 @@ def makeShareGlobal(localShare):
 
 def start(share=None, debug=True, use_reloader=True):
 	global pipeToManager
+	global QueueToUI
 	
 	makeShareGlobal(share)
 	
 	pipeToManager = None
 	if share is not None:
 		pipeToManager = share['p']
+		QueueToUI = share['QueueToUI']
 	
 	if 'AutexysUIRunning' in os.environ:
 		print('Reload detected. Not opening browser.')
