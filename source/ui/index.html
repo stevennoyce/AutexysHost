@@ -1144,41 +1144,61 @@
 				defaultPlotSettings: {
 					'minExperiment': null,
 					'maxExperiment': null,
-					'figureSize': null,
-					'sweepDirection': 'both',
 					'minRelativeIndex': 0,
 					'maxRelativeIndex': 1e10,
-					'plot_mode_parameters': null
+					'publication_mode': false,
+					'figureSizeOverride': null,
+					'sweepDirection': 'both',
+					'enableLegend': true,
+					'enableErrorBars': false,
+					'enableColorBar': true,
+					'enableGradient': false,
+					//'plot_mode_parameters': null
 				},
 				
 				setPlotSettings: {
 					'minExperiment': null,
 					'maxExperiment': null,
-					'figureSize': null,
-					'sweepDirection': 'both',
 					'minRelativeIndex': 0,
 					'maxRelativeIndex': 1e10,
-					'plot_mode_parameters': null
+					'publication_mode': false,
+					'figureSizeOverride': null,
+					'sweepDirection': 'both',
+					'enableLegend': true,
+					'enableErrorBars': false,
+					'enableColorBar': true,
+					'enableGradient': false,
+					//'plot_mode_parameters': null
 				},
 				
 				plotSettings: {
 					'minExperiment': null,
 					'maxExperiment': null,
-					'figureSize': null,
-					'sweepDirection': 'both',
 					'minRelativeIndex': 0,
 					'maxRelativeIndex': 1e10,
-					'plot_mode_parameters': null
+					'publication_mode': false,
+					'figureSizeOverride': null,
+					'sweepDirection': 'both',
+					'enableLegend': true,
+					'enableErrorBars': false,
+					'enableColorBar': true,
+					'enableGradient': false,
+					//'plot_mode_parameters': null
 				},
 				
 				plotSettingTypes: {
 					'minExperiment': {'type': 'int'},
 					'maxExperiment': {'type': 'int'},
-					'figureSize': {'type': 'array'},
-					'sweepDirection': {'type': 'choice', 'choices': ['both', 'forward', 'reverse']},
 					'minRelativeIndex': {'type': 'int'},
 					'maxRelativeIndex': {'type': 'int'},
-					'plot_mode_parameters': {'type': 'object'}
+					'publication_mode': {'type': 'bool'},
+					'figureSizeOverride': {'type': 'array'},
+					'sweepDirection': {'type': 'choice', 'choices': ['both', 'forward', 'reverse']},
+					'enableLegend': {'type': 'bool'},
+					'enableErrorBars': {'type': 'bool'},
+					'enableColorBar': {'type': 'bool'},
+					'enableGradient': {'type': 'bool'},
+					//'plot_mode_parameters': {'type': 'object'}
 				},
 				
 				users: [],
@@ -1618,7 +1638,7 @@
 				},
 				
 				updatePlotSettings: function() {
-					this.plotSettings = _.omitBy(this.setPlotSettings, (v,k) => ((this.defaultPlotSettings[k] == v) || v == '') );
+					this.plotSettings = _.omitBy(this.setPlotSettings, (v,k) => ((this.defaultPlotSettings[k] == v)) );
 				},
 				
 				removeValueFromArray: function(value, array) {

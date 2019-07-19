@@ -111,16 +111,14 @@ def sendStatic(path):
 default_makePlot_parameters = {
 	'minExperiment': None,
 	'maxExperiment': None,
-	'specificPlot': '',
-	'figureSize': None,
-	'dataFolder': None,
-	'saveFolder': None,
-	'plotSaveName': '',
-	'saveFigures': False,
-	'showFigures': True,
-	'sweepDirection': 'both',
 	'minRelativeIndex': 0,
 	'maxRelativeIndex': 1e10,
+	'specificPlot': '',
+	'plotSaveName': '',
+	'dataFolder': None,
+	'saveFolder': None,
+	'saveFigures': False,
+	'showFigures': True,
 	'plot_mode_parameters': None
 }
 
@@ -134,22 +132,37 @@ def sendPlot(user, project, wafer, chip, device, experiment, plotType):
 	receivedPlotSettings = json.loads(flask.request.args.get('plotSettings'))
 	
 	#afmPath = json.loads(flask.request.args.get('afmPath'))
-	plotSettings.update(receivedPlotSettings)
+	#plotSettings.update(receivedPlotSettings)
+	
+	print('Plot settings updated: ' + str(receivedPlotSettings))
 	
 	filebuf = io.BytesIO()
+		
+	# Update arguments to DeviceHistory.makePlots() call
+	for dynamicArgument in ['minExperiment', 'maxExperiment', 'minRelativeIndex', 'maxRelativeIndex']:
+		if dynamicArgument in receivedPlotSettings:
+			plotSettings[dynamicArgument] = receivedPlotSettings[dynamicArgument]
 	
+	# Set all fixed arguments to DeviceHistory.makePlots() call
 	if plotSettings['minExperiment'] == None:
 		plotSettings['minExperiment'] = experiment
-	
 	if plotSettings['maxExperiment'] == None:
 		plotSettings['maxExperiment'] = experiment
-	
+	plotSettings['specificPlot'] = ''
 	plotSettings['plotSaveName'] = filebuf
+	plotSettings['dataFolder'] = None
+	plotSettings['saveFolder'] = None
 	plotSettings['saveFigures'] = True
 	plotSettings['showFigures'] = False
 	plotSettings['specificPlot'] = plotType
-	
 	plotSettings['cacheBust'] = flask.request.args.get('cb')
+	
+	# Set mode parameters for DeviceHistory.makePlots() call
+	if(plotSettings['plot_mode_parameters'] is None):
+		plotSettings['plot_mode_parameters'] = {}
+	for dynamicArgument in ['publication_mode', 'figureSizeOverride', 'sweepDirection', 'enableLegend', 'enableErrorBars', 'enableColorBar', 'enableGradient']:
+		if dynamicArgument in receivedPlotSettings:
+			plotSettings['plot_mode_parameters'][dynamicArgument] = receivedPlotSettings[dynamicArgument]
 	
 	# mode parameter 'AFMImagePath'
 	#if(plotType == 'AFMdeviationsImage'):
