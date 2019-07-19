@@ -1187,17 +1187,17 @@
 				},
 				
 				plotSettingTypes: {
-					'minExperiment': {'type': 'int'},
-					'maxExperiment': {'type': 'int'},
-					'minRelativeIndex': {'type': 'int'},
-					'maxRelativeIndex': {'type': 'int'},
-					'publication_mode': {'type': 'bool'},
-					'figureSizeOverride': {'type': 'array'},
-					'sweepDirection': {'type': 'choice', 'choices': ['both', 'forward', 'reverse']},
-					'enableLegend': {'type': 'bool'},
-					'enableErrorBars': {'type': 'bool'},
-					'enableColorBar': {'type': 'bool'},
-					'enableGradient': {'type': 'bool'},
+					'minExperiment':      {'type': 'int',  'default':null,  'title':'Min Experiment',    'description':''},
+					'maxExperiment':      {'type': 'int',  'default':null,  'title':'Max Experiment',    'description':''},
+					'minRelativeIndex':   {'type': 'int',  'default':0,     'title':'Min Rel. Index',    'description':''},
+					'maxRelativeIndex':   {'type': 'int',  'default':1e10,  'title':'Max Rel. Index',    'description':''},
+					'publication_mode':   {'type': 'bool', 'default':false, 'title':'Publication Mode',  'description':''},
+					'figureSizeOverride': {'type': 'array', 'units':'in.', 'default':null,  'title':'Figure Size',       'description':''},
+					'sweepDirection':     {'type': 'choice', 'choices': ['both', 'forward', 'reverse'], 'default':'both', 'title':'Sweep Direction', 'description':''},
+					'enableLegend':       {'type': 'bool', 'default':true,  'title':'Enable Legend',     'description':''},
+					'enableErrorBars':    {'type': 'bool', 'default':false, 'title':'Enable Error Bars', 'description':''},
+					'enableColorBar':     {'type': 'bool', 'default':true,  'title':'Enable Color Bar',  'description':''},
+					'enableGradient':     {'type': 'bool', 'default':false, 'title':'Enable Gradient',   'description':''},
 					//'plot_mode_parameters': {'type': 'object'}
 				},
 				
