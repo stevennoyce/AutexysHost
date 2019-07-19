@@ -279,20 +279,34 @@ def sendChipPlot(user, project, wafer, chip, plotType):
 	plotSettings = copy.deepcopy(default_makePlot_parameters)
 	receivedPlotSettings = json.loads(flask.request.args.get('plotSettings'))
 	#afmPath = json.loads(flask.request.args.get('afmPath'))
-	plotSettings.update(receivedPlotSettings)
+	#plotSettings.update(receivedPlotSettings)
 	
 	filebuf = io.BytesIO()
 	
+	# Update arguments to DeviceHistory.makePlots() call
+	for dynamicArgument in ['minExperiment', 'maxExperiment', 'minRelativeIndex', 'maxRelativeIndex']:
+		if dynamicArgument in receivedPlotSettings:
+			plotSettings[dynamicArgument] = receivedPlotSettings[dynamicArgument]
+	
+	# Set all fixed arguments to DeviceHistory.makePlots() call
 	if plotSettings['minExperiment'] == None:
 		plotSettings['minExperiment'] = 0
-	
 	if plotSettings['maxExperiment'] == None:
 		plotSettings['maxExperiment'] = float('inf')
-	
+	plotSettings['specificPlot'] = ''
 	plotSettings['plotSaveName'] = filebuf
+	plotSettings['dataFolder'] = None
+	plotSettings['saveFolder'] = None
 	plotSettings['saveFigures'] = True
 	plotSettings['showFigures'] = False
 	plotSettings['specificPlot'] = plotType
+	
+	# Set mode parameters for DeviceHistory.makePlots() call
+	if(plotSettings['plot_mode_parameters'] is None):
+		plotSettings['plot_mode_parameters'] = {}
+	for dynamicArgument in ['publication_mode', 'figureSizeOverride', 'sweepDirection', 'enableLegend', 'enableErrorBars', 'enableColorBar', 'enableGradient']:
+		if dynamicArgument in receivedPlotSettings:
+			plotSettings['plot_mode_parameters'][dynamicArgument] = receivedPlotSettings[dynamicArgument]
 	
 	CH.makePlots(user, project, wafer, chip, **plotSettings)
 	filebuf.seek(0)

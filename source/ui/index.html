@@ -698,113 +698,118 @@
 						</v-card>
 						
 						
+						<v-layout row wrap>
+							<v-flex xs6 sm6 md6 lg6 class="pr-1">
+								<v-card class="mb-3">
+									<v-toolbar dark dense class="color2 ">
+										<v-toolbar-title>
+											Save Schedule File
+										</v-toolbar-title>
+									</v-toolbar>
+									
+									<v-form>
+										<v-container>
+											<v-layout row wrap>
+												<v-flex xs4 sm4 md4 lg4 outline>
+													<v-combobox clearable v-model="scheduleSaveUser" label="User" :items="Object.keys(scheduleNames)">
+														<template slot="no-data">
+															<v-list-tile>
+																<v-list-tile-content>
+																	<v-list-tile-title>
+																		No results. Continuing will create a new user.
+																	</v-list-tile-title>
+																</v-list-tile-content>
+																</v-list-tile>
+														</template>
+													</v-combobox>
+												</v-flex>
+												<v-flex xs4 sm4 md4 lg4 solo>
+													<v-combobox clearable v-model="scheduleSaveProject" label="Project" :items="_.keys(_.get(scheduleNames, [scheduleSaveUser], {}))">
+														<template slot="no-data">
+															<v-list-tile>
+																<v-list-tile-content>
+																	<v-list-tile-title>
+																		No results. Continuing will create a new project.
+																	</v-list-tile-title>
+																</v-list-tile-content>
+																</v-list-tile>
+														</template>
+													</v-combobox>
+												</v-flex>
+												<v-flex xs4 sm4 md4 lg4 solo>
+													<v-combobox clearable v-model="scheduleSaveFileName" label="File Name" :items="_.get(scheduleNames, [scheduleSaveUser, scheduleSaveProject], [])">
+														<template slot="no-data">
+															<v-list-tile>
+																<v-list-tile-content>
+																	<v-list-tile-title>
+																		No results. Continuing will create a new file.
+																	</v-list-tile-title>
+																</v-list-tile-content>
+																</v-list-tile>
+														</template>
+													</v-combobox>
+												</v-flex>
+											</v-layout>
+										</v-container>
+									</v-form>
+									
+									<template v-if="scheduleSaveUser && scheduleSaveProject && scheduleSaveFileName">
+										<p><i>Saving to:</i> AutexysData/{{ scheduleSaveUser }}/{{ scheduleSaveProject }}/schedules/{{ scheduleSaveFileName }}.json</p>
+										<p>
+											<i>Run by executing:</i><br/>
+											cd "{{ paths['sourceAbsPath'] }}"<br/>
+											python dispatcher.py "../../AutexysData/{{ scheduleSaveUser }}/{{ scheduleSaveProject }}/schedules/{{ scheduleSaveFileName }}.json"
+										</p>
+									</template>
+									
+									<v-card-actions>
+										<v-spacer></v-spacer>
+										<v-btn @click="saveSchedule()">Save Schedule File</v-btn>
+									</v-card-actions>
+								</v-card>
+							</v-flex>	
 						
-						<v-card class="mb-3">
-							<v-toolbar dark dense class="color2 ">
-								<v-toolbar-title>
-									Save Schedule File
-								</v-toolbar-title>
-							</v-toolbar>
-							
-							<v-form>
-								<v-container>
-									<v-layout row wrap>
-										<v-flex xs12 sm6 md4 lg3 outline>
-											<v-combobox clearable v-model="scheduleSaveUser" label="User" :items="Object.keys(scheduleNames)">
-												<template slot="no-data">
-													<v-list-tile>
-														<v-list-tile-content>
-															<v-list-tile-title>
-																No results. Continuing will create a new user.
-															</v-list-tile-title>
-														</v-list-tile-content>
-														</v-list-tile>
-												</template>
-											</v-combobox>
-										</v-flex>
-										<v-flex xs12 sm6 md4 lg3 solo>
-											<v-combobox clearable v-model="scheduleSaveProject" label="Project" :items="_.keys(_.get(scheduleNames, [scheduleSaveUser], {}))">
-												<template slot="no-data">
-													<v-list-tile>
-														<v-list-tile-content>
-															<v-list-tile-title>
-																No results. Continuing will create a new project.
-															</v-list-tile-title>
-														</v-list-tile-content>
-														</v-list-tile>
-												</template>
-											</v-combobox>
-										</v-flex>
-										<v-flex xs12 sm6 md4 lg3 solo>
-											<v-combobox clearable v-model="scheduleSaveFileName" label="File Name" :items="_.get(scheduleNames, [scheduleSaveUser, scheduleSaveProject], [])">
-												<template slot="no-data">
-													<v-list-tile>
-														<v-list-tile-content>
-															<v-list-tile-title>
-																No results. Continuing will create a new file.
-															</v-list-tile-title>
-														</v-list-tile-content>
-														</v-list-tile>
-												</template>
-											</v-combobox>
-										</v-flex>
-									</v-layout>
-								</v-container>
-							</v-form>
-							
-							<template v-if="scheduleSaveUser && scheduleSaveProject && scheduleSaveFileName">
-								<p><i>Saving to:</i> AutexysData/{{ scheduleSaveUser }}/{{ scheduleSaveProject }}/schedules/{{ scheduleSaveFileName }}.json</p>
-								<p>
-									<i>Run by executing:</i><br/>
-									cd "{{ paths['sourceAbsPath'] }}"<br/>
-									python dispatcher.py "../../AutexysData/{{ scheduleSaveUser }}/{{ scheduleSaveProject }}/schedules/{{ scheduleSaveFileName }}.json"
-								</p>
-							</template>
-							
-							<v-card-actions>
-								<v-spacer></v-spacer>
-								<v-btn @click="saveSchedule()">Save Schedule File</v-btn>
-							</v-card-actions>
-						</v-card>
-					
-						<v-card class="mb-3">
-							<v-toolbar dark dense class="color2 ">
-								<v-toolbar-title>
-									Load Schedule File
-								</v-toolbar-title>
-							</v-toolbar>
-							<!-- <v-menu attach bottom left offset-y>
-								<v-btn slot="activator" flat>{{ scheduleSaveUser }}<v-icon right>people</v-icon></v-btn>
-								<v-list light>
-									<v-list-tile v-for="u in users" @click="scheduleSaveUser = u">
-										<v-list-tile-avatar color="color1 "><v-icon dark>account_circle</v-icon></v-list-tile-avatar>
-										<v-list-tile-content><v-list-tile-title>{{ u }}</v-list-tile-title></v-list-tile-content>
-									</v-list-tile>
-								</v-list>
-							</v-menu> -->
-							
-							<v-form>
-								<v-container>
-									<v-layout row wrap>
-										<v-flex xs12 sm6 md4 lg3 outline>
-											<v-autocomplete clearable v-model="scheduleLoadUser" label="User" :items="Object.keys(scheduleNames)"></v-autocomplete>
-										</v-flex>
-										<v-flex xs12 sm6 md4 lg3 solo>
-											<v-autocomplete clearable v-model="scheduleLoadProject" label="Project" :items="_.keys(_.get(scheduleNames, [scheduleLoadUser], {}))"></v-autocomplete>
-										</v-flex>
-										<v-flex xs12 sm6 md4 lg3 solo>
-											<v-autocomplete clearable v-model="scheduleLoadFileName" label="File Name" :items="_.get(scheduleNames, [scheduleLoadUser, scheduleLoadProject], [])"></v-autocomplete>
-										</v-flex>
-									</v-layout>
-								</v-container>
-							</v-form>
-							
-							<v-card-actions>
-								<span v-if="scheduleLoadUser && scheduleLoadProject && scheduleLoadFileName">Loading from: AutexysData/{{ scheduleLoadUser }}/{{ scheduleLoadProject }}/schedules/{{ scheduleLoadFileName }}.json</span>
-								<v-spacer></v-spacer>
-								<v-btn @click="loadSchedule()">Load Schedule File</v-btn>
-							</v-card-actions>
-						</v-card>
+							<v-flex xs6 sm6 md6 lg6 class="pl-1">
+								<v-card class="mb-3">
+									<v-toolbar dark dense class="color2 ">
+										<v-toolbar-title>
+											Load Schedule File
+										</v-toolbar-title>
+									</v-toolbar>
+									<!-- <v-menu attach bottom left offset-y>
+										<v-btn slot="activator" flat>{{ scheduleSaveUser }}<v-icon right>people</v-icon></v-btn>
+										<v-list light>
+											<v-list-tile v-for="u in users" @click="scheduleSaveUser = u">
+												<v-list-tile-avatar color="color1 "><v-icon dark>account_circle</v-icon></v-list-tile-avatar>
+												<v-list-tile-content><v-list-tile-title>{{ u }}</v-list-tile-title></v-list-tile-content>
+											</v-list-tile>
+										</v-list>
+									</v-menu> -->
+									
+									<v-form>
+										<v-container>
+											<v-layout row wrap>
+												<v-flex xs4 sm4 md4 lg4 outline>
+													<v-autocomplete clearable v-model="scheduleLoadUser" label="User" :items="Object.keys(scheduleNames)"></v-autocomplete>
+												</v-flex>
+												<v-flex xs4 sm4 md4 lg4 solo>
+													<v-autocomplete clearable v-model="scheduleLoadProject" label="Project" :items="_.keys(_.get(scheduleNames, [scheduleLoadUser], {}))"></v-autocomplete>
+												</v-flex>
+												<v-flex xs4 sm4 md4 lg4 solo>
+													<v-autocomplete clearable v-model="scheduleLoadFileName" label="File Name" :items="_.get(scheduleNames, [scheduleLoadUser, scheduleLoadProject], [])"></v-autocomplete>
+												</v-flex>
+											</v-layout>
+										</v-container>
+									</v-form>
+									
+									<v-card-actions>
+										<span v-if="scheduleLoadUser && scheduleLoadProject && scheduleLoadFileName">Loading from: AutexysData/{{ scheduleLoadUser }}/{{ scheduleLoadProject }}/schedules/{{ scheduleLoadFileName }}.json</span>
+										<v-spacer></v-spacer>
+										<v-btn @click="loadSchedule()">Load Schedule File</v-btn>
+									</v-card-actions>
+								</v-card>
+							</v-flex>
+						</v-layout>
 							
 						
 					</v-flex>
