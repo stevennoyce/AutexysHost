@@ -9,7 +9,6 @@ plotDescription = {
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(2,2.3),
-		'automaticAxisLabels':True,
 		'includeOriginOnYaxis':True,
 		'colorMap':'white_yellow_black',
 		'colorDefault': ['#f2b134'],
@@ -70,6 +69,9 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	
 	# X-axis limits
 	ax.set_xlim(left= -plotDescription['plotDefaults']['x_padding'], right=(len(VT_list_categorized)-1)*plotDescription['plotDefaults']['spacing']+(plotDescription['plotDefaults']['x_padding']))
+	
+	# Set Axis Labels
+	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=plotDescription['plotDefaults']['ylabel'])
 	
 	# Adjust Y-lim (if desired)
 	includeOriginOnYaxis(ax, include=plotDescription['plotDefaults']['includeOriginOnYaxis'], stretchfactor=1.1)
