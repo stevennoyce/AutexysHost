@@ -1,4 +1,5 @@
 from utilities.MatplotlibUtility import *
+from utilities.PlotDefinitions.GateSweep.SubthresholdCurve import plot as importedSubthresholdCurvePlot
 
 
 
@@ -7,30 +8,16 @@ plotDescription = {
 	'priority': 20,
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
-		'figsize':(2.8,3.2),
-		'automaticAxisLabels':True,
+		'figsize':(2.5,3.125),
 		'colorMap':'viridis',
-		'colorDefault': ['#f2b134'],
-		'xlabel':'$V_{{GS}}$ (V)',
-		'ylabel':'|$I_{{D}}$| (A)',
 	},
 }
 
 def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory, groupedChipHistory, mode_parameters=None):
-	# Init Figure
-	fig, ax = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
+	if(mode_parameters is None):
+		mode_parameters = {}
+	#mode_parameters['enableColorBar'] = False
+	mode_parameters['colorsOverride'] = (plotDescription['plotDefaults']['colorMap'], 0.85, 0) if(mode_parameters['colorsOverride'] == []) else mode_parameters['colorsOverride']
+	mode_parameters['figureSizeOverride'] = plotDescription['plotDefaults']['figsize'] 		   if(mode_parameters['figureSizeOverride'] is None) else mode_parameters['figureSizeOverride']
 	
-	# Colors
-	colors = setupColors(fig, len(specificRunChipHistory), colorOverride=mode_parameters['colorsOverride'], colorDefault=plotDescription['plotDefaults']['colorDefault'], colorMapName=plotDescription['plotDefaults']['colorMap'], colorMapStart=0.85, colorMapEnd=0, enableColorBar=False, colorBarTicks=[0,0.6,1], colorBarTickLabels=['', '', ''], colorBarAxisLabel='')		
-	
-	# Plot
-	for i in range(len(specificRunChipHistory)):
-		line = plotSubthresholdCurve(ax, specificRunChipHistory[i], colors[i], direction=mode_parameters['sweepDirection'], lineStyle=None, errorBars=mode_parameters['enableErrorBars'])			
-		if(len(specificRunChipHistory) == len(mode_parameters['legendLabels'])):
-			setLabel(line, mode_parameters['legendLabels'][i])
-		
-	# Set tick spacing
-	ax.yaxis.set_major_locator(matplotlib.ticker.LogLocator(numticks=10))
-	
-	return (fig, (ax,))
-	
+	return importedSubthresholdCurvePlot(specificRunChipHistory, identifiers=identifiers, mode_parameters=mode_parameters)
