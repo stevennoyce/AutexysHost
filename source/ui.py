@@ -284,7 +284,7 @@ def sendChipPlot(user, project, wafer, chip, plotType):
 	filebuf = io.BytesIO()
 	
 	# Update arguments to DeviceHistory.makePlots() call
-	for dynamicArgument in ['minExperiment', 'maxExperiment', 'minRelativeIndex', 'maxRelativeIndex', 'onCurrentCutoff']:
+	for dynamicArgument in ['minExperiment', 'maxExperiment', 'minRelativeIndex', 'maxRelativeIndex', 'minOnCurrent', 'maxOnCurrent', 'maxOffCurrent']:
 		if dynamicArgument in receivedPlotSettings:
 			plotSettings[dynamicArgument] = receivedPlotSettings[dynamicArgument]
 	
