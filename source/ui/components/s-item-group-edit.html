@@ -5,7 +5,8 @@
 			<v-list-tile slot="activator">
 				<s-item-edit :setting.sync="settings[settingName]"></s-item-edit>
 			</v-list-tile>
-			<span><b>{{ setting.title }}</b></br>Type: <{{ setting.type }}>, Units: [{{ setting.units }}]</br>{{ setting.description }}</span>
+			<span v-if="setting.units"><b>{{ setting.title }}</b></br>Type: <{{ setting.type }}>, Units: [{{ setting.units }}]</br>{{ setting.description }}</span>
+			<span v-if="!setting.units"><b>{{ setting.title }}</b></br>Type: <{{ setting.type }}></br>{{ setting.description }}</span>
 		</v-tooltip>
 	</div>
 </div>
