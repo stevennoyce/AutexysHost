@@ -672,7 +672,7 @@
 							</v-list>
 							
 							<v-card class="ma-3">
-								<v-toolbar dark dense class="color3">
+								<v-toolbar dark dense class="grey">
 									<v-toolbar-title>
 										Preview Schedule File
 									</v-toolbar-title>
@@ -752,14 +752,19 @@
 											</v-layout>
 										</v-container>
 									</v-form>
-									
+										
 									<template v-if="scheduleSaveUser && scheduleSaveProject && scheduleSaveFileName">
-										<p><i>Saving to:</i> AutexysData/{{ scheduleSaveUser }}/{{ scheduleSaveProject }}/schedules/{{ scheduleSaveFileName }}.json</p>
-										<p>
-											<i>Run by executing:</i><br/>
-											cd "{{ paths['sourceAbsPath'] }}"<br/>
-											python dispatcher.py "../../AutexysData/{{ scheduleSaveUser }}/{{ scheduleSaveProject }}/schedules/{{ scheduleSaveFileName }}.json"
-										</p>
+										<v-form class="ma-3" style="overflow-x: scroll">
+											<p>
+												<i>Saving to:</i><br/> 
+												AutexysData/{{ scheduleSaveUser }}/{{ scheduleSaveProject }}/schedules/{{ scheduleSaveFileName }}.json
+											</p>
+											<p>
+												<i>Run by executing:</i><br/>
+												cd "{{ paths['sourceAbsPath'] }}"<br/>
+												python dispatcher.py "../../AutexysData/{{ scheduleSaveUser }}/{{ scheduleSaveProject }}/schedules/{{ scheduleSaveFileName }}.json"
+											</p>
+										</v-form>
 									</template>
 									
 									<v-card-actions>
@@ -802,8 +807,16 @@
 										</v-container>
 									</v-form>
 									
+									<template v-if="scheduleLoadUser && scheduleLoadProject && scheduleLoadFileName">
+										<v-form class="ma-3" style="overflow-x: scroll">
+											<p>
+												<i>Loading from:</i><br/> 
+												AutexysData/{{ scheduleLoadUser }}/{{ scheduleLoadProject }}/schedules/{{ scheduleLoadFileName }}.json
+											</p>
+										</v-form>
+									</template>
+																	
 									<v-card-actions>
-										<span v-if="scheduleLoadUser && scheduleLoadProject && scheduleLoadFileName">Loading from: AutexysData/{{ scheduleLoadUser }}/{{ scheduleLoadProject }}/schedules/{{ scheduleLoadFileName }}.json</span>
 										<v-spacer></v-spacer>
 										<v-btn @click="loadSchedule()">Load Schedule File</v-btn>
 									</v-card-actions>
@@ -902,8 +915,8 @@
 					</v-flex>
 					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'experimentRunner'">
-						<v-card>
-							<v-toolbar dark dense class="color1 ">
+						<v-card class="mb-3">
+							<v-toolbar dark dense class="color3 ">
 								<v-toolbar-title>
 									Experiment Runner
 								</v-toolbar-title>
@@ -937,7 +950,7 @@
 						</v-card>
 						
 						<v-card v-if="dispatcherRunning">
-							<v-toolbar dark dense class="color1 ">
+							<v-toolbar dark dense class="color3 ">
 								<v-toolbar-title>
 									Run Progress
 								</v-toolbar-title>
@@ -952,7 +965,7 @@
 						</v-card>
 						
 						<v-card>
-							<v-toolbar dark dense class="color1 ">
+							<v-toolbar dark dense class="color3 ">
 								<v-toolbar-title>
 									Live Plots
 								</v-toolbar-title>
