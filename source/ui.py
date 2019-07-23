@@ -160,9 +160,9 @@ def sendPlot(user, project, wafer, chip, device, experiment, plotType):
 	# Set mode parameters for DeviceHistory.makePlots() call
 	if(plotSettings['plot_mode_parameters'] is None):
 		plotSettings['plot_mode_parameters'] = {}
-	for dynamicArgument in ['publication_mode', 'figureSizeOverride', 'sweepDirection', 'enableLegend', 'enableErrorBars', 'enableColorBar', 'enableGradient']:
-		if dynamicArgument in receivedPlotSettings:
-			plotSettings['plot_mode_parameters'][dynamicArgument] = receivedPlotSettings[dynamicArgument]
+	for dynamicModeParameter in ['publication_mode', 'figureSizeOverride', 'sweepDirection', 'enableLegend', 'enableErrorBars', 'enableColorBar', 'enableGradient']:
+		if dynamicModeParameter in receivedPlotSettings:
+			plotSettings['plot_mode_parameters'][dynamicModeParameter] = receivedPlotSettings[dynamicModeParameter]
 	
 	# mode parameter 'AFMImagePath'
 	#if(plotType == 'AFMdeviationsImage'):
@@ -284,7 +284,7 @@ def sendChipPlot(user, project, wafer, chip, plotType):
 	filebuf = io.BytesIO()
 	
 	# Update arguments to DeviceHistory.makePlots() call
-	for dynamicArgument in ['minExperiment', 'maxExperiment', 'minRelativeIndex', 'maxRelativeIndex']:
+	for dynamicArgument in ['minExperiment', 'maxExperiment', 'minRelativeIndex', 'maxRelativeIndex', 'onCurrentCutoff']:
 		if dynamicArgument in receivedPlotSettings:
 			plotSettings[dynamicArgument] = receivedPlotSettings[dynamicArgument]
 	
@@ -304,9 +304,9 @@ def sendChipPlot(user, project, wafer, chip, plotType):
 	# Set mode parameters for DeviceHistory.makePlots() call
 	if(plotSettings['plot_mode_parameters'] is None):
 		plotSettings['plot_mode_parameters'] = {}
-	for dynamicArgument in ['publication_mode', 'figureSizeOverride', 'sweepDirection', 'enableLegend', 'enableErrorBars', 'enableColorBar', 'enableGradient']:
-		if dynamicArgument in receivedPlotSettings:
-			plotSettings['plot_mode_parameters'][dynamicArgument] = receivedPlotSettings[dynamicArgument]
+	for dynamicModeParameter in ['publication_mode', 'figureSizeOverride', 'sweepDirection', 'enableLegend', 'enableErrorBars', 'enableColorBar', 'enableGradient']:
+		if dynamicModeParameter in receivedPlotSettings:
+			plotSettings['plot_mode_parameters'][dynamicModeParameter] = receivedPlotSettings[dynamicModeParameter]
 	
 	CH.makePlots(user, project, wafer, chip, **plotSettings)
 	filebuf.seek(0)
