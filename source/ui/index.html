@@ -195,7 +195,7 @@
 					<v-toolbar-items>
 						<v-menu bottom left offset-y :close-on-content-click="false" :nudge-width="200">
 							<v-btn slot="activator" flat><v-icon>art_track</v-icon></v-btn>
-							<v-card light>
+							<v-card light style="overflow-y: scroll; max-height:65vh">
 								<v-list>
 									<v-list-tile v-for="plotSettingValue, plotSettingName in setPlotSettings">
 										<v-switch v-if="plotSettingTypes[plotSettingName]['type'] == 'bool'" :label="plotSettingName" v-model="setPlotSettings[plotSettingName]"></v-switch>
@@ -205,6 +205,10 @@
 										<v-text-field v-if="plotSettingTypes[plotSettingName]['type'] == 'object'" :label="plotSettingName" v-model="setPlotSettings[plotSettingName]"></v-text-field>
 										<v-select v-if="plotSettingTypes[plotSettingName]['type'] == 'choice'" :label="plotSettingName" :items="plotSettingTypes[plotSettingName]['choices']" v-model="setPlotSettings[plotSettingName]"></v-select>
 									</v-list-tile>
+								</v-list>
+							</v-card>
+							<v-card light>
+								<v-list>
 									<v-list-tile>
 										<v-btn @click="setPlotSettings = JSON.parse(JSON.stringify(defaultPlotSettings))">Reset</v-btn>
 										<v-spacer></v-spacer>
@@ -1171,10 +1175,10 @@
 					'enableErrorBars': false,
 					'enableColorBar': true,
 					'enableGradient': false,
-					//'xlim':null,
-					//'ylim':null,
-					//'xticks':null,
-					//'yticks':null,
+					'xlim':null,
+					'ylim':null,
+					'xticks':null,
+					'yticks':null,
 				},
 				
 				setPlotSettings: {
@@ -1189,10 +1193,10 @@
 					'enableErrorBars': false,
 					'enableColorBar': true,
 					'enableGradient': false,
-					//'xlim':null,
-					//'ylim':null,
-					//'xticks':null,
-					//'yticks':null,
+					'xlim':null,
+					'ylim':null,
+					'xticks':null,
+					'yticks':null,
 				},
 				
 				plotSettings: {
@@ -1207,10 +1211,10 @@
 					'enableErrorBars': false,
 					'enableColorBar': true,
 					'enableGradient': false,
-					//'xlim':null,
-					//'ylim':null,
-					//'xticks':null,
-					//'yticks':null,
+					'xlim':null,
+					'ylim':null,
+					'xticks':null,
+					'yticks':null,
 				},
 				
 				plotSettingTypes: {
@@ -1225,10 +1229,10 @@
 					'enableErrorBars':    {'type': 'bool',  'default':false, 'title':'Enable Error Bars', 'description':''},
 					'enableColorBar':     {'type': 'bool',  'default':true,  'title':'Enable Color Bar',  'description':''},
 					'enableGradient':     {'type': 'bool',  'default':false, 'title':'Enable Gradient',   'description':''},
-					//'xlim':               {'type': 'array', 'default':null,  'title':'X Limits',          'description':''},
-					//'ylim':               {'type': 'array', 'default':null,  'title':'Y Limits',          'description':''},
-					//'xticks':             {'type': 'array', 'default':null,  'title':'X Ticks',           'description':''},
-					//'yticks':             {'type': 'array', 'default':null,  'title':'Y Ticks',           'description':''},
+					'xlim':               {'type': 'array', 'default':null,  'title':'X Limits',          'description':''},
+					'ylim':               {'type': 'array', 'default':null,  'title':'Y Limits',          'description':''},
+					'xticks':             {'type': 'array', 'default':null,  'title':'X Ticks',           'description':''},
+					'yticks':             {'type': 'array', 'default':null,  'title':'Y Ticks',           'description':''},
 				},
 				
 				users: [],
