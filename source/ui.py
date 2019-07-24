@@ -160,7 +160,7 @@ def sendPlot(user, project, wafer, chip, device, experiment, plotType):
 	# Set mode parameters for DeviceHistory.makePlots() call
 	if(plotSettings['plot_mode_parameters'] is None):
 		plotSettings['plot_mode_parameters'] = {}
-	for dynamicModeParameter in ['publication_mode', 'figureSizeOverride', 'sweepDirection', 'enableLegend', 'enableErrorBars', 'enableColorBar', 'enableGradient', 'xlim', 'ylim', 'xticks', 'yticks']:
+	for dynamicModeParameter in ['publication_mode', 'figureSizeOverride', 'sweepDirection', 'enableLegend', 'enableErrorBars', 'enableColorBar', 'enableGradient', 'xlim', 'ylim', 'xscale', 'yscale', 'xticks', 'yticks']:
 		if dynamicModeParameter in receivedPlotSettings:
 			plotSettings['plot_mode_parameters'][dynamicModeParameter] = receivedPlotSettings[dynamicModeParameter]
 	
@@ -304,7 +304,7 @@ def sendChipPlot(user, project, wafer, chip, plotType):
 	# Set mode parameters for DeviceHistory.makePlots() call
 	if(plotSettings['plot_mode_parameters'] is None):
 		plotSettings['plot_mode_parameters'] = {}
-	for dynamicModeParameter in ['publication_mode', 'figureSizeOverride', 'sweepDirection', 'enableLegend', 'enableErrorBars', 'enableColorBar', 'enableGradient', 'xlim', 'ylim', 'xticks', 'yticks']:
+	for dynamicModeParameter in ['publication_mode', 'figureSizeOverride', 'sweepDirection', 'enableLegend', 'enableErrorBars', 'enableColorBar', 'enableGradient', 'xlim', 'ylim', 'xscale', 'yscale', 'xticks', 'yticks']:
 		if dynamicModeParameter in receivedPlotSettings:
 			plotSettings['plot_mode_parameters'][dynamicModeParameter] = receivedPlotSettings[dynamicModeParameter]
 	

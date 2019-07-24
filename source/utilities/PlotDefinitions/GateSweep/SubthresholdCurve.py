@@ -11,6 +11,7 @@ plotDescription = {
 		'automaticAxisLabels':True,
 		'colorMap':'white_blue_black',
 		'colorDefault': ['#1f77b4'],
+		
 		'xlabel':'$V_{{GS}}$ (V)',
 		'ylabel':'|$I_{{D}}$| (A)',
 		'leg_vds_label':'$V_{{DS}}$ = {:}V',
