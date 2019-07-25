@@ -37,8 +37,8 @@ default_mode_parameters = {
 	'figureSizeOverride': None,
 	'colorsOverride': [],
 	'legendLoc': 'best',
-	'legendTitleSuffix':'',
 	'legendLabels': [],
+	'legendTitleOverride':'',
 	
 	# Generic axis options
 	'xlim': None,
@@ -58,8 +58,8 @@ default_mode_parameters = {
 	'sweepDirection': ['both','forward','reverse'][0],
 	'timescale': ['','seconds','minutes','hours','days','weeks'][0],
 	'plotInRealTime': True,
-	'boxPlotCategories':[('',float('inf'))],
 	'boxPlotBarChart':True,
+	'boxPlotCategories':[('',float('inf'))],
 	
 	# Plot-specific sub-plot options
 	'includeDualAxis': True,	
