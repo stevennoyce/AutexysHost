@@ -487,10 +487,10 @@ def saveCSV(user, project, wafer, chip, device, experiment):
 	path = os.path.join(default_data_path, user, project, wafer, chip, device, 'Ex' + experiment)
 	fileNames = [os.path.basename(p) for p in glob.glob(os.path.join(path, '*.json'))]
 	
-	deviceHistory = dlu.loadJSON(path, fileNames[0])
-	
 	proxy = io.StringIO()
-	dlu.saveCSV(deviceHistory, proxy)
+	
+	deviceHistories = [dlu.loadJSON(path, fileName) for fileName in fileNames]
+	dlu.saveCSV(deviceHistories, proxy)
 	
 	filebuf = io.BytesIO()
 	filebuf.write(proxy.getvalue().encode('utf-8'))

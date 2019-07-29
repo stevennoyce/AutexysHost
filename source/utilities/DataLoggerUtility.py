@@ -75,22 +75,59 @@ def loadCSV(directory, loadFileName, dataNamesLabel=None, dataValuesLabel=None):
 
 	return formatted_data
 
-def saveCSV(deviceHistory, saveFileName, directory='', separateDataByEmptyRows=True):
+def saveCSV(deviceHistory, saveFileName, directory=''):
 	makeFolder(directory)
 
-	savePath = ''
-	if(isinstance(saveFileName, io.StringIO)):
-	 	savePath = saveFileName
+	if(len(deviceHistory) <= 0):
+		return
+	
+	# Handle saving multiple types of data (eg GateSweeps and StaticBias to the same CSV file)
+	if(isinstance(deviceHistory[0], list)):
+		# Split the data into the blocks separate blocks if each entry of deviceHistory is a list of data
+		blocks = {}
+		for data_segment in deviceHistory:
+			data_type = data_segment[0]['runType']
+			blocks[data_type] = {}
+			blocks[data_type]['lines'] = formatAsCSV(data_segment)
+			blocks[data_type]['filler_line'] = ','.join(['']*(blocks[data_type]['lines'][0].count(',')+1))
+		
+		# Combine the lines of each block with spacers used as needed so that each block is a group of columns in the final file
+		max_length = max([len(blocks[key]['lines']) for key in blocks.keys()])
+		lines = []
+		for i in range(max_length):
+			line = ''
+			for key in blocks.keys():
+				if(i < len(blocks[key]['lines'])):
+					line += blocks[key]['lines'][i].replace('\n','')
+				else:
+					line += blocks[key]['filler_line']
+				line += ', ,'
+			lines.append(line + '\n')
 	else:
-	 	savePath = os.path.join(directory, saveFileName)
+		lines = formatAsCSV(deviceHistory)
+	
+	# Write all lines to the CSV file
+	if(isinstance(saveFileName, io.StringIO)):
+		file = saveFileName
+		for line in lines:
+			file.write(line)
+	else:
+		savePath = os.path.join(directory, saveFileName)
+		with open(savePath, 'w') as file:
+			for line in lines:
+				file.write(line)
 
+def formatAsCSV(deviceHistory, separateDataByEmptyRows=True):
+	if(len(deviceHistory) <= 0):
+		return []
+	
 	# Look at the first line in the data and extract the data lists to save
 	data_columns = {}
 	if(len(deviceHistory) >= 1):
 		for key in deviceHistory[0]['Results'].keys():
 			data_columns[key] = []
 
-	# Flatten the data into
+	# Flatten the data from multiple experiments into one array per column in the file, with different experiments separated by empty rows
 	for jsonData in deviceHistory:
 		for key in jsonData['Results']:
 			if(key in data_columns.keys()):
@@ -101,10 +138,12 @@ def saveCSV(deviceHistory, saveFileName, directory='', separateDataByEmptyRows=T
 	lines = []
 
 	# Write all of the variable names in the first line of the CSV
-	header = ','.join(data_columns.keys()) + '\n'
-	lines.append(header)
+	header_line2 = ','.join(data_columns.keys()) + '\n'
+	header_line1 = deviceHistory[0]['runType'] + ','.join(['']*(header_line2.count(',')+1)) + '\n'
+	lines.append(header_line1)
+	lines.append(header_line2)
 
-	# Write all of the data row-by-row to the file
+	# Write all of the data row-by-row to an array of CSV lines
 	index = 0
 	isDone = False
 	while(not isDone):
@@ -120,16 +159,8 @@ def saveCSV(deviceHistory, saveFileName, directory='', separateDataByEmptyRows=T
 		row = ','.join(values) + '\n'
 		lines.append(row)
 		index += 1
-
-	if(isinstance(saveFileName, io.StringIO)):
-		file = savePath
-		for line in lines:
-			file.write(line)
-	else:
-		with open(savePath, 'w') as file:
-			for line in lines:
-				file.write(line)
-
+	
+	return lines
 
 def appendTextToFile(directory, saveFileName, textToAppend):
 	makeFolder(directory)
