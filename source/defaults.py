@@ -181,7 +181,7 @@ default_parameters = {
 		'Delay':{
 			'dependencies': 			{'ignore':True, 'value':[]},
 			'delayTime':				{'type':'int',    'units':'s', 'default': 300, 'title':'Delay Time', 'description':'Duration of delay.'}, 
-			'message':					{'type':'string',              'default': "",  'title':'Message',    'description':'Message to print at the start of delay.'},
+			'message':					{'type':'string',              'default': "Delaying next test...",  'title':'Message',    'description':'Message to print at the start of delay.'},
 		},
 		'RapidBias':{
 			'dependencies':				{'ignore':True, 'value':[]},

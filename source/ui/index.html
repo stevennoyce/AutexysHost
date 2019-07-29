@@ -677,12 +677,12 @@
 												<span>Add new job after</span>
 											</v-tooltip>
 										</v-list-tile-action>
-										<v-list-tile-action>
+										<!--<v-list-tile-action>
 											<v-tooltip top>
 												<v-btn icon @click.stop="resetScheduleJob(scheduleObjectIndex)" slot="activator"><v-icon>settings_backup_restore</v-icon></v-btn>
 												<span>Reset job settings to defaults</span>
 											</v-tooltip>
-										</v-list-tile-action>
+										</v-list-tile-action>-->
 										<v-list-tile-action>
 											<v-tooltip top>
 												<v-btn icon @click.stop="removeScheduleJob(scheduleObjectIndex)" slot="activator"><v-icon>cancel</v-icon></v-btn>
@@ -696,7 +696,7 @@
 								</v-list-group>
 							</v-list>
 							
-							<v-card class="ma-3">
+							<v-card class="ma-3" v-if="!(_.isEqual(scheduleLines, [{}]) || _.isEqual(scheduleLines, []))">
 								<v-toolbar dark dense class="grey">
 									<v-toolbar-title>
 										Preview Schedule File
