@@ -631,8 +631,8 @@ def getLegendTitle(deviceHistory, identifiers, plottype_parameters, parameterSup
 			except:
 				print('Unable to find L_ch for device: ' + str(identifiers) + ' in the provided wafer.json.')
 
-	if((mode_parameters is not None) and (mode_parameters['legendTitleSuffix'] != '')):
-		legend_entries.append(mode_parameters['legendTitleSuffix'])
+	if((mode_parameters is not None) and (mode_parameters['legendTitleOverride'] != '')):
+		legend_entries = [mode_parameters['legendTitleOverride']]
 
 	# Concatentate legend entries with new lines
 	for i in range(len(legend_entries)):

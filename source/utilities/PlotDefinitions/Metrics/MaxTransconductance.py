@@ -1,5 +1,4 @@
 from utilities.MatplotlibUtility import *
-from utilities import DataProcessorUtility as dpu
 from utilities import FET_Modeling as fet_model
 
 
@@ -16,6 +15,7 @@ plotDescription = {
 		
 		'xlabel':'Trial',
 		'ylabel':      '$g_{{m}}^{{max}}$ (S)',
+		'milli_ylabel':'$g_{{m}}^{{max}}$ (mS)',
 		'micro_ylabel':'$g_{{m}}^{{max}}$ ($\\mathregular{\\mu}$S)',
 		'nano_ylabel': '$g_{{m}}^{{max}}$ (nS)',
 		'pico_ylabel': '$g_{{m}}^{{max}}$ (pS)',
@@ -47,8 +47,8 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Adjust y-scale and y-axis labels 
 	max_value = np.max(gm_list)
 	min_value = np.min(gm_list)
-	abs_max_value = max(max_value, abs(min_value))
-	yscale, ylabel = (1, plotDescription['plotDefaults']['ylabel']) if(abs_max_value >= 1e-3) else ((1e6, plotDescription['plotDefaults']['micro_ylabel']) if(abs_max_value >= 1e-6) else ((1e9, plotDescription['plotDefaults']['nano_ylabel']) if(abs_max_value >= 1e-9) else (1e12, plotDescription['plotDefaults']['pico_ylabel'])))
+	abs_max_value = max(max_value, abs(min_value)) if(mode_parameters['yscale'] is None) else mode_parameters['yscale']
+	yscale, ylabel = (1, plotDescription['plotDefaults']['ylabel']) if(abs_max_value >= 1) else ((1e3, plotDescription['plotDefaults']['milli_ylabel']) if(abs_max_value >= 1e-3) else ((1e6, plotDescription['plotDefaults']['micro_ylabel']) if(abs_max_value >= 1e-6) else ((1e9, plotDescription['plotDefaults']['nano_ylabel']) if(abs_max_value >= 1e-9) else (1e12, plotDescription['plotDefaults']['pico_ylabel']))))
 	
 	# Plot
 	for i in range(len(gm_list)):

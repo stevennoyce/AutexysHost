@@ -55,22 +55,6 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 
 	axisLabels(ax, x_label=plotDescrip_current['plotDefaults']['xlabel'], y_label=plotDescrip_current['plotDefaults']['ylabel'])
 
-	# Add gate current to axis
-	if(mode_parameters['includeGateCurrent']):
-		if(len(deviceHistory) == 1):
-			gate_colors = [plt.rcParams['axes.prop_cycle'].by_key()['color'][2]]
-			gate_linestyle = None
-		else:	
-			gate_colors = colors
-			gate_linestyle = '--'
-		for i in range(len(deviceHistory)):
-			plotGateCurrent(ax, deviceHistory[i], gate_colors[i], direction=mode_parameters['sweepDirection'], scaleYaxisBy=1e6, lineStyle=gate_linestyle, errorBars=mode_parameters['enableErrorBars'])
-		if(plotDescrip_current['plotDefaults']['ylabel'] == plotDescrip_current['plotDefaults']['neg_label']):
-			plotDescrip_current['plotDefaults']['ylabel'] = plotDescrip_current['plotDefaults']['neg_ii_label']
-		else:
-			plotDescrip_current['plotDefaults']['ylabel'] = plotDescrip_current['plotDefaults']['ii_label']
-		axisLabels(ax, x_label=plotDescrip_current['plotDefaults']['xlabel'], y_label=plotDescrip_current['plotDefaults']['ylabel'])
-
 	# Adjust Y-lim (if desired)
 	includeOriginOnYaxis(ax, include=plotDescrip_current['plotDefaults']['includeOriginOnYaxis'])
 

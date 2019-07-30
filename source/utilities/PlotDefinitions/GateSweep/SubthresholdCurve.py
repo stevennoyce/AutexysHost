@@ -8,9 +8,9 @@ plotDescription = {
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(2,2.5),
-		'automaticAxisLabels':True,
 		'colorMap':'white_blue_black',
 		'colorDefault': ['#1f77b4'],
+		
 		'xlabel':'$V_{{GS}}$ (V)',
 		'ylabel':'|$I_{{D}}$| (A)',
 		'leg_vds_label':'$V_{{DS}}$ = {:}V',
@@ -35,6 +35,9 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 
 	# Set tick spacing
 	ax.yaxis.set_major_locator(matplotlib.ticker.LogLocator(numticks=10))
+	
+	# Set Axis Labels
+	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=plotDescription['plotDefaults']['ylabel'])
 	
 	# Add Legend and save figure
 	addLegend(ax, loc=mode_parameters['legendLoc'], title=getLegendTitle(deviceHistory, identifiers, plotDescription['plotDefaults'], 'runConfigs', 'GateSweep', mode_parameters, includeVdsSweep=True), mode_parameters=mode_parameters)

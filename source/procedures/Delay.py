@@ -9,8 +9,8 @@ def run(parameters, share=None):
 	runDelay(parameters)	
 
 def runDelay(parameters, share=None):
-	delay_parameters = parameters['runConfigs']['Delay']
-	print('Starting ' + str(delay_parameters['delayTime']) + "s Delay...")
-	print(delay_parameters['message'])
-	time.sleep(delay_parameters['delayTime'])
+	d_parameters = parameters['runConfigs']['Delay']
+	print('Starting ' + str(d_parameters['delayTime']) + "s Delay...")
+	print(d_parameters['message'])
+	time.sleep(d_parameters['delayTime'])
 

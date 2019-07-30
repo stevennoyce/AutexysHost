@@ -1,5 +1,4 @@
 from utilities.MatplotlibUtility import *
-from utilities import DataProcessorUtility as dpu
 from utilities import FET_Modeling as fet_model
 
 
@@ -57,8 +56,8 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Adjust y-scale and y-axis labels 
 	max_value = np.max(SS_list_categorized)
 	min_value = np.min(SS_list_categorized)
-	abs_max_value = max(max_value, abs(min_value))
-	yscale, ylabel, legendlabel = (1e-3, plotDescription['plotDefaults']['V_ylabel'], plotDescription['plotDefaults']['V_legend_label']) if(abs_max_value >= 1e3) else (1, plotDescription['plotDefaults']['mV_ylabel'], plotDescription['plotDefaults']['mV_legend_label']) 
+	abs_min_value = min(abs(max_value), abs(min_value)) if(mode_parameters['yscale'] is None) else mode_parameters['yscale']
+	yscale, ylabel, legendlabel = (1e-3, plotDescription['plotDefaults']['V_ylabel'], plotDescription['plotDefaults']['V_legend_label']) if(abs_min_value >= 1e3) else (1, plotDescription['plotDefaults']['mV_ylabel'], plotDescription['plotDefaults']['mV_legend_label']) 
 				
 	# Plot	
 	for i in range(len(SS_list_categorized)):

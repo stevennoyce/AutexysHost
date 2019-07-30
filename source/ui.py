@@ -109,16 +109,14 @@ def sendStatic(path):
 default_makePlot_parameters = {
 	'minExperiment': None,
 	'maxExperiment': None,
-	'specificPlot': '',
-	'figureSize': None,
-	'dataFolder': None,
-	'saveFolder': None,
-	'plotSaveName': '',
-	'saveFigures': False,
-	'showFigures': True,
-	'sweepDirection': 'both',
 	'minRelativeIndex': 0,
 	'maxRelativeIndex': 1e10,
+	'specificPlot': '',
+	'plotSaveName': '',
+	'dataFolder': None,
+	'saveFolder': None,
+	'saveFigures': False,
+	'showFigures': True,
 	'plot_mode_parameters': None
 }
 
@@ -132,22 +130,37 @@ def sendPlot(user, project, wafer, chip, device, experiment, plotType):
 	receivedPlotSettings = json.loads(flask.request.args.get('plotSettings'))
 	
 	#afmPath = json.loads(flask.request.args.get('afmPath'))
-	plotSettings.update(receivedPlotSettings)
+	#plotSettings.update(receivedPlotSettings)
+	
+	print('Plot settings updated: ' + str(receivedPlotSettings))
 	
 	filebuf = io.BytesIO()
+		
+	# Update arguments to DeviceHistory.makePlots() call
+	for dynamicArgument in ['minExperiment', 'maxExperiment', 'minRelativeIndex', 'maxRelativeIndex']:
+		if dynamicArgument in receivedPlotSettings:
+			plotSettings[dynamicArgument] = receivedPlotSettings[dynamicArgument]
 	
+	# Set all fixed arguments to DeviceHistory.makePlots() call
 	if plotSettings['minExperiment'] == None:
 		plotSettings['minExperiment'] = experiment
-	
 	if plotSettings['maxExperiment'] == None:
 		plotSettings['maxExperiment'] = experiment
-	
+	plotSettings['specificPlot'] = ''
 	plotSettings['plotSaveName'] = filebuf
+	plotSettings['dataFolder'] = None
+	plotSettings['saveFolder'] = None
 	plotSettings['saveFigures'] = True
 	plotSettings['showFigures'] = False
 	plotSettings['specificPlot'] = plotType
-	
 	plotSettings['cacheBust'] = flask.request.args.get('cb')
+	
+	# Set mode parameters for DeviceHistory.makePlots() call
+	if(plotSettings['plot_mode_parameters'] is None):
+		plotSettings['plot_mode_parameters'] = {}
+	for dynamicModeParameter in ['sweepDirection', 'plotInRealTime', 'timescale', 'boxPlotBarChart', 'enableLegend', 'enableErrorBars', 'enableColorBar', 'enableGradient', 'xlim', 'ylim', 'xscale', 'yscale', 'xticks', 'yticks', 'publication_mode', 'default_png_dpi', 'figureSizeOverride', 'colorsOverride', 'legendLoc', 'legendLabels', 'legendTitleOverride']:
+		if dynamicModeParameter in receivedPlotSettings:
+			plotSettings['plot_mode_parameters'][dynamicModeParameter] = receivedPlotSettings[dynamicModeParameter]
 	
 	# mode parameter 'AFMImagePath'
 	#if(plotType == 'AFMdeviationsImage'):
@@ -264,20 +277,34 @@ def sendChipPlot(user, project, wafer, chip, plotType):
 	plotSettings = copy.deepcopy(default_makePlot_parameters)
 	receivedPlotSettings = json.loads(flask.request.args.get('plotSettings'))
 	#afmPath = json.loads(flask.request.args.get('afmPath'))
-	plotSettings.update(receivedPlotSettings)
+	#plotSettings.update(receivedPlotSettings)
 	
 	filebuf = io.BytesIO()
 	
+	# Update arguments to DeviceHistory.makePlots() call
+	for dynamicArgument in ['minExperiment', 'maxExperiment', 'minRelativeIndex', 'maxRelativeIndex', 'minOnCurrent', 'maxOnCurrent', 'maxOffCurrent']:
+		if dynamicArgument in receivedPlotSettings:
+			plotSettings[dynamicArgument] = receivedPlotSettings[dynamicArgument]
+	
+	# Set all fixed arguments to DeviceHistory.makePlots() call
 	if plotSettings['minExperiment'] == None:
 		plotSettings['minExperiment'] = 0
-	
 	if plotSettings['maxExperiment'] == None:
 		plotSettings['maxExperiment'] = float('inf')
-	
+	plotSettings['specificPlot'] = ''
 	plotSettings['plotSaveName'] = filebuf
+	plotSettings['dataFolder'] = None
+	plotSettings['saveFolder'] = None
 	plotSettings['saveFigures'] = True
 	plotSettings['showFigures'] = False
 	plotSettings['specificPlot'] = plotType
+	
+	# Set mode parameters for DeviceHistory.makePlots() call
+	if(plotSettings['plot_mode_parameters'] is None):
+		plotSettings['plot_mode_parameters'] = {}
+	for dynamicModeParameter in ['sweepDirection', 'plotInRealTime', 'timescale', 'boxPlotBarChart', 'enableLegend', 'enableErrorBars', 'enableColorBar', 'enableGradient', 'xlim', 'ylim', 'xscale', 'yscale', 'xticks', 'yticks', 'publication_mode', 'default_png_dpi', 'figureSizeOverride', 'colorsOverride', 'legendLoc', 'legendLabels', 'legendTitleOverride']:
+		if dynamicModeParameter in receivedPlotSettings:
+			plotSettings['plot_mode_parameters'][dynamicModeParameter] = receivedPlotSettings[dynamicModeParameter]
 	
 	CH.makePlots(user, project, wafer, chip, **plotSettings)
 	filebuf.seek(0)
@@ -458,10 +485,10 @@ def saveCSV(user, project, wafer, chip, device, experiment):
 	path = os.path.join(default_data_path, user, project, wafer, chip, device, 'Ex' + experiment)
 	fileNames = [os.path.basename(p) for p in glob.glob(os.path.join(path, '*.json'))]
 	
-	deviceHistory = dlu.loadJSON(path, fileNames[0])
-	
 	proxy = io.StringIO()
-	dlu.saveCSV(deviceHistory, proxy)
+	
+	deviceHistories = [dlu.loadJSON(path, fileName) for fileName in fileNames]
+	dlu.saveCSV(deviceHistories, proxy)
 	
 	filebuf = io.BytesIO()
 	filebuf.write(proxy.getvalue().encode('utf-8'))

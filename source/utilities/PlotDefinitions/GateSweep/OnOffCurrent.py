@@ -47,7 +47,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	else:
 		fig, ax1 = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
 		ax3, ax4 = None, None
-	ax2 = ax1.twinx() if(mode_parameters['includeOffCurrent']) else None
+	ax2 = ax1.twinx()
 	
 	# If timescale is unspecified, choose an appropriate one based on the data range
 	if(timescale == ''):
@@ -82,14 +82,13 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	axisLabels(ax1, y_label=plotDescription['plotDefaults']['ylabel'])
 	
 	# Plot Off Current
-	if(mode_parameters['includeOffCurrent']):
-		if(plotInRealTime):
-			line = plotOverTime(ax2, timestamps, offCurrents, plt.rcParams['axes.prop_cycle'].by_key()['color'][1], offset=0, markerSize=2, lineWidth=0)
-		else:
-			line = ax2.plot(range(len(offCurrents)), offCurrents, color=plt.rcParams['axes.prop_cycle'].by_key()['color'][1], marker='o', markersize=2, linewidth=0, linestyle=None)
-		setLabel(line, 'Off-Currents')
-		ax2.set_ylim(top=max(10, max(offCurrents)))
-		axisLabels(ax2, y_label=plotDescription['plotDefaults']['ylabel_dual_axis'])
+	if(plotInRealTime):
+		line = plotOverTime(ax2, timestamps, offCurrents, plt.rcParams['axes.prop_cycle'].by_key()['color'][1], offset=0, markerSize=2, lineWidth=0)
+	else:
+		line = ax2.plot(range(len(offCurrents)), offCurrents, color=plt.rcParams['axes.prop_cycle'].by_key()['color'][1], marker='o', markersize=2, linewidth=0, linestyle=None)
+	setLabel(line, 'Off-Currents')
+	ax2.set_ylim(top=max(10, max(offCurrents)))
+	axisLabels(ax2, y_label=plotDescription['plotDefaults']['ylabel_dual_axis'])
 	
 	# Plot in Dual Axis
 	if(includeDualAxis):
@@ -111,12 +110,8 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	try:
 		if(mode_parameters['enableLegend']):
 			lines1, labels1 = ax1.get_legend_handles_labels()
-			lines2, labels2 = [],[]
-			legendax = ax1
-			if(mode_parameters['includeOffCurrent']):
-				lines2, labels2 = ax2.get_legend_handles_labels()
-				legendax = ax2
-			legendax.legend(lines1 + lines2, labels1 + labels2, loc=mode_parameters['legendLoc'])
+			lines2, labels2 = ax2.get_legend_handles_labels()
+			ax2.legend(lines1 + lines2, labels1 + labels2, loc=mode_parameters['legendLoc'])
 	except:
 		pass
 

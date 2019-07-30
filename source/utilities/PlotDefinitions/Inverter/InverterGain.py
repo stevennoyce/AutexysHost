@@ -12,6 +12,7 @@ plotDescription = {
 		'automaticAxisLabels':True,
 		'colorMap':'white_blue_black',
 		'colorDefault': ['#56638A'],
+		
 		'xlabel':'$V_{{IN}}$ (V)',
 		'ylabel':'Gain',
 		#'leg_vdd_label':'$V_{{DD}}$  = {:}V',
