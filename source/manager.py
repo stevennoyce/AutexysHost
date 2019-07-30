@@ -64,7 +64,7 @@ def startUI(share, priority=0):
 	share['p'] = pipeForUI
 	
 	# Clear the UI message queue of old messages before starting a new instance
-	pipes.clear(share['QueueToUI'])
+	pipes.clear(share, 'QueueToUI')
 	
 	uiProcess = mp.Process(target=runUI, args=(share,))
 	uiProcess.start()
@@ -82,7 +82,7 @@ def startDispatcher(scheduleFilePath, share, priority=0):
 	share['p'] = pipeForDispatcher
 	
 	# Clear the dispatcher message queue of old messages before starting a new instance
-	pipes.clear(share['QueueToDispatcher'])
+	pipes.clear(share, 'QueueToDispatcher')
 	
 	# Clear the procedure stop locations since dispatcher is just beginning
 	share['procedureStopLocations'][:] = []
@@ -121,7 +121,7 @@ def manage(on_startup_schedule_file=None):
 	
 	while(True):
 		try:
-			message = pipes.recv(share['QueueToManager'], timeout=1)
+			message = pipes.recv(share, 'QueueToManager', timeout=1)
 			
 			if message is not None:
 				print('Manager message: ', message)
@@ -135,32 +135,32 @@ def manage(on_startup_schedule_file=None):
 			
 			# if the dispatcher is not running, then check and clear its messages
 			if dispatcher is None:
-				while pipes.poll(share['QueueToDispatcher']):
-					dispMessage = pipes.recv(share['QueueToDispatcher'])
+				while pipes.poll(share, 'QueueToDispatcher'):
+					dispMessage = pipes.recv(share, 'QueueToDispatcher')
 					print('Dispatcher is not running, but received a message ', dispMessage)
 		
 		except Exception as e:
 			print('Manager loop exception: ', e)
 		
 		# Check if dispatcher is running, if not join it to explicitly end
-		if((dispatcher is not None) and (not dispatcher['process'].is_alive())):
+		if (dispatcher is not None) and (not dispatcher['process'].is_alive()):
 			dispatcher['process'].join()
 			dispatcher = None
 		
 		# If dispatcher is not running and UI is dead, exit the event loop
-		if(dispatcher is None and not ui['process'].is_alive()):
+		if dispatcher is None and not ui['process'].is_alive():
 			break
 	
 	# Join to all of the child processes to clean them up
 	ui['process'].terminate()
 	ui['process'].join()
-	if(dispatcher is not None):
+	if dispatcher is not None:
 		dispatcher['process'].join()
 
 	
 		
 if __name__ == '__main__':
-	if(len(sys.argv) > 1):
+	if len(sys.argv) > 1:
 		manage(sys.argv[1])
 	else:
 		manage()

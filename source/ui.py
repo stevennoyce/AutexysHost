@@ -31,8 +31,6 @@ if __name__ == '__main__':
 
 
 # Globals
-pipeToManager = None
-QueueToUI = None
 share = None
 
 def eprint(*args, **kwargs):
@@ -380,14 +378,14 @@ def getSubDirectories(directory):
 def dispatchSchedule(user, project, fileName):
 	scheduleFilePath = os.path.join(default_data_path, user, project, 'schedules', fileName + '.json')
 	eprint('UI Sending RUN:')
-	pipes.send(share['QueueToManager'], {'type':'Dispatch', 'scheduleFilePath': scheduleFilePath})
+	pipes.send(share, 'QueueToManager', {'type':'Dispatch', 'scheduleFilePath': scheduleFilePath})
 	eprint('UI Sent RUN:')
 	return jsonvalid({'success': True})
 
 @app.route('/stopAtNextJob')
 def stopAtNextJob():
 	eprint('UI stopping at next job')
-	pipes.send(share['QueueToDispatcher'], {'type':'Stop', 'stop':'Dispatcher Job'})
+	pipes.send(share, 'QueueToDispatcher', {'type':'Stop', 'stop':'Dispatcher Job'})
 	
 	return jsonvalid({'success': True})
 
@@ -525,22 +523,16 @@ def findFirstOpenPort(startPort=1):
 				print('Port {} is not available'.format(port))
 
 def managerMessageForwarder():
-	global pipeToManager
 	global share
 	
 	while True:
-		# while pipes.poll(pipeToManager):
-		# 	print('Sending server message')
-		# 	socketio.emit('Server Message', pipes.recv(pipeToManager))
-		
-		while pipes.poll(QueueToUI):
+		while pipes.poll(share, 'QueueToUI'):
 			print('Sending server message')
-			# message = pipes.recv(QueueToUI)
-			message = QueueToUI.get()
+			message = pipes.recv(share, 'QueueToUI')
+			# message = share['QueueToUI'].get()
 			socketio.emit('Server Message', message)
 		
-		socketio.sleep(0.1)
-
+		socketio.sleep(0.01)
 
 @socketio.on('my event')
 def handle_my_custom_event(json):
@@ -563,16 +555,8 @@ def makeShareGlobal(localShare):
 	global share
 	share = localShare
 
-def start(share=None, debug=True, use_reloader=True):
-	global pipeToManager
-	global QueueToUI
-	
+def start(share={}, debug=True, use_reloader=True):
 	makeShareGlobal(share)
-	
-	pipeToManager = None
-	if share is not None:
-		pipeToManager = share['p']
-		QueueToUI = share['QueueToUI']
 	
 	if 'AutexysUIRunning' in os.environ:
 		print('Reload detected. Not opening browser.')
