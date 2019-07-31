@@ -85,6 +85,7 @@ default_parameters = {
 			'flowDurations':				{'type':'array', 'units':'s', 'default': [],     'title':'Flow Durations',                  'description':'Duration of flow for each pump, in array format'},
 			'subCycleDurations':			{'type':'array', 'units':'s', 'default': [],     'title':'Subcycle Durations',              'description':'Duration of submersion, in array format'},
 			'pumpPins':						{'type':'array', 'units':'#', 'default': [],     'title':'Digital Pins',                    'description':'digital pins, in array format'},
+			'airAndWaterPins':				{'type':'array', 'units':'#', 'default': [],     'title':'Air and Water Pins', 				'description':'digital pins for air and water pins respectively'},
 			'cycleCount':					{'type':'int',   'units':'#', 'default': 3,      'title':'Cycle Count',                     'description':'number of times all environments are exchanged (i.e: period of experiment)'},
 			'solutions':					{'type':'array', 'units':'',  'default': [],     'title':'Solution Environments',           'description':''},
 			'complianceCurrent': 			{'type':'float', 'units':'A', 'default': 100e-6, 'title':'Compliance Current',              'description':'Maximum current limit for the SMU.'},

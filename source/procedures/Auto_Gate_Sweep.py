@@ -49,7 +49,7 @@ def runAutoGateSweep(parameters, smu_instance, arduino_instance, share=None):
 				print('Starting next sweep ' + str(ags_parameters['delayBetweenSweeps']) + ' seconds after start of current sweep...')
 				waitDuration = startTime + ags_parameters['delayBetweenSweeps']*(sweepCount) - time.time()
 				time.sleep(max(0, waitDuration))
-			elif((ags_parameters['delayBetweenSweeps'] > 0) and (sweepCount < numberOfSweeps)):
+			elif((ags_parameters['delayBetweenSweeps'] > 0) and (sweepCount <= numberOfSweeps)):
 				print('Waiting for ' + str(ags_parameters['delayBetweenSweeps']) + ' seconds...')
 				time.sleep(ags_parameters['delayBetweenSweeps'])
 				

@@ -7,7 +7,24 @@ from procedures import Gate_Sweep as gateSweepScript
 from procedures import Flow_Static_Bias as flowStaticBiasScript
 from utilities import DataLoggerUtility as dlu
 
+
+def flushAirAndWaterPins(smu_instance, airPin, waterPin, pumpPins):
+	a = 1
+	turnOnlyPin(smu_instance, pumpPins, airPin)
+	time.sleep(4)
+	turnOnlyPin(smu_instance, pumpPins, -1)
+	time.sleep(1)
+	turnOnlyPin(smu_instance, pumpPins, waterPin)
+	time.sleep(2)
+	turnOnlyPin(smu_instance, pumpPins, -1)
+	time.sleep(1)
+	turnOnlyPin(smu_instance, pumpPins, airPin)
+	time.sleep(4)
+	turnOnlyPin(smu_instance, pumpPins, -1)
+	time.sleep(1)
+
 def turnOnlyPin(smu_instance, pumpPins, pin):
+	pumpPins = range(1, 11) # do it for every pin in existence
 	for i in pumpPins:
 		if i != pin:
 			smu_instance.digitalWrite(i, "LOW")
@@ -77,6 +94,9 @@ def runAutoFlowStaticBias(parameters, smu_instance, arduino_instance, gateSweepP
 		
 		pumpPins = parameters['runConfigs']['FlowStaticBias']['pumpPins']
 		flowDurations = parameters['runConfigs']['FlowStaticBias']['flowDurations']
+		airAndWaterPins = parameters['runConfigs']['FlowStaticBias']['airAndWaterPins']
+		airPin = airAndWaterPins[0]
+		waterPin = airAndWaterPins[1]
 		
 		for x in range(0, len(pumpPins)):
 			pumpPins[x] = int(pumpPins[x])
@@ -85,6 +105,10 @@ def runAutoFlowStaticBias(parameters, smu_instance, arduino_instance, gateSweepP
 		# Run StaticBias, GateSweep (if desired) BEFORE
 		if(asb_parameters['applyGateSweepBetweenBiases']):
 			for x in range(0, len(pumpPins)):
+				if x != 0:
+					print("Exchanging air and water")
+					flushAirAndWaterPins(smu_instance, airPin, waterPin, pumpPins)
+					print("DONE exchanging air and water pins")
 				print("Exchanging fluid for digitalPin: " + str(pumpPins[x]))
 				turnOnlyPin(smu_instance, pumpPins, int(pumpPins[x]))
 				time.sleep(int(flowDurations[x]))
@@ -93,7 +117,9 @@ def runAutoFlowStaticBias(parameters, smu_instance, arduino_instance, gateSweepP
 				time.sleep(5) # reduce noise
 				gateSweepScript.run(gateSweepParameters, smu_instance, isSavingResults=True, isPlottingResults=False)
 				
-
+		# delay for a bit
+		print("Delaying for 20 seconds prior to FlowStaticBias")
+		time.sleep(20)
 		flowStaticBiasScript.run(flowStaticBiasParameters, smu_instance, arduino_instance, isSavingResults=True, isPlottingResults=False)
 		if(asb_parameters['applyGateSweepBetweenBiases'] and asb_parameters['applyGateSweepBothBeforeAndAfter']):
 			gateSweepScript.run(gateSweepParameters, smu_instance, isSavingResults=True, isPlottingResults=False)

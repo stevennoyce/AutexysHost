@@ -97,12 +97,13 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		measuredIdData = currentDevice["Results"]["id_data"]
 		pump_on_intervals_pin = currentDevice["Results"]["pump_on_intervals_pin"]
 		prevPin = pump_on_intervals_pin[0]
-		
+		print(pump_on_intervals_pin)
 		for pumpIntervalCount in pump_on_intervals_pin:
 			if prevPin != pumpIntervalCount:
 				#print("counter: ", str(counter))
 				pinAlternatingCounter += 1
 				prevPin = pumpIntervalCount
+				print(counter)
 				#print(int(pinAlternatingCounter / len(pumpPins)))
 				
 			variablename = int(pinAlternatingCounter / len(pumpPins))
