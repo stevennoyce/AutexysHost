@@ -62,6 +62,10 @@ def startUI(share, priority=0):
 	"""Start a Process running ui.start() and obtain a two-way Pipe for communication."""
 	pipeToUI, pipeForUI = mp.Pipe()
 	share['p'] = pipeForUI
+	
+	# Clear the UI message queue of old messages before starting a new instance
+	pipes.clear(share, 'QueueToUI')
+	
 	uiProcess = mp.Process(target=runUI, args=(share,))
 	uiProcess.start()
 	# changePriorityOfProcessAndChildren(uiProcess.pid, priority)
@@ -72,19 +76,26 @@ def runUI(share):
 	import ui
 	ui.start(share=share, use_reloader=False)
 
-def startDispatcher(schedule_file_path, share, priority=0):
-	"""Start a Process running dispatcher.dispatch(schedule_file_path) and obtain a two-way Pipe for communication."""
+def startDispatcher(scheduleFilePath, share, priority=0):
+	"""Start a Process running dispatcher.dispatch(scheduleFilePath) and obtain a two-way Pipe for communication."""
 	pipeToDispatcher, pipeForDispatcher = mp.Pipe()
 	share['p'] = pipeForDispatcher
-	dispatcherProcess = mp.Process(target=runDispatcher, args=(schedule_file_path, share))
+	
+	# Clear the dispatcher message queue of old messages before starting a new instance
+	pipes.clear(share, 'QueueToDispatcher')
+	
+	# Clear the procedure stop locations since dispatcher is just beginning
+	share['procedureStopLocations'][:] = []
+	
+	dispatcherProcess = mp.Process(target=runDispatcher, args=(scheduleFilePath, share))
 	dispatcherProcess.start()
 	# changePriorityOfProcessAndChildren(dispatcherProcess.pid, priority)
 	return {'process':dispatcherProcess, 'pipe':pipeToDispatcher}
 
-def runDispatcher(schedule_file_path, share):
+def runDispatcher(scheduleFilePath, share):
 	"""A target method for running the dispatcher that also imports the dispatcher so the parent process does not have that dependency."""
 	import dispatcher
-	dispatcher.dispatch(schedule_file_path, share)
+	dispatcher.dispatch(scheduleFilePath, share)
 
 def manage(on_startup_schedule_file=None):
 	"""Initialize a UI process and enter an event loop to handle communication with that UI. Manage the creation of dispatcher
@@ -94,6 +105,9 @@ def manage(on_startup_schedule_file=None):
 	
 	share = {
 		'sharedMemoryManager': sharedMemoryManager,
+		'QueueToManager': mp.Queue(100),
+		'QueueToUI': mp.Queue(100),
+		'QueueToDispatcher': mp.Queue(100),
 		'd': sharedMemoryManager.dict({'dispatcherRunning':False}),
 		'l': sharedMemoryManager.list([]),
 		'procedureStopLocations': sharedMemoryManager.list([])
@@ -106,63 +120,47 @@ def manage(on_startup_schedule_file=None):
 		dispatcher = startDispatcher(on_startup_schedule_file, share, priority=1)
 	
 	while(True):
-		pipesList = [e['pipe'] for e in [ui, dispatcher] if e is not None]
-		mp.connection.wait(pipesList, timeout=0.1)
-		
 		try:
-			if(pipes.poll(ui['pipe'])):
-				message = ui['pipe'].recv()
-				print('Manager received from UI: "' + str(message) + '"')
+			message = pipes.recv(share, 'QueueToManager', timeout=1)
+			
+			if message is not None:
+				print('Manager message: ', message)
 				
-				if(message.startswith('RUN: ')):
+				if message.get('type') == 'Dispatch':
 					if(dispatcher is None):
-						schedule_file_path = message[len('RUN: '):]
-						dispatcher = startDispatcher(schedule_file_path, share, priority=1)
+						scheduleFilePath = message['scheduleFilePath']
+						dispatcher = startDispatcher(scheduleFilePath, share, priority=1)
 					else:
 						print('Error: dispatcher is already running; wait for it to finish before starting another job.')
-				elif('type' in message and message['type'] == 'Stop'):
-					if(dispatcher is not None):
-						pipes.send(dispatcher['pipe'], message)
-					else:
-						print('Dispatcher has already stopped.')
-		except Exception as e:
-			print('Error managing UI')
-		
-		try:
+			
+			# if the dispatcher is not running, then check and clear its messages
 			if dispatcher is None:
-				pass
-			else:
-				if(pipes.poll(dispatcher['pipe'])):
-					message = dispatcher['pipe'].recv()
-					print('Manager received from Dispatcher: "' + str(message) + '"')
-					
-					if 'destination' in message:
-						# Forward messages that are intended for the UI to the UI
-						if message['destination'] == 'UI':
-							print('Forwarding message from Dispatcher to UI')
-							pipes.send(ui['pipe'], message)
+				while pipes.poll(share, 'QueueToDispatcher'):
+					dispMessage = pipes.recv(share, 'QueueToDispatcher')
+					print('Dispatcher is not running, but received a message ', dispMessage)
+		
 		except Exception as e:
-			print('Error managing Dispatcher')
+			print('Manager loop exception: ', e)
 		
 		# Check if dispatcher is running, if not join it to explicitly end
-		if((dispatcher is not None) and (not dispatcher['process'].is_alive())):
+		if (dispatcher is not None) and (not dispatcher['process'].is_alive()):
 			dispatcher['process'].join()
 			dispatcher = None
 		
 		# If dispatcher is not running and UI is dead, exit the event loop
-		if(dispatcher is None and not ui['process'].is_alive()):
+		if dispatcher is None and not ui['process'].is_alive():
 			break
 	
 	# Join to all of the child processes to clean them up
 	ui['process'].terminate()
 	ui['process'].join()
-	if(dispatcher is not None):
+	if dispatcher is not None:
 		dispatcher['process'].join()
 
 	
 		
 if __name__ == '__main__':
-	if(len(sys.argv) > 1):
+	if len(sys.argv) > 1:
 		manage(sys.argv[1])
 	else:
 		manage()

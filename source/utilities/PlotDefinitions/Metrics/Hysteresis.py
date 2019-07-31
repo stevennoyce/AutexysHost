@@ -1,5 +1,4 @@
 from utilities.MatplotlibUtility import *
-from utilities import DataProcessorUtility as dpu
 from utilities import FET_Modeling as fet_model
 
 import numpy as np
@@ -41,14 +40,16 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	H_list = [abs(VT_list[i] - VT_list[i+1]) for i in np.array(range(int(len(VT_list)/2))) * 2] if(len(VT_list) >= 2) else []
 	print('Extracted H: ' + str(H_list))
 	
-	# Adjust y-scale and y-axis labels 
-	max_hysteresis = max(H_list)
-	voltage_scale, ylabel = (1, plotDescription['plotDefaults']['unity_ylabel']) if(max_hysteresis >= 1) else (1e3, plotDescription['plotDefaults']['milli_ylabel'])
-	
 	# Build Color Map and Color Bar	
 	totalTime = timeWithUnits(deviceHistory[-1]['Results']['timestamps'][0][0] - deviceHistory[0]['Results']['timestamps'][-1][-1])
 	holdTime = '[$t_{{Hold}}$ = {}]'.format(timeWithUnits(deviceHistory[1]['Results']['timestamps'][-1][-1] - deviceHistory[0]['Results']['timestamps'][0][0])) if(len(deviceHistory) >= 2) else ('[$t_{{Hold}}$ = 0]')
 	colors = setupColors(fig, len(H_list), colorOverride=mode_parameters['colorsOverride'], colorDefault=plotDescription['plotDefaults']['colorDefault'], colorMapName=plotDescription['plotDefaults']['colorMap'], colorMapStart=0.8, colorMapEnd=0.15, enableColorBar=mode_parameters['enableColorBar'], colorBarTicks=[0,0.6,1], colorBarTickLabels=[totalTime, holdTime, '$t_0$'], colorBarAxisLabel='')			
+	
+	# Adjust y-scale and y-axis labels 
+	max_value = np.max(H_list)
+	min_value = np.min(H_list)
+	abs_max_value = max(max_value, abs(min_value)) if(mode_parameters['yscale'] is None) else mode_parameters['yscale']
+	voltage_scale, ylabel = (1, plotDescription['plotDefaults']['unity_ylabel']) if(abs_max_value >= 1) else (1e3, plotDescription['plotDefaults']['milli_ylabel'])
 	
 	# Plot
 	for i in range(len(H_list)):

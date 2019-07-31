@@ -11,6 +11,7 @@ if(__name__ == '__main__'):
 		os.chdir(os.path.join(os.path.abspath(os.sep), *pathParents[0:pathParents.index('AutexysHost')+1], 'source'))
 
 # === Imports ===
+import numpy as np
 from utilities import DataPlotterUtility as dpu
 from utilities import DataLoggerUtility as dlu
 
@@ -29,6 +30,9 @@ default_ch_parameters = {
 	'numberOfRecentExperiments': 1,
 	'numberOfRecentIndexes': 1,
 	'specificDeviceList': None,
+	'minOnCurrent': None,
+	'maxOnCurrent': None,
+	'maxOffCurrent': None,
 	'showFigures': True,
 	'specificPlotToCreate': '',
 }
@@ -36,7 +40,7 @@ default_ch_parameters = {
 
 
 # === External Interface ===
-def makePlots(userID, projectID, waferID, chipID, specificPlot='', figureSize=None, sweepDirection='both', minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf'), loadOnlyMostRecentExperiments=True, numberOfRecentExperiments=1, numberOfRecentIndexes=1, specificDeviceList=None, deviceCategoryLists=None, dataFolder=None, saveFolder=None, plotSaveName='', saveFigures=False, showFigures=True, plot_mode_parameters=None):
+def makePlots(userID, projectID, waferID, chipID, specificPlot='', figureSize=None, sweepDirection=None, minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf'), loadOnlyMostRecentExperiments=True, numberOfRecentExperiments=1, numberOfRecentIndexes=1, specificDeviceList=None, minOnCurrent=None, maxOnCurrent=None, maxOffCurrent=None, deviceCategoryLists=None, dataFolder=None, saveFolder=None, plotSaveName='', saveFigures=False, showFigures=True, plot_mode_parameters=None):
 	parameters = {}	
 	mode_parameters = {}
 	if(plot_mode_parameters is not None):
@@ -60,6 +64,9 @@ def makePlots(userID, projectID, waferID, chipID, specificPlot='', figureSize=No
 	parameters['numberOfRecentExperiments'] = numberOfRecentExperiments
 	parameters['numberOfRecentIndexes'] = numberOfRecentIndexes
 	parameters['specificDeviceList'] = specificDeviceList
+	parameters['minOnCurrent'] = minOnCurrent
+	parameters['maxOnCurrent'] = maxOnCurrent
+	parameters['maxOffCurrent'] = maxOffCurrent
 	parameters['deviceGroupList'] = deviceCategoryLists
 		
 	# Plot selection parameters	
@@ -72,8 +79,10 @@ def makePlots(userID, projectID, waferID, chipID, specificPlot='', figureSize=No
 	mode_parameters['plotSaveName'] = plotSaveName
 	mode_parameters['saveFigures'] = saveFigures
 	mode_parameters['showFigures'] = showFigures
-	mode_parameters['figureSizeOverride'] = figureSize
-	mode_parameters['sweepDirection'] = sweepDirection
+	if(figureSize is not None):
+		mode_parameters['figureSizeOverride'] = figureSize
+	if(sweepDirection is not None):
+		mode_parameters['sweepDirection'] = sweepDirection
 
 	return run(parameters, mode_parameters)
 
@@ -90,9 +99,20 @@ def run(additional_parameters, plot_mode_parameters={}):
 	# Determine which plots are being requested and make them all
 	plotsToCreate = [parameters['specificPlotToCreate']] if(parameters['specificPlotToCreate'] != '') else plotsForExperiments(parameters['dataFolder'], parameters['Identifiers']['user'], parameters['Identifiers']['project'], parameters['Identifiers']['wafer'], parameters['Identifiers']['chip'], minExperiment=0, maxExperiment=float('inf'))
 
+	# If desired, look at the on-current from a gate sweep for each device before deciding to include it based on a cutoff value
+	devicesToInclude = parameters['specificDeviceList']
+	if((parameters['minOnCurrent'] is not None) or (parameters['maxOnCurrent'] is not None) or (parameters['maxOffCurrent'] is not None)):
+		(chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory, groupedChipHistory) = loadDataBasedOnPlotDependencies(['GateSweep.json'], parameters, minIndex=parameters['minJSONIndex'], maxIndex=parameters['maxJSONIndex'], minExperiment=parameters['minJSONExperimentNumber'], maxExperiment=parameters['maxJSONExperimentNumber'], minRelativeIndex=parameters['minJSONRelativeIndex'], maxRelativeIndex=parameters['maxJSONRelativeIndex'], loadOnlyMostRecentExperiments=parameters['loadOnlyMostRecentExperiments'], numberOfOldestExperiments=1, numberOfOldestIndexes=1, numberOfRecentExperiments=parameters['numberOfRecentExperiments'], numberOfRecentIndexes=parameters['numberOfRecentIndexes'], specificDeviceList=devicesToInclude, deviceGroupList=parameters['deviceGroupList'])
+		devicesToInclude = []
+		for deviceRun in specificRunChipHistory:
+			abs_max_current = max(np.max(deviceRun['Results']['id_data']), abs(np.min(deviceRun['Results']['id_data'])))
+			abs_min_current = min(abs(np.min(deviceRun['Results']['id_data'])), abs(np.max(deviceRun['Results']['id_data'])))
+			if( ((parameters['minOnCurrent'] is None) or (abs_max_current > parameters['minOnCurrent'])) and ((parameters['maxOnCurrent'] is None) or (abs_max_current < parameters['maxOnCurrent'])) and ((parameters['maxOffCurrent'] is None) or (abs_min_current < parameters['maxOffCurrent'])) ):
+				devicesToInclude.append(deviceRun['Identifiers']['device'])
+
 	for plotType in plotsToCreate:
 		dataFileDependencies = dpu.getDataFileDependencies(plotType)		
-		(chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory, groupedChipHistory) = loadDataBasedOnPlotDependencies(dataFileDependencies, parameters, minIndex=parameters['minJSONIndex'], maxIndex=parameters['maxJSONIndex'], minExperiment=parameters['minJSONExperimentNumber'], maxExperiment=parameters['maxJSONExperimentNumber'], minRelativeIndex=parameters['minJSONRelativeIndex'], maxRelativeIndex=parameters['maxJSONRelativeIndex'], loadOnlyMostRecentExperiments=parameters['loadOnlyMostRecentExperiments'], numberOfOldestExperiments=1, numberOfOldestIndexes=1, numberOfRecentExperiments=parameters['numberOfRecentExperiments'], numberOfRecentIndexes=parameters['numberOfRecentIndexes'], specificDeviceList=parameters['specificDeviceList'], deviceGroupList=parameters['deviceGroupList'])
+		(chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory, groupedChipHistory) = loadDataBasedOnPlotDependencies(dataFileDependencies, parameters, minIndex=parameters['minJSONIndex'], maxIndex=parameters['maxJSONIndex'], minExperiment=parameters['minJSONExperimentNumber'], maxExperiment=parameters['maxJSONExperimentNumber'], minRelativeIndex=parameters['minJSONRelativeIndex'], maxRelativeIndex=parameters['maxJSONRelativeIndex'], loadOnlyMostRecentExperiments=parameters['loadOnlyMostRecentExperiments'], numberOfOldestExperiments=1, numberOfOldestIndexes=1, numberOfRecentExperiments=parameters['numberOfRecentExperiments'], numberOfRecentIndexes=parameters['numberOfRecentIndexes'], specificDeviceList=devicesToInclude, deviceGroupList=parameters['deviceGroupList'])
 		plot = dpu.makeChipPlot(plotType, parameters['Identifiers'], chipIndexes=chipIndexes, firstRunChipHistory=firstRunChipHistory, recentRunChipHistory=recentRunChipHistory, specificRunChipHistory=specificRunChipHistory, groupedChipHistory=groupedChipHistory, mode_parameters=plot_mode_parameters)
 		plotList.append(plot)
 	

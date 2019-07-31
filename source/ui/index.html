@@ -195,18 +195,16 @@
 					<v-toolbar-items>
 						<v-menu bottom left offset-y :close-on-content-click="false" :nudge-width="200">
 							<v-btn slot="activator" flat><v-icon>art_track</v-icon></v-btn>
+							<v-card light style="overflow-y: scroll; max-height:65vh">
+								<v-list>
+									<s-item-group-edit :settings.sync="primaryPlotSettings" :defaults="primaryPlotSettingDefaults"></s-item-group-edit>
+									<s-item-group-edit :settings.sync="modePlotSettings" :defaults="modePlotSettingDefaults"></s-item-group-edit>
+								</v-list>
+							</v-card>
 							<v-card light>
 								<v-list>
-									<v-list-tile v-for="plotSettingValue, plotSettingName in setPlotSettings">
-										<v-switch v-if="plotSettingTypes[plotSettingName]['type'] == 'bool'" :label="plotSettingName" v-model="setPlotSettings[plotSettingName]"></v-switch>
-										<v-text-field v-if="plotSettingTypes[plotSettingName]['type'] == 'int'" :label="plotSettingName" v-model.number="setPlotSettings[plotSettingName]" type="number"></v-text-field>
-										<v-text-field v-if="plotSettingTypes[plotSettingName]['type'] == 'float'" :label="plotSettingName" v-model.number="setPlotSettings[plotSettingName]" type="number"></v-text-field>
-										<v-text-field v-if="plotSettingTypes[plotSettingName]['type'] == 'array'" :label="plotSettingName" v-model="setPlotSettings[plotSettingName]"></v-text-field>
-										<v-text-field v-if="plotSettingTypes[plotSettingName]['type'] == 'object'" :label="plotSettingName" v-model="setPlotSettings[plotSettingName]"></v-text-field>
-										<v-select v-if="plotSettingTypes[plotSettingName]['type'] == 'choice'" :label="plotSettingName" :items="plotSettingTypes[plotSettingName]['choices']" v-model="setPlotSettings[plotSettingName]"></v-select>
-									</v-list-tile>
 									<v-list-tile>
-										<v-btn @click="setPlotSettings = JSON.parse(JSON.stringify(defaultPlotSettings))">Reset</v-btn>
+										<v-btn @click="resetPlotSettings()">Reset</v-btn>
 										<v-spacer></v-spacer>
 										<v-btn @click="updatePlotSettings()">Save</v-btn>
 									</v-list-tile>
@@ -361,6 +359,26 @@
 										<v-toolbar-title>
 											{{ wafer }}{{ chip }} Chip Summary Plots
 										</v-toolbar-title>
+										<v-spacer></v-spacer>
+										<v-toolbar-items>
+											<v-menu bottom left offset-y :close-on-content-click="false" :nudge-width="200">
+												<v-btn slot="activator" flat><v-icon>art_track</v-icon></v-btn>
+												<v-card light style="overflow-y: scroll; max-height:65vh">
+													<v-list>
+														<s-item-group-edit :settings.sync="chipPlotSettings" :defaults="chipPlotSettingDefaults"></s-item-group-edit>
+													</v-list>
+												</v-card>
+												<v-card light>
+													<v-list>
+														<v-list-tile>
+															<v-btn @click="resetChipPlotSettings()">Reset</v-btn>
+															<v-spacer></v-spacer>
+															<v-btn @click="updatePlotSettings()">Save</v-btn>
+														</v-list-tile>
+													</v-list>
+												</v-card>
+											</v-menu>
+										</v-toolbar-items>
 									</v-toolbar>
 									
 									<!-- container gives a couple chip summary plots that present data from all experiments on this chip for comparisson (sn)-->
@@ -534,7 +552,7 @@
 									</v-container> -->
 									
 									<v-card class="ma-1">
-										<v-toolbar dark dense class="color1 ">
+										<v-toolbar dark dense class="color4 ">
 											<v-toolbar-title>
 												Notes
 											</v-toolbar-title>
@@ -559,9 +577,9 @@
 										
 									</v-card>
 									
-									<v-card class="ma-1">
+									<v-card class="ma-1 mt-2 mb-2">
 										<v-expansion-panel dark expand>
-											<v-expansion-panel-content class="color1 " v-for="section in _.keys(experiment)" v-if="typeof experiment[section] == 'object'" ripple>
+											<v-expansion-panel-content class="color2 " v-for="section in _.keys(experiment)" v-if="typeof experiment[section] == 'object'" ripple>
 												<div slot="header">{{ section }}</div>
 												<v-data-table :items="_.toPairs(experiment[section])" :headers="[{'text':'Property'},{'text':'Value'}]" hide-actions hide-headers light>
 													<template slot="items" slot-scope="props">
@@ -574,24 +592,30 @@
 									</v-card>
 									
 									<v-card class="ma-1">
-										<v-toolbar dark dense class="color1 ">
+										<v-toolbar dark dense class="color4 ">
 											<v-toolbar-title>
 												Data Export
 											</v-toolbar-title>
 										</v-toolbar>
-										<v-card-actions>
+										<v-card-actions class="ma-1">
 											<v-btn :href="'/saveCSV/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/data.csv' + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))">Save CSV</v-btn>
-											
+											<v-spacer></v-spacer>
 											<v-btn @click="updateAFMRegistry()">Update AFM Registry</v-btn>
 										</v-card-actions>
 										
-										<p>This experiment has the following data files: {{ experiment['dataFiles'] }}</p>
-										<p>The data for this experiment is stored in <a :href="'file://///' + experiment['dataFolderSpecificAbs']">{{ experiment['dataFolderSpecificAbs'] }}</a></p>
-										<p>To load data, use:</p>
-										<p>from utilities import DataLoggerUtility as dlu</p>
-										<p>
-											dlu.loadSpecificDeviceHistory('{{ experiment['dataFolderSpecific'] }}', '{{ experiment['dataFiles'][0] }}', minIndex=0, maxIndex=float('inf'), minExperiment={{ experiment.startIndexes.experimentNumber }}, maxExperiment={{ experiment.startIndexes.experimentNumber }}, minRelativeIndex=0, maxRelativeIndex=float('inf'))
-										</p>
+										<v-form class="ma-3" style="overflow-x: scroll">
+											<p>This experiment has the following data files:<br/> {{ experiment['dataFiles'] }}</p>
+											<p>The data for this experiment is stored in:<br/> <a :href="'file://///' + experiment['dataFolderSpecificAbs']">{{ experiment['dataFolderSpecificAbs'] }}</a></p>
+											<p><i>Load data by executing:</i></p>
+											<v-card>
+												<p><tt>from utilities import DataLoggerUtility as dlu</tt></p>
+												<p>
+													<tt>
+														dlu.loadSpecificDeviceHistory('{{ experiment['dataFolderSpecific'] }}', '{{ experiment['dataFiles'][0] }}', minIndex=0, maxIndex=float('inf'), minExperiment={{ experiment.startIndexes.experimentNumber }}, maxExperiment={{ experiment.startIndexes.experimentNumber }}, minRelativeIndex=0, maxRelativeIndex=float('inf'))
+													</tt>
+												</p>
+											</v-card>
+										</v-form>
 										
 									</v-card>
 									
@@ -652,12 +676,12 @@
 												<span>Add new job after</span>
 											</v-tooltip>
 										</v-list-tile-action>
-										<v-list-tile-action>
+										<!--<v-list-tile-action>
 											<v-tooltip top>
 												<v-btn icon @click.stop="resetScheduleJob(scheduleObjectIndex)" slot="activator"><v-icon>settings_backup_restore</v-icon></v-btn>
 												<span>Reset job settings to defaults</span>
 											</v-tooltip>
-										</v-list-tile-action>
+										</v-list-tile-action>-->
 										<v-list-tile-action>
 											<v-tooltip top>
 												<v-btn icon @click.stop="removeScheduleJob(scheduleObjectIndex)" slot="activator"><v-icon>cancel</v-icon></v-btn>
@@ -671,8 +695,8 @@
 								</v-list-group>
 							</v-list>
 							
-							<v-card class="ma-3">
-								<v-toolbar dark dense class="color3">
+							<v-card class="ma-3" v-if="!(_.isEqual(scheduleLines, [{}]) || _.isEqual(scheduleLines, []))">
+								<v-toolbar dark dense class="grey">
 									<v-toolbar-title>
 										Preview Schedule File
 									</v-toolbar-title>
@@ -698,113 +722,133 @@
 						</v-card>
 						
 						
+						<v-layout row wrap>
+							<v-flex xs6 sm6 md6 lg6 class="pr-1">
+								<v-card class="mb-3">
+									<v-toolbar dark dense class="color2 ">
+										<v-toolbar-title>
+											Save Schedule File
+										</v-toolbar-title>
+									</v-toolbar>
+									
+									<v-form>
+										<v-container>
+											<v-layout row wrap>
+												<v-flex xs4 sm4 md4 lg4 outline>
+													<v-combobox clearable v-model="scheduleSaveUser" label="User" :items="Object.keys(scheduleNames)">
+														<template slot="no-data">
+															<v-list-tile>
+																<v-list-tile-content>
+																	<v-list-tile-title>
+																		No results. Continuing will create a new user.
+																	</v-list-tile-title>
+																</v-list-tile-content>
+																</v-list-tile>
+														</template>
+													</v-combobox>
+												</v-flex>
+												<v-flex xs4 sm4 md4 lg4 solo>
+													<v-combobox clearable v-model="scheduleSaveProject" label="Project" :items="_.keys(_.get(scheduleNames, [scheduleSaveUser], {}))">
+														<template slot="no-data">
+															<v-list-tile>
+																<v-list-tile-content>
+																	<v-list-tile-title>
+																		No results. Continuing will create a new project.
+																	</v-list-tile-title>
+																</v-list-tile-content>
+																</v-list-tile>
+														</template>
+													</v-combobox>
+												</v-flex>
+												<v-flex xs4 sm4 md4 lg4 solo>
+													<v-combobox clearable v-model="scheduleSaveFileName" label="File Name" :items="_.get(scheduleNames, [scheduleSaveUser, scheduleSaveProject], [])">
+														<template slot="no-data">
+															<v-list-tile>
+																<v-list-tile-content>
+																	<v-list-tile-title>
+																		No results. Continuing will create a new file.
+																	</v-list-tile-title>
+																</v-list-tile-content>
+																</v-list-tile>
+														</template>
+													</v-combobox>
+												</v-flex>
+											</v-layout>
+										</v-container>
+									</v-form>
+										
+									<template v-if="scheduleSaveUser && scheduleSaveProject && scheduleSaveFileName">
+										<v-form class="ma-3" style="overflow-x: scroll">
+											<p>
+												<i>Saving to:</i><br/> 
+												AutexysData/{{ scheduleSaveUser }}/{{ scheduleSaveProject }}/schedules/{{ scheduleSaveFileName }}.json
+											</p>
+											<p>
+												<i>Run by executing:</i><br/>
+												<tt>
+													cd "{{ paths['sourceAbsPath'] }}"<br/>
+													python dispatcher.py "../../AutexysData/{{ scheduleSaveUser }}/{{ scheduleSaveProject }}/schedules/{{ scheduleSaveFileName }}.json"
+												</tt>
+											</p>
+										</v-form>
+									</template>
+									
+									<v-card-actions>
+										<v-spacer></v-spacer>
+										<v-btn @click="saveSchedule()">Save Schedule File</v-btn>
+									</v-card-actions>
+								</v-card>
+							</v-flex>	
 						
-						<v-card class="mb-3">
-							<v-toolbar dark dense class="color2 ">
-								<v-toolbar-title>
-									Save Schedule File
-								</v-toolbar-title>
-							</v-toolbar>
-							
-							<v-form>
-								<v-container>
-									<v-layout row wrap>
-										<v-flex xs12 sm6 md4 lg3 outline>
-											<v-combobox clearable v-model="scheduleSaveUser" label="User" :items="Object.keys(scheduleNames)">
-												<template slot="no-data">
-													<v-list-tile>
-														<v-list-tile-content>
-															<v-list-tile-title>
-																No results. Continuing will create a new user.
-															</v-list-tile-title>
-														</v-list-tile-content>
-														</v-list-tile>
-												</template>
-											</v-combobox>
-										</v-flex>
-										<v-flex xs12 sm6 md4 lg3 solo>
-											<v-combobox clearable v-model="scheduleSaveProject" label="Project" :items="_.keys(_.get(scheduleNames, [scheduleSaveUser], {}))">
-												<template slot="no-data">
-													<v-list-tile>
-														<v-list-tile-content>
-															<v-list-tile-title>
-																No results. Continuing will create a new project.
-															</v-list-tile-title>
-														</v-list-tile-content>
-														</v-list-tile>
-												</template>
-											</v-combobox>
-										</v-flex>
-										<v-flex xs12 sm6 md4 lg3 solo>
-											<v-combobox clearable v-model="scheduleSaveFileName" label="File Name" :items="_.get(scheduleNames, [scheduleSaveUser, scheduleSaveProject], [])">
-												<template slot="no-data">
-													<v-list-tile>
-														<v-list-tile-content>
-															<v-list-tile-title>
-																No results. Continuing will create a new file.
-															</v-list-tile-title>
-														</v-list-tile-content>
-														</v-list-tile>
-												</template>
-											</v-combobox>
-										</v-flex>
-									</v-layout>
-								</v-container>
-							</v-form>
-							
-							<template v-if="scheduleSaveUser && scheduleSaveProject && scheduleSaveFileName">
-								<p><i>Saving to:</i> AutexysData/{{ scheduleSaveUser }}/{{ scheduleSaveProject }}/schedules/{{ scheduleSaveFileName }}.json</p>
-								<p>
-									<i>Run by executing:</i><br/>
-									cd "{{ paths['sourceAbsPath'] }}"<br/>
-									python dispatcher.py "../../AutexysData/{{ scheduleSaveUser }}/{{ scheduleSaveProject }}/schedules/{{ scheduleSaveFileName }}.json"
-								</p>
-							</template>
-							
-							<v-card-actions>
-								<v-spacer></v-spacer>
-								<v-btn @click="saveSchedule()">Save Schedule File</v-btn>
-							</v-card-actions>
-						</v-card>
-					
-						<v-card class="mb-3">
-							<v-toolbar dark dense class="color2 ">
-								<v-toolbar-title>
-									Load Schedule File
-								</v-toolbar-title>
-							</v-toolbar>
-							<!-- <v-menu attach bottom left offset-y>
-								<v-btn slot="activator" flat>{{ scheduleSaveUser }}<v-icon right>people</v-icon></v-btn>
-								<v-list light>
-									<v-list-tile v-for="u in users" @click="scheduleSaveUser = u">
-										<v-list-tile-avatar color="color1 "><v-icon dark>account_circle</v-icon></v-list-tile-avatar>
-										<v-list-tile-content><v-list-tile-title>{{ u }}</v-list-tile-title></v-list-tile-content>
-									</v-list-tile>
-								</v-list>
-							</v-menu> -->
-							
-							<v-form>
-								<v-container>
-									<v-layout row wrap>
-										<v-flex xs12 sm6 md4 lg3 outline>
-											<v-autocomplete clearable v-model="scheduleLoadUser" label="User" :items="Object.keys(scheduleNames)"></v-autocomplete>
-										</v-flex>
-										<v-flex xs12 sm6 md4 lg3 solo>
-											<v-autocomplete clearable v-model="scheduleLoadProject" label="Project" :items="_.keys(_.get(scheduleNames, [scheduleLoadUser], {}))"></v-autocomplete>
-										</v-flex>
-										<v-flex xs12 sm6 md4 lg3 solo>
-											<v-autocomplete clearable v-model="scheduleLoadFileName" label="File Name" :items="_.get(scheduleNames, [scheduleLoadUser, scheduleLoadProject], [])"></v-autocomplete>
-										</v-flex>
-									</v-layout>
-								</v-container>
-							</v-form>
-							
-							<v-card-actions>
-								<span v-if="scheduleLoadUser && scheduleLoadProject && scheduleLoadFileName">Loading from: AutexysData/{{ scheduleLoadUser }}/{{ scheduleLoadProject }}/schedules/{{ scheduleLoadFileName }}.json</span>
-								<v-spacer></v-spacer>
-								<v-btn @click="loadSchedule()">Load Schedule File</v-btn>
-							</v-card-actions>
-						</v-card>
+							<v-flex xs6 sm6 md6 lg6 class="pl-1">
+								<v-card class="mb-3">
+									<v-toolbar dark dense class="color2 ">
+										<v-toolbar-title>
+											Load Schedule File
+										</v-toolbar-title>
+									</v-toolbar>
+									<!-- <v-menu attach bottom left offset-y>
+										<v-btn slot="activator" flat>{{ scheduleSaveUser }}<v-icon right>people</v-icon></v-btn>
+										<v-list light>
+											<v-list-tile v-for="u in users" @click="scheduleSaveUser = u">
+												<v-list-tile-avatar color="color1 "><v-icon dark>account_circle</v-icon></v-list-tile-avatar>
+												<v-list-tile-content><v-list-tile-title>{{ u }}</v-list-tile-title></v-list-tile-content>
+											</v-list-tile>
+										</v-list>
+									</v-menu> -->
+									
+									<v-form>
+										<v-container>
+											<v-layout row wrap>
+												<v-flex xs4 sm4 md4 lg4 outline>
+													<v-autocomplete clearable v-model="scheduleLoadUser" label="User" :items="Object.keys(scheduleNames)"></v-autocomplete>
+												</v-flex>
+												<v-flex xs4 sm4 md4 lg4 solo>
+													<v-autocomplete clearable v-model="scheduleLoadProject" label="Project" :items="_.keys(_.get(scheduleNames, [scheduleLoadUser], {}))"></v-autocomplete>
+												</v-flex>
+												<v-flex xs4 sm4 md4 lg4 solo>
+													<v-autocomplete clearable v-model="scheduleLoadFileName" label="File Name" :items="_.get(scheduleNames, [scheduleLoadUser, scheduleLoadProject], [])"></v-autocomplete>
+												</v-flex>
+											</v-layout>
+										</v-container>
+									</v-form>
+									
+									<template v-if="scheduleLoadUser && scheduleLoadProject && scheduleLoadFileName">
+										<v-form class="ma-3" style="overflow-x: scroll">
+											<p>
+												<i>Loading from:</i><br/> 
+												AutexysData/{{ scheduleLoadUser }}/{{ scheduleLoadProject }}/schedules/{{ scheduleLoadFileName }}.json
+											</p>
+										</v-form>
+									</template>
+																	
+									<v-card-actions>
+										<v-spacer></v-spacer>
+										<v-btn @click="loadSchedule()">Load Schedule File</v-btn>
+									</v-card-actions>
+								</v-card>
+							</v-flex>
+						</v-layout>
 							
 						
 					</v-flex>
@@ -897,8 +941,8 @@
 					</v-flex>
 					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'experimentRunner'">
-						<v-card>
-							<v-toolbar dark dense class="color1 ">
+						<v-card class="mb-3">
+							<v-toolbar dark dense class="color3 ">
 								<v-toolbar-title>
 									Experiment Runner
 								</v-toolbar-title>
@@ -931,8 +975,8 @@
 							</v-container>
 						</v-card>
 						
-						<v-card v-if="dispatcherRunning">
-							<v-toolbar dark dense class="color1 ">
+						<v-card class="mb-3" v-if="dispatcherRunning">
+							<v-toolbar dark dense class="color3 ">
 								<v-toolbar-title>
 									Run Progress
 								</v-toolbar-title>
@@ -947,7 +991,7 @@
 						</v-card>
 						
 						<v-card>
-							<v-toolbar dark dense class="color1 ">
+							<v-toolbar dark dense class="color3 ">
 								<v-toolbar-title>
 									Live Plots
 								</v-toolbar-title>
@@ -1141,45 +1185,95 @@
 				parametersSection: '',
 				cacheBust: '',
 				
-				defaultPlotSettings: {
-					'minExperiment': null,
-					'maxExperiment': null,
-					'figureSize': null,
-					'sweepDirection': 'both',
-					'minRelativeIndex': 0,
-					'maxRelativeIndex': 1e10,
-					'plot_mode_parameters': null
+				// --- Plot Settings ---
+				
+				plotSettings: {'primary':{}, 'mode_parameters':{}, 'chip':{}},
+				
+				primaryPlotSettings: {
+					'minExperiment':      {'type': 'int',   'default':null,  'title':'Min Experiment',    'description':''},
+					'maxExperiment':      {'type': 'int',   'default':null,  'title':'Max Experiment',    'description':''},
+					'minRelativeIndex':   {'type': 'int',   'default':0,     'title':'Min Rel. Index',    'description':''},
+					'maxRelativeIndex':   {'type': 'int',   'default':1e10,  'title':'Max Rel. Index',    'description':''},
 				},
 				
-				setPlotSettings: {
-					'minExperiment': null,
-					'maxExperiment': null,
-					'figureSize': null,
-					'sweepDirection': 'both',
-					'minRelativeIndex': 0,
-					'maxRelativeIndex': 1e10,
-					'plot_mode_parameters': null
+				primaryPlotSettingDefaults: {
+					'minExperiment':      {'type': 'int',   'default':null,  'title':'Min Experiment',    'description':''},
+					'maxExperiment':      {'type': 'int',   'default':null,  'title':'Max Experiment',    'description':''},
+					'minRelativeIndex':   {'type': 'int',   'default':0,     'title':'Min Rel. Index',    'description':''},
+					'maxRelativeIndex':   {'type': 'int',   'default':1e10,  'title':'Max Rel. Index',    'description':''},
 				},
 				
-				plotSettings: {
-					'minExperiment': null,
-					'maxExperiment': null,
-					'figureSize': null,
-					'sweepDirection': 'both',
-					'minRelativeIndex': 0,
-					'maxRelativeIndex': 1e10,
-					'plot_mode_parameters': null
+				modePlotSettings: {
+					'sweepDirection':     {'type': 'choice', 'choices': ['both', 'forward', 'reverse'], 'default':'both', 'title':'Sweep Direction', 'description':''},
+					'plotInRealTime':     {'type': 'bool',  'default':true,  'title':'Show Real Time',    'description':''},
+					'timescale':          {'type': 'choice', 'choices': ['','seconds','min','hr','days','weeks','months'], 'default':'', 'title':'Time Scale', 'description':''},
+					'boxPlotBarChart':    {'type': 'bool',  'default':true,  'title':'Bar Charts',        'description':''},
+					
+					'enableLegend':       {'type': 'bool',  'default':true,  'title':'Enable Legend',     'description':''},
+					'enableErrorBars':    {'type': 'bool',  'default':false, 'title':'Enable Error Bars', 'description':''},
+					'enableColorBar':     {'type': 'bool',  'default':true,  'title':'Enable Color Bar',  'description':''},
+					'enableGradient':     {'type': 'bool',  'default':false, 'title':'Enable Gradient',   'description':''},
+					
+					'xlim':               {'type': 'array', 'default':null,  'title':'X Limits',          'description':''},
+					'ylim':               {'type': 'array', 'default':null,  'title':'Y Limits',          'description':''},
+					'xscale':             {'type': 'float', 'default':null,  'title':'X Scale',           'description':''},
+					'yscale':             {'type': 'float', 'default':null,  'title':'Y Scale',           'description':''},
+					'xticks':             {'type': 'array', 'default':null,  'title':'X Ticks',           'description':''},
+					'yticks':             {'type': 'array', 'default':null,  'title':'Y Ticks',           'description':''},
+					
+					'publication_mode':   {'type': 'bool',  'default':false, 'title':'Publication Mode',  'description':''},
+					'default_png_dpi':    {'type': 'int',   'default':300,   'title':'Default PNG DPI',   'description':''},
+					'figureSizeOverride': {'type': 'array', 'default':null,  'title':'Figure Size',       'description':''},
+					'colorsOverride':     {'type': 'array', 'default':[],    'title':'Colors Override',   'description':''},
+					'legendLoc':          {'type': 'choice', 'choices': ['best', 'lower left', 'lower center', 'lower right', 'upper left', 'upper center', 'upper right', 'center left', 'center', 'center right'], 'default':'best', 'title':'Legend Location', 'description':''},
+					'legendLabels':       {'type': 'array', 'default':[],    'title':'Legend Labels',     'description':''},
+					'legendTitleOverride':{'type': 'string','default':'',    'title':'Legend Title',      'description':''},
 				},
 				
-				plotSettingTypes: {
-					'minExperiment': {'type': 'int'},
-					'maxExperiment': {'type': 'int'},
-					'figureSize': {'type': 'array'},
-					'sweepDirection': {'type': 'choice', 'choices': ['both', 'forward', 'reverse']},
-					'minRelativeIndex': {'type': 'int'},
-					'maxRelativeIndex': {'type': 'int'},
-					'plot_mode_parameters': {'type': 'object'}
+				modePlotSettingDefaults: {
+					'sweepDirection':     {'type': 'choice', 'choices': ['both', 'forward', 'reverse'], 'default':'both', 'title':'Sweep Direction', 'description':''},
+					'plotInRealTime':     {'type': 'bool',  'default':true,  'title':'Show Real Time',    'description':''},
+					'timescale':          {'type': 'choice', 'choices': ['','seconds','min','hr','days','weeks','months'], 'default':'', 'title':'Time Scale', 'description':''},
+					'boxPlotBarChart':    {'type': 'bool',  'default':true,  'title':'Bar Charts',        'description':''},
+					
+					'enableLegend':       {'type': 'bool',  'default':true,  'title':'Enable Legend',     'description':''},
+					'enableErrorBars':    {'type': 'bool',  'default':false, 'title':'Enable Error Bars', 'description':''},
+					'enableColorBar':     {'type': 'bool',  'default':true,  'title':'Enable Color Bar',  'description':''},
+					'enableGradient':     {'type': 'bool',  'default':false, 'title':'Enable Gradient',   'description':''},
+					
+					'xlim':               {'type': 'array', 'default':null,  'title':'X Limits',          'description':''},
+					'ylim':               {'type': 'array', 'default':null,  'title':'Y Limits',          'description':''},
+					'xscale':             {'type': 'float', 'default':null,  'title':'X Scale',           'description':''},
+					'yscale':             {'type': 'float', 'default':null,  'title':'Y Scale',           'description':''},
+					'xticks':             {'type': 'array', 'default':null,  'title':'X Ticks',           'description':''},
+					'yticks':             {'type': 'array', 'default':null,  'title':'Y Ticks',           'description':''},
+					
+					'publication_mode':   {'type': 'bool',  'default':false, 'title':'Publication Mode',  'description':''},
+					'default_png_dpi':    {'type': 'int',   'default':300,   'title':'Default PNG DPI',   'description':''},
+					'figureSizeOverride': {'type': 'array', 'default':null,  'title':'Figure Size',       'description':''},
+					'colorsOverride':     {'type': 'array', 'default':[],    'title':'Colors Override',   'description':''},
+					'legendLoc':          {'type': 'choice', 'choices': ['best', 'lower left', 'lower center', 'lower right', 'upper left', 'upper center', 'upper right', 'center left', 'center', 'center right'], 'default':'best', 'title':'Legend Location', 'description':''},
+					'legendLabels':       {'type': 'array', 'default':[],    'title':'Legend Labels',     'description':''},
+					'legendTitleOverride':{'type': 'string','default':'',    'title':'Legend Title',      'description':''},
 				},
+				
+				chipPlotSettings: {
+					'specificDeviceList':    {'type': 'array', 'default':null,  'title':'Specific Devices',      'description':''},
+					'numberOfRecentIndexes': {'type': 'int',   'default':1,     'title':'Data Sets per Device',  'description':''},
+					'minOnCurrent':          {'type': 'float', 'default':null,  'title':'Min On-Current',        'description':''},
+					'maxOnCurrent':          {'type': 'float', 'default':null,  'title':'Max On-Current',        'description':''},
+					'maxOffCurrent':         {'type': 'float', 'default':null,  'title':'Max Off-Current',       'description':''},
+				},
+				
+				chipPlotSettingDefaults: {
+					'specificDeviceList':    {'type': 'array', 'default':null,  'title':'Specific Devices',      'description':''},
+					'numberOfRecentIndexes': {'type': 'int',   'default':1,     'title':'Data Sets per Device',  'description':''},
+					'minOnCurrent':          {'type': 'float', 'default':null,  'title':'Min On-Current',        'description':''},
+					'maxOnCurrent':          {'type': 'float', 'default':null,  'title':'Max On-Current',        'description':''},
+					'maxOffCurrent':         {'type': 'float', 'default':null,  'title':'Max Off-Current',       'description':''},
+				},
+				
+				// --- end Plot Settings ---
 				
 				users: [],
 				user: localStorage.user ? JSON.parse(localStorage.user) : '',
@@ -1263,10 +1357,10 @@
 				ReadMeHTML: '',
 				dispatcherRunning: false,
 				experimentRunnerProgress: {},
-				livePlotXData: {'test x':[1,2,3], 'test x 2':[2,3,4]},
-				livePlotYData: {'test y':[2,3,1], 'test y 2':[3,4,2]},
-				// livePlotXData: {},
-				// livePlotYData: {},
+				// livePlotXData: {'test x':[1,2,3], 'test x 2':[2,3,4]},
+				// livePlotYData: {'test y':[2,3,1], 'test y 2':[3,4,2]},
+				livePlotXData: {},
+				livePlotYData: {},
 				listInputTest: [{'text': 'a', 'value': '1'}, {'text': 'b', 'value': '2'}],
 				dataPlotData: [{ x: [1, 2, 3], y: [1, 3, 1], mode: 'lines' }],
 				colors: [],
@@ -1618,7 +1712,34 @@
 				},
 				
 				updatePlotSettings: function() {
-					this.plotSettings = _.omitBy(this.setPlotSettings, (v,k) => ((this.defaultPlotSettings[k] == v) || v == '') );
+					var primary_modifications = _.omitBy(this.primaryPlotSettings, (v,k) => ((this.primaryPlotSettingDefaults[k]['default'] === v['default'])) );
+					var mode_modifications = _.omitBy(this.modePlotSettings, (v,k) => ((this.modePlotSettingDefaults[k]['default'] === v['default'])) );
+					var chip_modifications = _.omitBy(this.chipPlotSettings, (v,k) => ((this.chipPlotSettingDefaults[k]['default'] === v['default'])) );
+					
+					Object.keys(primary_modifications).forEach(function(key) {
+						primary_modifications[key] = primary_modifications[key]['default']
+					})
+					Object.keys(mode_modifications).forEach(function(key) {
+						mode_modifications[key] = mode_modifications[key]['default']
+					})
+					Object.keys(chip_modifications).forEach(function(key) {
+						chip_modifications[key] = chip_modifications[key]['default']
+					})
+					
+					var all_modifications = {'primary':primary_modifications, 'mode_parameters':mode_modifications, 'chip':chip_modifications}
+
+					this.plotSettings = all_modifications
+					
+					console.log("Updated plot settings: " + JSON.stringify(all_modifications));
+				},
+				
+				resetPlotSettings: function() {
+					this.primaryPlotSettings = JSON.parse(JSON.stringify(this.primaryPlotSettingDefaults))	
+					this.modePlotSettings = JSON.parse(JSON.stringify(this.modePlotSettingDefaults))	
+				},
+				
+				resetChipPlotSettings: function() {
+					this.chipPlotSettings = JSON.parse(JSON.stringify(this.chipPlotSettingDefaults))	
 				},
 				
 				removeValueFromArray: function(value, array) {

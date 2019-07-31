@@ -35,7 +35,7 @@ default_dh_parameters = {
 
 # === External Interface ===
 def makePlots(userID, projectID, waferID, chipID, deviceID, minExperiment=0, 
-				maxExperiment=float('inf'), specificPlot='', figureSize=None, sweepDirection='both', 
+				maxExperiment=float('inf'), specificPlot='', figureSize=None, sweepDirection=None, 
 				dataFolder=None, saveFolder=None, plotSaveName='', saveFigures=False, showFigures=True, 
 				minRelativeIndex=0, maxRelativeIndex=float('inf'), plot_mode_parameters=None, cacheBust=None):
 	"""Make plots for the device found in the userID/projectID/waferID/chipID/deviceID folder.
@@ -81,8 +81,10 @@ def makePlots(userID, projectID, waferID, chipID, deviceID, minExperiment=0,
 	mode_parameters['saveFigures'] = saveFigures
 	mode_parameters['showFigures'] = showFigures
 	mode_parameters['plotSaveName'] = plotSaveName
-	mode_parameters['figureSizeOverride'] = figureSize
-	mode_parameters['sweepDirection'] = sweepDirection
+	if(figureSize is not None):
+		mode_parameters['figureSizeOverride'] = figureSize
+	if(sweepDirection is not None):
+		mode_parameters['sweepDirection'] = sweepDirection
 
 	return run(parameters, plot_mode_parameters=mode_parameters, cacheBust=cacheBust)
 

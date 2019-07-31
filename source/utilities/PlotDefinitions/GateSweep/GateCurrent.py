@@ -11,11 +11,13 @@ plotDescription = {
 		'includeOriginOnYaxis':False,
 		'colorMap':'white_green_black',
 		'colorDefault': ['#4FB99F'],
+		
 		'xlabel':'$V_{{GS}}$ (V)',
-		'ylabel':'$I_{{G}}$ (A)',
+		'ylabel':      '$I_{{G}}$ (A)',
+		'milli_ylabel':'$I_{{G}}$ (mA)',
 		'micro_ylabel':'$I_{{G}}$ ($\\mathregular{\\mu}$A)',
-		'nano_ylabel':'$I_{{G}}$ (nA)',
-		'pico_ylabel':'$I_{{G}}$ (pA)',
+		'nano_ylabel': '$I_{{G}}$ (nA)',
+		'pico_ylabel': '$I_{{G}}$ (pA)',
 		'leg_vds_label':'$V_{{DS}} = ${:}V',
 		'leg_vds_range_label':'$V_{{DS}}^{{min}} = $ {:}V\n'+'$V_{{DS}}^{{max}} = $ {:}V'
 	},
@@ -33,9 +35,8 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Adjust y-scale and y-axis labels 
 	max_current = np.max([np.max(deviceRun['Results']['ig_data']) for deviceRun in deviceHistory])
 	min_current = np.min([np.min(deviceRun['Results']['ig_data']) for deviceRun in deviceHistory])
-	abs_max_current = max(max_current, abs(min_current))
-	print(max_current, min_current, abs_max_current)
-	current_scale, ylabel = (1, plotDescription['plotDefaults']['ylabel']) if(abs_max_current >= 1e-3) else ((1e6, plotDescription['plotDefaults']['micro_ylabel']) if(abs_max_current >= 1e-6) else ((1e9, plotDescription['plotDefaults']['nano_ylabel']) if(abs_max_current >= 1e-9) else (1e12, plotDescription['plotDefaults']['pico_ylabel'])))
+	abs_max_current = max(max_current, abs(min_current)) if(mode_parameters['yscale'] is None) else mode_parameters['yscale']
+	current_scale, ylabel = (1, plotDescription['plotDefaults']['ylabel']) if(abs_max_current >= 1) else ((1e3, plotDescription['plotDefaults']['milli_ylabel']) if(abs_max_current >= 1e-3) else ((1e6, plotDescription['plotDefaults']['micro_ylabel']) if(abs_max_current >= 1e-6) else ((1e9, plotDescription['plotDefaults']['nano_ylabel']) if(abs_max_current >= 1e-9) else (1e12, plotDescription['plotDefaults']['pico_ylabel']))))
 
 	# Plot
 	for i in range(len(deviceHistory)):

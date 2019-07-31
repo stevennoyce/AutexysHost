@@ -364,10 +364,11 @@ def plotTransferCurveSlope(axis, jsonData, lineColor, direction='both', scaleYax
 	line = plotAll(axis, x, y, lineColor, pointsPerX=pointsPerX, lineStyle=lineStyle, errorBars=errorBars, alpha=alpha)
 	return line
 
-def plotSubthresholdCurveSlope(axis, jsonData, lineColor, direction='both', x_axis='gate voltage', absoluteXaxis=False, lineStyle=None, errorBars=True, alpha=1):
+def plotSubthresholdCurveSlope(axis, jsonData, lineColor, direction='both', x_axis='gate voltage', absoluteXaxis=False, scaleYaxisBy=1, lineStyle=None, errorBars=True, alpha=1):
 	x1, y1, pointsPerX1 = extractSweep(axis, jsonData, direction, x_data='gate voltage', y_data='drain current', logScale=True, scaleYaxisBy=1000, derivative=True, absoluteValue=True, reciprocal=True)
 	x2, y2, pointsPerX2 = extractSweep(axis, jsonData, direction, x_data=x_axis, 		 y_data='drain current', derivative=True)
 	x2 = np.abs(x2) if(absoluteXaxis) else (x2)
+	y1 = scaleYaxisBy*np.array(y1)
 	line = plotAll(axis, x2, y1, lineColor, pointsPerX=pointsPerX1, lineStyle=lineStyle, errorBars=errorBars, alpha=alpha)
 	return line
 	
@@ -630,8 +631,8 @@ def getLegendTitle(deviceHistory, identifiers, plottype_parameters, parameterSup
 			except:
 				print('Unable to find L_ch for device: ' + str(identifiers) + ' in the provided wafer.json.')
 
-	if((mode_parameters is not None) and (mode_parameters['legendTitleSuffix'] != '')):
-		legend_entries.append(mode_parameters['legendTitleSuffix'])
+	if((mode_parameters is not None) and (mode_parameters['legendTitleOverride'] != '')):
+		legend_entries = [mode_parameters['legendTitleOverride']]
 
 	# Concatentate legend entries with new lines
 	for i in range(len(legend_entries)):

@@ -1,11 +1,11 @@
 from utilities.MatplotlibUtility import *
-from utilities.PlotDefinitions.Metrics.BoxPlotTransconductance import plot as importedBoxPlot
+from utilities.PlotDefinitions.Metrics.BoxPlotThresholdVoltage import plot as importedBoxPlot
 
 
 
 plotDescription = {
 	'plotCategory': 'chip',
-	'priority': 1040,
+	'priority': 1060,
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(2,2.3),

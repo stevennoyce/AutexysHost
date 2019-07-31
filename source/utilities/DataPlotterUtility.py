@@ -18,42 +18,53 @@ for importer, packageName, isPackage in pkgutil.iter_modules([plotDefinitionsBas
 
 # === Plot Parameters ===
 default_mode_parameters = {
+	# Figure saving options
 	'showFigures': True,
 	'saveFigures': True,
 	'plotSaveFolder': '../../AutexysPlots/',
 	'plotSaveName': '',
 	'plotSaveExtension': '.png',
 	
+	# Figure loaded data passthroughs
+	'generalInfo': None,
+	'AFMImagePath': None,
+	
+	# Image quality
 	'publication_mode': False,
 	'default_png_dpi': 300,
 	
+	# Generic complex options
 	'figureSizeOverride': None,
 	'colorsOverride': [],
 	'legendLoc': 'best',
-	'legendTitleSuffix':'',
 	'legendLabels': [],
+	'legendTitleOverride':'',
 	
+	# Generic axis options
+	'xlim': None,
+	'ylim': None,
+	'xscale': None,
+	'yscale': None,
+	'xticks': None,
+	'yticks': None,
+	
+	# Generic enable/disable options
 	'enableLegend': True,
 	'enableErrorBars': False,
 	'enableColorBar': True,
 	'enableGradient': False,
-	'enableModelFitting': False,
 	
+	# Plot-specific options
 	'sweepDirection': ['both','forward','reverse'][0],
 	'timescale': ['','seconds','minutes','hours','days','weeks'][0],
 	'plotInRealTime': True,
-	'boxPlotCategories':[('',float('inf'))],
 	'boxPlotBarChart':True,
+	'boxPlotCategories':[('',float('inf'))],
 	
-	'includeDualAxis': True,
-	'includeOffCurrent': True,
-	'includeGateCurrent': False,
-	
+	# Plot-specific sub-plot options
+	'includeDualAxis': True,	
 	'staticBiasSegmentDividers': False,
 	'staticBiasChangeDividers': True,
-	
-	'generalInfo': None,
-	'AFMImagePath': None
 }
 
 
@@ -100,6 +111,22 @@ def makeDevicePlot(plotType, deviceHistory, identifiers, mode_parameters=None):
 	# Add title label to figure
 	if(not updated_mode_parameters['publication_mode']):
 		axes[0].set_title(mplu.getTestLabel(deviceHistory, identifiers))
+	
+	# Override axis dimensions if desired
+	if(updated_mode_parameters['xlim'] is not None):
+		if(isinstance(updated_mode_parameters['xlim'], dict)):
+			axes[0].set_xlim(**updated_mode_parameters['xlim'])
+		else:
+			axes[0].set_xlim(updated_mode_parameters['xlim'])
+	if(updated_mode_parameters['ylim'] is not None):
+		if(isinstance(updated_mode_parameters['ylim'], dict)):
+			axes[0].set_ylim(**updated_mode_parameters['ylim'])
+		else:
+			axes[0].set_ylim(updated_mode_parameters['ylim'])
+	if(updated_mode_parameters['xticks'] is not None):
+		axes[0].set_xticks(updated_mode_parameters['xticks'])
+	if(updated_mode_parameters['yticks'] is not None):
+		axes[0].set_yticks(updated_mode_parameters['yticks'])
 	
 	# Save figure
 	subplotWidthPad  = (0) if(not 'subplotWidthPad'  in plotDefinitions[plotType]['description']['plotDefaults']) else (plotDefinitions[plotType]['description']['plotDefaults']['subplotWidthPad'])
@@ -150,6 +177,22 @@ def makeChipPlot(plotType, identifiers, chipIndexes=None, firstRunChipHistory=No
 	# Add title label to figure
 	if(not updated_mode_parameters['publication_mode']):
 		axes[0].set_title('Chip ' + str(identifiers['wafer']) + str(identifiers['chip']))		
+	
+	# Override axis dimensions if desired
+	if(updated_mode_parameters['xlim'] is not None):
+		if(isinstance(updated_mode_parameters['xlim'], dict)):
+			axes[0].set_xlim(**updated_mode_parameters['xlim'])
+		else:
+			axes[0].set_xlim(updated_mode_parameters['xlim'])
+	if(updated_mode_parameters['ylim'] is not None):
+		if(isinstance(updated_mode_parameters['ylim'], dict)):
+			axes[0].set_ylim(**updated_mode_parameters['ylim'])
+		else:
+			axes[0].set_ylim(updated_mode_parameters['ylim'])
+	if(updated_mode_parameters['xticks'] is not None):
+		axes[0].set_xticks(updated_mode_parameters['xticks'])
+	if(updated_mode_parameters['yticks'] is not None):
+		axes[0].set_yticks(updated_mode_parameters['yticks'])
 	
 	# Save figure
 	subplotWidthPad  = (0) if(not 'subplotWidthPad'  in plotDefinitions[plotType]['description']['plotDefaults']) else (plotDefinitions[plotType]['description']['plotDefaults']['subplotWidthPad'])

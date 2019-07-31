@@ -1,5 +1,4 @@
 from utilities.MatplotlibUtility import *
-from utilities import DataProcessorUtility as dpu
 from utilities import FET_Modeling as fet_model
 
 
@@ -10,7 +9,6 @@ plotDescription = {
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(2,2.3),
-		'automaticAxisLabels':True,
 		'includeOriginOnYaxis':True,
 		'colorMap':'white_purple_black',
 		'colorDefault': ['#7363af'],
@@ -20,8 +18,10 @@ plotDescription = {
 		'width':0.5,
 		
 		'xlabel':'',
-		'ylabel':'SS (mV/dec)',
-		'legend_label':'Trials: {:.5g} \n$SS^{{avg}} = {:.3g}$ mV/dec \n$SS^{{std}} = {:.3g}$ mV/dec',
+		'V_ylabel': 'SS (V/dec)',
+		'mV_ylabel':'SS (mV/dec)',
+		'V_legend_label':'Trials: {:.5g} \n$SS^{{avg}} = {:.3g}$ V/dec \n$SS^{{std}} = {:.3g}$ V/dec',
+		'mV_legend_label':'Trials: {:.5g} \n$SS^{{avg}} = {:.3g}$ mV/dec \n$SS^{{std}} = {:.3g}$ mV/dec',
 	},
 }
 
@@ -52,26 +52,34 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	
 	# Colors
 	colors = setupColors(fig, len(SS_list_categorized), colorOverride=mode_parameters['colorsOverride'], colorDefault=plotDescription['plotDefaults']['colorDefault'], colorMapName=plotDescription['plotDefaults']['colorMap'], colorMapStart=0.8, colorMapEnd=0.15, enableColorBar=False, colorBarTicks=[0,0.6,1], colorBarTickLabels=['', '', ''], colorBarAxisLabel='')			
+	
+	# Adjust y-scale and y-axis labels 
+	max_value = np.max(SS_list_categorized)
+	min_value = np.min(SS_list_categorized)
+	abs_min_value = min(abs(max_value), abs(min_value)) if(mode_parameters['yscale'] is None) else mode_parameters['yscale']
+	yscale, ylabel, legendlabel = (1e-3, plotDescription['plotDefaults']['V_ylabel'], plotDescription['plotDefaults']['V_legend_label']) if(abs_min_value >= 1e3) else (1, plotDescription['plotDefaults']['mV_ylabel'], plotDescription['plotDefaults']['mV_legend_label']) 
 				
 	# Plot	
 	for i in range(len(SS_list_categorized)):
 		position = i*plotDescription['plotDefaults']['spacing']
 		if(mode_parameters['boxPlotBarChart']):
-			line = ax.bar(position, np.mean(SS_list_categorized[i]), yerr=np.std(SS_list_categorized[i]), color=colors[i], width=plotDescription['plotDefaults']['width'], capsize=3, ecolor='#333333', error_kw={'capthick':1})	
+			line = ax.bar(position, np.mean(SS_list_categorized[i]) * yscale, yerr=np.std(SS_list_categorized[i]) * yscale, color=colors[i], width=plotDescription['plotDefaults']['width'], capsize=3, ecolor='#333333', error_kw={'capthick':1})	
 		else:
-			line = ax.boxplot(SS_list_categorized[i], positions=[position], widths=[plotDescription['plotDefaults']['width']], meanline=False, showmeans=False, showfliers=False, boxprops={'color':colors[i]}, capprops={'color':colors[i]}, whiskerprops={'color':colors[i]}, medianprops={'color':colors[i]}, meanprops={'color':colors[i]})
+			line = ax.boxplot((np.array(SS_list_categorized) * yscale).tolist()[i], positions=[position], widths=[plotDescription['plotDefaults']['width']], meanline=False, showmeans=False, showfliers=False, boxprops={'color':colors[i]}, capprops={'color':colors[i]}, whiskerprops={'color':colors[i]}, medianprops={'color':colors[i]}, meanprops={'color':colors[i]})
 		
-	
 	# Tick Labels
 	ax.set_xticks(range(len(SS_list_categorized)))
 	ax.set_xticklabels(categories)
 	
 	# Legend
 	if(mode_parameters['enableLegend']):
-		ax.legend(loc='upper right', title=plotDescription['plotDefaults']['legend_label'].format(total_points_plotted, SS_avg, SS_std))
+		ax.legend(loc='upper right', title=legendlabel.format(total_points_plotted, SS_avg * yscale, SS_std * yscale))
 	
 	# X-axis limits
 	ax.set_xlim(left= -plotDescription['plotDefaults']['x_padding'], right=(len(SS_list_categorized)-1)*plotDescription['plotDefaults']['spacing']+(plotDescription['plotDefaults']['x_padding']))
+	
+	# Set Axis Labels
+	axisLabels(ax, x_label=plotDescription['plotDefaults']['xlabel'], y_label=ylabel)
 	
 	# Adjust Y-lim (if desired)
 	includeOriginOnYaxis(ax, include=plotDescription['plotDefaults']['includeOriginOnYaxis'], stretchfactor=1.1)

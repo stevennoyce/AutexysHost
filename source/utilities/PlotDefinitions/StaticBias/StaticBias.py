@@ -12,15 +12,19 @@ plotDescription = {
 		'dualIncludeOrigin':False,
 		'colorMap':'plasma',
 		'colorDefault': ['#56638A'],
+		
 		'xlabel':'Time ({:})',
-		'ylabel':'$I_{{D}}$ (A)',
-		'micro_ylabel':'$I_{{D}}$ ($\\mathregular{\\mu}$A)',
-		'nano_ylabel':'$I_{{D}}$ (nA)',
-		'pico_ylabel':'$I_{{D}}$ (pA)',
-		'neg_ylabel':'$-I_{{D}}$ (A)',
+		'ylabel':          '$I_{{D}}$ (A)',
+		'milli_ylabel':    '$I_{{D}}$ (mA)',
+		'micro_ylabel':    '$I_{{D}}$ ($\\mathregular{\\mu}$A)',
+		'nano_ylabel':     '$I_{{D}}$ (nA)',
+		'pico_ylabel':     '$I_{{D}}$ (pA)',
+		'neg_ylabel':      '$-I_{{D}}$ (A)',
+		'neg_milli_ylabel':'$-I_{{D}}$ (mA)',
 		'neg_micro_ylabel':'$-I_{{D}}$ ($\\mathregular{\\mu}$A)',
-		'neg_nano_ylabel':'$-I_{{D}}$ (nA)',
-		'neg_pico_ylabel':'$-I_{{D}}$ (pA)',
+		'neg_nano_ylabel': '$-I_{{D}}$ (nA)',
+		'neg_pico_ylabel': '$-I_{{D}}$ (pA)',
+		
 		'vds_label': '$V_{{DS}}^{{Hold}}$ (V)',
 		'vgs_label': '$V_{{GS}}^{{Hold}}$ (V)',
 		'vds_legend': '$V_{{DS}}^{{Hold}}$ = {:.2f} V',
@@ -71,13 +75,13 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Adjust y-scale and y-axis labels 
 	max_current = np.max([np.max(deviceRun['Results']['id_data']) for deviceRun in deviceHistory])
 	min_current = np.min([np.min(deviceRun['Results']['id_data']) for deviceRun in deviceHistory])
-	abs_max_current = max(max_current, abs(min_current))
-	current_scale, ylabel = (1, plotDescription['plotDefaults']['ylabel']) if(abs_max_current >= 1e-3) else ((1e6, plotDescription['plotDefaults']['micro_ylabel']) if(abs_max_current >= 1e-6) else ((1e9, plotDescription['plotDefaults']['nano_ylabel']) if(abs_max_current >= 1e-9) else (1e12, plotDescription['plotDefaults']['pico_ylabel'])))
+	abs_max_current = max(max_current, abs(min_current)) if(mode_parameters['yscale'] is None) else mode_parameters['yscale']
+	current_scale, ylabel = (1, plotDescription['plotDefaults']['ylabel']) if(abs_max_current >= 1) else ((1e3, plotDescription['plotDefaults']['milli_ylabel']) if(abs_max_current >= 1e-3) else ((1e6, plotDescription['plotDefaults']['micro_ylabel']) if(abs_max_current >= 1e-6) else ((1e9, plotDescription['plotDefaults']['nano_ylabel']) if(abs_max_current >= 1e-9) else (1e12, plotDescription['plotDefaults']['pico_ylabel']))))
 	
 	# If negative current maximum greater than positive current maximum, flip data
 	if(abs(min_current) > max_current):
 		current_scale = -current_scale
-		ylabel = plotDescription['plotDefaults']['neg_ylabel'] if(abs_max_current >= 1e-3) else (plotDescription['plotDefaults']['neg_micro_ylabel'] if(abs_max_current >= 1e-6) else (plotDescription['plotDefaults']['neg_nano_ylabel'] if(abs_max_current >= 1e-9) else (plotDescription['plotDefaults']['neg_pico_ylabel'])))
+		ylabel = plotDescription['plotDefaults']['neg_ylabel'] if(abs_max_current >= 1) else (plotDescription['plotDefaults']['neg_milli_ylabel'] if(abs_max_current >= 1e-3) else (plotDescription['plotDefaults']['neg_micro_ylabel'] if(abs_max_current >= 1e-6) else (plotDescription['plotDefaults']['neg_nano_ylabel'] if(abs_max_current >= 1e-9) else (plotDescription['plotDefaults']['neg_pico_ylabel']))))
 
 	# === Begin Plotting Data ===
 	time_offset = 0

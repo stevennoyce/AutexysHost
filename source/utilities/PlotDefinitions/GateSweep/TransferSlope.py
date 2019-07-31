@@ -11,11 +11,13 @@ plotDescription = {
 		'includeOriginOnYaxis':True,
 		'colorMap':'white_orange_black',
 		'colorDefault': ['#ee7539'],
+		
 		'xlabel':'$V_{{GS}}$ (V)',
-		'ylabel':'$g_{{m}}$ (S)',
+		'ylabel':      '$g_{{m}}$ (S)',
+		'milli_ylabel':'$g_{{m}}$ (mS)',
 		'micro_ylabel':'$g_{{m}}$ ($\\mathregular{\\mu}$S)',
-		'nano_ylabel':'$g_{{m}}$ (nS)',
-		'pico_ylabel':'$g_{{m}}$ (pS)',
+		'nano_ylabel': '$g_{{m}}$ (nS)',
+		'pico_ylabel': '$g_{{m}}$ (pS)',
 		'leg_vds_label':'$V_{{DS}}$  = {:}V',
 		'leg_vds_range_label':'$V_{{DS}}^{{min}} = $ {:}V\n'+'$V_{{DS}}^{{max}} = $ {:}V',
 	},
@@ -34,11 +36,15 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	max_current = np.max([np.max(deviceRun['Results']['id_data']) for deviceRun in deviceHistory])
 	min_current = np.min([np.min(deviceRun['Results']['id_data']) for deviceRun in deviceHistory])
 	abs_max_current = max(max_current, abs(min_current))
-	current_scale, ylabel = (1, plotDescription['plotDefaults']['ylabel']) if(abs_max_current >= 1e-3) else ((1e6, plotDescription['plotDefaults']['micro_ylabel']) if(abs_max_current >= 1e-6) else ((1e9, plotDescription['plotDefaults']['nano_ylabel']) if(abs_max_current >= 1e-9) else (1e12, plotDescription['plotDefaults']['pico_ylabel'])))
+	max_voltage = np.max([np.max(deviceRun['Results']['vgs_data']) for deviceRun in deviceHistory])
+	min_voltage = np.min([np.min(deviceRun['Results']['vgs_data']) for deviceRun in deviceHistory])
+	abs_max_voltage = max(max_voltage, abs(min_voltage)) 
+	approx_max_value = (abs_max_current/abs_max_voltage if(abs_max_voltage > 0) else abs_max_current) if(mode_parameters['yscale'] is None) else mode_parameters['yscale']
+	yscale, ylabel = (1, plotDescription['plotDefaults']['ylabel']) if(approx_max_value >= 1) else ((1e3, plotDescription['plotDefaults']['milli_ylabel']) if(approx_max_value >= 1e-3) else ((1e6, plotDescription['plotDefaults']['micro_ylabel']) if(approx_max_value >= 1e-6) else ((1e9, plotDescription['plotDefaults']['nano_ylabel']) if(approx_max_value >= 1e-9) else (1e12, plotDescription['plotDefaults']['pico_ylabel']))))
 
 	# Plot
 	for i in range(len(deviceHistory)):
-		line = plotTransferCurveSlope(ax, deviceHistory[i], colors[i], direction=mode_parameters['sweepDirection'], scaleYaxisBy=current_scale, lineStyle=None, errorBars=mode_parameters['enableErrorBars'])
+		line = plotTransferCurveSlope(ax, deviceHistory[i], colors[i], direction=mode_parameters['sweepDirection'], scaleYaxisBy=yscale, lineStyle=None, errorBars=mode_parameters['enableErrorBars'])
 		if(len(deviceHistory) == len(mode_parameters['legendLabels'])):
 			setLabel(line, mode_parameters['legendLabels'][i])
 

@@ -11,6 +11,7 @@ plotDescription = {
 		'includeOriginOnYaxis':True,
 		'colorMap':'white_blue_black',
 		'colorDefault': ['#f2b134'],
+		
 		'xlabel':'$V_{{GS}}$ (V)',
 		'ylabel':'$R$ ($\\mathregular{\\Omega}$)',
 		'kilo_ylabel':'$R$ (k$\\mathregular{\\Omega}$)',
@@ -29,8 +30,8 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	colors = setupColors(fig, len(deviceHistory), colorOverride=mode_parameters['colorsOverride'], colorDefault=plotDescription['plotDefaults']['colorDefault'], colorMapName=plotDescription['plotDefaults']['colorMap'], colorMapStart=0.8, colorMapEnd=0.15, enableColorBar=mode_parameters['enableColorBar'], colorBarTicks=[0,0.6,1], colorBarTickLabels=[totalTime, holdTime, '$t_0$'], colorBarAxisLabel='')
 		
 	# Adjust y-scale and y-axis labels 
-	max_resistance = deviceHistory[0]['runConfigs']['GateSweep']['drainVoltageSetPoint']/np.min(np.abs(np.array(deviceHistory[0]['Results']['id_data'])))
-	resistance_scale, ylabel = (1e-3, plotDescription['plotDefaults']['kilo_ylabel']) if(max_resistance >= 1e3) else (1, plotDescription['plotDefaults']['ylabel'])
+	#max_resistance = deviceHistory[0]['runConfigs']['GateSweep']['drainVoltageSetPoint']/np.min(np.abs(np.array(deviceHistory[0]['Results']['id_data'])))
+	#resistance_scale, ylabel = (1e-3, plotDescription['plotDefaults']['kilo_ylabel']) if(max_resistance >= 1e3) else (1, plotDescription['plotDefaults']['ylabel'])
 	resistance_scale, ylabel = (1, plotDescription['plotDefaults']['ylabel'])
 	
 	# Plot

@@ -31,7 +31,6 @@ if __name__ == '__main__':
 
 
 # Globals
-pipeToManager = None
 share = None
 
 def eprint(*args, **kwargs):
@@ -110,16 +109,14 @@ def sendStatic(path):
 default_makePlot_parameters = {
 	'minExperiment': None,
 	'maxExperiment': None,
-	'specificPlot': '',
-	'figureSize': None,
-	'dataFolder': None,
-	'saveFolder': None,
-	'plotSaveName': '',
-	'saveFigures': False,
-	'showFigures': True,
-	'sweepDirection': 'both',
 	'minRelativeIndex': 0,
 	'maxRelativeIndex': 1e10,
+	'specificPlot': '',
+	'plotSaveName': '',
+	'dataFolder': None,
+	'saveFolder': None,
+	'saveFigures': False,
+	'showFigures': True,
 	'plot_mode_parameters': None
 }
 
@@ -131,24 +128,41 @@ def sendPlot(user, project, wafer, chip, device, experiment, plotType):
 	
 	plotSettings = copy.deepcopy(default_makePlot_parameters)
 	receivedPlotSettings = json.loads(flask.request.args.get('plotSettings'))
-	
+		
 	#afmPath = json.loads(flask.request.args.get('afmPath'))
-	plotSettings.update(receivedPlotSettings)
+	#plotSettings.update(receivedPlotSettings)
+	
+	print('Plot settings updated: ' + str(receivedPlotSettings))
+	
+	primaryPlotSettings = receivedPlotSettings['primary']
+	modePlotSettings = receivedPlotSettings['mode_parameters']
 	
 	filebuf = io.BytesIO()
+		
+	# Update arguments to DeviceHistory.makePlots() call
+	for dynamicArgument in primaryPlotSettings.keys():
+		plotSettings[dynamicArgument] = primaryPlotSettings[dynamicArgument]
 	
+	# Set all fixed arguments to DeviceHistory.makePlots() call
 	if plotSettings['minExperiment'] == None:
 		plotSettings['minExperiment'] = experiment
-	
 	if plotSettings['maxExperiment'] == None:
 		plotSettings['maxExperiment'] = experiment
-	
+	plotSettings['specificPlot'] = ''
 	plotSettings['plotSaveName'] = filebuf
+	plotSettings['dataFolder'] = None
+	plotSettings['saveFolder'] = None
 	plotSettings['saveFigures'] = True
 	plotSettings['showFigures'] = False
 	plotSettings['specificPlot'] = plotType
-	
 	plotSettings['cacheBust'] = flask.request.args.get('cb')
+	
+	# Set mode parameters for DeviceHistory.makePlots() call
+	if(plotSettings['plot_mode_parameters'] is None):
+		plotSettings['plot_mode_parameters'] = {}
+	for dynamicModeParameter in modePlotSettings.keys():
+		plotSettings['plot_mode_parameters'][dynamicModeParameter] = modePlotSettings[dynamicModeParameter]
+	
 	
 	# mode parameter 'AFMImagePath'
 	#if(plotType == 'AFMdeviationsImage'):
@@ -265,20 +279,40 @@ def sendChipPlot(user, project, wafer, chip, plotType):
 	plotSettings = copy.deepcopy(default_makePlot_parameters)
 	receivedPlotSettings = json.loads(flask.request.args.get('plotSettings'))
 	#afmPath = json.loads(flask.request.args.get('afmPath'))
-	plotSettings.update(receivedPlotSettings)
+	#plotSettings.update(receivedPlotSettings)
+	
+	print('Plot settings updated: ' + str(receivedPlotSettings))
 	
 	filebuf = io.BytesIO()
 	
+	primaryPlotSettings = receivedPlotSettings['primary']
+	modePlotSettings = receivedPlotSettings['mode_parameters']
+	chipPlotSettings = receivedPlotSettings['chip']
+	
+	# Update arguments to DeviceHistory.makePlots() call
+	for dynamicArgument in primaryPlotSettings.keys():
+		plotSettings[dynamicArgument] = primaryPlotSettings[dynamicArgument]
+	for dynamicArgument in chipPlotSettings.keys():
+		plotSettings[dynamicArgument] = chipPlotSettings[dynamicArgument]
+	
+	# Set all fixed arguments to DeviceHistory.makePlots() call
 	if plotSettings['minExperiment'] == None:
 		plotSettings['minExperiment'] = 0
-	
 	if plotSettings['maxExperiment'] == None:
 		plotSettings['maxExperiment'] = float('inf')
-	
+	plotSettings['specificPlot'] = ''
 	plotSettings['plotSaveName'] = filebuf
+	plotSettings['dataFolder'] = None
+	plotSettings['saveFolder'] = None
 	plotSettings['saveFigures'] = True
 	plotSettings['showFigures'] = False
 	plotSettings['specificPlot'] = plotType
+	
+	# Set mode parameters for DeviceHistory.makePlots() call
+	if(plotSettings['plot_mode_parameters'] is None):
+		plotSettings['plot_mode_parameters'] = {}
+	for dynamicModeParameter in modePlotSettings.keys():
+		plotSettings['plot_mode_parameters'][dynamicModeParameter] = modePlotSettings[dynamicModeParameter]
 	
 	CH.makePlots(user, project, wafer, chip, **plotSettings)
 	filebuf.seek(0)
@@ -379,14 +413,14 @@ def getSubDirectories(directory):
 def dispatchSchedule(user, project, fileName):
 	scheduleFilePath = os.path.join(default_data_path, user, project, 'schedules', fileName + '.json')
 	eprint('UI Sending RUN:')
-	pipes.send(pipeToManager, 'RUN: ' + scheduleFilePath)
+	pipes.send(share, 'QueueToManager', {'type':'Dispatch', 'scheduleFilePath': scheduleFilePath})
 	eprint('UI Sent RUN:')
 	return jsonvalid({'success': True})
 
 @app.route('/stopAtNextJob')
 def stopAtNextJob():
 	eprint('UI stopping at next job')
-	pipes.send(pipeToManager, {'type':'Stop', 'stop':'Dispatcher Job'})
+	pipes.send(share, 'QueueToDispatcher', {'type':'Stop', 'stop':'Dispatcher Job'})
 	
 	return jsonvalid({'success': True})
 
@@ -459,10 +493,10 @@ def saveCSV(user, project, wafer, chip, device, experiment):
 	path = os.path.join(default_data_path, user, project, wafer, chip, device, 'Ex' + experiment)
 	fileNames = [os.path.basename(p) for p in glob.glob(os.path.join(path, '*.json'))]
 	
-	deviceHistory = dlu.loadJSON(path, fileNames[0])
-	
 	proxy = io.StringIO()
-	dlu.saveCSV(deviceHistory, proxy)
+	
+	deviceHistories = [dlu.loadJSON(path, fileName) for fileName in fileNames]
+	dlu.saveCSV(deviceHistories, proxy)
 	
 	filebuf = io.BytesIO()
 	filebuf.write(proxy.getvalue().encode('utf-8'))
@@ -524,16 +558,16 @@ def findFirstOpenPort(startPort=1):
 				print('Port {} is not available'.format(port))
 
 def managerMessageForwarder():
-	global pipeToManager
 	global share
 	
 	while True:
-		while pipes.poll(pipeToManager):
+		while pipes.poll(share, 'QueueToUI'):
 			print('Sending server message')
-			socketio.emit('Server Message', pipes.recv(pipeToManager))
+			message = pipes.recv(share, 'QueueToUI')
+			# message = share['QueueToUI'].get()
+			socketio.emit('Server Message', message)
 		
-		socketio.sleep(0.1)
-
+		socketio.sleep(0.01)
 
 @socketio.on('my event')
 def handle_my_custom_event(json):
@@ -556,14 +590,8 @@ def makeShareGlobal(localShare):
 	global share
 	share = localShare
 
-def start(share=None, debug=True, use_reloader=True):
-	global pipeToManager
-	
+def start(share={}, debug=True, use_reloader=True):
 	makeShareGlobal(share)
-	
-	pipeToManager = None
-	if share is not None:
-		pipeToManager = share['p']
 	
 	if 'AutexysUIRunning' in os.environ:
 		print('Reload detected. Not opening browser.')
