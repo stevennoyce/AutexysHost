@@ -128,18 +128,20 @@ def sendPlot(user, project, wafer, chip, device, experiment, plotType):
 	
 	plotSettings = copy.deepcopy(default_makePlot_parameters)
 	receivedPlotSettings = json.loads(flask.request.args.get('plotSettings'))
-	
+		
 	#afmPath = json.loads(flask.request.args.get('afmPath'))
 	#plotSettings.update(receivedPlotSettings)
 	
 	print('Plot settings updated: ' + str(receivedPlotSettings))
 	
+	primaryPlotSettings = receivedPlotSettings['primary']
+	modePlotSettings = receivedPlotSettings['mode_parameters']
+	
 	filebuf = io.BytesIO()
 		
 	# Update arguments to DeviceHistory.makePlots() call
-	for dynamicArgument in ['minExperiment', 'maxExperiment', 'minRelativeIndex', 'maxRelativeIndex']:
-		if dynamicArgument in receivedPlotSettings:
-			plotSettings[dynamicArgument] = receivedPlotSettings[dynamicArgument]
+	for dynamicArgument in primaryPlotSettings.keys():
+		plotSettings[dynamicArgument] = primaryPlotSettings[dynamicArgument]
 	
 	# Set all fixed arguments to DeviceHistory.makePlots() call
 	if plotSettings['minExperiment'] == None:
@@ -158,9 +160,9 @@ def sendPlot(user, project, wafer, chip, device, experiment, plotType):
 	# Set mode parameters for DeviceHistory.makePlots() call
 	if(plotSettings['plot_mode_parameters'] is None):
 		plotSettings['plot_mode_parameters'] = {}
-	for dynamicModeParameter in ['sweepDirection', 'plotInRealTime', 'timescale', 'boxPlotBarChart', 'enableLegend', 'enableErrorBars', 'enableColorBar', 'enableGradient', 'xlim', 'ylim', 'xscale', 'yscale', 'xticks', 'yticks', 'publication_mode', 'default_png_dpi', 'figureSizeOverride', 'colorsOverride', 'legendLoc', 'legendLabels', 'legendTitleOverride']:
-		if dynamicModeParameter in receivedPlotSettings:
-			plotSettings['plot_mode_parameters'][dynamicModeParameter] = receivedPlotSettings[dynamicModeParameter]
+	for dynamicModeParameter in modePlotSettings.keys():
+		plotSettings['plot_mode_parameters'][dynamicModeParameter] = modePlotSettings[dynamicModeParameter]
+	
 	
 	# mode parameter 'AFMImagePath'
 	#if(plotType == 'AFMdeviationsImage'):
@@ -279,12 +281,19 @@ def sendChipPlot(user, project, wafer, chip, plotType):
 	#afmPath = json.loads(flask.request.args.get('afmPath'))
 	#plotSettings.update(receivedPlotSettings)
 	
+	print('Plot settings updated: ' + str(receivedPlotSettings))
+	
 	filebuf = io.BytesIO()
 	
+	primaryPlotSettings = receivedPlotSettings['primary']
+	modePlotSettings = receivedPlotSettings['mode_parameters']
+	chipPlotSettings = receivedPlotSettings['chip']
+	
 	# Update arguments to DeviceHistory.makePlots() call
-	for dynamicArgument in ['minExperiment', 'maxExperiment', 'minRelativeIndex', 'maxRelativeIndex', 'minOnCurrent', 'maxOnCurrent', 'maxOffCurrent']:
-		if dynamicArgument in receivedPlotSettings:
-			plotSettings[dynamicArgument] = receivedPlotSettings[dynamicArgument]
+	for dynamicArgument in primaryPlotSettings.keys():
+		plotSettings[dynamicArgument] = primaryPlotSettings[dynamicArgument]
+	for dynamicArgument in chipPlotSettings.keys():
+		plotSettings[dynamicArgument] = chipPlotSettings[dynamicArgument]
 	
 	# Set all fixed arguments to DeviceHistory.makePlots() call
 	if plotSettings['minExperiment'] == None:
@@ -302,9 +311,8 @@ def sendChipPlot(user, project, wafer, chip, plotType):
 	# Set mode parameters for DeviceHistory.makePlots() call
 	if(plotSettings['plot_mode_parameters'] is None):
 		plotSettings['plot_mode_parameters'] = {}
-	for dynamicModeParameter in ['sweepDirection', 'plotInRealTime', 'timescale', 'boxPlotBarChart', 'enableLegend', 'enableErrorBars', 'enableColorBar', 'enableGradient', 'xlim', 'ylim', 'xscale', 'yscale', 'xticks', 'yticks', 'publication_mode', 'default_png_dpi', 'figureSizeOverride', 'colorsOverride', 'legendLoc', 'legendLabels', 'legendTitleOverride']:
-		if dynamicModeParameter in receivedPlotSettings:
-			plotSettings['plot_mode_parameters'][dynamicModeParameter] = receivedPlotSettings[dynamicModeParameter]
+	for dynamicModeParameter in modePlotSettings.keys():
+		plotSettings['plot_mode_parameters'][dynamicModeParameter] = modePlotSettings[dynamicModeParameter]
 	
 	CH.makePlots(user, project, wafer, chip, **plotSettings)
 	filebuf.seek(0)

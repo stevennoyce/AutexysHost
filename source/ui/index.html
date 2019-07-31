@@ -197,21 +197,14 @@
 							<v-btn slot="activator" flat><v-icon>art_track</v-icon></v-btn>
 							<v-card light style="overflow-y: scroll; max-height:65vh">
 								<v-list>
-									<!--<v-list-tile v-for="plotSettingValue, plotSettingName in setPlotSettings">
-										<v-switch v-if="plotSettingTypes[plotSettingName]['type'] == 'bool'" :label="plotSettingName" v-model="setPlotSettings[plotSettingName]"></v-switch>
-										<v-text-field v-if="plotSettingTypes[plotSettingName]['type'] == 'int'" :label="plotSettingName" v-model.number="setPlotSettings[plotSettingName]" type="number"></v-text-field>
-										<v-text-field v-if="plotSettingTypes[plotSettingName]['type'] == 'float'" :label="plotSettingName" v-model.number="setPlotSettings[plotSettingName]" type="number"></v-text-field>
-										<v-text-field v-if="plotSettingTypes[plotSettingName]['type'] == 'array'" :label="plotSettingName" v-model="setPlotSettings[plotSettingName]"></v-text-field>
-										<v-text-field v-if="plotSettingTypes[plotSettingName]['type'] == 'object'" :label="plotSettingName" v-model="setPlotSettings[plotSettingName]"></v-text-field>
-										<v-select v-if="plotSettingTypes[plotSettingName]['type'] == 'choice'" :label="plotSettingName" :items="plotSettingTypes[plotSettingName]['choices']" v-model="setPlotSettings[plotSettingName]"></v-select>
-									</v-list-tile> -->
 									<s-item-group-edit :settings.sync="primaryPlotSettings" :defaults="primaryPlotSettingDefaults"></s-item-group-edit>
+									<s-item-group-edit :settings.sync="modePlotSettings" :defaults="modePlotSettingDefaults"></s-item-group-edit>
 								</v-list>
 							</v-card>
 							<v-card light>
 								<v-list>
 									<v-list-tile>
-										<v-btn @click="primaryPlotSettings = JSON.parse(JSON.stringify(primaryPlotSettingDefaults))">Reset</v-btn>
+										<v-btn @click="resetPlotSettings()">Reset</v-btn>
 										<v-spacer></v-spacer>
 										<v-btn @click="updatePlotSettings()">Save</v-btn>
 									</v-list-tile>
@@ -378,7 +371,7 @@
 												<v-card light>
 													<v-list>
 														<v-list-tile>
-															<v-btn @click="chipPlotSettings = JSON.parse(JSON.stringify(chipPlotSettingDefaults))">Reset</v-btn>
+															<v-btn @click="resetChipPlotSettings()">Reset</v-btn>
 															<v-spacer></v-spacer>
 															<v-btn @click="updatePlotSettings()">Save</v-btn>
 														</v-list-tile>
@@ -1192,68 +1185,25 @@
 				parametersSection: '',
 				cacheBust: '',
 				
-				// defaultPlotSettings: {
-				// 	'minExperiment': null,
-				// 	'maxExperiment': null,
-				// 	'minRelativeIndex': 0,
-				// 	'maxRelativeIndex': 1e10,
-				// 	'publication_mode': false,
-				// 	'figureSizeOverride': null,
-				// 	'sweepDirection': 'both',
-				// 	'enableLegend': true,
-				// 	'enableErrorBars': false,
-				// 	'enableColorBar': true,
-				// 	'enableGradient': false,
-				// 	'xlim':null,
-				// 	'ylim':null,
-				// 	'xticks':null,
-				// 	'yticks':null,
-				// },
+				// --- Plot Settings ---
 				
-				// setPlotSettings: {
-				// 	'minExperiment': null,
-				// 	'maxExperiment': null,
-				// 	'minRelativeIndex': 0,
-				// 	'maxRelativeIndex': 1e10,
-				// 	'publication_mode': false,
-				// 	'figureSizeOverride': null,
-				// 	'sweepDirection': 'both',
-				// 	'enableLegend': true,
-				// 	'enableErrorBars': false,
-				// 	'enableColorBar': true,
-				// 	'enableGradient': false,
-				// 	'xlim':null,
-				// 	'ylim':null,
-				// 	'xticks':null,
-				// 	'yticks':null,
-				// },
-				
-				plotSettings: {},
-				
-				// plotSettingTypes: {
-				// 	'minExperiment':      {'type': 'int',   'default':null,  'title':'Min Experiment',    'description':''},
-				// 	'maxExperiment':      {'type': 'int',   'default':null,  'title':'Max Experiment',    'description':''},
-				// 	'minRelativeIndex':   {'type': 'int',   'default':0,     'title':'Min Rel. Index',    'description':''},
-				// 	'maxRelativeIndex':   {'type': 'int',   'default':1e10,  'title':'Max Rel. Index',    'description':''},
-				// 	'publication_mode':   {'type': 'bool',  'default':false, 'title':'Publication Mode',  'description':''},
-				// 	'figureSizeOverride': {'type': 'array', 'default':null,  'title':'Figure Size',       'description':''},
-				// 	'sweepDirection':     {'type': 'choice', 'choices': ['both', 'forward', 'reverse'], 'default':'both', 'title':'Sweep Direction', 'description':''},
-				// 	'enableLegend':       {'type': 'bool',  'default':true,  'title':'Enable Legend',     'description':''},
-				// 	'enableErrorBars':    {'type': 'bool',  'default':false, 'title':'Enable Error Bars', 'description':''},
-				// 	'enableColorBar':     {'type': 'bool',  'default':true,  'title':'Enable Color Bar',  'description':''},
-				// 	'enableGradient':     {'type': 'bool',  'default':false, 'title':'Enable Gradient',   'description':''},
-				// 	'xlim':               {'type': 'array', 'default':null,  'title':'X Limits',          'description':''},
-				// 	'ylim':               {'type': 'array', 'default':null,  'title':'Y Limits',          'description':''},
-				// 	'xticks':             {'type': 'array', 'default':null,  'title':'X Ticks',           'description':''},
-				// 	'yticks':             {'type': 'array', 'default':null,  'title':'Y Ticks',           'description':''},
-				// },
+				plotSettings: {'primary':{}, 'mode_parameters':{}, 'chip':{}},
 				
 				primaryPlotSettings: {
 					'minExperiment':      {'type': 'int',   'default':null,  'title':'Min Experiment',    'description':''},
 					'maxExperiment':      {'type': 'int',   'default':null,  'title':'Max Experiment',    'description':''},
 					'minRelativeIndex':   {'type': 'int',   'default':0,     'title':'Min Rel. Index',    'description':''},
 					'maxRelativeIndex':   {'type': 'int',   'default':1e10,  'title':'Max Rel. Index',    'description':''},
-					
+				},
+				
+				primaryPlotSettingDefaults: {
+					'minExperiment':      {'type': 'int',   'default':null,  'title':'Min Experiment',    'description':''},
+					'maxExperiment':      {'type': 'int',   'default':null,  'title':'Max Experiment',    'description':''},
+					'minRelativeIndex':   {'type': 'int',   'default':0,     'title':'Min Rel. Index',    'description':''},
+					'maxRelativeIndex':   {'type': 'int',   'default':1e10,  'title':'Max Rel. Index',    'description':''},
+				},
+				
+				modePlotSettings: {
 					'sweepDirection':     {'type': 'choice', 'choices': ['both', 'forward', 'reverse'], 'default':'both', 'title':'Sweep Direction', 'description':''},
 					'plotInRealTime':     {'type': 'bool',  'default':true,  'title':'Show Real Time',    'description':''},
 					'timescale':          {'type': 'choice', 'choices': ['','seconds','min','hr','days','weeks','months'], 'default':'', 'title':'Time Scale', 'description':''},
@@ -1280,12 +1230,7 @@
 					'legendTitleOverride':{'type': 'string','default':'',    'title':'Legend Title',      'description':''},
 				},
 				
-				primaryPlotSettingDefaults: {
-					'minExperiment':      {'type': 'int',   'default':null,  'title':'Min Experiment',    'description':''},
-					'maxExperiment':      {'type': 'int',   'default':null,  'title':'Max Experiment',    'description':''},
-					'minRelativeIndex':   {'type': 'int',   'default':0,     'title':'Min Rel. Index',    'description':''},
-					'maxRelativeIndex':   {'type': 'int',   'default':1e10,  'title':'Max Rel. Index',    'description':''},
-					
+				modePlotSettingDefaults: {
 					'sweepDirection':     {'type': 'choice', 'choices': ['both', 'forward', 'reverse'], 'default':'both', 'title':'Sweep Direction', 'description':''},
 					'plotInRealTime':     {'type': 'bool',  'default':true,  'title':'Show Real Time',    'description':''},
 					'timescale':          {'type': 'choice', 'choices': ['','seconds','min','hr','days','weeks','months'], 'default':'', 'title':'Time Scale', 'description':''},
@@ -1327,6 +1272,8 @@
 					'maxOnCurrent':          {'type': 'float', 'default':null,  'title':'Max On-Current',        'description':''},
 					'maxOffCurrent':         {'type': 'float', 'default':null,  'title':'Max Off-Current',       'description':''},
 				},
+				
+				// --- end Plot Settings ---
 				
 				users: [],
 				user: localStorage.user ? JSON.parse(localStorage.user) : '',
@@ -1765,20 +1712,34 @@
 				},
 				
 				updatePlotSettings: function() {
-					var primary_modifications = _.omitBy(this.primaryPlotSettings, (v,k) => ((this.primaryPlotSettingDefaults[k]['default'] == v['default'])) );
-					var chip_modifications = _.omitBy(this.chipPlotSettings, (v,k) => ((this.chipPlotSettingDefaults[k]['default'] == v['default'])) );
-					var all_modifications = {}
+					var primary_modifications = _.omitBy(this.primaryPlotSettings, (v,k) => ((this.primaryPlotSettingDefaults[k]['default'] === v['default'])) );
+					var mode_modifications = _.omitBy(this.modePlotSettings, (v,k) => ((this.modePlotSettingDefaults[k]['default'] === v['default'])) );
+					var chip_modifications = _.omitBy(this.chipPlotSettings, (v,k) => ((this.chipPlotSettingDefaults[k]['default'] === v['default'])) );
 					
 					Object.keys(primary_modifications).forEach(function(key) {
-						all_modifications[key] = primary_modifications[key]['default']
+						primary_modifications[key] = primary_modifications[key]['default']
+					})
+					Object.keys(mode_modifications).forEach(function(key) {
+						mode_modifications[key] = mode_modifications[key]['default']
 					})
 					Object.keys(chip_modifications).forEach(function(key) {
-						all_modifications[key] = chip_modifications[key]['default']
+						chip_modifications[key] = chip_modifications[key]['default']
 					})
 					
+					var all_modifications = {'primary':primary_modifications, 'mode_parameters':mode_modifications, 'chip':chip_modifications}
+
 					this.plotSettings = all_modifications
 					
 					console.log("Updated plot settings: " + JSON.stringify(all_modifications));
+				},
+				
+				resetPlotSettings: function() {
+					this.primaryPlotSettings = JSON.parse(JSON.stringify(this.primaryPlotSettingDefaults))	
+					this.modePlotSettings = JSON.parse(JSON.stringify(this.modePlotSettingDefaults))	
+				},
+				
+				resetChipPlotSettings: function() {
+					this.chipPlotSettings = JSON.parse(JSON.stringify(this.chipPlotSettingDefaults))	
 				},
 				
 				removeValueFromArray: function(value, array) {
