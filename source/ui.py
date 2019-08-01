@@ -406,6 +406,16 @@ def loadSchedule(user, project, fileName):
 	
 	return jsonvalid(expandedScheduleData)
 
+@app.route('/loadBriefSchedule/<user>/<project>/<fileName>.json')
+def loadBriefSchedule(user, project, fileName):
+	scheduleData = dlu.loadJSON(os.path.join(default_data_path, user, project, 'schedules/'), fileName + '.json')
+	
+	expandedScheduleData = []
+	for job in scheduleData:
+		expandedScheduleData.append(defaults.full_with_only(job))
+	
+	return jsonvalid(expandedScheduleData)
+
 def getSubDirectories(directory):
 	return [os.path.basename(os.path.dirname(g)) for g in glob.glob(directory + '/*/')]
 

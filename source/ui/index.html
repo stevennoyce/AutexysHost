@@ -975,27 +975,44 @@
 									<template v-if="scheduleExperimentUser && scheduleExperimentProject && scheduleExperimentFileName && (runnerScheduleObjects.length === 1)">
 										<v-card class="ma-1">
 											<v-expansion-panel expand>
-												<v-expansion-panel-content class="grey lighten-4">
-													<div slot="header" style="font-weight: bold">
-														Options
+												<v-expansion-panel-content class="grey lighten-4 pa-1">
+													
+													<div slot="header">
+														<v-layout row wrap>
+															<div style="font-weight: bold;">
+																Options
+															</div>
+															<v-spacer></v-spacer>
+														</v-layout>
 													</div>
 													
 													<v-layout row wrap>
-														<v-flex xs4 s4 md4 lg3 class="ma-1">
-															<v-list class="ma-1" style="border-radius: 7px">
+														<v-flex xs3 s3 md3 lg3 class="ma-2">
+															<v-list style="border-radius: 7px">
+																<v-list-tile>
+																	<v-list-tile-content><v-list-tile-title style="font-weight: bold">
+																		Identifiers
+																	</v-list-tile-title></v-list-tile-content>
+																</v-list-tile>
 																<s-item-group-edit :settings.sync="runnerScheduleObjects[0]['Identifiers']" :defaults="JSON.parse(JSON.stringify(runnerScheduleObjects[0]['Identifiers']))"></s-item-group-edit>
 															</v-list>
 														</v-flex>
-														<v-flex xs4 s4 md4 lg3 class="ma-1" v-if="runnerScheduleObjects[0]['runType']['default'] === 'GateSweep'">
-															<v-list class="ma-1" style="border-radius: 7px">
-																<s-item-group-edit :settings.sync="runnerScheduleObjects[0]['runConfigs']['GateSweep']" :defaults="JSON.parse(JSON.stringify(runnerScheduleObjects[0]['runConfigs']['GateSweep']))"></s-item-group-edit>
+														
+														<v-flex xs4 s4 md4 lg3 class="ma-2" v-for="runConfig,runType in runnerScheduleObjects[0]['runConfigs']">
+															<v-list style="border-radius: 7px">
+																<v-list-tile>
+																	<v-list-tile-content><v-list-tile-title style="font-weight: bold">
+																		{{ runType }}
+																	</v-list-tile-title></v-list-tile-content>
+																</v-list-tile>
+																<s-item-group-edit :settings.sync="runnerScheduleObjects[0]['runConfigs'][runType]" :defaults="JSON.parse(JSON.stringify(runnerScheduleObjects[0]['runConfigs'][runType]))"></s-item-group-edit>
 															</v-list>
 														</v-flex>
 													</v-layout>
 									
 													<v-layout row wrap>
 														<v-spacer></v-spacer>
-														<v-btn @click="saveRunnerScheduleFile()">Save</v-btn>
+														<v-btn small @click="saveRunnerScheduleFile()">Save</v-btn>
 													</v-layout>
 													
 												</v-expansion-panel-content>
@@ -1650,7 +1667,7 @@
 				},
 				updateRunnerScheduleFile: function() {
 					if(this.scheduleExperimentUser && this.scheduleExperimentProject && this.scheduleExperimentFileName) {
-						var path = '/scheduleFiles/' + this.scheduleExperimentUser + '/' + this.scheduleExperimentProject + '/' + this.scheduleExperimentFileName + '.json' + this.cacheBust;
+						var path = '/loadBriefSchedule/' + this.scheduleExperimentUser + '/' + this.scheduleExperimentProject + '/' + this.scheduleExperimentFileName + '.json' + this.cacheBust;
 						if (path) {
 							$.getJSON(path, response => {app.$data.runnerScheduleObjects = response})
 							.fail(() => {console.log("Error loading schedule file into the experiment runner.")});
@@ -1915,7 +1932,7 @@
 					return this.scheduleObjects.map(obj => extractDefaults(objectDeepDiff(obj, this.scheduleObjectDefault)));
 				},
 				runnerScheduleLines: function() {
-					return this.runnerScheduleObjects.map(obj => extractDefaults(objectPartialDeepDiff(obj, this.scheduleObjectDefault, [])));
+					return this.runnerScheduleObjects.map(obj => extractDefaults((obj)));
 				},
 				runType: function() {
 					return this.parameters['runType'];

@@ -270,17 +270,38 @@ def mergeDefaults(a, b):
 			a[key] = b[key]
 	return a
 
+def intersectionDefaults(a, b):
+	reduced = {}
+	for key in a.keys():
+		if( (key in b) and (isinstance(a[key], dict)) and (isinstance(b[key], dict)) ):
+			reduced[key] = intersectionDefaults(a[key], b[key])
+		elif( (key in b) and not (isinstance(a[key], dict)) and (isinstance(b[key], dict)) ):
+			reduced[key] = b[key]
+			if('default' in reduced[key]):
+				reduced[key]['default'] = a[key]
+		else:
+			reduced[key] = a[key]
+	return reduced
+	
+
 def full_with_added(additional_parameters):
 	full_defaults = copy.deepcopy(default_parameters)
 	combined = mergeDefaults(full_defaults, additional_parameters)
 	return combined
+	
+def full_with_only(additional_parameters):
+	full_defaults = copy.deepcopy(default_parameters)
+	reduced_defaults = intersectionDefaults(additional_parameters, full_defaults)
+	return reduced_defaults
 	
 
 
 if __name__ == '__main__':
 	import pprint
 	import deepdiff
-	pprint.pprint(deepdiff.DeepDiff(default_parameters, get()))
+	#pprint.pprint(deepdiff.DeepDiff(default_parameters, get()))
+	
+	print(full_with_only({"Description":"Basic gate sweep taken with the table-top probe station. ",        "runType": "GateSweep", "Identifiers": {"user":"jay", "project":"MoS2FET", "wafer":"JM4", "chip":"K", "device":"3-4", "step":40}, "runConfigs":{"GateSweep":{"isFastSweep":False, "fastSweepSpeed":100, "gateVoltageMinimum": -5, "gateVoltageMaximum": 5, "drainVoltageSetPoint":0.5, "stepsInVGSPerDirection": 100, "complianceCurrent":100e-6}, "AutoGateSweep":{"sweepsPerVDS": 3, "delayBetweenSweeps": 1}}, "MeasurementSystem":{"systemType":"single"}}))
 
 
 
