@@ -972,22 +972,23 @@
 										</v-layout>
 									<v-form>
 								
+								
 									<template v-if="scheduleExperimentUser && scheduleExperimentProject && scheduleExperimentFileName && (runnerScheduleObjects.length === 1)">
-										<v-card class="ma-1">
-											<v-expansion-panel expand>
-												<v-expansion-panel-content class="grey lighten-4 pa-1">
-													
-													<div slot="header">
-														<v-layout row wrap>
-															<div style="font-weight: bold;">
-																Options
-															</div>
-															<v-spacer></v-spacer>
-														</v-layout>
-													</div>
-													
+										<v-expansion-panel expand class="mt-1 mb-2">
+											<v-expansion-panel-content class="grey lighten-4">
+												
+												<div slot="header">
 													<v-layout row wrap>
-														<v-flex xs3 s3 md3 lg3 class="ma-2">
+														<div style="font-weight: bold;">
+															Options
+														</div>
+														<v-spacer></v-spacer>
+													</v-layout>
+												</div>
+												
+												<v-container grid-list-md>
+													<v-layout row wrap>
+														<v-flex xs3 s3 md3 lg3>
 															<v-list style="border-radius: 7px">
 																<v-list-tile>
 																	<v-list-tile-content><v-list-tile-title style="font-weight: bold">
@@ -998,7 +999,7 @@
 															</v-list>
 														</v-flex>
 														
-														<v-flex xs4 s4 md4 lg3 class="ma-2" v-for="runConfig,runType in runnerScheduleObjects[0]['runConfigs']">
+														<v-flex xs4 s4 md4 lg3 v-for="runConfig,runType in runnerScheduleObjects[0]['runConfigs']">
 															<v-list style="border-radius: 7px">
 																<v-list-tile>
 																	<v-list-tile-content><v-list-tile-title style="font-weight: bold">
@@ -1009,15 +1010,21 @@
 															</v-list>
 														</v-flex>
 													</v-layout>
-									
-													<v-layout row wrap>
-														<v-spacer></v-spacer>
-														<v-btn small @click="saveRunnerScheduleFile()">Save</v-btn>
-													</v-layout>
-													
-												</v-expansion-panel-content>
-											</v-expansion-panel>
-										</v-card>
+												</v-container>
+								
+												<v-layout row wrap>
+													<v-spacer></v-spacer>
+													<v-btn small @click="saveRunnerScheduleFile()">Save</v-btn>
+												</v-layout>
+												
+											</v-expansion-panel-content>
+										</v-expansion-panel>
+									</template>
+									<template v-else>
+										<v-list>
+											<v-list-tile>
+											</v-list-tile>
+										</v-list>
 									</template>
 								
 									<v-card-actions>
@@ -1028,10 +1035,9 @@
 												</p>
 											</form>
 										</template>
-										<!--<span v-if="scheduleExperimentUser && scheduleExperimentProject && scheduleExperimentFileName">Launch file: AutexysData/{{ scheduleExperimentUser }}/{{ scheduleExperimentProject }}/schedules/{{ scheduleExperimentFileName }}.json</span>-->
 										<v-spacer></v-spacer>
-										<v-btn @click="dispatchSchedule()">Launch Experiments in Schedule File</v-btn>
-										<v-btn @click="stopAtNextJob()">Stop at Next Job</v-btn>
+										<v-btn class="mb-3 mt-3" @click="dispatchSchedule()">Launch Experiments in Schedule File</v-btn>
+										<v-btn class="mb-3 mt-3" @click="stopAtNextJob()">Stop at Next Job</v-btn>
 									</v-card-actions>	
 								</v-form>							
 							</v-container>
