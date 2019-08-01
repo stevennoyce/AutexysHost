@@ -31,7 +31,7 @@ default_parameters = {
 			'dependencies': 			{'ignore':True, 'value':[]},
 			'saveFileName': 			{'type':'constant', 'default':'DrainSweep', 'title':'Save File Name', 'description':'The name of the file that will be saved with the data from this experiment. This name should typically not be changed.'},
 			'drainVoltageMinimum': 		{'type':'float', 'units':'V',  'default': 0,      'title':'Drain Voltage Start',          'description':'Drain voltage starting value.'},
-			'drainVoltageMaximum': 		{'type':'float', 'units':'V',  'default': 0.5,    'title':'Drain Voltage End',            'description':'Drain voltage final value.'}, 
+			'drainVoltageMaximum': 		{'type':'float', 'units':'V',  'default': 0.1,    'title':'Drain Voltage End',            'description':'Drain voltage final value.'}, 
 			'gateVoltageSetPoint':		{'type':'float', 'units':'V',  'default': 0,      'title':'Gate Voltage',                 'description':'Gate voltage value.'},
 			'complianceCurrent':		{'type':'float', 'units':'A',  'default': 100e-6, 'title':'Compliance Current',           'description':'Maximum current limit for the SMU.'},
 			'stepsInVDSPerDirection': 	{'type':'int',   'units':'#',  'default': 100,    'title':'Steps In VDS (per direction)', 'description':'Number of unique drain voltage steps in the sweep.'},
@@ -113,8 +113,8 @@ default_parameters = {
 		'AutoDrainSweep':{
 			'dependencies': 				{'ignore':True, 'value':['DrainSweep']},
 			'sweepsPerVGS': 				{'type':'int',   'units':'#', 'default': 1,              'title':'Sweeps Per VGS',          'description':'Number of drain sweeps to take at each value of gate voltage.'},
-			'gateVoltageSetPoints':			{'type':'array', 'units':'V', 'default': [-0.5, 0, 0.5], 'title':'Gate Voltage Set Points', 'description':'List of gate voltage values to do sweeps at.'},
-			'delayBetweenSweeps': 			{'type':'float', 'units':'s', 'default': 0,              'title':'Delay Between Sweeps',    'description':'Delay between each sweep.'},
+			'gateVoltageSetPoints':			{'type':'array', 'units':'V', 'default': [-0.1, 0, 0.1], 'title':'Gate Voltage Set Points', 'description':'List of gate voltage values to do sweeps at.'},
+			'delayBetweenSweeps': 			{'type':'float', 'units':'s', 'default': 2,              'title':'Delay Between Sweeps',    'description':'Delay between each sweep.'},
 			'timedSweepStarts': 			{'type':'bool',               'default': False,          'title':'Timed Sweep Starts',      'description':'When enabled, the delay between sweeps is dynamically reduced by the amount of time the sweep took.'}, 
 		},
 		'AutoStaticBias':{
@@ -181,7 +181,7 @@ default_parameters = {
 		},
 		'Delay':{
 			'dependencies': 			{'ignore':True, 'value':[]},
-			'delayTime':				{'type':'int',    'units':'s', 'default': 300, 'title':'Delay Time', 'description':'Duration of delay.'}, 
+			'delayTime':				{'type':'int',    'units':'s', 'default': 30,                       'title':'Delay Time', 'description':'Duration of delay.'}, 
 			'message':					{'type':'string',              'default': "Delaying next test...",  'title':'Message',    'description':'Message to print at the start of delay.'},
 		},
 		'RapidBias':{
@@ -189,7 +189,7 @@ default_parameters = {
 			'saveFileName': 			{'type':'constant', 'default': 'RapidBias', 'title':'Save File Name', 'description':'The name of the file that will be saved with the data from this experiment. This name should typically not be changed.'},
 			'waveform': 				{'type':'string',               'default': 'square',         'title':'Waveform',                 'description':'Type of waveform of voltages to apply. Options include: "square", "triangle", "sine", etc.'},
 			'drainVoltageSetPoints':	{'type':'array',   'units':'V', 'default': [0.01],   		 'title':'Drain Voltage Key Points', 'description':'List of drain voltages that the generated VDS waveform must include.'},
-			'gateVoltageSetPoints':		{'type':'array',   'units':'V', 'default': [0,  1, 0, 1, 0], 'title':'Gate Voltage Key Points',  'description':'List of gate voltages that the generated VGS waveform must include.'},
+			'gateVoltageSetPoints':		{'type':'array',   'units':'V', 'default': [0,0.1, 0,0.1,0], 'title':'Gate Voltage Key Points',  'description':'List of gate voltages that the generated VGS waveform must include.'},
 			'measurementPoints':		{'type':'array',   'units':'#', 'default': [50,50,50,50,50], 'title':'Measurement Points',       'description':'List of the number of measurements to take in each segment of the waveform. The size of this list should match the size of the longest key point list.'},
 			'complianceCurrent':		{'type':'float',   'units':'A', 'default': 100e-6,           'title':'Compliance Current',       'description':'Maximum current limit for the SMU.'},
 			'averageOverPoints': 		{'type':'int',     'units':'#', 'default': 1,                'title':'Average Over Points',      'description':'When greater than one, consecutive measurements are averaged together to reduce size of saved data.'},
