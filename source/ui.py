@@ -396,7 +396,7 @@ def saveSchedule(user, project, fileName):
 	
 	return jsonvalid({'success':True})
 
-@app.route('/scheduleFiles/<user>/<project>/<fileName>.json')
+@app.route('/loadSchedule/<user>/<project>/<fileName>.json')
 def loadSchedule(user, project, fileName):
 	scheduleData = dlu.loadJSON(os.path.join(default_data_path, user, project, 'schedules/'), fileName + '.json')
 	
