@@ -1048,9 +1048,7 @@
 												<v-layout row wrap>
 													<v-switch class="ml-3" :label="'Advanced'" v-model="runnerToggleAdvancedSettings"></v-switch>
 													<v-spacer></v-spacer>
-													<template v-if="runnerEnableScheduleSaving">
-														<v-btn class="mr-3" small @click="saveRunnerScheduleFile()">Save</v-btn>
-													</template>
+													<v-btn class="mr-3" small @click="saveRunnerScheduleFile()">Save</v-btn>
 												</v-layout>
 												
 											</v-expansion-panel-content>
@@ -1080,7 +1078,7 @@
 									<template v-if="runnerChoice !== 'Schedule File' && runnerChoice !== ''">
 										<v-card-actions>
 											<v-spacer></v-spacer>
-											<v-btn class="mb-3 mt-3" @click="dispatchSchedule()">Launch {{ runnerChoice }}</v-btn>
+											<v-btn class="mb-3 mt-3" @click="{ saveRunnerScheduleFile(); dispatchSchedule(); }" :disabled="!isPossibleToSaveRunnerScheduleFile()">Launch {{ runnerChoice }}</v-btn>
 										</v-card-actions>	
 									</template>
 								</v-form>							
@@ -1437,11 +1435,11 @@
 				runnerToggleAdvancedSettings: false,
 				
 				runnerStandardFileNames: {
-					'Gate Sweep': 'gate_sweep',
-					'Drain Sweep': 'drain_sweep',
-					'Multiple Gate Sweeps': 'auto_gate_sweep',
-					'Multiple Drain Sweeps': 'auto_drain_sweep',
-					'Static Bias': 'static_bias',
+					'Gate Sweep': 'default_gate_sweep',
+					'Drain Sweep': 'default_drain_sweep',
+					'Multiple Gate Sweeps': 'default_auto_gate_sweep',
+					'Multiple Drain Sweeps': 'default_auto_drain_sweep',
+					'Static Bias': 'default_static_bias',
 				},
 				
 				scheduleExperimentUser: '',
@@ -1719,7 +1717,6 @@
 						this.experiment.noteAddition = '';
 					}).fail(() => {console.log("Error adding to note")});
 				},
-				
 				saveSchedule: function() {
 					var url = '/saveSchedule/' + this.scheduleSaveUser + '/' + this.scheduleSaveProject + '/' + this.scheduleSaveFileName;
 					url += this.cacheBust;
@@ -1778,7 +1775,7 @@
 					this.scheduleExperimentProject = 'standards';
 					this.scheduleExperimentFileName = this.runnerStandardFileNames[this.runnerChoice];
 				},
-				updateRunnerScheduleFile: function() {
+				loadRunnerScheduleFile: function() {
 					if(this.scheduleExperimentUser && this.scheduleExperimentProject && this.scheduleExperimentFileName) {
 						var path = '/loadBriefSchedule/' + this.scheduleExperimentUser + '/' + this.scheduleExperimentProject + '/' + this.scheduleExperimentFileName + '.json' + this.cacheBust;
 						if (path) {
@@ -1800,24 +1797,40 @@
 					}
 				},
 				saveRunnerScheduleFile: function() {
-					if(this.scheduleExperimentUser && this.scheduleExperimentProject && this.scheduleExperimentFileName) {
+					if(this.isPossibleToSaveRunnerScheduleFile()) {
+						// Sync basic and advanced options panels
 						this.addAdvancedChangesToRunnerScheduleFile();
 						
+						// If we are running a default file that we don't have permission to modify, must change save location
+						if(!this.runnerEnableScheduleSaving) {
+							var activeUser = this.runnerScheduleObjects[0]['Identifiers']['user']['default'];
+							var activeProject = this.runnerScheduleObjects[0]['Identifiers']['project']['default'];
+							if(activeUser === '') { activeUser = 'guest'; }
+							if(activeProject === '') { activeProject = 'Project'; }
+							this.scheduleExperimentUser = activeUser;
+							this.scheduleExperimentProject = activeProject;
+						} 
+						
+						// Save current file
 						var path = '/saveSchedule/' + this.scheduleExperimentUser + '/' + this.scheduleExperimentProject + '/' + this.scheduleExperimentFileName + '.json' + this.cacheBust;
 						if (path) {
 							$.post(path, JSON.stringify(this.runnerScheduleLines), response => {})
-							.fail(() => {console.log("Error loading schedule file into the experiment runner.")});
-						}
+							.fail(() => {console.log("Error saving schedule file from the experiment runner.")});
+						}		
+									
 						console.log("Saved experiment runner schedule file.");
 					}
-					this.updateRunnerScheduleFile();
+					this.loadRunnerScheduleFile();
 				},
+				isPossibleToSaveRunnerScheduleFile: function() {
+					return (this.scheduleExperimentUser && this.scheduleExperimentProject && this.scheduleExperimentFileName && this.runnerScheduleObjects.length === 1);
+				}, 
 				addAdvancedChangesToRunnerScheduleFile: function() {
-					if(this.runnerVerboseScheduleObjects.length === 1) {
+					if(this.runnerVerboseScheduleObjects.length === 1 && this.runnerScheduleObjects.length === 1) {
 						// Update the advanced options to match any changes made to the non-advanced options
-						var basicChanges = objectDeepDiff(this.runnerScheduleObjects[0], this.runnerScheduleObjectDefaults[0]);
-						if(Object.keys(basicChanges).length > 0) {
-							this.runnerVerboseScheduleObjects[0] = objectDeepMerge(this.runnerVerboseScheduleObjects[0], basicChanges);
+						if(this.hasRunnerScheduleBeenModified()) {
+							var basicChanges = objectDeepDiff(this.runnerScheduleObjects[0], this.runnerScheduleObjectDefaults[0]);
+							this.runnerVerboseScheduleObjects = [objectDeepMerge(this.runnerVerboseScheduleObjects[0], basicChanges)];
 							
 							this.runnerScheduleObjectDefaults[0]        = JSON.parse(JSON.stringify(this.runnerScheduleObjects[0]));
 							this.runnerVerboseScheduleObjectDefaults[0] = JSON.parse(JSON.stringify(this.runnerVerboseScheduleObjects[0]));
@@ -1825,15 +1838,23 @@
 						}
 						
 						// Apply changes to advanced options
-						var advancedChanges = objectDeepDiff(this.runnerVerboseScheduleObjects[0], this.runnerVerboseScheduleObjectDefaults[0]);
-						if(Object.keys(advancedChanges).length > 0) {
-							this.runnerScheduleObjects[0] = objectDeepMerge(this.runnerScheduleObjects[0], advancedChanges);
+						if(this.hasRunnerScheduleAdvancedBeenModified()) {
+							var advancedChanges = objectDeepDiff(this.runnerVerboseScheduleObjects[0], this.runnerVerboseScheduleObjectDefaults[0]);
+							this.runnerScheduleObjects = [objectDeepMerge(this.runnerScheduleObjects[0], advancedChanges)];
 							
 							this.runnerScheduleObjectDefaults[0]        = JSON.parse(JSON.stringify(this.runnerScheduleObjects[0]));
 							this.runnerVerboseScheduleObjectDefaults[0] = JSON.parse(JSON.stringify(this.runnerVerboseScheduleObjects[0]));
 							console.log("Added advanced settings to experiment runner schedule file.");
 						}
 					}
+				},
+				hasRunnerScheduleBeenModified: function() {
+					var basicChanges = objectDeepDiff(this.runnerScheduleObjects[0], this.runnerScheduleObjectDefaults[0]);
+					return (Object.keys(basicChanges).length > 0);
+				},
+				hasRunnerScheduleAdvancedBeenModified: function() {
+					var advancedChanges = objectDeepDiff(this.runnerVerboseScheduleObjects[0], this.runnerVerboseScheduleObjectDefaults[0]);
+					return (Object.keys(advancedChanges).length > 0);
 				},
 				updateAFMRegistry: function() {
 					var path = '/updateAFMRegistry' + this.cacheBust;
@@ -2046,7 +2067,7 @@
 				disabledPlots:           function(val) { localStorage.disabledPlots = JSON.stringify(val); },
 				
 				runnerChoice:                 function(val) { this.updateRunnerChoice(); },
-				scheduleExperimentFileName:   function(val) { this.updateRunnerScheduleFile(); },
+				scheduleExperimentFileName:   function(val) { this.loadRunnerScheduleFile(); },
 				runnerToggleAdvancedSettings: function(val) { this.addAdvancedChangesToRunnerScheduleFile(); },
 				
 				experimentIndex: function(val) { this.getAssociatedAFMs(); },
