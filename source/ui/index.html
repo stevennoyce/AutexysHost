@@ -1238,6 +1238,23 @@
 			return merge(objectCopy, additions)		
 		}
 		
+		function objectDeepInclude(object, additions) {
+			function include(base, added) {
+				Object.keys(added).forEach(function(key) {
+					if(!Object.keys(base).includes(key)) {
+						base[key] = added[key];
+					} else if(_.isPlainObject(base[key]) && _.isPlainObject(added[key])) {
+						include(base[key], added[key]);
+					} 
+				});
+				return base;
+			}
+			
+			var objectCopy = JSON.parse(JSON.stringify(object));
+						
+			return include(objectCopy, additions)		
+		}
+		
 		function extractDefaults(obj) {
 			var d = JSON.parse(JSON.stringify(obj));
 			
@@ -2038,7 +2055,7 @@
 								}
 							});
 						}
-						return objectDeepMerge(obj, essentialsToInclude);
+						return objectDeepInclude(obj, essentialsToInclude);
 					});
 					
 					var scheduleFileEntries = modifications_with_essentials.map(obj => extractDefaults(obj));
