@@ -382,6 +382,10 @@ def parametersDescription():
 def defaultParameters():
 	return jsonvalid(defaults.get())
 
+@app.route('/defaultEssentialParameters.json')
+def defaultEssentialParameters():
+	return jsonvalid(defaults.full_essentials())
+
 @app.route('/saveSchedule/<user>/<project>/<fileName>', methods=['POST'])
 def saveSchedule(user, project, fileName):
 	# receivedJobs = json.loads(flask.request.args.get('jobs'))

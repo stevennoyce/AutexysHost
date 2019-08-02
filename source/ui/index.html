@@ -104,6 +104,10 @@
 			right: 50vw;
 			transform: translate(50%, -50%);
 		}
+		.roundedcorners {
+			border-radius: 7px
+		}
+		
 	</style>
 </head>
 <body>
@@ -971,7 +975,6 @@
 										</v-layout>
 									<v-form>
 								
-								
 									<template v-if="scheduleExperimentUser && scheduleExperimentProject && scheduleExperimentFileName && (runnerScheduleObjects.length === 1)">
 										<v-expansion-panel expand class="mt-1 mb-2">
 											<v-expansion-panel-content class="grey lighten-4">
@@ -989,7 +992,7 @@
 													<v-layout row wrap>
 														
 														<v-flex xs3 s3 md3 lg3>
-															<v-list style="border-radius: 7px">
+															<v-list class="roundedcorners">
 																<v-list-tile>
 																	<v-list-tile-content><v-list-tile-title style="font-weight: bold">
 																		Identifiers
@@ -1004,7 +1007,7 @@
 															</v-list>
 															
 															<template v-if="runnerToggleAdvancedSettings">
-																<v-list class="mt-3" style="border-radius: 7px">
+																<v-list class="mt-3 roundedcorners">
 																	<v-list-tile>
 																		<v-list-tile-content><v-list-tile-title style="font-weight: bold">
 																			Measurement System
@@ -1015,14 +1018,14 @@
 															</template>
 															
 															<template v-if="runnerToggleAdvancedSettings">
-																<v-list class="mt-3" style="border-radius: 7px">
+																<v-list class="mt-3 roundedcorners">
 																	<v-select box class="ma-3" label="Run Type" v-model="runnerVerboseScheduleObjects[0]['runType']['default']" :items="Object.keys(JSON.parse(JSON.stringify(runnerVerboseScheduleObjects[0]['runConfigs'] || {})))"></v-select>
 																</v-list>
 															</template>
 														</v-flex>
 	
 														<v-flex xs4 s4 md4 lg3 v-for="runConfig,runType in runnerScheduleObjects[0]['runConfigs']">
-															<v-list style="border-radius: 7px">
+															<v-list class="roundedcorners">
 																<v-list-tile>
 																	<v-list-tile-content><v-list-tile-title style="font-weight: bold">
 																		{{ runType }}
@@ -1468,6 +1471,9 @@
 				scheduleObjects: localStorage.scheduleObjects ? JSON.parse(localStorage.scheduleObjects) : {},
 				scheduleObjectDefault: {},
 				scheduleObjectClipboard: localStorage.scheduleObjectClipboard ? JSON.parse(localStorage.scheduleObjectClipboard) : {},
+				
+				essentialScheduleParameters: {},
+				
 				scheduleSaveUser: '',
 				scheduleSaveProject: '',
 				scheduleSaveFileName: '',
@@ -1477,6 +1483,7 @@
 				scheduleExperimentUser: '',
 				scheduleExperimentProject: '',
 				scheduleExperimentFileName: '',
+				
 				scheduleExperimentSuccessCode: {},
 				saveScheduleSuccessCode: {},
 				scheduleNames: {},
@@ -1621,6 +1628,10 @@
 						this.$data.scheduleObjectDefault = JSON.parse(JSON.stringify(response));
 						this.$data.scheduleObjects = [JSON.parse(JSON.stringify(response))];
 					}).fail(() => {console.log("Error getting parameters description")});
+					
+					$.getJSON("/defaultEssentialParameters.json" + this.$data.cacheBust, response => {
+						this.$data.essentialScheduleParameters = response;
+					}).fail(() => {console.log("Error getting essential default parameters")});
 				},
 				getScheduleNames: function() {
 					var path = '/scheduleNames.json' + this.cacheBust;
@@ -2013,7 +2024,19 @@
 					return objectDeepDiff(this.parameters, this.defaultParameters);
 				},
 				scheduleLines: function() {
-					return this.scheduleObjects.map(obj => extractDefaults(objectDeepDiff(obj, this.scheduleObjectDefault)));
+					var modifications = this.scheduleObjects.map(obj => objectDeepDiff(obj, this.scheduleObjectDefault));
+					
+					var modifications_with_essentials = modifications.map(obj => {
+						var essentialsToInclude = {};
+						if(Object.keys(obj).includes('runType') && Object.keys(this.essentialScheduleParameters).includes('runConfigs') && Object.keys(this.essentialScheduleParameters['runConfigs']).includes(obj['runType']['default'])) {
+							essentialsToInclude['runConfigs'] = {};
+							essentialsToInclude['runConfigs'][obj['runType']['default']] = this.essentialScheduleParameters['runConfigs'][obj['runType']['default']]
+						}
+						return objectDeepMerge(obj, essentialsToInclude);
+					});
+					
+					var scheduleFileEntries = modifications_with_essentials.map(obj => extractDefaults(obj));
+					return scheduleFileEntries
 				},
 				runnerScheduleLines: function() {
 					return this.runnerScheduleObjects.map(obj => extractDefaults(obj));
