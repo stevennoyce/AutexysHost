@@ -955,25 +955,27 @@
 							<v-container>
 								<v-form class="ma-2">
 									<v-flex xs12 sm6 md4 lg3>
-										<v-select box class="ma-1" :label="runnerLabel" v-model="runnerChoice" :items="['Gate Sweep', 'Drain Sweep', 'Schedule File']"></v-select>
+										<v-select box class="ma-1" :label="runnerLabel" v-model="runnerChoice" :items="Object.keys(runnerStandardFileNames).concat(['Schedule File'])"></v-select>
 									</v-flex>
 								</v-form>
 							
 								
-								<v-form v-if="runnerChoice === 'Schedule File'">
-									<v-form class="ma-2">
-										<v-layout row wrap>
-											<v-flex xs12 sm6 md4 lg3 outline class="ma-2">
-												<v-autocomplete clearable v-model="scheduleExperimentUser" label="User" :items="Object.keys(scheduleNames)"></v-autocomplete>
-											</v-flex>
-											<v-flex xs12 sm6 md4 lg3 solo class="ma-2">
-												<v-autocomplete clearable v-model="scheduleExperimentProject" label="Project" :items="_.keys(_.get(scheduleNames, [scheduleExperimentUser], {}))"></v-autocomplete>
-											</v-flex>
-											<v-flex xs12 sm6 md4 lg3 solo class="ma-2">
-												<v-autocomplete clearable v-model="scheduleExperimentFileName" label="File Name" :items="_.get(scheduleNames, [scheduleExperimentUser, scheduleExperimentProject], [])"></v-autocomplete>
-											</v-flex>
-										</v-layout>
-									<v-form>
+								<v-form>
+									<template v-if="runnerChoice === 'Schedule File'">
+										<v-form class="ma-2">
+											<v-layout row wrap>
+												<v-flex xs12 sm6 md4 lg3 outline class="ma-2">
+													<v-autocomplete clearable v-model="scheduleExperimentUser" label="User" :items="Object.keys(scheduleNames)"></v-autocomplete>
+												</v-flex>
+												<v-flex xs12 sm6 md4 lg3 solo class="ma-2">
+													<v-autocomplete clearable v-model="scheduleExperimentProject" label="Project" :items="_.keys(_.get(scheduleNames, [scheduleExperimentUser], {}))"></v-autocomplete>
+												</v-flex>
+												<v-flex xs12 sm6 md4 lg3 solo class="ma-2">
+													<v-autocomplete clearable v-model="scheduleExperimentFileName" label="File Name" :items="_.get(scheduleNames, [scheduleExperimentUser, scheduleExperimentProject], [])"></v-autocomplete>
+												</v-flex>
+											</v-layout>
+										<v-form>
+									</template>
 								
 									<template v-if="scheduleExperimentUser && scheduleExperimentProject && scheduleExperimentFileName && (runnerScheduleObjects.length === 1)">
 										<v-expansion-panel expand class="mt-1 mb-2">
@@ -1006,7 +1008,7 @@
 																</template>
 															</v-list>
 															
-															<template v-if="runnerToggleAdvancedSettings">
+															<template v-if="runnerToggleAdvancedSettings && runnerEnableScheduleSaving">
 																<v-list class="mt-3 roundedcorners">
 																	<v-list-tile>
 																		<v-list-tile-content><v-list-tile-title style="font-weight: bold">
@@ -1017,7 +1019,7 @@
 																</v-list>
 															</template>
 															
-															<template v-if="runnerToggleAdvancedSettings">
+															<template v-if="runnerToggleAdvancedSettings && runnerEnableScheduleSaving">
 																<v-list class="mt-3 roundedcorners">
 																	<v-select box class="ma-3" label="Run Type" v-model="runnerVerboseScheduleObjects[0]['runType']['default']" :items="Object.keys(JSON.parse(JSON.stringify(runnerVerboseScheduleObjects[0]['runConfigs'] || {})))"></v-select>
 																</v-list>
@@ -1046,7 +1048,9 @@
 												<v-layout row wrap>
 													<v-switch class="ml-3" :label="'Advanced'" v-model="runnerToggleAdvancedSettings"></v-switch>
 													<v-spacer></v-spacer>
-													<v-btn class="mr-3" small @click="saveRunnerScheduleFile()">Save</v-btn>
+													<template v-if="runnerEnableScheduleSaving">
+														<v-btn class="mr-3" small @click="saveRunnerScheduleFile()">Save</v-btn>
+													</template>
 												</v-layout>
 												
 											</v-expansion-panel-content>
@@ -1059,18 +1063,26 @@
 										</v-list>
 									</template>
 								
-									<v-card-actions>
-										<template v-if="scheduleExperimentUser && scheduleExperimentProject && scheduleExperimentFileName">
-											<form class="ml-1 mr-3" style="overflow-x: scroll">
-												<p>
-													Schedule file: AutexysData/{{ scheduleExperimentUser }}/{{ scheduleExperimentProject }}/schedules/{{ scheduleExperimentFileName }}.json
-												</p>
-											</form>
-										</template>
-										<v-spacer></v-spacer>
-										<v-btn class="mb-3 mt-3" @click="dispatchSchedule()">Launch Experiments in Schedule File</v-btn>
-										<v-btn class="mb-3 mt-3" @click="stopAtNextJob()">Stop at Next Job</v-btn>
-									</v-card-actions>	
+									<template v-if="runnerChoice === 'Schedule File'">
+										<v-card-actions>
+											<template v-if="scheduleExperimentUser && scheduleExperimentProject && scheduleExperimentFileName">
+												<form class="ml-1 mr-3" style="overflow-x: scroll">
+													<p>
+														Schedule file: AutexysData/{{ scheduleExperimentUser }}/{{ scheduleExperimentProject }}/schedules/{{ scheduleExperimentFileName }}.json
+													</p>
+												</form>
+											</template>
+											<v-spacer></v-spacer>
+											<v-btn class="mb-3 mt-3" @click="dispatchSchedule()">Launch Experiments in Schedule File</v-btn>
+											<v-btn class="mb-3 mt-3" @click="stopAtNextJob()">Stop at Next Job</v-btn>
+										</v-card-actions>	
+									</template>
+									<template v-if="runnerChoice !== 'Schedule File' && runnerChoice !== ''">
+										<v-card-actions>
+											<v-spacer></v-spacer>
+											<v-btn class="mb-3 mt-3" @click="dispatchSchedule()">Launch {{ runnerChoice }}</v-btn>
+										</v-card-actions>	
+									</template>
 								</v-form>							
 							</v-container>
 						</v-card>
@@ -1415,6 +1427,7 @@
 				
 				runnerLabel: 'Experiment Type',
 				runnerChoice: '',
+				runnerEnableScheduleSaving: true, 
 				
 				runnerScheduleObjects: [],
 				runnerScheduleObjectDefaults: [],
@@ -1422,6 +1435,18 @@
 				runnerVerboseScheduleObjectDefaults: [],
 				
 				runnerToggleAdvancedSettings: false,
+				
+				runnerStandardFileNames: {
+					'Gate Sweep': 'gate_sweep',
+					'Drain Sweep': 'drain_sweep',
+					'Multiple Gate Sweeps': 'auto_gate_sweep',
+					'Multiple Drain Sweeps': 'auto_drain_sweep',
+					'Static Bias': 'static_bias',
+				},
+				
+				scheduleExperimentUser: '',
+				scheduleExperimentProject: '',
+				scheduleExperimentFileName: '',
 				
 				// --- end Experiment Runner ---
 				
@@ -1497,9 +1522,6 @@
 				scheduleLoadUser: '',
 				scheduleLoadProject: '',
 				scheduleLoadFileName: '',
-				scheduleExperimentUser: '',
-				scheduleExperimentProject: '',
-				scheduleExperimentFileName: '',
 				
 				scheduleExperimentSuccessCode: {},
 				saveScheduleSuccessCode: {},
@@ -1741,6 +1763,20 @@
 						$.getJSON(path, response => {app.$data.stopAtNextJobSuccessCode = response})
 						.fail(() => {console.log("Error stopping at next job")});
 					}
+				},
+				updateRunnerChoice: function() {
+					if(this.runnerChoice === 'Schedule File') { 
+						this.runnerEnableScheduleSaving = true;
+						this.scheduleExperimentUser = '';
+						this.scheduleExperimentProject = '';
+						this.scheduleExperimentFileName = '';
+						return; 
+					}
+					
+					this.runnerEnableScheduleSaving = false;
+					this.scheduleExperimentUser = 'admin';
+					this.scheduleExperimentProject = 'standards';
+					this.scheduleExperimentFileName = this.runnerStandardFileNames[this.runnerChoice];
 				},
 				updateRunnerScheduleFile: function() {
 					if(this.scheduleExperimentUser && this.scheduleExperimentProject && this.scheduleExperimentFileName) {
@@ -2004,12 +2040,13 @@
 				}
 			},
 			watch: {
-				stepperPage: function(val) { localStorage.stepperPage = JSON.stringify(val); },
-				scheduleObjects: function(val) { localStorage.scheduleObjects = JSON.stringify(val); },
+				stepperPage:             function(val) { localStorage.stepperPage = JSON.stringify(val); },
+				scheduleObjects:         function(val) { localStorage.scheduleObjects = JSON.stringify(val); },
 				scheduleObjectClipboard: function(val) { localStorage.scheduleObjectClipboard = JSON.stringify(val); },
-				disabledPlots: function(val) { localStorage.disabledPlots = JSON.stringify(val); },
+				disabledPlots:           function(val) { localStorage.disabledPlots = JSON.stringify(val); },
 				
-				scheduleExperimentFileName: function(val) { this.updateRunnerScheduleFile(); },
+				runnerChoice:                 function(val) { this.updateRunnerChoice(); },
+				scheduleExperimentFileName:   function(val) { this.updateRunnerScheduleFile(); },
 				runnerToggleAdvancedSettings: function(val) { this.addAdvancedChangesToRunnerScheduleFile(); },
 				
 				experimentIndex: function(val) { this.getAssociatedAFMs(); },

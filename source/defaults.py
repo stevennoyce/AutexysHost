@@ -50,7 +50,6 @@ default_parameters = {
 			'stepsInVINPerDirection': 	{'type':'int',                     'units':'#', 'default': 100,    'title':'Steps In VIN (per Direction)', 'description':'Number of unique input voltage steps in the sweep.'},
 			'pointsPerVIN': 			{'type':'int',                     'units':'#', 'default': 1,      'title':'Measurements Per VIN',         'description':'Number of measurements taken at each input voltage step.'},
 			'inputVoltageRamps':		{'type':'int',                     'units':'#', 'default': 2,      'title':'Input Voltage Ramps',          'description':'Number of times to loop through input voltage values.'},
-			
 		},
 		'BurnOut':{
 			'dependencies':					{'ignore':True, 'value':[]},
@@ -99,7 +98,7 @@ default_parameters = {
 		},
 		'AutoBurnOut':{
 			'dependencies':					{'ignore':True, 'value':['BurnOut']},
-			'targetOnOffRatio': 			{'type':'float',                   'units':'',  'default': 80,  'title':'Target On Off Ratio',            'description':'Stop burn out when the device on-off ratio increases above this absolute value.'},
+			'targetOnOffRatio': 			{'type':'float', 'essential':True, 'units':'',  'default': 80,  'title':'Target On Off Ratio',            'description':'Stop burn out when the device on-off ratio increases above this absolute value.'},
 			'limitOnOffRatioDegradation': 	{'type':'float',                   'units':'',  'default': 0.7, 'title':'Limit On Off Ratio Degradation', 'description':'Stop burn out if device on-off ratio decreases by this factor.'}, 
 			'limitBurnOutsAllowed': 		{'type':'int',   'essential':True, 'units':'#', 'default': 8,   'title':'Limit Burn Outs Allowed',        'description':'Stop burn out after this many tries.'},
 		},
@@ -187,7 +186,7 @@ default_parameters = {
 		'RapidBias':{
 			'dependencies':				{'ignore':True, 'value':[]},
 			'saveFileName': 			{'type':'constant', 'default': 'RapidBias', 'title':'Save File Name', 'description':'The name of the file that will be saved with the data from this experiment. This name should typically not be changed.'},
-			'waveform': 				{'type':'string', 'essential':True,              'default': 'square',         'title':'Waveform',                 'description':'Type of waveform of voltages to apply. Options include: "square", "triangle", "sine", etc.'},
+			'waveform': 				{'type':'choice', 'essential':True,              'default': 'square',         'title':'Waveform',                 'choices':['square', 'triangle', 'sine'], 'description':'Type of waveform of voltages to apply.'},
 			'drainVoltageSetPoints':	{'type':'array',  'essential':True, 'units':'V', 'default': [0.1],   		  'title':'Drain Voltage Key Points', 'description':'List of drain voltages that the generated VDS waveform must include.'},
 			'gateVoltageSetPoints':		{'type':'array',  'essential':True, 'units':'V', 'default': [0,  1, 0, 1, 0], 'title':'Gate Voltage Key Points',  'description':'List of gate voltages that the generated VGS waveform must include.'},
 			'measurementPoints':		{'type':'array',  'essential':True, 'units':'#', 'default': [50,50,50,50,50], 'title':'Measurement Points',       'description':'List of the number of measurements to take in each segment of the waveform. The size of this list should match the size of the longest key point list.'},
