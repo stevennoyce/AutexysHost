@@ -987,22 +987,21 @@
 												
 												<v-container grid-list-md>
 													<v-layout row wrap>
+														
 														<v-flex xs3 s3 md3 lg3>
-															<template v-if="Object.keys(runnerScheduleObjects[0]).includes('Identifiers')">
-																<v-list style="border-radius: 7px">
-																	<v-list-tile>
-																		<v-list-tile-content><v-list-tile-title style="font-weight: bold">
-																			Identifiers
-																		</v-list-tile-title></v-list-tile-content>
-																	</v-list-tile>
-																	<template v-if="!runnerToggleAdvancedSettings">
-																		<s-item-group-edit :settings.sync="runnerScheduleObjects[0]['Identifiers']" :defaults="JSON.parse(JSON.stringify(runnerScheduleObjects[0]['Identifiers']))"></s-item-group-edit>
-																	</template>
-																	<template v-if="runnerToggleAdvancedSettings">
-																		<s-item-group-edit :settings.sync="runnerVerboseScheduleObjects[0]['Identifiers']" :defaults="JSON.parse(JSON.stringify(runnerVerboseScheduleObjects[0]['Identifiers']))"></s-item-group-edit>
-																	</template>
-																</v-list>
-															</template>
+															<v-list style="border-radius: 7px">
+																<v-list-tile>
+																	<v-list-tile-content><v-list-tile-title style="font-weight: bold">
+																		Identifiers
+																	</v-list-tile-title></v-list-tile-content>
+																</v-list-tile>
+																<template v-if="!runnerToggleAdvancedSettings && Object.keys(runnerScheduleObjects[0]).includes('Identifiers')">
+																	<s-item-group-edit :settings.sync="runnerScheduleObjects[0]['Identifiers']" :defaults="JSON.parse(JSON.stringify(runnerScheduleObjects[0]['Identifiers']))"></s-item-group-edit>
+																</template>
+																<template v-if="runnerToggleAdvancedSettings || !Object.keys(runnerScheduleObjects[0]).includes('Identifiers')">
+																	<s-item-group-edit :settings.sync="runnerVerboseScheduleObjects[0]['Identifiers']" :defaults="JSON.parse(JSON.stringify(runnerVerboseScheduleObjects[0]['Identifiers']))"></s-item-group-edit>
+																</template>
+															</v-list>
 															
 															<template v-if="runnerToggleAdvancedSettings">
 																<v-list class="mt-3" style="border-radius: 7px">
@@ -1012,6 +1011,12 @@
 																		</v-list-tile-title></v-list-tile-content>
 																	</v-list-tile>
 																	<s-item-group-edit :settings.sync="runnerVerboseScheduleObjects[0]['MeasurementSystem']" :defaults="JSON.parse(JSON.stringify(runnerVerboseScheduleObjects[0]['MeasurementSystem']))"></s-item-group-edit>
+																</v-list>
+															</template>
+															
+															<template v-if="runnerToggleAdvancedSettings">
+																<v-list class="mt-3" style="border-radius: 7px">
+																	<v-select box class="ma-3" label="Run Type" v-model="runnerVerboseScheduleObjects[0]['runType']['default']" :items="Object.keys(JSON.parse(JSON.stringify(runnerVerboseScheduleObjects[0]['runConfigs'] || {})))"></v-select>
 																</v-list>
 															</template>
 														</v-flex>
@@ -1031,6 +1036,7 @@
 																</template>
 															</v-list>
 														</v-flex>
+														
 													</v-layout>
 												</v-container>
 								
