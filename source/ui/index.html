@@ -2026,11 +2026,17 @@
 				scheduleLines: function() {
 					var modifications = this.scheduleObjects.map(obj => objectDeepDiff(obj, this.scheduleObjectDefault));
 					
+					// --- Force the schedule file to include the parameters marked as "essential" in defaults.py ---
 					var modifications_with_essentials = modifications.map(obj => {
 						var essentialsToInclude = {};
 						if(Object.keys(obj).includes('runType') && Object.keys(this.essentialScheduleParameters).includes('runConfigs') && Object.keys(this.essentialScheduleParameters['runConfigs']).includes(obj['runType']['default'])) {
 							essentialsToInclude['runConfigs'] = {};
 							essentialsToInclude['runConfigs'][obj['runType']['default']] = this.essentialScheduleParameters['runConfigs'][obj['runType']['default']]
+							this.scheduleObjectDefault['runConfigs'][obj['runType']['default']]['dependencies']['value'].forEach(function(dependency) {
+								if(Object.keys(app.$data.essentialScheduleParameters['runConfigs']).includes(dependency)) {
+									essentialsToInclude['runConfigs'][dependency] = app.$data.essentialScheduleParameters['runConfigs'][dependency]
+								}
+							});
 						}
 						return objectDeepMerge(obj, essentialsToInclude);
 					});
