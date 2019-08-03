@@ -1754,7 +1754,7 @@
 					this.livePlotYData = {};
 				},
 				dispatchSchedule: function() {
-					clearLivePlots();
+					this.clearLivePlots();
 					
 					var path = '/dispatchSchedule/' + this.scheduleExperimentUser + '/' + this.scheduleExperimentProject + '/' + this.scheduleExperimentFileName + '.json' + this.cacheBust;
 					if (path) {
