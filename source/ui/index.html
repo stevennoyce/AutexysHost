@@ -1749,7 +1749,13 @@
 					if (this.scheduleSaveProject == '') this.scheduleSaveProject = this.scheduleLoadProject;
 					if (this.scheduleSaveFileName == '') this.scheduleSaveFileName = this.scheduleLoadFileName;
 				},
+				clearLivePlots: function() {
+					this.livePlotXData = {};
+					this.livePlotYData = {};
+				},
 				dispatchSchedule: function() {
+					clearLivePlots();
+					
 					var path = '/dispatchSchedule/' + this.scheduleExperimentUser + '/' + this.scheduleExperimentProject + '/' + this.scheduleExperimentFileName + '.json' + this.cacheBust;
 					if (path) {
 						$.getJSON(path, response => {app.$data.scheduleExperimentSuccessCode = response})
