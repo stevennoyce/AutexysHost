@@ -61,15 +61,18 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	max_value = np.max(H_list_categorized)
 	min_value = np.min(H_list_categorized)
 	abs_max_value = max(max_value, abs(min_value)) if(mode_parameters['yscale'] is None) else mode_parameters['yscale']
-	voltage_scale, ylabel, legendlabel = (1, plotDescription['plotDefaults']['unity_ylabel'], plotDescription['plotDefaults']['unity_legend_label']) if(abs_max_value >= 1) else (1e3, plotDescription['plotDefaults']['milli_ylabel'], plotDescription['plotDefaults']['milli_legend_label'])	
+	yscale, ylabel, legendlabel = (1, plotDescription['plotDefaults']['unity_ylabel'], plotDescription['plotDefaults']['unity_legend_label']) if(abs_max_value >= 1) else (1e3, plotDescription['plotDefaults']['milli_ylabel'], plotDescription['plotDefaults']['milli_legend_label'])	
 				
 	# Plot
 	for i in range(len(H_list_categorized)):
 		position = i*plotDescription['plotDefaults']['spacing']
 		if(mode_parameters['boxPlotBarChart']):
-			line = ax.bar(position, np.mean(H_list_categorized[i]) * voltage_scale, yerr=np.std(H_list_categorized[i]) * voltage_scale, color=colors[i], width=plotDescription['plotDefaults']['width'], capsize=3, ecolor='#333333', error_kw={'capthick':1})	
+			line = ax.bar(position, np.mean(H_list_categorized[i]) * yscale, yerr=np.std(H_list_categorized[i]) * yscale, color=colors[i], width=plotDescription['plotDefaults']['width'], capsize=3, ecolor='#333333', error_kw={'capthick':1})	
 		else:
-			line = ax.boxplot((np.array(H_list_categorized) * voltage_scale).tolist()[i], positions=[position], widths=[plotDescription['plotDefaults']['width']], meanline=False, showmeans=False, showfliers=False, boxprops={'color':colors[i]}, capprops={'color':colors[i]}, whiskerprops={'color':colors[i]}, medianprops={'color':colors[i]}, meanprops={'color':colors[i]})
+			line = ax.boxplot((np.array(H_list_categorized) * yscale).tolist()[i], positions=[position], widths=[plotDescription['plotDefaults']['width']], meanline=False, showmeans=False, showfliers=False, boxprops={'color':colors[i]}, capprops={'color':colors[i]}, whiskerprops={'color':colors[i]}, medianprops={'color':colors[i]}, meanprops={'color':colors[i]})
+		if(mode_parameters['boxPlotShowPoints']):
+			for value in H_list_categorized[i]:
+				ax.plot([position], [value * yscale], color='black', marker='o', markersize=4)
 		
 	# Tick Labels
 	ax.set_xticks(range(len(H_list_categorized)))
@@ -77,7 +80,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	
 	# Legend
 	if(mode_parameters['enableLegend']):
-		ax.legend(loc='upper right', title=legendlabel.format(total_points_plotted, H_avg * voltage_scale, H_std * voltage_scale))
+		ax.legend(loc='upper right', title=legendlabel.format(total_points_plotted, H_avg * yscale, H_std * yscale))
 	
 	# X-axis limits
 	ax.set_xlim(left= -plotDescription['plotDefaults']['x_padding'], right=(len(H_list_categorized)-1)*plotDescription['plotDefaults']['spacing']+(plotDescription['plotDefaults']['x_padding']))
