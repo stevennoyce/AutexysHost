@@ -93,15 +93,11 @@ def progressUpdate(share, progName, start, current, end):
 		
 		if share is None:
 			return
-		q = share.get(qName)
-		
-		if q is None:
-			return
 		
 		if progName in share['procedureStopLocations']:
 			abort = True
 		
-		send(q, {
+		send(share, qName, {
 			'type':'Progress',
 			'progress': {
 				progName: {
