@@ -1048,7 +1048,7 @@
 												<v-layout row wrap>
 													<v-switch class="ml-3" :label="'Advanced'" v-model="runnerToggleAdvancedSettings"></v-switch>
 													<v-spacer></v-spacer>
-													<v-btn class="mr-3" small @click="saveRunnerScheduleFile()">Save</v-btn>
+													<v-btn class="mr-3" small @click="saveRunnerScheduleFile()" :disabled="!isNecessaryToSaveRunnerScheduleFile()">Save</v-btn>
 												</v-layout>
 												
 											</v-expansion-panel-content>
@@ -1071,7 +1071,7 @@
 												</form>
 											</template>
 											<v-spacer></v-spacer>
-											<v-btn class="mb-3 mt-3" @click="dispatchSchedule()">Launch Experiments in Schedule File</v-btn>
+											<v-btn class="mb-3 mt-3" @click="{ saveRunnerScheduleFile(); dispatchSchedule(); }">Launch Experiments in Schedule File</v-btn>
 											<v-btn class="mb-3 mt-3" @click="stopAtNextJob()">Stop at Next Job</v-btn>
 										</v-card-actions>	
 									</template>
@@ -1435,6 +1435,7 @@
 				runnerVerboseScheduleObjectDefaults: [],
 				
 				runnerToggleAdvancedSettings: false,
+				runnerScheduleObjectsHasBeenModified: false,
 				
 				runnerStandardFileNames: {
 					'Gate Sweep': 'default_gate_sweep',
@@ -1802,10 +1803,11 @@
 						}
 						
 						console.log("Loaded the active experiment runner schedule file.");
+						this.runnerScheduleObjectsHasBeenModified = false;
 					}
 				},
 				saveRunnerScheduleFile: function() {
-					if(this.isPossibleToSaveRunnerScheduleFile()) {
+					if(this.isNecessaryToSaveRunnerScheduleFile()) {
 						// Sync basic and advanced options panels
 						this.addAdvancedChangesToRunnerScheduleFile();
 						
@@ -1827,12 +1829,24 @@
 						}		
 									
 						console.log("Saved experiment runner schedule file.");
+						
+						// Re-load from file to force UI to update
+						this.loadRunnerScheduleFile();
 					}
-					this.loadRunnerScheduleFile();
 				},
 				isPossibleToSaveRunnerScheduleFile: function() {
-					return (this.scheduleExperimentUser && this.scheduleExperimentProject && this.scheduleExperimentFileName && this.runnerScheduleObjects.length === 1);
+					return (this.scheduleExperimentUser && this.scheduleExperimentProject && this.scheduleExperimentFileName && 
+						(this.runnerScheduleObjects.length === 1) && (this.runnerScheduleObjectDefaults.length === 1) && 
+						(this.runnerVerboseScheduleObjects.length === 1) && ((this.runnerVerboseScheduleObjectDefaults.length === 1)));
 				}, 
+				isNecessaryToSaveRunnerScheduleFile: function() {
+					if(this.isPossibleToSaveRunnerScheduleFile()) {
+						 return this.runnerScheduleObjectsHasBeenModified || 
+						 (this.hasRunnerScheduleBeenModified()) || 
+						 (this.hasRunnerScheduleAdvancedBeenModified());
+					}
+					return false;
+				},
 				addAdvancedChangesToRunnerScheduleFile: function() {
 					if(this.runnerVerboseScheduleObjects.length === 1 && this.runnerScheduleObjects.length === 1) {
 						// Update the advanced options to match any changes made to the non-advanced options
@@ -1842,7 +1856,9 @@
 							
 							this.runnerScheduleObjectDefaults[0]        = JSON.parse(JSON.stringify(this.runnerScheduleObjects[0]));
 							this.runnerVerboseScheduleObjectDefaults[0] = JSON.parse(JSON.stringify(this.runnerVerboseScheduleObjects[0]));
+							
 							console.log("Refreshed advanced settings.");
+							this.runnerScheduleObjectsHasBeenModified = true;
 						}
 						
 						// Apply changes to advanced options
@@ -1852,7 +1868,9 @@
 							
 							this.runnerScheduleObjectDefaults[0]        = JSON.parse(JSON.stringify(this.runnerScheduleObjects[0]));
 							this.runnerVerboseScheduleObjectDefaults[0] = JSON.parse(JSON.stringify(this.runnerVerboseScheduleObjects[0]));
+							
 							console.log("Added advanced settings to experiment runner schedule file.");
+							this.runnerScheduleObjectsHasBeenModified = true;
 						}
 					}
 				},
