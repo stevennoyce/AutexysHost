@@ -107,6 +107,10 @@ def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint
 				# Apply V_GS
 				smu_instance.setVgs(gateVoltage)
 				
+				# If delayBetweenMeasurements is non-zero, wait before taking the measurement
+				if(delayBetweenMeasurements > 0):
+					time.sleep(delayBetweenMeasurements)
+				
 				# Take Measurement and save it
 				measurement = smu_instance.takeMeasurement()
 				
@@ -132,9 +136,6 @@ def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint
 						'Gate Current {} [A]'.format(direction+1): measurement['I_g']
 					}
 				})
-				
-				if(delayBetweenMeasurements > 0):
-					time.sleep(delayBetweenMeasurements)
 
 	return {
 		'Raw':{
