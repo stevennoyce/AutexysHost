@@ -33,6 +33,7 @@ def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False,
 							stepsInVGSPerDirection=gs_parameters['stepsInVGSPerDirection'],
 							pointsPerVGS=gs_parameters['pointsPerVGS'],
 							gateVoltageRamps=gs_parameters['gateVoltageRamps'],
+							delayBetweenMeasurements=gs_parameters['delayBetweenMeasurements'],
 							share=share)
 	smu_instance.rampDownVoltages()
 	# === COMPLETE ===
@@ -58,7 +59,7 @@ def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False,
 	return jsonData
 
 # === Data Collection ===
-def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint, gateVoltageMinimum, gateVoltageMaximum, stepsInVGSPerDirection, pointsPerVGS, gateVoltageRamps, share=None):
+def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint, gateVoltageMinimum, gateVoltageMaximum, stepsInVGSPerDirection, pointsPerVGS, gateVoltageRamps, delayBetweenMeasurements, share=None):
 	# Generate list of gate voltages to apply
 	gateVoltages = dgu.sweepValuesWithDuplicates(gateVoltageMinimum, gateVoltageMaximum, stepsInVGSPerDirection*2*pointsPerVGS, pointsPerVGS, ramps=gateVoltageRamps)
 	
@@ -131,6 +132,9 @@ def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint
 						'Gate Current {} [A]'.format(direction+1): measurement['I_g']
 					}
 				})
+				
+				if(delayBetweenMeasurements > 0):
+					time.sleep(delayBetweenMeasurements)
 
 	return {
 		'Raw':{

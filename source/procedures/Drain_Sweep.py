@@ -33,6 +33,7 @@ def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False,
 							stepsInVDSPerDirection=ds_parameters['stepsInVDSPerDirection'],
 							pointsPerVDS=ds_parameters['pointsPerVDS'],
 							drainVoltageRamps=ds_parameters['drainVoltageRamps'],
+							delayBetweenMeasurements=ds_parameters['delayBetweenMeasurements'],
 							share=share)
 	smu_instance.rampDownVoltages()
 	# === COMPLETE ===
@@ -44,6 +45,7 @@ def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False,
 	print('Max conductance: {:.4e}'.format(results['Computed']['G_max']))
 	print('Max drain current: {:.4e}'.format(results['Computed']['id_max']))
 	print('Max gate current: {:.4e}'.format(results['Computed']['ig_max']))
+	
 
 	# Copy parameters and add in the test results
 	jsonData = dict(parameters)
@@ -57,7 +59,7 @@ def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False,
 	return jsonData
 
 # === Data Collection ===
-def runDrainSweep(smu_instance, isFastSweep, fastSweepSpeed, gateVoltageSetPoint, drainVoltageMinimum, drainVoltageMaximum, stepsInVDSPerDirection, pointsPerVDS, drainVoltageRamps, share=None):
+def runDrainSweep(smu_instance, isFastSweep, fastSweepSpeed, gateVoltageSetPoint, drainVoltageMinimum, drainVoltageMaximum, stepsInVDSPerDirection, pointsPerVDS, drainVoltageRamps, delayBetweenMeasurements, share=None):
 	# Generate list of drain voltages to apply
 	drainVoltages = dgu.sweepValuesWithDuplicates(drainVoltageMinimum, drainVoltageMaximum, stepsInVDSPerDirection*2*pointsPerVDS, pointsPerVDS, ramps=drainVoltageRamps)
 	
@@ -130,6 +132,9 @@ def runDrainSweep(smu_instance, isFastSweep, fastSweepSpeed, gateVoltageSetPoint
 						'Gate Current {} [A]'.format(direction+1): measurement['I_g']
 					}
 				})
+				
+				if(delayBetweenMeasurements > 0):
+					time.sleep(delayBetweenMeasurements)
 
 	return {
 		'Raw':{
