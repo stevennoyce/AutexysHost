@@ -955,7 +955,7 @@
 							<v-container>
 								<v-form class="ma-2">
 									<v-flex xs12 sm6 md4 lg3>
-										<v-select box class="ma-1" :label="runnerLabel" v-model="runnerChoice" :items="Object.keys(runnerStandardFileNames).concat(['Schedule File'])"></v-select>
+										<v-select box class="ma-1" :label="runnerLabel" v-model="runnerChoice" :items="['Schedule File'].concat(Object.keys(runnerStandardFileNames))"></v-select>
 									</v-flex>
 								</v-form>
 							
@@ -1440,9 +1440,21 @@
 				runnerStandardFileNames: {
 					'Gate Sweep': 'default_gate_sweep',
 					'Drain Sweep': 'default_drain_sweep',
+					'Static Bias': 'default_static_bias',
 					'Multiple Gate Sweeps': 'default_auto_gate_sweep',
 					'Multiple Drain Sweeps': 'default_auto_drain_sweep',
-					'Static Bias': 'default_static_bias',
+					'Multiple Static Biases': 'default_auto_static_bias',
+					'Rapid Bias': 'default_rapid_bias',
+					'Noise Collection': 'default_noise_collection',
+					'Noise Grid': 'default_noise_grid',
+					'AFM Control': 'default_afm_control',
+					'SGM Control': 'default_sgm_control',
+					'Flow Static Bias': 'default_flow_static_bias',
+					'Multiple Flow Static Biases': 'default_auto_flow_static_bias',
+					'CNT Burn Out': 'default_burn_out',
+					'Multiple CNT Burn Outs': 'default_auto_burn_out',
+					'Inverter Sweep': 'default_inverter_sweep',
+					'Delay': 'default_delay',
 				},
 				
 				scheduleExperimentUser: '',
