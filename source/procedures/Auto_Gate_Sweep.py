@@ -7,11 +7,16 @@ from utilities import DataLoggerUtility as dlu
 
 
 # === Main ===
-def run(parameters, smu_instance, arduino_instance, share=None):
+def run(parameters, smu_systems, arduino_systems, share=None):
 	# No setup required, just run
-	runAutoGateSweep(parameters, smu_instance, arduino_instance, share=share)	
+	runAutoGateSweep(parameters, smu_systems, arduino_systems, share=share)	
 
-def runAutoGateSweep(parameters, smu_instance, arduino_instance, share=None):
+def runAutoGateSweep(parameters, smu_systems, arduino_systems, share=None):
+	# This script uses the default SMU, which is the first one in the list of SMU systems
+	smu_names = list(smu_systems.keys())
+	smu_instance = smu_systems[smu_names[0]]
+	
+	# Get shorthand name to easily refer to configuration parameters
 	ags_parameters = parameters['runConfigs']['AutoGateSweep']
 
 	# If no drain voltage set-point list given, use the set-point from the GateSweep runConfig
@@ -37,7 +42,7 @@ def runAutoGateSweep(parameters, smu_instance, arduino_instance, share=None):
 		for j in range(ags_parameters['sweepsPerVDS']):
 			# Run sweep
 			print('Starting sweep #'+str(sweepCount+1)+' of '+str(numberOfSweeps))
-			gateSweepScript.run(gateSweepParameters, smu_instance, isSavingResults=True, isPlottingResults=False, share=share)
+			gateSweepScript.run(gateSweepParameters, smu_systems, arduino_systems, share=share)
 			print('Completed sweep #'+str(sweepCount+1)+' of '+str(numberOfSweeps))
 			sweepCount += 1
 			

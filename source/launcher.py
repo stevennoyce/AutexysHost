@@ -56,7 +56,7 @@ def run(additional_parameters, share=None):
 	smu_systems = initMeasurementSystems(parameters)		
 
 	# Initialize Arduino connection
-	arduino_instance = initArduino(parameters)
+	arduino_systems = initArduino(parameters)
 	print("Sensor data: " + str(parameters['SensorData']))
 	
 	# Run specified action:
@@ -64,9 +64,9 @@ def run(additional_parameters, share=None):
 		for device in parameters['MeasurementSystem']['deviceRange']:
 			params = copy.deepcopy(parameters)
 			params['Identifiers']['device'] = device
-			runAction(params, additional_parameters, smu_systems, arduino_instance, share=share)
+			runAction(params, additional_parameters, smu_systems, arduino_systems, share=share)
 	else:
-		runAction(parameters, additional_parameters, smu_systems, arduino_instance, share=share)
+		runAction(parameters, additional_parameters, smu_systems, arduino_systems, share=share)
 	
 	endTime = time.time()
 	print('Completed job in "' + '{:.4f}'.format(endTime - startTime) + '" seconds.')
@@ -74,7 +74,7 @@ def run(additional_parameters, share=None):
 
 
 # === Internal API ===
-def runAction(parameters, schedule_parameters, smu_systems, arduino_instance, share=None):
+def runAction(parameters, schedule_parameters, smu_systems, arduino_systems, share=None):
 	"""Prepares the file system for the upcoming experiment and selects a Procedure to carry out the experiment.
 	In the event of an error during any procedure, this function is responsible for emergency ramping down the
 	SMU voltages and exiting as gracefully as possible."""
@@ -97,42 +97,44 @@ def runAction(parameters, schedule_parameters, smu_systems, arduino_instance, sh
 	
 	smu_names = list(smu_systems.keys())
 	smu_default_instance = smu_systems[smu_names[0]]	
+	arduino_names = list(arduino_systems.keys())
+	arduino_default_instance = arduino_systems[arduino_names[0]]	
 	
 	try:
 		if(parameters['runType'] == 'GateSweep'):
-			gateSweepScript.run(parameters, smu_default_instance, share=share)
+			gateSweepScript.run(parameters, smu_systems, arduino_systems, share=share)
 		elif(parameters['runType'] == 'DrainSweep'):
-			drainSweepScript.run(parameters, smu_default_instance, share=share)
+			drainSweepScript.run(parameters, smu_systems, arduino_systems, share=share)
 		elif(parameters['runType'] == 'BurnOut'):
-			burnOutScript.run(parameters, smu_default_instance, share=share)
+			burnOutScript.run(parameters, smu_systems, arduino_systems, share=share)
 		elif(parameters['runType'] == 'AutoBurnOut'):
-			autoBurnScript.run(parameters, smu_default_instance, share=share)
+			autoBurnScript.run(parameters, smu_systems, arduino_systems, share=share)
 		elif(parameters['runType'] == 'StaticBias'):
-			staticBiasScript.run(parameters, smu_default_instance, arduino_instance, share=share) #communication_pipe=communication_pipe)
+			staticBiasScript.run(parameters, smu_systems, arduino_systems, share=share) #communication_pipe=communication_pipe)
 		elif(parameters['runType'] == 'FlowStaticBias'):
-			flowStaticBiasScript.run(parameters, smu_default_instance, arduino_instance) #, communication_pipe=communication_pipe)
+			flowStaticBiasScript.run(parameters, smu_default_instance, arduino_default_instance) #, communication_pipe=communication_pipe)
 		elif(parameters['runType'] == 'AutoGateSweep'):
-			autoGateScript.run(parameters, smu_default_instance, arduino_instance, share=share)
+			autoGateScript.run(parameters, smu_systems, arduino_systems, share=share)
 		elif(parameters['runType'] == 'AutoDrainSweep'):
-			autoDrainScript.run(parameters, smu_default_instance, arduino_instance, share=share)
+			autoDrainScript.run(parameters, smu_systems, arduino_systems, share=share)
 		elif(parameters['runType'] == 'AutoStaticBias'):
-			autoBiasScript.run(parameters, smu_default_instance, arduino_instance, share=share)
+			autoBiasScript.run(parameters, smu_systems, arduino_systems, share=share)
 		elif(parameters['runType'] == 'AutoFlowStaticBias'):
-			autoFlowStaticBias.run(parameters, smu_default_instance, arduino_instance, share=share)
+			autoFlowStaticBias.run(parameters, smu_default_instance, arduino_default_instance, share=share)
 		elif(parameters['runType'] == 'AFMControl'):
-			afmControlScript.run(parameters, smu_systems, share=share)
+			afmControlScript.run(parameters, smu_systems, arduino_systems, share=share)
 		elif(parameters['runType'] == 'SGMControl'):
-			sgmControlScript.run(parameters, smu_systems, share=share)
+			sgmControlScript.run(parameters, smu_systems, arduino_systems, share=share)
 		elif(parameters['runType'] == 'Delay'):
-			delayScript.run(parameters, share=share)
+			delayScript.run(parameters, smu_systems, arduino_systems, share=share)
 		elif(parameters['runType'] == 'InverterSweep'):
-			inverterSweepScript.run(parameters, smu_systems, share=share)
+			inverterSweepScript.run(parameters, smu_systems, arduino_systems, share=share)
 		elif(parameters['runType'] == 'RapidBias'):
-			rapidBiasScript.run(parameters, smu_default_instance, share=share)
+			rapidBiasScript.run(parameters, smu_systems, arduino_systems, share=share)
 		elif(parameters['runType'] == 'NoiseCollection'):
-			noiseCollectionScript.run(parameters, smu_default_instance, share=share)
+			noiseCollectionScript.run(parameters, smu_systems, arduino_systems, share=share)
 		elif(parameters['runType'] == 'NoiseGrid'):
-			noiseGridScript.run(parameters, smu_default_instance, share=share)
+			noiseGridScript.run(parameters, smu_systems, arduino_systems, share=share)
 		else:
 			raise NotImplementedError("Invalid action for the Source Measure Unit")
 	except Exception as e:
@@ -201,7 +203,9 @@ def initArduino(parameters):
 	sensor_data = arduino_instance.takeMeasurement()
 	for (measurement, value) in sensor_data.items():
 		parameters['SensorData'][measurement] = [value]
-	return arduino_instance
+		
+	arduino_systems = {'Arduino': arduino_instance}
+	return arduino_systems
 	
 
 

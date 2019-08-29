@@ -9,11 +9,16 @@ from utilities import DataLoggerUtility as dlu
 
 
 # === Main ===
-def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False, share=None):
+def run(parameters, smu_systems, arduino_systems, share=None):
 	# No setup required, just run
-	runNoiseGrid(parameters, smu_instance)	
+	runNoiseGrid(parameters, smu_systems, arduino_systems, share=share)	
 	
-def runNoiseGrid(parameters, smu_instance, share=None):
+def runNoiseGrid(parameters, smu_systems, arduino_systems, share=None):
+	# This script uses the default SMU, which is the first one in the list of SMU systems
+	smu_names = list(smu_systems.keys())
+	smu_instance = smu_systems[smu_names[0]]
+	
+	# Get shorthand name to easily refer to configuration parameters
 	ng_parameters = parameters['runConfigs']['NoiseGrid']
 
 	# If no gate/drain voltage set-point list given, use the set-points from the NoiseCollection runConfig
@@ -42,7 +47,7 @@ def runNoiseGrid(parameters, smu_instance, share=None):
 			
 			# === Run ===
 			print('Starting noise collection #'+str(count+1)+' of '+str(numberOfNoiseCollections))
-			noiseCollectionScript.run(noiseCollectionParameters, smu_instance, isSavingResults=True, isPlottingResults=False)
+			noiseCollectionScript.run(noiseCollectionParameters, smu_systems, arduino_systems, share=share)
 			print('Completed noise collection #'+str(count+1)+' of '+str(numberOfNoiseCollections))
 			count += 1
 			

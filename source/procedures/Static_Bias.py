@@ -9,7 +9,15 @@ from utilities import DataLoggerUtility as dlu
 
 
 # === Main ===
-def run(parameters, smu_instance, arduino_instance, isSavingResults=True, isPlottingResults=False, share=None):
+def run(parameters, smu_systems, arduino_systems, share=None):
+	# This script uses the default SMU, which is the first one in the list of SMU systems
+	smu_names = list(smu_systems.keys())
+	smu_instance = smu_systems[smu_names[0]]
+	
+	# This script uses the default Ardunio, which is the first one in the list of Ardunio systems
+	arduino_names = list(arduino_systems.keys())
+	arduino_instance = arduino_systems[arduino_systems[0]]
+	
 	# Get shorthand name to easily refer to configuration parameters
 	sb_parameters = parameters['runConfigs']['StaticBias']
 
@@ -71,9 +79,8 @@ def run(parameters, smu_instance, arduino_instance, isSavingResults=True, isPlot
 	jsonData['Results'] = results['Raw']
 	
 	# Save results as a JSON object
-	if(isSavingResults):
-		print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
-		dlu.saveJSON(dlu.getDeviceDirectory(parameters), sb_parameters['saveFileName'], jsonData, subDirectory='Ex'+str(parameters['startIndexes']['experimentNumber']))
+	print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
+	dlu.saveJSON(dlu.getDeviceDirectory(parameters), sb_parameters['saveFileName'], jsonData, subDirectory='Ex'+str(parameters['startIndexes']['experimentNumber']))
 	
 	return jsonData
 
