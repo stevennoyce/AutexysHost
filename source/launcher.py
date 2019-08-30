@@ -13,9 +13,6 @@ import copy
 import glob
 import pkgutil
 
-from procedures import Flow_Static_Bias as flowStaticBiasScript
-from procedures import Auto_Flow_Static_Bias as autoFlowStaticBias
-
 from utilities import DataLoggerUtility as dlu
 from drivers import SourceMeasureUnit as smu
 from drivers import ArduinoBoard as arduinoBoard

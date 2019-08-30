@@ -167,6 +167,12 @@ class SourceMeasureUnit:
 	def setVgs(self, voltage):
 		raise NotImplementedError("Please implement SourceMeasureUnit.setVgs()")
 
+	def setId(self, current):
+		raise NotImplementedError("Please implement SourceMeasureUnit.setId()")
+	
+	def setIg(self, current):
+		raise NotImplementedError("Please implement SourceMeasureUnit.setId()")
+
 	def takeMeasurement(self):
 		raise NotImplementedError("Please implement SourceMeasureUnit.takeMeasurement()")
 
@@ -181,6 +187,12 @@ class SourceMeasureUnit:
 
 	def getVgs(self):
 		return self.takeMeasurement()['V_gs']
+	
+	def getId(self):
+		return self.takeMeasurement()['I_d']
+
+	def getIg(self):
+		return self.takeMeasurement()['I_g']
 
 	def rampGateVoltage(self, voltageStart, voltageSetPoint, steps=None):
 		if(steps == None):
@@ -224,24 +236,49 @@ class SourceMeasureUnit:
 		print('Ramping down SMU channels.')
 		self.rampDrainVoltageDown(steps)
 		self.rampGateVoltageDown(steps)
-		
 	
-	def digitalWrite(self, pin, signal):
+	def rampGateCurrent(self, currentStart, currentSetPoint, steps=None):
+		if(steps == None):
+			steps = abs(currentStart - currentSetPoint)//1e-9
+			steps = min(steps, self.stepsPerRamp)
 		
-		if pin < 0:
-			return
+		if(steps <= 1):
+			self.setIg(currentSetPoint)
+				
+		gateCurrents = np.linspace(currentStart, currentSetPoint, steps).tolist()
+		for gateCurrent in gateCurrents:
+			self.setIg(gateCurrent)
+
+	def rampGateCurrentTo(self, currentSetPoint, steps=None):
+		currentStart = self.getIg()
+		self.rampGateCurrent(currentStart, currentSetPoint, steps)
+
+	def rampGateCurrentDown(self, steps=None):
+		self.rampGateCurrentTo(0, steps)
+
+	def rampDrainCurrent(self, currentStart, currentSetPoint, steps=None):
+		if(steps == None):
+			steps = abs(currentStart - currentSetPoint)//1e-9
+			steps = min(steps, self.stepsPerRamp)
 		
-		prior = self.smu.query(':source:digital:data?')
-		decBin = pow(2, pin-1)
-		
-		self.smu.write(":format:digital ascii")
-		self.smu.write(":source:digital:external" + str(pin) + ":function DIO")
-		self.smu.write(":source:digital:external" + str(pin) + ":polarity positive")
-		if signal == "HIGH":
-			self.smu.write(":source:digital:data " + str(int(prior) | decBin))
-		
-		elif signal == "LOW":
-			self.smu.write(":source:digital:data " + str(int(prior) & ~decBin))
+		if(steps <= 1):
+			self.setId(currentSetPoint)	
+			
+		drainCurrents = np.linspace(currentStart, currentSetPoint, steps).tolist()
+		for drainCurrent in drainCurrents:
+			self.setId(drainCurrent)
+
+	def rampDrainCurrentTo(self, currentSetPoint, steps=None):
+		currentStart = self.getId()
+		self.rampDrainCurrent(currentStart, currentSetPoint, steps)
+
+	def rampDrainCurrentDown(self, steps=None):
+		self.rampDrainCurrentTo(0, steps)
+
+	def rampDownCurrents(self, steps=None):
+		print('Ramping down SMU channels.')
+		self.rampDrainCurrentDown(steps)
+		self.rampGateCurrentDown(steps)
 		
 	
 	
@@ -373,6 +410,12 @@ class B2912A(SourceMeasureUnit):
 
 	def setVgs(self, voltage):
 		self.setParameter(":source2:voltage {}".format(voltage))
+		
+	def setId(self, current):
+		self.setParameter(":source1:current {}".format(current))
+
+	def setIg(self, current):
+		self.setParameter(":source2:current {}".format(current))
 	
 	def setTimeout(self, timeout_ms=defaultTimeout):
 		self.smu.timeout = timeout_ms
@@ -539,6 +582,22 @@ class B2912A(SourceMeasureUnit):
 	
 	def disconnect(self):
 		pass
+	
+	def digitalWrite(self, pin, signal):
+		if pin < 0:
+			return
+		
+		prior = self.smu.query(':source:digital:data?')
+		decBin = pow(2, pin-1)
+		
+		self.smu.write(":format:digital ascii")
+		self.smu.write(":source:digital:external" + str(pin) + ":function DIO")
+		self.smu.write(":source:digital:external" + str(pin) + ":polarity positive")
+		if signal == "HIGH":
+			self.smu.write(":source:digital:data " + str(int(prior) | decBin))
+		
+		elif signal == "LOW":
+			self.smu.write(":source:digital:data " + str(int(prior) & ~decBin))
 		
 
 
