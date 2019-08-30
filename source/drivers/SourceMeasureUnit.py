@@ -171,7 +171,7 @@ class SourceMeasureUnit:
 		raise NotImplementedError("Please implement SourceMeasureUnit.setId()")
 	
 	def setIg(self, current):
-		raise NotImplementedError("Please implement SourceMeasureUnit.setId()")
+		raise NotImplementedError("Please implement SourceMeasureUnit.setIg()")
 
 	def takeMeasurement(self):
 		raise NotImplementedError("Please implement SourceMeasureUnit.takeMeasurement()")
@@ -201,6 +201,7 @@ class SourceMeasureUnit:
 		
 		if(steps <= 1):
 			self.setVgs(voltageSetPoint)
+			return
 				
 		gateVoltages = np.linspace(voltageStart, voltageSetPoint, steps).tolist()
 		for gateVoltage in gateVoltages:
@@ -220,6 +221,7 @@ class SourceMeasureUnit:
 		
 		if(steps <= 1):
 			self.setVds(voltageSetPoint)	
+			return
 			
 		drainVoltages = np.linspace(voltageStart, voltageSetPoint, steps).tolist()
 		for drainVoltage in drainVoltages:
@@ -244,6 +246,7 @@ class SourceMeasureUnit:
 		
 		if(steps <= 1):
 			self.setIg(currentSetPoint)
+			return
 				
 		gateCurrents = np.linspace(currentStart, currentSetPoint, steps).tolist()
 		for gateCurrent in gateCurrents:
@@ -263,6 +266,7 @@ class SourceMeasureUnit:
 		
 		if(steps <= 1):
 			self.setId(currentSetPoint)	
+			return
 			
 		drainCurrents = np.linspace(currentStart, currentSetPoint, steps).tolist()
 		for drainCurrent in drainCurrents:
