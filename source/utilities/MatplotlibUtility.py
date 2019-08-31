@@ -562,7 +562,7 @@ def maxIndicesAndValue(lst):
 			maxIndices.append(i)
 	return (maxIndices, maxValue)
 
-def getLegendTitle(deviceHistory, identifiers, plottype_parameters, parameterSuperType, parameterType, mode_parameters=None, includeDataMin=False, includeDataMax=False,includeVgsChange=False, includeVdsSweep=False, includeVgsSweep=False, includeIdVgsFit=False, includeVdsHold=False, includeVgsHold=False, includeHoldTime=False, includeTimeHold=False, includeChannelLength=True):
+def getLegendTitle(deviceHistory, identifiers, plottype_parameters, parameterSuperType, parameterType, mode_parameters=None, includeDataMin=False, includeDataMax=False, includeVgsChange=False, includeVdsSweep=False, includeVgsSweep=False, includeIdVgsFit=False, includeVdsHold=False, includeVgsHold=False, includeIdHold=False, includeIgHold=False, includeHoldTime=False, includeTimeHold=False, includeChannelLength=True):
 	legend_title = ''
 	legend_entries = []
 	if(includeDataMin):
@@ -617,6 +617,10 @@ def getLegendTitle(deviceHistory, identifiers, plottype_parameters, parameterSup
 		legend_entries.append(plottype_parameters['vds_legend'].format(deviceHistory[0][parameterSuperType][parameterType]['drainVoltageSetPoint']))
 	if(includeVgsHold):
 		legend_entries.append(plottype_parameters['vgs_legend'].format(deviceHistory[0][parameterSuperType][parameterType]['gateVoltageSetPoint']))
+	if(includeIdHold):
+		legend_entries.append(plottype_parameters['id_legend'].format(deviceHistory[0][parameterSuperType][parameterType]['drainCurrentSetPoint']))
+	if(includeIgHold):
+		legend_entries.append(plottype_parameters['ig_legend'].format(deviceHistory[0][parameterSuperType][parameterType]['gateCurrentSetPoint']))
 	if(includeTimeHold):
 		legend_entries.append(plottype_parameters['t_legend'].format(timeWithUnits(np.mean([jsonData[parameterSuperType][parameterType]['totalBiasTime'] for jsonData in deviceHistory]))))
 	if(includeChannelLength):
