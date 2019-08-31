@@ -163,7 +163,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		axisColors(ax2, y_color=plotDescription['plotDefaults']['color2Default'][0])
 
 	# Add Legend and save figure
-	addLegend(ax, loc=mode_parameters['legendLoc'], title=getLegendTitle(deviceHistory, identifiers, plotDescription['plotDefaults'], 'runConfigs', 'GateSweep', mode_parameters, includeDataMin=True, includeDataMax=True, includeVgsChange=True, includeVdsSweep=True, includeIdVgsFit=True), mode_parameters=mode_parameters)
+	addLegend(ax, loc=mode_parameters['legendLoc'], title=getLegendTitle(deviceHistory, identifiers, plotDescription['plotDefaults'], 'runConfigs', 'GateSweep', mode_parameters, includeDataMin=True, includeDataMax=True, includeVgsChange=True, includeVdsSweep=True), mode_parameters=mode_parameters)
 	adjustAndSaveFigure(fig, 'SignalToNoiseRatio', mode_parameters)
 
 	return (fig, (ax,))

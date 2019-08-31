@@ -10,12 +10,12 @@ plotDescription = {
 		'figsize':(3,2.5),#(2*2.2,2*1.6),#(5,4),
 		'mainIncludeOrigin':True,
 		'dualIncludeOrigin':False,
-		'colorMap':'white_magenta_black',
-		'colorDefault': ['#9F3285'],
+		'colorMap':'white_violet_black',
+		'colorDefault': ['#351996'],
 		
 		'xlabel':'Time ({:})',
-		'ylabel':          '$V_{{DS}}$ (V)',
-		'milli_ylabel':    '$V_{{DS}}$ (mV)',
+		'ylabel':          '$V_{{GS}}$ (V)',
+		'milli_ylabel':    '$V_{{GS}}$ (mV)',
 		
 		'id_label': 	 '$I_{{D}}^{{Hold}}$ (A)',
 		'milli_id_label':'$I_{{D}}^{{Hold}}$ (mA)',
@@ -83,8 +83,8 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	deviceHistory = scaledData(deviceHistory, 'Results', 'timestamps', 1/secondsPer(timescale))
 	
 	# Adjust y-scale and y-axis labels 
-	max_voltage = np.max([np.max(deviceRun['Results']['vds_data']) for deviceRun in deviceHistory])
-	min_voltage = np.min([np.min(deviceRun['Results']['vds_data']) for deviceRun in deviceHistory])
+	max_voltage = np.max([np.max(deviceRun['Results']['vgs_data']) for deviceRun in deviceHistory])
+	min_voltage = np.min([np.min(deviceRun['Results']['vgs_data']) for deviceRun in deviceHistory])
 	abs_max_voltage = max(max_voltage, abs(min_voltage)) if(mode_parameters['yscale'] is None) else mode_parameters['yscale']
 	voltage_scale, ylabel = (1, plotDescription['plotDefaults']['ylabel']) if(abs_max_voltage >= 1) else (1e3, plotDescription['plotDefaults']['milli_ylabel'])
 	
@@ -108,7 +108,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 			time_offset = (0) if(i == 0) else (time_offset + (t_prev_end - t_prev_start))
 		
 		# Plot
-		line = plotStaticBias(ax1, deviceHistory[i], colors[i], time_offset, y_data='vds_data', scaleYaxisBy=voltage_scale, timescale=timescale, lineStyle=None, gradient=mode_parameters['enableGradient'], gradientColors=colorsFromMap(plotDescription['plotDefaults']['colorMap'], 0, 0.95, len(deviceHistory[i]['Results']['timestamps']))['colors'])
+		line = plotStaticBias(ax1, deviceHistory[i], colors[i], time_offset, y_data='vgs_data', scaleYaxisBy=voltage_scale, timescale=timescale, lineStyle=None, gradient=mode_parameters['enableGradient'], gradientColors=colorsFromMap(plotDescription['plotDefaults']['colorMap'], 0, 0.95, len(deviceHistory[i]['Results']['timestamps']))['colors'])
 		if(len(deviceHistory) == len(mode_parameters['legendLabels'])):
 			setLabel(line, mode_parameters['legendLabels'][i])
 			
