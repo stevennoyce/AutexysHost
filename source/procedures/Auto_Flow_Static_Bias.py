@@ -34,7 +34,7 @@ def flushingPins(smu_instance, flushPins, reversePumpPins, pinToFlush):
 	time.sleep(1)
 
 # === Main ===
-def run(parameters, smu_instance, arduino_instance, share=None):
+def run(parameters, smu_systems, arduino_systems, share=None):
 	# Create distinct parameters for all scripts that could be run
 	gateSweepParameters = dict(parameters)
 	gateSweepParameters['runType'] = 'GateSweep'
@@ -42,9 +42,13 @@ def run(parameters, smu_instance, arduino_instance, share=None):
 	flowStaticBiasParameters = dict(parameters)
 	flowStaticBiasParameters['runType'] = 'FlowStaticBias'
 
-	runAutoFlowStaticBias(parameters, smu_instance, arduino_instance, gateSweepParameters, flowStaticBiasParameters)	
+	runAutoFlowStaticBias(parameters, smu_systems, arduino_systems, gateSweepParameters, flowStaticBiasParameters)	
 
-def runAutoFlowStaticBias(parameters, smu_instance, arduino_instance, gateSweepParameters, flowStaticBiasParameters, share=None):
+def runAutoFlowStaticBias(parameters, smu_systems, arduino_systems, gateSweepParameters, flowStaticBiasParameters, share=None):
+	# This script uses the default SMU, which is the first one in the list of SMU systems
+	smu_names = list(smu_systems.keys())
+	smu_instance = smu_systems[smu_names[0]]
+	
 	sb_parameters = flowStaticBiasParameters['runConfigs']['FlowStaticBias']
 	asb_parameters = parameters['runConfigs']['AutoFlowStaticBias']
 
@@ -80,7 +84,7 @@ def runAutoFlowStaticBias(parameters, smu_instance, arduino_instance, gateSweepP
 	# Run a pre-test gate sweep just to make sure everything looks good
 	if(asb_parameters['doInitialGateSweep']):
 		print('Taking an initial sweep to get a baseline of device performance prior to StaticBias...')
-		gateSweepScript.run(gateSweepParameters, smu_instance, isSavingResults=True, isPlottingResults=False)
+		gateSweepScript.run(gateSweepParameters, smu_systems, arduino_systems, share=share)
 
 	# Run all Static Biases in this Experiment
 	for i in range(numberOfFlowStaticBiases):
@@ -114,7 +118,7 @@ def runAutoFlowStaticBias(parameters, smu_instance, arduino_instance, gateSweepP
 				turnOnlyPin(smu_instance, pumpPins, -1) # turn off everything else
 				time.sleep(5) # reduce noise
 				
-				gateSweepScript.run(gateSweepParameters, smu_instance, isSavingResults=True, isPlottingResults=False)
+				gateSweepScript.run(gateSweepParameters, smu_systems, arduino_systems, share=None)
 				
 				print("START: Recycling, then flushing environment")
 				pinToReverse = reversePumpPins[x]
@@ -125,9 +129,9 @@ def runAutoFlowStaticBias(parameters, smu_instance, arduino_instance, gateSweepP
 		# delay for a bit
 		print("Delaying for 20 seconds prior to FlowStaticBias")
 		time.sleep(20)
-		flowStaticBiasScript.run(flowStaticBiasParameters, smu_instance, arduino_instance, isSavingResults=True, isPlottingResults=False)
+		flowStaticBiasScript.run(flowStaticBiasParameters, smu_systems, arduino_systems, share=None)
 		if(asb_parameters['applyGateSweepBetweenBiases'] and asb_parameters['applyGateSweepBothBeforeAndAfter']):
-			gateSweepScript.run(gateSweepParameters, smu_instance, isSavingResults=True, isPlottingResults=False)
+			gateSweepScript.run(gateSweepParameters, smu_systems, arduino_systems, share=None)
 
 		print('Completed static bias #'+str(i+1)+' of '+str(numberOfFlowStaticBiases))
 
