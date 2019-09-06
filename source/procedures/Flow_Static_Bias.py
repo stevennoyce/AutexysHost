@@ -56,7 +56,8 @@ def run(parameters, smu_instance, arduino_instance, isSavingResults=True, isPlot
 							flowDurations=fsb_parameters['flowDurations'], 
 							subCycleDurations=fsb_parameters['subCycleDurations'],
 							pumpPins=fsb_parameters['pumpPins'],
-							airAndWaterPins=fsb_parameters['airAndWaterPins'],
+							reversePumpPins=fsb_parameters['reversePumpPins'],
+							flushPins=fsb_parameters['flushPins'],
 							cycleCount=fsb_parameters['cycleCount'],
 							solutions=fsb_parameters['solutions'])
 	smu_instance.rampGateVoltageTo(fsb_parameters['gateVoltageWhenDone'])
@@ -108,25 +109,27 @@ def turnOnlyPin(smu_instance, pumpPins, pin):
 	for i in pumpPins:
 		if i != pin:
 			smu_instance.digitalWrite(i, "LOW")
+	#print("turning on: " + str(pin))
 	smu_instance.digitalWrite(pin, "HIGH")
 
-def flushAirAndWaterPins(smu_instance, airPin, waterPin, pumpPins):
-	a = 1
-	turnOnlyPin(smu_instance, pumpPins, airPin)
-	time.sleep(4)
-	turnOnlyPin(smu_instance, pumpPins, -1)
-	time.sleep(1)
-	turnOnlyPin(smu_instance, pumpPins, waterPin)
+# Reverses prior pin to recycle, then flushes
+def flushingPins(smu_instance, flushPins, reversePumpPins, pinToFlush):
+	turnOnlyPin(smu_instance, reversePumpPins, pinToFlush)
 	time.sleep(2)
-	turnOnlyPin(smu_instance, pumpPins, -1)
+	turnOnlyPin(smu_instance, reversePumpPins, -1)
 	time.sleep(1)
-	turnOnlyPin(smu_instance, pumpPins, airPin)
+	# turn on flushing pin
+	turnOnlyPin(smu_instance, flushPins, flushPins[0])
 	time.sleep(4)
-	turnOnlyPin(smu_instance, pumpPins, -1)
+	turnOnlyPin(smu_instance, flushPins, -1)
+	time.sleep(1)
+	turnOnlyPin(smu_instance, flushPins, flushPins[1])
+	time.sleep(4)
+	turnOnlyPin(smu_instance, flushPins, -1)
 	time.sleep(1)
 
 # === Data Collection ===
-def runFlowStaticBias(smu_instance, arduino_instance, delayBeforeMeasurementsBegin, drainVoltageSetPoint, gateVoltageSetPoint, measurementTime, flowDurations, subCycleDurations, pumpPins, airAndWaterPins, cycleCount, solutions, communication_pipe=None):
+def runFlowStaticBias(smu_instance, arduino_instance, delayBeforeMeasurementsBegin, drainVoltageSetPoint, gateVoltageSetPoint, measurementTime, flowDurations, subCycleDurations, pumpPins, reversePumpPins, flushPins, cycleCount, solutions, communication_pipe=None):
 	
 	smu_instance.digitalWrite(1, "LOW")
 	
@@ -165,10 +168,6 @@ def runFlowStaticBias(smu_instance, arduino_instance, delayBeforeMeasurementsBeg
 	# Compute the number of data points we will be collecting (unless measurementTime is unreasonably small)
 	steps = max(int(totalBiasTime/measurementTime), 1) if(measurementTime > 0) else None
 	
-	# instantiate air and water pins
-	airPin = airAndWaterPins[0]
-	waterPin = airAndWaterPins[1]
-	
 	# offsetTime, to account for air and water flushing
 	offsetTime = 0
 	
@@ -206,13 +205,7 @@ def runFlowStaticBias(smu_instance, arduino_instance, delayBeforeMeasurementsBeg
 	timeCounter = 1 # offset due to initial flow prior to data collection
 	for cyc in allPossibleExchangeTimesStart:
 		allPossibleExchangeTimesEnd.append(cyc + flowDurations[(timeCounter) % len(flowDurations)])
-		timeCounter += 1
-	
-	# define array of all possible times when flushing should occur
-	allPossibleFlushTimes = []
-	for cyc in allPossibleExchangeTimesStart:
-		allPossibleFlushTimes.append(cyc - 10) # 10 seconds before start of each cycle, do flushing
-			
+		timeCounter += 1		
 	
 	i = 0
 	measurementCount = 0
@@ -256,12 +249,14 @@ def runFlowStaticBias(smu_instance, arduino_instance, delayBeforeMeasurementsBeg
 			if roundCurrentTime in allPossibleExchangeTimesStart: # start exchanging fluids; pin will constantly be spammed ON but doesn't matter
 				
 				if exchangeFlush == True:
-					print("Exchanging Air and Water Pins first")
-					flushAirAndWaterStart = time.time()
-					flushAirAndWaterPins(smu_instance, airPin, waterPin, pumpPins)
-					print("DONE exchanging air and water pins")
-					flushAirAndWaterEnd = time.time()
-					offsetTime = flushAirAndWaterEnd - flushAirAndWaterStart
+					print("\rSTART: Recycling, then flushing environment")
+					flushStart = time.time()
+					pinToReverseIndex = (pinAlternatingCounter - 1) % len(pumpPins) # index of pin to reverse to recycle prior to flowing in next fluid
+					pinToReverse = reversePumpPins[pinToReverseIndex]
+					flushingPins(smu_instance, flushPins, reversePumpPins, pinToReverse)
+					print("\rDONE: Recycling, then flushing environment")
+					flushEnd = time.time()
+					offsetTime = flushEnd - flushStart
 					startTime += offsetTime
 					exchangeFlush = False
 					
@@ -270,7 +265,7 @@ def runFlowStaticBias(smu_instance, arduino_instance, delayBeforeMeasurementsBeg
 				if exchangeStartBool == True:
 					
 					
-					print("Exchanging fluid for digitalPin: " + str(pumpPins[pinToTurnOnIndex]))
+					print("\rExchanging fluid for digitalPin: " + str(pumpPins[pinToTurnOnIndex]))
 					#print("added start interval: " + str(currentTimeNotRounded))
 					pump_on_intervals[pinToTurnOnIndex].append(currentTimeNotRounded)	
 					exchangeStartBool = False
@@ -282,7 +277,7 @@ def runFlowStaticBias(smu_instance, arduino_instance, delayBeforeMeasurementsBeg
 				#pinToTurnOnIndex = (pinAlternatingCounter - 1) % len(pumpPins) # this doesn't actually matter, since the code stops ALL pins
 				turnOnlyPin(smu_instance, pumpPins, -1)
 				if exchangeEndBool == True:
-					print("Stopping fluid flow") # + str(pumpPins[pinToTurnOnIndex]))
+					print("\rStopping fluid flow") # + str(pumpPins[pinToTurnOnIndex]))
 					#print("added end interval: " + str(currentTimeNotRounded))
 					pump_on_intervals[pinToTurnOnIndex].append(currentTimeNotRounded)	
 					exchangeEndBool = False
@@ -330,17 +325,16 @@ def runFlowStaticBias(smu_instance, arduino_instance, delayBeforeMeasurementsBeg
 		print('\r[' + int(elapsedTime*70.0/totalBiasTime)*'=' + (70-int(elapsedTime*70.0/totalBiasTime)-1)*' ' + ']', end='')
 		i += 1
 	
-	print("Exchanging Air and Water Pins first") # final exchange
-	flushAirAndWaterStart = time.time()
-	flushAirAndWaterPins(smu_instance, airPin, waterPin, pumpPins)
-	print("DONE exchanging air and water pins")
-	flushAirAndWaterEnd = time.time()
-	offsetTime = flushAirAndWaterEnd - flushAirAndWaterStart
+	
+	print("START: Recycling, then flushing environment")
+	flushStart = time.time()
+	pinToReverseIndex = (pinAlternatingCounter - 1) % len(pumpPins) # index of pin to reverse to recycle prior to flowing in next fluid
+	pinToReverse = reversePumpPins[pinToReverseIndex]
+	flushingPins(smu_instance, flushPins, reversePumpPins, pinToReverse)
+	print("DONE: Recycling, then flushing environment")
+	flushEnd = time.time()
+	offsetTime = flushEnd - flushStart
 	startTime += offsetTime
-	print("exchanging control fluid:")
-	turnOnlyPin(smu_instance, pumpPins, pumpPins[0])
-	time.sleep(5)
-	turnOnlyPin(smu_instance, pumpPins, -1)
 	
 	endTime = time.time()
 	print('')

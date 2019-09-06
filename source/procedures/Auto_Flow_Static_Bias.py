@@ -7,28 +7,31 @@ from procedures import Gate_Sweep as gateSweepScript
 from procedures import Flow_Static_Bias as flowStaticBiasScript
 from utilities import DataLoggerUtility as dlu
 
-
-def flushAirAndWaterPins(smu_instance, airPin, waterPin, pumpPins):
-	a = 1
-	turnOnlyPin(smu_instance, pumpPins, airPin)
-	time.sleep(4)
-	turnOnlyPin(smu_instance, pumpPins, -1)
-	time.sleep(1)
-	turnOnlyPin(smu_instance, pumpPins, waterPin)
-	time.sleep(2)
-	turnOnlyPin(smu_instance, pumpPins, -1)
-	time.sleep(1)
-	turnOnlyPin(smu_instance, pumpPins, airPin)
-	time.sleep(4)
-	turnOnlyPin(smu_instance, pumpPins, -1)
-	time.sleep(1)
-
+# Turns ON "pin", turns every other pin OFF
+# if pin == -1, turn off every pin
 def turnOnlyPin(smu_instance, pumpPins, pin):
 	pumpPins = range(1, 11) # do it for every pin in existence
 	for i in pumpPins:
 		if i != pin:
 			smu_instance.digitalWrite(i, "LOW")
+	#print("turning on: " + str(pin))
 	smu_instance.digitalWrite(pin, "HIGH")
+
+# Reverses prior pin to recycle, then flushes
+def flushingPins(smu_instance, flushPins, reversePumpPins, pinToFlush):
+	turnOnlyPin(smu_instance, reversePumpPins, pinToFlush)
+	time.sleep(2)
+	turnOnlyPin(smu_instance, reversePumpPins, -1)
+	time.sleep(1)
+	# turn on flushing pin
+	turnOnlyPin(smu_instance, flushPins, flushPins[0])
+	time.sleep(4)
+	turnOnlyPin(smu_instance, flushPins, -1)
+	time.sleep(1)
+	turnOnlyPin(smu_instance, flushPins, flushPins[1])
+	time.sleep(4)
+	turnOnlyPin(smu_instance, flushPins, -1)
+	time.sleep(1)
 
 # === Main ===
 def run(parameters, smu_instance, arduino_instance, share=None):
@@ -94,9 +97,8 @@ def runAutoFlowStaticBias(parameters, smu_instance, arduino_instance, gateSweepP
 		
 		pumpPins = parameters['runConfigs']['FlowStaticBias']['pumpPins']
 		flowDurations = parameters['runConfigs']['FlowStaticBias']['flowDurations']
-		airAndWaterPins = parameters['runConfigs']['FlowStaticBias']['airAndWaterPins']
-		airPin = airAndWaterPins[0]
-		waterPin = airAndWaterPins[1]
+		reversePumpPins = parameters['runConfigs']['FlowStaticBias']['reversePumpPins']
+		flushPins = parameters['runConfigs']['FlowStaticBias']['flushPins']
 		
 		for x in range(0, len(pumpPins)):
 			pumpPins[x] = int(pumpPins[x])
@@ -105,17 +107,20 @@ def runAutoFlowStaticBias(parameters, smu_instance, arduino_instance, gateSweepP
 		# Run StaticBias, GateSweep (if desired) BEFORE
 		if(asb_parameters['applyGateSweepBetweenBiases']):
 			for x in range(0, len(pumpPins)):
-				if x != 0:
-					print("Exchanging air and water")
-					flushAirAndWaterPins(smu_instance, airPin, waterPin, pumpPins)
-					print("DONE exchanging air and water pins")
 				print("Exchanging fluid for digitalPin: " + str(pumpPins[x]))
 				turnOnlyPin(smu_instance, pumpPins, int(pumpPins[x]))
 				time.sleep(int(flowDurations[x]))
 				print("Stopping fluid exchange")
 				turnOnlyPin(smu_instance, pumpPins, -1) # turn off everything else
 				time.sleep(5) # reduce noise
+				
 				gateSweepScript.run(gateSweepParameters, smu_instance, isSavingResults=True, isPlottingResults=False)
+				
+				print("START: Recycling, then flushing environment")
+				pinToReverse = reversePumpPins[x]
+				flushingPins(smu_instance, flushPins, reversePumpPins, pinToReverse)
+				print("DONE: Recycling, then flushing environment")
+				
 				
 		# delay for a bit
 		print("Delaying for 20 seconds prior to FlowStaticBias")
