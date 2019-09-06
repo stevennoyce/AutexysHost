@@ -9,7 +9,7 @@ from utilities import SequenceGeneratorUtility as dgu
 
 
 # === Main ===
-def run(parameters, smu_systems, isSavingResults=True, share=None):
+def run(parameters, smu_systems, arduino_systems, share=None):
 	# Get shorthand name to easily refer to configuration parameters
 	is_parameters = parameters['runConfigs']['InverterSweep']
 
@@ -56,9 +56,8 @@ def run(parameters, smu_systems, isSavingResults=True, share=None):
 	jsonData['Results'] = results['Raw']
 		
 	# Save results as a JSON object
-	if(isSavingResults):
-		print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
-		dlu.saveJSON(dlu.getDeviceDirectory(parameters), is_parameters['saveFileName'], jsonData, subDirectory='Ex'+str(parameters['startIndexes']['experimentNumber']))
+	print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
+	dlu.saveJSON(dlu.getDeviceDirectory(parameters), is_parameters['saveFileName'], jsonData, subDirectory='Ex'+str(parameters['startIndexes']['experimentNumber']))
 
 	return jsonData
 

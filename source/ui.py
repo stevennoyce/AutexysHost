@@ -382,6 +382,10 @@ def parametersDescription():
 def defaultParameters():
 	return jsonvalid(defaults.get())
 
+@app.route('/defaultEssentialParameters.json')
+def defaultEssentialParameters():
+	return jsonvalid(defaults.full_essentials())
+
 @app.route('/saveSchedule/<user>/<project>/<fileName>', methods=['POST'])
 def saveSchedule(user, project, fileName):
 	# receivedJobs = json.loads(flask.request.args.get('jobs'))
@@ -396,13 +400,23 @@ def saveSchedule(user, project, fileName):
 	
 	return jsonvalid({'success':True})
 
-@app.route('/scheduleFiles/<user>/<project>/<fileName>.json')
+@app.route('/loadSchedule/<user>/<project>/<fileName>.json')
 def loadSchedule(user, project, fileName):
 	scheduleData = dlu.loadJSON(os.path.join(default_data_path, user, project, 'schedules/'), fileName + '.json')
 	
 	expandedScheduleData = []
 	for job in scheduleData:
 		expandedScheduleData.append(defaults.full_with_added(job))
+	
+	return jsonvalid(expandedScheduleData)
+
+@app.route('/loadBriefSchedule/<user>/<project>/<fileName>.json')
+def loadBriefSchedule(user, project, fileName):
+	scheduleData = dlu.loadJSON(os.path.join(default_data_path, user, project, 'schedules/'), fileName + '.json')
+	
+	expandedScheduleData = []
+	for job in scheduleData:
+		expandedScheduleData.append(defaults.full_with_only(job))
 	
 	return jsonvalid(expandedScheduleData)
 

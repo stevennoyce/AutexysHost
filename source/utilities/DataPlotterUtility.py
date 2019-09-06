@@ -49,16 +49,17 @@ default_mode_parameters = {
 	'yticks': None,
 	
 	# Generic enable/disable options
-	'enableLegend': True,
+	'enableLegend':    True,
 	'enableErrorBars': False,
-	'enableColorBar': True,
-	'enableGradient': False,
+	'enableColorBar':  True,
+	'enableGradient':  False,
 	
 	# Plot-specific options
 	'sweepDirection': ['both','forward','reverse'][0],
 	'timescale': ['','seconds','minutes','hours','days','weeks'][0],
 	'plotInRealTime': True,
 	'boxPlotBarChart':True,
+	'boxPlotShowPoints':True,
 	'boxPlotCategories':[('',float('inf'))],
 	
 	# Plot-specific sub-plot options

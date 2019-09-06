@@ -10,7 +10,11 @@ from utilities import SequenceGeneratorUtility as dgu
 
 
 # === Main ===
-def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False, share=None):
+def run(parameters, smu_systems, arduino_systems, share=None):
+	# This script uses the default SMU, which is the first one in the list of SMU systems
+	smu_names = list(smu_systems.keys())
+	smu_instance = smu_systems[smu_names[0]]
+	
 	# Get shorthand name to easily refer to configuration parameters
 	gs_parameters = parameters['runConfigs']['GateSweep']
 
@@ -33,6 +37,7 @@ def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False,
 							stepsInVGSPerDirection=gs_parameters['stepsInVGSPerDirection'],
 							pointsPerVGS=gs_parameters['pointsPerVGS'],
 							gateVoltageRamps=gs_parameters['gateVoltageRamps'],
+							delayBetweenMeasurements=gs_parameters['delayBetweenMeasurements'],
 							share=share)
 	smu_instance.rampDownVoltages()
 	# === COMPLETE ===
@@ -51,14 +56,13 @@ def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False,
 	jsonData['Results'] = results['Raw']
 		
 	# Save results as a JSON object
-	if(isSavingResults):
-		print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
-		dlu.saveJSON(dlu.getDeviceDirectory(parameters), gs_parameters['saveFileName'], jsonData, subDirectory='Ex'+str(parameters['startIndexes']['experimentNumber']))
+	print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
+	dlu.saveJSON(dlu.getDeviceDirectory(parameters), gs_parameters['saveFileName'], jsonData, subDirectory='Ex'+str(parameters['startIndexes']['experimentNumber']))
 		
 	return jsonData
 
 # === Data Collection ===
-def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint, gateVoltageMinimum, gateVoltageMaximum, stepsInVGSPerDirection, pointsPerVGS, gateVoltageRamps, share=None):
+def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint, gateVoltageMinimum, gateVoltageMaximum, stepsInVGSPerDirection, pointsPerVGS, gateVoltageRamps, delayBetweenMeasurements, share=None):
 	# Generate list of gate voltages to apply
 	gateVoltages = dgu.sweepValuesWithDuplicates(gateVoltageMinimum, gateVoltageMaximum, stepsInVGSPerDirection*2*pointsPerVGS, pointsPerVGS, ramps=gateVoltageRamps)
 	
@@ -106,6 +110,10 @@ def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint
 				# Apply V_GS
 				smu_instance.setVgs(gateVoltage)
 				
+				# If delayBetweenMeasurements is non-zero, wait before taking the measurement
+				if(delayBetweenMeasurements > 0):
+					time.sleep(delayBetweenMeasurements)
+				
 				# Take Measurement and save it
 				measurement = smu_instance.takeMeasurement()
 				
@@ -118,20 +126,19 @@ def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint
 				timestamps[direction].append(timestamp)
 				
 				# Send a data message
-				if share is not None:
-					pipes.send(share['QueueToUI'], {
-						'type':'Data',
-						'xdata': {
-							'Gate Voltage [V]': gateVoltage if abs((gateVoltage - measurement['V_gs'])) < abs(0.1*gateVoltage) else measurement['V_gs'],
-							'Time [s]': timestamp - timestamps[0][0]
-						},
-						'ydata': {
-							# 'Drain Current [A]': measurement['I_d'],
-							# 'Gate Current [A]': measurement['I_g']
-							'Drain Current {} [A]'.format(direction+1): measurement['I_d'],
-							'Gate Current {} [A]'.format(direction+1): measurement['I_g']
-						}
-					})
+				pipes.send(share, 'QueueToUI', {
+					'type':'Data',
+					'xdata': {
+						'Gate Voltage [V]': gateVoltage if abs((gateVoltage - measurement['V_gs'])) < abs(0.1*gateVoltage) else measurement['V_gs'],
+						'Time [s]': timestamp - timestamps[0][0]
+					},
+					'ydata': {
+						# 'Drain Current [A]': measurement['I_d'],
+						# 'Gate Current [A]': measurement['I_g']
+						'Drain Current {} [A]'.format(direction+1): measurement['I_d'],
+						'Gate Current {} [A]'.format(direction+1): measurement['I_g']
+					}
+				})
 
 	return {
 		'Raw':{

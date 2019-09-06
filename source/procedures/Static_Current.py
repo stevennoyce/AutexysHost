@@ -3,7 +3,6 @@ import time
 import numpy as np
 
 import pipes
-#from procedures import Device_History as deviceHistoryScript
 from utilities import DataLoggerUtility as dlu
 
 
@@ -19,11 +18,11 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 	arduino_instance = arduino_systems[arduino_names[0]]
 	
 	# Get shorthand name to easily refer to configuration parameters
-	sb_parameters = parameters['runConfigs']['StaticBias']
+	sc_parameters = parameters['runConfigs']['StaticCurrent']
 
 	# Print the starting message
-	print('Applying static bias of V_GS='+str(sb_parameters['gateVoltageSetPoint'])+'V, V_DS='+str(sb_parameters['drainVoltageSetPoint'])+'V for '+str(sb_parameters['totalBiasTime'])+' seconds...')
-	smu_instance.setComplianceCurrent(sb_parameters['complianceCurrent'])	
+	print('Applying static current of I_G='+str(sc_parameters['gateCurrentSetPoint'])+' A, I_D='+str(sc_parameters['drainCurrentSetPoint'])+' A for '+str(sc_parameters['totalBiasTime'])+' seconds...')
+	smu_instance.setComplianceVoltage(sc_parameters['complianceVoltage'])	
 
 	# Ensure all sensor data is reset to empty lists so that there is one-to-one mapping between device and sensor measurements
 	sensor_data = arduino_instance.takeMeasurement()
@@ -31,48 +30,56 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 		parameters['SensorData'][measurement] = []
 
 	# === START ===
+	# Change SMU into current-source mode
+	smu_instance.setChannel1SourceMode(mode='current')
+	smu_instance.setChannel2SourceMode(mode='current')
+	
 	# Apply voltages
-	print('Applying bias voltages.')
-	smu_instance.rampDrainVoltageTo(sb_parameters['drainVoltageSetPoint'])
-	smu_instance.rampGateVoltageTo(sb_parameters['gateVoltageSetPoint'])
+	print('Applying bias currents.')
+	smu_instance.rampDrainCurrentTo(sc_parameters['drainCurrentSetPoint'])
+	smu_instance.rampGateCurrentTo(sc_parameters['gateCurrentSetPoint'])
 
 	# Delay before measurements begin (only useful for allowing current to settle a little, not usually necessary)
-	if(sb_parameters['delayBeforeMeasurementsBegin'] > 0):
-		print('Waiting for: ' + str(sb_parameters['delayBeforeMeasurementsBegin']) + ' seconds before measurements begin.')
-		time.sleep(sb_parameters['delayBeforeMeasurementsBegin'])
+	if(sc_parameters['delayBeforeMeasurementsBegin'] > 0):
+		print('Waiting for: ' + str(sc_parameters['delayBeforeMeasurementsBegin']) + ' seconds before measurements begin.')
+		time.sleep(sc_parameters['delayBeforeMeasurementsBegin'])
 
-	results = runStaticBias(smu_instance, 
+	results = runStaticCurrent(smu_instance, 
 							arduino_instance,
-							drainVoltageSetPoint=sb_parameters['drainVoltageSetPoint'],
-							gateVoltageSetPoint=sb_parameters['gateVoltageSetPoint'],
-							totalBiasTime=sb_parameters['totalBiasTime'], 
-							measurementTime=sb_parameters['measurementTime'])
-	smu_instance.rampGateVoltageTo(sb_parameters['gateVoltageWhenDone'])
-	smu_instance.rampDrainVoltageTo(sb_parameters['drainVoltageWhenDone'])
+							drainCurrentSetPoint=sc_parameters['drainCurrentSetPoint'],
+							gateCurrentSetPoint=sc_parameters['gateCurrentSetPoint'],
+							totalBiasTime=sc_parameters['totalBiasTime'], 
+							measurementTime=sc_parameters['measurementTime'])
+	smu_instance.rampGateCurrentTo(sc_parameters['gateCurrentWhenDone'])
+	smu_instance.rampDrainCurrentTo(sc_parameters['drainCurrentWhenDone'])
 
 	# Float channels if desired
-	if(sb_parameters['floatChannelsWhenDone']):
+	if(sc_parameters['floatChannelsWhenDone']):
 		print('Turning channels off.')
 		smu_instance.turnChannelsOff()
 
 	# Delay to allow channels to float or sit at their "WhenDone" values
-	if(sb_parameters['delayWhenDone'] > 0):
-		print('Waiting for: ' + str(sb_parameters['delayWhenDone']) + ' seconds...')
-		time.sleep(sb_parameters['delayWhenDone'])
+	if(sc_parameters['delayWhenDone'] > 0):
+		print('Waiting for: ' + str(sc_parameters['delayWhenDone']) + ' seconds...')
+		time.sleep(sc_parameters['delayWhenDone'])
 	
 	# If the channels were turned off, need to turn them back on
-	if(sb_parameters['floatChannelsWhenDone']):
+	if(sc_parameters['floatChannelsWhenDone']):
 		smu_instance.turnChannelsOn()
 		print('Channels are back on.')
+	
+	# Change SMU back into default voltage-source mode
+	smu_instance.setChannel1SourceMode(mode='voltage')
+	smu_instance.setChannel2SourceMode(mode='voltage')
 	# === COMPLETE ===
 
 	# Add important metrics from the run to the parameters for easy access later in ParametersHistory
 	parameters['Computed'] = results['Computed']
 	
 	# Print the metrics
-	print('Max current: {:.4f}'.format(results['Computed']['id_max']))
-	print('Min current: {:.4f}'.format(results['Computed']['id_min']))
-	print('Average noise: {:.4f}'.format(results['Computed']['avg_id_std']))
+	print('Max voltage: {:.4f}'.format(results['Computed']['vds_max']))
+	print('Min voltage: {:.4f}'.format(results['Computed']['vds_min']))
+	print('Average noise: {:.4f}'.format(results['Computed']['avg_vds_std']))
 
 	# Copy parameters and add in the test results
 	jsonData = dict(parameters)
@@ -80,12 +87,12 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 	
 	# Save results as a JSON object
 	print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
-	dlu.saveJSON(dlu.getDeviceDirectory(parameters), sb_parameters['saveFileName'], jsonData, subDirectory='Ex'+str(parameters['startIndexes']['experimentNumber']))
+	dlu.saveJSON(dlu.getDeviceDirectory(parameters), sc_parameters['saveFileName'], jsonData, subDirectory='Ex'+str(parameters['startIndexes']['experimentNumber']))
 	
 	return jsonData
 
 # === Data Collection ===
-def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVoltageSetPoint, totalBiasTime, measurementTime, share=None):
+def runStaticCurrent(smu_instance, arduino_instance, drainCurrentSetPoint, gateCurrentSetPoint, totalBiasTime, measurementTime, share=None):
 	vds_data = []
 	id_data = []
 	vgs_data = []
@@ -97,7 +104,7 @@ def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVolt
 	ig_std = []
 
 	# Set the SMU timeout to be a few measurementTime's long
-	timeout = max(1000, 3*measurementTime*1000)
+	#timeout = max(1000, 3*measurementTime*1000)
 	timeout = 60000
 	smu_instance.setTimeout(timeout_ms=timeout)
 	print('SMU timeout set to ' + str(timeout) + ' ms.')
@@ -154,14 +161,14 @@ def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVolt
 		timestamps.append(timestamp)
 		
 		# If multiple data points were collected in this measurementTime, save their standard deviation
-		id_normalized = measurements['Id_data']
-		if(len(measurements['Id_data']) >= 2):
-			id_normalized = np.array(measurements['Id_data']) - np.polyval(np.polyfit(range(len(measurements['Id_data'])), measurements['Id_data'], 1), np.array(measurements['Id_data']))
-		ig_normalized = measurements['Ig_data']	
-		if(len(measurements['Ig_data']) >= 2):
-			ig_normalized = np.array(measurements['Ig_data']) - np.polyval(np.polyfit(range(len(measurements['Ig_data'])), measurements['Ig_data'], 1), np.array(measurements['Ig_data']))			
-		id_std.append(np.std(id_normalized))
-		ig_std.append(np.std(ig_normalized))
+		vds_normalized = measurements['Vds_data']
+		if(len(measurements['Vds_data']) >= 2):
+			id_normalized = np.array(measurements['Vds_data']) - np.polyval(np.polyfit(range(len(measurements['Vds_data'])), measurements['Vds_data'], 1), np.array(measurements['Vds_data']))
+		vgs_normalized = measurements['Vgs_data']	
+		if(len(measurements['Vgs_data']) >= 2):
+			ig_normalized = np.array(measurements['Vgs_data']) - np.polyval(np.polyfit(range(len(measurements['Vgs_data'])), measurements['Vgs_data'], 1), np.array(measurements['Vgs_data']))			
+		vds_std.append(np.std(vds_normalized))
+		vgs_std.append(np.std(vgs_normalized))
 
 		# Take a measurement with the Arduino
 		sensor_data = arduino_instance.takeMeasurement()
@@ -175,7 +182,7 @@ def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVolt
 	
 	endTime = time.time()
 	print('')
-	print('Completed static bias in "' + '{:.4f}'.format(endTime - startTime) + '" seconds.')
+	print('Completed static current in "' + '{:.4f}'.format(endTime - startTime) + '" seconds.')
 
 	return {
 		'Raw':{
@@ -184,28 +191,28 @@ def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVolt
 			'vgs_data':vgs_data,
 			'ig_data':ig_data,
 			'timestamps':timestamps,
-			'id_std':id_std,
-			'ig_std':ig_std
+			'vds_std':vds_std,
+			'vgs_std':vgs_std
 		},
 		'Computed':{
-			'id_max':max(id_data),
-			'id_min':min(id_data),
-			'avg_id_std':np.mean(id_std),
-			'tau_settle':settlingTimeConstant(timestamps, id_data)
+			'vds_max':max(vds_data),
+			'vds_min':min(vds_data),
+			'avg_vds_std':np.mean(vds_std),
+			'tau_settle':settlingTimeConstant(timestamps, vds_data)
 		}
 	}
 	
-def settlingTimeConstant(timestamps, id_data):
-	id_start = id_data[0]
-	id_mean = np.mean(id_data)
-	id_settled = (id_start - id_mean)*np.exp(-1) + id_mean
-	i_settled = -1
-	if(len(id_data) > 2):
-		for i in range(len(id_data) - 1):
-			if(((id_data[i] <= id_settled) and (id_data[i+1] >= id_settled)) or ((id_data[i] >= id_settled) and (id_data[i+1] <= id_settled))):
-				i_settled = i
+def settlingTimeConstant(timestamps, data):
+	d_start = data[0]
+	d_mean = np.mean(data)
+	d_settled = (d_start - d_mean)*np.exp(-1) + d_mean
+	d_settled = -1
+	if(len(data) > 2):
+		for i in range(len(data) - 1):
+			if(((data[i] <= d_settled) and (data[i+1] >= d_settled)) or ((data[i] >= d_settled) and (data[i+1] <= d_settled))):
+				d_settled = i
 				break
-	return (timestamps[i_settled] - timestamps[0])
+	return (timestamps[d_settled] - timestamps[0])
 	
 
 

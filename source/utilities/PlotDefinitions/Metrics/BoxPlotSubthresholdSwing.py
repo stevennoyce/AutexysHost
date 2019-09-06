@@ -66,6 +66,9 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 			line = ax.bar(position, np.mean(SS_list_categorized[i]) * yscale, yerr=np.std(SS_list_categorized[i]) * yscale, color=colors[i], width=plotDescription['plotDefaults']['width'], capsize=3, ecolor='#333333', error_kw={'capthick':1})	
 		else:
 			line = ax.boxplot((np.array(SS_list_categorized) * yscale).tolist()[i], positions=[position], widths=[plotDescription['plotDefaults']['width']], meanline=False, showmeans=False, showfliers=False, boxprops={'color':colors[i]}, capprops={'color':colors[i]}, whiskerprops={'color':colors[i]}, medianprops={'color':colors[i]}, meanprops={'color':colors[i]})
+		if(mode_parameters['boxPlotShowPoints']):
+			for value in SS_list_categorized[i]:
+				ax.plot([position], [value * yscale], color='black', marker='o', markersize=4)
 		
 	# Tick Labels
 	ax.set_xticks(range(len(SS_list_categorized)))

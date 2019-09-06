@@ -3,13 +3,17 @@ import time
 import numpy as np
 
 import pipes
-from procedures import Device_History as deviceHistoryScript
+#from procedures import Device_History as deviceHistoryScript
 from utilities import DataLoggerUtility as dlu
 from utilities import SequenceGeneratorUtility as dgu
 
 
 # === Main ===
-def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False, share=None):
+def run(parameters, smu_systems, arduino_systems, share=None):
+	# This script uses the default SMU, which is the first one in the list of SMU systems
+	smu_names = list(smu_systems.keys())
+	smu_instance = smu_systems[smu_names[0]]
+	
 	# Get shorthand name to easily refer to configuration parameters
 	rt_params = parameters['runConfigs']['NoiseCollection']
 	
@@ -39,9 +43,8 @@ def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False,
 	jsonData['Results'] = results['Raw']
 	
 	# Save results as a JSON object
-	if(isSavingResults):
-		print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
-		dlu.saveJSON(dlu.getDeviceDirectory(parameters), rt_params['saveFileName'], jsonData, subDirectory='Ex'+str(parameters['startIndexes']['experimentNumber']))
+	print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
+	dlu.saveJSON(dlu.getDeviceDirectory(parameters), rt_params['saveFileName'], jsonData, subDirectory='Ex'+str(parameters['startIndexes']['experimentNumber']))
 	
 	return jsonData
 

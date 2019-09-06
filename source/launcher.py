@@ -10,23 +10,8 @@ import platform
 import time
 import copy
 
-from procedures import Burn_Out as burnOutScript
-from procedures import Gate_Sweep as gateSweepScript
-from procedures import Drain_Sweep as drainSweepScript
-from procedures import Auto_Burn_Out as autoBurnScript
-from procedures import Static_Bias as staticBiasScript
-from procedures import Flow_Static_Bias as flowStaticBiasScript
-from procedures import Auto_Gate_Sweep as autoGateScript
-from procedures import Auto_Drain_Sweep as autoDrainScript
-from procedures import Auto_Static_Bias as autoBiasScript
-from procedures import Auto_Flow_Static_Bias as autoFlowStaticBias
-from procedures import AFM_Control as afmControlScript
-from procedures import SGM_Control as sgmControlScript
-from procedures import Delay as delayScript
-from procedures import Inverter_Sweep as inverterSweepScript
-from procedures import Rapid_Bias as rapidBiasScript
-from procedures import Noise_Collection as noiseCollectionScript
-from procedures import Noise_Grid as noiseGridScript
+import glob
+import pkgutil
 
 from utilities import DataLoggerUtility as dlu
 from drivers import SourceMeasureUnit as smu
@@ -46,17 +31,17 @@ def run(additional_parameters, share=None):
 	parameters = defaults.with_added(additional_parameters)
 
 	# additional_parameters is required to specify valid user, project, wafer, chip, device
-	parameters['Identifiers']['user']    = 'User'    if(parameters['Identifiers']['user']    == '') else parameters['Identifiers']['user']
+	parameters['Identifiers']['user']    = 'guest'   if(parameters['Identifiers']['user']    == '') else parameters['Identifiers']['user']
 	parameters['Identifiers']['project'] = 'Project' if(parameters['Identifiers']['project'] == '') else parameters['Identifiers']['project']
 	parameters['Identifiers']['wafer']   = 'Wafer'   if(parameters['Identifiers']['wafer']   == '') else parameters['Identifiers']['wafer']
 	parameters['Identifiers']['chip']    = 'Chip'    if(parameters['Identifiers']['chip']    == '') else parameters['Identifiers']['chip']
 	parameters['Identifiers']['device']  = 'Device'  if(parameters['Identifiers']['device']  == '') else parameters['Identifiers']['device']
 
 	# Initialize measurement system
-	smu_systems = initMeasurementSystems(parameters)		
+	smu_systems = initializeMeasurementSystems(parameters)		
 
 	# Initialize Arduino connection
-	arduino_instance = initArduino(parameters)
+	arduino_systems = initializeArduino(parameters)
 	print("Sensor data: " + str(parameters['SensorData']))
 	
 	# Run specified action:
@@ -64,82 +49,56 @@ def run(additional_parameters, share=None):
 		for device in parameters['MeasurementSystem']['deviceRange']:
 			params = copy.deepcopy(parameters)
 			params['Identifiers']['device'] = device
-			runAction(params, additional_parameters, smu_systems, arduino_instance, share=share)
+			runAction(params, additional_parameters, smu_systems, arduino_systems, share=share)
 	else:
-		runAction(parameters, additional_parameters, smu_systems, arduino_instance, share=share)
+		runAction(parameters, additional_parameters, smu_systems, arduino_systems, share=share)
 	
+	# Print finishing message noting how long this job took to run
 	endTime = time.time()
 	print('Completed job in "' + '{:.4f}'.format(endTime - startTime) + '" seconds.')
 
 
 
 # === Internal API ===
-def runAction(parameters, schedule_parameters, smu_systems, arduino_instance, share=None):
+def runAction(parameters, schedule_parameters, smu_systems, arduino_systems, share=None):
 	"""Prepares the file system for the upcoming experiment and selects a Procedure to carry out the experiment.
 	In the event of an error during any procedure, this function is responsible for emergency ramping down the
 	SMU voltages and exiting as gracefully as possible."""
 	
+	# Make sure that the data save folder exists before beginning
 	print('Checking that save folder exists.')
 	dlu.makeFolder(dlu.getDeviceDirectory(parameters))
 	
+	# Print the experiment start message
 	experiment = dlu.incrementJSONExperimentNumber(dlu.getDeviceDirectory(parameters))
 	print('About to begin experiment #' + str(experiment) + ' for device ' + str(parameters['Identifiers']['wafer']) + str(parameters['Identifiers']['chip']) + ':' + str(parameters['Identifiers']['device']))
-	parameters['startIndexes'] = dlu.loadJSONIndex(dlu.getDeviceDirectory(parameters))
-	parameters['startIndexes']['timestamp'] = time.time()
 	
+	# Make an explicit flag in the data noting the original 'runType' of the procedure since this can be changed over the course of the experiment
 	parameters['originalRunType'] = parameters['runType']
 	
+	# Save schedule file entry to 'SchedulesHistory'
+	parameters['startIndexes'] = dlu.loadJSONIndex(dlu.getDeviceDirectory(parameters))
+	parameters['startIndexes']['timestamp'] = time.time()
 	print('Saving to SchedulesHistory...')
 	dlu.saveJSON(dlu.getDeviceDirectory(parameters), 'SchedulesHistory', schedule_parameters, incrementIndex=False)
 	
+	# Set the SMU to the device that is about to be tested
 	for smu_name, smu_instance in smu_systems.items():
 		smu_instance.setDevice(parameters['Identifiers']['device'])
 	
-	smu_names = list(smu_systems.keys())
-	smu_default_instance = smu_systems[smu_names[0]]	
+	# Find all procedures defined in the 'procedures' sub-directory
+	procedureDefinitions = initializeProcedures()
 	
+	# === Run Procedure ===
 	try:
-		if(parameters['runType'] == 'GateSweep'):
-			gateSweepScript.run(parameters, smu_default_instance, share=share)
-		elif(parameters['runType'] == 'DrainSweep'):
-			drainSweepScript.run(parameters, smu_default_instance, share=share)
-		elif(parameters['runType'] == 'BurnOut'):
-			burnOutScript.run(parameters, smu_default_instance, share=share)
-		elif(parameters['runType'] == 'AutoBurnOut'):
-			autoBurnScript.run(parameters, smu_default_instance, share=share)
-		elif(parameters['runType'] == 'StaticBias'):
-			staticBiasScript.run(parameters, smu_default_instance, arduino_instance, share=share) #communication_pipe=communication_pipe)
-		elif(parameters['runType'] == 'FlowStaticBias'):
-			flowStaticBiasScript.run(parameters, smu_default_instance, arduino_instance) #, communication_pipe=communication_pipe)
-		elif(parameters['runType'] == 'AutoGateSweep'):
-			autoGateScript.run(parameters, smu_default_instance, arduino_instance, share=share)
-		elif(parameters['runType'] == 'AutoDrainSweep'):
-			autoDrainScript.run(parameters, smu_default_instance, arduino_instance, share=share)
-		elif(parameters['runType'] == 'AutoStaticBias'):
-			autoBiasScript.run(parameters, smu_default_instance, arduino_instance, share=share)
-		elif(parameters['runType'] == 'AutoFlowStaticBias'):
-			autoFlowStaticBias.run(parameters, smu_default_instance, arduino_instance, share=share)
-		elif(parameters['runType'] == 'AFMControl'):
-			afmControlScript.run(parameters, smu_systems, share=share)
-		elif(parameters['runType'] == 'SGMControl'):
-			sgmControlScript.run(parameters, smu_systems, share=share)
-		elif(parameters['runType'] == 'Delay'):
-			delayScript.run(parameters, share=share)
-		elif(parameters['runType'] == 'InverterSweep'):
-			inverterSweepScript.run(parameters, smu_systems, share=share)
-		elif(parameters['runType'] == 'RapidBias'):
-			rapidBiasScript.run(parameters, smu_default_instance, share=share)
-		elif(parameters['runType'] == 'NoiseCollection'):
-			noiseCollectionScript.run(parameters, smu_default_instance, share=share)
-		elif(parameters['runType'] == 'NoiseGrid'):
-			noiseGridScript.run(parameters, smu_default_instance, share=share)
-		else:
-			raise NotImplementedError("Invalid action for the Source Measure Unit")
+		procedureDefinitions[parameters['runType']]['function'](parameters, smu_systems, arduino_systems, share=share)
 	except Exception as e:
+		# In case of an error, ramp down SMU voltages
 		for smu_name, smu_instance in smu_systems.items():
 			smu_instance.rampDownVoltages()
 			smu_instance.disconnect()
 		
+		# In case of an error, still try to save info to 'ParametersHistory'
 		parameters['endIndexes'] = dlu.loadJSONIndex(dlu.getDeviceDirectory(parameters))
 		parameters['endIndexes']['timestamp'] = time.time()
 		print('Saving to ParametersHistory...')
@@ -148,18 +107,20 @@ def runAction(parameters, schedule_parameters, smu_systems, arduino_instance, sh
 		print('ERROR: Exception raised during the experiment.')
 		raise
 	
+	# Make sure to ramp down all SMU voltages now that the procedure has finished
 	for smu_name, smu_instance in smu_systems.items():
 		smu_instance.rampDownVoltages()
+	
+	# Save finished result to 'ParametersHistory' file and exit the launcher	
 	parameters['endIndexes'] = dlu.loadJSONIndex(dlu.getDeviceDirectory(parameters))
 	parameters['endIndexes']['timestamp'] = time.time()
-	
 	print('Saving to ParametersHistory...')
 	dlu.saveJSON(dlu.getDeviceDirectory(parameters), 'ParametersHistory', parameters, incrementIndex=False)
 
 
 
 # === SMU Connection ===
-def initMeasurementSystems(parameters):
+def initializeMeasurementSystems(parameters):
 	"""Given the parameters for running an experiment, sets up a connection to the necessary SMU or SMUs."""
 	
 	system_instances = {}
@@ -181,7 +142,7 @@ def initMeasurementSystems(parameters):
 
 
 # === Arduino Connection ===
-def initArduino(parameters):
+def initializeArduino(parameters):
 	"""Given the parameters for running an experiment, sets up a connection to the (usually optional) Arduino."""
 	
 	arduino_instance = None
@@ -197,11 +158,32 @@ def initArduino(parameters):
 			print("Connected to Arduino on port: " + str(port))
 		except: 
 			print("No Arduino connected.")
-			return arduinoBoard.getNullInstance()
+			arduino_instance = arduinoBoard.getNullInstance()
 	sensor_data = arduino_instance.takeMeasurement()
 	for (measurement, value) in sensor_data.items():
 		parameters['SensorData'][measurement] = [value]
-	return arduino_instance
+		
+	arduino_systems = {'Arduino': arduino_instance}
+	return arduino_systems
+	
+	
+	
+# === Load Procedures ===	
+def initializeProcedures():
+	# Import all Procedure Definitions and save a reference to run their 'run' function
+	procedureDefinitions = {}
+	procedureDefinitionsBasePath = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'procedures')
+	
+	for importer, packageName, isPackage in pkgutil.iter_modules([procedureDefinitionsBasePath] + glob.glob(procedureDefinitionsBasePath + '/*/')):
+		module = importer.find_module(packageName).load_module(packageName)
+		packageCommonName = packageName.replace('_','')
+		procedureDefinitions[packageCommonName] = {}
+		procedureDefinitions[packageCommonName]['module'] = module
+		procedureDefinitions[packageCommonName]['function'] = module.run
+
+	return procedureDefinitions
+	
+	
 	
 
 

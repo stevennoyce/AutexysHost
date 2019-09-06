@@ -104,6 +104,10 @@
 			right: 50vw;
 			transform: translate(50%, -50%);
 		}
+		.roundedcorners {
+			border-radius: 7px
+		}
+		
 	</style>
 </head>
 <body>
@@ -718,7 +722,7 @@
 									</v-chip>
 								</v-card>-->
 							</v-card>
-							<!-- <v-btn fab small dark bottom right absolute @click="addScheduleJob()"><v-icon>add</v-icon></v-btn> -->
+							<!-- <v-btn fab small dark bottom right absolute @click="addScheduleJob(0)"><v-icon>add</v-icon></v-btn> -->
 						</v-card>
 						
 						
@@ -947,31 +951,137 @@
 									Experiment Runner
 								</v-toolbar-title>
 							</v-toolbar>
+							
 							<v-container>
+								<v-form class="ma-2">
+									<v-flex xs12 sm6 md4 lg3>
+										<v-select box class="ma-1" :label="runnerLabel" v-model="runnerChoice" :items="['Schedule File'].concat(Object.keys(runnerStandardFileNames))"></v-select>
+									</v-flex>
+								</v-form>
+							
 								
 								<v-form>
-									<v-container>
-										<v-layout row wrap>
-											<v-flex xs12 sm6 md4 lg3 outline>
-												<v-autocomplete clearable v-model="scheduleExperimentUser" label="User" :items="Object.keys(scheduleNames)"></v-autocomplete>
-											</v-flex>
-											<v-flex xs12 sm6 md4 lg3 solo>
-												<v-autocomplete clearable v-model="scheduleExperimentProject" label="Project" :items="_.keys(_.get(scheduleNames, [scheduleExperimentUser], {}))"></v-autocomplete>
-											</v-flex>
-											<v-flex xs12 sm6 md4 lg3 solo>
-												<v-autocomplete clearable v-model="scheduleExperimentFileName" label="File Name" :items="_.get(scheduleNames, [scheduleExperimentUser, scheduleExperimentProject], [])"></v-autocomplete>
-											</v-flex>
-										</v-layout>
-									</v-container>
-								</v-form>
+									<template v-if="runnerChoice === 'Schedule File'">
+										<v-form class="ma-2">
+											<v-layout row wrap>
+												<v-flex xs12 sm6 md4 lg3 outline class="ma-2">
+													<v-autocomplete clearable v-model="scheduleExperimentUser" label="User" :items="Object.keys(scheduleNames)"></v-autocomplete>
+												</v-flex>
+												<v-flex xs12 sm6 md4 lg3 solo class="ma-2">
+													<v-autocomplete clearable v-model="scheduleExperimentProject" label="Project" :items="_.keys(_.get(scheduleNames, [scheduleExperimentUser], {}))"></v-autocomplete>
+												</v-flex>
+												<v-flex xs12 sm6 md4 lg3 solo class="ma-2">
+													<v-autocomplete clearable v-model="scheduleExperimentFileName" label="File Name" :items="_.get(scheduleNames, [scheduleExperimentUser, scheduleExperimentProject], [])"></v-autocomplete>
+												</v-flex>
+											</v-layout>
+										<v-form>
+									</template>
 								
-								<v-card-actions>
-									<span v-if="scheduleExperimentUser && scheduleExperimentProject && scheduleExperimentFileName">Launch file: AutexysData/{{ scheduleExperimentUser }}/{{ scheduleExperimentProject }}/schedules/{{ scheduleExperimentFileName }}.json</span>
-									<v-spacer></v-spacer>
-									<v-btn @click="dispatchSchedule()">Launch Experiments in Schedule File</v-btn>
-									<v-btn @click="stopAtNextJob()">Stop at Next Job</v-btn>
-								</v-card-actions>
+									<template v-if="scheduleExperimentUser && scheduleExperimentProject && scheduleExperimentFileName && (runnerScheduleObjects.length === 1)">
+										<v-expansion-panel expand class="mt-1 mb-2">
+											<v-expansion-panel-content class="grey lighten-4">
+												
+												<div slot="header">
+													<v-layout row wrap>
+														<div style="font-weight: bold;">
+															Options
+														</div>
+														<v-spacer></v-spacer>
+													</v-layout>
+												</div>
+												
+												<v-container grid-list-md>
+													<v-layout row wrap>
+														
+														<v-flex xs3 s3 md3 lg3>
+															<v-list class="roundedcorners">
+																<v-list-tile>
+																	<v-list-tile-content><v-list-tile-title style="font-weight: bold">
+																		Identifiers
+																	</v-list-tile-title></v-list-tile-content>
+																</v-list-tile>
+																<template v-if="!runnerToggleAdvancedSettings && Object.keys(runnerScheduleObjects[0]).includes('Identifiers')">
+																	<s-item-group-edit :settings.sync="runnerScheduleObjects[0]['Identifiers']" :defaults="JSON.parse(JSON.stringify(runnerScheduleObjects[0]['Identifiers']))"></s-item-group-edit>
+																</template>
+																<template v-if="runnerToggleAdvancedSettings || !Object.keys(runnerScheduleObjects[0]).includes('Identifiers')">
+																	<s-item-group-edit :settings.sync="runnerVerboseScheduleObjects[0]['Identifiers']" :defaults="JSON.parse(JSON.stringify(runnerVerboseScheduleObjects[0]['Identifiers']))"></s-item-group-edit>
+																</template>
+															</v-list>
+															
+															<template v-if="runnerToggleAdvancedSettings && runnerEnableScheduleSaving">
+																<v-list class="mt-3 roundedcorners">
+																	<v-list-tile>
+																		<v-list-tile-content><v-list-tile-title style="font-weight: bold">
+																			Measurement System
+																		</v-list-tile-title></v-list-tile-content>
+																	</v-list-tile>
+																	<s-item-group-edit :settings.sync="runnerVerboseScheduleObjects[0]['MeasurementSystem']" :defaults="JSON.parse(JSON.stringify(runnerVerboseScheduleObjects[0]['MeasurementSystem']))"></s-item-group-edit>
+																</v-list>
+															</template>
+															
+															<template v-if="runnerToggleAdvancedSettings && runnerEnableScheduleSaving">
+																<v-list class="mt-3 roundedcorners">
+																	<v-select box class="ma-3" label="Run Type" v-model="runnerVerboseScheduleObjects[0]['runType']['default']" :items="Object.keys(JSON.parse(JSON.stringify(runnerVerboseScheduleObjects[0]['runConfigs'] || {})))"></v-select>
+																</v-list>
+															</template>
+														</v-flex>
+	
+														<v-flex xs4 s4 md4 lg3 v-for="runConfig,runType in runnerScheduleObjects[0]['runConfigs']">
+															<v-list class="roundedcorners">
+																<v-list-tile>
+																	<v-list-tile-content><v-list-tile-title style="font-weight: bold">
+																		{{ runType }}
+																	</v-list-tile-title></v-list-tile-content>
+																</v-list-tile>
+																<template v-if="!runnerToggleAdvancedSettings">
+																	<s-item-group-edit :settings.sync="runnerScheduleObjects[0]['runConfigs'][runType]" :defaults="JSON.parse(JSON.stringify(runnerScheduleObjects[0]['runConfigs'][runType]))"></s-item-group-edit>
+																</template>
+																<template v-if="runnerToggleAdvancedSettings">
+																	<s-item-group-edit :settings.sync="runnerVerboseScheduleObjects[0]['runConfigs'][runType]" :defaults="JSON.parse(JSON.stringify(runnerVerboseScheduleObjects[0]['runConfigs'][runType]))"></s-item-group-edit>
+																</template>
+															</v-list>
+														</v-flex>
+														
+													</v-layout>
+												</v-container>
 								
+												<v-layout row wrap>
+													<v-switch class="ml-3" :label="'Advanced'" v-model="runnerToggleAdvancedSettings"></v-switch>
+													<v-spacer></v-spacer>
+													<v-btn class="mr-3" small @click="saveRunnerScheduleFile()" :disabled="!isNecessaryToSaveRunnerScheduleFile()">Save</v-btn>
+												</v-layout>
+												
+											</v-expansion-panel-content>
+										</v-expansion-panel>
+									</template>
+									<template v-else>
+										<v-list>
+											<v-list-tile>
+											</v-list-tile>
+										</v-list>
+									</template>
+								
+									<template v-if="runnerChoice === 'Schedule File'">
+										<v-card-actions>
+											<template v-if="scheduleExperimentUser && scheduleExperimentProject && scheduleExperimentFileName">
+												<form class="ml-1 mr-3" style="overflow-x: scroll">
+													<p>
+														Schedule file: AutexysData/{{ scheduleExperimentUser }}/{{ scheduleExperimentProject }}/schedules/{{ scheduleExperimentFileName }}.json
+													</p>
+												</form>
+											</template>
+											<v-spacer></v-spacer>
+											<v-btn class="mb-3 mt-3" @click="{ saveRunnerScheduleFile(); dispatchSchedule(); }">Launch Experiments in Schedule File</v-btn>
+											<v-btn class="mb-3 mt-3" @click="stopAtNextJob()">Stop at Next Job</v-btn>
+										</v-card-actions>	
+									</template>
+									<template v-if="runnerChoice !== 'Schedule File' && runnerChoice !== ''">
+										<v-card-actions>
+											<v-spacer></v-spacer>
+											<v-btn class="mb-3 mt-3" @click="{ saveRunnerScheduleFile(); dispatchSchedule(); }" :disabled="!isPossibleToSaveRunnerScheduleFile()">Launch {{ runnerChoice }}</v-btn>
+										</v-card-actions>	
+									</template>
+								</v-form>							
 							</v-container>
 						</v-card>
 						
@@ -1119,6 +1229,42 @@
 			return changes(object, base);
 		}
 		
+		function objectDeepMerge(object, additions) {
+			function merge(base, added) {
+				Object.keys(added).forEach(function(key) {
+					if(!Object.keys(base).includes(key)) {
+						base[key] = added[key];
+					} else if(_.isPlainObject(base[key]) && _.isPlainObject(added[key])) {
+						merge(base[key], added[key]);
+					} else if(!_.isEqual(added[key], base[key])) {
+						base[key] = added[key];
+					}
+				});
+				return base;
+			}
+			
+			var objectCopy = JSON.parse(JSON.stringify(object));
+						
+			return merge(objectCopy, additions)		
+		}
+		
+		function objectDeepInclude(object, additions) {
+			function include(base, added) {
+				Object.keys(added).forEach(function(key) {
+					if(!Object.keys(base).includes(key)) {
+						base[key] = added[key];
+					} else if(_.isPlainObject(base[key]) && _.isPlainObject(added[key])) {
+						include(base[key], added[key]);
+					} 
+				});
+				return base;
+			}
+			
+			var objectCopy = JSON.parse(JSON.stringify(object));
+						
+			return include(objectCopy, additions)		
+		}
+		
 		function extractDefaults(obj) {
 			var d = JSON.parse(JSON.stringify(obj));
 			
@@ -1208,6 +1354,7 @@
 					'plotInRealTime':     {'type': 'bool',  'default':true,  'title':'Show Real Time',    'description':''},
 					'timescale':          {'type': 'choice', 'choices': ['','seconds','min','hr','days','weeks','months'], 'default':'', 'title':'Time Scale', 'description':''},
 					'boxPlotBarChart':    {'type': 'bool',  'default':true,  'title':'Bar Charts',        'description':''},
+					'boxPlotShowPoints':  {'type': 'bool',  'default':true,  'title':'Show Points on Bar Charts','description':''},
 					
 					'enableLegend':       {'type': 'bool',  'default':true,  'title':'Enable Legend',     'description':''},
 					'enableErrorBars':    {'type': 'bool',  'default':false, 'title':'Enable Error Bars', 'description':''},
@@ -1235,6 +1382,7 @@
 					'plotInRealTime':     {'type': 'bool',  'default':true,  'title':'Show Real Time',    'description':''},
 					'timescale':          {'type': 'choice', 'choices': ['','seconds','min','hr','days','weeks','months'], 'default':'', 'title':'Time Scale', 'description':''},
 					'boxPlotBarChart':    {'type': 'bool',  'default':true,  'title':'Bar Charts',        'description':''},
+					'boxPlotShowPoints':  {'type': 'bool',  'default':true,  'title':'Show Points on Bar','description':''},
 					
 					'enableLegend':       {'type': 'bool',  'default':true,  'title':'Enable Legend',     'description':''},
 					'enableErrorBars':    {'type': 'bool',  'default':false, 'title':'Enable Error Bars', 'description':''},
@@ -1274,6 +1422,47 @@
 				},
 				
 				// --- end Plot Settings ---
+				
+				// --- Experiment Runner ---
+				
+				runnerLabel: 'Experiment Type',
+				runnerChoice: '',
+				runnerEnableScheduleSaving: true, 
+				
+				runnerScheduleObjects: [],
+				runnerScheduleObjectDefaults: [],
+				runnerVerboseScheduleObjects: [],
+				runnerVerboseScheduleObjectDefaults: [],
+				
+				runnerToggleAdvancedSettings: false,
+				runnerScheduleObjectsHasBeenModified: false,
+				
+				runnerStandardFileNames: {
+					'Gate Sweep': 'default_gate_sweep',
+					'Drain Sweep': 'default_drain_sweep',
+					'Static Bias': 'default_static_bias',
+					'Multiple Gate Sweeps': 'default_auto_gate_sweep',
+					'Multiple Drain Sweeps': 'default_auto_drain_sweep',
+					'Multiple Static Biases': 'default_auto_static_bias',
+					'Rapid Bias': 'default_rapid_bias',
+					'Static Current': 'default_static_current',
+					'Noise Collection': 'default_noise_collection',
+					'Noise Grid': 'default_noise_grid',
+					'AFM Control': 'default_afm_control',
+					'SGM Control': 'default_sgm_control',
+					'Flow Static Bias': 'default_flow_static_bias',
+					'Multiple Flow Static Biases': 'default_auto_flow_static_bias',
+					'CNT Burn Out': 'default_burn_out',
+					'Multiple CNT Burn Outs': 'default_auto_burn_out',
+					'Inverter Sweep': 'default_inverter_sweep',
+					'Delay': 'default_delay',
+				},
+				
+				scheduleExperimentUser: '',
+				scheduleExperimentProject: '',
+				scheduleExperimentFileName: '',
+				
+				// --- end Experiment Runner ---
 				
 				users: [],
 				user: localStorage.user ? JSON.parse(localStorage.user) : '',
@@ -1338,15 +1527,16 @@
 				scheduleObjects: localStorage.scheduleObjects ? JSON.parse(localStorage.scheduleObjects) : {},
 				scheduleObjectDefault: {},
 				scheduleObjectClipboard: localStorage.scheduleObjectClipboard ? JSON.parse(localStorage.scheduleObjectClipboard) : {},
+				
+				essentialScheduleParameters: {},
+				
 				scheduleSaveUser: '',
 				scheduleSaveProject: '',
 				scheduleSaveFileName: '',
 				scheduleLoadUser: '',
 				scheduleLoadProject: '',
 				scheduleLoadFileName: '',
-				scheduleExperimentUser: '',
-				scheduleExperimentProject: '',
-				scheduleExperimentFileName: '',
+				
 				scheduleExperimentSuccessCode: {},
 				saveScheduleSuccessCode: {},
 				scheduleNames: {},
@@ -1491,6 +1681,10 @@
 						this.$data.scheduleObjectDefault = JSON.parse(JSON.stringify(response));
 						this.$data.scheduleObjects = [JSON.parse(JSON.stringify(response))];
 					}).fail(() => {console.log("Error getting parameters description")});
+					
+					$.getJSON("/defaultEssentialParameters.json" + this.$data.cacheBust, response => {
+						this.$data.essentialScheduleParameters = response;
+					}).fail(() => {console.log("Error getting essential default parameters")});
 				},
 				getScheduleNames: function() {
 					var path = '/scheduleNames.json' + this.cacheBust;
@@ -1539,7 +1733,6 @@
 						this.experiment.noteAddition = '';
 					}).fail(() => {console.log("Error adding to note")});
 				},
-				
 				saveSchedule: function() {
 					var url = '/saveSchedule/' + this.scheduleSaveUser + '/' + this.scheduleSaveProject + '/' + this.scheduleSaveFileName;
 					url += this.cacheBust;
@@ -1560,7 +1753,7 @@
 					this.getScheduleNames();
 				},
 				loadSchedule: function() {
-					var path = '/scheduleFiles/' + this.scheduleLoadUser + '/' + this.scheduleLoadProject + '/' + this.scheduleLoadFileName + '.json' + this.cacheBust;
+					var path = '/loadSchedule/' + this.scheduleLoadUser + '/' + this.scheduleLoadProject + '/' + this.scheduleLoadFileName + '.json' + this.cacheBust;
 					if (path) {
 						$.getJSON(path, response => {app.$data.scheduleObjects = response})
 						.fail(() => {console.log("Error loading schedule file")});
@@ -1570,7 +1763,13 @@
 					if (this.scheduleSaveProject == '') this.scheduleSaveProject = this.scheduleLoadProject;
 					if (this.scheduleSaveFileName == '') this.scheduleSaveFileName = this.scheduleLoadFileName;
 				},
+				clearLivePlots: function() {
+					this.livePlotXData = {};
+					this.livePlotYData = {};
+				},
 				dispatchSchedule: function() {
+					this.clearLivePlots();
+					
 					var path = '/dispatchSchedule/' + this.scheduleExperimentUser + '/' + this.scheduleExperimentProject + '/' + this.scheduleExperimentFileName + '.json' + this.cacheBust;
 					if (path) {
 						$.getJSON(path, response => {app.$data.scheduleExperimentSuccessCode = response})
@@ -1584,6 +1783,118 @@
 						.fail(() => {console.log("Error stopping at next job")});
 					}
 				},
+				updateRunnerChoice: function() {
+					if(this.runnerChoice === 'Schedule File') { 
+						this.runnerEnableScheduleSaving = true;
+						this.scheduleExperimentUser = '';
+						this.scheduleExperimentProject = '';
+						this.scheduleExperimentFileName = '';
+						return; 
+					}
+					
+					this.runnerEnableScheduleSaving = false;
+					this.scheduleExperimentUser = 'admin';
+					this.scheduleExperimentProject = 'standards';
+					this.scheduleExperimentFileName = this.runnerStandardFileNames[this.runnerChoice];
+				},
+				loadRunnerScheduleFile: function() {
+					if(this.scheduleExperimentUser && this.scheduleExperimentProject && this.scheduleExperimentFileName) {
+						var path = '/loadBriefSchedule/' + this.scheduleExperimentUser + '/' + this.scheduleExperimentProject + '/' + this.scheduleExperimentFileName + '.json' + this.cacheBust;
+						if (path) {
+							$.getJSON(path, response => {app.$data.runnerScheduleObjects = response})
+							.fail(() => {console.log("Error loading schedule file into the experiment runner.")});
+							$.getJSON(path, response => {app.$data.runnerScheduleObjectDefaults = response})
+							.fail(() => {console.log("Error loading schedule file into the experiment runner.")});
+						}
+						
+						var path = '/loadSchedule/' + this.scheduleExperimentUser + '/' + this.scheduleExperimentProject + '/' + this.scheduleExperimentFileName + '.json' + this.cacheBust;
+						if (path) {
+							$.getJSON(path, response => {app.$data.runnerVerboseScheduleObjects = response})
+							.fail(() => {console.log("Error loading schedule file into the experiment runner.")});
+							$.getJSON(path, response => {app.$data.runnerVerboseScheduleObjectDefaults = response})
+							.fail(() => {console.log("Error loading schedule file into the experiment runner.")});
+						}
+						
+						console.log("Loaded the active experiment runner schedule file.");
+						this.runnerScheduleObjectsHasBeenModified = false;
+					}
+				},
+				saveRunnerScheduleFile: function() {
+					if(this.isNecessaryToSaveRunnerScheduleFile()) {
+						// Sync basic and advanced options panels
+						this.addAdvancedChangesToRunnerScheduleFile();
+						
+						// If we are running a default file that we don't have permission to modify, must change save location
+						if(!this.runnerEnableScheduleSaving) {
+							var activeUser = this.runnerScheduleObjects[0]['Identifiers']['user']['default'];
+							var activeProject = this.runnerScheduleObjects[0]['Identifiers']['project']['default'];
+							if(activeUser === '') { activeUser = 'guest'; }
+							if(activeProject === '') { activeProject = 'Project'; }
+							this.scheduleExperimentUser = activeUser;
+							this.scheduleExperimentProject = activeProject;
+						} 
+						
+						// Save current file
+						var path = '/saveSchedule/' + this.scheduleExperimentUser + '/' + this.scheduleExperimentProject + '/' + this.scheduleExperimentFileName + '.json' + this.cacheBust;
+						if (path) {
+							$.post(path, JSON.stringify(this.runnerScheduleLines), response => {})
+							.fail(() => {console.log("Error saving schedule file from the experiment runner.")});
+						}		
+									
+						console.log("Saved experiment runner schedule file.");
+						
+						// Re-load from file to force UI to update
+						this.loadRunnerScheduleFile();
+					}
+				},
+				isPossibleToSaveRunnerScheduleFile: function() {
+					return (this.scheduleExperimentUser && this.scheduleExperimentProject && this.scheduleExperimentFileName && 
+						(this.runnerScheduleObjects.length === 1) && (this.runnerScheduleObjectDefaults.length === 1) && 
+						(this.runnerVerboseScheduleObjects.length === 1) && ((this.runnerVerboseScheduleObjectDefaults.length === 1)));
+				}, 
+				isNecessaryToSaveRunnerScheduleFile: function() {
+					if(this.isPossibleToSaveRunnerScheduleFile()) {
+						 return this.runnerScheduleObjectsHasBeenModified || 
+						 (this.hasRunnerScheduleBeenModified()) || 
+						 (this.hasRunnerScheduleAdvancedBeenModified());
+					}
+					return false;
+				},
+				addAdvancedChangesToRunnerScheduleFile: function() {
+					if(this.runnerVerboseScheduleObjects.length === 1 && this.runnerScheduleObjects.length === 1) {
+						// Update the advanced options to match any changes made to the non-advanced options
+						if(this.hasRunnerScheduleBeenModified()) {
+							var basicChanges = objectDeepDiff(this.runnerScheduleObjects[0], this.runnerScheduleObjectDefaults[0]);
+							this.runnerVerboseScheduleObjects = [objectDeepMerge(this.runnerVerboseScheduleObjects[0], basicChanges)];
+							
+							this.runnerScheduleObjectDefaults[0]        = JSON.parse(JSON.stringify(this.runnerScheduleObjects[0]));
+							this.runnerVerboseScheduleObjectDefaults[0] = JSON.parse(JSON.stringify(this.runnerVerboseScheduleObjects[0]));
+							
+							console.log("Refreshed advanced settings.");
+							this.runnerScheduleObjectsHasBeenModified = true;
+						}
+						
+						// Apply changes to advanced options
+						if(this.hasRunnerScheduleAdvancedBeenModified()) {
+							var advancedChanges = objectDeepDiff(this.runnerVerboseScheduleObjects[0], this.runnerVerboseScheduleObjectDefaults[0]);
+							this.runnerScheduleObjects = [objectDeepMerge(this.runnerScheduleObjects[0], advancedChanges)];
+							
+							this.runnerScheduleObjectDefaults[0]        = JSON.parse(JSON.stringify(this.runnerScheduleObjects[0]));
+							this.runnerVerboseScheduleObjectDefaults[0] = JSON.parse(JSON.stringify(this.runnerVerboseScheduleObjects[0]));
+							
+							console.log("Added advanced settings to experiment runner schedule file.");
+							this.runnerScheduleObjectsHasBeenModified = true;
+						}
+					}
+				},
+				hasRunnerScheduleBeenModified: function() {
+					var basicChanges = objectDeepDiff(this.runnerScheduleObjects[0], this.runnerScheduleObjectDefaults[0]);
+					return (Object.keys(basicChanges).length > 0);
+				},
+				hasRunnerScheduleAdvancedBeenModified: function() {
+					var advancedChanges = objectDeepDiff(this.runnerVerboseScheduleObjects[0], this.runnerVerboseScheduleObjectDefaults[0]);
+					return (Object.keys(advancedChanges).length > 0);
+				},
 				updateAFMRegistry: function() {
 					var path = '/updateAFMRegistry' + this.cacheBust;
 					if (path) {
@@ -1594,7 +1905,6 @@
 						}).fail(() => {console.log("Error updaing AFM registry")});
 					}
 				},
-				
 				goToUser: function(userName) {
 					this.user = userName;
 					localStorage.user = JSON.stringify(userName);
@@ -1726,9 +2036,9 @@
 						chip_modifications[key] = chip_modifications[key]['default']
 					})
 					
-					var all_modifications = {'primary':primary_modifications, 'mode_parameters':mode_modifications, 'chip':chip_modifications}
+					var all_modifications = {'primary':primary_modifications, 'mode_parameters':mode_modifications, 'chip':chip_modifications};
 
-					this.plotSettings = all_modifications
+					this.plotSettings = all_modifications;
 					
 					console.log("Updated plot settings: " + JSON.stringify(all_modifications));
 				},
@@ -1790,12 +2100,16 @@
 				}
 			},
 			watch: {
-				stepperPage: function(val) { localStorage.stepperPage = JSON.stringify(val); },
-				scheduleObjects: function(val) { localStorage.scheduleObjects = JSON.stringify(val); },
+				stepperPage:             function(val) { localStorage.stepperPage = JSON.stringify(val); },
+				scheduleObjects:         function(val) { localStorage.scheduleObjects = JSON.stringify(val); },
 				scheduleObjectClipboard: function(val) { localStorage.scheduleObjectClipboard = JSON.stringify(val); },
-				disabledPlots: function(val) { localStorage.disabledPlots = JSON.stringify(val); },
+				disabledPlots:           function(val) { localStorage.disabledPlots = JSON.stringify(val); },
 				
-				experimentIndex: function(val) { this.getAssociatedAFMs(); }
+				runnerChoice:                 function(val) { this.updateRunnerChoice(); },
+				scheduleExperimentFileName:   function(val) { this.loadRunnerScheduleFile(); },
+				runnerToggleAdvancedSettings: function(val) { this.addAdvancedChangesToRunnerScheduleFile(); },
+				
+				experimentIndex: function(val) { this.getAssociatedAFMs(); },
 			},
 			computed: {
 				experiment: function() {
@@ -1824,7 +2138,28 @@
 					return objectDeepDiff(this.parameters, this.defaultParameters);
 				},
 				scheduleLines: function() {
-					return this.scheduleObjects.map(obj => extractDefaults(objectDeepDiff(obj, this.scheduleObjectDefault)));
+					var modifications = this.scheduleObjects.map(obj => objectDeepDiff(obj, this.scheduleObjectDefault));
+					
+					// --- Force the schedule file to include the parameters marked as "essential" in defaults.py ---
+					var modifications_with_essentials = modifications.map(obj => {
+						var essentialsToInclude = {};
+						if(Object.keys(obj).includes('runType') && Object.keys(this.essentialScheduleParameters).includes('runConfigs') && Object.keys(this.essentialScheduleParameters['runConfigs']).includes(obj['runType']['default'])) {
+							essentialsToInclude['runConfigs'] = {};
+							essentialsToInclude['runConfigs'][obj['runType']['default']] = this.essentialScheduleParameters['runConfigs'][obj['runType']['default']]
+							this.scheduleObjectDefault['runConfigs'][obj['runType']['default']]['dependencies']['value'].forEach(function(dependency) {
+								if(Object.keys(app.$data.essentialScheduleParameters['runConfigs']).includes(dependency)) {
+									essentialsToInclude['runConfigs'][dependency] = app.$data.essentialScheduleParameters['runConfigs'][dependency]
+								}
+							});
+						}
+						return objectDeepInclude(obj, essentialsToInclude);
+					});
+					
+					var scheduleFileEntries = modifications_with_essentials.map(obj => extractDefaults(obj));
+					return scheduleFileEntries
+				},
+				runnerScheduleLines: function() {
+					return this.runnerScheduleObjects.map(obj => extractDefaults(obj));
 				},
 				runType: function() {
 					return this.parameters['runType'];

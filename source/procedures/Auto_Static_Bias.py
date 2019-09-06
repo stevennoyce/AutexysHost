@@ -10,17 +10,16 @@ from utilities import DataLoggerUtility as dlu
 
 
 # === Main ===
-def run(parameters, smu_instance, arduino_instance, share=None):
+def run(parameters, smu_systems, arduino_systems, share=None):
 	# Create distinct parameters for all scripts that could be run
 	gateSweepParameters = dict(parameters)
 	gateSweepParameters['runType'] = 'GateSweep'
-
 	staticBiasParameters = dict(parameters)
 	staticBiasParameters['runType'] = 'StaticBias'
 
-	runAutoStaticBias(parameters, smu_instance, arduino_instance, gateSweepParameters, staticBiasParameters)	
+	runAutoStaticBias(parameters, smu_systems, arduino_systems, gateSweepParameters, staticBiasParameters, share=share)	
 
-def runAutoStaticBias(parameters, smu_instance, arduino_instance, gateSweepParameters, staticBiasParameters, share=None):
+def runAutoStaticBias(parameters, smu_systems, arduino_systems, gateSweepParameters, staticBiasParameters, share=None):
 	sb_parameters = staticBiasParameters['runConfigs']['StaticBias']
 	asb_parameters = parameters['runConfigs']['AutoStaticBias']
 
@@ -47,7 +46,7 @@ def runAutoStaticBias(parameters, smu_instance, arduino_instance, gateSweepParam
 	# Run a pre-test gate sweep just to make sure everything looks good
 	if(asb_parameters['doInitialGateSweep']):
 		print('Taking an initial sweep to get a baseline of device performance prior to StaticBias...')
-		gateSweepScript.run(gateSweepParameters, smu_instance, isSavingResults=True, isPlottingResults=False)
+		gateSweepScript.run(gateSweepParameters, smu_systems, arduino_systems, share=share)
 
 	# Run all Static Biases in this Experiment
 	for i in range(numberOfStaticBiases):
@@ -64,10 +63,10 @@ def runAutoStaticBias(parameters, smu_instance, arduino_instance, gateSweepParam
 		
 		# Run StaticBias, GateSweep (if desired)
 		if(asb_parameters['applyGateSweepBetweenBiases'] and asb_parameters['applyGateSweepBothBeforeAndAfter']):
-			gateSweepScript.run(gateSweepParameters, smu_instance, isSavingResults=True, isPlottingResults=False)
-		staticBiasScript.run(staticBiasParameters, smu_instance, arduino_instance, isSavingResults=True, isPlottingResults=False)
+			gateSweepScript.run(gateSweepParameters, smu_systems, arduino_systems, share=share)
+		staticBiasScript.run(staticBiasParameters, smu_systems, arduino_systems, share=share)
 		if(asb_parameters['applyGateSweepBetweenBiases']):
-			gateSweepScript.run(gateSweepParameters, smu_instance, isSavingResults=True, isPlottingResults=False)
+			gateSweepScript.run(gateSweepParameters, smu_systems, arduino_systems, share=share)
 
 		print('Completed static bias #'+str(i+1)+' of '+str(numberOfStaticBiases))
 

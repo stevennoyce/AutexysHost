@@ -404,16 +404,16 @@ def waitForFrameSwitch(smu_secondary, lineTime):
 
 
 # === Main ===
-def run(parameters, smu_systems, isSavingResults=True, share=None):
+def run(parameters, smu_systems, arduino_systems, share=None):
 	# Print the starting message
 	print('Beginning AFM-assisted measurements.')
-	runAFM(parameters, smu_systems, isSavingResults)	
+	runAFM(parameters, smu_systems, arduino_systems, share=share)	
 	# return jsonData
 
 
 
 # === Data Collection ===
-def runAFM(parameters, smu_systems, isSavingResults=True, share=None):
+def runAFM(parameters, smu_systems, arduino_systems, share=None):
 	# Duke label 184553 is 'USB0::0x0957::0x8E18::MY51141244::INSTR' - use for device drain (CH1) and gate (CH2)
 	# Duke Label 184554 is 'USB0::0x0957::0x8E18::MY51141241::INSTR' - use for AFM channels x (CH1) and y (CH2)
 	
@@ -487,9 +487,8 @@ def runAFM(parameters, smu_systems, isSavingResults=True, share=None):
 	# 	jsonData['Results'] = results['Raw']
 		
 	# 	# Save results as a JSON object
-	# 	if(isSavingResults):
-	# 		print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
-	# 		dlu.saveJSON(dlu.getDeviceDirectory(parameters), afm_parameters['saveFileName'], jsonData)
+	# 	print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
+	# 	dlu.saveJSON(dlu.getDeviceDirectory(parameters), afm_parameters['saveFileName'], jsonData)
 		
 	# 	elapsedTime = time.time() - lineStartTime
 	# 	print('Time elapsed is {}, lineTime is {}'.format(elapsedTime, lineTime))
@@ -535,12 +534,11 @@ def runAFM(parameters, smu_systems, isSavingResults=True, share=None):
 		jsonData['Results'] = results['Raw']
 		
 		# Save results as a JSON object
-		if(isSavingResults):
-			print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
-			# Spin a new thread to save the data in the background
-			threading.Thread(target=dlu.saveJSON,
-				args=(dlu.getDeviceDirectory(parameters), afm_parameters['saveFileName'], jsonData, 'Ex'+str(parameters['startIndexes']['experimentNumber']))
-			).start()
+		print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
+		# Spin a new thread to save the data in the background
+		threading.Thread(target=dlu.saveJSON,
+			args=(dlu.getDeviceDirectory(parameters), afm_parameters['saveFileName'], jsonData, 'Ex'+str(parameters['startIndexes']['experimentNumber']))
+		).start()
 		
 		fittedStartTime = getStartTime(results['Raw']['timestamps_smu2'], results['Raw']['smu2_v2_data'], skipNumberOfLines=1)
 		elapsedRunTime = time.time() - runStartTime

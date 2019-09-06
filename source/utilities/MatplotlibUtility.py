@@ -562,9 +562,11 @@ def maxIndicesAndValue(lst):
 			maxIndices.append(i)
 	return (maxIndices, maxValue)
 
-def getLegendTitle(deviceHistory, identifiers, plottype_parameters, parameterSuperType, parameterType, mode_parameters=None, includeDataMin=False, includeDataMax=False,includeVgsChange=False, includeVdsSweep=False, includeVgsSweep=False, includeIdVgsFit=False, includeVdsHold=False, includeVgsHold=False, includeHoldTime=False, includeTimeHold=False, includeChannelLength=True):
+def getLegendTitle(deviceHistory, identifiers, plottype_parameters, parameterSuperType, parameterType, mode_parameters=None, current_scale=1, voltage_scale=1, includeDataMin=False, includeDataMax=False, includeVgsChange=False, includeVdsSweep=False, includeVgsSweep=False, includeVdsHold=False, includeVgsHold=False, includeIdHold=False, includeIgHold=False, includeTimeHold=False, includeChannelLength=False):
 	legend_title = ''
 	legend_entries = []
+	
+	# SNR
 	if(includeDataMin):
 		rawXData = getParameterArray(deviceHistory, 'Results', '', 'vgs_data_to_plot')[0]
 		rawYData = getParameterArray(deviceHistory, 'Results', '', 'snr_to_plot')[0]
@@ -603,22 +605,34 @@ def getLegendTitle(deviceHistory, identifiers, plottype_parameters, parameterSup
 		vgs_steps = getParameterArray(deviceHistory, 'runConfigs', 'GateSweep', 'stepsInVGSPerDirection')
 		vgs_change = (vgs_max[0] - vgs_min[0])/(vgs_steps[0] - 1)
 		legend_entries.append(plottype_parameters['leg_vgs_change'].format(round(vgs_change, 2)))
+	
+	# GateSweep
 	if(includeVdsSweep):
 		vds_list = getParameterArray(deviceHistory, parameterSuperType, parameterType, 'drainVoltageSetPoint')
-		vds_min = min(vds_list)
-		vds_max = max(vds_list)
+		vds_min = min(vds_list) * voltage_scale
+		vds_max = max(vds_list) * voltage_scale
 		legend_entries.append(plottype_parameters['leg_vds_label'].format(vds_min) if(vds_min == vds_max) else (plottype_parameters['leg_vds_range_label'].format(vds_min, vds_max)))
+	
+	# DrainSweep
 	if(includeVgsSweep):
 		vgs_list = getParameterArray(deviceHistory, parameterSuperType, parameterType, 'gateVoltageSetPoint')
-		vgs_min = min(vgs_list)
-		vgs_max = max(vgs_list)
+		vgs_min = min(vgs_list) * voltage_scale
+		vgs_max = max(vgs_list) * voltage_scale
 		legend_entries.append(plottype_parameters['leg_vgs_label'].format(vgs_min) if(vgs_min == vgs_max) else (plottype_parameters['leg_vgs_range_label'].format(vgs_min, vgs_max)))
+	
+	# StaticBias/StaticCurrent
 	if(includeVdsHold):
-		legend_entries.append(plottype_parameters['vds_legend'].format(deviceHistory[0][parameterSuperType][parameterType]['drainVoltageSetPoint']))
+		legend_entries.append(plottype_parameters['vds_legend'].format(deviceHistory[0][parameterSuperType][parameterType]['drainVoltageSetPoint'] * voltage_scale))
 	if(includeVgsHold):
-		legend_entries.append(plottype_parameters['vgs_legend'].format(deviceHistory[0][parameterSuperType][parameterType]['gateVoltageSetPoint']))
+		legend_entries.append(plottype_parameters['vgs_legend'].format(deviceHistory[0][parameterSuperType][parameterType]['gateVoltageSetPoint'] * voltage_scale))
+	if(includeIdHold):
+		legend_entries.append(plottype_parameters['id_legend'].format(deviceHistory[0][parameterSuperType][parameterType]['drainCurrentSetPoint'] * current_scale))
+	if(includeIgHold):
+		legend_entries.append(plottype_parameters['ig_legend'].format(deviceHistory[0][parameterSuperType][parameterType]['gateCurrentSetPoint'] * current_scale))
 	if(includeTimeHold):
 		legend_entries.append(plottype_parameters['t_legend'].format(timeWithUnits(np.mean([jsonData[parameterSuperType][parameterType]['totalBiasTime'] for jsonData in deviceHistory]))))
+	
+	# Channel length from wafer.json info file
 	if(includeChannelLength):
 		if((mode_parameters is not None) and (mode_parameters['generalInfo'] is not None)):
 			try:
@@ -631,6 +645,7 @@ def getLegendTitle(deviceHistory, identifiers, plottype_parameters, parameterSup
 			except:
 				print('Unable to find L_ch for device: ' + str(identifiers) + ' in the provided wafer.json.')
 
+	# Override
 	if((mode_parameters is not None) and (mode_parameters['legendTitleOverride'] != '')):
 		legend_entries = [mode_parameters['legendTitleOverride']]
 

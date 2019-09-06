@@ -10,7 +10,11 @@ from utilities import SequenceGeneratorUtility as dgu
 
 
 # === Main ===
-def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False, share=None):
+def run(parameters, smu_systems, arduino_systems, share=None):
+	# This script uses the default SMU, which is the first one in the list of SMU systems
+	smu_names = list(smu_systems.keys())
+	smu_instance = smu_systems[smu_names[0]]
+	
 	# Get shorthand name to easily refer to configuration parameters
 	ds_parameters = parameters['runConfigs']['DrainSweep']
 
@@ -33,6 +37,7 @@ def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False,
 							stepsInVDSPerDirection=ds_parameters['stepsInVDSPerDirection'],
 							pointsPerVDS=ds_parameters['pointsPerVDS'],
 							drainVoltageRamps=ds_parameters['drainVoltageRamps'],
+							delayBetweenMeasurements=ds_parameters['delayBetweenMeasurements'],
 							share=share)
 	smu_instance.rampDownVoltages()
 	# === COMPLETE ===
@@ -44,20 +49,20 @@ def run(parameters, smu_instance, isSavingResults=True, isPlottingResults=False,
 	print('Max conductance: {:.4e}'.format(results['Computed']['G_max']))
 	print('Max drain current: {:.4e}'.format(results['Computed']['id_max']))
 	print('Max gate current: {:.4e}'.format(results['Computed']['ig_max']))
+	
 
 	# Copy parameters and add in the test results
 	jsonData = dict(parameters)
 	jsonData['Results'] = results['Raw']
 		
 	# Save results as a JSON object
-	if(isSavingResults):
-		print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
-		dlu.saveJSON(dlu.getDeviceDirectory(parameters), ds_parameters['saveFileName'], jsonData, subDirectory='Ex'+str(parameters['startIndexes']['experimentNumber']))
+	print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
+	dlu.saveJSON(dlu.getDeviceDirectory(parameters), ds_parameters['saveFileName'], jsonData, subDirectory='Ex'+str(parameters['startIndexes']['experimentNumber']))
 		
 	return jsonData
 
 # === Data Collection ===
-def runDrainSweep(smu_instance, isFastSweep, fastSweepSpeed, gateVoltageSetPoint, drainVoltageMinimum, drainVoltageMaximum, stepsInVDSPerDirection, pointsPerVDS, drainVoltageRamps, share=None):
+def runDrainSweep(smu_instance, isFastSweep, fastSweepSpeed, gateVoltageSetPoint, drainVoltageMinimum, drainVoltageMaximum, stepsInVDSPerDirection, pointsPerVDS, drainVoltageRamps, delayBetweenMeasurements, share=None):
 	# Generate list of drain voltages to apply
 	drainVoltages = dgu.sweepValuesWithDuplicates(drainVoltageMinimum, drainVoltageMaximum, stepsInVDSPerDirection*2*pointsPerVDS, pointsPerVDS, ramps=drainVoltageRamps)
 	
@@ -105,6 +110,10 @@ def runDrainSweep(smu_instance, isFastSweep, fastSweepSpeed, gateVoltageSetPoint
 				# Apply V_DS
 				smu_instance.setVds(drainVoltage)
 
+				# If delayBetweenMeasurements is non-zero, wait before taking the measurement
+				if(delayBetweenMeasurements > 0):
+					time.sleep(delayBetweenMeasurements)
+
 				# Take Measurement and save it
 				measurement = smu_instance.takeMeasurement()
 
@@ -117,21 +126,19 @@ def runDrainSweep(smu_instance, isFastSweep, fastSweepSpeed, gateVoltageSetPoint
 				timestamps[direction].append(timestamp)
 
 				# Send a data message
-				if share is not None:
-					pipes.send(share['p'], {
-						'destination':'UI',
-						'type':'Data',
-						'xdata': {
-							'Drain Voltage [V]': drainVoltage if abs((drainVoltage - measurement['V_ds'])) < abs(0.1*drainVoltage) else measurement['V_ds'],
-							'Time [s]': timestamp - timestamps[0][0]
-						},
-						'ydata': {
-							# 'Drain Current [A]': measurement['I_d'],
-							# 'Gate Current [A]': measurement['I_g']
-							'Drain Current {} [A]'.format(direction+1): measurement['I_d'],
-							'Gate Current {} [A]'.format(direction+1): measurement['I_g']
-						}
-					})
+				pipes.send(share, 'QueueToUI', {
+					'type':'Data',
+					'xdata': {
+						'Drain Voltage [V]': drainVoltage if abs((drainVoltage - measurement['V_ds'])) < abs(0.1*drainVoltage) else measurement['V_ds'],
+						'Time [s]': timestamp - timestamps[0][0]
+					},
+					'ydata': {
+						# 'Drain Current [A]': measurement['I_d'],
+						# 'Gate Current [A]': measurement['I_g']
+						'Drain Current {} [A]'.format(direction+1): measurement['I_d'],
+						'Gate Current {} [A]'.format(direction+1): measurement['I_g']
+					}
+				})
 
 	return {
 		'Raw':{
