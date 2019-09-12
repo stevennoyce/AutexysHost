@@ -114,3 +114,17 @@ def progressUpdate(share, progName, start, current, end):
 	 	raise Exception('Recieved stop command from UI. Aborting current procedure at {}.'.format(progName))
 
 	
+def livePlotUpdate(share, xData, yData):
+	try:
+		qName = 'QueueToUI'
+
+		if share is None:
+			return
+
+		send(share, qName, {
+					'type':'Data',
+					'xdata': xData,
+					'ydata': yData})
+
+	except Exception as e:
+		print('Error updating live plot: ', e)
