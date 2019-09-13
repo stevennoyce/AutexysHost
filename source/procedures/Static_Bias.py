@@ -114,7 +114,8 @@ def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVolt
 
 	# Criteria to keep taking measurements when measurementTime is relatively large
 	continueCriterion = lambda i, measurementCount: i < steps
-	if(measurementTime < smu_instance.measurementRateVariabilityFactor*smu_secondsPerMeasurement):
+	smallMeasurementTimeCriterion = lambda : measurementTime < smu_instance.measurementRateVariabilityFactor*smu_secondsPerMeasurement
+	if(smallMeasurementTimeCriterion):
 		# Criteria to keep taking measurements when measurementTime is very small
 		continueCriterion = lambda i, measurementCount: (time.time() - startTime) < (totalBiasTime - (1/2)*smu_secondsPerMeasurement)
 		continueCriterion = lambda i, measurementCount: (time.time() - startTime) < (totalBiasTime - (1/2)*(time.time() - startTime)/max(measurementCount, 1))
@@ -122,9 +123,16 @@ def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVolt
 	i = 0
 	measurementCount = 0
 	while(continueCriterion(i, measurementCount)):
+		# Send a progress message
+		if(smallMeasurementTimeCriterion):
+			# TODO Ask Steven/Jay about this
+			pipes.progressUpdate(share, 'Static Bias Point', start=steps, current=steps, end=steps)
+		else:
+			pipes.progressUpdate(share, 'Static Bias Point', start=1, current=i+1, end=steps)
+
 		# Define buffers for data to fill during each "measurementTime"
 		measurements = {'Vds_data':[], 'Id_data':[], 'Vgs_data':[], 'Ig_data':[]}
-		
+
 		# Take the first data point of this "measurementTime"
 		timestamp = time.time()
 		measurement = smu_instance.takeMeasurement()
@@ -147,12 +155,16 @@ def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVolt
 			time.sleep((1/2)*(time.time() - startTime)/measurementCount)
 		
 		# Save the median of all the measurements taken in this measurementTime window
-		vds_data.append(np.median(measurements['Vds_data']))
-		id_data.append(np.median(measurements['Id_data']))
-		vgs_data.append(np.median(measurements['Vgs_data']))
-		ig_data.append(np.median(measurements['Ig_data']))
+		vds_data_median = np.median(measurements['Vds_data'])
+		vds_data.append(vds_data_median)
+		id_data_median = np.median(measurements['Id_data'])
+		id_data.append(id_data_median)
+		vgs_data_median = np.median(measurements['Vgs_data'])
+		vgs_data.append(vgs_data_median)
+		ig_data_median = np.median(measurements['Ig_data'])
+		ig_data.append(ig_data_median)
 		timestamps.append(timestamp)
-		
+
 		# If multiple data points were collected in this measurementTime, save their standard deviation
 		id_normalized = measurements['Id_data']
 		if(len(measurements['Id_data']) >= 2):
@@ -168,9 +180,17 @@ def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVolt
 		for (measurement, value) in sensor_data.items():
 			parameters['SensorData'][measurement].append(value)
 
+		# Send a data message
+		pipes.livePlotUpdate(share, {'Time [s]': timestamp - startTime}, {
+				'Drain Voltage [V]': vds_data_median,
+				'Gate Voltage [V]': vgs_data_median,
+				'Drain Current [A]': id_data_median,
+				'Gate Current [A]': ig_data_median})
+
 		# Update progress bar
 		elapsedTime = time.time() - startTime
 		print('\r[' + int(elapsedTime*70.0/totalBiasTime)*'=' + (70-int(elapsedTime*70.0/totalBiasTime)-1)*' ' + ']', end='')
+
 		i += 1
 	
 	endTime = time.time()

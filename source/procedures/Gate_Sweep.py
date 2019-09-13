@@ -65,12 +65,24 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint, gateVoltageMinimum, gateVoltageMaximum, stepsInVGSPerDirection, pointsPerVGS, gateVoltageRamps, delayBetweenMeasurements, share=None):
 	# Generate list of gate voltages to apply
 	gateVoltages = dgu.sweepValuesWithDuplicates(gateVoltageMinimum, gateVoltageMaximum, stepsInVGSPerDirection*2*pointsPerVGS, pointsPerVGS, ramps=gateVoltageRamps)
-	
+
+	# TODO move this to namespace documentation of this class
+	# Example gateVoltages:
+	# gateVoltageMinimum = 1
+	# gateVoltageMaximum = 5
+	# stepsInVgsPerDirection = 5 (total unique voltages in a single direction sweep)
+	# pointsPerVgs = 2 (repeats at same voltage)
+	# gateVoltageRamps = 3 (alternate direction)
+	# Result:
+	# [[1.0, 1.0, 2.0, 2.0, 3.0, 3.0, 4.0, 4.0, 5.0, 5.0], [5.0, 5.0, 4.0, 4.0, 3.0, 3.0, 2.0, 2.0, 1.0, 1.0],
+	#  [1.0, 1.0, 2.0, 2.0, 3.0, 3.0, 4.0, 4.0, 5.0, 5.0]]
+
 	vds_data   = [[] for i in range(len(gateVoltages))]
 	id_data    = [[] for i in range(len(gateVoltages))]
 	vgs_data   = [[] for i in range(len(gateVoltages))]
 	ig_data    = [[] for i in range(len(gateVoltages))]
 	timestamps = [[] for i in range(len(gateVoltages))]
+	#Example: vds_data = [[],[],[]] - one list for every sweep
 	
 	# Ramp gate and wait a second for everything to settle down
 	smu_instance.rampGateVoltageTo(gateVoltageMinimum)
