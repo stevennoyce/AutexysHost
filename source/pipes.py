@@ -86,7 +86,7 @@ def clear(share, qName):
 	except Exception as e:
 		print('Error clearing queue ', e)
 
-def progressUpdate(share, progName, start, current, end):
+def progressUpdate(share, progName, start, current, end, barType='Procedure'):
 	try:
 		abort = False
 		qName = 'QueueToUI'
@@ -100,13 +100,14 @@ def progressUpdate(share, progName, start, current, end):
 		send(share, qName, {
 			'type':'Progress',
 			'progress': {
-				progName: {
+					'name': progName,
+					'barType': barType,
 					'start': start,
 					'current': current,
 					'end': end
 				}
 			}
-		})
+		)
 	except Exception as e:
 		print('Error updating progress: ', e)
 	
