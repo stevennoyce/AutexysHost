@@ -1097,14 +1097,8 @@
 									<v-progress-linear v-model="experimentRunnerProgress.dispatcherBarModel.percent"></v-progress-linear>
 								</v-list-tile>
 								<v-list-tile>
-									<v-list-tile-title>{{experimentRunnerProgress.progressBarModel.name}} {{experimentRunnerProgress.progressBarModel.current}} of {{experimentRunnerProgress.progressBarModel.end}} </v-list-tile-title>
-									<v-progress-linear v-model="experimentRunnerProgress.progressBarModel.percent"></v-progress-linear>
-								</v-list-tile>
-
-
-								<v-list-tile v-for="progressObj, progressName in experimentRunnerProgress">
-									<v-list-tile-title>{{ progressName }} {{ progressObj.current }} of {{ progressObj.end }}</v-list-tile-title>
-									<v-progress-linear v-model="progressObj.percent"></v-progress-linear>
+									<v-list-tile-title>{{experimentRunnerProgress.procedureBarModel.name}} {{experimentRunnerProgress.procedureBarModel.current}} of {{experimentRunnerProgress.procedureBarModel.end}} </v-list-tile-title>
+									<v-progress-linear v-model="experimentRunnerProgress.procedureBarModel.percent"></v-progress-linear>
 								</v-list-tile>
 							</v-list>
 							
@@ -1563,7 +1557,7 @@
 						percent: 0
 					},
 					procedureBarModel: {
-						name: "",
+						name: '',
 						current: 0,
 						end: 0,
 						percent: 0
@@ -2087,14 +2081,13 @@
 					if (message.type == 'Progress') {
 
 						this.dispatcherRunning = true;
-
 						
-						if(message.progress.type === "Dispatcher"){
+						if(message.progress.barType === "Dispatcher"){
 							this.experimentRunnerProgress.dispatcherBarModel.current = message.progress.current;
 							this.experimentRunnerProgress.dispatcherBarModel.end = message.progress.end;
 							this.experimentRunnerProgress.dispatcherBarModel.percent = computeProgressPercent(message.progress.start, message.progress.current, message.progress.end);
 						}
-						else if(message.progress.type === "Procedure"){
+						else if(message.progress.barType === "Procedure"){
 							this.experimentRunnerProgress.procedureBarModel.name = message.progress.name;
 							this.experimentRunnerProgress.procedureBarModel.current = message.progress.current;
 							this.experimentRunnerProgress.procedureBarModel.end = message.progress.end;
@@ -2122,12 +2115,6 @@
 							this.livePlotYData[label].push(message.ydata[label]);
 						}
 					}
-				},
-				computeProgressPercent: function(start, current, end){
-					var result = parseFloat(current) - parseFloat(start);
-					result /= parseFloat(end) - parseFloat(start);
-					result *= 100;
-					return result;
 				},
 
 				clearLivePlotXLabel: function(xlabel) {
@@ -2282,6 +2269,13 @@
 			app.$set(app, 'online', navigator.onLine);
 		}
 		
+		function computeProgressPercent(start, current, end){
+			var result = parseFloat(current) - parseFloat(start);
+			result /= parseFloat(end) - parseFloat(start);
+			result *= 100;
+			return result;
+		}
+
 		window.addEventListener('online', updateConnectionStatus);
 		window.addEventListener('offline', updateConnectionStatus);
 		window.onhashchange = function() { app.$data.currentPage = location.hash; };
