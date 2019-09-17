@@ -46,9 +46,11 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 							drainVoltageSetPoint=sb_parameters['drainVoltageSetPoint'],
 							gateVoltageSetPoint=sb_parameters['gateVoltageSetPoint'],
 							totalBiasTime=sb_parameters['totalBiasTime'], 
-							measurementTime=sb_parameters['measurementTime'])
+							measurementTime=sb_parameters['measurementTime'],
+							share=share)
 	smu_instance.rampGateVoltageTo(sb_parameters['gateVoltageWhenDone'])
-	smu_instance.rampDrainVoltageTo(sb_parameters['drainVoltageWhenDone'])
+	smu_instance.rampDrainVoltageTo(sb_parameters['drainVoltageWhenDone'],
+	)
 
 	# Float channels if desired
 	if(sb_parameters['floatChannelsWhenDone']):
@@ -126,8 +128,10 @@ def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVolt
 		# Send a progress message
 		if(smallMeasurementTimeCriterion):
 			# TODO Ask Steven/Jay about this
-			pipes.progressUpdate(share, 'Static Bias Point', start=steps, current=steps, end=steps)
+			print("In small part")
+			pipes.progressUpdate(share, 'Static Bias Point', start=1, current=i+1, end=steps)
 		else:
+			print("In large part")
 			pipes.progressUpdate(share, 'Static Bias Point', start=1, current=i+1, end=steps)
 
 		# Define buffers for data to fill during each "measurementTime"
@@ -181,11 +185,13 @@ def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVolt
 			parameters['SensorData'][measurement].append(value)
 
 		# Send a data message
-		pipes.livePlotUpdate(share, {'Time [s]': timestamp - startTime}, {
-				'Drain Voltage [V]': vds_data_median,
-				'Gate Voltage [V]': vgs_data_median,
-				'Drain Current [A]': id_data_median,
-				'Gate Current [A]': ig_data_median})
+		pipes.livePlotUpdate(share,
+							xData={'Time [s]': timestamp - startTime,
+								   'Time 2 [s]': timestamp - startTime},
+							yData={'Drain Voltage [V]': vds_data_median,
+							'Gate Voltage [V]': vgs_data_median,
+							'Drain Current [A]': id_data_median,
+							'Gate Current [A]': ig_data_median})
 
 		# Update progress bar
 		elapsedTime = time.time() - startTime

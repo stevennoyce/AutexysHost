@@ -138,26 +138,11 @@ def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint
 				timestamps[direction].append(timestamp)
 				
 				# Send a data message
-				pipes.livePlotUpdate(share, {
-						'Gate Voltage [V]': gateVoltage if abs((gateVoltage - measurement['V_gs'])) < abs(0.1*gateVoltage) else measurement['V_gs'],
+				pipes.livePlotUpdate(share,
+						xData={'Gate Voltage [V]': gateVoltage if abs((gateVoltage - measurement['V_gs'])) < abs(0.1*gateVoltage) else measurement['V_gs'],
 						'Time [s]': timestamp - timestamps[0][0]},
-						{'Drain Current {} [A]'.format(direction + 1): measurement['I_d'],
+						yData={'Drain Current {} [A]'.format(direction + 1): measurement['I_d'],
 						'Gate Current {} [A]'.format(direction + 1): measurement['I_g']})
-
-				# pipes.send(share, 'QueueToUI', {
-				# 	'type':'Data',
-				# 	'xdata': {
-				# 		'Gate Voltage [V]': gateVoltage if abs((gateVoltage - measurement['V_gs'])) < abs(0.1*gateVoltage) else measurement['V_gs'],
-				# 		'Time [s]': timestamp - timestamps[0][0]
-				# 	},
-				# 	'ydata': {
-				# 		# 'Drain Current [A]': measurement['I_d'],
-				# 		# 'Gate Current [A]': measurement['I_g']
-				# 		'Drain Current {} [A]'.format(direction+1): measurement['I_d'],
-				# 		'Gate Current {} [A]'.format(direction+1): measurement['I_g']
-				# 	}
-				# })
-
 
 	return {
 		'Raw':{
