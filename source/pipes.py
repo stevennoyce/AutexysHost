@@ -114,8 +114,18 @@ def progressUpdate(share, progName, start, current, end, barType='Procedure'):
 	if abort:
 	 	raise Exception('Recieved stop command from UI. Aborting current procedure at {}.'.format(progName))
 
-	
-def livePlotUpdate(share, xData, yData):
+
+'''
+Format of plots argument:
+
+plots = {'Plot 1': {'xData':{'Time (sec)': 12}}, {'yData':{'Drain Voltage (V)': 2.3}, {'Gate Voltage (V)': 0.0052}, 'yAxisTitle':'Voltage [V]', 'yScale':'linear'},
+		'Plot 2': {'xData':{'Voltage (V)': 12}}, {'yData':{'Drain Current (A)': 2.3}, 'yAxisTitle': 'Current [A]', 'yScale': 'log'}}
+		
+This example creates two plots, the first with two datasets and the second with one dataset.
+The x axis titles are 'Time (sec)' and 'Voltage (V)'. The y axis titles are 'Voltage [V]' and 'Current [A]'.
+
+'''
+def livePlotUpdate(share, plots):
 	try:
 		qName = 'QueueToUI'
 
@@ -124,8 +134,7 @@ def livePlotUpdate(share, xData, yData):
 
 		send(share, qName, {
 					'type':'Data',
-					'xdata': xData,
-					'ydata': yData})
+					'plots': plots})
 
 	except Exception as e:
 		print('Error updating live plot: ', e)

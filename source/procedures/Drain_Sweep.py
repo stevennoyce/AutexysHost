@@ -63,6 +63,7 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 
 # === Data Collection ===
 def runDrainSweep(smu_instance, isFastSweep, fastSweepSpeed, gateVoltageSetPoint, drainVoltageMinimum, drainVoltageMaximum, stepsInVDSPerDirection, pointsPerVDS, drainVoltageRamps, delayBetweenMeasurements, share=None):
+
 	# Generate list of drain voltages to apply
 	drainVoltages = dgu.sweepValuesWithDuplicates(drainVoltageMinimum, drainVoltageMaximum, stepsInVDSPerDirection*2*pointsPerVDS, pointsPerVDS, ramps=drainVoltageRamps)
 	
@@ -127,10 +128,7 @@ def runDrainSweep(smu_instance, isFastSweep, fastSweepSpeed, gateVoltageSetPoint
 
 				# Send a data message
 				pipes.livePlotUpdate(share,
-						xData={'Drain Voltage [V]': drainVoltage if abs((drainVoltage - measurement['V_ds'])) < abs(0.1*drainVoltage) else measurement['V_ds'],
-						'Time [s]': timestamp - timestamps[0][0]},
-						yData={'Drain Current {} [A]'.format(direction + 1): measurement['I_d'],
-						'Gate Current {} [A]'.format(direction + 1): measurement['I_g']})
+						plots=formatLivePlotUpdate(drainVoltage, direction, measurement, timestamp, timestamps))
 
 	return {
 		'Raw':{
@@ -147,5 +145,19 @@ def runDrainSweep(smu_instance, isFastSweep, fastSweepSpeed, gateVoltageSetPoint
 			'ig_max':max(abs(np.array(ig_data[0] + ig_data[1])))
 		}
 	}
+
+def formatLivePlotUpdate(drainVoltage, direction, measurement, timestamp, timestamps):
+	return {'Voltage X':{
+			 'xData': {'Drain Voltage [V]': drainVoltage if abs((drainVoltage - measurement['V_ds'])) < abs(0.1*drainVoltage) else measurement['V_ds']},
+			 'yData': {'Drain Current {} [A]'.format(direction + 1): measurement['I_d'],
+						'Gate Current {} [A]'.format(direction + 1): measurement['I_g']},
+			 'yAxisTitle': 'Current [A]',
+			 'yScale': 'log'},
+			'Time X':{
+			 'xData': {'Time [s]': timestamp - timestamps[0][0]},
+			 'yData': {'Drain Current {} [A]'.format(direction + 1): measurement['I_d'],
+						'Gate Current {} [A]'.format(direction + 1): measurement['I_g']},
+			 'yAxisTitle': 'Current [A]',
+			 'yScale': 'log'}}
 
 	

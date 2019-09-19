@@ -1116,7 +1116,7 @@
 									<v-btn slot="activator" icon><v-icon>settings</v-icon></v-btn>
 									<v-list light>
 										
-										<v-list-tile @click="livePlotXData={}; livePlotYData={};">
+										<v-list-tile @click="livePlots={};">
 											<v-list-tile-avatar>
 												<v-icon>clear</v-icon>
 											</v-list-tile-avatar>
@@ -1131,7 +1131,7 @@
 							</v-toolbar>
 							<v-container fluid grid-list-sm>
 									<v-layout row wrap>
-										<v-flex xs12 sm12 md6 lg6 xl4 v-for="xdata, xlabel, i in livePlotXData">
+										<v-flex xs12 sm12 md6 lg6 xl4 v-for="plot, plotIdentifier, i in livePlots">
 											<v-card class="ma-1" height="100%">
 												<v-toolbar dark dense class="color1 ">
 													<v-toolbar-title>
@@ -1153,7 +1153,7 @@
 															</v-list-tile-title></v-list-tile-content>
 														</v-list-tile>
 														
-														<v-list-tile @click="clearLivePlotXLabel(xlabel)">
+														<v-list-tile @click="clearLivePlotXLabel(Object.keys(plot.xData)[0])">
 															<v-list-tile-avatar>
 																<v-icon>clear</v-icon>
 															</v-list-tile-avatar>
@@ -1166,9 +1166,8 @@
 												</v-menu>
 												
 												</v-toolbar>
-												
 												<div class="text-xs-center">
-													<s-plotly v-bind:data="Object.entries(livePlotYData).map(([k, v]) => ({x: xdata, y: v.map(val => Math.abs(val)), mode: 'lines', name: k}))" v-bind:height="90" :column-number="1" :layout="{xaxis: {title: xlabel}, yaxis: {title: 'Current [A]', type: 'log', autorange: true}, legend: {'orientation': 'h', y: 1.1}, margin: {l: 60,r: 20,b: 70,t: 20,pad: 4}, automargin: true, autosize: true, exponentformat:'SI'}"></s-plotly>
+													<s-plotly v-bind:data="Object.entries(plot.yData).map(([k, v]) => ({x: Object.values(plot.xData)[0], y: v.map(val => Math.abs(val)), mode: 'lines', name: k}))" v-bind:height="90" :column-number="1" :layout="{xaxis: {title: Object.keys(plot.xData)[0]}, yaxis: {title: plot.yAxisTitle, type: plot.yScale, autorange: true}, legend: {'orientation': 'h', y: 1.1}, margin: {l: 60,r: 20,b: 70,t: 20,pad: 4}, automargin: true, autosize: true, exponentformat:'SI'}"></s-plotly>
 												</div>
 											</v-card>
 										</v-flex>
@@ -1285,7 +1284,7 @@
 			}
 			return d;
 		}
-		
+		x
 		var imageRequestsLoading = 0;
 		var imageLoaderTimer = setInterval(function() {
 			if (imageRequestsLoading > 0) return;
@@ -1563,10 +1562,8 @@
 						percent: 0
 					}
 				},
-				// livePlotXData: {'test x':[1,2,3], 'test x 2':[2,3,4]},
-				// livePlotYData: {'test y':[2,3,1], 'test y 2':[3,4,2]},
-				livePlotXData: {},
-				livePlotYData: {},
+
+				livePlots: {},
 				listInputTest: [{'text': 'a', 'value': '1'}, {'text': 'b', 'value': '2'}],
 				dataPlotData: [{ x: [1, 2, 3], y: [1, 3, 1], mode: 'lines' }],
 				colors: [],
@@ -1780,8 +1777,7 @@
 					if (this.scheduleSaveFileName == '') this.scheduleSaveFileName = this.scheduleLoadFileName;
 				},
 				clearLivePlots: function() {
-					this.livePlotXData = {};
-					this.livePlotYData = {};
+					this.livePlots = {};
 				},
 				dispatchSchedule: function() {
 					this.clearLivePlots();
@@ -1881,7 +1877,6 @@
 						// Update the advanced options to match any changes made to the non-advanced options
 						if(this.hasRunnerScheduleBeenModified()) {
 							var basicChanges = objectDeepDiff(this.runnerScheduleObjects[0], this.runnerScheduleObjectDefaults[0]);
-							this.runnerVerboseScheduleObjects = [objectDeepMerge(this.runnerVerboseScheduleObjects[0], basicChanges)];
 							
 							this.runnerScheduleObjectDefaults[0]        = JSON.parse(JSON.stringify(this.runnerScheduleObjects[0]));
 							this.runnerVerboseScheduleObjectDefaults[0] = JSON.parse(JSON.stringify(this.runnerVerboseScheduleObjects[0]));
@@ -2081,10 +2076,6 @@
 					if (message.type == 'Progress') {
 
 						this.dispatcherRunning = true;
-
-						console.log("type = " + message.progress.barType);
-						console.log("current = " + message.progress.current);
-						console.log("end = " + message.progress.end);
 						
 						if(message.progress.barType === "Dispatcher"){
 							this.experimentRunnerProgress.dispatcherBarModel.current = message.progress.current;
@@ -2101,22 +2092,40 @@
 					}
 					if (message.type == 'Data') {
 						this.dispatcherRunning = true;
-						
-						for (var label of Object.keys(message.xdata)) {
-							if (!this.livePlotXData.hasOwnProperty(label)) {
-								Vue.set(this.livePlotXData, label, []);
+
+						// TODO convert clearing, other stuff to new approach
+						// TODO change livePlots list elements into a livePlot object
+						Object.keys(message.plots).forEach(plotIdentifier => {
+							var plot = message.plots[plotIdentifier];
+
+							if(!this.livePlots.hasOwnProperty(plotIdentifier)){
+								 Vue.set(this.livePlots, plotIdentifier, {
+								 	xData: {},
+								 	yData: {},
+								 	yAxisTitle: '',
+								 	yScale: ''
+								 });
 							}
-							this.livePlotXData[label].push(message.xdata[label]);
-						}
-						
-						for (var label of Object.keys(message.ydata)) {
-							if (!this.livePlotYData.hasOwnProperty(label)) {
-								var minLenX = Math.min(...Object.entries(this.livePlotXData).map(([k,v]) => v.length));
-								Vue.set(this.livePlotYData, label, new Array(minLenX));
-								// Vue.set(this.livePlotYData, label, []);
+
+							var xLabel = Object.keys(plot.xData)[0]
+							if (!this.livePlots[plotIdentifier].xData.hasOwnProperty(xLabel)) {
+								Vue.set(this.livePlots[plotIdentifier].xData, xLabel, []);
 							}
-							this.livePlotYData[label].push(message.ydata[label]);
-						}
+							this.livePlots[plotIdentifier].xData[xLabel].push(plot.xData[xLabel]);
+
+							Object.keys(plot.yData).forEach(yLabel => {
+								if (!this.livePlots[plotIdentifier].yData.hasOwnProperty(yLabel)) {
+									Vue.set(this.livePlots[plotIdentifier].yData, yLabel, []);
+								}
+								this.livePlots[plotIdentifier].yData[yLabel].push(plot.yData[yLabel]);
+							});
+
+							this.livePlots[plotIdentifier].yAxisTitle = plot.yAxisTitle;
+							this.livePlots[plotIdentifier].yScale = plot.yScale;
+
+						});
+
+						console.log(this.livePlots);
 					}
 				},
 

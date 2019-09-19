@@ -138,11 +138,7 @@ def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint
 				timestamps[direction].append(timestamp)
 				
 				# Send a data message
-				pipes.livePlotUpdate(share,
-						xData={'Gate Voltage [V]': gateVoltage if abs((gateVoltage - measurement['V_gs'])) < abs(0.1*gateVoltage) else measurement['V_gs'],
-						'Time [s]': timestamp - timestamps[0][0]},
-						yData={'Drain Current {} [A]'.format(direction + 1): measurement['I_d'],
-						'Gate Current {} [A]'.format(direction + 1): measurement['I_g']})
+				pipes.livePlotUpdate(share,plots=formatLivePlotUpdate(gateVoltage, direction, measurement, timestamp, timestamps))
 
 	return {
 		'Raw':{
@@ -160,6 +156,20 @@ def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint
 			'ig_max':max(abs(np.array(ig_data[0] + ig_data[1])))
 		}
 	}
+
+def formatLivePlotUpdate(gateVoltage, direction, measurement, timestamp, timestamps):
+	return {'Voltage X':{
+			'xData': {'Gate Voltage [V]': gateVoltage if abs((gateVoltage - measurement['V_gs'])) < abs(0.1*gateVoltage) else measurement['V_gs']},
+			 'yData': {'Drain Current {} [A]'.format(direction + 1): measurement['I_d'],
+						'Gate Current {} [A]'.format(direction + 1): measurement['I_g']},
+			 'yAxisTitle': 'Current [A]',
+			 'yScale': 'log'},
+			'Time X':{
+			 'xData': {'Time [s]': timestamp - timestamps[0][0]},
+			 'yData': {'Drain Current {} [A]'.format(direction + 1): measurement['I_d'],
+						'Gate Current {} [A]'.format(direction + 1): measurement['I_g']},
+			 'yAxisTitle': 'Current [A]',
+			 'yScale': 'log'}}
 
 def onOffRatio(drainCurrent):
 	return onCurrent(drainCurrent)/offCurrent(drainCurrent)
