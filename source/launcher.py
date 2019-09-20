@@ -126,17 +126,21 @@ def initializeMeasurementSystems(parameters):
 	system_instances = {}
 	parameters['MeasurementSystem']['systems'] = smu.getSystemConfiguration(parameters['MeasurementSystem']['systemType'])
 	for system_name,system_info in parameters['MeasurementSystem']['systems'].items():
-		system_id = system_info['uniqueID']
-		system_type = system_info['type']
-		system_settings = system_info['settings']
-		if(system_type == 'B2912A'):
-			system_instances[system_name] = smu.getConnectionToVisaResource(system_id, system_settings, defaultComplianceCurrent=100e-6, smuTimeout=60*1000)
-		elif(system_type == 'PCB2v14'):
-			system_instances[system_name] = smu.getConnectionToPCB(system_id, system_settings)
-		else:
-			raise NotImplementedError("Unkown Measurement System specified (try B2912A, PCB2v14, ...)")
-		system_id = system_instances[system_name].system_id
-		print("Connected to " + str(system_type) + " system '" + str(system_name) + "', with ID: " + str(system_id))
+		try:
+			system_id = system_info['uniqueID']
+			system_type = system_info['type']
+			system_settings = system_info['settings']
+			if(system_type == 'B2912A'):
+				system_instances[system_name] = smu.getConnectionToVisaResource(system_id, system_settings, defaultComplianceCurrent=100e-6, smuTimeout=60*1000)
+			elif(system_type == 'PCB2v14'):
+				system_instances[system_name] = smu.getConnectionToPCB(system_id, system_settings)
+			else:
+				raise NotImplementedError("Unkown Measurement System specified (try B2912A, PCB2v14, ...)")
+			system_id = system_instances[system_name].system_id
+			print("Connected to " + str(system_type) + " system '" + str(system_name) + "', with ID: " + str(system_id))
+		except:
+			system_instances['Emulator'] = smu.getConnectionToEmulator()
+			print("Could not connect to system. Connected to emulator instead.")
 	return system_instances
 
 

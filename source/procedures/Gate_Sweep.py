@@ -14,6 +14,9 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 	# This script uses the default SMU, which is the first one in the list of SMU systems
 	smu_names = list(smu_systems.keys())
 	smu_instance = smu_systems[smu_names[0]]
+
+	print('smu_systems = ', smu_systems)
+	print('smu_instance = ', smu_instance)
 	
 	# Get shorthand name to easily refer to configuration parameters
 	gs_parameters = parameters['runConfigs']['GateSweep']
@@ -128,6 +131,7 @@ def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint
 				
 				# Take Measurement and save it
 				measurement = smu_instance.takeMeasurement()
+				print('measurement = ', measurement)
 				
 				timestamp = time.time()
 				
@@ -136,8 +140,10 @@ def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint
 				vgs_data[direction].append(measurement['V_gs'])
 				ig_data[direction].append(measurement['I_g'])
 				timestamps[direction].append(timestamp)
-				
+
 				# Send a data message
+				print('formatLivePlotUpdate() returns', formatLivePlotUpdate(gateVoltage, direction, measurement, timestamp, timestamps))
+
 				pipes.livePlotUpdate(share,plots=formatLivePlotUpdate(gateVoltage, direction, measurement, timestamp, timestamps))
 
 	return {
