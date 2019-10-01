@@ -732,6 +732,16 @@ class Emulator(SourceMeasureUnit):
 	for use when testing.
 	'''
 
+	smu = None
+	system_id = ''
+	stepsPerRamp = 20
+	measurementsPerSecond = 40
+	measurementRateVariabilityFactor = 2
+	nplc = 1
+	source1_mode = 'voltage'
+	source2_mode = 'voltage'
+	system_settings = {}
+
 	def __init__(self):
 		pass
 
