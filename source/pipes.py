@@ -12,6 +12,8 @@ def pipeSend(pipe, message):
 
 def send(share, qName, message):
 	try:
+		if share is None:
+			return 
 		if qName not in share:
 			return
 		q = share[qName]
