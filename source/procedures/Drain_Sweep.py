@@ -4,6 +4,7 @@ import numpy as np
 
 import pipes
 #from procedures import Device_History as deviceHistoryScript
+from Live_Plot_Data_Point import Live_Plot_Data_Point
 from utilities import DataLoggerUtility as dlu
 from utilities import SequenceGeneratorUtility as dgu
 
@@ -127,8 +128,20 @@ def runDrainSweep(smu_instance, isFastSweep, fastSweepSpeed, gateVoltageSetPoint
 				timestamps[direction].append(timestamp)
 
 				# Send a data message
-				pipes.livePlotUpdate(share,
-						plots=formatLivePlotUpdate(drainVoltage, direction, measurement, timestamp, timestamps))
+				preppedDrainVoltage = drainVoltage if abs((drainVoltage - measurement['V_ds'])) < abs(0.1 * drainVoltage) else measurement['V_ds']
+				pipes.livePlotUpdate(share, plots=
+				[Live_Plot_Data_Point.createDefaultCurrentPlot(plotID='Voltage X',
+															   xAxisTitle='Drain Voltage [V]',
+															   xValue=preppedDrainVoltage,
+															   drainCurrent=measurement['I_d'],
+															   gateCurrent=measurement['I_g'],
+															   direction=direction),
+				 Live_Plot_Data_Point.createDefaultCurrentPlot(plotID='Time X',
+															   xAxisTitle='Time [s]',
+															   xValue=timestamp - timestamps[0][0],
+															   drainCurrent=measurement['I_d'],
+															   gateCurrent=measurement['I_g'],
+															   direction=direction)])
 
 	return {
 		'Raw':{
@@ -146,18 +159,18 @@ def runDrainSweep(smu_instance, isFastSweep, fastSweepSpeed, gateVoltageSetPoint
 		}
 	}
 
-def formatLivePlotUpdate(drainVoltage, direction, measurement, timestamp, timestamps):
-	return {'Voltage X':{
-			 'xData': {'Drain Voltage [V]': drainVoltage if abs((drainVoltage - measurement['V_ds'])) < abs(0.1*drainVoltage) else measurement['V_ds']},
-			 'yData': {'Drain Current {} [A]'.format(direction + 1): measurement['I_d'],
-						'Gate Current {} [A]'.format(direction + 1): measurement['I_g']},
-			 'yAxisTitle': 'Current [A]',
-			 'yScale': 'log'},
-			'Time X':{
-			 'xData': {'Time [s]': timestamp - timestamps[0][0]},
-			 'yData': {'Drain Current {} [A]'.format(direction + 1): measurement['I_d'],
-						'Gate Current {} [A]'.format(direction + 1): measurement['I_g']},
-			 'yAxisTitle': 'Current [A]',
-			 'yScale': 'log'}}
+# def formatLivePlotUpdate(drainVoltage, direction, measurement, timestamp, timestamps):
+# 	return {'Voltage X':{
+# 			 'xData': {'Drain Voltage [V]': drainVoltage if abs((drainVoltage - measurement['V_ds'])) < abs(0.1*drainVoltage) else measurement['V_ds']},
+# 			 'yData': {'Drain Current {} [A]'.format(direction + 1): measurement['I_d'],
+# 						'Gate Current {} [A]'.format(direction + 1): measurement['I_g']},
+# 			 'yAxisTitle': 'Current [A]',
+# 			 'yScale': 'log'},
+# 			'Time X':{
+# 			 'xData': {'Time [s]': timestamp - timestamps[0][0]},
+# 			 'yData': {'Drain Current {} [A]'.format(direction + 1): measurement['I_d'],
+# 						'Gate Current {} [A]'.format(direction + 1): measurement['I_g']},
+# 			 'yAxisTitle': 'Current [A]',
+# 			 'yScale': 'log'}}
 
 	

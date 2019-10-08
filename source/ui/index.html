@@ -1131,7 +1131,7 @@
 							</v-toolbar>
 							<v-container fluid grid-list-sm>
 									<v-layout row wrap>
-										<v-flex xs12 sm12 md6 lg6 xl4 v-for="plot, plotIdentifier, i in livePlots">
+										<v-flex xs12 sm12 md6 lg6 xl4 v-for="plot, i in livePlots.plots">
 											<v-card class="ma-1" height="100%">
 												<v-toolbar dark dense class="color1 ">
 													<v-toolbar-title>
@@ -1167,7 +1167,7 @@
 												
 												</v-toolbar>
 												<div class="text-xs-center">
-													<s-plotly v-bind:data="Object.entries(plot.yData).map(([k, v]) => ({x: Object.values(plot.xData)[0], y: v.map(val => Math.abs(val)), mode: 'lines', name: k}))" v-bind:height="90" :column-number="1" :layout="{xaxis: {title: Object.keys(plot.xData)[0]}, yaxis: {title: plot.yAxisTitle, type: plot.yScale, autorange: true}, legend: {'orientation': 'h', y: 1.1}, margin: {l: 60,r: 20,b: 70,t: 20,pad: 4}, automargin: true, autosize: true, exponentformat:'SI'}"></s-plotly>
+													<s-plotly v-bind:data="formatForPlotly(plot)" v-bind:height="90" :column-number="1" :layout="{xaxis: {title: plot.xAxisTitle}, yaxis: {title: plot.yAxisTitle, type: plot.yScale, autorange: true}, legend: {'orientation': 'h', y: 1.1}, margin: {l: 60,r: 20,b: 70,t: 20,pad: 4}, automargin: true, autosize: true, exponentformat:'SI'}"></s-plotly>
 												</div>
 											</v-card>
 										</v-flex>
@@ -1284,7 +1284,7 @@
 			}
 			return d;
 		}
-		x
+		
 		var imageRequestsLoading = 0;
 		var imageLoaderTimer = setInterval(function() {
 			if (imageRequestsLoading > 0) return;
@@ -1563,7 +1563,7 @@
 					}
 				},
 
-				livePlots: {},
+				livePlots: {plots: []},
 				listInputTest: [{'text': 'a', 'value': '1'}, {'text': 'b', 'value': '2'}],
 				dataPlotData: [{ x: [1, 2, 3], y: [1, 3, 1], mode: 'lines' }],
 				colors: [],
@@ -1777,7 +1777,7 @@
 					if (this.scheduleSaveFileName == '') this.scheduleSaveFileName = this.scheduleLoadFileName;
 				},
 				clearLivePlots: function() {
-					this.livePlots = {};
+					this.livePlots = {plots:[]};
 				},
 				dispatchSchedule: function() {
 					this.clearLivePlots();
@@ -2092,45 +2092,86 @@
 					}
 					if (message.type == 'Data') {
 						this.dispatcherRunning = true;
+						//console.log("Live Plots Blah = " + this.livePlots);
+						//Vue.set(app, this.livePlots, [1, 2, 3]);
+						//Vue.set(this.livePlots, 'someField', [1, 2, 3]);
+						//this.livePlots.$set({someField1: "blah1", someField2: "blah2"});
+						//this.livePlots.push({someField1: "blah1", someField2: "blah2"});
+						//console.log("Live Plots = " + this.livePlots);
 
 						// TODO convert clearing, other stuff to new approach
 						// TODO change livePlots list elements into a livePlot object
-						Object.keys(message.plots).forEach(plotIdentifier => {
-							var plot = message.plots[plotIdentifier];
+						console.log(message);
 
-							if(!this.livePlots.hasOwnProperty(plotIdentifier)){
-								 Vue.set(this.livePlots, plotIdentifier, {
-								 	xData: {},
-								 	yData: {},
-								 	yAxisTitle: '',
-								 	yScale: ''
-								 });
-							}
+						for(myPlot of message.plots){
+							//console.log(myPlot)
+							var myPlotInLivePlots = null;
 
-							var xLabel = Object.keys(plot.xData)[0]
-							if (!this.livePlots[plotIdentifier].xData.hasOwnProperty(xLabel)) {
-								Vue.set(this.livePlots[plotIdentifier].xData, xLabel, []);
-							}
-							this.livePlots[plotIdentifier].xData[xLabel].push(plot.xData[xLabel]);
-
-							Object.keys(plot.yData).forEach(yLabel => {
-								if (!this.livePlots[plotIdentifier].yData.hasOwnProperty(yLabel)) {
-									Vue.set(this.livePlots[plotIdentifier].yData, yLabel, []);
+							//Find the correct livePlot in the JS variable
+							for(livePlot of this.livePlots.plots){
+								if(livePlot.plotID == myPlot.plotID){
+									myPlotInLivePlots = livePlot;
 								}
-								this.livePlots[plotIdentifier].yData[yLabel].push(plot.yData[yLabel]);
-							});
+							}
 
-							this.livePlots[plotIdentifier].yAxisTitle = plot.yAxisTitle;
-							this.livePlots[plotIdentifier].yScale = plot.yScale;
+							//If has not been added yet to JS variable, add it
+							if(myPlotInLivePlots == null){
+								myPlotInLivePlots = JSON.parse(JSON.stringify(myPlot));
 
-						});
+								//Convert xData and yData from points to arrays
+								for(series of myPlotInLivePlots.seriesList){
+									series.xData = [series.xData];
+									series.yData = [series.yData];
+								}
 
-						console.log(this.livePlots);
+								//Add to livePlots JS variable
+								this.livePlots.plots.push(myPlotInLivePlots);
+							}
+							else{
+								//myPlot does not include series which have not been updated on this message
+								for(mySeries of myPlot.seriesList){
+									mySeriesInLivePlots = null;
+									for(livePlotSeries of myPlotInLivePlots.seriesList){
+										if(livePlotSeries.seriesName == mySeries.seriesName){
+											mySeriesInLivePlots = livePlotSeries;
+										}
+									}
+									//Add any series which have not yet been added to JS variable
+									if(mySeriesInLivePlots == null){
+										mySeriesInLivePlots = JSON.parse(JSON.stringify(mySeries));
+
+										//Convert xData and yData from points to arrays (data added after if statement)
+										mySeriesInLivePlots.xData = [];
+										mySeriesInLivePlots.yData = [];
+
+										myPlotInLivePlots.seriesList.push(mySeriesInLivePlots);
+									}
+
+									//Add this data point
+									mySeriesInLivePlots.xData.push(mySeries.xData);
+									mySeriesInLivePlots.yData.push(mySeries.yData);
+
+								}
+							}
+						}
 					}
 				},
 
 				clearLivePlotXLabel: function(xlabel) {
 					Vue.delete(this.livePlotXData, xlabel);
+				},
+
+				formatForPlotly: function(plot) {
+					var listToReturn = [];
+					for(series of plot.seriesList){
+						listToReturn.push({
+						x: series.xData,
+						y: series.yData,
+						mode: 'lines',
+						name: series.seriesName
+						});
+					}
+					return listToReturn;
 				}
 			},
 			watch: {

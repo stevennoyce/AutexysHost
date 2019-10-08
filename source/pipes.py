@@ -134,7 +134,7 @@ def livePlotUpdate(share, plots):
 
 		send(share, qName, {
 					'type':'Data',
-					'plots': plots})
+					'plots': [plot.toDict() for plot in plots]})
 
 	except Exception as e:
 		print('Error updating live plot: ', e)
