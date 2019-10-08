@@ -5071,17 +5071,13 @@ p {
   width: 100%;
   height: inherit;
   position: relative;
-  /* transition: 0.2s cubic-bezier(0.4, 0, 0.6, 1); */
+  transition: 0.2s cubic-bezier(0.4, 0, 0.6, 1);
   z-index: 1;
 }
 .v-progress-linear__bar__determinate {
   height: inherit;
-  /* transition: 0.2s cubic-bezier(0.4, 0, 0.6, 1); */
+  transition: 0.2s cubic-bezier(0.4, 0, 0.6, 1);
 }
-.v-progress-linear__bar, .v-progress-linear__bar__determinate {
-  transition: none;
-}
-
 .v-progress-linear__bar__indeterminate .long,
 .v-progress-linear__bar__indeterminate .short {
   height: inherit;
