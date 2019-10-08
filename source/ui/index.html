@@ -2095,16 +2095,6 @@
 					}
 					if (message.type == 'Data') {
 						this.dispatcherRunning = true;
-						//console.log("Live Plots Blah = " + this.livePlots);
-						//Vue.set(app, this.livePlots, [1, 2, 3]);
-						//Vue.set(this.livePlots, 'someField', [1, 2, 3]);
-						//this.livePlots.$set({someField1: "blah1", someField2: "blah2"});
-						//this.livePlots.push({someField1: "blah1", someField2: "blah2"});
-						//console.log("Live Plots = " + this.livePlots);
-
-						// TODO convert clearing, other stuff to new approach
-						// TODO change livePlots list elements into a livePlot object
-						console.log(message);
 
 						for(myPlot of message.plots){
 							//console.log(myPlot)
