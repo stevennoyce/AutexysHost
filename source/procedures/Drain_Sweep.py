@@ -11,7 +11,7 @@ from utilities import SequenceGeneratorUtility as dgu
 
 
 # === Main ===
-def run(parameters, smu_systems, arduino_systems, share=None):
+def run(parameters, smu_systems, arduino_systems, share=None, sweepNumber=0, initTime=-1):
 	# This script uses the default SMU, which is the first one in the list of SMU systems
 	smu_names = list(smu_systems.keys())
 	smu_instance = smu_systems[smu_names[0]]
@@ -39,7 +39,9 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 							pointsPerVDS=ds_parameters['pointsPerVDS'],
 							drainVoltageRamps=ds_parameters['drainVoltageRamps'],
 							delayBetweenMeasurements=ds_parameters['delayBetweenMeasurements'],
-							share=share)
+							share=share,
+							sweepNumber=sweepNumber,
+							initTime=initTime)
 	smu_instance.rampDownVoltages()
 	# === COMPLETE ===
 
@@ -63,7 +65,7 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 	return jsonData
 
 # === Data Collection ===
-def runDrainSweep(smu_instance, isFastSweep, fastSweepSpeed, gateVoltageSetPoint, drainVoltageMinimum, drainVoltageMaximum, stepsInVDSPerDirection, pointsPerVDS, drainVoltageRamps, delayBetweenMeasurements, share=None):
+def runDrainSweep(smu_instance, isFastSweep, fastSweepSpeed, gateVoltageSetPoint, drainVoltageMinimum, drainVoltageMaximum, stepsInVDSPerDirection, pointsPerVDS, drainVoltageRamps, delayBetweenMeasurements, share=None, sweepNumber=0, initTime=-1):
 
 	# Generate list of drain voltages to apply
 	drainVoltages = dgu.sweepValuesWithDuplicates(drainVoltageMinimum, drainVoltageMaximum, stepsInVDSPerDirection*2*pointsPerVDS, pointsPerVDS, ramps=drainVoltageRamps)
@@ -127,6 +129,9 @@ def runDrainSweep(smu_instance, isFastSweep, fastSweepSpeed, gateVoltageSetPoint
 				ig_data[direction].append(measurement['I_g'])
 				timestamps[direction].append(timestamp)
 
+				if initTime == -1:
+					initTime = timestamps[0][0]
+
 				# Send a data message
 				preppedDrainVoltage = drainVoltage if abs((drainVoltage - measurement['V_ds'])) < abs(0.1 * drainVoltage) else measurement['V_ds']
 				pipes.livePlotUpdate(share, plots=
@@ -135,13 +140,13 @@ def runDrainSweep(smu_instance, isFastSweep, fastSweepSpeed, gateVoltageSetPoint
 															   xValue=preppedDrainVoltage,
 															   drainCurrent=measurement['I_d'],
 															   gateCurrent=measurement['I_g'],
-															   direction=direction),
+															   legendNumber=sweepNumber*len(drainVoltages) + direction),
 				 Live_Plot_Data_Point.createDefaultCurrentPlot(plotID='Time X',
 															   xAxisTitle='Time [s]',
-															   xValue=timestamp - timestamps[0][0],
+															   xValue=timestamp - initTime,
 															   drainCurrent=measurement['I_d'],
 															   gateCurrent=measurement['I_g'],
-															   direction=direction)])
+															   legendNumber=sweepNumber*len(drainVoltages) + direction)])
 
 	return {
 		'Raw':{

@@ -34,9 +34,9 @@ class Live_Plot_Data_Point:
         return dict
 
     @staticmethod
-    def createDefaultCurrentPlot(plotID, xAxisTitle, xValue, drainCurrent, gateCurrent, direction):
+    def createDefaultCurrentPlot(plotID, xAxisTitle, xValue, drainCurrent, gateCurrent, legendNumber):
         '''
         Factory method particularly for Gate_Sweep and Drain_Sweep, but can be used elsewhere too.
         '''
-        seriesList = [Live_Plot_Series_Data_Point('Drain Current {} [A]'.format(direction + 1), xValue, drainCurrent), Live_Plot_Series_Data_Point('Gate Current {} [A]'.format(direction + 1), xValue, gateCurrent)]
+        seriesList = [Live_Plot_Series_Data_Point('Drain Current {} [A]'.format(legendNumber + 1), xValue, drainCurrent), Live_Plot_Series_Data_Point('Gate Current {} [A]'.format(legendNumber + 1), xValue, gateCurrent)]
         return Live_Plot_Data_Point(plotID, xAxisTitle, 'Current [A]', 'log', seriesList)
