@@ -29,7 +29,7 @@ def runAutoDrainSweep(parameters, smu_systems, arduino_systems, share=None):
 	startTime = time.time()
 	
 	# Send initial progress update
-	pipes.progressUpdate(share, 'Sweep', start=0, current=sweepCount, end=numberOfSweeps)
+	pipes.progressUpdate(share, 'Sweep', start=0, current=sweepCount, end=numberOfSweeps, barType="Sweep")
 	
 	# === START ===
 	for i in range(len(ads_parameters['gateVoltageSetPoints'])):
@@ -47,7 +47,7 @@ def runAutoDrainSweep(parameters, smu_systems, arduino_systems, share=None):
 			sweepCount += 1
 			
 			# Send progress update
-			pipes.progressUpdate(share, 'Sweep', start=0, current=sweepCount, end=numberOfSweeps)
+			pipes.progressUpdate(share, 'Sweep', start=0, current=sweepCount, end=numberOfSweeps, barType="Sweep")
 			
 			# If desired, delay until next sweep should start
 			if(ads_parameters['timedSweepStarts']):

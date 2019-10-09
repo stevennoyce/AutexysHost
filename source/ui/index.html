@@ -1099,6 +1099,10 @@
 									<v-list-tile-title>Dispatcher Jobs {{experimentRunnerProgress.dispatcherBarModel.current}} of {{experimentRunnerProgress.dispatcherBarModel.end}} </v-list-tile-title>
 									<v-progress-linear v-model="experimentRunnerProgress.dispatcherBarModel.percent"></v-progress-linear>
 								</v-list-tile>
+								<v-list-tile v-if="experimentRunnerProgress.sweepBarModel.visible">
+									<v-list-tile-title>Sweep {{experimentRunnerProgress.sweepBarModel.current}} of {{experimentRunnerProgress.sweepBarModel.end}} </v-list-tile-title>
+									<v-progress-linear v-model="experimentRunnerProgress.sweepBarModel.percent"></v-progress-linear>
+								</v-list-tile>
 								<v-list-tile>
 									<v-list-tile-title>{{experimentRunnerProgress.procedureBarModel.name}} {{experimentRunnerProgress.procedureBarModel.current}} of {{experimentRunnerProgress.procedureBarModel.end}} </v-list-tile-title>
 									<v-progress-linear v-model="experimentRunnerProgress.procedureBarModel.percent"></v-progress-linear>
@@ -1558,6 +1562,12 @@
 						end: 0,
 						percent: 0
 					},
+					sweepBarModel: {
+						visible: false,
+						current: 0,
+						end: 0,
+						percent: 0
+					},
 					procedureBarModel: {
 						name: '',
 						current: 0,
@@ -1779,10 +1789,25 @@
 					if (this.scheduleSaveProject == '') this.scheduleSaveProject = this.scheduleLoadProject;
 					if (this.scheduleSaveFileName == '') this.scheduleSaveFileName = this.scheduleLoadFileName;
 				},
+				clearProgressBars: function(){
+					this.experimentRunnerProgress.dispatcherBarModel.current = 0;
+					this.experimentRunnerProgress.dispatcherBarModel.end = 0;
+					this.experimentRunnerProgress.dispatcherBarModel.percent = 0;
+
+					this.experimentRunnerProgress.sweepBarModel.visible = false;
+					this.experimentRunnerProgress.sweepBarModel.current = 0;
+					this.experimentRunnerProgress.sweepBarModel.end = 0;
+					this.experimentRunnerProgress.sweepBarModel.percent = 0;
+
+					this.experimentRunnerProgress.procedureBarModel.current = 0;
+					this.experimentRunnerProgress.procedureBarModel.end = 0;
+					this.experimentRunnerProgress.procedureBarModel.percent = 0;
+				},
 				clearLivePlots: function() {
 					this.livePlots = {plots:[]};
 				},
 				dispatchSchedule: function() {
+					this.clearProgressBars();
 					this.clearLivePlots();
 					
 					var path = '/dispatchSchedule/' + this.scheduleExperimentUser + '/' + this.scheduleExperimentProject + '/' + this.scheduleExperimentFileName + '.json' + this.cacheBust;
@@ -2081,11 +2106,20 @@
 						this.dispatcherRunning = true;
 						
 						if(message.progress.barType === "Dispatcher"){
+							console.log("Within dispatcher");
 							this.experimentRunnerProgress.dispatcherBarModel.current = message.progress.current;
 							this.experimentRunnerProgress.dispatcherBarModel.end = message.progress.end;
 							this.experimentRunnerProgress.dispatcherBarModel.percent = computeProgressPercent(message.progress.start, message.progress.current, message.progress.end);
 						}
+						else if(message.progress.barType == "Sweep"){
+							console.log("Within sweep with current = " + message.progress.current);
+							this.experimentRunnerProgress.sweepBarModel.visible = true;
+							this.experimentRunnerProgress.sweepBarModel.current = message.progress.current;
+							this.experimentRunnerProgress.sweepBarModel.end = message.progress.end;
+							this.experimentRunnerProgress.sweepBarModel.percent = computeProgressPercent(message.progress.start, message.progress.current, message.progress.end);
+						}
 						else if(message.progress.barType === "Procedure"){
+							console.log("Within procedure");
 							this.experimentRunnerProgress.procedureBarModel.name = message.progress.name;
 							this.experimentRunnerProgress.procedureBarModel.current = message.progress.current;
 							this.experimentRunnerProgress.procedureBarModel.end = message.progress.end;
