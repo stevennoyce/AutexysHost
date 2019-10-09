@@ -1151,7 +1151,7 @@
 													<v-btn slot="activator" icon><v-icon>settings</v-icon></v-btn>
 													<v-list light>
 														
-														<v-list-tile @click="">
+														<v-list-tile @click="toggleLivePlotYAxisLog(plot)">
 															<v-list-tile-avatar>
 																<v-icon>linear_scale</v-icon>
 															</v-list-tile-avatar>
@@ -1160,7 +1160,7 @@
 															</v-list-tile-title></v-list-tile-content>
 														</v-list-tile>
 														
-														<v-list-tile @click="clearLivePlotXLabel(Object.keys(plot.xData)[0])">
+														<v-list-tile @click="clearLivePlot(plot)">
 															<v-list-tile-avatar>
 																<v-icon>clear</v-icon>
 															</v-list-tile-avatar>
@@ -2184,8 +2184,19 @@
 					}
 				},
 
-				clearLivePlotXLabel: function(xlabel) {
-					Vue.delete(this.livePlotXData, xlabel);
+				clearLivePlot: function(plot) {
+					while(plot.seriesList.length > 0){
+						plot.seriesList.pop();
+					}
+				},
+
+				toggleLivePlotYAxisLog: function(plot){
+					if(plot.yScale == "linear"){
+						plot.yScale = "log";
+					}
+					else if(plot.yScale == "log"){
+						plot.yScale = "linear";
+					}
 				},
 
 				formatForPlotly: function(plot) {
