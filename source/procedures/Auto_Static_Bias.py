@@ -36,8 +36,9 @@ def runAutoStaticBias(parameters, smu_systems, arduino_systems, gateSweepParamet
 	delayBeforeMeasurementsList = [sb_parameters['delayBeforeMeasurementsBegin']]*numberOfStaticBiases
 
 	delayBeforeMeasurementsList[0] = asb_parameters['firstDelayBeforeMeasurementsBegin']
-	
 
+	# Send initial progress update
+	pipes.progressUpdate(share, 'Bias', start=0, current=0, end=numberOfStaticBiases, barType="Sweep")
 
 	## === START ===
 	print('Beginning AutoStaticBias test with the following parameter lists:')
@@ -69,6 +70,9 @@ def runAutoStaticBias(parameters, smu_systems, arduino_systems, gateSweepParamet
 			gateSweepScript.run(gateSweepParameters, smu_systems, arduino_systems, share=share)
 
 		print('Completed static bias #'+str(i+1)+' of '+str(numberOfStaticBiases))
+
+		# Send progress update
+		pipes.progressUpdate(share, 'Bias', start=0, current=i+1, end=numberOfStaticBiases, barType="Sweep")
 
 		# Delay before doing the next StaticBias
 		if((asb_parameters['delayBetweenBiases'] > 0) and (i+1 < numberOfStaticBiases)):
