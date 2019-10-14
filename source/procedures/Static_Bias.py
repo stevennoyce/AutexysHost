@@ -189,7 +189,7 @@ def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVolt
 		# Send a data message
 		pipes.livePlotUpdate(share,plots=[Live_Plot_Data_Point(plotID = 'Voltage Y',
 															  xAxisTitle= 'Time [s]',
-															  yAxisTitle= 'Voltage [V]',
+															  yAxisTitle= 'Current [A]',
 															  yScale= 'linear',
 															  seriesList=[
 																  Live_Plot_Series_Data_Point(
