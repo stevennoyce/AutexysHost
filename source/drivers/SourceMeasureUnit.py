@@ -726,13 +726,17 @@ class PCB2v14(SourceMeasureUnit):
 	def disconnect(self):
 		self.ser.close()
 
+class InternalSMUEmulator():
+	def write(self, someArg):
+		pass
+
 class Emulator(SourceMeasureUnit):
 	'''
 	For use when computer is not connected to any device, but testing of certain UI features is desired. Returns dummy data
 	for use when testing.
 	'''
 
-	smu = None
+	smu = InternalSMUEmulator()
 	system_id = ''
 	stepsPerRamp = 20
 	measurementsPerSecond = 40
