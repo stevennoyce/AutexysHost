@@ -11,7 +11,7 @@ from utilities import DataLoggerUtility as dlu
 
 
 # === Main ===
-def run(parameters, smu_systems, arduino_systems, share=None):
+def run(parameters, smu_systems, arduino_systems, share=None, initTime=-1):
 	# This script uses the default SMU, which is the first one in the list of SMU systems
 	smu_names = list(smu_systems.keys())
 	smu_instance = smu_systems[smu_names[0]]
@@ -49,7 +49,8 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 							gateVoltageSetPoint=sb_parameters['gateVoltageSetPoint'],
 							totalBiasTime=sb_parameters['totalBiasTime'], 
 							measurementTime=sb_parameters['measurementTime'],
-							share=share)
+							share=share,
+							initTime=initTime)
 	smu_instance.rampGateVoltageTo(sb_parameters['gateVoltageWhenDone'])
 	smu_instance.rampDrainVoltageTo(sb_parameters['drainVoltageWhenDone'],
 	)
@@ -89,7 +90,7 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 	return jsonData
 
 # === Data Collection ===
-def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVoltageSetPoint, totalBiasTime, measurementTime, share=None):
+def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVoltageSetPoint, totalBiasTime, measurementTime, share=None, initTime = -1):
 	vds_data = []
 	id_data = []
 	vgs_data = []
@@ -181,6 +182,9 @@ def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVolt
 		id_std.append(np.std(id_normalized))
 		ig_std.append(np.std(ig_normalized))
 
+		if initTime == -1:
+			initTime = timestamps[0]
+
 		# Take a measurement with the Arduino
 		sensor_data = arduino_instance.takeMeasurement()
 		for (measurement, value) in sensor_data.items():
@@ -189,18 +193,30 @@ def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVolt
 		# Send a data message
 		pipes.livePlotUpdate(share,plots=[Live_Plot_Data_Point(plotID = 'Voltage Y',
 															  xAxisTitle= 'Time [s]',
-															  yAxisTitle= 'Current [A]',
+															  yAxisTitle= 'Voltage [V]',
 															  yScale= 'linear',
 															  seriesList=[
 																  Live_Plot_Series_Data_Point(
-																	  seriesName='Drain Current [A]',
-																	  xData=vds_data_median,
+																	  seriesName='Gate Voltage [V]',
+																	  xData=timestamp - initTime,
 																	  yData=vgs_data_median),
 																  Live_Plot_Series_Data_Point(
-																	  seriesName='Gate Current [A]',
-																	  xData=vds_data_median,
-																	  yData=vgs_data_median)]
-															  )])
+																	  seriesName='Drain Voltage [V]',
+																	  xData=timestamp - initTime,
+																	  yData=vds_data_median)]),
+										  Live_Plot_Data_Point(plotID='Current Y',
+															   xAxisTitle='Time [s]',
+															   yAxisTitle='Current [A]',
+															   yScale='linear',
+															   seriesList=[
+																   Live_Plot_Series_Data_Point(
+																	   seriesName='Gate Current [A]',
+																	   xData=timestamp - initTime,
+																	   yData=ig_data_median),
+																   Live_Plot_Series_Data_Point(
+																	   seriesName='Drain Current [A]',
+																	   xData=timestamp - initTime,
+																	   yData=id_data_median)])])
 
 		# Update progress bar
 		elapsedTime = time.time() - startTime
