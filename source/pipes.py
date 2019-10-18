@@ -88,15 +88,19 @@ def clear(share, qName):
 
 def progressUpdate(share, progName, start, current, end, barType='Procedure'):
 	try:
+		print("Here 1")
 		abort = False
 		qName = 'QueueToUI'
 		
 		if share is None:
+			print("Here 2")
 			return
 		
 		if progName in share['procedureStopLocations']:
+			print("Here 3")
 			abort = True
-		
+
+		print("Sending message")
 		send(share, qName, {
 			'type':'Progress',
 			'progress': {

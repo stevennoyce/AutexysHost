@@ -2102,7 +2102,7 @@
 				
 				handleServerMessage: function(message) {
 					if (message.type == 'Progress') {
-
+						console.log("Within message receiver");
 						this.dispatcherRunning = true;
 						
 						if(message.progress.barType === "Dispatcher"){
