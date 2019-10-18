@@ -191,32 +191,20 @@ def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVolt
 			parameters['SensorData'][measurement].append(value)
 
 		# Send a data message
-		pipes.livePlotUpdate(share,plots=[Live_Plot_Data_Point(plotID = 'Voltage Y',
-															  xAxisTitle= 'Time [s]',
-															  yAxisTitle= 'Voltage [V]',
-															  yScale= 'linear',
-															  seriesList=[
-																  Live_Plot_Series_Data_Point(
-																	  seriesName='Gate Voltage [V]',
-																	  xData=timestamp - initTime,
-																	  yData=vgs_data_median),
-																  Live_Plot_Series_Data_Point(
-																	  seriesName='Drain Voltage [V]',
-																	  xData=timestamp - initTime,
-																	  yData=vds_data_median)]),
-										  Live_Plot_Data_Point(plotID='Current Y',
-															   xAxisTitle='Time [s]',
-															   yAxisTitle='Current [A]',
-															   yScale='linear',
-															   seriesList=[
-																   Live_Plot_Series_Data_Point(
-																	   seriesName='Gate Current [A]',
-																	   xData=timestamp - initTime,
-																	   yData=ig_data_median),
-																   Live_Plot_Series_Data_Point(
-																	   seriesName='Drain Current [A]',
-																	   xData=timestamp - initTime,
-																	   yData=id_data_median)])])
+		pipes.livePlotUpdate(share,plots=[Live_Plot_Data_Point(plotID='Current vs. Time',
+														   xAxisTitle='Time [s]',
+														   yAxisTitle='Current [A]',
+														   yScale='log',
+														   seriesList=[
+															   Live_Plot_Series_Data_Point(
+																   seriesName='Static Bias Gate Current [A]',
+																   xData=timestamp - initTime,
+																   yData=ig_data_median),
+															   Live_Plot_Series_Data_Point(
+																   seriesName='Static Bias Drain Current [A]',
+																   xData=timestamp - initTime,
+																   yData=id_data_median)])])
+
 
 		# Update progress bar
 		elapsedTime = time.time() - startTime
