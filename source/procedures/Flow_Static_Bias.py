@@ -3,12 +3,14 @@ import time
 import numpy as np
 
 import pipes
+from Live_Plot_Data_Point import Live_Plot_Data_Point
+from Live_Plot_Series_Data_Point import Live_Plot_Series_Data_Point
 from utilities import DataLoggerUtility as dlu
 
 
 
 # === Main ===
-def run(parameters, smu_systems, arduino_systems, share=None):
+def run(parameters, smu_systems, arduino_systems, share=None, initTime = -1):
 	# This script uses the default SMU, which is the first one in the list of SMU systems
 	smu_names = list(smu_systems.keys())
 	smu_instance = smu_systems[smu_names[0]]
@@ -55,7 +57,8 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 							flushPins=fsb_parameters['flushPins'],
 							cycleCount=fsb_parameters['cycleCount'],
 							solutions=fsb_parameters['solutions'],
-							share=share)
+							share=share,
+							initTime=initTime)
 	smu_instance.rampGateVoltageTo(fsb_parameters['gateVoltageWhenDone'])
 	smu_instance.rampDrainVoltageTo(fsb_parameters['drainVoltageWhenDone'])
 
@@ -120,7 +123,7 @@ def flushingPins(smu_instance, flushPins, reversePumpPins, pinToFlush):
 	time.sleep(1)
 
 # === Data Collection ===
-def runFlowStaticBias(smu_instance, arduino_instance, delayBeforeMeasurementsBegin, drainVoltageSetPoint, gateVoltageSetPoint, measurementTime, flowDurations, subCycleDurations, pumpPins, reversePumpPins, flushPins, cycleCount, solutions, share=None):
+def runFlowStaticBias(smu_instance, arduino_instance, delayBeforeMeasurementsBegin, drainVoltageSetPoint, gateVoltageSetPoint, measurementTime, flowDurations, subCycleDurations, pumpPins, reversePumpPins, flushPins, cycleCount, solutions, share=None, initTime=-1):
 	
 	smu_instance.digitalWrite(1, "LOW")
 	
@@ -174,7 +177,8 @@ def runFlowStaticBias(smu_instance, arduino_instance, delayBeforeMeasurementsBeg
 
 	# Criteria to keep taking measurements when measurementTime is relatively large
 	continueCriterion = lambda i, measurementCount, startTime: i < steps
-	if(measurementTime < smu_instance.measurementRateVariabilityFactor*smu_secondsPerMeasurement):
+	smallMeasurementTimeCriterion = lambda: measurementTime < smu_instance.measurementRateVariabilityFactor*smu_secondsPerMeasurement
+	if(smallMeasurementTimeCriterion):
 		# Criteria to keep taking measurements when measurementTime is very small
 		continueCriterion = lambda i, measurementCount, startTime: (time.time() - startTime) < (totalBiasTime - (1/2)*smu_secondsPerMeasurement)
 		continueCriterion = lambda i, measurementCount, startTime: (time.time() - startTime) < (totalBiasTime - (1/2)*(time.time() - startTime)/max(measurementCount, 1))
@@ -208,6 +212,11 @@ def runFlowStaticBias(smu_instance, arduino_instance, delayBeforeMeasurementsBeg
 	exchangeEndBool = True
 	exchangeFlush = True
 	while(continueCriterion(i, measurementCount, startTime)):
+		if (smallMeasurementTimeCriterion):
+			pipes.progressUpdate(share, 'Flow Static Bias Point', start=1, current=i + 1, end=steps)
+		else:
+			pipes.progressUpdate(share, 'Flow Static Bias Point', start=1, current=i + 1, end=steps)
+
 		# Define buffers for data to fill during each "measurementTime"
 		measurements = {'Vds_data':[], 'Id_data':[], 'Vgs_data':[], 'Ig_data':[], 
 						'Vds_intervals':[], 'Id_intervals':[], 'Vgs_intervals':[], 'Ig_intervals':[]}
@@ -287,10 +296,15 @@ def runFlowStaticBias(smu_instance, arduino_instance, delayBeforeMeasurementsBeg
 		
 		# Save the median of all the measurements taken in this measurementTime window
 		timestamp = time.time()
-		vds_data.append(np.median(measurements['Vds_data']))
-		id_data.append(np.median(measurements['Id_data']))
-		vgs_data.append(np.median(measurements['Vgs_data']))
-		ig_data.append(np.median(measurements['Ig_data']))
+		vds_data_median = np.median(measurements['Vds_data'])
+		vds_data.append(vds_data_median)
+		id_data_median = np.median(measurements['Id_data'])
+		id_data.append(id_data_median)
+		vgs_data_median = np.median(measurements['Vgs_data'])
+		vgs_data.append(vgs_data_median)
+		ig_data_median = np.median(measurements['Ig_data'])
+		ig_data.append(ig_data_median)
+		timestamps.append(timestamp)
 		
 		pump_on_intervals_pin.append(currentDigitalPin)
 
@@ -310,6 +324,24 @@ def runFlowStaticBias(smu_instance, arduino_instance, delayBeforeMeasurementsBeg
 		sensor_data = arduino_instance.takeMeasurement()
 		for (measurement, value) in sensor_data.items():
 			parameters['SensorData'][measurement].append(value)
+
+		if initTime == -1:
+			initTime = timestamps[0]
+
+		# Send a data message
+		pipes.livePlotUpdate(share,plots=[Live_Plot_Data_Point(plotID='Current vs. Time',
+														   xAxisTitle='Time [s]',
+														   yAxisTitle='Current [A]',
+														   yScale='log',
+														   seriesList=[
+															   Live_Plot_Series_Data_Point(
+																   seriesName='Flow Static Bias Gate Current [A]',
+																   xData=timestamp - initTime,
+																   yData=ig_data_median),
+															   Live_Plot_Series_Data_Point(
+																   seriesName='Flow Static Bias Drain Current [A]',
+																   xData=timestamp - initTime,
+																   yData=id_data_median)])])
 
 		# Update progress bar
 		elapsedTime = time.time() - startTime
