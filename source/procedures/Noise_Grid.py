@@ -33,10 +33,17 @@ def runNoiseGrid(parameters, smu_systems, arduino_systems, share=None):
 	numberOfNoiseCollections = numberOfVGS*numberOfVDS
 	count = 0
 	startTime = time.time()
-	
+
+	numPoints = len(ng_parameters['gateVoltages']) * len(ng_parameters['drainVoltages'])
+	currentPoint = 1
+
+	print("Executing noise grid")
+
 	# === START ===
 	for gateVoltage in ng_parameters['gateVoltages']:
 		for drainVoltage in ng_parameters['drainVoltages']:
+			pipes.progressUpdate(share, 'Noise Grid Run', start=0, current=currentPoint, end=numPoints, barType="Sweep")
+
 			# Make copy of parameters to run NoiseCollection, but modify the setpoints
 			noiseCollectionParameters = dict(parameters)
 			noiseCollectionParameters['runType'] = 'NoiseCollection'
@@ -55,6 +62,8 @@ def runNoiseGrid(parameters, smu_systems, arduino_systems, share=None):
 			if((ng_parameters['groundingTime'] > 0) and (count < numberOfNoiseCollections)):
 				print('Waiting for ' + str(ng_parameters['groundingTime']) + ' seconds...')
 				time.sleep(ng_parameters['groundingTime'])
+
+			currentPoint+=1
 
 
 	

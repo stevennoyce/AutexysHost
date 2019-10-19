@@ -36,6 +36,9 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 								points=rt_params['points'],
 								share=share)
 	smu_instance.rampDownVoltages()
+
+	print(results)
+
 	# === COMPLETE ===
 	
 	# Add important metrics from the run to the parameters for easy access later in ParametersHistory
