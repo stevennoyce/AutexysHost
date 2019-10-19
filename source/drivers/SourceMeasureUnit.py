@@ -844,12 +844,21 @@ class Emulator(SourceMeasureUnit):
 		time.sleep(0.1)
 
 		return {
-			'Vds_data': [[1*random.randint(0,1)]*10]*2,
-			'Id_data': [[0.001*random.randint(0,1)]*10]*2,
-			'Vgs_data': [[3.3*random.randint(0,1)]*10]*2,
-			'Ig_data': [[0.00000000001*random.randint(0,1)]*10]*2,
-			'timestamps': [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [10, 11, 12, 13, 14, 15, 16, 17, 18, 19]]
+			'Vds_data': [1*random.randint(0,1)]*20,
+			'Id_data': [0.001*random.randint(0,1)]*20,
+			'Vgs_data': [3.3*random.randint(0,1)]*20,
+			'Ig_data': [0.00000000001*random.randint(0,1)]*20,
+			'timestamps': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
 		}
+
+
+		# return {
+		# 	'Vds_data': [[1*random.randint(0,1)]*10]*2,
+		# 	'Id_data': [[0.001*random.randint(0,1)]*10]*2,
+		# 	'Vgs_data': [[3.3*random.randint(0,1)]*10]*2,
+		# 	'Ig_data': [[0.00000000001*random.randint(0,1)]*10]*2,
+		# 	'timestamps': [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [10, 11, 12, 13, 14, 15, 16, 17, 18, 19]]
+		# }
 
 	def arm(self, count=1):
 		pass

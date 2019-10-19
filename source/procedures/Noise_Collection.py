@@ -4,6 +4,8 @@ import numpy as np
 
 import pipes
 #from procedures import Device_History as deviceHistoryScript
+from Live_Plot_Data_Point import Live_Plot_Data_Point
+from Live_Plot_Series_Data_Point import Live_Plot_Series_Data_Point
 from utilities import DataLoggerUtility as dlu
 from utilities import SequenceGeneratorUtility as dgu
 
@@ -31,7 +33,8 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 								measurementSpeed=rt_params['measurementSpeed'],
 								drainVoltage=rt_params['drainVoltage'],
 								gateVoltage=rt_params['gateVoltage'], 
-								points=rt_params['points'])
+								points=rt_params['points'],
+								share=share)
 	smu_instance.rampDownVoltages()
 	# === COMPLETE ===
 	
@@ -53,11 +56,13 @@ def runNoiseCollection(smu_instance, measurementSpeed, drainVoltage, gateVoltage
 	triggerInterval = 1/measurementSpeed
 	points = min(points, 100e3)
 	startTime = time.time()
-	
+
+	pipes.progressUpdate(share, 'Noise Collection', start=0, current=0, end=1)
 	measurements = smu_instance.takeSweep(drainVoltage, drainVoltage, gateVoltage, gateVoltage, points, triggerInterval=triggerInterval, includeVoltages=False)
-	
+	pipes.progressUpdate(share, 'Noise Collection', start=0, current=1, end=1)
+
 	print('Time elapsed is {} s'.format(time.time() - startTime))
-	
+
 	return {
 		'Raw':{
 			'id_data': measurements['Id_data'],
