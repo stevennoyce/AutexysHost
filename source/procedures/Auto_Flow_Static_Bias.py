@@ -76,7 +76,6 @@ def runAutoFlowStaticBias(parameters, smu_systems, arduino_systems, gateSweepPar
 	delayBeforeMeasurementsList[0] = asb_parameters['firstDelayBeforeMeasurementsBegin']
 
 	# Send initial progress update
-	print("I am here, yes I am")
 	pipes.progressUpdate(share, 'Bias', start=0, current=0, end=numberOfFlowStaticBiases, barType="Sweep")
 
 	## === START ===

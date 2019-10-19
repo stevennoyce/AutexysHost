@@ -130,9 +130,9 @@ def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVolt
 	while(continueCriterion(i, measurementCount)):
 		# Send a progress message
 		if(smallMeasurementTimeCriterion):
-			pipes.progressUpdate(share, 'Static Bias Point', start=1, current=i+1, end=steps)
+			pipes.progressUpdate(share, 'Static Bias Point', start=0, current=i+1, end=steps)
 		else:
-			pipes.progressUpdate(share, 'Static Bias Point', start=1, current=i+1, end=steps)
+			pipes.progressUpdate(share, 'Static Bias Point', start=0, current=i+1, end=steps)
 
 		# Define buffers for data to fill during each "measurementTime"
 		measurements = {'Vds_data':[], 'Id_data':[], 'Vgs_data':[], 'Ig_data':[]}
