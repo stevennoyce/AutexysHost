@@ -623,19 +623,21 @@ class PCB2v14(SourceMeasureUnit):
 	def setParameter(self, parameter):
 		self.ser.write( str(parameter).encode('UTF-8') )
 
+	# Wait for PCB to send a message. The best way to use this is to specify a unique character that the message will start with so that you know when you've received it. 
 	def getResponse(self, startsWith='', lines=1, printResponse=True):
 		response = ''
 		for i in range(lines):
 			line = self.ser.readline().decode(encoding='UTF-8')
 			if(startsWith != ''):
 				while(line[0] != startsWith):
-					print('SKIPPED: ' + str(line))
+					print('NOTE: ' + str(line))
 					line = self.ser.readline().decode(encoding='UTF-8')
 			response += line
 		if(printResponse):
 			print(response, end='')
 		return response
 
+	# Convert to the standard data format
 	def formatMeasurement(self, measurement):
 		data = json.loads(str(measurement))
 		i_d = float(data[0])
@@ -649,31 +651,44 @@ class PCB2v14(SourceMeasureUnit):
 			'I_g':  i_g
 		}
 
+	# Make connections to a specific device
 	def setDevice(self, deviceID):
-		self.setParameter('connect-intermediates !')
+		self.setParameter('connect-all-selectors !')
 		self.getResponse(lines=9)
 		self.setParameter('disconnect-all-from-all !')
 		self.getResponse(lines=9)
 		contactPad1 = int(deviceID.split('-')[0])
 		contactPad2 = int(deviceID.split('-')[1])
-		intermediate1 = (1) if(contactPad1 <= 32) else (3)
-		intermediate2 = (2) if(contactPad2 <= 32) else (4)
-		print('connecting contact: ' + str(contactPad1) + ' to AMUX: ' + str(intermediate1))
-		print('connecting contact: ' + str(contactPad2) + ' to AMUX: ' + str(intermediate2))
-		self.setParameter("connect {} {}!".format(contactPad1, intermediate1))
+		selector1 = (1) if(contactPad1 <= 32) else (3)
+		selector2 = (2) if(contactPad2 <= 32) else (4)
+		print('connecting contact: ' + str(contactPad1) + ' to AMUX: ' + str(selector1))
+		print('connecting contact: ' + str(contactPad2) + ' to AMUX: ' + str(selector2))
+		self.setParameter("connect {} {}!".format(contactPad1, selector1))
 		self.getResponse(lines=3)
-		self.setParameter("connect {} {}!".format(contactPad2, intermediate2))
+		self.setParameter("connect {} {}!".format(contactPad2, selector2))
 		self.getResponse(lines=3)
-		self.setParameter("calibrate-offset !")
+		self.setParameter("calibrate-adc-offset !")
 		self.getResponse(startsWith='#', lines=9)
 		print('Switched to device: ' + str(deviceID))
 
-	def setVds(self, voltage):
+	# Set Vds in millivolts (easy communication, avoids using decimal numbers)
+	def setVds_mV(self, voltage):
 		self.setParameter("set-vds-mv {:.0f}!".format(voltage*1000))
 		self.getResponse(startsWith='#')
 
-	def setVgs(self, voltage):
+	# Set Vgs in millivolts (easy communication, avoids using decimal numbers)
+	def setVgs_mV(self, voltage):
 		self.setParameter("set-vgs-mv {:.0f}!".format(voltage*1000))
+		self.getResponse(startsWith='#')
+	
+	# Set Vds in Volts
+	def setVds(self, voltage):
+		self.setParameter("set-vds {:.3f}!".format(voltage))
+		self.getResponse(startsWith='#')
+
+	# Set Vgs in Volts
+	def setVgs(self, voltage):
+		self.setParameter("set-vgs {:.3f}!".format(voltage))
 		self.getResponse(startsWith='#')
 
 	def takeMeasurement(self):
