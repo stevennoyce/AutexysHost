@@ -23,14 +23,14 @@ smu_system_configurations = {
 	'standalone': {
 		'PCB': {
 			'uniqueID': '',
-			'type': 'PCB2v14',
+			'type': 'PCB_System',
 			'settings': {}
 		}
 	},
 	'bluetooth': {
 		'PCB': {
 			'uniqueID': '/dev/tty.HC-05-DevB',
-			'type': 'PCB2v14',
+			'type': 'PCB_System',
 			'settings': {}
 		}
 	},
@@ -136,7 +136,7 @@ def getConnectionToPCB(pcb_port='', system_settings=None):
 		ser = pySerial.Serial(pcb_port, 115200)
 	except:
 		ser = pySerial.Serial(pcb_port.device, 115200)
-	return PCB2v14(ser, pcb_port)
+	return PCB_System(ser, pcb_port)
 
 
 
@@ -445,6 +445,7 @@ class B2912A(SourceMeasureUnit):
 			'I_g':  data[7]
 		}
 	
+	# SWEEP: configure all hardware settings to prepare a sweep
 	def setupSweep(self, src1start, src1stop, src2start, src2stop, points, triggerInterval=None, src1vals=None, src2vals=None):
 		points = int(points)
 		
@@ -487,10 +488,12 @@ class B2912A(SourceMeasureUnit):
 		
 		return timeToTakeMeasurements
 	
+	# SWEEP: trigger a sweep to begin
 	def initSweep(self):
 		self.smu.write(":init (@1:2)")
 		self.smu.write("*WAI")
 	
+	# SWEEP: Setup and trigger a sweep to begin
 	def startSweep(self, src1start, src1stop, src2start, src2stop, points, triggerInterval=None, src1vals=None, src2vals=None):
 		timeToTakeMeasurements = self.setupSweep(src1start, src1stop, src2start, src2stop, points, triggerInterval=triggerInterval, src1vals=src1vals, src2vals=src2vals)
 		
@@ -499,7 +502,8 @@ class B2912A(SourceMeasureUnit):
 		
 		return timeToTakeMeasurements
 	
-	def endSweep(self, endMode=None, includeCurrents=[True, True], includeVoltages=[True,True], includeTimes=True):
+	# SWEEP: Retrieve data from most recent sweep
+	def endSweep(self, endMode=None, includeCurrents=[True, True], includeVoltages=[True, True], includeTimes=True):
 		if(not isinstance(includeCurrents, list)):
 			includeCurrents = [includeCurrents, includeCurrents]
 		if(not isinstance(includeVoltages, list)):
@@ -531,6 +535,7 @@ class B2912A(SourceMeasureUnit):
 			'timestamps': timestamps
 		}
 	
+	# SWEEP: Perform a fully hardware-driven sweep
 	def takeSweep(self, src1start, src1stop, src2start, src2stop, points, triggerInterval=None, src1vals=None, src2vals=None, includeCurrents=True, includeVoltages=True, includeTimes=True):
 		timeToTakeMeasurements = self.startSweep(src1start, src1stop, src2start, src2stop, points, triggerInterval=triggerInterval, src1vals=src1vals, src2vals=src2vals)
 		
@@ -605,7 +610,7 @@ class B2912A(SourceMeasureUnit):
 		
 
 
-class PCB2v14(SourceMeasureUnit):
+class PCB_System(SourceMeasureUnit):
 	ser = None
 	system_id = ''
 	stepsPerRamp = 5
@@ -697,14 +702,9 @@ class PCB2v14(SourceMeasureUnit):
 		print('MEASURE: ' + str(response), end='')
 		return self.formatMeasurement(response)
 
-	def takeSweep(self, src1start, src1stop, src2start, src2stop, points):
-		vds_data = []
-		id_data = []
-		vgs_data = []
-		ig_data = []
+	# SWEEP: Setup and trigger a sweep to begin
+	def startSweep(self, src1start, src1stop, src2start, src2stop, points):
 		points = int(points)
-		
-		timeToTakeMeasurements = (self.nplc)*(points/self.measurementsPerSecond)
 
 		# Static Bias
 		if(src1start == src1stop and src2start == src2stop):
@@ -712,16 +712,24 @@ class PCB2v14(SourceMeasureUnit):
 		# Gate Sweep
 		elif(src1start == src1stop):
 			self.setVds(src1start)
-			self.setParameter('measure-gate-sweep {:.3f} {:.3f} {:d}!'.format(src2start, src2stop, points))
+			self.setParameter('gate-sweep {:.3f} {:.3f} {:d}!'.format(src2start, src2stop, points))
 		# Drain Sweep
 		elif(src2start == src2stop):
 			self.setVgs(src2start)
-			self.setParameter('measure-drain-sweep {:.3f} {:.3f} {:d}!'.format(src1start, src1stop, points))
+			self.setParameter('drain-sweep {:.3f} {:.3f} {:d}!'.format(src1start, src1stop, points))
 		else:
-			raise NotImplementedError('PCB2v14 general sweep not implemented.')
+			raise NotImplementedError('PCB system multi-channel sweep is not implemented.')
+			
+		timeToTakeMeasurements = (self.nplc)*(points/self.measurementsPerSecond)
+		
+		return 1.5 * timeToTakeMeasurements
 
-		# Wait for measurement to complete
-		time.sleep(1.5 * timeToTakeMeasurements)	
+	# SWEEP: Retrieve data from most recent sweep
+	def endSweep():
+		vds_data = []
+		id_data = []
+		vgs_data = []
+		ig_data = []
 		
 		# Read measurements from output buffer
 		while(self.ser.in_waiting):
@@ -738,6 +746,14 @@ class PCB2v14(SourceMeasureUnit):
 			'Vgs_data': vgs_data,
 			'Ig_data': ig_data
 		}
+
+	# SWEEP: Perform a fully hardware-driven sweep
+	def takeSweep(self, src1start, src1stop, src2start, src2stop, points):
+		timeToTakeMeasurements = self.startSweep(src1start, src1stop, src2start, src2stop, points)
+
+		time.sleep(timeToTakeMeasurements)	
+		
+		return self.endSweep()
 	
 	def disconnect(self):
 		self.ser.close()
