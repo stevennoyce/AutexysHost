@@ -703,30 +703,34 @@ class PCB2v14(SourceMeasureUnit):
 		vgs_data = []
 		ig_data = []
 		points = int(points)
+		
+		timeToTakeMeasurements = (self.nplc)*(points/self.measurementsPerSecond)
 
+		# Static Bias
 		if(src1start == src1stop and src2start == src2stop):
 			self.setParameter('measure-multiple {:d}!'.format(points))
+		# Gate Sweep
+		elif(src1start == src1stop):
+			self.setVds(src1start)
+			self.setParameter('measure-gate-sweep {:.3f} {:.3f} {:d}!'.format(src2start, src2stop, points))
+		# Drain Sweep
+		elif(src2start == src2stop):
+			self.setVgs(src2start)
+			self.setParameter('measure-drain-sweep {:.3f} {:.3f} {:d}!'.format(src1start, src1stop, points))
+		else:
+			raise NotImplementedError('PCB2v14 general sweep not implemented.')
 
-			timeToTakeMeasurements = (self.nplc)*(points/self.measurementsPerSecond)
-			time.sleep(1.5 * timeToTakeMeasurements)
-
-			while(self.ser.in_waiting):
-				response = self.getResponse()
-				data = self.formatMeasurement(response)
-				vds_data.append(data['V_ds'])
-				id_data.append(data['I_d'])
-				vgs_data.append(data['V_gs'])
-				ig_data.append(data['I_g'])
-
-			return {
-				'Vds_data': vds_data,
-				'Id_data': id_data,
-				'Vgs_data': vgs_data,
-				'Ig_data': ig_data
-			}
-
-
-		raise NotImplementedError('PCB2v14 general sweep not implemented.')
+		# Wait for measurement to complete
+		time.sleep(1.5 * timeToTakeMeasurements)	
+		
+		# Read measurements from output buffer
+		while(self.ser.in_waiting):
+			response = self.getResponse()
+			data = self.formatMeasurement(response)
+			vds_data.append(data['V_ds'])
+			id_data.append(data['I_d'])
+			vgs_data.append(data['V_gs'])
+			ig_data.append(data['I_g'])
 
 		return {
 			'Vds_data': vds_data,
