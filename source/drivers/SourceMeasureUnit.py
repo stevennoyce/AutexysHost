@@ -176,7 +176,7 @@ class SourceMeasureUnit:
 	def takeMeasurement(self):
 		raise NotImplementedError("Please implement SourceMeasureUnit.takeMeasurement()")
 
-	def takeSweep(self, src1start, src1stop, src2start, src2stop, points):
+	def takeSweep(self, src1start, src1stop, src2start, src2stop, points, triggerInterval=None, src1vals=None, src2vals=None):
 		raise NotImplementedError("Please implement SourceMeasureUnit.takeSweep()")
 	
 	def disconnect(self):
@@ -702,27 +702,85 @@ class PCB_System(SourceMeasureUnit):
 		print('MEASURE: ' + str(response), end='')
 		return self.formatMeasurement(response)
 
-	# SWEEP: Setup and trigger a sweep to begin
-	def startSweep(self, src1start, src1stop, src2start, src2stop, points):
+	# SWEEP: figure out all hardware settings to prepare a sweep
+	def setupSweep(self, src1start, src1stop, src2start, src2stop, points, triggerInterval=None, src1vals=None, src2vals=None):
 		points = int(points)
-
+		
+		src1loops = 0
+		src2loops = 0
+		
+		# If sweep was specified by arrays of points, choose reasonable values for src1start/src1stop
+		if((src1vals is not None) and (isinstance(src1vals, list)) and (len(src1vals) > 0)): 
+			src1start = src1vals[0]
+			src1stop = src1vals[-1]
+			
+			if((src1start != max(src1vals)) and (src1stop != max(src1vals))):
+				src1stop = max(src1vals)
+				src1loops = 1
+			elif((src1start != min(src1vals)) and (src1stop != min(src1vals))):
+				src1stop = min(src1vals)
+				src1loops = 1
+		
+		# If sweep was specified by arrays of points, choose reasonable values for src2start/src2stop
+		if((src2vals is not None) and (isinstance(src2vals, list)) and (len(src1vals) > 0)): 
+			src2start = src2vals[0]
+			src2stop = src2vals[-1]
+		
+			if((src2start != max(src2vals)) and (src2stop != max(src2vals))):
+				src2stop = max(src2vals)
+				src2loops = 1
+			else((src2start != min(src2vals)) and (src2stop != min(src2vals))):
+				src2stop = min(src2vals)
+				src2loops = 1
+		
+		timeToTakeMeasurements = (self.nplc)*(points/self.measurementsPerSecond)
+		
+		return {
+			'timeToTakeMeasurements': 1.5*timeToTakeMeasurements,
+			'src1start': src1start,
+			'src1stop':  src1stop,
+			'src2start': src2start,
+			'src2stop':  src2stop,
+			'points': int(points),
+			'src1loops': src1loops,
+			'src2loops': src2loops,
+		}
+	
+	# SWEEP: trigger a sweep to begin
+	def triggerSweep(self, src1start, src1stop, src2start, src2stop, points, src1loops=0, src2loops=0):
 		# Static Bias
 		if(src1start == src1stop and src2start == src2stop):
+			self.setVds(src1start)
+			self.setVgs(src2start)
 			self.setParameter('measure-multiple {:d}!'.format(points))
+			
 		# Gate Sweep
 		elif(src1start == src1stop):
 			self.setVds(src1start)
-			self.setParameter('gate-sweep {:.3f} {:.3f} {:d}!'.format(src2start, src2stop, points))
+			if(src2loops > 0):
+				self.setParameter('gate-sweep-loop {:.3f} {:.3f} {:d}!'.format(src2start, src2stop, points))
+			else:
+				self.setParameter('gate-sweep {:.3f} {:.3f} {:d}!'.format(src2start, src2stop, points))
+				
 		# Drain Sweep
 		elif(src2start == src2stop):
 			self.setVgs(src2start)
-			self.setParameter('drain-sweep {:.3f} {:.3f} {:d}!'.format(src1start, src1stop, points))
+			if(src1loops > 0):
+				self.setParameter('drain-sweep-loop {:.3f} {:.3f} {:d}!'.format(src1start, src1stop, points))
+			else:
+				self.setParameter('drain-sweep {:.3f} {:.3f} {:d}!'.format(src1start, src1stop, points))
+		
+		# Not a Static Bias, Gate Sweep, or Drain Sweep
 		else:
 			raise NotImplementedError('PCB system multi-channel sweep is not implemented.')
-			
-		timeToTakeMeasurements = (self.nplc)*(points/self.measurementsPerSecond)
+
+	# SWEEP: Setup and trigger a sweep to begin
+	def startSweep(self, src1start, src1stop, src2start, src2stop, points, triggerInterval=None, src1vals=None, src2vals=None):
+		sweepSetupInfo = self.setupSweep(src1start, src1stop, src2start, src2stop, points, triggerInterval=None, src1vals=None, src2vals=None)
 		
-		return 1.5 * timeToTakeMeasurements
+		self.triggerSweep(sweepSetupInfo['src1start'], sweepSetupInfo['src1stop'], sweepSetupInfo['src2start'], sweepSetupInfo['src2stop'], points=sweepSetupInfo['points'], src1loops=sweepSetupInfo['src1loops'], src2loops=sweepSetupInfo['src2loops'])
+		
+		return timeToTakeMeasurements
 
 	# SWEEP: Retrieve data from most recent sweep
 	def endSweep():
@@ -748,7 +806,7 @@ class PCB_System(SourceMeasureUnit):
 		}
 
 	# SWEEP: Perform a fully hardware-driven sweep
-	def takeSweep(self, src1start, src1stop, src2start, src2stop, points):
+	def takeSweep(self, src1start, src1stop, src2start, src2stop, points, triggerInterval=None, src1vals=None, src2vals=None):
 		timeToTakeMeasurements = self.startSweep(src1start, src1stop, src2start, src2stop, points)
 
 		time.sleep(timeToTakeMeasurements)	
