@@ -635,7 +635,7 @@ class PCB_System(SourceMeasureUnit):
 			line = self.ser.readline().decode(encoding='UTF-8')
 			if(startsWith != ''):
 				while(line[0] != startsWith):
-					print('NOTE: ' + str(line))
+					print('NOTE: ' + str(line), end='')
 					line = self.ser.readline().decode(encoding='UTF-8')
 			response += line
 		if(printResponse):
@@ -659,21 +659,21 @@ class PCB_System(SourceMeasureUnit):
 	# Make connections to a specific device
 	def setDevice(self, deviceID):
 		self.setParameter('connect-all-selectors !')
-		self.getResponse(lines=9)
+		self.getResponse(startsWith='#')
 		self.setParameter('disconnect-all-from-all !')
-		self.getResponse(lines=9)
+		self.getResponse(startsWith='#')
 		contactPad1 = int(deviceID.split('-')[0])
 		contactPad2 = int(deviceID.split('-')[1])
 		selector1 = (1) if(contactPad1 <= 32) else (3)
 		selector2 = (2) if(contactPad2 <= 32) else (4)
 		print('connecting contact: ' + str(contactPad1) + ' to AMUX: ' + str(selector1))
 		print('connecting contact: ' + str(contactPad2) + ' to AMUX: ' + str(selector2))
-		self.setParameter("connect {} {}!".format(contactPad1, selector1))
-		self.getResponse(lines=3)
-		self.setParameter("connect {} {}!".format(contactPad2, selector2))
-		self.getResponse(lines=3)
+		self.setParameter("connect {:} {:}!".format(contactPad1, selector1))
+		self.getResponse(startsWith='#')
+		self.setParameter("connect {:} {:}!".format(contactPad2, selector2))
+		self.getResponse(startsWith='#')
 		self.setParameter("calibrate-adc-offset !")
-		self.getResponse(startsWith='#', lines=9)
+		self.getResponse(startsWith='#')
 		print('Switched to device: ' + str(deviceID))
 
 	# Set Vds in millivolts (easy communication, avoids using decimal numbers)
@@ -729,7 +729,7 @@ class PCB_System(SourceMeasureUnit):
 			if((src2start != max(src2vals)) and (src2stop != max(src2vals))):
 				src2stop = max(src2vals)
 				src2loops = 1
-			else((src2start != min(src2vals)) and (src2stop != min(src2vals))):
+			elif((src2start != min(src2vals)) and (src2stop != min(src2vals))):
 				src2stop = min(src2vals)
 				src2loops = 1
 		
