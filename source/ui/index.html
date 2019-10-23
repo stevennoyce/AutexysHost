@@ -939,10 +939,14 @@
 								</v-toolbar-title>
 							</v-toolbar>
 							<v-container>
+								<v-btn @click="">Python Developer Documentation</v-btn>
+
+								<!---
 								<v-combobox multiple chips v-model="listInputTest" :delimiters="[',']"></v-combobox>
 								<p>
 									{{ listInputTest }}
 								</p>
+							-->
 							</v-container>
 						</v-card>
 					</v-flex>
@@ -1137,48 +1141,52 @@
 								
 							</v-toolbar>
 							<v-container fluid grid-list-sm>
-									<v-layout row wrap>
-										<v-flex xs12 sm12 md6 lg6 xl4 v-for="plot, i in livePlots.plots">
-											<v-card class="ma-1" height="100%">
-												<v-toolbar dark dense class="color1 ">
-													<v-toolbar-title>
-														 Plot #{{ i+1 }}
-													</v-toolbar-title>
-												
-												<v-spacer></v-spacer>
-												
-												<v-menu bottom left offset-y>
-													<v-btn slot="activator" icon><v-icon>settings</v-icon></v-btn>
-													<v-list light>
-														
-														<v-list-tile @click="toggleLivePlotYAxisLog(plot)">
-															<v-list-tile-avatar>
-																<v-icon>linear_scale</v-icon>
-															</v-list-tile-avatar>
-															<v-list-tile-content><v-list-tile-title>
-																Toggle Y-Axis Log
-															</v-list-tile-title></v-list-tile-content>
-														</v-list-tile>
-														
-														<v-list-tile @click="clearLivePlot(plot)">
-															<v-list-tile-avatar>
-																<v-icon>clear</v-icon>
-															</v-list-tile-avatar>
-															<v-list-tile-content><v-list-tile-title>
-																Clear Plot Type
-															</v-list-tile-title></v-list-tile-content>
-														</v-list-tile>
-														
-													</v-list>
-												</v-menu>
-												
-												</v-toolbar>
-												<div class="text-xs-center">
-													<s-plotly v-bind:data="formatForPlotly(plot)" v-bind:height="90" :column-number="1" :layout="{xaxis: {title: plot.xAxisTitle}, yaxis: {title: plot.yAxisTitle, type: plot.yScale, autorange: true}, legend: {'orientation': 'h', y: 1.1}, margin: {l: 60,r: 20,b: 70,t: 20,pad: 4}, automargin: true, autosize: true, exponentformat:'SI'}"></s-plotly>
-												</div>
-											</v-card>
-										</v-flex>
-									</v-layout>
+								<v-row v-for="plot, i in livePlots.plots">
+									<v-col>
+										<v-layout row wrap>
+											<v-flex xs12 sm12 md6 lg6 xl4>
+												<v-card class="ma-1" width="150%" height="100%">
+													<v-toolbar dark dense class="color1 ">
+														<v-toolbar-title>
+															 Plot #{{ i+1 }}
+														</v-toolbar-title>
+													
+													<v-spacer></v-spacer>
+													
+													<v-menu bottom left offset-y>
+														<v-btn slot="activator" icon><v-icon>settings</v-icon></v-btn>
+														<v-list light>
+															
+															<v-list-tile @click="toggleLivePlotYAxisLog(plot)">
+																<v-list-tile-avatar>
+																	<v-icon>linear_scale</v-icon>
+																</v-list-tile-avatar>
+																<v-list-tile-content><v-list-tile-title>
+																	Toggle Y-Axis Log
+																</v-list-tile-title></v-list-tile-content>
+															</v-list-tile>
+															
+															<v-list-tile @click="clearLivePlot(plot)">
+																<v-list-tile-avatar>
+																	<v-icon>clear</v-icon>
+																</v-list-tile-avatar>
+																<v-list-tile-content><v-list-tile-title>
+																	Clear Plot Type
+																</v-list-tile-title></v-list-tile-content>
+															</v-list-tile>
+															
+														</v-list>
+													</v-menu>
+													
+													</v-toolbar>
+													<div class="text-xs-center">
+														<s-plotly v-bind:data="formatForPlotly(plot)" v-bind:height="90" :column-number="1" :layout="{xaxis: {title: plot.xAxisTitle}, yaxis: {title: plot.yAxisTitle, type: plot.yScale, autorange: true}, legend: {'orientation': 'v', y: 1.1}, margin: {l: 60,r: 20,b: 70,t: 20,pad: 4}, automargin: true, autosize: true, exponentformat:'SI'}"></s-plotly>
+													</div>
+												</v-card>
+											</v-flex>
+										</v-layout>
+									</v-col>
+								</v-row>
 							</v-container>
 						</v-card>
 						
