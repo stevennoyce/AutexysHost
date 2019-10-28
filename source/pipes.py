@@ -90,19 +90,15 @@ def clear(share, qName):
 
 def progressUpdate(share, progName, start, current, end, barType='Procedure'):
 	try:
-		print("Here 1")
 		abort = False
 		qName = 'QueueToUI'
 		
 		if share is None:
-			print("Here 2")
 			return
 		
 		if progName in share['procedureStopLocations']:
-			print("Here 3")
 			abort = True
 
-		print("Sending message")
 		send(share, qName, {
 			'type':'Progress',
 			'progress': {
@@ -120,17 +116,6 @@ def progressUpdate(share, progName, start, current, end, barType='Procedure'):
 	if abort:
 	 	raise Exception('Recieved stop command from UI. Aborting current procedure at {}.'.format(progName))
 
-
-'''
-Format of plots argument:
-
-plots = {'Plot 1': {'xData':{'Time (sec)': 12}}, {'yData':{'Drain Voltage (V)': 2.3}, {'Gate Voltage (V)': 0.0052}, 'yAxisTitle':'Voltage [V]', 'yScale':'linear'},
-		'Plot 2': {'xData':{'Voltage (V)': 12}}, {'yData':{'Drain Current (A)': 2.3}, 'yAxisTitle': 'Current [A]', 'yScale': 'log'}}
-		
-This example creates two plots, the first with two datasets and the second with one dataset.
-The x axis titles are 'Time (sec)' and 'Voltage (V)'. The y axis titles are 'Voltage [V]' and 'Current [A]'.
-
-'''
 def livePlotUpdate(share, plots):
 	try:
 		qName = 'QueueToUI'
@@ -141,6 +126,34 @@ def livePlotUpdate(share, plots):
 		send(share, qName, {
 					'type':'Data',
 					'plots': [plot.toDict() for plot in plots]})
+
+	except Exception as e:
+		print('Error updating live plot: ', e)
+
+def jobNumberUpdate(share, number):
+	try:
+		qName = 'QueueToUI'
+
+		if share is None:
+			return
+
+		send(share, qName, {
+					'type':'JobNumberUpdate',
+					'number':number})
+
+	except Exception as e:
+		print('Error updating live plot: ', e)
+
+def deviceNumberUpdate(share, number):
+	try:
+		qName = 'QueueToUI'
+
+		if share is None:
+			return
+
+		send(share, qName, {
+					'type':'DeviceNumberUpdate',
+					'number':number})
 
 	except Exception as e:
 		print('Error updating live plot: ', e)

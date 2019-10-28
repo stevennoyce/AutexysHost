@@ -18,6 +18,7 @@ from drivers import SourceMeasureUnit as smu
 from drivers import ArduinoBoard as arduinoBoard
 
 import defaults
+import pipes
 
 
 
@@ -49,6 +50,7 @@ def run(additional_parameters, share=None):
 		for device in parameters['MeasurementSystem']['deviceRange']:
 			params = copy.deepcopy(parameters)
 			params['Identifiers']['device'] = device
+			pipes.deviceNumberUpdate(share, device)
 			runAction(params, additional_parameters, smu_systems, arduino_systems, share=share)
 	else:
 		runAction(parameters, additional_parameters, smu_systems, arduino_systems, share=share)
