@@ -3,9 +3,8 @@ import time
 import numpy as np
 
 import pipes
-#from procedures import Device_History as deviceHistoryScript
 from Live_Plot_Data_Point import Live_Plot_Data_Point
-from Live_Plot_Series_Data_Point import Live_Plot_Series_Data_Point
+from Live_Plot_Data_Point import Live_Plot_Series_Data_Point
 from utilities import DataLoggerUtility as dlu
 
 
@@ -52,8 +51,7 @@ def run(parameters, smu_systems, arduino_systems, share=None, initTime=-1):
 							share=share,
 							initTime=initTime)
 	smu_instance.rampGateVoltageTo(sb_parameters['gateVoltageWhenDone'])
-	smu_instance.rampDrainVoltageTo(sb_parameters['drainVoltageWhenDone'],
-	)
+	smu_instance.rampDrainVoltageTo(sb_parameters['drainVoltageWhenDone'])
 
 	# Float channels if desired
 	if(sb_parameters['floatChannelsWhenDone']):
@@ -160,12 +158,12 @@ def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVolt
 		
 		# Save the median of all the measurements taken in this measurementTime window
 		vds_data_median = np.median(measurements['Vds_data'])
-		vds_data.append(vds_data_median)
 		id_data_median = np.median(measurements['Id_data'])
-		id_data.append(id_data_median)
 		vgs_data_median = np.median(measurements['Vgs_data'])
-		vgs_data.append(vgs_data_median)
 		ig_data_median = np.median(measurements['Ig_data'])
+		vds_data.append(vds_data_median)
+		id_data.append(id_data_median)
+		vgs_data.append(vgs_data_median)
 		ig_data.append(ig_data_median)
 		timestamps.append(timestamp)
 
@@ -188,21 +186,18 @@ def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVolt
 			parameters['SensorData'][measurement].append(value)
 
 		# Send a data message
-		pipes.livePlotUpdate(share,plots=[Live_Plot_Data_Point(plotID='Current vs. Time',
-														   xAxisTitle='Time [s]',
-														   yAxisTitle='Current [A]',
-														   yScale='log',
-														   seriesList=[
-															   Live_Plot_Series_Data_Point(
-																   seriesName='Static Bias Gate Current [A]',
-																   xData=timestamp - initTime,
-																   yData=ig_data_median),
-															   Live_Plot_Series_Data_Point(
-																   seriesName='Static Bias Drain Current [A]',
-																   xData=timestamp - initTime,
-																   yData=id_data_median)])])
-
-
+		pipes.livePlotUpdate(share,plots=
+		[Live_Plot_Data_Point(plotID='Current vs. Time',
+							  xAxisTitle='Time (s)',
+							  yAxisTitle='Current (A)',
+							  yScale='log',
+							  seriesList=
+							  [
+								Live_Plot_Series_Data_Point(seriesName='Static Bias Gate Current (A)',  xData=timestamp - initTime, yData=ig_data_median),
+								Live_Plot_Series_Data_Point(seriesName='Static Bias Drain Current (A)', xData=timestamp - initTime, yData=id_data_median)
+							  ])
+		])
+		
 		# Update progress bar
 		elapsedTime = time.time() - startTime
 		print('\r[' + int(elapsedTime*70.0/totalBiasTime)*'=' + (70-int(elapsedTime*70.0/totalBiasTime)-1)*' ' + ']', end='')

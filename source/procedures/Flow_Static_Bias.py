@@ -4,7 +4,7 @@ import numpy as np
 
 import pipes
 from Live_Plot_Data_Point import Live_Plot_Data_Point
-from Live_Plot_Series_Data_Point import Live_Plot_Series_Data_Point
+from Live_Plot_Data_Point import Live_Plot_Series_Data_Point
 from utilities import DataLoggerUtility as dlu
 
 
