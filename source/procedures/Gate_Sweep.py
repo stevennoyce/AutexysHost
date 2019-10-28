@@ -3,19 +3,17 @@ import time
 import numpy as np
 
 import pipes
-#from procedures import Device_History as deviceHistoryScript
 from Live_Plot_Data_Point import Live_Plot_Data_Point
 from utilities import DataLoggerUtility as dlu
 from utilities import SequenceGeneratorUtility as dgu
+
+
 
 # === Main ===
 def run(parameters, smu_systems, arduino_systems, share=None, sweepNumber=0, initTime = -1):
 	# This script uses the default SMU, which is the first one in the list of SMU systems
 	smu_names = list(smu_systems.keys())
 	smu_instance = smu_systems[smu_names[0]]
-
-	print('smu_systems = ', smu_systems)
-	print('smu_instance = ', smu_instance)
 
 	# Get shorthand name to easily refer to configuration parameters
 	gs_parameters = parameters['runConfigs']['GateSweep']
@@ -135,18 +133,19 @@ def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint
 				# Send a data message
 				preppedGateVoltage = gateVoltage if abs((gateVoltage - measurement['V_gs'])) < abs(0.1*gateVoltage) else measurement['V_gs']
 				pipes.livePlotUpdate(share, plots=
-									 [Live_Plot_Data_Point.createDefaultCurrentPlot(plotID = 'Current vs. Gate Voltage',
-																					xAxisTitle = 'Gate Voltage [V]',
-																					xValue = preppedGateVoltage,
-																					drainCurrent = measurement['I_d'],
-																					gateCurrent = measurement['I_g'],
-																					legendNumber= sweepNumber*len(gateVoltages) + direction),
-									  Live_Plot_Data_Point.createDefaultCurrentPlot(plotID = 'Current vs. Time',
-																					xAxisTitle = 'Time [s]',
-																					xValue = timestamp - initTime,
-																					drainCurrent=measurement['I_d'],
-																					gateCurrent=measurement['I_g'],
-																					legendNumber= sweepNumber*len(gateVoltages) + direction)])
+				[Live_Plot_Data_Point.createDefaultCurrentPlot(plotID='Current vs. Gate Voltage',
+															   xAxisTitle='Gate Voltage (V)',
+															   xValue=preppedGateVoltage,
+															   drainCurrent=measurement['I_d'],
+															   gateCurrent=measurement['I_g'],
+															   legendNumber=sweepNumber*len(gateVoltages) + direction),
+				 Live_Plot_Data_Point.createDefaultCurrentPlot(plotID='Current vs. Time',
+															   xAxisTitle='Time (s)',
+															   xValue=timestamp - initTime,
+															   drainCurrent=measurement['I_d'],
+															   gateCurrent=measurement['I_g'],
+															   legendNumber=sweepNumber*len(gateVoltages) + direction)
+				])
 	return {
 		'Raw':{
 			'vds_data':vds_data,

@@ -3,7 +3,6 @@ import time
 import numpy as np
 
 import pipes
-#from procedures import Device_History as deviceHistoryScript
 from Live_Plot_Data_Point import Live_Plot_Data_Point
 from utilities import DataLoggerUtility as dlu
 from utilities import SequenceGeneratorUtility as dgu
@@ -66,7 +65,6 @@ def run(parameters, smu_systems, arduino_systems, share=None, sweepNumber=0, ini
 
 # === Data Collection ===
 def runDrainSweep(smu_instance, isFastSweep, fastSweepSpeed, gateVoltageSetPoint, drainVoltageMinimum, drainVoltageMaximum, stepsInVDSPerDirection, pointsPerVDS, drainVoltageRamps, delayBetweenMeasurements, share=None, sweepNumber=0, initTime=-1):
-
 	# Generate list of drain voltages to apply
 	drainVoltages = dgu.sweepValuesWithDuplicates(drainVoltageMinimum, drainVoltageMaximum, stepsInVDSPerDirection*2*pointsPerVDS, pointsPerVDS, ramps=drainVoltageRamps)
 	
@@ -133,20 +131,21 @@ def runDrainSweep(smu_instance, isFastSweep, fastSweepSpeed, gateVoltageSetPoint
 					initTime = timestamps[0][0]
 
 				# Send a data message
-				preppedDrainVoltage = drainVoltage if abs((drainVoltage - measurement['V_ds'])) < abs(0.1 * drainVoltage) else measurement['V_ds']
+				preppedDrainVoltage = drainVoltage if abs((drainVoltage - measurement['V_ds'])) < abs(0.1*drainVoltage) else measurement['V_ds']
 				pipes.livePlotUpdate(share, plots=
-				[Live_Plot_Data_Point.createDefaultCurrentPlot(plotID='Voltage X',
-															   xAxisTitle='Drain Voltage [V]',
+				[Live_Plot_Data_Point.createDefaultCurrentPlot(plotID='Current vs. Drain Voltage',
+															   xAxisTitle='Drain Voltage (V)',
 															   xValue=preppedDrainVoltage,
 															   drainCurrent=measurement['I_d'],
 															   gateCurrent=measurement['I_g'],
 															   legendNumber=sweepNumber*len(drainVoltages) + direction),
-				 Live_Plot_Data_Point.createDefaultCurrentPlot(plotID='Time X',
-															   xAxisTitle='Time [s]',
+				 Live_Plot_Data_Point.createDefaultCurrentPlot(plotID='Current vs. Time',
+															   xAxisTitle='Time (s)',
 															   xValue=timestamp - initTime,
 															   drainCurrent=measurement['I_d'],
 															   gateCurrent=measurement['I_g'],
-															   legendNumber=sweepNumber*len(drainVoltages) + direction)])
+															   legendNumber=sweepNumber*len(drainVoltages) + direction)
+				])
 
 	return {
 		'Raw':{
