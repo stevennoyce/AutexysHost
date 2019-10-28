@@ -90,7 +90,7 @@ def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint
 			gateVoltageList.extend(gateVoltages[i])
 
 		# Use SMU built-in sweep to sweep the gate forwards and backwards
-		measurements = smu_instance.takeSweep(None, None, None, None, points=stepsInVGSPerDirection*2*pointsPerVGS, triggerInterval=triggerInterval, src1vals=drainVoltageList, src2vals=gateVoltageList)
+		measurements = smu_instance.takeSweep(drainVoltageSetPoint, drainVoltageSetPoint, gateVoltageMinimum, gateVoltageMaximum, points=stepsInVGSPerDirection*2*pointsPerVGS, triggerInterval=triggerInterval, src1vals=drainVoltageList, src2vals=gateVoltageList)
 
 		# Save forward measurements
 		vds_data[0]   = measurements['Vds_data'][0:stepsInVGSPerDirection*pointsPerVGS]

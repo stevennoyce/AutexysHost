@@ -46,7 +46,6 @@ def run(parameters, smu_systems, arduino_systems, share=None, initTime = -1):
 
 	results = runFlowStaticBias(smu_instance, 
 							arduino_instance,
-							delayBeforeMeasurementsBegin=fsb_parameters['delayBeforeMeasurementsBegin'],
 							drainVoltageSetPoint=fsb_parameters['drainVoltageSetPoint'],
 							gateVoltageSetPoint=fsb_parameters['gateVoltageSetPoint'],
 							measurementTime=fsb_parameters['measurementTime'],
@@ -123,7 +122,7 @@ def flushingPins(smu_instance, flushPins, reversePumpPins, pinToFlush):
 	time.sleep(1)
 
 # === Data Collection ===
-def runFlowStaticBias(smu_instance, arduino_instance, delayBeforeMeasurementsBegin, drainVoltageSetPoint, gateVoltageSetPoint, measurementTime, flowDurations, subCycleDurations, pumpPins, reversePumpPins, flushPins, cycleCount, solutions, share=None, initTime=-1):
+def runFlowStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVoltageSetPoint, measurementTime, flowDurations, subCycleDurations, pumpPins, reversePumpPins, flushPins, cycleCount, solutions, share=None, initTime=-1):
 	
 	smu_instance.digitalWrite(1, "LOW")
 	
@@ -138,8 +137,10 @@ def runFlowStaticBias(smu_instance, arduino_instance, delayBeforeMeasurementsBeg
 	id_std = []
 	vgs_std = []
 	ig_std = []
-	
+	printStatement = "Starting Flow Static Bias"
+	printStatement = printStatement + (40 - len(printStatement)) * " "
 	# casting stuff as ints from strings
+	'''
 	cycleCount = int(cycleCount)
 	for a in range(0, len(flowDurations)):
 		flowDurations[a] = int(flowDurations[a])
@@ -147,13 +148,12 @@ def runFlowStaticBias(smu_instance, arduino_instance, delayBeforeMeasurementsBeg
 		smu_instance.smu.write(":source:digital:external" + str(pumpPins[a]) + ":function DIO")
 		smu_instance.smu.write(":source:digital:external" + str(pumpPins[a]) + ":polarity positive")
 		subCycleDurations[a] = int(subCycleDurations[a])
+	'''
 	
 	# define totalBiasTime
 	totalBiasTime = 0
 	for tt in subCycleDurations:
 		totalBiasTime += int(tt) * int(cycleCount)
-	totalBiasTime += delayBeforeMeasurementsBegin
-	#totalBiasTime += 10*((len(subCycleDurations) * cycleCount) - 1) # each flush takes 10 seconds
 	
 	# Get the SMU measurement speed
 	smu_measurementsPerSecond = smu_instance.measurementsPerSecond
@@ -166,11 +166,11 @@ def runFlowStaticBias(smu_instance, arduino_instance, delayBeforeMeasurementsBeg
 	offsetTime = 0
 	
 	# pour in first fluid prior to measurementCount starting (and thus prior to measurements starting)
-	print("Exchanging fluid for digitalPin: " + str(pumpPins[0]))
-	turnOnlyPin(smu_instance, pumpPins, pumpPins[0])
-	time.sleep(flowDurations[0])
-	print("Stopping fluid exchange")
-	turnOnlyPin(smu_instance, pumpPins, -1) # turn off everything else
+	#print("Exchanging fluid for digitalPin: " + str(pumpPins[0]))
+	#turnOnlyPin(smu_instance, pumpPins, pumpPins[0])
+	#time.sleep(flowDurations[0])
+	#print("Stopping fluid exchange")
+	#turnOnlyPin(smu_instance, pumpPins, -1) # turn off everything else
 	
 	# Take a timestamp for the start of the FlowStaticBias
 	startTime = time.time()
@@ -183,13 +183,14 @@ def runFlowStaticBias(smu_instance, arduino_instance, delayBeforeMeasurementsBeg
 		continueCriterion = lambda i, measurementCount, startTime: (time.time() - startTime) < (totalBiasTime - (1/2)*smu_secondsPerMeasurement)
 		continueCriterion = lambda i, measurementCount, startTime: (time.time() - startTime) < (totalBiasTime - (1/2)*(time.time() - startTime)/max(measurementCount, 1))
 	
+	'''
 	# initialize pump_on_intervals array
 	for cyc in range(0, len(pumpPins)):
 		pump_on_intervals.append([])
 	
 	# define array of all possible times when fluid exchange should happen, given the number of cycles
 	allPossibleExchangeTimesStart = []
-	timeCounter = delayBeforeMeasurementsBegin
+	allPossibleExchangeTimesStart.append(0) # very initial pin
 	for cyc in range(0, cycleCount):
 		for cycDur in subCycleDurations:
 			timeCounter += cycDur
@@ -198,19 +199,47 @@ def runFlowStaticBias(smu_instance, arduino_instance, delayBeforeMeasurementsBeg
 	# define array of all possible times when fluid flow, upon initializing, should STOP flowing
 	allPossibleExchangeTimesEnd = []
 	timeCounter = 1 # offset due to initial flow prior to data collection
+	allPossibleExchangeTimesEnd.append(flowDurations[0]) # very first pin's exchange
 	for cyc in allPossibleExchangeTimesStart:
 		allPossibleExchangeTimesEnd.append(cyc + flowDurations[(timeCounter) % len(flowDurations)])
 		timeCounter += 1		
+	'''
 	
+	reversePumpTime = 2;
+	forwardFlushTime = 2;
+	reverseFlushTime = 2;
+	allPossibleExchangeTimes = []
+	allPossibleExchangePins = []
+	# calculate total cycle duration
+	totalCycleDuration = 0
+	for subCycleDuration in subCycleDurations:
+		totalCycleDuration += subCycleDuration
+	for i in range(0, cycleCount):
+		cycleStartTime = i*totalCycleDuration
+		for forwardPump in range(0, len(pumpPins)):		
+			allPossibleExchangeTimes.append(cycleStartTime)
+			allPossibleExchangePins.append(pumpPins[forwardPump])
+			allPossibleExchangeTimes.append(cycleStartTime + flowDurations[forwardPump])
+			allPossibleExchangePins.append(-1)
+			if len(reversePumpPins) != 0:
+				reversePumpStartTime = cycleStartTime + subCycleDurations[forwardPump] - reversePumpTime - forwardFlushTime - reverseFlushTime;
+				allPossibleExchangeTimes.append(reversePumpStartTime) # reverse pin first
+				allPossibleExchangePins.append(reversePumpPins[forwardPump])
+				allPossibleExchangeTimes.append(reversePumpStartTime + forwardFlushTime) # flush pin first
+				allPossibleExchangePins.append(flushPins[0])
+				allPossibleExchangeTimes.append(reversePumpStartTime + forwardFlushTime + reverseFlushTime)
+				allPossibleExchangePins.append(flushPins[1])
+			cycleStartTime += subCycleDurations[forwardPump]
+	
+	print(allPossibleExchangeTimes)
+	print(allPossibleExchangePins)
+	print("Exchanging: " , [i.upper() for i in solutions])
+	print("Estimated Time: " + str(totalBiasTime) + " seconds")
+
 	i = 0
-	measurementCount = 0
-	pinAlternatingCounter = 1 # at least two motors, first environment was start, so first time pin exchange happens would require digital pin at index 1
-	
-	currentPin = 1
-	currentDigitalPin = pumpPins[0]
-	exchangeStartBool = True
-	exchangeEndBool = True
-	exchangeFlush = True
+	measurementCount = 0	
+	currentIndex = 0
+	pinInQuestion = -1
 	while(continueCriterion(i, measurementCount, startTime)):
 		if (smallMeasurementTimeCriterion):
 			pipes.progressUpdate(share, 'Flow Static Bias Point', start=0, current=i+1, end=steps)
@@ -232,57 +261,35 @@ def runFlowStaticBias(smu_instance, arduino_instance, delayBeforeMeasurementsBeg
 		# While the current measurementTime has not been exceeded, continuously collect data. (subtract half of the SMU's speed so on average we take the right amount of time)
 		while (time.time() - startTime) < (measurementTime*(i+1) - (1/2)*(time.time() - startTime)/measurementCount):
 			
-			# need this to prevent multiple time additions to pump_on_intervals
-			if currentPin == pinAlternatingCounter:
-				exchangeStartBool = True
-				exchangeEndBool = False
-			
-			# Check to see if it is time to start exchanging out fluids
 			currentTimeNotRounded = time.time() - startTime
-			roundCurrentTime = int(currentTimeNotRounded) # round to nearest integer due to slight time lag
-			#roundCurrentTime = round(currentTimeNotRounded, 1)
+			roundCurrentTime = int(currentTimeNotRounded)
 			
-			#print(roundCurrentTime, pinAlternatingCounter)
-			
-			pinToTurnOnIndex = pinAlternatingCounter % len(pumpPins)
-			
-			if roundCurrentTime in allPossibleExchangeTimesStart: # start exchanging fluids; pin will constantly be spammed ON but doesn't matter
+			if roundCurrentTime in allPossibleExchangeTimes: # start exchanging fluids; pin will constantly be spammed ON but doesn't matter
+				currentIndex = allPossibleExchangeTimes.index(roundCurrentTime)
+				pinInQuestion = allPossibleExchangePins[currentIndex]
+				if pinInQuestion in pumpPins:
+					#print("Exchanging Fluid: " + solutions[pumpPins.index(pinInQuestion)] + " at Pin: " + str(pinInQuestion))
+					printStatement = "Exchanging Fluid: " + solutions[pumpPins.index(pinInQuestion)].upper() + " at Pin: " + str(pinInQuestion)
+					printStatement = printStatement + (40 - len(printStatement)) * " "
+				elif pinInQuestion in reversePumpPins:
+					#print("Reversing Fluid: " + solutions[reversePumpPins.index(pinInQuestion)] + " at Pin: " + str(pinInQuestion))
+					printStatement = "Reversing Fluid: " + solutions[reversePumpPins.index(pinInQuestion)].upper() + " at Pin: " + str(pinInQuestion)
+					printStatement = printStatement + (40 - len(printStatement)) * " "
+				elif pinInQuestion in flushPins:
+					if flushPins.index(pinInQuestion) == 0:
+						#print("Flushing Water Through")
+						printStatement = "Flushing Water Through"
+						printStatement = printStatement + (40 - len(printStatement)) * " "
+					else:
+						#print("Reversing Water")
+						printStatement = "Reversing Water"
+						printStatement = printStatement + (40 - len(printStatement)) * " "
+				elif pinInQuestion == -1:
+					#print("Stopping Fluid Flow")
+					printStatement = "Stopping Fluid Flow"
+					printStatement = printStatement + (40 - len(printStatement)) * " "
+				turnOnlyPin(smu_instance, pumpPins, allPossibleExchangePins[currentIndex])
 				
-				if exchangeFlush == True:
-					print("\rSTART: Recycling, then flushing environment")
-					flushStart = time.time()
-					pinToReverseIndex = (pinAlternatingCounter - 1) % len(pumpPins) # index of pin to reverse to recycle prior to flowing in next fluid
-					pinToReverse = reversePumpPins[pinToReverseIndex]
-					flushingPins(smu_instance, flushPins, reversePumpPins, pinToReverse)
-					print("\rDONE: Recycling, then flushing environment")
-					flushEnd = time.time()
-					offsetTime = flushEnd - flushStart
-					startTime += offsetTime
-					exchangeFlush = False
-					
-				turnOnlyPin(smu_instance, pumpPins, pumpPins[pinToTurnOnIndex])
-				currentDigitalPin = pumpPins[pinToTurnOnIndex]
-				if exchangeStartBool == True:
-					
-					
-					print("\rExchanging fluid for digitalPin: " + str(pumpPins[pinToTurnOnIndex]))
-					#print("added start interval: " + str(currentTimeNotRounded))
-					pump_on_intervals[pinToTurnOnIndex].append(currentTimeNotRounded)	
-					exchangeStartBool = False
-					exchangeEndBool = True
-					currentPin += 1
-				
-			# Check to see if it is time to STOP exchanging out fluids. Turn off all pins when this condition holds true
-			if roundCurrentTime in allPossibleExchangeTimesEnd:
-				#pinToTurnOnIndex = (pinAlternatingCounter - 1) % len(pumpPins) # this doesn't actually matter, since the code stops ALL pins
-				turnOnlyPin(smu_instance, pumpPins, -1)
-				if exchangeEndBool == True:
-					print("\rStopping fluid flow") # + str(pumpPins[pinToTurnOnIndex]))
-					#print("added end interval: " + str(currentTimeNotRounded))
-					pump_on_intervals[pinToTurnOnIndex].append(currentTimeNotRounded)	
-					exchangeEndBool = False
-					pinAlternatingCounter += 1
-					exchangeFlush = True
 			
 			measurement = smu_instance.takeMeasurement()
 			measurements['Vds_data'].append(measurement['V_ds'])
@@ -306,7 +313,8 @@ def runFlowStaticBias(smu_instance, arduino_instance, delayBeforeMeasurementsBeg
 		ig_data.append(ig_data_median)
 		timestamps.append(timestamp)
 		
-		pump_on_intervals_pin.append(currentDigitalPin)
+		pump_on_intervals.append(time.time() - startTime)
+		pump_on_intervals_pin.append(pinInQuestion)
 
 		timestamps.append(timestamp)
 		
@@ -324,7 +332,7 @@ def runFlowStaticBias(smu_instance, arduino_instance, delayBeforeMeasurementsBeg
 		sensor_data = arduino_instance.takeMeasurement()
 		for (measurement, value) in sensor_data.items():
 			parameters['SensorData'][measurement].append(value)
-
+      
 		if initTime == -1:
 			initTime = timestamps[0]
 
@@ -343,12 +351,16 @@ def runFlowStaticBias(smu_instance, arduino_instance, delayBeforeMeasurementsBeg
 																   xData=timestamp - initTime,
 																   yData=id_data_median)])])
 
-		# Update progress bar
+		# Update Flow Progress
 		elapsedTime = time.time() - startTime
-		print('\r[' + int(elapsedTime*70.0/totalBiasTime)*'=' + (70-int(elapsedTime*70.0/totalBiasTime)-1)*' ' + ']', end='')
+		print('\r'+printStatement + '[' + int(elapsedTime*30.0/totalBiasTime)*'=' + (30-int(elapsedTime*30.0/totalBiasTime)-1)*' ' + ']', end=' ')
+		
+		# Update progress bar
+		#print('\r[' + int(elapsedTime*70.0/totalBiasTime)*'=' + (70-int(elapsedTime*70.0/totalBiasTime)-1)*' ' + ']' + printStatement, end='')
 		i += 1
 	
 	
+	'''
 	print("START: Recycling, then flushing environment")
 	flushStart = time.time()
 	pinToReverseIndex = (pinAlternatingCounter - 1) % len(pumpPins) # index of pin to reverse to recycle prior to flowing in next fluid
@@ -358,6 +370,7 @@ def runFlowStaticBias(smu_instance, arduino_instance, delayBeforeMeasurementsBeg
 	flushEnd = time.time()
 	offsetTime = flushEnd - flushStart
 	startTime += offsetTime
+	'''
 	
 	endTime = time.time()
 	print('')
