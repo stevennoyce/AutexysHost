@@ -2,6 +2,8 @@
 connected to and the ports/MAC addresses need to connect."""
 
 import ast
+import random
+
 import serial as pySerial
 import serial.tools.list_ports as pySerialPorts
 import glob
@@ -138,7 +140,8 @@ def getConnectionToPCB(pcb_port='', system_settings=None):
 		ser = pySerial.Serial(pcb_port.device, 115200)
 	return PCB_System(ser, pcb_port)
 
-
+def getConnectionToEmulator():
+	return Emulator()
 
 class SourceMeasureUnit:
 	system_id = ''
@@ -810,7 +813,154 @@ class PCB_System(SourceMeasureUnit):
 	def disconnect(self):
 		self.ser.close()
 
+class InternalSMUEmulator():
+	def write(self, someArg):
+		pass
 
+class Emulator(SourceMeasureUnit):
+	'''
+	For use when computer is not connected to any device, but testing of certain UI features is desired. Returns dummy data
+	for use when testing.
+	'''
+
+	smu = InternalSMUEmulator()
+	system_id = ''
+	stepsPerRamp = 20
+	measurementsPerSecond = 40
+	measurementRateVariabilityFactor = 2
+	nplc = 1
+	source1_mode = 'voltage'
+	source2_mode = 'voltage'
+	system_settings = {}
+
+	def __init__(self):
+		pass
+
+	def initialize(self):
+		pass
+
+	def setDevice(self, deviceID):
+		pass
+
+	def setBinaryDataTransfer(self, useBinary=True):
+		pass
+
+	def query_values(self, query):
+		return [1, 2, 3, 4, 5]
+
+	def setParameter(self, parameter):
+		pass
+
+	def turnChannelsOn(self):
+		pass
+
+	def turnChannelsOff(self):
+		pass
+
+	def setNPLC(self, nplc=1):
+		pass
+
+	def turnAutoRangingOn(self):
+		pass
+
+	def turnAutoRangingOff(self):
+		pass
+
+	def setComplianceCurrent(self, complianceCurrent=100e-6):
+		pass
+
+	def setComplianceVoltage(self, complianceVoltage):
+		pass
+
+	def setChannel1SourceMode(self, mode="voltage"):
+		pass
+
+	def setChannel2SourceMode(self, mode="voltage"):
+		pass
+
+	def setVds(self, voltage):
+		pass
+
+	def setVgs(self, voltage):
+		pass
+
+	def setId(self, current):
+		pass
+
+	def setIg(self, current):
+		pass
+
+	def setTimeout(self, timeout_ms=defaultTimeout):
+		pass
+
+	def clearAndDisarm(self):
+		pass
+
+	def takeMeasurement(self, retries=3):
+		time.sleep(0.1)
+
+		return {
+			'V_ds': 1*random.randint(0,1),
+			'I_d': 0.001*random.randint(0,1),
+			'V_gs': 3.3*random.randint(0,1),
+			'I_g': 0.00000000001*random.randint(0,1)
+		}
+
+	def setupSweep(self, src1start, src1stop, src2start, src2stop, points, triggerInterval=None, src1vals=None,
+				   src2vals=None):
+		return 10
+
+	def initSweep(self):
+		pass
+
+	def startSweep(self, src1start, src1stop, src2start, src2stop, points, triggerInterval=None, src1vals=None,
+				   src2vals=None):
+		return 10
+
+	def endSweep(self, endMode=None, includeCurrents=[True, True], includeVoltages=[True, True], includeTimes=True):
+		return {
+			'Vds_data': [[1*random.randint(0,1)]*10]*2,
+			'Id_data': [[0.001*random.randint(0,1)]*10]*2,
+			'Vgs_data': [[3.3*random.randint(0,1)]*10]*2,
+			'Ig_data': [[0.00000000001*random.randint(0,1)]*10]*2,
+			'timestamps': [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [10, 11, 12, 13, 14, 15, 16, 17, 18, 19]]
+		}
+
+	def takeSweep(self, src1start, src1stop, src2start, src2stop, points, triggerInterval=None, src1vals=None,
+				  src2vals=None, includeCurrents=True, includeVoltages=True, includeTimes=True):
+		time.sleep(0.1)
+
+		return {
+			'Vds_data': [1*random.randint(0,1)]*20,
+			'Id_data': [0.001*random.randint(0,1)]*20,
+			'Vgs_data': [3.3*random.randint(0,1)]*20,
+			'Ig_data': [0.00000000001*random.randint(0,1)]*20,
+			'timestamps': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+		}
+
+
+		# return {
+		# 	'Vds_data': [[1*random.randint(0,1)]*10]*2,
+		# 	'Id_data': [[0.001*random.randint(0,1)]*10]*2,
+		# 	'Vgs_data': [[3.3*random.randint(0,1)]*10]*2,
+		# 	'Ig_data': [[0.00000000001*random.randint(0,1)]*10]*2,
+		# 	'timestamps': [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [10, 11, 12, 13, 14, 15, 16, 17, 18, 19]]
+		# }
+
+	def arm(self, count=1):
+		pass
+
+	def enableHardwareTriggerReception(self, pin=1):
+		pass
+
+	def enableHardwareArmReception(self, pin=1):
+		pass
+
+	def disconnect(self):
+		pass
+
+	def digitalWrite(self, pin, signal):
+		pass
 
 if (__name__ == '__main__'):
 	getConnectionToVisaResource()

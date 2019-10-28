@@ -4,13 +4,14 @@ import numpy as np
 
 import pipes
 #from procedures import Device_History as deviceHistoryScript
+from Live_Plot_Data_Point import Live_Plot_Data_Point
 from utilities import DataLoggerUtility as dlu
 from utilities import SequenceGeneratorUtility as dgu
 
 
 
 # === Main ===
-def run(parameters, smu_systems, arduino_systems, share=None):
+def run(parameters, smu_systems, arduino_systems, share=None, sweepNumber=0, initTime=-1):
 	# This script uses the default SMU, which is the first one in the list of SMU systems
 	smu_names = list(smu_systems.keys())
 	smu_instance = smu_systems[smu_names[0]]
@@ -38,7 +39,9 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 							pointsPerVDS=ds_parameters['pointsPerVDS'],
 							drainVoltageRamps=ds_parameters['drainVoltageRamps'],
 							delayBetweenMeasurements=ds_parameters['delayBetweenMeasurements'],
-							share=share)
+							share=share,
+							sweepNumber=sweepNumber,
+							initTime=initTime)
 	smu_instance.rampDownVoltages()
 	# === COMPLETE ===
 
@@ -62,7 +65,8 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 	return jsonData
 
 # === Data Collection ===
-def runDrainSweep(smu_instance, isFastSweep, fastSweepSpeed, gateVoltageSetPoint, drainVoltageMinimum, drainVoltageMaximum, stepsInVDSPerDirection, pointsPerVDS, drainVoltageRamps, delayBetweenMeasurements, share=None):
+def runDrainSweep(smu_instance, isFastSweep, fastSweepSpeed, gateVoltageSetPoint, drainVoltageMinimum, drainVoltageMaximum, stepsInVDSPerDirection, pointsPerVDS, drainVoltageRamps, delayBetweenMeasurements, share=None, sweepNumber=0, initTime=-1):
+
 	# Generate list of drain voltages to apply
 	drainVoltages = dgu.sweepValuesWithDuplicates(drainVoltageMinimum, drainVoltageMaximum, stepsInVDSPerDirection*2*pointsPerVDS, pointsPerVDS, ramps=drainVoltageRamps)
 	
@@ -105,7 +109,7 @@ def runDrainSweep(smu_instance, isFastSweep, fastSweepSpeed, gateVoltageSetPoint
 		for direction in range(len(drainVoltages)):
 			for Vdi, drainVoltage in enumerate(drainVoltages[direction]):
 				# Send a progress message
-				pipes.progressUpdate(share, 'Drain Sweep Point', start=1, current=direction*len(drainVoltages[0])+Vdi+1, end=len(drainVoltages)*len(drainVoltages[0]))
+				pipes.progressUpdate(share, 'Drain Sweep Point', start=0, current=direction*len(drainVoltages[0])+Vdi+1, end=len(drainVoltages)*len(drainVoltages[0]))
 					
 				# Apply V_DS
 				smu_instance.setVds(drainVoltage)
@@ -125,20 +129,24 @@ def runDrainSweep(smu_instance, isFastSweep, fastSweepSpeed, gateVoltageSetPoint
 				ig_data[direction].append(measurement['I_g'])
 				timestamps[direction].append(timestamp)
 
+				if initTime == -1:
+					initTime = timestamps[0][0]
+
 				# Send a data message
-				pipes.send(share, 'QueueToUI', {
-					'type':'Data',
-					'xdata': {
-						'Drain Voltage [V]': drainVoltage if abs((drainVoltage - measurement['V_ds'])) < abs(0.1*drainVoltage) else measurement['V_ds'],
-						'Time [s]': timestamp - timestamps[0][0]
-					},
-					'ydata': {
-						# 'Drain Current [A]': measurement['I_d'],
-						# 'Gate Current [A]': measurement['I_g']
-						'Drain Current {} [A]'.format(direction+1): measurement['I_d'],
-						'Gate Current {} [A]'.format(direction+1): measurement['I_g']
-					}
-				})
+				preppedDrainVoltage = drainVoltage if abs((drainVoltage - measurement['V_ds'])) < abs(0.1 * drainVoltage) else measurement['V_ds']
+				pipes.livePlotUpdate(share, plots=
+				[Live_Plot_Data_Point.createDefaultCurrentPlot(plotID='Voltage X',
+															   xAxisTitle='Drain Voltage [V]',
+															   xValue=preppedDrainVoltage,
+															   drainCurrent=measurement['I_d'],
+															   gateCurrent=measurement['I_g'],
+															   legendNumber=sweepNumber*len(drainVoltages) + direction),
+				 Live_Plot_Data_Point.createDefaultCurrentPlot(plotID='Time X',
+															   xAxisTitle='Time [s]',
+															   xValue=timestamp - initTime,
+															   drainCurrent=measurement['I_d'],
+															   gateCurrent=measurement['I_g'],
+															   legendNumber=sweepNumber*len(drainVoltages) + direction)])
 
 	return {
 		'Raw':{

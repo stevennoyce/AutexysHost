@@ -107,6 +107,9 @@
 		.roundedcorners {
 			border-radius: 7px
 		}
+		.v-progress-linear__bar, .v-progress-linear__bar__determinate {
+  			transition: none;
+		}
 		
 	</style>
 </head>
@@ -936,10 +939,18 @@
 								</v-toolbar-title>
 							</v-toolbar>
 							<v-container>
-								<v-combobox multiple chips v-model="listInputTest" :delimiters="[',']"></v-combobox>
-								<p>
-									{{ listInputTest }}
-								</p>
+								<div>
+									<!---
+									<embed src="/Users/mbarbano/DocumentsLocal/AutexysHost/docs/build/html/index.html" style="width:800px; height:600px;">
+										--->
+									<!---
+									<object type="text/html" data="/Users/mbarbano/DocumentsLocal/AutexysHost/docs/build/html/index.html" width="800px" height="600px" style="overflow:auto;border:5px ridge blue"></object>
+									--->
+								</div>
+
+								<!---
+								<a href="ui/index.html">Python Developer Documentation</a>
+								-->
 							</v-container>
 						</v-card>
 					</v-flex>
@@ -1092,9 +1103,17 @@
 								</v-toolbar-title>
 							</v-toolbar>
 							<v-list>
-								<v-list-tile v-for="progressObj, progressName in experimentRunnerProgress">
-									<v-list-tile-title>{{ progressName }} {{ progressObj.current }} of {{ progressObj.end }}</v-list-tile-title>
-									<v-progress-linear v-model="progressObj.percent"></v-progress-linear>
+								<v-list-tile v-if="experimentRunnerProgress.dispatcherBarModel.visible">
+									<v-list-tile-title>Dispatcher: {{experimentRunnerProgress.dispatcherBarModel.name}} {{experimentRunnerProgress.dispatcherBarModel.current}} of {{experimentRunnerProgress.dispatcherBarModel.end}} </v-list-tile-title>
+									<v-progress-linear v-model="experimentRunnerProgress.dispatcherBarModel.percent"></v-progress-linear>
+								</v-list-tile>
+								<v-list-tile v-if="experimentRunnerProgress.sweepBarModel.visible">
+									<v-list-tile-title>Sweep: {{experimentRunnerProgress.sweepBarModel.name}} {{experimentRunnerProgress.sweepBarModel.current}} of {{experimentRunnerProgress.sweepBarModel.end}} </v-list-tile-title>
+									<v-progress-linear v-model="experimentRunnerProgress.sweepBarModel.percent"></v-progress-linear>
+								</v-list-tile>
+								<v-list-tile v-if="experimentRunnerProgress.procedureBarModel.visible">
+									<v-list-tile-title>Procedure: {{experimentRunnerProgress.procedureBarModel.name}} {{experimentRunnerProgress.procedureBarModel.current}} of {{experimentRunnerProgress.procedureBarModel.end}} </v-list-tile-title>
+									<v-progress-linear v-model="experimentRunnerProgress.procedureBarModel.percent"></v-progress-linear>
 								</v-list-tile>
 							</v-list>
 							
@@ -1112,7 +1131,7 @@
 									<v-btn slot="activator" icon><v-icon>settings</v-icon></v-btn>
 									<v-list light>
 										
-										<v-list-tile @click="livePlotXData={}; livePlotYData={};">
+										<v-list-tile @click="livePlots={};">
 											<v-list-tile-avatar>
 												<v-icon>clear</v-icon>
 											</v-list-tile-avatar>
@@ -1126,49 +1145,52 @@
 								
 							</v-toolbar>
 							<v-container fluid grid-list-sm>
-									<v-layout row wrap>
-										<v-flex xs12 sm12 md6 lg6 xl4 v-for="xdata, xlabel, i in livePlotXData">
-											<v-card class="ma-1" height="100%">
-												<v-toolbar dark dense class="color1 ">
-													<v-toolbar-title>
-														 Plot #{{ i+1 }}
-													</v-toolbar-title>
-												
-												<v-spacer></v-spacer>
-												
-												<v-menu bottom left offset-y>
-													<v-btn slot="activator" icon><v-icon>settings</v-icon></v-btn>
-													<v-list light>
-														
-														<v-list-tile @click="">
-															<v-list-tile-avatar>
-																<v-icon>linear_scale</v-icon>
-															</v-list-tile-avatar>
-															<v-list-tile-content><v-list-tile-title>
-																Toggle Y-Axis Log
-															</v-list-tile-title></v-list-tile-content>
-														</v-list-tile>
-														
-														<v-list-tile @click="clearLivePlotXLabel(xlabel)">
-															<v-list-tile-avatar>
-																<v-icon>clear</v-icon>
-															</v-list-tile-avatar>
-															<v-list-tile-content><v-list-tile-title>
-																Clear Plot Type
-															</v-list-tile-title></v-list-tile-content>
-														</v-list-tile>
-														
-													</v-list>
-												</v-menu>
-												
-												</v-toolbar>
-												
-												<div class="text-xs-center">
-													<s-plotly v-bind:data="Object.entries(livePlotYData).map(([k, v]) => ({x: xdata, y: v.map(val => Math.abs(val)), mode: 'lines', name: k}))" v-bind:height="90" :column-number="1" :layout="{xaxis: {title: xlabel}, yaxis: {title: 'Current [A]', type: 'log', autorange: true}, legend: {'orientation': 'h', y: 1.1}, margin: {l: 60,r: 20,b: 70,t: 20,pad: 4}, automargin: true, autosize: true, exponentformat:'SI'}"></s-plotly>
-												</div>
-											</v-card>
-										</v-flex>
-									</v-layout>
+								<v-row v-for="plot, i in livePlots.plots">
+									<v-col>
+										<v-layout row wrap>
+											<v-flex xs12 sm12 md6 lg6 xl4>
+												<v-card class="ma-1" width="150%" height="100%">
+													<v-toolbar dark dense class="color1 ">
+														<v-toolbar-title>
+															 Plot #{{ i+1 }}
+														</v-toolbar-title>
+													
+													<v-spacer></v-spacer>
+													
+													<v-menu bottom left offset-y>
+														<v-btn slot="activator" icon><v-icon>settings</v-icon></v-btn>
+														<v-list light>
+															
+															<v-list-tile @click="toggleLivePlotYAxisLog(plot)">
+																<v-list-tile-avatar>
+																	<v-icon>linear_scale</v-icon>
+																</v-list-tile-avatar>
+																<v-list-tile-content><v-list-tile-title>
+																	Toggle Y-Axis Log
+																</v-list-tile-title></v-list-tile-content>
+															</v-list-tile>
+															
+															<v-list-tile @click="clearLivePlot(plot)">
+																<v-list-tile-avatar>
+																	<v-icon>clear</v-icon>
+																</v-list-tile-avatar>
+																<v-list-tile-content><v-list-tile-title>
+																	Clear Plot Type
+																</v-list-tile-title></v-list-tile-content>
+															</v-list-tile>
+															
+														</v-list>
+													</v-menu>
+													
+													</v-toolbar>
+													<div class="text-xs-center">
+														<s-plotly v-bind:data="formatForPlotly(plot)" v-bind:height="90" :column-number="1" :layout="{xaxis: {title: plot.xAxisTitle}, yaxis: {title: plot.yAxisTitle, type: plot.yScale, autorange: true}, legend: {'orientation': 'v', y: 1.1}, margin: {l: 60,r: 20,b: 70,t: 20,pad: 4}, automargin: true, autosize: true, exponentformat:'SI'}"></s-plotly>
+													</div>
+												</v-card>
+											</v-flex>
+										</v-layout>
+									</v-col>
+								</v-row>
 							</v-container>
 						</v-card>
 						
@@ -1436,7 +1458,7 @@
 				
 				runnerToggleAdvancedSettings: false,
 				runnerScheduleObjectsHasBeenModified: false,
-				
+
 				runnerStandardFileNames: {
 					'Gate Sweep': 'default_gate_sweep',
 					'Drain Sweep': 'default_drain_sweep',
@@ -1546,11 +1568,31 @@
 				possibleChipPlots: [],
 				ReadMeHTML: '',
 				dispatcherRunning: false,
-				experimentRunnerProgress: {},
-				// livePlotXData: {'test x':[1,2,3], 'test x 2':[2,3,4]},
-				// livePlotYData: {'test y':[2,3,1], 'test y 2':[3,4,2]},
-				livePlotXData: {},
-				livePlotYData: {},
+				experimentRunnerProgress: {
+					dispatcherBarModel: {
+						visible: false,
+						name: '',
+						current: 0,
+						end: 0,
+						percent: 0
+					},
+					sweepBarModel: {
+						visible: false,
+						name: '',
+						current: 0,
+						end: 0,
+						percent: 0
+					},
+					procedureBarModel: {
+						visible: false,
+						name: '',
+						current: 0,
+						end: 0,
+						percent: 0
+					}
+				},
+
+				livePlots: {plots: []},
 				listInputTest: [{'text': 'a', 'value': '1'}, {'text': 'b', 'value': '2'}],
 				dataPlotData: [{ x: [1, 2, 3], y: [1, 3, 1], mode: 'lines' }],
 				colors: [],
@@ -1763,11 +1805,27 @@
 					if (this.scheduleSaveProject == '') this.scheduleSaveProject = this.scheduleLoadProject;
 					if (this.scheduleSaveFileName == '') this.scheduleSaveFileName = this.scheduleLoadFileName;
 				},
+				clearProgressBars: function(){
+					this.experimentRunnerProgress.dispatcherBarModel.visible = false;
+					this.experimentRunnerProgress.dispatcherBarModel.current = 0;
+					this.experimentRunnerProgress.dispatcherBarModel.end = 0;
+					this.experimentRunnerProgress.dispatcherBarModel.percent = 0;
+
+					this.experimentRunnerProgress.sweepBarModel.visible = false;
+					this.experimentRunnerProgress.sweepBarModel.current = 0;
+					this.experimentRunnerProgress.sweepBarModel.end = 0;
+					this.experimentRunnerProgress.sweepBarModel.percent = 0;
+
+					this.experimentRunnerProgress.procedureBarModel.visible = false;
+					this.experimentRunnerProgress.procedureBarModel.current = 0;
+					this.experimentRunnerProgress.procedureBarModel.end = 0;
+					this.experimentRunnerProgress.procedureBarModel.percent = 0;
+				},
 				clearLivePlots: function() {
-					this.livePlotXData = {};
-					this.livePlotYData = {};
+					this.livePlots = {plots:[]};
 				},
 				dispatchSchedule: function() {
+					this.clearProgressBars();
 					this.clearLivePlots();
 					
 					var path = '/dispatchSchedule/' + this.scheduleExperimentUser + '/' + this.scheduleExperimentProject + '/' + this.scheduleExperimentFileName + '.json' + this.cacheBust;
@@ -1865,7 +1923,6 @@
 						// Update the advanced options to match any changes made to the non-advanced options
 						if(this.hasRunnerScheduleBeenModified()) {
 							var basicChanges = objectDeepDiff(this.runnerScheduleObjects[0], this.runnerScheduleObjectDefaults[0]);
-							this.runnerVerboseScheduleObjects = [objectDeepMerge(this.runnerVerboseScheduleObjects[0], basicChanges)];
 							
 							this.runnerScheduleObjectDefaults[0]        = JSON.parse(JSON.stringify(this.runnerScheduleObjects[0]));
 							this.runnerVerboseScheduleObjectDefaults[0] = JSON.parse(JSON.stringify(this.runnerVerboseScheduleObjects[0]));
@@ -2065,38 +2122,111 @@
 					if (message.type == 'Progress') {
 						this.dispatcherRunning = true;
 						
-						var newProg = Object.assign(this.experimentRunnerProgress, message.progress);
-						
-						for (var [key, value] of Object.entries(newProg)) {
-							newProg[key]['percent'] = parseFloat(newProg[key]['current']) - parseFloat(newProg[key]['start']);
-							newProg[key]['percent'] /= parseFloat(newProg[key]['end']) - parseFloat(newProg[key]['start']);
-							newProg[key]['percent'] *= 100;
+						if(message.progress.barType === "Dispatcher"){
+							this.experimentRunnerProgress.dispatcherBarModel.visible = true;
+							this.experimentRunnerProgress.dispatcherBarModel.name = message.progress.name;
+							this.experimentRunnerProgress.dispatcherBarModel.current = message.progress.current;
+							this.experimentRunnerProgress.dispatcherBarModel.end = message.progress.end;
+							this.experimentRunnerProgress.dispatcherBarModel.percent = computeProgressPercent(message.progress.start, message.progress.current, message.progress.end);
 						}
-						
-						this.experimentRunnerProgress = JSON.parse(JSON.stringify(newProg));
+						else if(message.progress.barType == "Sweep"){
+							this.experimentRunnerProgress.sweepBarModel.visible = true;
+							this.experimentRunnerProgress.sweepBarModel.name = message.progress.name;
+							this.experimentRunnerProgress.sweepBarModel.current = message.progress.current;
+							this.experimentRunnerProgress.sweepBarModel.end = message.progress.end;
+							this.experimentRunnerProgress.sweepBarModel.percent = computeProgressPercent(message.progress.start, message.progress.current, message.progress.end);
+						}
+						else if(message.progress.barType === "Procedure"){
+							this.experimentRunnerProgress.procedureBarModel.visible = true;
+							this.experimentRunnerProgress.procedureBarModel.name = message.progress.name;
+							this.experimentRunnerProgress.procedureBarModel.current = message.progress.current;
+							this.experimentRunnerProgress.procedureBarModel.end = message.progress.end;
+							this.experimentRunnerProgress.procedureBarModel.percent = computeProgressPercent(message.progress.start, message.progress.current, message.progress.end);
+						}
+
 					}
 					if (message.type == 'Data') {
 						this.dispatcherRunning = true;
-						
-						for (var label of Object.keys(message.xdata)) {
-							if (!this.livePlotXData.hasOwnProperty(label)) {
-								Vue.set(this.livePlotXData, label, []);
+
+						for(myPlot of message.plots){
+							var myPlotInLivePlots = null;
+
+							//Find the correct livePlot in the JS variable
+							for(livePlot of this.livePlots.plots){
+								if(livePlot.plotID == myPlot.plotID){
+									myPlotInLivePlots = livePlot;
+								}
 							}
-							this.livePlotXData[label].push(message.xdata[label]);
-						}
-						
-						for (var label of Object.keys(message.ydata)) {
-							if (!this.livePlotYData.hasOwnProperty(label)) {
-								var minLenX = Math.min(...Object.entries(this.livePlotXData).map(([k,v]) => v.length));
-								Vue.set(this.livePlotYData, label, new Array(minLenX));
-								// Vue.set(this.livePlotYData, label, []);
+
+							//If has not been added yet to JS variable, add it
+							if(myPlotInLivePlots == null){
+								myPlotInLivePlots = JSON.parse(JSON.stringify(myPlot));
+
+								//Convert xData and yData from points to arrays
+								for(series of myPlotInLivePlots.seriesList){
+									series.xData = [series.xData];
+									series.yData = [series.yData];
+								}
+
+								//Add to livePlots JS variable
+								this.livePlots.plots.push(myPlotInLivePlots);
 							}
-							this.livePlotYData[label].push(message.ydata[label]);
+							else{
+								//myPlot does not include series which have not been updated on this message
+								for(mySeries of myPlot.seriesList){
+									mySeriesInLivePlots = null;
+									for(livePlotSeries of myPlotInLivePlots.seriesList){
+										if(livePlotSeries.seriesName == mySeries.seriesName){
+											mySeriesInLivePlots = livePlotSeries;
+										}
+									}
+									//Add any series which have not yet been added to JS variable
+									if(mySeriesInLivePlots == null){
+										mySeriesInLivePlots = JSON.parse(JSON.stringify(mySeries));
+
+										//Convert xData and yData from points to arrays (data added after if statement)
+										mySeriesInLivePlots.xData = [];
+										mySeriesInLivePlots.yData = [];
+
+										myPlotInLivePlots.seriesList.push(mySeriesInLivePlots);
+									}
+
+									//Add this data point
+									mySeriesInLivePlots.xData.push(mySeries.xData);
+									mySeriesInLivePlots.yData.push(mySeries.yData);
+
+								}
+							}
 						}
 					}
 				},
-				clearLivePlotXLabel: function(xlabel) {
-					Vue.delete(this.livePlotXData, xlabel);
+
+				clearLivePlot: function(plot) {
+					while(plot.seriesList.length > 0){
+						plot.seriesList.pop();
+					}
+				},
+
+				toggleLivePlotYAxisLog: function(plot){
+					if(plot.yScale == "linear"){
+						plot.yScale = "log";
+					}
+					else if(plot.yScale == "log"){
+						plot.yScale = "linear";
+					}
+				},
+
+				formatForPlotly: function(plot) {
+					var listToReturn = [];
+					for(series of plot.seriesList){
+						listToReturn.push({
+						x: series.xData,
+						y: series.yData,
+						mode: 'lines',
+						name: series.seriesName
+						});
+					}
+					return listToReturn;
 				}
 			},
 			watch: {
@@ -2247,6 +2377,13 @@
 			app.$set(app, 'online', navigator.onLine);
 		}
 		
+		function computeProgressPercent(start, current, end){
+			var result = parseFloat(current) - parseFloat(start);
+			result /= parseFloat(end) - parseFloat(start);
+			result *= 100;
+			return result;
+		}
+
 		window.addEventListener('online', updateConnectionStatus);
 		window.addEventListener('offline', updateConnectionStatus);
 		window.onhashchange = function() { app.$data.currentPage = location.hash; };

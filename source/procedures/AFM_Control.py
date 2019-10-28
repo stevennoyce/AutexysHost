@@ -419,8 +419,12 @@ def runAFM(parameters, smu_systems, arduino_systems, share=None):
 	
 	# Get shorthand name to easily refer to configuration and SMUs
 	afm_parameters = parameters['runConfigs']['AFMControl']
-	smu_device = smu_systems['deviceSMU']
-	smu_secondary = smu_systems['secondarySMU']
+	try:
+		smu_device = smu_systems['deviceSMU']
+		smu_secondary = smu_systems['secondarySMU']
+	except:
+		print("Error connecting to AFM. Quitting the AFM_Control procedure now.")
+		return
 	vds = afm_parameters['drainVoltageSetPoint']
 	vgs = afm_parameters['gateVoltageSetPoint']
 	

@@ -59,13 +59,13 @@ def run_file(schedule_file_path, share=None):
 		additional_parameters = parameter_list[schedule_index].copy()
 		
 		# Send progress update if this dispatcher was run by a manager
-		pipes.progressUpdate(share, 'Dispatcher Job', start=0, current=schedule_index, end=len(parameter_list))
+		pipes.progressUpdate(share, 'Job', start=0, current=schedule_index, end=len(parameter_list), barType='Dispatcher')
 		
 		launcher.run(additional_parameters, share)
 		schedule_index += 1
 		
 		# Send progress update if this dispatcher was run by a manager
-		pipes.progressUpdate(share, 'Dispatcher Job', start=0, current=schedule_index, end=len(parameter_list))
+		pipes.progressUpdate(share, 'Job', start=0, current=schedule_index, end=len(parameter_list), barType='Dispatcher')
 	
 	print('Closing schedule file: ' + schedule_file_path)
 	
