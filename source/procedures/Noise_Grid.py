@@ -37,8 +37,6 @@ def runNoiseGrid(parameters, smu_systems, arduino_systems, share=None):
 	numPoints = len(ng_parameters['gateVoltages']) * len(ng_parameters['drainVoltages'])
 	currentPoint = 1
 
-	print("Executing noise grid")
-
 	# === START ===
 	for gateVoltage in ng_parameters['gateVoltages']:
 		for drainVoltage in ng_parameters['drainVoltages']:

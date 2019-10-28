@@ -242,18 +242,3 @@ def settlingTimeConstant(timestamps, id_data):
 				i_settled = i
 				break
 	return (timestamps[i_settled] - timestamps[0])
-
-
-# def formatLivePlotUpdate(startTime, timestamp, vds_data_median, vgs_data_median, id_data_median, ig_data_median):
-# 	return {'Voltage Y':{
-# 			 'xData': {'Time [s]': timestamp-startTime},
-# 			 'yData': {'Drain Voltage [V]': vds_data_median,
-# 						'Gate Voltage [V]': vgs_data_median},
-# 			 'yAxisTitle': 'Voltage [V]',
-# 			 'yScale': 'linear'},
-# 			'Current Y':{
-# 			 'xData': {'Time [s]': timestamp - startTime},
-# 			 'yData': {'Drain Current [A]': id_data_median,
-# 						'Gate Current [A]': ig_data_median},
-# 			 'yAxisTitle': 'Current [A]',
-# 			 'yScale': 'linear'}}

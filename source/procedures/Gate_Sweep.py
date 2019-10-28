@@ -70,23 +70,11 @@ def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint
 	# Generate list of gate voltages to apply
 	gateVoltages = dgu.sweepValuesWithDuplicates(gateVoltageMinimum, gateVoltageMaximum, stepsInVGSPerDirection*2*pointsPerVGS, pointsPerVGS, ramps=gateVoltageRamps)
 
-	# TODO move this to namespace documentation of this class
-	# Example gateVoltages:
-	# gateVoltageMinimum = 1
-	# gateVoltageMaximum = 5
-	# stepsInVgsPerDirection = 5 (total unique voltages in a single direction sweep)
-	# pointsPerVgs = 2 (repeats at same voltage)
-	# gateVoltageRamps = 3 (alternate direction)
-	# Result:
-	# [[1.0, 1.0, 2.0, 2.0, 3.0, 3.0, 4.0, 4.0, 5.0, 5.0], [5.0, 5.0, 4.0, 4.0, 3.0, 3.0, 2.0, 2.0, 1.0, 1.0],
-	#  [1.0, 1.0, 2.0, 2.0, 3.0, 3.0, 4.0, 4.0, 5.0, 5.0]]
-
 	vds_data   = [[] for i in range(len(gateVoltages))]
 	id_data    = [[] for i in range(len(gateVoltages))]
 	vgs_data   = [[] for i in range(len(gateVoltages))]
 	ig_data    = [[] for i in range(len(gateVoltages))]
 	timestamps = [[] for i in range(len(gateVoltages))]
-	#Example: vds_data = [[],[],[]] - one list for every sweep
 
 	# Ramp gate and wait a second for everything to settle down
 	smu_instance.rampGateVoltageTo(gateVoltageMinimum)
@@ -175,26 +163,6 @@ def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint
 			'ig_max':max(abs(np.array(ig_data[0] + ig_data[1])))
 		}
 	}
-
-# def formatLivePlotUpdate(gateVoltage, myDirection, numDirections, measurement, timestamp, startingTime):
-# 	voltageX_YData = {}
-# 	timeX_YData = {}
-# 	for direction in range(numDirections):
-# 		voltageX_YData['Drain Current {} [A]'.format(direction + 1)] = measurement['I_d'] if myDirection == direction else None
-# 		voltageX_YData['Gate Current {} [A]'.format(direction + 1)] = measurement['I_g'] if myDirection == direction else None
-# 		timeX_YData['Drain Current {} [A]'.format(direction + 1)] = measurement['I_d'] if myDirection == direction else None
-# 		timeX_YData['Gate Current {} [A]'.format(direction + 1)] = measurement['I_g'] if myDirection == direction else None
-#
-# 	return {'Voltage X':{
-# 			'xData': {'Gate Voltage [V]': gateVoltage if abs((gateVoltage - measurement['V_gs'])) < abs(0.1*gateVoltage) else measurement['V_gs']},
-# 			 'yData': voltageX_YData,
-# 			 'yAxisTitle': 'Current [A]',
-# 			 'yScale': 'log'},
-# 			'Time X':{
-# 			 'xData': {'Time [s]': timestamp - startingTime},
-# 			 'yData': timeX_YData,
-# 			 'yAxisTitle': 'Current [A]',
-# 			 'yScale': 'log'}}
 
 
 def onOffRatio(drainCurrent):

@@ -939,14 +939,18 @@
 								</v-toolbar-title>
 							</v-toolbar>
 							<v-container>
-								<v-btn @click="">Python Developer Documentation</v-btn>
+								<div>
+									<!---
+									<embed src="/Users/mbarbano/DocumentsLocal/AutexysHost/docs/build/html/index.html" style="width:800px; height:600px;">
+										--->
+									<!---
+									<object type="text/html" data="/Users/mbarbano/DocumentsLocal/AutexysHost/docs/build/html/index.html" width="800px" height="600px" style="overflow:auto;border:5px ridge blue"></object>
+									--->
+								</div>
 
 								<!---
-								<v-combobox multiple chips v-model="listInputTest" :delimiters="[',']"></v-combobox>
-								<p>
-									{{ listInputTest }}
-								</p>
-							-->
+								<a href="ui/index.html">Python Developer Documentation</a>
+								-->
 							</v-container>
 						</v-card>
 					</v-flex>
@@ -2116,11 +2120,9 @@
 				
 				handleServerMessage: function(message) {
 					if (message.type == 'Progress') {
-						console.log("Within message receiver");
 						this.dispatcherRunning = true;
 						
 						if(message.progress.barType === "Dispatcher"){
-							console.log("Within dispatcher");
 							this.experimentRunnerProgress.dispatcherBarModel.visible = true;
 							this.experimentRunnerProgress.dispatcherBarModel.name = message.progress.name;
 							this.experimentRunnerProgress.dispatcherBarModel.current = message.progress.current;
@@ -2128,7 +2130,6 @@
 							this.experimentRunnerProgress.dispatcherBarModel.percent = computeProgressPercent(message.progress.start, message.progress.current, message.progress.end);
 						}
 						else if(message.progress.barType == "Sweep"){
-							console.log("Within sweep with current = " + message.progress.current);
 							this.experimentRunnerProgress.sweepBarModel.visible = true;
 							this.experimentRunnerProgress.sweepBarModel.name = message.progress.name;
 							this.experimentRunnerProgress.sweepBarModel.current = message.progress.current;
@@ -2136,7 +2137,6 @@
 							this.experimentRunnerProgress.sweepBarModel.percent = computeProgressPercent(message.progress.start, message.progress.current, message.progress.end);
 						}
 						else if(message.progress.barType === "Procedure"){
-							console.log("Within procedure");
 							this.experimentRunnerProgress.procedureBarModel.visible = true;
 							this.experimentRunnerProgress.procedureBarModel.name = message.progress.name;
 							this.experimentRunnerProgress.procedureBarModel.current = message.progress.current;
@@ -2149,7 +2149,6 @@
 						this.dispatcherRunning = true;
 
 						for(myPlot of message.plots){
-							//console.log(myPlot)
 							var myPlotInLivePlots = null;
 
 							//Find the correct livePlot in the JS variable
