@@ -98,6 +98,13 @@ smu_system_configurations = {
 				'channel2SourceMode': 'voltage'
 			}
 		}
+	},
+	'Emulator':{
+		'SMU': {
+			'uniqueID': '',
+			'type': 'emulator',
+			'settings': {}
+		}
 	}
 }
 
