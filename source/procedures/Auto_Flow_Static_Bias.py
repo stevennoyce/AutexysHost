@@ -83,13 +83,11 @@ def runAutoFlowStaticBias(parameters, smu_systems, arduino_systems, gateSweepPar
 	print('Gate Voltages:  {:} \n Drain Voltages:  {:} \n Gate Voltages between biases:  {:} \n Drain Voltages between biases:  {:} \n Delay Between Applying Voltages:  {:} \n Delay Before Measurements Begin:  {:}'.format(gateVoltageSetPointList, drainVoltageSetPointList, gateVoltageWhenDoneList, drainVoltageWhenDoneList, delayWhenDoneList, delayBeforeMeasurementsList))
 
 	initTime = -1
-	gateSweepCount = 0
 
 	# Run a pre-test gate sweep just to make sure everything looks good
 	if(asb_parameters['doInitialGateSweep']):
 		print('Taking an initial sweep to get a baseline of device performance prior to StaticBias...')
 		gateSweepJsonData = gateSweepScript.run(gateSweepParameters, smu_systems, arduino_systems, share=share, initTime=initTime)
-		gateSweepCount+=1
 		if initTime == -1:
 			initTime = gateSweepJsonData['Results']['timestamps'][0][0]
 
@@ -126,7 +124,6 @@ def runAutoFlowStaticBias(parameters, smu_systems, arduino_systems, gateSweepPar
 				time.sleep(5) # reduce noise
 				
 				gateSweepJsonData = gateSweepScript.run(gateSweepParameters, smu_systems, arduino_systems, share=share, initTime=initTime)
-				gateSweepCount += 1
 				if initTime == -1:
 					initTime = gateSweepJsonData['Results']['timestamps'][0][0]
 				
@@ -145,7 +142,6 @@ def runAutoFlowStaticBias(parameters, smu_systems, arduino_systems, gateSweepPar
 
 		if(asb_parameters['applyGateSweepBetweenBiases'] and asb_parameters['applyGateSweepBothBeforeAndAfter']):
 			gateSweepJsonData = gateSweepScript.run(gateSweepParameters, smu_systems, arduino_systems, share=share, initTime=initTime)
-			gateSweepCount += 1
 			if initTime == -1:
 				initTime = gateSweepJsonData['Results']['timestamps'][0][0]
 
