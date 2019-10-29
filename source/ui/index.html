@@ -1146,8 +1146,8 @@
 							</v-toolbar>
 							<v-container fluid grid-list-sm>
 								<v-flex xs12 sm6 md4 lg3>
-									<v-select box class="ma-1" :label="jobSelectLabel" v-model="jobSelectChoice" :items="[1, 2, 3]"></v-select>
-									<v-select box class="ma-1" :label="deviceSelectLabel" v-model="deviceSelectChoice" :items="[4, 5, 6]"></v-select>
+									<v-select box class="ma-1" :label="jobSelectLabel" v-model="jobSelectChoice" :items="jobSelectItems"></v-select>
+									<v-select box class="ma-1" :label="deviceSelectLabel" v-model="deviceSelectChoice" :items="deviceSelectItems"></v-select>
 								</v-flex>
 								<v-row v-for="plot, i in livePlots.plots">
 									<v-col>
@@ -1602,8 +1602,10 @@
 				//Job and Device Number v-select (dropdowns)
 				jobSelectLabel: 'Job Number',
 				jobSelectChoice: '',
+				jobSelectItems: [],
 				deviceSelectLabel: 'Device Number',
 				deviceSelectChoice: '',
+				deviceSelectItems: [],
 			},
 			methods: {
 				
@@ -1832,6 +1834,14 @@
 				clearLivePlots: function() {
 					this.livePlots = {plots:[]};
 				},
+				clearJobSelect: function() {
+					this.jobSelectChoice = "";
+					this.jobSelectItems = [];
+				},
+				clearDeviceSelect: function() {
+					this.deviceSelectChoice = "";
+					this.deviceSelectItems = [];
+				},
 				updateLivePlotsDisplayed: function(){
 					console.log("Updating live plots displayed");
 					//TODO implement this
@@ -1839,6 +1849,8 @@
 				dispatchSchedule: function() {
 					this.clearProgressBars();
 					this.clearLivePlots();
+					this.clearJobSelect();
+					this.clearDeviceSelect();
 					
 					var path = '/dispatchSchedule/' + this.scheduleExperimentUser + '/' + this.scheduleExperimentProject + '/' + this.scheduleExperimentFileName + '.json' + this.cacheBust;
 					if (path) {
@@ -2131,6 +2143,16 @@
 				},
 				
 				handleServerMessage: function(message) {
+					if (message.type == 'JobNumberUpdate') {
+						this.jobSelectItems.push(message.number);
+						this.jobSelectChoice = message.number;
+					}
+
+					if (message.type == 'DeviceNumberUpdate') {
+						this.deviceSelectItems.push(message.number);
+						this.deviceSelectChoice = message.number;
+					}
+
 					if (message.type == 'Progress') {
 						this.dispatcherRunning = true;
 						

@@ -59,7 +59,7 @@ def run_file(schedule_file_path, share=None):
 		additional_parameters = parameter_list[schedule_index].copy()
 
 		pipes.jobNumberUpdate(share, schedule_index)
-		
+
 		# Send progress update if this dispatcher was run by a manager
 		pipes.progressUpdate(share, 'Job', start=0, current=schedule_index, end=len(parameter_list), barType='Dispatcher')
 		

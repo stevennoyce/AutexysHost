@@ -53,6 +53,7 @@ def run(additional_parameters, share=None):
 			pipes.deviceNumberUpdate(share, device)
 			runAction(params, additional_parameters, smu_systems, arduino_systems, share=share)
 	else:
+		pipes.deviceNumberUpdate(share, parameters['Identifiers']['device'])
 		runAction(parameters, additional_parameters, smu_systems, arduino_systems, share=share)
 	
 	# Print finishing message noting how long this job took to run
