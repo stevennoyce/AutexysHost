@@ -133,7 +133,7 @@ def initializeMeasurementSystems(parameters):
 			system_instances[system_name] = smu.getConnectionToVisaResource(system_id, system_settings, defaultComplianceCurrent=100e-6, smuTimeout=60*1000)
 		elif(system_type == 'PCB_System'):
 			system_instances[system_name] = smu.getConnectionToPCB(system_id, system_settings)
-		elif(system_type == 'emulator'):
+		elif(system_type == 'Emulator_System'):
 			system_instances[system_name] = smu.getConnectionToEmulator()
 		else:
 			raise NotImplementedError("Unkown Measurement System specified (try B2912A, PCB_System, ...)")

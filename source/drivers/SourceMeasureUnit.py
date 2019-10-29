@@ -99,10 +99,10 @@ smu_system_configurations = {
 			}
 		}
 	},
-	'Emulator':{
+	'emulator':{
 		'SMU': {
 			'uniqueID': '',
-			'type': 'emulator',
+			'type': 'Emulator_System',
 			'settings': {}
 		}
 	}
