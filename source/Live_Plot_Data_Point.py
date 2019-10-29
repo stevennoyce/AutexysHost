@@ -1,5 +1,23 @@
 from pandas._libs import json
 
+# Define a static variable for tracking the number of active plots
+def activePlots():
+    return activePlots.counter
+activePlots.counter = 0
+
+def incrementActivePlots():
+    activePlots.counter += 1
+
+def createDefaultCurrentPlot(plotID, xAxisTitle, xValue, drainCurrent, gateCurrent):
+    '''
+    Factory method particularly for Gate_Sweep and Drain_Sweep, but can be used elsewhere too.
+    '''  
+    seriesList = [Live_Plot_Series_Data_Point('Drain Current {} [A]'.format(activePlots.counter + 1), xValue, drainCurrent), Live_Plot_Series_Data_Point('Gate Current {} [A]'.format(activePlots.counter + 1), xValue, gateCurrent)]
+    return Live_Plot_Data_Point(plotID, xAxisTitle, 'Current [A]', 'log', seriesList)
+
+
+
+# === CLASS ===
 class Live_Plot_Data_Point:
     '''
     Data collected in a single iteration of a procedure, formatted so it can be sent to the web frontend.
@@ -29,17 +47,10 @@ class Live_Plot_Data_Point:
             if v == None:
                 raise Exception("Cannot convert data to dictionary. The ", k, " field was never set.")
         return dict
-
-    @staticmethod
-    def createDefaultCurrentPlot(plotID, xAxisTitle, xValue, drainCurrent, gateCurrent, legendNumber):
-        '''
-        Factory method particularly for Gate_Sweep and Drain_Sweep, but can be used elsewhere too.
-        '''
-        seriesList = [Live_Plot_Series_Data_Point('Drain Current {} [A]'.format(legendNumber + 1), xValue, drainCurrent), Live_Plot_Series_Data_Point('Gate Current {} [A]'.format(legendNumber + 1), xValue, gateCurrent)]
-        return Live_Plot_Data_Point(plotID, xAxisTitle, 'Current [A]', 'log', seriesList)
+        
 
 
-
+# === CLASS ===
 class Live_Plot_Series_Data_Point:
     '''
     Data collected in a single iteration of a procedure, but just for

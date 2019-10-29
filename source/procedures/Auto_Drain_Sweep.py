@@ -43,7 +43,7 @@ def runAutoDrainSweep(parameters, smu_systems, arduino_systems, share=None):
 		for j in range(ads_parameters['sweepsPerVGS']):
 			# Run sweep
 			print('Starting sweep #'+str(sweepCount+1)+' of '+str(numberOfSweeps))
-			jsonData = drainSweepScript.run(drainSweepParameters, smu_systems, arduino_systems, share=share, sweepNumber=sweepCount, initTime=initTime)
+			jsonData = drainSweepScript.run(drainSweepParameters, smu_systems, arduino_systems, share=share, initTime=initTime)
 			print('Completed sweep #'+str(sweepCount+1)+' of '+str(numberOfSweeps))
 			sweepCount += 1
 

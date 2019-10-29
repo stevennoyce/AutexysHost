@@ -50,7 +50,7 @@ def runAutoStaticBias(parameters, smu_systems, arduino_systems, gateSweepParamet
 	# Run a pre-test gate sweep just to make sure everything looks good
 	if(asb_parameters['doInitialGateSweep']):
 		print('Taking an initial sweep to get a baseline of device performance prior to StaticBias...')
-		gateSweepJsonData = gateSweepScript.run(gateSweepParameters, smu_systems, arduino_systems, share=share, sweepNumber=gateSweepCount, initTime=initTime)
+		gateSweepJsonData = gateSweepScript.run(gateSweepParameters, smu_systems, arduino_systems, share=share, initTime=initTime)
 		gateSweepCount+=1
 		if initTime == -1:
 			initTime = gateSweepJsonData['Results']['timestamps'][0][0]
@@ -70,7 +70,7 @@ def runAutoStaticBias(parameters, smu_systems, arduino_systems, gateSweepParamet
 		
 		# Run StaticBias, GateSweep (if desired)
 		if(asb_parameters['applyGateSweepBetweenBiases'] and asb_parameters['applyGateSweepBothBeforeAndAfter']):
-			gateSweepJsonData = gateSweepScript.run(gateSweepParameters, smu_systems, arduino_systems, share=share, sweepNumber=gateSweepCount, initTime=initTime)
+			gateSweepJsonData = gateSweepScript.run(gateSweepParameters, smu_systems, arduino_systems, share=share, initTime=initTime)
 			gateSweepCount+=1
 			if initTime == -1:
 				initTime = gateSweepJsonData['Results']['timestamps'][0][0]
@@ -78,7 +78,7 @@ def runAutoStaticBias(parameters, smu_systems, arduino_systems, gateSweepParamet
 		if initTime == -1:
 			initTime = staticBiasJsonData['Results']['timestamps'][0]
 		if(asb_parameters['applyGateSweepBetweenBiases']):
-			gateSweepJsonData = gateSweepScript.run(gateSweepParameters, smu_systems, arduino_systems, share=share, sweepNumber=gateSweepCount, initTime=initTime)
+			gateSweepJsonData = gateSweepScript.run(gateSweepParameters, smu_systems, arduino_systems, share=share, initTime=initTime)
 			gateSweepCount+=1
 			if initTime == -1:
 				initTime = gateSweepJsonData['Results']['timestamps'][0][0]

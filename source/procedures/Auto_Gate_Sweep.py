@@ -43,7 +43,7 @@ def runAutoGateSweep(parameters, smu_systems, arduino_systems, share=None):
 		for j in range(ags_parameters['sweepsPerVDS']):
 			# Run sweep
 			print('Starting sweep #'+str(sweepCount+1)+' of '+str(numberOfSweeps))
-			jsonData = gateSweepScript.run(gateSweepParameters, smu_systems, arduino_systems, share=share, sweepNumber=sweepCount, initTime = initTime)
+			jsonData = gateSweepScript.run(gateSweepParameters, smu_systems, arduino_systems, share=share, initTime = initTime)
 			print('Completed sweep #'+str(sweepCount+1)+' of '+str(numberOfSweeps))
 			sweepCount += 1
 
