@@ -3,8 +3,7 @@ import time
 import numpy as np
 
 import pipes
-from Live_Plot_Data_Point import Live_Plot_Data_Point
-from Live_Plot_Data_Point import Live_Plot_Series_Data_Point
+import Live_Plot_Data_Point as livePlotter
 from utilities import DataLoggerUtility as dlu
 from utilities import SequenceGeneratorUtility as dgu
 

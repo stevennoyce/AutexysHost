@@ -3,6 +3,7 @@ import time
 import numpy as np
 
 import pipes
+import Live_Plot_Data_Point as livePlotter
 from utilities import DataLoggerUtility as dlu
 
 
@@ -34,7 +35,7 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 	smu_instance.setChannel1SourceMode(mode='current')
 	smu_instance.setChannel2SourceMode(mode='current')
 	
-	# Apply voltages
+	# Apply currents
 	print('Applying bias currents.')
 	smu_instance.rampDrainCurrentTo(sc_parameters['drainCurrentSetPoint'])
 	smu_instance.rampGateCurrentTo(sc_parameters['gateCurrentSetPoint'])
@@ -49,7 +50,8 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 							drainCurrentSetPoint=sc_parameters['drainCurrentSetPoint'],
 							gateCurrentSetPoint=sc_parameters['gateCurrentSetPoint'],
 							totalBiasTime=sc_parameters['totalBiasTime'], 
-							measurementTime=sc_parameters['measurementTime'])
+							measurementTime=sc_parameters['measurementTime'],
+							share=share)
 	smu_instance.rampGateCurrentTo(sc_parameters['gateCurrentWhenDone'])
 	smu_instance.rampDrainCurrentTo(sc_parameters['drainCurrentWhenDone'])
 
@@ -104,7 +106,7 @@ def runStaticCurrent(smu_instance, arduino_instance, drainCurrentSetPoint, gateC
 	ig_std = []
 
 	# Set the SMU timeout to be a few measurementTime's long
-	#timeout = max(1000, 3*measurementTime*1000)
+	timeout = max(1000, 3*measurementTime*1000)
 	timeout = 60000
 	smu_instance.setTimeout(timeout_ms=timeout)
 	print('SMU timeout set to ' + str(timeout) + ' ms.')
@@ -121,7 +123,8 @@ def runStaticCurrent(smu_instance, arduino_instance, drainCurrentSetPoint, gateC
 
 	# Criteria to keep taking measurements when measurementTime is relatively large
 	continueCriterion = lambda i, measurementCount: i < steps
-	if(measurementTime < smu_instance.measurementRateVariabilityFactor*smu_secondsPerMeasurement):
+	smallMeasurementTimeCriterion = lambda : measurementTime < smu_instance.measurementRateVariabilityFactor*smu_secondsPerMeasurement
+	if(smallMeasurementTimeCriterion):
 		# Criteria to keep taking measurements when measurementTime is very small
 		continueCriterion = lambda i, measurementCount: (time.time() - startTime) < (totalBiasTime - (1/2)*smu_secondsPerMeasurement)
 		continueCriterion = lambda i, measurementCount: (time.time() - startTime) < (totalBiasTime - (1/2)*(time.time() - startTime)/max(measurementCount, 1))
@@ -129,6 +132,12 @@ def runStaticCurrent(smu_instance, arduino_instance, drainCurrentSetPoint, gateC
 	i = 0
 	measurementCount = 0
 	while(continueCriterion(i, measurementCount)):
+		# Send a progress message
+		if(smallMeasurementTimeCriterion):
+			pipes.progressUpdate(share, 'Static Current Point', start=0, current=i+1, end=steps)
+		else:
+			pipes.progressUpdate(share, 'Static Current Point', start=0, current=i+1, end=steps)
+		
 		# Define buffers for data to fill during each "measurementTime"
 		measurements = {'Vds_data':[], 'Id_data':[], 'Vgs_data':[], 'Ig_data':[]}
 		
@@ -154,10 +163,14 @@ def runStaticCurrent(smu_instance, arduino_instance, drainCurrentSetPoint, gateC
 			time.sleep((1/2)*(time.time() - startTime)/measurementCount)
 		
 		# Save the median of all the measurements taken in this measurementTime window
-		vds_data.append(np.median(measurements['Vds_data']))
-		id_data.append(np.median(measurements['Id_data']))
-		vgs_data.append(np.median(measurements['Vgs_data']))
-		ig_data.append(np.median(measurements['Ig_data']))
+		vds_data_median = np.median(measurements['Vds_data'])
+		id_data_median = np.median(measurements['Id_data'])
+		vgs_data_median = np.median(measurements['Vgs_data'])
+		ig_data_median = np.median(measurements['Ig_data'])
+		vds_data.append(vds_data_median)
+		id_data.append(id_data_median)
+		vgs_data.append(vgs_data_median)
+		ig_data.append(ig_data_median)
 		timestamps.append(timestamp)
 		
 		# If multiple data points were collected in this measurementTime, save their standard deviation
@@ -175,9 +188,23 @@ def runStaticCurrent(smu_instance, arduino_instance, drainCurrentSetPoint, gateC
 		for (measurement, value) in sensor_data.items():
 			parameters['SensorData'][measurement].append(value)
 
+		# Send a data message
+		pipes.livePlotUpdate(share,plots=
+		[livePlotter.createDataSeries(plotID='Current vs. Time', 
+												labels=['Drain Voltage', 'Gate Voltage'],
+												xValues=[timestamp, timestamp], 
+												yValues=[vds_data_median, vgs_data_median], 
+												xAxisTitle='Time (s)', 
+												yAxisTitle='Voltage (V)', 
+												yscale='log', 
+												enumerateLegend=False,
+												timeseries=True),
+		])
+
 		# Update progress bar
 		elapsedTime = time.time() - startTime
 		print('\r[' + int(elapsedTime*70.0/totalBiasTime)*'=' + (70-int(elapsedTime*70.0/totalBiasTime)-1)*' ' + ']', end='')
+		
 		i += 1
 	
 	endTime = time.time()
