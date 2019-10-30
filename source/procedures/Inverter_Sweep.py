@@ -3,6 +3,7 @@ import time
 import numpy as np
 
 import pipes
+import Live_Plot_Data_Point as livePlotter
 from utilities import DataLoggerUtility as dlu
 from utilities import SequenceGeneratorUtility as dgu
 
@@ -10,11 +11,12 @@ from utilities import SequenceGeneratorUtility as dgu
 
 # === Main ===
 def run(parameters, smu_systems, arduino_systems, share=None):
-	# Get shorthand name to easily refer to configuration parameters
-	is_parameters = parameters['runConfigs']['InverterSweep']
-
+	# This script uses two SMUs, one for applying the power supply and one for measuring VIN/VOUT
 	smu_sweep = smu_systems['sweepSMU']
 	smu_vdd = smu_systems['powerSupplySMU']
+	
+	# Get shorthand name to easily refer to configuration parameters
+	is_parameters = parameters['runConfigs']['InverterSweep']
 
 	# Print the starting message
 	print('Sweeping the inverter: V_DD='+str(is_parameters['vddSupplyVoltageSetPoint'])+'V, min V_IN='+str(is_parameters['inputVoltageMinimum'])+'V, max V_IN='+str(is_parameters['inputVoltageMaximum'])+'V')
@@ -28,7 +30,7 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 	
 	# Switch Channel 1 of smu_sweep into current-sourcing mode so that it can measure V_OUT without applying a voltage to the output side
 	smu_sweep.setChannel1SourceMode(mode="current")
-	smu_sweep.setParameter(":source1:current 0.0")
+	smu_sweep.setId(0)
 	
 	print('Beginning to sweep input voltage.')
 	results = runInverterSweep( smu_sweep, 
@@ -36,10 +38,10 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 							inputVoltageMaximum=is_parameters['inputVoltageMaximum'], 
 							stepsInVINPerDirection=is_parameters['stepsInVINPerDirection'],
 							pointsPerVIN=is_parameters['pointsPerVIN'],
-							inputVoltageRamps=gs_parameters['inputVoltageRamps'])
-	
+							inputVoltageRamps=is_parameters['inputVoltageRamps'],
+							delayBetweenMeasurements=is_parameters['delayBetweenMeasurements'],
+							share=share)
 	smu_vdd.rampDownVoltages()
-	#smu_instance.rampDownVoltages()
 	# === COMPLETE ===
 
 	# Add important metrics from the run to the parameters for easy access later in ParametersHistory
@@ -62,7 +64,7 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 	return jsonData
 
 # === Data Collection ===
-def runInverterSweep(smu_sweep, inputVoltageMinimum, inputVoltageMaximum, stepsInVINPerDirection, pointsPerVIN, inputVoltageRamps, share=None):
+def runInverterSweep(smu_sweep, inputVoltageMinimum, inputVoltageMaximum, stepsInVINPerDirection, pointsPerVIN, inputVoltageRamps, delayBetweenMeasurements, share=None):
 	# Generate list of input voltages to apply
 	inputVoltages = dgu.sweepValuesWithDuplicates(inputVoltageMinimum, inputVoltageMaximum, stepsInVINPerDirection*2*pointsPerVIN, pointsPerVIN, ramps=inputVoltageRamps)
 	
@@ -77,9 +79,16 @@ def runInverterSweep(smu_sweep, inputVoltageMinimum, inputVoltageMaximum, stepsI
 	time.sleep(1)
 
 	for direction in range(len(inputVoltages)):
-		for inputVoltage in inputVoltages[direction]:
+		for (VINi, inputVoltage) in enumerate(inputVoltages[direction]):
+			# Send a progress message
+			pipes.progressUpdate(share, 'Inverter Sweep Point', start=0, current=direction*len(inputVoltages[0])+VINi+1, end=len(inputVoltages)*len(inputVoltages[0]))
+			
 			# Apply V_IN
 			smu_sweep.setVgs(inputVoltage)
+
+			# If delayBetweenMeasurements is non-zero, wait before taking the measurement
+			if(delayBetweenMeasurements > 0):
+				time.sleep(delayBetweenMeasurements)
 
 			# Take Measurement and save it
 			measurement = smu_sweep.takeMeasurement()
@@ -91,6 +100,30 @@ def runInverterSweep(smu_sweep, inputVoltageMinimum, inputVoltageMaximum, stepsI
 			vout_data[direction].append(measurement['V_ds'])
 			iout_data[direction].append(measurement['I_d'])
 			timestamps[direction].append(timestamp)
+
+			# Send a data message
+			preppedInputVoltage = inputVoltage if abs((inputVoltage - measurement['V_gs'])) < abs(0.1*inputVoltage) else measurement['V_gs']
+			pipes.livePlotUpdate(share, plots=
+			[livePlotter.createDataPoint(plotID='Voltage Transfer Characteristic', 
+											label='Output Voltage',
+											xValue=preppedInputVoltage, 
+											yValue=measurement['V_ds'],
+											xAxisTitle='Input Voltage (V)', 
+											yAxisTitle='Voltage (V)', 
+											yscale='lin', 
+											enumerateLegend=True,
+											timeseries=False),
+			 livePlotter.createDataPoint(plotID='Output Voltage vs. Time', 
+											label='Output Voltage',
+											xValue=timestamp, 
+											yValue=measurement['V_ds'],
+											xAxisTitle='Time (s)', 
+											yAxisTitle='Voltage (V)', 
+											yscale='lin', 
+											enumerateLegend=True,
+											timeseries=True),
+			])
+		livePlotter.incrementActivePlots()
 
 	# Ramp V_IN down to zero
 	smu_sweep.rampGateVoltageDown()

@@ -32,7 +32,6 @@ def runAutoDrainSweep(parameters, smu_systems, arduino_systems, share=None):
 	pipes.progressUpdate(share, 'Sweep', start=0, current=sweepCount, end=numberOfSweeps, barType="Sweep")
 	
 	# === START ===
-	initTime = -1
 	for i in range(len(ads_parameters['gateVoltageSetPoints'])):
 		# Make copy of parameters to run GateSweep, but modify the Vgs setpoint
 		drainSweepParameters = dict(parameters)
@@ -43,12 +42,9 @@ def runAutoDrainSweep(parameters, smu_systems, arduino_systems, share=None):
 		for j in range(ads_parameters['sweepsPerVGS']):
 			# Run sweep
 			print('Starting sweep #'+str(sweepCount+1)+' of '+str(numberOfSweeps))
-			jsonData = drainSweepScript.run(drainSweepParameters, smu_systems, arduino_systems, share=share, initTime=initTime)
+			jsonData = drainSweepScript.run(drainSweepParameters, smu_systems, arduino_systems, share=share)
 			print('Completed sweep #'+str(sweepCount+1)+' of '+str(numberOfSweeps))
 			sweepCount += 1
-
-			if i==0 and j == 0:
-				initTime = jsonData['Results']['timestamps'][0][0]
 			
 			# Send progress update
 			pipes.progressUpdate(share, 'Sweep', start=0, current=sweepCount, end=numberOfSweeps, barType="Sweep")

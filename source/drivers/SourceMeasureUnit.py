@@ -36,27 +36,6 @@ smu_system_configurations = {
 			'settings': {}
 		}
 	},
-	'slowSMU1': {
-		'SMU': {
-			'uniqueID': 'USB0::0x0957::0x8C18::MY51142879::INSTR',
-			'type': 'B2912A',
-			'settings': {}
-		}
-	},
-	'fastSMU1': {
-		'SMU': {
-			'uniqueID': 'USB0::0x0957::0x8E18::MY51141244::INSTR',
-			'type': 'B2912A',
-			'settings': {}
-		}
-	},
-	'fastSMU2': {
-		'SMU': {
-			'uniqueID': 'USB0::0x0957::0x8E18::MY51141241::INSTR',
-			'type': 'B2912A',
-			'settings': {}
-		}
-	},
 	'double': {
 		'deviceSMU':{
 			'uniqueID': 'USB0::0x0957::0x8E18::MY51141244::INSTR',
@@ -84,7 +63,6 @@ smu_system_configurations = {
 			'uniqueID': 'USB0::0x0957::0x8E18::MY51141241::INSTR',
 			'type': 'B2912A',
 			'settings': {
-				'reset': True,
 				'channel1SourceMode': 'current',
 				'channel2SourceMode': 'voltage'
 			}
@@ -93,7 +71,6 @@ smu_system_configurations = {
 			'uniqueID': 'USB0::0x0957::0x8C18::MY51142879::INSTR',
 			'type': 'B2912A',
 			'settings': {
-				'reset': True,
 				'channel1SourceMode': 'voltage',
 				'channel2SourceMode': 'voltage'
 			}
@@ -105,7 +82,28 @@ smu_system_configurations = {
 			'type': 'Emulator_System',
 			'settings': {}
 		}
-	}
+	},
+	'slowSMU1': {
+		'SMU': {
+			'uniqueID': 'USB0::0x0957::0x8C18::MY51142879::INSTR',
+			'type': 'B2912A',
+			'settings': {}
+		}
+	},
+	'fastSMU1': {
+		'SMU': {
+			'uniqueID': 'USB0::0x0957::0x8E18::MY51141244::INSTR',
+			'type': 'B2912A',
+			'settings': {}
+		}
+	},
+	'fastSMU2': {
+		'SMU': {
+			'uniqueID': 'USB0::0x0957::0x8E18::MY51141241::INSTR',
+			'type': 'B2912A',
+			'settings': {}
+		}
+	},
 }
 
 defaultTimeout = 60000

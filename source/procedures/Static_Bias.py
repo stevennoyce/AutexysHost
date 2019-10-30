@@ -3,14 +3,13 @@ import time
 import numpy as np
 
 import pipes
-from Live_Plot_Data_Point import Live_Plot_Data_Point
-from Live_Plot_Data_Point import Live_Plot_Series_Data_Point
+import Live_Plot_Data_Point as livePlotter
 from utilities import DataLoggerUtility as dlu
 
 
 
 # === Main ===
-def run(parameters, smu_systems, arduino_systems, share=None, initTime=-1):
+def run(parameters, smu_systems, arduino_systems, share=None):
 	# This script uses the default SMU, which is the first one in the list of SMU systems
 	smu_names = list(smu_systems.keys())
 	smu_instance = smu_systems[smu_names[0]]
@@ -48,8 +47,7 @@ def run(parameters, smu_systems, arduino_systems, share=None, initTime=-1):
 							gateVoltageSetPoint=sb_parameters['gateVoltageSetPoint'],
 							totalBiasTime=sb_parameters['totalBiasTime'], 
 							measurementTime=sb_parameters['measurementTime'],
-							share=share,
-							initTime=initTime)
+							share=share)
 	smu_instance.rampGateVoltageTo(sb_parameters['gateVoltageWhenDone'])
 	smu_instance.rampDrainVoltageTo(sb_parameters['drainVoltageWhenDone'])
 
@@ -88,7 +86,7 @@ def run(parameters, smu_systems, arduino_systems, share=None, initTime=-1):
 	return jsonData
 
 # === Data Collection ===
-def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVoltageSetPoint, totalBiasTime, measurementTime, share=None, initTime = -1):
+def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVoltageSetPoint, totalBiasTime, measurementTime, share=None):
 	vds_data = []
 	id_data = []
 	vgs_data = []
@@ -177,9 +175,6 @@ def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVolt
 		id_std.append(np.std(id_normalized))
 		ig_std.append(np.std(ig_normalized))
 
-		if initTime == -1:
-			initTime = timestamps[0]
-
 		# Take a measurement with the Arduino
 		sensor_data = arduino_instance.takeMeasurement()
 		for (measurement, value) in sensor_data.items():
@@ -187,15 +182,15 @@ def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVolt
 
 		# Send a data message
 		pipes.livePlotUpdate(share,plots=
-		[Live_Plot_Data_Point(plotID='Current vs. Time',
-							  xAxisTitle='Time (s)',
-							  yAxisTitle='Current (A)',
-							  yScale='log',
-							  seriesList=
-							  [
-								Live_Plot_Series_Data_Point(seriesName='Static Bias Gate Current (A)',  xData=timestamp - initTime, yData=ig_data_median),
-								Live_Plot_Series_Data_Point(seriesName='Static Bias Drain Current (A)', xData=timestamp - initTime, yData=id_data_median)
-							  ])
+		[livePlotter.createDataSeries(plotID='Current vs. Time', 
+												labels=['Drain Current', 'Gate Current'],
+												xValues=[timestamp, timestamp], 
+												yValues=[id_data_median, ig_data_median], 
+												xAxisTitle='Time (s)', 
+												yAxisTitle='Current (A)', 
+												yscale='log', 
+												enumerateLegend=False,
+												timeseries=True),
 		])
 		
 		# Update progress bar

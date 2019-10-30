@@ -10,7 +10,7 @@ from utilities import DataLoggerUtility as dlu
 
 
 # === Main ===
-def run(parameters, smu_systems, arduino_systems, share=None, initTime = -1):
+def run(parameters, smu_systems, arduino_systems, share=None):
 	# This script uses the default SMU, which is the first one in the list of SMU systems
 	smu_names = list(smu_systems.keys())
 	smu_instance = smu_systems[smu_names[0]]
@@ -56,8 +56,7 @@ def run(parameters, smu_systems, arduino_systems, share=None, initTime = -1):
 							flushPins=fsb_parameters['flushPins'],
 							cycleCount=fsb_parameters['cycleCount'],
 							solutions=fsb_parameters['solutions'],
-							share=share,
-							initTime=initTime)
+							share=share)
 	smu_instance.rampGateVoltageTo(fsb_parameters['gateVoltageWhenDone'])
 	smu_instance.rampDrainVoltageTo(fsb_parameters['drainVoltageWhenDone'])
 
@@ -122,7 +121,7 @@ def flushingPins(smu_instance, flushPins, reversePumpPins, pinToFlush):
 	time.sleep(1)
 
 # === Data Collection ===
-def runFlowStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVoltageSetPoint, measurementTime, flowDurations, subCycleDurations, pumpPins, reversePumpPins, flushPins, cycleCount, solutions, share=None, initTime=-1):
+def runFlowStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVoltageSetPoint, measurementTime, flowDurations, subCycleDurations, pumpPins, reversePumpPins, flushPins, cycleCount, solutions, share=None):
 	
 	smu_instance.digitalWrite(1, "LOW")
 	
@@ -332,9 +331,6 @@ def runFlowStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gate
 		sensor_data = arduino_instance.takeMeasurement()
 		for (measurement, value) in sensor_data.items():
 			parameters['SensorData'][measurement].append(value)
-      
-		if initTime == -1:
-			initTime = timestamps[0]
 
 		# Send a data message
 		pipes.livePlotUpdate(share,plots=[Live_Plot_Data_Point(plotID='Current vs. Time',
@@ -344,11 +340,11 @@ def runFlowStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gate
 														   seriesList=[
 															   Live_Plot_Series_Data_Point(
 																   seriesName='Flow Static Bias Gate Current [A]',
-																   xData=timestamp - initTime,
+																   xData=timestamp,
 																   yData=ig_data_median),
 															   Live_Plot_Series_Data_Point(
 																   seriesName='Flow Static Bias Drain Current [A]',
-																   xData=timestamp - initTime,
+																   xData=timestamp,
 																   yData=id_data_median)])])
 
 		# Update Flow Progress

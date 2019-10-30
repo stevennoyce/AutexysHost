@@ -18,15 +18,12 @@ default_parameters = {
 			'gateVoltageMaximum': 		{'type':'float', 'essential':True, 'units':'V',  'default': 1,      'title':'Gate Voltage End',             'description':'Gate voltage final value.'}, 
 			'drainVoltageSetPoint':		{'type':'float', 'essential':True, 'units':'V',  'default': 0.5,    'title':'Drain Voltage',                'description':'Drain voltage value.'},
 			'complianceCurrent':		{'type':'float',                   'units':'A',  'default': 100e-6, 'title':'Compliance Current',           'description':'Maximum current limit for the SMU.'},
-			'stepsInVGSPerDirection': 	{'type':'int',                     'units':'#',  'default': 100,    'title':'Steps In VGS (per direction)', 'description':'Number of unique gate voltage steps in the sweep.'},
+			'stepsInVGSPerDirection': 	{'type':'int',   'essential':True, 'units':'#',  'default': 100,    'title':'Steps In VGS (per direction)', 'description':'Number of unique gate voltage steps in the sweep.'},
 			'pointsPerVGS': 			{'type':'int',                     'units':'#',  'default': 1,      'title':'Measurements per VGS',         'description':'Number of measurements taken at each gate voltage step.'},
 			'gateVoltageRamps':			{'type':'int',                     'units':'#',  'default': 2,      'title':'Gate Voltage Ramps',           'description':'Number of times to loop through gate voltage values.'},
 			'delayBetweenMeasurements': {'type':'float',                   'units':'s',  'default': 0,      'title':'Delay Between Measurements',   'description':'Duration of time to delay after taking a measurement.'},
 			'isFastSweep': 				{'type':'bool',                                  'default': False,  'title':'Fast Sweep',                   'description':'Use internal SMU timer to measure a faster sweep.'},
 			'fastSweepSpeed':			{'type':'int',                     'units':'Hz', 'default': 1000,   'title':'Fast Sweep Speed',             'description':'Frequency of SMU internal timer.'},
-			'isAlternatingSweep': 		{'type':'bool',                                  'default': False,  'title':'Alternating Sweep',            'description':''},
-			'pulsedMeasurementOnTime': 	{'type':'float',                   'units':'s',  'default': 0,      'title':'Pulsed Measurement On Time',   'description':''},
-			'pulsedMeasurementOffTime': {'type':'float',                   'units':'s',  'default': 0,      'title':'Pulsed Measurement Off Time',  'description':''},
 		},
 		'DrainSweep':{
 			'dependencies': 			{'ignore':True, 'value':[]},
@@ -35,7 +32,7 @@ default_parameters = {
 			'drainVoltageMaximum': 		{'type':'float', 'essential':True, 'units':'V',  'default': 1,      'title':'Drain Voltage End',            'description':'Drain voltage final value.'}, 
 			'gateVoltageSetPoint':		{'type':'float', 'essential':True, 'units':'V',  'default': 0,      'title':'Gate Voltage',                 'description':'Gate voltage value.'},
 			'complianceCurrent':		{'type':'float',                   'units':'A',  'default': 100e-6, 'title':'Compliance Current',           'description':'Maximum current limit for the SMU.'},
-			'stepsInVDSPerDirection': 	{'type':'int',                     'units':'#',  'default': 100,    'title':'Steps In VDS (per direction)', 'description':'Number of unique drain voltage steps in the sweep.'},
+			'stepsInVDSPerDirection': 	{'type':'int',   'essential':True, 'units':'#',  'default': 100,    'title':'Steps In VDS (per direction)', 'description':'Number of unique drain voltage steps in the sweep.'},
 			'pointsPerVDS': 			{'type':'int',                     'units':'#',  'default': 1,      'title':'Measurements per VDS',         'description':'Number of measurements taken at each drain voltage step.'},
 			'drainVoltageRamps':		{'type':'int',                     'units':'#',  'default': 2,      'title':'Drain Voltage Ramps',          'description':'Number of times to loop through drain voltage values.'},
 			'delayBetweenMeasurements': {'type':'float',                   'units':'s',  'default': 0,      'title':'Delay Between Measurements',   'description':'Duration of time to delay after taking a measurement.'},
@@ -52,6 +49,7 @@ default_parameters = {
 			'stepsInVINPerDirection': 	{'type':'int',                     'units':'#', 'default': 100,    'title':'Steps In VIN (per Direction)', 'description':'Number of unique input voltage steps in the sweep.'},
 			'pointsPerVIN': 			{'type':'int',                     'units':'#', 'default': 1,      'title':'Measurements Per VIN',         'description':'Number of measurements taken at each input voltage step.'},
 			'inputVoltageRamps':		{'type':'int',                     'units':'#', 'default': 2,      'title':'Input Voltage Ramps',          'description':'Number of times to loop through input voltage values.'},
+			'delayBetweenMeasurements': {'type':'float',                   'units':'s', 'default': 0,      'title':'Delay Between Measurements',   'description':'Duration of time to delay after taking a measurement.'},
 		},
 		'BurnOut':{
 			'dependencies':					{'ignore':True, 'value':[]},
@@ -239,7 +237,7 @@ default_parameters = {
 		
 	},
 	'MeasurementSystem':{
-		'systemType': {'type':'choice', 'choices':['single', 'double', 'standalone', 'bluetooth', 'emulator'], 'default':['single', 'double', 'standalone', 'bluetooth', 'emulator'][0], 'title':'System Type', 'description':''},
+		'systemType': {'type':'choice', 'choices':['single', 'standalone', 'bluetooth', 'inverter', 'double', 'emulator'], 'default':['single', 'standalone', 'bluetooth', 'inverter', 'double', 'emulator'][0], 'title':'System Type', 'description':''},
 		'systems': {},
 		'deviceRange': {'type':'array', 'choices':["1-2", "2-3", "3-4", "5-6", "6-7", "7-8", "9-10", "10-11", "11-12", "13-14", "14-15", "15-16", "19-20", "21-22", "27-28", "29-30", "30-31", "31-32", "33-34", "34-35", "35-36", "37-38", "38-39", "39-40", "41-42", "42-43", "43-44", "45-46", "46-47", "47-48", "51-52", "53-54", "59-60", "61-62", "62-63", "63-64"], 'default':[], 'title':'Device Range', 'description':''} 
 	},

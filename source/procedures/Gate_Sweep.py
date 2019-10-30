@@ -3,14 +3,14 @@ import time
 import numpy as np
 
 import pipes
-import Live_Plot_Data_Point
+import Live_Plot_Data_Point as livePlotter
 from utilities import DataLoggerUtility as dlu
 from utilities import SequenceGeneratorUtility as dgu
 
 
 
 # === Main ===
-def run(parameters, smu_systems, arduino_systems, share=None, initTime = -1):
+def run(parameters, smu_systems, arduino_systems, share=None):
 	# This script uses the default SMU, which is the first one in the list of SMU systems
 	smu_names = list(smu_systems.keys())
 	smu_instance = smu_systems[smu_names[0]]
@@ -38,8 +38,7 @@ def run(parameters, smu_systems, arduino_systems, share=None, initTime = -1):
 							pointsPerVGS=gs_parameters['pointsPerVGS'],
 							gateVoltageRamps=gs_parameters['gateVoltageRamps'],
 							delayBetweenMeasurements=gs_parameters['delayBetweenMeasurements'],
-							share=share,
-							initTime=initTime)
+							share=share)
 	smu_instance.rampDownVoltages()
 	# === COMPLETE ===
 
@@ -63,7 +62,7 @@ def run(parameters, smu_systems, arduino_systems, share=None, initTime = -1):
 	return jsonData
 
 # === Data Collection ===
-def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint, gateVoltageMinimum, gateVoltageMaximum, stepsInVGSPerDirection, pointsPerVGS, gateVoltageRamps, delayBetweenMeasurements, share=None, initTime=-1):
+def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint, gateVoltageMinimum, gateVoltageMaximum, stepsInVGSPerDirection, pointsPerVGS, gateVoltageRamps, delayBetweenMeasurements, share=None):
 	# Generate list of gate voltages to apply
 	gateVoltages = dgu.sweepValuesWithDuplicates(gateVoltageMinimum, gateVoltageMaximum, stepsInVGSPerDirection*2*pointsPerVGS, pointsPerVGS, ramps=gateVoltageRamps)
 
@@ -126,24 +125,29 @@ def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint
 				ig_data[direction].append(measurement['I_g'])
 				timestamps[direction].append(timestamp)
 
-				if initTime == -1:
-					initTime = timestamps[0][0]
-
 				# Send a data message
 				preppedGateVoltage = gateVoltage if abs((gateVoltage - measurement['V_gs'])) < abs(0.1*gateVoltage) else measurement['V_gs']
 				pipes.livePlotUpdate(share, plots=
-				[Live_Plot_Data_Point.createDefaultCurrentPlot(plotID='Current vs. Gate Voltage',
-															   xAxisTitle='Gate Voltage (V)',
-															   xValue=preppedGateVoltage,
-															   drainCurrent=measurement['I_d'],
-															   gateCurrent=measurement['I_g']),
-				 Live_Plot_Data_Point.createDefaultCurrentPlot(plotID='Current vs. Time',
-															   xAxisTitle='Time (s)',
-															   xValue=timestamp - initTime,
-															   drainCurrent=measurement['I_d'],
-															   gateCurrent=measurement['I_g'])
+				[livePlotter.createDataSeries(plotID='Transfer Curve', 
+												labels=['Drain Current', 'Gate Current'],
+												xValues=[preppedGateVoltage, preppedGateVoltage], 
+												yValues=[measurement['I_d'], measurement['I_g']], 
+												xAxisTitle='Gate Voltage (V)', 
+												yAxisTitle='Current (A)', 
+												yscale='log', 
+												enumerateLegend=True,
+												timeseries=False),
+				 livePlotter.createDataSeries(plotID='Current vs. Time', 
+												labels=['Drain Current', 'Gate Current'],
+												xValues=[timestamp, timestamp], 
+												yValues=[measurement['I_d'], measurement['I_g']], 
+												xAxisTitle='Time (s)', 
+												yAxisTitle='Current (A)', 
+												yscale='log', 
+												enumerateLegend=True,
+												timeseries=True),
 				])
-			Live_Plot_Data_Point.incrementActivePlots()
+			livePlotter.incrementActivePlots()
 	return {
 		'Raw':{
 			'vds_data':vds_data,
