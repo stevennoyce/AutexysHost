@@ -1149,14 +1149,14 @@
 									<v-select box class="ma-1" :label="jobSelectLabel" v-model="jobSelectChoice" :items="jobSelectItems"></v-select>
 									<v-select box class="ma-1" :label="deviceSelectLabel" v-model="deviceSelectChoice" :items="deviceSelectItems"></v-select>
 								</v-flex>
-								<v-row v-for="plot, i in livePlots.plots">
+								<v-row v-for="plot, i in livePlots[jobSelectChoice][deviceSelectChoice].plots">
 									<v-col>
 										<v-layout row wrap>
 											<v-flex xs12 sm12 md6 lg6 xl4>
 												<v-card class="ma-1" width="150%" height="100%">
 													<v-toolbar dark dense class="color1 ">
 														<v-toolbar-title>
-															 Plot #{{ i+1 }}
+															 Plot #{{ i+1 }} 
 														</v-toolbar-title>
 													
 													<v-spacer></v-spacer>
@@ -1595,16 +1595,17 @@
 					}
 				},
 
-				livePlots: {plots: []},
+				livePlots: {'Dummy':{'Dummy':{plots:[]}}},   //Rows = job number, Cols = device number, example: {'0':{'2-3': {plots: []}, '4-5': {plots: []}, '9-10': {plots: []}},
+												//												   '1':{'2-3': {plots: []}, '4-5': {plots: []}, '9-10': {plots: []}}}
 				listInputTest: [{'text': 'a', 'value': '1'}, {'text': 'b', 'value': '2'}],
 				dataPlotData: [{ x: [1, 2, 3], y: [1, 3, 1], mode: 'lines' }],
 				colors: [],
 				//Job and Device Number v-select (dropdowns)
 				jobSelectLabel: 'Job Number',
-				jobSelectChoice: '',
+				jobSelectChoice: 'Dummy',
 				jobSelectItems: [],
 				deviceSelectLabel: 'Device Number',
-				deviceSelectChoice: '',
+				deviceSelectChoice: 'Dummy',
 				deviceSelectItems: [],
 			},
 			methods: {
@@ -1832,7 +1833,9 @@
 					this.experimentRunnerProgress.procedureBarModel.percent = 0;
 				},
 				clearLivePlots: function() {
-					this.livePlots = {plots:[]};
+					this.jobSelectChoice = 'Dummy';
+					this.deviceSelectChoice = 'Dummy';
+					this.livePlots = {'Dummy':{'Dummy':{plots:[]}}};
 				},
 				clearJobSelect: function() {
 					this.jobSelectChoice = "";
@@ -2143,13 +2146,24 @@
 				},
 				
 				handleServerMessage: function(message) {
+					/*
+					TODO:
+					1. Change to the correct page - 
+						a) make access to livePlots variable reactive in live plots html section, 
+						b) every time select new entry in dropdown, repaint plots
+					2. Update the correct plot
+					*/
 					if (message.type == 'JobNumberUpdate') {
+						this.livePlots[message.number] = {};
 						this.jobSelectItems.push(message.number);
+						console.log("Setting jobSelectChoice = " + message.number);
 						this.jobSelectChoice = message.number;
 					}
 
 					if (message.type == 'DeviceNumberUpdate') {
+						this.livePlots[this.jobSelectChoice][message.number] = {plots:[]};
 						this.deviceSelectItems.push(message.number);
+						console.log("Setting deviceSelectChoice = " + message.number);
 						this.deviceSelectChoice = message.number;
 					}
 
@@ -2186,7 +2200,7 @@
 							var myPlotInLivePlots = null;
 
 							//Find the correct livePlot in the JS variable
-							for(livePlot of this.livePlots.plots){
+							for(livePlot of this.livePlots[this.jobSelectChoice][this.deviceSelectChoice].plots){
 								if(livePlot.plotID == myPlot.plotID){
 									myPlotInLivePlots = livePlot;
 								}
@@ -2203,7 +2217,7 @@
 								}
 
 								//Add to livePlots JS variable
-								this.livePlots.plots.push(myPlotInLivePlots);
+								this.livePlots[this.jobSelectChoice][this.deviceSelectChoice].plots.push(myPlotInLivePlots);
 							}
 							else{
 								//myPlot does not include series which have not been updated on this message
