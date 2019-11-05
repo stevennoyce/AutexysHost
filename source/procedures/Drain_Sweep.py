@@ -42,7 +42,7 @@ def run(parameters, smu_systems, arduino_systems, share=None, isSavingData=True)
 							share=share)
 	
 	# If the gate was in high-resistance state, reset it to the normal voltage-source mode
-	if(smu_instance.getDrainSourceMode() == 'current'):
+	if(smu_instance.getGateSourceMode() == 'current'):
 		smu_instance.setChannel2SourceMode(mode='voltage')
 	
 	# Ramp down channels
