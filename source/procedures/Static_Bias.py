@@ -31,10 +31,21 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 		parameters['SensorData'][measurement] = []
 
 	# === START ===
-	# Apply voltages
+	# Apply bias voltages (or change channels to high-resistance mode)
 	print('Applying bias voltages.')
-	smu_instance.rampDrainVoltageTo(sb_parameters['drainVoltageSetPoint'])
-	smu_instance.rampGateVoltageTo(sb_parameters['gateVoltageSetPoint'])
+	if(sb_parameters['supplyDrainVoltage']):
+		smu_instance.rampDrainVoltageTo(sb_parameters['drainVoltageSetPoint'])
+		print('Applied drain voltage.')
+	else:
+		smu_instance.setChannel1SourceMode(mode='current')
+		smu_instance.rampDrainCurrentDown()
+	
+	if(sb_parameters['supplyGateVoltage']):
+		smu_instance.rampGateVoltageTo(sb_parameters['gateVoltageSetPoint'])
+		print('Applied gate voltage.')
+	else:
+		smu_instance.setChannel2SourceMode(mode='current')
+		smu_instance.rampGateCurrentDown()
 
 	# Delay before measurements begin (only useful for allowing current to settle a little, not usually necessary)
 	if(sb_parameters['delayBeforeMeasurementsBegin'] > 0):
@@ -43,13 +54,22 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 
 	results = runStaticBias(smu_instance, 
 							arduino_instance,
-							drainVoltageSetPoint=sb_parameters['drainVoltageSetPoint'],
-							gateVoltageSetPoint=sb_parameters['gateVoltageSetPoint'],
 							totalBiasTime=sb_parameters['totalBiasTime'], 
 							measurementTime=sb_parameters['measurementTime'],
 							share=share)
-	smu_instance.rampGateVoltageTo(sb_parameters['gateVoltageWhenDone'])
-	smu_instance.rampDrainVoltageTo(sb_parameters['drainVoltageWhenDone'])
+	
+	# Ramp bias voltages to their "when done" values (or exit high-resistance mode if it was previously enabled)
+	if(sb_parameters['supplyGateVoltage']):
+		smu_instance.rampGateVoltageTo(sb_parameters['gateVoltageWhenDone'])
+	else:
+		smu_instance.setChannel2SourceMode(mode='voltage')
+		smu_instance.rampGateVoltageDown()
+		
+	if(sb_parameters['supplyDrainVoltage']):
+		smu_instance.rampDrainVoltageTo(sb_parameters['drainVoltageWhenDone'])
+	else:
+		smu_instance.setChannel1SourceMode(mode='voltage')
+		smu_instance.rampDrainVoltageDown()
 
 	# Float channels if desired
 	if(sb_parameters['floatChannelsWhenDone']):
@@ -83,10 +103,14 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 	print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
 	dlu.saveJSON(dlu.getDeviceDirectory(parameters), sb_parameters['saveFileName'], jsonData, subDirectory='Ex'+str(parameters['startIndexes']['experimentNumber']))
 	
+	# Save a 2nd data file under a different name if one or more of the channels was in high-resistance mode
+	if((not sb_parameters['supplyGateVoltage']) or (not sb_parameters['supplyDrainVoltage'])):
+		dlu.saveJSON(dlu.getDeviceDirectory(parameters), sb_parameters['secondaryFileName'], jsonData, subDirectory='Ex'+str(parameters['startIndexes']['experimentNumber']))
+	
 	return jsonData
 
 # === Data Collection ===
-def runStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVoltageSetPoint, totalBiasTime, measurementTime, share=None):
+def runStaticBias(smu_instance, arduino_instance, totalBiasTime, measurementTime, share=None):
 	vds_data = []
 	id_data = []
 	vgs_data = []

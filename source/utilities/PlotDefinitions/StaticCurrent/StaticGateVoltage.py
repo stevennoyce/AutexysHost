@@ -51,10 +51,15 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	plotInRealTime = mode_parameters['plotInRealTime']
 	includeDualAxis = mode_parameters['includeDualAxis']
 	
+	# Modify data structure to include expected parameters...
+	for jsonData in deviceHistory:
+		jsonData['runConfigs']['StaticBias']['drainCurrentSetPoint'] = 0
+		jsonData['runConfigs']['StaticBias']['gateCurrentSetPoint'] = 0
+	
 	# Check if V_DS or V_GS are changing during this experiment
-	id_setpoint_values = [jsonData['runConfigs']['StaticCurrent']['drainCurrentSetPoint'] for jsonData in deviceHistory]
-	ig_setpoint_values = [jsonData['runConfigs']['StaticCurrent']['gateCurrentSetPoint'] for jsonData in deviceHistory]
-	biasTime_values = [jsonData['runConfigs']['StaticCurrent']['totalBiasTime'] for jsonData in deviceHistory]
+	id_setpoint_values = [jsonData['runConfigs']['StaticBias']['drainCurrentSetPoint'] for jsonData in deviceHistory]
+	ig_setpoint_values = [jsonData['runConfigs']['StaticBias']['gateCurrentSetPoint'] for jsonData in deviceHistory]
+	biasTime_values = [jsonData['runConfigs']['StaticBias']['totalBiasTime'] for jsonData in deviceHistory]
 	id_setpoint_changes = min(id_setpoint_values) != max(id_setpoint_values)
 	ig_setpoint_changes = min(ig_setpoint_values) != max(ig_setpoint_values)
 	biasTime_changes = min(biasTime_values) != max(biasTime_values)
@@ -89,8 +94,8 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	voltage_scale, ylabel = (1, plotDescription['plotDefaults']['ylabel']) if(abs_max_voltage >= 1) else (1e3, plotDescription['plotDefaults']['milli_ylabel'])
 	
 	# Find best scale for current axis
-	abs_max_drain_current = np.max([abs(deviceRun['runConfigs']['StaticCurrent']['drainCurrentSetPoint']) for deviceRun in deviceHistory])
-	abs_max_gate_current = np.max([abs(deviceRun['runConfigs']['StaticCurrent']['gateCurrentSetPoint']) for deviceRun in deviceHistory])
+	abs_max_drain_current = np.max([abs(deviceRun['runConfigs']['StaticBias']['drainCurrentSetPoint']) for deviceRun in deviceHistory])
+	abs_max_gate_current = np.max([abs(deviceRun['runConfigs']['StaticBias']['gateCurrentSetPoint']) for deviceRun in deviceHistory])
 	abs_max_current = max(abs_max_drain_current, abs_max_gate_current)
 	current_scale, id_axis_label, ig_axis_label, id_legend_label, ig_legend_label = (1, plotDescription['plotDefaults']['id_label'], plotDescription['plotDefaults']['ig_label'], plotDescription['plotDefaults']['id_legend'], plotDescription['plotDefaults']['ig_legend']) if((abs_max_current >= 1) or (abs_max_current == 0)) else ((1e3, plotDescription['plotDefaults']['milli_id_label'], plotDescription['plotDefaults']['milli_ig_label'], plotDescription['plotDefaults']['milli_id_legend'], plotDescription['plotDefaults']['milli_ig_legend']) if(abs_max_current >= 1e-3) else ((1e6, plotDescription['plotDefaults']['micro_id_label'], plotDescription['plotDefaults']['micro_ig_label'], plotDescription['plotDefaults']['micro_id_legend'], plotDescription['plotDefaults']['micro_ig_legend']) if(abs_max_current >= 1e-6) else ((1e9, plotDescription['plotDefaults']['nano_id_label'], plotDescription['plotDefaults']['nano_ig_label'], plotDescription['plotDefaults']['nano_id_legend'], plotDescription['plotDefaults']['nano_ig_legend']) if(abs_max_current >= 1e-9) else (1e12, plotDescription['plotDefaults']['pico_id_label'], plotDescription['plotDefaults']['pico_ig_label'], plotDescription['plotDefaults']['pico_id_legend'], plotDescription['plotDefaults']['pico_ig_legend']))))
 	
@@ -115,9 +120,9 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		# Plot Dual Axis (if desired)
 		if(includeDualAxis):
 			if(id_setpoint_changes):
-				id_line = plotOverTime(id_ax, deviceHistory[i]['Results']['timestamps'], [deviceHistory[i]['runConfigs']['StaticCurrent']['drainCurrentSetPoint'] * current_scale]*len(deviceHistory[i]['Results']['timestamps']), plt.rcParams['axes.prop_cycle'].by_key()['color'][0], offset=time_offset)
+				id_line = plotOverTime(id_ax, deviceHistory[i]['Results']['timestamps'], [deviceHistory[i]['runConfigs']['StaticBias']['drainCurrentSetPoint'] * current_scale]*len(deviceHistory[i]['Results']['timestamps']), plt.rcParams['axes.prop_cycle'].by_key()['color'][0], offset=time_offset)
 			if(ig_setpoint_changes):
-				ig_line = plotOverTime(ig_ax, deviceHistory[i]['Results']['timestamps'], [deviceHistory[i]['runConfigs']['StaticCurrent']['gateCurrentSetPoint'] * current_scale]*len(deviceHistory[i]['Results']['timestamps']), plt.rcParams['axes.prop_cycle'].by_key()['color'][3], offset=time_offset)
+				ig_line = plotOverTime(ig_ax, deviceHistory[i]['Results']['timestamps'], [deviceHistory[i]['runConfigs']['StaticBias']['gateCurrentSetPoint'] * current_scale]*len(deviceHistory[i]['Results']['timestamps']), plt.rcParams['axes.prop_cycle'].by_key()['color'][3], offset=time_offset)
 				
 	# === End Plotting Data ===
 	
@@ -128,7 +133,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	legend_plot_description = dict(plotDescription['plotDefaults'])
 	legend_plot_description['id_legend'] = id_legend_label
 	legend_plot_description['ig_legend'] = ig_legend_label
-	legend_title = getLegendTitle(deviceHistory, identifiers, legend_plot_description, 'runConfigs', 'StaticCurrent', mode_parameters, current_scale=current_scale, includeIdHold=(not id_setpoint_changes), includeIgHold=(not ig_setpoint_changes), includeTimeHold=(not biasTime_changes))
+	legend_title = getLegendTitle(deviceHistory, identifiers, legend_plot_description, 'runConfigs', 'StaticBias', mode_parameters, current_scale=current_scale, includeIdHold=(not id_setpoint_changes), includeIgHold=(not ig_setpoint_changes), includeTimeHold=(not biasTime_changes))
 	if(len(legend_title) > 0):
 		addLegend(ax1, loc=mode_parameters['legendLoc'], title=legend_title, mode_parameters=mode_parameters)
 	
