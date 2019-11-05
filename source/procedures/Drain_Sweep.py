@@ -10,7 +10,7 @@ from utilities import SequenceGeneratorUtility as dgu
 
 
 # === Main ===
-def run(parameters, smu_systems, arduino_systems, share=None):
+def run(parameters, smu_systems, arduino_systems, share=None, isSavingData=True):
 	# This script uses the default SMU, which is the first one in the list of SMU systems
 	smu_names = list(smu_systems.keys())
 	smu_instance = smu_systems[smu_names[0]]
@@ -23,9 +23,10 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 	smu_instance.setComplianceCurrent(ds_parameters['complianceCurrent'])	
 
 	# === START ===
-	# Apply drain voltage
-	print('Ramping gate voltage.')
-	smu_instance.rampGateVoltageTo(ds_parameters['gateVoltageSetPoint'])
+	# Apply gate voltage (only if gate channel is in voltage-source mode)
+	if(smu_instance.getGateSourceMode() != 'current'):
+		print('Ramping gate voltage.')
+		smu_instance.rampGateVoltageTo(ds_parameters['gateVoltageSetPoint'])
 	
 	print('Beginning to sweep drain voltage.')
 	results = runDrainSweep(smu_instance, 
@@ -39,7 +40,14 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 							drainVoltageRamps=ds_parameters['drainVoltageRamps'],
 							delayBetweenMeasurements=ds_parameters['delayBetweenMeasurements'],
 							share=share)
-	smu_instance.rampDownVoltages()
+	
+	# If the gate was in high-resistance state, reset it to the normal voltage-source mode
+	if(smu_instance.getDrainSourceMode() == 'current'):
+		smu_instance.setChannel2SourceMode(mode='voltage')
+	
+	# Ramp down channels
+	smu_instance.rampDrainVoltageDown()
+	smu_instance.rampGateVoltageDown()
 	# === COMPLETE ===
 
 	# Add important metrics from the run to the parameters for easy access later in ParametersHistory
@@ -56,9 +64,10 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 	jsonData['Results'] = results['Raw']
 		
 	# Save results as a JSON object
-	print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
-	dlu.saveJSON(dlu.getDeviceDirectory(parameters), ds_parameters['saveFileName'], jsonData, subDirectory='Ex'+str(parameters['startIndexes']['experimentNumber']))
-		
+	if(isSavingData):
+		print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
+		dlu.saveJSON(dlu.getDeviceDirectory(parameters), ds_parameters['saveFileName'], jsonData, subDirectory='Ex'+str(parameters['startIndexes']['experimentNumber']))
+			
 	return jsonData
 
 # === Data Collection ===
@@ -134,16 +143,16 @@ def runDrainSweep(smu_instance, isFastSweep, fastSweepSpeed, gateVoltageSetPoint
 												yValues=[measurement['I_d'], measurement['I_g']], 
 												xAxisTitle='Drain Voltage (V)', 
 												yAxisTitle='Current (A)', 
-												yscale='log', 
+												yscale='linear', 
 												enumerateLegend=True,
 												timeseries=False),
-				 livePlotter.createDataSeries(plotID='Current vs. Time', 
+				 livePlotter.createDataSeries(plotID='Response vs. Time', 
 												labels=['Drain Current', 'Gate Current'],
 												xValues=[timestamp, timestamp], 
 												yValues=[measurement['I_d'], measurement['I_g']], 
 												xAxisTitle='Time (s)', 
 												yAxisTitle='Current (A)', 
-												yscale='log', 
+												yscale='linear', 
 												enumerateLegend=True,
 												timeseries=True),
 				])

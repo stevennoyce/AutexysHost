@@ -81,6 +81,26 @@ smu_system_configurations = {
 			'uniqueID': '',
 			'type': 'Emulator_System',
 			'settings': {}
+		},
+		'sweepSMU':{
+			'uniqueID': '',
+			'type': 'Emulator_System',
+			'settings': {}
+		},
+		'powerSupplySMU':{
+			'uniqueID': '',
+			'type': 'Emulator_System',
+			'settings': {}
+		},
+		'deviceSMU':{
+			'uniqueID': '',
+			'type': 'Emulator_System',
+			'settings': {}
+		},
+		'secondarySMU':{
+			'uniqueID': '',
+			'type': 'Emulator_System',
+			'settings': {}
 		}
 	},
 	'slowSMU1': {
@@ -169,6 +189,12 @@ class SourceMeasureUnit:
 	def setParameter(self, parameter):
 		raise NotImplementedError("Please implement SourceMeasureUnit.setParameter()")
 
+	def getDrainSourceMode(self):
+		raise NotImplementedError("Please implement SourceMeasureUnit.getDrainSourceMode()")
+	
+	def getGateSourceMode(self):
+		raise NotImplementedError("Please implement SourceMeasureUnit.getGateSourceMode()")
+
 	def setVds(self, voltage):
 		raise NotImplementedError("Please implement SourceMeasureUnit.setVds()")
 
@@ -220,6 +246,7 @@ class SourceMeasureUnit:
 		self.rampGateVoltage(voltageStart, voltageSetPoint, steps)
 
 	def rampGateVoltageDown(self, steps=None):
+		print('Ramping down SMU gate voltage.')
 		self.rampGateVoltageTo(0, steps)
 
 	def rampDrainVoltage(self, voltageStart, voltageSetPoint, steps=None):
@@ -240,6 +267,7 @@ class SourceMeasureUnit:
 		self.rampDrainVoltage(voltageStart, voltageSetPoint, steps)
 
 	def rampDrainVoltageDown(self, steps=None):
+		print('Ramping down SMU drain voltage.')
 		self.rampDrainVoltageTo(0, steps)
 
 	def rampDownVoltages(self, steps=None):
@@ -265,6 +293,7 @@ class SourceMeasureUnit:
 		self.rampGateCurrent(currentStart, currentSetPoint, steps)
 
 	def rampGateCurrentDown(self, steps=None):
+		print('Ramping down SMU gate current.')
 		self.rampGateCurrentTo(0, steps)
 
 	def rampDrainCurrent(self, currentStart, currentSetPoint, steps=None):
@@ -285,6 +314,7 @@ class SourceMeasureUnit:
 		self.rampDrainCurrent(currentStart, currentSetPoint, steps)
 
 	def rampDrainCurrentDown(self, steps=None):
+		print('Ramping down SMU drain current.')
 		self.rampDrainCurrentTo(0, steps)
 
 	def rampDownCurrents(self, steps=None):
@@ -416,6 +446,12 @@ class B2912A(SourceMeasureUnit):
 			self.setParameter(":source2:function:mode {}".format(mode))
 			source2_mode = mode
 			print('Source 2 mode set to: ' + str(mode))
+
+	def getDrainSourceMode(self):
+		return self.source1_mode
+	
+	def getGateSourceMode(self):
+		return self.source2_mode
 
 	def setVds(self, voltage):
 		self.setParameter(":source1:voltage {}".format(voltage))
@@ -678,6 +714,12 @@ class PCB_System(SourceMeasureUnit):
 		self.getResponse(startsWith='#')
 		print('Switched to device: ' + str(deviceID))
 
+	def getDrainSourceMode(self):
+		return "voltage"
+	
+	def getGateSourceMode(self):
+		raise "voltage"
+
 	# Set Vds in millivolts (easy communication, avoids using decimal numbers)
 	def setVds_mV(self, voltage):
 		self.setParameter("set-vds-mv {:.0f}!".format(voltage*1000))
@@ -878,10 +920,18 @@ class Emulator(SourceMeasureUnit):
 		pass
 
 	def setChannel1SourceMode(self, mode="voltage"):
-		pass
+		if(mode in ["voltage", "current"]):
+			self.source1_mode = mode
 
 	def setChannel2SourceMode(self, mode="voltage"):
-		pass
+		if(mode in ["voltage", "current"]):
+			self.source2_mode = mode
+
+	def getDrainSourceMode(self):
+		return self.source1_mode
+		
+	def getGateSourceMode(self):
+		return self.source2_mode
 
 	def setVds(self, voltage):
 		pass
