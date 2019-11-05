@@ -42,7 +42,12 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 							delayBetweenMeasurements=is_parameters['delayBetweenMeasurements'],
 							share=share)
 	
-	# Ramp down V_DD
+	# Switch Channel 1 of smu_sweep back to normal voltage-sourcing mode
+	smu_sweep.setChannel1SourceMode(mode="voltage")
+	smu_sweep.setVds(0)
+	
+	# Ramp down SMU channels
+	smu_sweep.rampDownVoltages()
 	smu_vdd.rampDownVoltages()
 	# === COMPLETE ===
 

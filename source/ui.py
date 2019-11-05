@@ -576,7 +576,6 @@ def managerMessageForwarder():
 	
 	while True:
 		while pipes.poll(share, 'QueueToUI'):
-			print('Sending server message')
 			message = pipes.recv(share, 'QueueToUI')
 			# message = share['QueueToUI'].get()
 			socketio.emit('Server Message', message)

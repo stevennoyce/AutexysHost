@@ -74,7 +74,7 @@ def startUI(share, priority=0):
 def runUI(share):
 	"""A target method for running the UI that also imports the UI so the parent process does not have that dependency."""
 	import ui
-	ui.start(share=share, use_reloader=False)
+	ui.start(share=share, debug=False, use_reloader=False)
 
 def startDispatcher(scheduleFilePath, share, priority=0):
 	"""Start a Process running dispatcher.dispatch(scheduleFilePath) and obtain a two-way Pipe for communication."""
