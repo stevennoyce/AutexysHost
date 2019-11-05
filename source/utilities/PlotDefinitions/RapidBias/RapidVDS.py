@@ -27,7 +27,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	
 	# Adjust y-scale and y-axis labels 
 	max_voltage = np.max(np.abs(np.array(deviceHistory[0]['Results']['vds_data'])))
-	voltage_scale, ylabel = (1, plotDescription['plotDefaults']['micro_ylabel']) if(max_voltage >= 1) else (1e3, plotDescription['plotDefaults']['milli_ylabel'])
+	voltage_scale, ylabel = (1, plotDescription['plotDefaults']['ylabel']) if(max_voltage >= 1) else (1e3, plotDescription['plotDefaults']['milli_ylabel'])
 	
 	# Plot
 	for i in range(len(deviceHistory)):

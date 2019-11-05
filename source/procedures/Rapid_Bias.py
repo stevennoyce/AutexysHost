@@ -3,6 +3,7 @@ import time
 import numpy as np
 
 import pipes
+import Live_Plot_Data_Point as livePlotter
 from utilities import DataLoggerUtility as dlu
 from utilities import SequenceGeneratorUtility as dgu
 
@@ -22,6 +23,7 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 	smu_instance.setComplianceCurrent(rb_parameters['complianceCurrent'])	
 
 	# === START ===
+	print('Beginning to rapid bias.')
 	results = runRapidBias(smu_instance, 
 							waveform=rb_parameters['waveform'],
 							drainVoltageSetPoints=rb_parameters['drainVoltageSetPoints'],
@@ -36,9 +38,9 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 							share=share)
 	
 	# If any channels were switched into high-resistance mode, switch them back to the typical voltage-source mode
-	if(not supplyDrainVoltage):
+	if(not rb_parameters['supplyDrainVoltage']):
 		smu_instance.setChannel1SourceMode(mode='voltage')
-	if(not supplyGateVoltage):	
+	if(not rb_parameters['supplyGateVoltage']):	
 		smu_instance.setChannel2SourceMode(mode='voltage')
 		
 	# Ramp down SMU channels	
@@ -109,6 +111,9 @@ def runRapidBias(smu_instance, waveform, drainVoltageSetPoints, gateVoltageSetPo
 	# Step through all voltage points to measure
 	measurement_buffer = []
 	for i in range(len(gateVoltages)):
+		# Send a progress message
+		pipes.progressUpdate(share, 'Rapid Bias Point', start=0, current=i+1, end=len(gateVoltages))
+		
 		# Apply V_GS and V_DS (only issue commands that affect the voltage)
 		if(supplyGateVoltage and ((i == 0) or (gateVoltages[i] != gateVoltages[i-1]))):
 			smu_instance.setVgs(gateVoltages[i])

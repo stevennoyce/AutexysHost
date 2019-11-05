@@ -132,7 +132,7 @@ def runStaticBias(smu_instance, arduino_instance, totalBiasTime, measurementTime
 	smu_secondsPerMeasurement = 1/smu_measurementsPerSecond
 
 	# Compute the number of data points we will be collecting (unless measurementTime is unreasonably small)
-	steps = max(int(totalBiasTime/measurementTime), 1) if(measurementTime > 0) else None
+	steps = max(int(totalBiasTime/measurementTime), 1) if(measurementTime > 0) else int(totalBiasTime/smu_secondsPerMeasurement)
 	
 	# Take a timestamp for the start of the StaticBias
 	startTime = time.time()
