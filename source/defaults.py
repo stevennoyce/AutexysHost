@@ -198,6 +198,8 @@ default_parameters = {
 			'maxStepInVDS': 			{'type':'float',                    'units':'V', 'default': 0.025,            'title':'Max Step In VDS',          'description':'Maximum allowable step used in generating the drain voltage waveform.'},
 			'maxStepInVGS': 			{'type':'float',                    'units':'V', 'default': 0.4,              'title':'Max Step In VGS',          'description':'Maximum allowable step used in generating the gate voltage waveform.'},
 			'startGrounded': 			{'type':'bool',                                  'default': False,            'title':'Start Grounded',           'description':'When enabled, terminals start as grounded so that you can see all of the starting transients and miss nothing.'}, 
+			'supplyGateVoltage': 		{'type':'bool',                                  'default': True,             'title':'Supply Gate Voltage',      'description':'When disabled, gate channel enters a high-resistance state to measure the gate voltage.'},
+			'supplyDrainVoltage': 		{'type':'bool',                                  'default': True,             'title':'Supply Drain Voltage',     'description':'When disabled, drain channel enters a high-resistance state to measure the drain voltage.'},
 		},
 		'NoiseCollection':{
 			'dependencies':				{'ignore':True, 'value':[]},

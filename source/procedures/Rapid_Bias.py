@@ -30,7 +30,18 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 							averageOverPoints=rb_parameters['averageOverPoints'],
 							maxStepInVDS=rb_parameters['maxStepInVDS'],
 							maxStepInVGS=rb_parameters['maxStepInVGS'],
-							startGrounded=rb_parameters['startGrounded'])
+							startGrounded=rb_parameters['startGrounded'],
+							supplyDrainVoltage=rb_parameters['supplyDrainVoltage'],
+							supplyGateVoltage=rb_parameters['supplyGateVoltage'],
+							share=share)
+	
+	# If any channels were switched into high-resistance mode, switch them back to the typical voltage-source mode
+	if(not supplyDrainVoltage):
+		smu_instance.setChannel1SourceMode(mode='voltage')
+	if(not supplyGateVoltage):	
+		smu_instance.setChannel2SourceMode(mode='voltage')
+		
+	# Ramp down SMU channels	
 	smu_instance.rampDownVoltages()
 	# === COMPLETE ===
 
@@ -51,7 +62,7 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 	return jsonData
 
 # === Data Collection ===
-def runRapidBias(smu_instance, waveform, drainVoltageSetPoints, gateVoltageSetPoints, measurementPoints, averageOverPoints, maxStepInVDS, maxStepInVGS, startGrounded, share=None):
+def runRapidBias(smu_instance, waveform, drainVoltageSetPoints, gateVoltageSetPoints, measurementPoints, averageOverPoints, maxStepInVDS, maxStepInVGS, startGrounded, supplyDrainVoltage=True, supplyGateVoltage=True, share=None):
 	vds_data = []
 	id_data = []
 	vgs_data = []
@@ -65,9 +76,20 @@ def runRapidBias(smu_instance, waveform, drainVoltageSetPoints, gateVoltageSetPo
 		gateVoltageSetPoints = [0] + gateVoltageSetPoints
 		measurementPoints = [1] + measurementPoints
 	else:
-		# Otherwise just ramp to your starting voltages to simplify what is happening
-		smu_instance.rampGateVoltageTo(gateVoltageSetPoints[0])
-		smu_instance.rampDrainVoltageTo(drainVoltageSetPoints[0])
+		# Otherwise just ramp to your starting voltages (unless the channels are measuring voltage rather than supplying it)
+		if(supplyGateVoltage):
+			smu_instance.rampGateVoltageTo(gateVoltageSetPoints[0])
+			print('Ramped to starting gate bias.')
+		else:
+			smu_instance.setChannel2SourceMode(mode='current')
+			smu_instance.setIg(0)
+		
+		if(supplyDrainVoltage):
+			smu_instance.rampDrainVoltageTo(drainVoltageSetPoints[0])
+			print('Ramped to starting drain bias.')
+		else:
+			smu_instance.setChannel1SourceMode(mode='current')
+			smu_instance.setId(0)
 	
 	# Generate waveforms from arrays of set-point values and a corresponding array of the number of times that each set-point should be measured
 	gateVoltages = dgu.waveformValues(waveform, gateVoltageSetPoints, measurementPoints, maxStepInVGS)
@@ -88,9 +110,9 @@ def runRapidBias(smu_instance, waveform, drainVoltageSetPoints, gateVoltageSetPo
 	measurement_buffer = []
 	for i in range(len(gateVoltages)):
 		# Apply V_GS and V_DS (only issue commands that affect the voltage)
-		if((i == 0) or (gateVoltages[i] != gateVoltages[i-1])):
+		if(supplyGateVoltage and ((i == 0) or (gateVoltages[i] != gateVoltages[i-1]))):
 			smu_instance.setVgs(gateVoltages[i])
-		if((i == 0) or (drainVoltages[i] != drainVoltages[i-1])):
+		if(supplyDrainVoltage and ((i == 0) or (drainVoltages[i] != drainVoltages[i-1]))):
 			smu_instance.setVds(drainVoltages[i])
 
 		# Take Measurement and add it to the buffer

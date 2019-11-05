@@ -46,8 +46,7 @@ def run(parameters, smu_systems, arduino_systems, share=None, isSavingData=True)
 		smu_instance.setChannel1SourceMode(mode='voltage')
 	
 	# Ramp down channels
-	smu_instance.rampDrainVoltageDown()
-	smu_instance.rampGateVoltageDown()
+	smu_instance.rampDownVoltages()
 	# === COMPLETE ===
 
 	# Add important metrics from the run to the parameters for easy access later in ParametersHistory
