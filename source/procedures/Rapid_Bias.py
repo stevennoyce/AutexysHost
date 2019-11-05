@@ -123,17 +123,31 @@ def runRapidBias(smu_instance, waveform, drainVoltageSetPoints, gateVoltageSetPo
 		# Take Measurement and add it to the buffer
 		measurement = smu_instance.takeMeasurement()
 		timestamp = time.time()
+		measurement['timestamp'] = timestamp
 		
-		measurement_buffer.append([measurement, timestamp])
+		measurement_buffer.append(measurement)
 		
 		# Once the buffer reaches the desired number of measurements to average over, save the mean data and timestamp and reset the buffer
 		if(len(measurement_buffer) >= averageOverPoints):
-			vds_data.append(np.mean([entry[0]['V_ds'] for entry in measurement_buffer]))
-			id_data.append(np.mean([entry[0]['I_d'] for entry in measurement_buffer]))
-			vgs_data.append(np.mean([entry[0]['V_gs'] for entry in measurement_buffer]))
-			ig_data.append(np.mean([entry[0]['I_g'] for entry in measurement_buffer]))
-			timestamps.append(np.mean([entry[1] for entry in measurement_buffer]))
+			vds_data.append(np.mean([entry['V_ds'] for entry in measurement_buffer]))
+			id_data.append(np.mean([entry['I_d'] for entry in measurement_buffer]))
+			vgs_data.append(np.mean([entry['V_gs'] for entry in measurement_buffer]))
+			ig_data.append(np.mean([entry['I_g'] for entry in measurement_buffer]))
+			timestamps.append(np.mean([entry['timestamp'] for entry in measurement_buffer]))
 			measurement_buffer = []
+			
+			# Send a data message
+			pipes.livePlotUpdate(share,plots=
+			[livePlotter.createDataSeries(plotID='Current vs. Time', 
+													labels=['Drain Current', 'Gate Current'],
+													xValues=[timestamps[-1], timestamps[-1]], 
+													yValues=[id_data[-1], ig_data[-1]], 
+													xAxisTitle='Time (s)', 
+													yAxisTitle='Current (A)', 
+													yscale='log', 
+													enumerateLegend=False,
+													timeseries=True),
+			])
 		
 	return {
 		'Raw':{
