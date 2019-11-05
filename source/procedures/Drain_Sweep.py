@@ -10,7 +10,7 @@ from utilities import SequenceGeneratorUtility as dgu
 
 
 # === Main ===
-def run(parameters, smu_systems, arduino_systems, share=None, isSavingData=True):
+def run(parameters, smu_systems, arduino_systems, share=None):
 	# This script uses the default SMU, which is the first one in the list of SMU systems
 	smu_names = list(smu_systems.keys())
 	smu_instance = smu_systems[smu_names[0]]
@@ -24,9 +24,8 @@ def run(parameters, smu_systems, arduino_systems, share=None, isSavingData=True)
 
 	# === START ===
 	# Apply gate voltage (only if gate channel is in voltage-source mode)
-	if(smu_instance.getGateSourceMode() != 'current'):
-		print('Ramping gate voltage.')
-		smu_instance.rampGateVoltageTo(ds_parameters['gateVoltageSetPoint'])
+	print('Ramping gate voltage.')
+	smu_instance.rampGateVoltageTo(ds_parameters['gateVoltageSetPoint'])
 	
 	print('Beginning to sweep drain voltage.')
 	results = runDrainSweep(smu_instance, 
@@ -40,10 +39,6 @@ def run(parameters, smu_systems, arduino_systems, share=None, isSavingData=True)
 							drainVoltageRamps=ds_parameters['drainVoltageRamps'],
 							delayBetweenMeasurements=ds_parameters['delayBetweenMeasurements'],
 							share=share)
-	
-	# If the gate was in high-resistance state, reset it to the normal voltage-source mode
-	if(smu_instance.getGateSourceMode() == 'current'):
-		smu_instance.setChannel2SourceMode(mode='voltage')
 	
 	# Ramp down channels
 	smu_instance.rampDownVoltages()
@@ -63,9 +58,8 @@ def run(parameters, smu_systems, arduino_systems, share=None, isSavingData=True)
 	jsonData['Results'] = results['Raw']
 		
 	# Save results as a JSON object
-	if(isSavingData):
-		print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
-		dlu.saveJSON(dlu.getDeviceDirectory(parameters), ds_parameters['saveFileName'], jsonData, subDirectory='Ex'+str(parameters['startIndexes']['experimentNumber']))
+	print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
+	dlu.saveJSON(dlu.getDeviceDirectory(parameters), ds_parameters['saveFileName'], jsonData, subDirectory='Ex'+str(parameters['startIndexes']['experimentNumber']))
 			
 	return jsonData
 

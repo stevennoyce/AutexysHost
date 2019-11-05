@@ -10,7 +10,7 @@ from utilities import SequenceGeneratorUtility as dgu
 
 
 # === Main ===
-def run(parameters, smu_systems, arduino_systems, share=None, isSavingData=True):
+def run(parameters, smu_systems, arduino_systems, share=None):
 	# This script uses the default SMU, which is the first one in the list of SMU systems
 	smu_names = list(smu_systems.keys())
 	smu_instance = smu_systems[smu_names[0]]
@@ -23,10 +23,9 @@ def run(parameters, smu_systems, arduino_systems, share=None, isSavingData=True)
 	smu_instance.setComplianceCurrent(gs_parameters['complianceCurrent'])
 
 	# === START ===
-	# Apply drain voltage (only if drain channel is in voltage-source mode)
-	if(smu_instance.getDrainSourceMode() != 'current'):
-		print('Ramping drain voltage.')
-		smu_instance.rampDrainVoltageTo(gs_parameters['drainVoltageSetPoint'])		
+	# Apply drain voltage
+	print('Ramping drain voltage.')
+	smu_instance.rampDrainVoltageTo(gs_parameters['drainVoltageSetPoint'])		
 
 	print('Beginning to sweep gate voltage.')
 	results = runGateSweep( smu_instance,
@@ -40,10 +39,6 @@ def run(parameters, smu_systems, arduino_systems, share=None, isSavingData=True)
 							gateVoltageRamps=gs_parameters['gateVoltageRamps'],
 							delayBetweenMeasurements=gs_parameters['delayBetweenMeasurements'],
 							share=share)
-	
-	# If the drain was in high-resistance state, reset it to the normal voltage-source mode
-	if(smu_instance.getDrainSourceMode() == 'current'):
-		smu_instance.setChannel1SourceMode(mode='voltage')
 	
 	# Ramp down channels
 	smu_instance.rampDownVoltages()
@@ -63,9 +58,8 @@ def run(parameters, smu_systems, arduino_systems, share=None, isSavingData=True)
 	jsonData['Results'] = results['Raw']
 
 	# Save results as a JSON object
-	if(isSavingData):
-		print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
-		dlu.saveJSON(dlu.getDeviceDirectory(parameters), gs_parameters['saveFileName'], jsonData, subDirectory='Ex'+str(parameters['startIndexes']['experimentNumber']))
+	print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
+	dlu.saveJSON(dlu.getDeviceDirectory(parameters), gs_parameters['saveFileName'], jsonData, subDirectory='Ex'+str(parameters['startIndexes']['experimentNumber']))
 
 	return jsonData
 
@@ -137,21 +131,21 @@ def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint
 				preppedGateVoltage = gateVoltage if abs((gateVoltage - measurement['V_gs'])) < abs(0.1*gateVoltage) else measurement['V_gs']
 				pipes.livePlotUpdate(share, plots=
 				[livePlotter.createDataSeries(plotID='Response vs. Gate Voltage', 
-												labels=['Drain Current', 'Gate Current']         if(smu_instance.getDrainSourceMode() == 'voltage') else ['Drain Voltage'],
-												xValues=[preppedGateVoltage, preppedGateVoltage] if(smu_instance.getDrainSourceMode() == 'voltage') else [preppedGateVoltage], 
-												yValues=[measurement['I_d'], measurement['I_g']] if(smu_instance.getDrainSourceMode() == 'voltage') else [measurement['V_ds']], 
+												labels=['Drain Current', 'Gate Current'],
+												xValues=[preppedGateVoltage, preppedGateVoltage], 
+												yValues=[measurement['I_d'], measurement['I_g']], 
 												xAxisTitle='Gate Voltage (V)', 
-												yAxisTitle='Current (A)'                         if(smu_instance.getDrainSourceMode() == 'voltage') else 'Voltage (V)', 
-												yscale='log'                                     if(smu_instance.getDrainSourceMode() == 'voltage') else 'linear', 
+												yAxisTitle='Current (A)', 
+												yscale='log', 
 												enumerateLegend=True,
 												timeseries=False),
 				 livePlotter.createDataSeries(plotID='Response vs. Time', 
-												labels=['Drain Current', 'Gate Current']         if(smu_instance.getDrainSourceMode() == 'voltage') else ['Drain Voltage'],
-												xValues=[timestamp, timestamp]                   if(smu_instance.getDrainSourceMode() == 'voltage') else [timestamp], 
-												yValues=[measurement['I_d'], measurement['I_g']] if(smu_instance.getDrainSourceMode() == 'voltage') else [measurement['V_ds']], 
+												labels=['Drain Current', 'Gate Current'],
+												xValues=[timestamp, timestamp], 
+												yValues=[measurement['I_d'], measurement['I_g']], 
 												xAxisTitle='Time (s)', 
-												yAxisTitle='Current (A)'                         if(smu_instance.getDrainSourceMode() == 'voltage') else 'Voltage (V)', 
-												yscale='log'                                     if(smu_instance.getDrainSourceMode() == 'voltage') else 'linear', 
+												yAxisTitle='Current (A)', 
+												yscale='log', 
 												enumerateLegend=True,
 												timeseries=True),
 				])
