@@ -46,7 +46,7 @@ def run(additional_parameters, share=None):
 	print("Sensor data: " + str(parameters['SensorData']))
 	
 	# Run specified action:
-	if((parameters['MeasurementSystem']['systemType'] == 'standalone') and (len(parameters['MeasurementSystem']['deviceRange']) > 0)):
+	if((parameters['MeasurementSystem']['systemType'] == 'standalone' or parameters['MeasurementSystem']['systemType'] == 'emulator') and (len(parameters['MeasurementSystem']['deviceRange']) > 0)):
 		for device in parameters['MeasurementSystem']['deviceRange']:
 			params = copy.deepcopy(parameters)
 			params['Identifiers']['device'] = device
