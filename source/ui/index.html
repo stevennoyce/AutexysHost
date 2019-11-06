@@ -1603,9 +1603,11 @@
 				//Job and Device Number v-select (dropdowns)
 				jobSelectLabel: 'Job Number',
 				jobSelectChoice: 'Dummy',
+				jobSelectActive: 'Dummy',
 				jobSelectItems: [],
 				deviceSelectLabel: 'Device Number',
 				deviceSelectChoice: 'Dummy',
+				deviceSelectActive: 'Dummy',
 				deviceSelectItems: [],
 			},
 			methods: {
@@ -1834,20 +1836,20 @@
 				},
 				clearLivePlots: function() {
 					this.jobSelectChoice = 'Dummy';
+					this.jobSelectActive = 'Dummy';
 					this.deviceSelectChoice = 'Dummy';
+					this.deviceSelectActive = 'Dummy';
 					this.livePlots = {'Dummy':{'Dummy':{plots:[]}}};
 				},
 				clearJobSelect: function() {
-					this.jobSelectChoice = "";
+					this.jobSelectChoice = 'Dummy';
+					this.jobSelectActive = 'Dummy'
 					this.jobSelectItems = [];
 				},
 				clearDeviceSelect: function() {
-					this.deviceSelectChoice = "";
+					this.deviceSelectChoice = 'Dummy';
+					this.deviceSelectActive = 'Dummy';
 					this.deviceSelectItems = [];
-				},
-				updateLivePlotsDisplayed: function(){
-					console.log("Updating live plots displayed");
-					//TODO implement this
 				},
 				dispatchSchedule: function() {
 					this.clearProgressBars();
@@ -2146,25 +2148,18 @@
 				},
 				
 				handleServerMessage: function(message) {
-					/*
-					TODO:
-					1. Change to the correct page - 
-						a) make access to livePlots variable reactive in live plots html section, 
-						b) every time select new entry in dropdown, repaint plots
-					2. Update the correct plot
-					*/
 					if (message.type == 'JobNumberUpdate') {
 						this.livePlots[message.number] = {};
 						this.jobSelectItems.push(message.number);
-						console.log("Setting jobSelectChoice = " + message.number);
 						this.jobSelectChoice = message.number;
+						this.jobSelectActive = message.number;
 					}
 
 					if (message.type == 'DeviceNumberUpdate') {
 						this.livePlots[this.jobSelectChoice][message.number] = {plots:[]};
 						this.deviceSelectItems.push(message.number);
-						console.log("Setting deviceSelectChoice = " + message.number);
 						this.deviceSelectChoice = message.number;
+						this.deviceSelectActive = message.number;
 					}
 
 					if (message.type == 'Progress') {
@@ -2200,7 +2195,7 @@
 							var myPlotInLivePlots = null;
 
 							//Find the correct livePlot in the JS variable
-							for(livePlot of this.livePlots[this.jobSelectChoice][this.deviceSelectChoice].plots){
+							for(livePlot of this.livePlots[this.jobSelectActive][this.deviceSelectActive].plots){
 								if(livePlot.plotID == myPlot.plotID){
 									myPlotInLivePlots = livePlot;
 								}
@@ -2217,7 +2212,7 @@
 								}
 
 								//Add to livePlots JS variable
-								this.livePlots[this.jobSelectChoice][this.deviceSelectChoice].plots.push(myPlotInLivePlots);
+								this.livePlots[this.jobSelectActive][this.deviceSelectActive].plots.push(myPlotInLivePlots);
 							}
 							else{
 								//myPlot does not include series which have not been updated on this message
@@ -2288,9 +2283,6 @@
 				runnerToggleAdvancedSettings: function(val) { this.addAdvancedChangesToRunnerScheduleFile(); },
 				
 				experimentIndex: function(val) { this.getAssociatedAFMs(); },
-
-				jobSelectChoice: function(val)	{ this.updateLivePlotsDisplayed(); },
-				deviceSelectChoice: function(val) { this.updateLivePlotsDisplayed(); },
 			},
 			computed: {
 				experiment: function() {
