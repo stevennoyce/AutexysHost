@@ -932,31 +932,35 @@
 					</v-flex>
 					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'documentation'">
-						<v-card>
+						<v-card class="mb-3">
 							<v-toolbar dark dense class="color1 ">
 								<v-toolbar-title>
-									Documentation
+									Developer Documentation
 								</v-toolbar-title>
 							</v-toolbar>
-							<v-expansion-panel>
-								<v-expansion-panel-content v-for="(panel, i) in 1" :key="i" @click="documentationRetrieveFromServer()">
-									<div slot="header">Documentation</div>
-									<v-container> 
-										<p v-if="!documentationEditMode">
-											{{ documentationText }}
-										</p>
-										<v-textarea solo v-if="documentationEditMode" label="Enter documentation text" v-model="documentationText" auto-grow>
-										</v-textarea>
-										<v-btn v-if="!documentationEditMode" class="mb-3 mt-3" @click="documentationEdit()">Edit</v-btn>
-										<v-btn v-if="documentationEditMode" class="mb-3 mt-3" @click="documentationSave()">Save</v-btn>
-										<v-btn v-if="documentationEditMode" class="mb-3 mt-3" @click="documentationCancel()">Cancel</v-btn>
-									</v-container>
-							</v-expansion-panel>
-							<!--
-							<v-expansion-panels>
-								<v-expansion-panel v-for="(panel, i) in 1" :key="i" @click="documentationRetrieveFromServer()">
-									<v-expansion-panel-header>Documentation</v-expansion-panel-header>
-									<v-expansion-panel-content> 
+							<v-container> 
+								This documentation is intended for developers adding to the Python code. It is built using Sphinx.
+							</v-container>
+							<v-container>
+								<v-btn href="https://stevennoyce.github.io/AutexysHost/build/html/" target="_blank">View Documentation</v-btn>
+							</v-container>
+						</v-card>
+
+						<v-spacer></v-spacer>
+
+						<v-card class="mb-3">
+							<v-toolbar dark dense class="color1 ">
+								<v-toolbar-title>
+									User Documentation
+								</v-toolbar-title>
+							</v-toolbar>
+							<v-container>
+								This documentation is intended for anyone using Autexys.
+							</v-container>
+							<v-container>
+								<v-expansion-panel expand class="mt-1 mb-2">
+									<v-expansion-panel-content class="grey lighten-4" v-for="(panel, i) in 1" :key="i" @input="documentationRetrieveFromServer(i, $event)">
+										<div slot="header">Documentation</div>
 										<v-container> 
 											<p v-if="!documentationEditMode">
 												{{ documentationText }}
@@ -967,10 +971,8 @@
 											<v-btn v-if="documentationEditMode" class="mb-3 mt-3" @click="documentationSave()">Save</v-btn>
 											<v-btn v-if="documentationEditMode" class="mb-3 mt-3" @click="documentationCancel()">Cancel</v-btn>
 										</v-container>
-									</v-expansion-panel-content>	
 								</v-expansion-panel>
-							</v-expansion-panels>
-						-->
+							</v-container>
 						</v-card>
 					</v-flex>
 
@@ -1119,7 +1121,7 @@
 						<v-card class="mb-3" v-if="dispatcherRunning">
 							<v-toolbar dark dense class="color3 ">
 								<v-toolbar-title>
-									Run Proxgress
+									Run Progress
 								</v-toolbar-title>
 							</v-toolbar>
 							<v-list>
@@ -2305,11 +2307,13 @@
 					return listToReturn;
 				},
 
-				documentationRetrieveFromServer: function() {
-					console.log("documentationRetrieveFromServer()");
-					$.getJSON("/loadDocumentation", response => {
-						this.documentationText = response;
-					}).fail(() => {console.log("Error loading documentation")});
+				documentationRetrieveFromServer: function(sectionNumber, opened) {
+					if(opened){
+						console.log("documentationRetrieveFromServer()");
+						$.getJSON("/loadDocumentation", response => {
+							this.documentationText = response;})
+						.fail(() => {console.log("Error loading documentation")});
+					}
 				},
 
 				documentationEdit: function() {
