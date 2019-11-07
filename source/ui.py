@@ -386,6 +386,22 @@ def defaultParameters():
 def defaultEssentialParameters():
 	return jsonvalid(defaults.full_essentials())
 
+@app.route('/saveDocumentation', methods=['POST'])
+def saveDocumentation():
+	print("Saving documentation");
+	# receivedText = flask.request.get_json(force=True)
+
+	# dlu.emptyFile(os.path.join(default_data_path, 'documentation/'), 'documentation.txt')
+	# dlu.saveJSON()
+	# TODO Make this a json
+
+	return "Success"
+
+@app.route('/loadDocumentation')
+def loadDocumentation():
+	print("Loading documentation");
+	return "This is from the server"
+
 @app.route('/saveSchedule/<user>/<project>/<fileName>', methods=['POST'])
 def saveSchedule(user, project, fileName):
 	# receivedJobs = json.loads(flask.request.args.get('jobs'))

@@ -938,22 +938,42 @@
 									Documentation
 								</v-toolbar-title>
 							</v-toolbar>
-							<v-container>
-								<div>
-									<!---
-									<embed src="/Users/mbarbano/DocumentsLocal/AutexysHost/docs/build/html/index.html" style="width:800px; height:600px;">
-										--->
-									<!---
-									<object type="text/html" data="/Users/mbarbano/DocumentsLocal/AutexysHost/docs/build/html/index.html" width="800px" height="600px" style="overflow:auto;border:5px ridge blue"></object>
-									--->
-								</div>
-
-								<!---
-								<a href="ui/index.html">Python Developer Documentation</a>
-								-->
-							</v-container>
+							<v-expansion-panel>
+								<v-expansion-panel-content v-for="(panel, i) in 1" :key="i" @click="documentationRetrieveFromServer()">
+									<div slot="header">Documentation</div>
+									<v-container> 
+										<p v-if="!documentationEditMode">
+											{{ documentationText }}
+										</p>
+										<v-textarea solo v-if="documentationEditMode" label="Enter documentation text" v-model="documentationText" auto-grow>
+										</v-textarea>
+										<v-btn v-if="!documentationEditMode" class="mb-3 mt-3" @click="documentationEdit()">Edit</v-btn>
+										<v-btn v-if="documentationEditMode" class="mb-3 mt-3" @click="documentationSave()">Save</v-btn>
+										<v-btn v-if="documentationEditMode" class="mb-3 mt-3" @click="documentationCancel()">Cancel</v-btn>
+									</v-container>
+							</v-expansion-panel>
+							<!--
+							<v-expansion-panels>
+								<v-expansion-panel v-for="(panel, i) in 1" :key="i" @click="documentationRetrieveFromServer()">
+									<v-expansion-panel-header>Documentation</v-expansion-panel-header>
+									<v-expansion-panel-content> 
+										<v-container> 
+											<p v-if="!documentationEditMode">
+												{{ documentationText }}
+											</p>
+											<v-textarea solo v-if="documentationEditMode" label="Enter documentation text" v-model="documentationText" auto-grow>
+											</v-textarea>
+											<v-btn v-if="!documentationEditMode" class="mb-3 mt-3" @click="documentationEdit()">Edit</v-btn>
+											<v-btn v-if="documentationEditMode" class="mb-3 mt-3" @click="documentationSave()">Save</v-btn>
+											<v-btn v-if="documentationEditMode" class="mb-3 mt-3" @click="documentationCancel()">Cancel</v-btn>
+										</v-container>
+									</v-expansion-panel-content>	
+								</v-expansion-panel>
+							</v-expansion-panels>
+						-->
 						</v-card>
 					</v-flex>
+
 					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'experimentRunner'">
 						<v-card class="mb-3">
@@ -1099,7 +1119,7 @@
 						<v-card class="mb-3" v-if="dispatcherRunning">
 							<v-toolbar dark dense class="color3 ">
 								<v-toolbar-title>
-									Run Progress
+									Run Proxgress
 								</v-toolbar-title>
 							</v-toolbar>
 							<v-list>
@@ -1608,6 +1628,9 @@
 				deviceSelectChoice: 'Dummy',
 				deviceSelectActive: 'Dummy',
 				deviceSelectItems: [],
+
+				documentationEditMode: false,
+				documentationText: "",
 			},
 			methods: {
 				
@@ -1791,7 +1814,8 @@
 					var url = '/saveSchedule/' + this.scheduleSaveUser + '/' + this.scheduleSaveProject + '/' + this.scheduleSaveFileName;
 					url += this.cacheBust;
 					// url += '&jobs=' + encodeURI(JSON.stringify(this.scheduleObjectDefault));
-					
+					console.log('saveSchedule(): ' + url);
+
 					$.post(url, JSON.stringify(this.scheduleLines), response => {
 						this.saveScheduleSuccessCode = response;
 					}).fail(() => {console.log("Error saving schedule file")});
@@ -1808,6 +1832,8 @@
 				},
 				loadSchedule: function() {
 					var path = '/loadSchedule/' + this.scheduleLoadUser + '/' + this.scheduleLoadProject + '/' + this.scheduleLoadFileName + '.json' + this.cacheBust;
+					console.log('loadSchedule(): ' + path);
+
 					if (path) {
 						$.getJSON(path, response => {app.$data.scheduleObjects = response})
 						.fail(() => {console.log("Error loading schedule file")});
@@ -1886,6 +1912,8 @@
 				loadRunnerScheduleFile: function() {
 					if(this.scheduleExperimentUser && this.scheduleExperimentProject && this.scheduleExperimentFileName) {
 						var path = '/loadBriefSchedule/' + this.scheduleExperimentUser + '/' + this.scheduleExperimentProject + '/' + this.scheduleExperimentFileName + '.json' + this.cacheBust;
+						
+						console.log('loading path = ' + path);
 						if (path) {
 							$.getJSON(path, response => {app.$data.runnerScheduleObjects = response})
 							.fail(() => {console.log("Error loading schedule file into the experiment runner.")});
@@ -1894,6 +1922,9 @@
 						}
 						
 						var path = '/loadSchedule/' + this.scheduleExperimentUser + '/' + this.scheduleExperimentProject + '/' + this.scheduleExperimentFileName + '.json' + this.cacheBust;
+
+						console.log('loading path = ' + path);
+
 						if (path) {
 							$.getJSON(path, response => {app.$data.runnerVerboseScheduleObjects = response})
 							.fail(() => {console.log("Error loading schedule file into the experiment runner.")});
@@ -1922,6 +1953,9 @@
 						
 						// Save current file
 						var path = '/saveSchedule/' + this.scheduleExperimentUser + '/' + this.scheduleExperimentProject + '/' + this.scheduleExperimentFileName + '.json' + this.cacheBust;
+
+						console.log('saving path = ' + path);
+
 						if (path) {
 							$.post(path, JSON.stringify(this.runnerScheduleLines), response => {})
 							.fail(() => {console.log("Error saving schedule file from the experiment runner.")});
@@ -2269,7 +2303,31 @@
 						});
 					}
 					return listToReturn;
-				}
+				},
+
+				documentationRetrieveFromServer: function() {
+					console.log("documentationRetrieveFromServer()");
+					$.getJSON("/loadDocumentation", response => {
+						this.documentationText = response;
+					}).fail(() => {console.log("Error loading documentation")});
+				},
+
+				documentationEdit: function() {
+					this.documentationEditMode = true;
+				},
+
+				documentationSave: function() {
+					this.documentationEditMode = false;
+
+					console.log("documentationSave()");
+					$.post("/saveDocumentation", this.documentationText, response => {
+						this.saveDocumentationSuccessCode = response;
+					}).fail(() => {console.log("Error saving documentation")});
+				},
+
+				documentationCancel: function() {
+					this.documentationEditMode = false;
+				},
 			},
 			watch: {
 				stepperPage:             function(val) { localStorage.stepperPage = JSON.stringify(val); },
