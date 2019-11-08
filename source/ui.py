@@ -138,7 +138,7 @@ def sendPlot(user, project, wafer, chip, device, experiment, plotType):
 	modePlotSettings = receivedPlotSettings['mode_parameters']
 	
 	filebuf = io.BytesIO()
-		
+	
 	# Update arguments to DeviceHistory.makePlots() call
 	for dynamicArgument in primaryPlotSettings.keys():
 		plotSettings[dynamicArgument] = primaryPlotSettings[dynamicArgument]
