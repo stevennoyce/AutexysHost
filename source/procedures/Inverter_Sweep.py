@@ -12,7 +12,7 @@ from utilities import SequenceGeneratorUtility as dgu
 # === Main ===
 def run(parameters, smu_systems, arduino_systems, share=None):
 	# This script uses two SMUs, one for applying the power supply and one for measuring VIN/VOUT
-	smu_sweep = smu_systems['sweepSMU']
+	smu_sweep = smu_systems['logicSignalSMU']
 	smu_vdd = smu_systems['powerSupplySMU']
 	
 	# Get shorthand name to easily refer to configuration parameters

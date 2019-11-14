@@ -80,6 +80,16 @@ default_parameters = {
 			'supplyGateVoltage': 			{'type':'bool',  			                    'default': True,   'title':'Supply Gate Voltage',        	  'description':'When disabled, gate channel enters a high-resistance state to measure the gate voltage.'},
 			'supplyDrainVoltage': 			{'type':'bool',  			                    'default': True,   'title':'Supply Drain Voltage',       	  'description':'When disabled, drain channel enters a high-resistance state to measure the drain voltage.'},
 		},
+		'InverterBias':{
+			'dependencies':					{'ignore':True, 'value':[]},
+			'saveFileName': 				{'type':'constant', 'default':'InverterBias', 'title':'Save File Name', 'description':'The name of the file that will be saved with the data from this experiment. This name should typically not be changed.'},
+			'inputVoltageSetPoint': 		{'type':'float', 'essential':True, 'units':'V', 'default': 0,      'title':'Input Voltage Set Point',         'description':'Input voltage value.'},
+			'vddSupplyVoltageSetPoint':		{'type':'float', 'essential':True, 'units':'V', 'default': 1.0,    'title':'Vdd Supply Voltage Set Point',    'description':'Inverter power supply voltage.'}, 
+			'totalBiasTime': 				{'type':'float', 'essential':True, 'units':'s', 'default': 60,     'title':'Total Bias Time',                 'description':'Total time to apply voltages.'},
+			'measurementTime': 				{'type':'float', 'essential':True, 'units':'s', 'default': 1,      'title':'Measurement Time',                'description':'Interval over which to average each measurement.'},
+			'complianceCurrent': 			{'type':'float',                   'units':'A', 'default': 100e-6, 'title':'Compliance Current',              'description':'Maximum current limit for the SMU.'},
+			'delayBeforeMeasurementsBegin': {'type':'float',                   'units':'s', 'default': 0,      'title':'Delay Before Measurements Begin', 'description':'Delay after applying voltages before taking the first measurement.'},
+		},
 		'FlowStaticBias':{
 			'dependencies':					{'ignore':True, 'value':[]},
 			'saveFileName': 				{'type':'constant', 'default':'FlowStaticBias', 'title':'Save File Name', 'description':'The name of the file that will be saved with the data from this experiment. This name should typically not be changed.'},

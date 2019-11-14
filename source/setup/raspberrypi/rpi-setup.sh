@@ -31,3 +31,13 @@ pip3 install psutil
 pip3 install flask-socketio
 pip3 install gevent
 pip3 install lmfit
+
+
+wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-armv7l.sh
+bash Miniconda3-latest-Linux-armv7l.sh
+conda config --add channels rpi
+conda install python=3.6
+conda create --name py36 python=3.6
+source activate py36
+
+
