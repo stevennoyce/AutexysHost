@@ -669,8 +669,10 @@ class PCB_System(SourceMeasureUnit):
 	def setComplianceCurrent(self, complianceCurrent):
 		pass
 
-	def setParameter(self, parameter):
+	def setParameter(self, parameter, responseStartsWith=None):
 		self.ser.write( str(parameter).encode('UTF-8') )
+		if(responseStartsWith is not None):
+			self.getResponse(startsWith=responseStartsWith)
 
 	# Wait for PCB to send a message. The best way to use this is to specify a unique character that the message will start with so that you know when you've received it. 
 	def getResponse(self, startsWith='', lines=1, printResponse=True):
@@ -702,16 +704,12 @@ class PCB_System(SourceMeasureUnit):
 
 	# Make connections to a specific device
 	def setDevice(self, deviceID):
-		self.setParameter('connect-all-selectors !')
-		self.getResponse(startsWith='#')
-		self.setParameter('disconnect-all-from-all !')
-		self.getResponse(startsWith='#')
+		self.setParameter('connect-all-selectors !', responseStartsWith='#')
+		self.setParameter('disconnect-all-from-all !', responseStartsWith='#')
 		contactPad1 = int(deviceID.split('-')[0])
 		contactPad2 = int(deviceID.split('-')[1])
-		self.setParameter("connect-device {:} {:}!".format(contactPad1, contactPad2))
-		self.getResponse(startsWith='#')
-		self.setParameter("calibrate-adc-offset !")
-		self.getResponse(startsWith='#')
+		self.setParameter("connect-device {:} {:}!".format(contactPad1, contactPad2), responseStartsWith='#')
+		self.setParameter("calibrate-adc-offset !", responseStartsWith='#')
 		print('Switched to device: ' + str(deviceID))
 
 	def getDrainSourceMode(self):
@@ -722,23 +720,19 @@ class PCB_System(SourceMeasureUnit):
 
 	# Set Vds in millivolts (easy communication, avoids using decimal numbers)
 	def setVds_mV(self, voltage):
-		self.setParameter("set-vds-mv {:.0f}!".format(voltage*1000))
-		self.getResponse(startsWith='#')
+		self.setParameter("set-vds-mv {:.0f}!".format(voltage*1000), responseStartsWith='#')
 
 	# Set Vgs in millivolts (easy communication, avoids using decimal numbers)
 	def setVgs_mV(self, voltage):
-		self.setParameter("set-vgs-mv {:.0f}!".format(voltage*1000))
-		self.getResponse(startsWith='#')
+		self.setParameter("set-vgs-mv {:.0f}!".format(voltage*1000), responseStartsWith='#')
 	
 	# Set Vds in Volts
 	def setVds(self, voltage):
-		self.setParameter("set-vds {:.3f}!".format(voltage))
-		self.getResponse(startsWith='#')
+		self.setParameter("set-vds {:.3f}!".format(voltage), responseStartsWith='#')
 
 	# Set Vgs in Volts
 	def setVgs(self, voltage):
-		self.setParameter("set-vgs {:.3f}!".format(voltage))
-		self.getResponse(startsWith='#')
+		self.setParameter("set-vgs {:.3f}!".format(voltage), responseStartsWith='#')
 
 	def takeMeasurement(self):
 		self.setParameter('measure !')
@@ -860,17 +854,13 @@ class PCB_System(SourceMeasureUnit):
 	def disconnect(self):
 		self.ser.close()
 
-class InternalSMUEmulator():
-	def write(self, someArg):
-		pass
-
 class Emulator(SourceMeasureUnit):
 	'''
 	For use when computer is not connected to any device, but testing of certain UI features is desired. Returns dummy data
 	for use when testing.
 	'''
 
-	smu = InternalSMUEmulator()
+	smu = None
 	system_id = ''
 	stepsPerRamp = 20
 	measurementsPerSecond = 40
