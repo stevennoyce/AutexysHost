@@ -163,6 +163,7 @@ def getConnectionToPCB(pcb_port='', system_settings=None):
 		ser = pySerial.Serial(pcb_port, 115200)
 	except:
 		ser = pySerial.Serial(pcb_port.device, 115200)
+		pcb_port = pcb_port.device
 	return PCB_System(ser, pcb_port)
 
 def getConnectionToEmulator():
@@ -665,6 +666,9 @@ class PCB_System(SourceMeasureUnit):
 	def __init__(self, pySerial, pcb_port):
 		self.ser = pySerial
 		self.system_id = pcb_port
+		if(pcb_port == smu_system_configurations['bluetooth']['PCB']['uniqueID']):
+			print('Enabling bluetooth communication (can be slow).')
+			self.setParameter('enable-uart-sending !', responseStartsWith='#')
 
 	def setComplianceCurrent(self, complianceCurrent):
 		pass
