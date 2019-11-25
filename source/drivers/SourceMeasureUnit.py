@@ -36,6 +36,18 @@ smu_system_configurations = {
 			'settings': {}
 		}
 	},
+	'combo': {
+		'SMU': {
+			'uniqueID': '',
+			'type': 'B2912A',
+			'settings': {}
+		},
+		'PCB': {
+			'uniqueID': '',
+			'type': 'PCB_System',
+			'settings': {}
+		}
+	},
 	'double': {
 		'deviceSMU':{
 			'uniqueID': 'USB0::0x0957::0x8E18::MY51141244::INSTR',
