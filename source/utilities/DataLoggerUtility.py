@@ -37,6 +37,15 @@ def emptyFile(folderPath, fileName):
 	with open(os.path.join(folderPath, fileName), 'w') as file:
 		file.write('')
 
+def deleteFile(folderPath, fileName):
+	"""Delete the file called fileName.json in the folderPath directory."""
+	if '.json' not in fileName:
+		fileName += '.json'
+
+	if os.path.exists(folderPath):
+		os.remove(folderPath + fileName)
+	else:
+		print('Warning - ' + folderPath + fileName + ' not found, so no file was deleted')
 
 # === CSV ===
 def loadCSV(directory, loadFileName, dataNamesLabel=None, dataValuesLabel=None):

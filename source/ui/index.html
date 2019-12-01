@@ -959,7 +959,7 @@
 							</v-container>
 							<v-container>
 								<v-expansion-panel expand class="mt-1 mb-2">
-									<v-expansion-panel-content class="grey lighten-4" v-for="(panel, i) in 1" :key="i" @input="documentationRetrieveFromServer(i, $event)">
+									<v-expansion-panel-content class="grey lighten-4" v-for="(panel, i) in 1" :key="i" @input="documentationLoad(i, $event)">
 										<div slot="header">Documentation</div>
 										<v-container> 
 											<p v-if="!documentationEditMode">
@@ -1634,6 +1634,7 @@
 
 				documentationEditMode: false,
 				documentationText: "",
+				documentationLoaded: false,
 			},
 			methods: {
 				
@@ -2308,11 +2309,22 @@
 					return listToReturn;
 				},
 
-				documentationRetrieveFromServer: function(sectionNumber, opened) {
-					if(opened){
-						console.log("documentationRetrieveFromServer()");
-						$.getJSON("/loadDocumentation", response => {
-							this.documentationText = response;})
+				documentationLoad: function(sectionNumber, opened) {
+					console.log("Documentation Loaded = ");
+					console.log(this.documentationLoaded);
+					if(opened && !this.documentationLoaded){
+						console.log("documentationLoad()");
+						this.documentationLoaded = true;
+						var path = "/loadDocumentation/sample" + this.cacheBust;
+						$.getJSON(path, response => {
+							//response is a list of dictionaries
+							if(response.length == 0){
+								this.documentationText = "";
+							}
+							else{
+								this.documentationText = response[0]['text'];
+							}
+						})
 						.fail(() => {console.log("Error loading documentation")});
 					}
 				},
@@ -2325,7 +2337,8 @@
 					this.documentationEditMode = false;
 
 					console.log("documentationSave()");
-					$.post("/saveDocumentation", this.documentationText, response => {
+					var path = "/saveDocumentation/sample" + this.cacheBust;
+					$.post(path, JSON.stringify({"text": this.documentationText}), response => {
 						this.saveDocumentationSuccessCode = response;
 					}).fail(() => {console.log("Error saving documentation")});
 				},

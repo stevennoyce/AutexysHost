@@ -121,6 +121,7 @@ default_makePlot_parameters = {
 }
 
 default_data_path = '../../AutexysData/'
+default_documentation_path = '../../AutexysData/documentation'
 
 @app.route('/plots/<user>/<project>/<wafer>/<chip>/<device>/<experiment>/<plotType>')
 def sendPlot(user, project, wafer, chip, device, experiment, plotType):
@@ -386,24 +387,27 @@ def defaultParameters():
 def defaultEssentialParameters():
 	return jsonvalid(defaults.full_essentials())
 
-@app.route('/saveDocumentation', methods=['POST'])
-def saveDocumentation():
-	print("Saving documentation");
-	# receivedText = flask.request.get_json(force=True)
+@app.route('/deleteDocumentation/<fileName>')
+def deleteDocumentation(fileName):
+	dlu.deleteFile(default_documentation_path + '/', fileName + ".json")
+	return jsonvalid({'success': True})
 
-	# dlu.emptyFile(os.path.join(default_data_path, 'documentation/'), 'documentation.txt')
-	# dlu.saveJSON()
-	# TODO Make this a json
+@app.route('/loadDocumentation/<fileName>')
+def loadDocumentation(fileName):
+	documentationData = dlu.loadJSON(default_documentation_path + '/', fileName + ".json")
+	return jsonvalid(documentationData)
 
-	return "Success"
+@app.route('/saveDocumentation/<fileName>', methods=['POST'])
+def saveDocumentation(fileName):
+	receivedDocumentation = flask.request.get_json(force=True)
 
-@app.route('/loadDocumentation')
-def loadDocumentation():
-	print("Loading documentation");
-	return "This is from the server"
+	dlu.emptyFile(default_documentation_path + '/', fileName + ".json")
+	dlu.saveJSON(default_documentation_path + '/', fileName + ".json", receivedDocumentation, incrementIndex=False)
 
-@app.route('/saveSchedule/<user>/<project>/<fileName>', methods=['POST'])
-def saveSchedule(user, project, fileName):
+	return jsonvalid({'success': True})
+
+@app.route('/saveSchedule/<fileName>', methods=['POST'])
+def saveSchedule(fileName):
 	# receivedJobs = json.loads(flask.request.args.get('jobs'))
 	receivedJobs = flask.request.get_json(force=True)
 	
