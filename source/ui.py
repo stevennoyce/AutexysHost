@@ -392,9 +392,9 @@ def deleteDocumentation(fileName):
 	dlu.deleteFile(default_documentation_path + '/', fileName + ".json")
 	return jsonvalid({'success': True})
 
-@app.route('/loadDocumentation/<fileName>')
-def loadDocumentation(fileName):
-	documentationData = dlu.loadJSON(default_documentation_path + '/', fileName + ".json")
+@app.route('/loadAllDocumentation')
+def loadAllDocumentation():
+	documentationData = dlu.loadAllJSONFilesInDirectory(default_documentation_path)
 	return jsonvalid(documentationData)
 
 @app.route('/saveDocumentation/<fileName>', methods=['POST'])

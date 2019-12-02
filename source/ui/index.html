@@ -958,18 +958,18 @@
 								This documentation is intended for anyone using Autexys.
 							</v-container>
 							<v-container>
-								<v-expansion-panel expand class="mt-1 mb-2">
-									<v-expansion-panel-content class="grey lighten-4" v-for="(panel, i) in 1" :key="i" @input="documentationLoad(i, $event)">
+								<v-expansion-panel expand class="mt-1 mb-2" v-for="(documentationItemText, index) in documentationText">
+									<v-expansion-panel-content class="grey lighten-4" v-for="(panel, i) in 1" :key="i">
 										<div slot="header">Documentation</div>
 										<v-container> 
-											<p v-if="!documentationEditMode">
-												{{ documentationText }}
+											<p v-if="!documentationEditMode[index]">
+												{{ documentationItemText }}
 											</p>
-											<v-textarea solo v-if="documentationEditMode" label="Enter documentation text" v-model="documentationText" auto-grow>
+											<v-textarea solo v-if="documentationEditMode[index]" label="Enter documentation text" v-model="documentationItemText" auto-grow>
 											</v-textarea>
-											<v-btn v-if="!documentationEditMode" class="mb-3 mt-3" @click="documentationEdit()">Edit</v-btn>
-											<v-btn v-if="documentationEditMode" class="mb-3 mt-3" @click="documentationSave()">Save</v-btn>
-											<v-btn v-if="documentationEditMode" class="mb-3 mt-3" @click="documentationCancel()">Cancel</v-btn>
+											<v-btn v-if="!documentationEditMode[index]" class="mb-3 mt-3" @click="documentationEdit(index)">Edit</v-btn>
+											<v-btn v-if="documentationEditMode[index]" class="mb-3 mt-3" @click="documentationSave(index)">Save</v-btn>
+											<v-btn v-if="documentationEditMode[index]" class="mb-3 mt-3" @click="documentationCancel(index)">Cancel</v-btn>
 										</v-container>
 								</v-expansion-panel>
 							</v-container>
@@ -1632,9 +1632,8 @@
 				deviceSelectActive: 'Dummy',
 				deviceSelectItems: [],
 
-				documentationEditMode: false,
-				documentationText: "",
-				documentationLoaded: false,
+				documentationEditMode: [],
+				documentationText: []
 			},
 			methods: {
 				
@@ -2309,42 +2308,37 @@
 					return listToReturn;
 				},
 
-				documentationLoad: function(sectionNumber, opened) {
-					console.log("Documentation Loaded = ");
-					console.log(this.documentationLoaded);
-					if(opened && !this.documentationLoaded){
-						console.log("documentationLoad()");
-						this.documentationLoaded = true;
-						var path = "/loadDocumentation/sample" + this.cacheBust;
+				initializeDocumentation: function() {
+					var path = "/loadAllDocumentation" + this.cacheBust;
 						$.getJSON(path, response => {
-							//response is a list of dictionaries
+							//Response is a list of dictionaries
 							if(response.length == 0){
-								this.documentationText = "";
+								Vue.set(this.documentationText, 0, "");
+								Vue.set(this.documentationEditMode, 0, false);
 							}
-							else{
-								this.documentationText = response[0]['text'];
+							for(var i = 0; i < response.length; i++){
+								Vue.set(this.documentationText, i, response[i]["text"]);
+								Vue.set(this.documentationEditMode, i, false);
 							}
 						})
 						.fail(() => {console.log("Error loading documentation")});
-					}
 				},
 
-				documentationEdit: function() {
-					this.documentationEditMode = true;
+				documentationEdit: function(index) {
+					Vue.set(this.documentationEditMode, index, true);
 				},
 
-				documentationSave: function() {
-					this.documentationEditMode = false;
+				documentationSave: function(index) {
+					Vue.set(this.documentationEditMode, index, false);
 
-					console.log("documentationSave()");
-					var path = "/saveDocumentation/sample" + this.cacheBust;
-					$.post(path, JSON.stringify({"text": this.documentationText}), response => {
+					var path = "/saveDocumentation/" + index + this.cacheBust;
+					$.post(path, JSON.stringify({"text": this.documentationText[index]}), response => {
 						this.saveDocumentationSuccessCode = response;
 					}).fail(() => {console.log("Error saving documentation")});
 				},
 
-				documentationCancel: function() {
-					this.documentationEditMode = false;
+				documentationCancel: function(index) {
+					Vue.set(this.documentationEditMode, index, false);
 				},
 			},
 			watch: {
@@ -2511,6 +2505,8 @@
 		}
 		
 		app.getAll();
+
+		app.initializeDocumentation();
 		
 	</script>
 </body>

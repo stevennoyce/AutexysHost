@@ -204,6 +204,23 @@ def loadJSON(directory, loadFileName):
 	"""Load loadFileName.json as a dictionary."""
 	return loadJSON_slow(directory, loadFileName)
 
+def loadAllJSONFilesInDirectory(directory):
+	"""Load all files in a directory."""
+	filenames = []
+	fileContents = []
+
+	directoryListings = os.listdir(directory)
+	for listing in directoryListings:
+		if len(listing) >= 3 and listing[0:3] == "Doc":
+			filenames.append(listing)
+
+	for filename in filenames:
+		loadedJSON = loadJSON(directory, filename)
+		for json in loadedJSON:
+			fileContents.append(json)
+
+	return fileContents
+
 def loadJSONIndex(directory):
 	"""Load the first line of index.json in directory."""
 	indexData = {}
