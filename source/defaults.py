@@ -146,6 +146,7 @@ default_parameters = {
 		},
 		'ChipSweep':{
 			'dependencies': 				{'ignore':True, 'value':['GateSweep','DrainSweep']},
+			'saveFileName': 				{'type':'constant', 'default': 'ChipSweep', 'title':'Save File Name', 'description':'The name of the file that will be saved with the data from this experiment. This name should typically not be changed.'},
 			'sweepType': 					{'type':'choice','essential':True,              'default': 'GateSweep',         'title':'Sweep Type',              'choices':['GateSweep', 'DrainSweep'], 'description':'Type of sweep to perform on each device.'},
 			'sweepsPerDevice': 				{'type':'int',   'essential':True, 'units':'#', 'default': 1,                   'title':'Sweeps Per Device',       'description':'Number of sweeps to take for each device on the chip.'},
 			'devices':						{'type':'array', 'essential':True, 'units':'',  'default': ['1-2','2-3','3-4'], 'title':'Device List',             'description':'List of devices to measure.'},
