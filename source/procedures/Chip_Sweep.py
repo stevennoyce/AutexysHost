@@ -21,6 +21,7 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 		dlu.makeFolder(dlu.getDeviceDirectory(deviceParameters))
 		dlu.incrementJSONExperimentNumber(dlu.getDeviceDirectory(deviceParameters))
 		deviceIndexes[device] = dlu.loadJSONIndex(dlu.getDeviceDirectory(deviceParameters))
+		deviceIndexes[device]['timestamp'] = parameters['startIndexes']['timestamp']
 	
 	runChipSweep(parameters, smu_systems, arduino_systems, deviceIndexes, share=share)	
 
@@ -51,7 +52,6 @@ def runChipSweep(parameters, smu_systems, arduino_systems, deviceIndexes, share=
 			sweepParameters = copy.deepcopy(parameters)
 			sweepParameters['Identifiers']['device'] = device
 			sweepParameters['startIndexes'] = deviceIndexes[device]
-			sweepParameters['startIndexes']['timestamp'] = parameters['startIndexes']['timestamp']
 			
 			print('Starting sweep #'+str(sweepCount+1)+' of '+str(numberOfSweeps))
 			
@@ -75,14 +75,14 @@ def runChipSweep(parameters, smu_systems, arduino_systems, deviceIndexes, share=
 			# Send progress update
 			pipes.progressUpdate(share, 'Sweep', start=0, current=sweepCount, end=numberOfSweeps, barType="Sweep")
 			
+			# If desired, delay before moving on to the next device
 			if(sweepCount < numberOfSweeps):
-				# If desired, delay before moving on to the next device
 				if((cs_parameters['delayBetweenDevices'] > 0)):
 					print('Waiting for ' + str(cs_parameters['delayBetweenDevices']) + ' seconds...')
 					time.sleep(cs_parameters['delayBetweenDevices'])
-				
+		
+		# If desired, delay until next sweep should start.	
 		if(sweepCount < numberOfSweeps):
-			# If desired, delay until next sweep should start.
 			if(cs_parameters['delayBetweenSweeps'] > 0):
 				if(cs_parameters['timedSweepStarts']):
 					print('Starting next sweep ' + str(cs_parameters['delayBetweenSweeps']) + ' seconds after start of current sweep...')
@@ -91,6 +91,7 @@ def runChipSweep(parameters, smu_systems, arduino_systems, deviceIndexes, share=
 				else:
 					print('Waiting for ' + str(cs_parameters['delayBetweenSweeps']) + ' seconds...')
 					time.sleep(cs_parameters['delayBetweenSweeps'])
+	# === COMPLETE ===
 	
 	# Copy parameters and save data structure that tracks the experiments of every device
 	jsonData = dict(parameters)
