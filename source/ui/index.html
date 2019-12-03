@@ -696,9 +696,8 @@
 											</v-tooltip>
 										</v-list-tile-action>
 									</v-list-tile>
-									
+
 									<s-schedule-job-edit :job.sync="scheduleObjects[scheduleObjectIndex]" :job-default="scheduleObjectDefault"></s-schedule-job-edit>
-									
 								</v-list-group>
 							</v-list>
 							
@@ -958,19 +957,42 @@
 								This documentation is intended for anyone using Autexys.
 							</v-container>
 							<v-container>
-								<v-expansion-panel expand class="mt-1 mb-2" v-for="(documentationItemText, index) in documentationText">
+								<v-expansion-panel expand class="mt-1 mb-2" v-for="(documentationItemText, index) in documentationText" :prepend-icon="$vuetify.icons.expand">
 									<v-expansion-panel-content class="grey lighten-4" v-for="(panel, i) in 1" :key="i">
-										<div slot="header">Documentation</div>
+										<span slot="header">
+											<span >
+											Documentation
+											</span>
+											<span>
+												<v-tooltip top>
+													<v-btn icon @click.stop="moveDocumentationEntryUp(index)" slot="activator" :disabled="index == 0"><v-icon>arrow_upward</v-icon></v-btn>
+													<span>Move entry up</span>
+												</v-tooltip>
+												<v-tooltip top>
+													<v-btn icon @click.stop="moveDocumentationEntryDown(index)" slot="activator" :disabled="index >= documentationText.length - 1"><v-icon>arrow_downward</v-icon></v-btn>
+													<span>Move entry down</span>
+												</v-tooltip>
+												<v-tooltip top>
+													<v-btn icon @click.stop="addDocumentationEntry(index)" slot="activator"><v-icon>add_circle</v-icon></v-btn>
+													<span>Add new entry after</span>
+												</v-tooltip>
+												<v-tooltip top>
+													<v-btn icon @click.stop="removeDocumentationEntry(index)" slot="activator" :disabled="documentationText.length == 1"><v-icon>cancel</v-icon></v-btn>
+													<span>Delete entry</span>
+												</v-tooltip>
+											</span>
+										</span>
 										<v-container> 
 											<p v-if="!documentationEditMode[index]">
-												{{ documentationItemText }}
+												{{ documentationText[index] }}
 											</p>
-											<v-textarea solo v-if="documentationEditMode[index]" label="Enter documentation text" v-model="documentationItemText" auto-grow>
+											<v-textarea solo v-if="documentationEditMode[index]" label="Enter documentation text" v-model="documentationText[index]" auto-grow>
 											</v-textarea>
 											<v-btn v-if="!documentationEditMode[index]" class="mb-3 mt-3" @click="documentationEdit(index)">Edit</v-btn>
 											<v-btn v-if="documentationEditMode[index]" class="mb-3 mt-3" @click="documentationSave(index)">Save</v-btn>
 											<v-btn v-if="documentationEditMode[index]" class="mb-3 mt-3" @click="documentationCancel(index)">Cancel</v-btn>
 										</v-container>
+									</v-expansion-panel-content>
 								</v-expansion-panel>
 							</v-container>
 						</v-card>
@@ -2322,6 +2344,8 @@
 							}
 						})
 						.fail(() => {console.log("Error loading documentation")});
+					console.log("Documentation text = ");
+					console.log(this.documentationText);
 				},
 
 				documentationEdit: function(index) {
@@ -2339,6 +2363,52 @@
 
 				documentationCancel: function(index) {
 					Vue.set(this.documentationEditMode, index, false);
+				},
+
+				addDocumentationEntry: function(index) {
+					var indexToAdd = index + 1;
+					this.documentationText.splice(indexToAdd, 0, "");
+					this.documentationEditMode.splice(indexToAdd, 0, false);
+
+					var path = "/addDocumentation/" + indexToAdd + this.cacheBust;
+						$.getJSON(path).fail(() => {console.log("Error adding documentation entry")});
+					this.documentationSave(indexToAdd);
+				},
+				
+				removeDocumentationEntry: function(index) {
+					this.documentationText.splice(index, 1);
+					this.documentationEditMode.splice(index, 1);
+
+					var path = "/removeDocumentation/" + index + this.cacheBust;
+					$.getJSON(path).fail(() => {console.log("Error removing documentation entry")});
+				},
+
+				moveDocumentationEntryUp: function(index) {
+					var text = this.documentationText[index];
+					this.documentationText.splice(index, 1);
+					this.documentationText.splice(index-1, 0, text);
+
+					var editMode = this.documentationEditMode[index];
+					this.documentationEditMode.splice(index, 1);
+					this.documentationEditMode.splice(index-1, 0, editMode);
+
+					var indexMinusOne = index-1;
+					var path = "/swapDocumentationFilenames/" + indexMinusOne + "/" + index + this.cacheBust;
+					$.getJSON(path).fail(() => {console.log("Error moving documentation entry up")});
+				},
+				
+				moveDocumentationEntryDown: function(index) {
+					var text = this.documentationText[index];
+					this.documentationText.splice(index, 1);
+					this.documentationText.splice(index+1, 0, text);
+
+					var editMode = this.documentationEditMode[index];
+					this.documentationEditMode.splice(index, 1);
+					this.documentationEditMode.splice(index+1, 0, editMode);
+
+					var indexPlusOne = index + 1;
+					var path = "/swapDocumentationFilenames/" + index + "/" + indexPlusOne + this.cacheBust;
+					$.getJSON(path).fail(() => {console.log("Error moving documentation entry down")});
 				},
 			},
 			watch: {

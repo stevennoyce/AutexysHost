@@ -42,10 +42,11 @@ def deleteFile(folderPath, fileName):
 	if '.json' not in fileName:
 		fileName += '.json'
 
+	fullPath = os.path.join(folderPath, fileName)
 	if os.path.exists(folderPath):
-		os.remove(folderPath + fileName)
+		os.remove(fullPath)
 	else:
-		print('Warning - ' + folderPath + fileName + ' not found, so no file was deleted')
+		print('Warning - ' + fullPath + ' not found, so no file was deleted')
 
 # === CSV ===
 def loadCSV(directory, loadFileName, dataNamesLabel=None, dataValuesLabel=None):
@@ -204,23 +205,6 @@ def loadJSON(directory, loadFileName):
 	"""Load loadFileName.json as a dictionary."""
 	return loadJSON_slow(directory, loadFileName)
 
-def loadAllJSONFilesInDirectory(directory):
-	"""Load all files in a directory."""
-	filenames = []
-	fileContents = []
-
-	directoryListings = os.listdir(directory)
-	for listing in directoryListings:
-		if len(listing) >= 3 and listing[0:3] == "Doc":
-			filenames.append(listing)
-
-	for filename in filenames:
-		loadedJSON = loadJSON(directory, filename)
-		for json in loadedJSON:
-			fileContents.append(json)
-
-	return fileContents
-
 def loadJSONIndex(directory):
 	"""Load the first line of index.json in directory."""
 	indexData = {}
@@ -254,8 +238,6 @@ def incrementJSONExperimentNumber(directory):
 def loadJSON_slow(directory, loadFileName):
 	"""Private method. This is the traditional way of parsing json data files, but it can be slow if you only need to see one line in a large file."""
 	jsonData = []
-	print("Directory = ", directory)
-	print("loadFileName = ", loadFileName)
 	with open(os.path.join(directory, loadFileName)) as file:
 		for line in file:
 			try:
