@@ -986,7 +986,7 @@
 											<p v-if="!documentationEditMode[index]">
 												{{ documentationText[index] }}
 											</p>
-											<v-textarea solo v-if="documentationEditMode[index]" label="Enter documentation text" v-model="documentationText[index]" auto-grow>
+											<v-textarea solo v-if="documentationEditMode[index]" label="Enter documentation text" v-model="documentationProposedText[index]" auto-grow>
 											</v-textarea>
 											<v-btn v-if="!documentationEditMode[index]" class="mb-3 mt-3" @click="documentationEdit(index)">Edit</v-btn>
 											<v-btn v-if="documentationEditMode[index]" class="mb-3 mt-3" @click="documentationSave(index)">Save</v-btn>
@@ -1655,7 +1655,8 @@
 				deviceSelectItems: [],
 
 				documentationEditMode: [],
-				documentationText: []
+				documentationText: [],
+				documentationProposedText: []
 			},
 			methods: {
 				
@@ -2350,10 +2351,12 @@
 
 				documentationEdit: function(index) {
 					Vue.set(this.documentationEditMode, index, true);
+					this.documentationProposedText[index] = this.documentationText[index];
 				},
 
 				documentationSave: function(index) {
 					Vue.set(this.documentationEditMode, index, false);
+					this.documentationText[index] = this.documentationProposedText[index];
 
 					var path = "/saveDocumentation/" + index + this.cacheBust;
 					$.post(path, JSON.stringify({"text": this.documentationText[index]}), response => {
@@ -2368,6 +2371,7 @@
 				addDocumentationEntry: function(index) {
 					var indexToAdd = index + 1;
 					this.documentationText.splice(indexToAdd, 0, "");
+					this.documentationProposedText.splice(indexToAdd, 0, "");
 					this.documentationEditMode.splice(indexToAdd, 0, false);
 
 					var path = "/addDocumentation/" + indexToAdd + this.cacheBust;
@@ -2377,6 +2381,7 @@
 				
 				removeDocumentationEntry: function(index) {
 					this.documentationText.splice(index, 1);
+					this.documentationProposedText.splice(index, 1);
 					this.documentationEditMode.splice(index, 1);
 
 					var path = "/removeDocumentation/" + index + this.cacheBust;
@@ -2387,6 +2392,10 @@
 					var text = this.documentationText[index];
 					this.documentationText.splice(index, 1);
 					this.documentationText.splice(index-1, 0, text);
+
+					var proposedText = this.documentationProposedText[index];
+					this.documentationProposedText.splice(index, 1);
+					this.documentationProposedText.splice(index-1, 0, proposedText);
 
 					var editMode = this.documentationEditMode[index];
 					this.documentationEditMode.splice(index, 1);
@@ -2401,6 +2410,10 @@
 					var text = this.documentationText[index];
 					this.documentationText.splice(index, 1);
 					this.documentationText.splice(index+1, 0, text);
+
+					var proposedText = this.documentationProposedText[index];
+					this.documentationProposedText.splice(index, 1);
+					this.documentationProposedText.splice(index+1, 0, proposedText);
 
 					var editMode = this.documentationEditMode[index];
 					this.documentationEditMode.splice(index, 1);
