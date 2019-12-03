@@ -40,7 +40,17 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 					share=share)	
 	# === COMPLETE ===
 	
-	# Copy parameters and save data structure that tracks the experiments of every device
+	# Save to ParametersHistory for all devices in this chip sweep
+	print('Saving ParametersHistory data for all devices...')
+	for device in cs_parameters['devices']:
+		deviceParameters = copy.deepcopy(parameters)
+		deviceParameters['Identifiers']['device'] = device
+		deviceParameters['runType'] = cs_parameters['sweepType']
+		deviceParameters['endIndexes'] = dlu.loadJSONIndex(dlu.getDeviceDirectory(deviceParameters))
+		deviceParameters['endIndexes']['timestamp'] = time.time()
+		dlu.saveJSON(dlu.getDeviceDirectory(deviceParameters), 'ParametersHistory', deviceParameters, incrementIndex=False)
+	
+	# Copy parameters and save the data structure that tracks the experiments of every device
 	jsonData = dict(parameters)
 	jsonData['Results'] = {'deviceIndexes':deviceIndexes}
 
@@ -50,7 +60,7 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 
 	return jsonData
 
-def runChipSweep(parameters, smu_systems, arduino_systems, deviceIndexes, sweepType, devices, sweepsPerDevice, delayBetweenDevices, delayBetweenSweeps, timedSweepStarts, share=None):	
+def runChipSweep(parameters, smu_systems, arduino_systems, deviceIndexes, sweepType, devices, sweepsPerDevice, delayBetweenDevices, delayBetweenSweeps, timedSweepStarts, share=None):		
 	# Set up counters
 	numberOfDevices = len(devices)
 	numberOfSweeps = len(devices)*sweepsPerDevice
@@ -71,6 +81,7 @@ def runChipSweep(parameters, smu_systems, arduino_systems, deviceIndexes, sweepT
 			sweepParameters = copy.deepcopy(parameters)
 			sweepParameters['Identifiers']['device'] = device
 			sweepParameters['startIndexes'] = deviceIndexes[device]
+			sweepParameters['runType'] = sweepType
 			
 			print('Starting sweep #'+str(sweepCount+1)+' of '+str(numberOfSweeps))
 			
@@ -81,12 +92,10 @@ def runChipSweep(parameters, smu_systems, arduino_systems, deviceIndexes, sweepT
 			print('Switched to device: "' + str(device) + '".')
 			
 			# Run sweep
-			if(sweepType == 'DrainSweep'):
-				sweepParameters['runType'] = 'DrainSweep'
-				jsonData = drainSweepScript.run(sweepParameters, smu_systems, arduino_systems, share=share)
-			else:
-				sweepParameters['runType'] = 'GateSweep'
+			if(sweepType == 'GateSweep'):
 				jsonData = gateSweepScript.run(sweepParameters, smu_systems, arduino_systems, share=share)
+			elif(sweepType == 'DrainSweep'):
+				jsonData = drainSweepScript.run(sweepParameters, smu_systems, arduino_systems, share=share)
 			
 			print('Completed sweep #'+str(sweepCount+1)+' of '+str(numberOfSweeps))
 			sweepCount += 1
