@@ -1133,6 +1133,10 @@
 									<v-list-tile-title>Sweep: {{experimentRunnerProgress.sweepBarModel.name}} {{experimentRunnerProgress.sweepBarModel.current}} of {{experimentRunnerProgress.sweepBarModel.end}} </v-list-tile-title>
 									<v-progress-linear v-model="experimentRunnerProgress.sweepBarModel.percent"></v-progress-linear>
 								</v-list-tile>
+								<v-list-tile v-if="experimentRunnerProgress.groupBarModel.visible">
+									<v-list-tile-title>{{experimentRunnerProgress.groupBarModel.name}} {{experimentRunnerProgress.groupBarModel.current}} of {{experimentRunnerProgress.groupBarModel.end}} </v-list-tile-title>
+									<v-progress-linear v-model="experimentRunnerProgress.groupBarModel.percent"></v-progress-linear>
+								</v-list-tile>
 								<v-list-tile v-if="experimentRunnerProgress.procedureBarModel.visible">
 									<v-list-tile-title>Procedure: {{experimentRunnerProgress.procedureBarModel.name}} {{experimentRunnerProgress.procedureBarModel.current}} of {{experimentRunnerProgress.procedureBarModel.end}} </v-list-tile-title>
 									<v-progress-linear v-model="experimentRunnerProgress.procedureBarModel.percent"></v-progress-linear>
@@ -1609,6 +1613,13 @@
 						end: 0,
 						percent: 0
 					},
+					groupBarModel: {
+						visible: false,
+						name: '',
+						current: 0,
+						end: 0,
+						percent: 0
+					},
 					procedureBarModel: {
 						visible: false,
 						name: '',
@@ -1857,6 +1868,11 @@
 					this.experimentRunnerProgress.sweepBarModel.current = 0;
 					this.experimentRunnerProgress.sweepBarModel.end = 0;
 					this.experimentRunnerProgress.sweepBarModel.percent = 0;
+					
+					this.experimentRunnerProgress.groupBarModel.visible = false;
+					this.experimentRunnerProgress.groupBarModel.current = 0;
+					this.experimentRunnerProgress.groupBarModel.end = 0;
+					this.experimentRunnerProgress.groupBarModel.percent = 0;
 
 					this.experimentRunnerProgress.procedureBarModel.visible = false;
 					this.experimentRunnerProgress.procedureBarModel.current = 0;
@@ -2215,6 +2231,13 @@
 							this.experimentRunnerProgress.sweepBarModel.current = message.progress.current;
 							this.experimentRunnerProgress.sweepBarModel.end = message.progress.end;
 							this.experimentRunnerProgress.sweepBarModel.percent = computeProgressPercent(message.progress.start, message.progress.current, message.progress.end);
+						}
+						else if(message.progress.barType == "Group"){
+							this.experimentRunnerProgress.groupBarModel.visible = true;
+							this.experimentRunnerProgress.groupBarModel.name = message.progress.name;
+							this.experimentRunnerProgress.groupBarModel.current = message.progress.current;
+							this.experimentRunnerProgress.groupBarModel.end = message.progress.end;
+							this.experimentRunnerProgress.groupBarModel.percent = computeProgressPercent(message.progress.start, message.progress.current, message.progress.end);
 						}
 						else if(message.progress.barType === "Procedure"){
 							this.experimentRunnerProgress.procedureBarModel.visible = true;

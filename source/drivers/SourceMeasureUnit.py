@@ -726,6 +726,9 @@ class PCB_System(SourceMeasureUnit):
 	def setDevice(self, deviceID):
 		self.setParameter('connect-all-selectors !', responseStartsWith='#')
 		self.setParameter('disconnect-all-from-all !', responseStartsWith='#')
+		if('-' not in deviceID):
+			print('PCB system is unable to connect to device: "' + str(deviceID) +'".')
+			return
 		contactPad1 = int(deviceID.split('-')[0])
 		contactPad2 = int(deviceID.split('-')[1])
 		self.setParameter("connect-device {:} {:}!".format(contactPad1, contactPad2), responseStartsWith='#')

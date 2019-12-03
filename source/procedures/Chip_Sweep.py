@@ -10,6 +10,9 @@ from utilities import DataLoggerUtility as dlu
 
 # === Main ===
 def run(parameters, smu_systems, arduino_systems, share=None):
+	# Get shorthand name to easily refer to configuration parameters
+	cs_parameters = parameters['runConfigs']['ChipSweep']
+	
 	# Make a data structure to track the experiment number for each device in this chip sweep
 	deviceIndexes = {}
 	
@@ -23,30 +26,46 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 		deviceIndexes[device] = dlu.loadJSONIndex(dlu.getDeviceDirectory(deviceParameters))
 		deviceIndexes[device]['timestamp'] = parameters['startIndexes']['timestamp']
 	
-	runChipSweep(parameters, smu_systems, arduino_systems, deviceIndexes, share=share)	
-
-def runChipSweep(parameters, smu_systems, arduino_systems, deviceIndexes, share=None):
-	# This script uses the default SMU, which is the first one in the list of SMU systems
-	smu_names = list(smu_systems.keys())
-	smu_instance = smu_systems[smu_names[0]]
+	# === START ===
+	runChipSweep(	parameters, 
+					smu_systems, 
+					arduino_systems, 
+					deviceIndexes=deviceIndexes, 
+					sweepType=cs_parameters['sweepType'],
+					devices=cs_parameters['devices'],
+					sweepsPerDevice=cs_parameters['sweepsPerDevice'],
+					delayBetweenDevices=cs_parameters['delayBetweenDevices'],
+					delayBetweenSweeps=cs_parameters['delayBetweenSweeps'],
+					timedSweepStarts=cs_parameters['timedSweepStarts'],
+					share=share)	
+	# === COMPLETE ===
 	
-	# Get shorthand name to easily refer to configuration parameters
-	cs_parameters = parameters['runConfigs']['ChipSweep']
+	# Copy parameters and save data structure that tracks the experiments of every device
+	jsonData = dict(parameters)
+	jsonData['Results'] = {'deviceIndexes':deviceIndexes}
 
+	# Save results as a JSON object
+	print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
+	dlu.saveJSON(dlu.getDeviceDirectory(parameters), cs_parameters['saveFileName'], jsonData, subDirectory='Ex'+str(parameters['startIndexes']['experimentNumber']))
+
+	return jsonData
+
+def runChipSweep(parameters, smu_systems, arduino_systems, deviceIndexes, sweepType, devices, sweepsPerDevice, delayBetweenDevices, delayBetweenSweeps, timedSweepStarts, share=None):	
 	# Set up counters
-	numberOfSweeps = len(cs_parameters['devices'])*cs_parameters['sweepsPerDevice']
+	numberOfDevices = len(devices)
+	numberOfSweeps = len(devices)*sweepsPerDevice
 	sweepCount = 0
 	startTime = time.time()
 	
 	# Send initial progress update
-	pipes.progressUpdate(share, 'Sweep', start=0, current=sweepCount, end=numberOfSweeps, barType="Sweep")
+	pipes.progressUpdate(share, 'Sweep', start=0, current=0, end=sweepsPerDevice, barType='Sweep')
+	pipes.progressUpdate(share, 'Device', start=0, current=0, end=numberOfDevices, barType='Group')
 	
-	# === START ===
-	for sweep_index in range(cs_parameters['sweepsPerDevice']):
+	for sweep_index in range(sweepsPerDevice):
 		# Sweep all devices in this chip sweep.
-		for device_index in range(len(cs_parameters['devices'])):
+		for device_index in range(len(devices)):
 			# Choose next device to sweep from the list
-			device = cs_parameters['devices'][device_index]
+			device = devices[device_index]
 			
 			# Make copy of parameters to run Sweep, adjusting relevant device-specific properties
 			sweepParameters = copy.deepcopy(parameters)
@@ -62,7 +81,7 @@ def runChipSweep(parameters, smu_systems, arduino_systems, deviceIndexes, share=
 			print('Switched to device: "' + str(device) + '".')
 			
 			# Run sweep
-			if(cs_parameters['sweepType'] == 'DrainSweep'):
+			if(sweepType == 'DrainSweep'):
 				sweepParameters['runType'] = 'DrainSweep'
 				jsonData = drainSweepScript.run(sweepParameters, smu_systems, arduino_systems, share=share)
 			else:
@@ -73,35 +92,27 @@ def runChipSweep(parameters, smu_systems, arduino_systems, deviceIndexes, share=
 			sweepCount += 1
 			
 			# Send progress update
-			pipes.progressUpdate(share, 'Sweep', start=0, current=sweepCount, end=numberOfSweeps, barType="Sweep")
+			pipes.progressUpdate(share, 'Device', start=0, current=device_index+1, end=numberOfDevices, barType='Group')
 			
 			# If desired, delay before moving on to the next device
 			if(sweepCount < numberOfSweeps):
-				if((cs_parameters['delayBetweenDevices'] > 0)):
-					print('Waiting for ' + str(cs_parameters['delayBetweenDevices']) + ' seconds...')
-					time.sleep(cs_parameters['delayBetweenDevices'])
+				if(delayBetweenDevices > 0):
+					print('Waiting for ' + str(delayBetweenDevices) + ' seconds...')
+					time.sleep(delayBetweenDevices)
+		
+		# Send progress update
+		pipes.progressUpdate(share, 'Sweep', start=0, current=sweep_index+1, end=sweepsPerDevice, barType='Sweep')
 		
 		# If desired, delay until next sweep should start.	
 		if(sweepCount < numberOfSweeps):
-			if(cs_parameters['delayBetweenSweeps'] > 0):
-				if(cs_parameters['timedSweepStarts']):
-					print('Starting next sweep ' + str(cs_parameters['delayBetweenSweeps']) + ' seconds after start of current sweep...')
-					waitDuration = startTime + cs_parameters['delayBetweenSweeps']*(sweepCount) - time.time()
+			if(delayBetweenSweeps > 0):
+				if(timedSweepStarts):
+					print('Starting next sweep ' + str(delayBetweenSweeps) + ' seconds after start of current sweep...')
+					waitDuration = startTime + delayBetweenSweeps*sweepCount - time.time()
 					time.sleep(max(0, waitDuration))
 				else:
-					print('Waiting for ' + str(cs_parameters['delayBetweenSweeps']) + ' seconds...')
-					time.sleep(cs_parameters['delayBetweenSweeps'])
-	# === COMPLETE ===
-	
-	# Copy parameters and save data structure that tracks the experiments of every device
-	jsonData = dict(parameters)
-	jsonData['Results'] = {'deviceIndexes':deviceIndexes}
-
-	# Save results as a JSON object
-	print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
-	dlu.saveJSON(dlu.getDeviceDirectory(parameters), cs_parameters['saveFileName'], jsonData, subDirectory='Ex'+str(parameters['startIndexes']['experimentNumber']))
-
-	return jsonData
+					print('Waiting for ' + str(delayBetweenSweeps) + ' seconds...')
+					time.sleep(delayBetweenSweeps)
 		
 				
 				
