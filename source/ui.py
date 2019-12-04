@@ -456,8 +456,8 @@ def saveDocumentation(fileName):
 
 	return jsonvalid({'success': True})
 
-@app.route('/saveSchedule/<fileName>', methods=['POST'])
-def saveSchedule(fileName):
+@app.route('/saveSchedule/<user>/<project>/<fileName>', methods=['POST'])
+def saveSchedule(user, project, fileName):
 	# receivedJobs = json.loads(flask.request.args.get('jobs'))
 	receivedJobs = flask.request.get_json(force=True)
 	
