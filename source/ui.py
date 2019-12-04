@@ -121,6 +121,7 @@ default_makePlot_parameters = {
 }
 
 default_data_path = '../../AutexysData/'
+default_documentation_path = '../../AutexysData/documentation'
 
 @app.route('/plots/<user>/<project>/<wafer>/<chip>/<device>/<experiment>/<plotType>')
 def sendPlot(user, project, wafer, chip, device, experiment, plotType):
@@ -386,24 +387,77 @@ def defaultParameters():
 def defaultEssentialParameters():
 	return jsonvalid(defaults.full_essentials())
 
-@app.route('/saveDocumentation', methods=['POST'])
-def saveDocumentation():
-	print("Saving documentation");
-	# receivedText = flask.request.get_json(force=True)
+@app.route('/addDocumentation/<indexToAdd>')
+def addDocumentation(indexToAdd):
+	incrementFilenameNumbersFrom(indexToAdd, 1)
+	dlu.emptyFile(default_documentation_path, "Doc" + str(indexToAdd) + ".json")
+	return jsonvalid({'success': True})
 
-	# dlu.emptyFile(os.path.join(default_data_path, 'documentation/'), 'documentation.txt')
-	# dlu.saveJSON()
-	# TODO Make this a json
+@app.route('/removeDocumentation/<indexToDelete>')
+def removeDocumentation(indexToDelete):
+	dlu.deleteFile(default_documentation_path, "Doc" + indexToDelete + ".json")
+	incrementFilenameNumbersFrom(int(indexToDelete) + 1, -1)
+	return jsonvalid({'success': True})
 
-	return "Success"
+@app.route('/loadAllDocumentation')
+def loadAllDocumentation():
+	documentationData = []
+	filenames = getDocumentationFilenames()
 
-@app.route('/loadDocumentation')
-def loadDocumentation():
-	print("Loading documentation");
-	return "This is from the server"
+	for filename in filenames:
+		loadedJSON = dlu.loadJSON(default_documentation_path, filename)
+		for json in loadedJSON:
+			documentationData.append(json)
 
-@app.route('/saveSchedule/<user>/<project>/<fileName>', methods=['POST'])
-def saveSchedule(user, project, fileName):
+	return jsonvalid(documentationData)
+
+def getDocumentationFilenames():
+	filenames = []
+	directoryListings = os.listdir(default_documentation_path)
+	for listing in directoryListings:
+		if len(listing) >= 3 and listing[0:3] == "Doc":
+			filenames.append(listing)
+
+	return filenames
+
+def incrementFilenameNumbersFrom(startIndex, increment):
+	originalFilenames = getDocumentationFilenames()
+	tempFilenames = []
+	for originalFilename in originalFilenames:
+		numericalSuffix = int(originalFilename[3:-5])
+		if numericalSuffix >= int(startIndex):
+			if numericalSuffix + increment < 0:
+				print("Warning - assigning a documentation file a negative index")
+			newSuffix = str(numericalSuffix + increment)
+			tempFilename = "TDoc" + newSuffix + ".json"
+			tempFilenames.append(tempFilename)
+			os.rename(os.path.join(default_documentation_path, originalFilename), os.path.join(default_documentation_path, tempFilename))
+			print("tempFilename = ", tempFilename)
+
+	for tempFilename in tempFilenames:
+		os.rename(os.path.join(default_documentation_path, tempFilename), os.path.join(default_documentation_path, tempFilename[1:]))
+
+def swapFilenames(file1, file2):
+	os.rename(os.path.join(default_documentation_path, file1), os.path.join(default_documentation_path, "T" + file1))
+	os.rename(os.path.join(default_documentation_path, file2), os.path.join(default_documentation_path, file1))
+	os.rename(os.path.join(default_documentation_path, "T" + file1), os.path.join(default_documentation_path, file2))
+
+@app.route('/swapDocumentationFilenames/<index1>/<index2>')
+def swapDocumentationFilenames(index1, index2):
+	swapFilenames("Doc" + index1 + ".json", "Doc" + index2 + ".json")
+	return jsonvalid({'success': True})
+
+@app.route('/saveDocumentation/<fileName>', methods=['POST'])
+def saveDocumentation(fileName):
+	receivedDocumentation = flask.request.get_json(force=True)
+
+	dlu.emptyFile(default_documentation_path, "Doc" + fileName + ".json")
+	dlu.saveJSON(default_documentation_path, "Doc" + fileName + ".json", receivedDocumentation, incrementIndex=False)
+
+	return jsonvalid({'success': True})
+
+@app.route('/saveSchedule/<fileName>', methods=['POST'])
+def saveSchedule(fileName):
 	# receivedJobs = json.loads(flask.request.args.get('jobs'))
 	receivedJobs = flask.request.get_json(force=True)
 	

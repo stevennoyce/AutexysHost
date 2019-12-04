@@ -37,6 +37,16 @@ def emptyFile(folderPath, fileName):
 	with open(os.path.join(folderPath, fileName), 'w') as file:
 		file.write('')
 
+def deleteFile(folderPath, fileName):
+	"""Delete the file called fileName.json in the folderPath directory."""
+	if '.json' not in fileName:
+		fileName += '.json'
+
+	fullPath = os.path.join(folderPath, fileName)
+	if os.path.exists(folderPath):
+		os.remove(fullPath)
+	else:
+		print('Warning - ' + fullPath + ' not found, so no file was deleted')
 
 # === CSV ===
 def loadCSV(directory, loadFileName, dataNamesLabel=None, dataValuesLabel=None):
@@ -228,8 +238,6 @@ def incrementJSONExperimentNumber(directory):
 def loadJSON_slow(directory, loadFileName):
 	"""Private method. This is the traditional way of parsing json data files, but it can be slow if you only need to see one line in a large file."""
 	jsonData = []
-	print("Directory = ", directory)
-	print("loadFileName = ", loadFileName)
 	with open(os.path.join(directory, loadFileName)) as file:
 		for line in file:
 			try:
