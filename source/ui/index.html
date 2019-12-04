@@ -960,8 +960,8 @@
 								<v-expansion-panel expand class="mt-1 mb-2" v-for="(documentationItemText, index) in documentationText" :prepend-icon="$vuetify.icons.expand">
 									<v-expansion-panel-content class="grey lighten-4" v-for="(panel, i) in 1" :key="i">
 										<span slot="header">
-											<span >
-											Documentation
+											<span>
+											{{ index + 1 }}. {{ documentationTitle[index] }}
 											</span>
 											<span>
 												<v-tooltip top>
@@ -986,6 +986,7 @@
 											<p v-if="!documentationEditMode[index]">
 												{{ documentationText[index] }}
 											</p>
+											<v-textarea solo v-if="documentationEditMode[index]" label="Enter documentation title" v-model="documentationProposedTitle[index]" auto-grow></v-textarea>
 											<v-textarea solo v-if="documentationEditMode[index]" label="Enter documentation text" v-model="documentationProposedText[index]" auto-grow>
 											</v-textarea>
 											<v-btn v-if="!documentationEditMode[index]" class="mb-3 mt-3" @click="documentationEdit(index)">Edit</v-btn>
@@ -1668,7 +1669,9 @@
 
 				documentationEditMode: [],
 				documentationText: [],
-				documentationProposedText: []
+				documentationProposedText: [],
+				documentationTitle: [],
+				documentationProposedTitle: []
 			},
 			methods: {
 				
@@ -2362,28 +2365,38 @@
 							if(response.length == 0){
 								Vue.set(this.documentationText, 0, "");
 								Vue.set(this.documentationEditMode, 0, false);
+								Vue.set(this.documentationProposedText, 0, "");
+								Vue.set(this.documentationTitle, 0, "");
+								Vue.set(this.documentationProposedTitle, 0, "")
 							}
 							for(var i = 0; i < response.length; i++){
 								Vue.set(this.documentationText, i, response[i]["text"]);
 								Vue.set(this.documentationEditMode, i, false);
+								Vue.set(this.documentationProposedText, i, "");
+								Vue.set(this.documentationTitle, i, response[i]["title"])
+								Vue.set(this.documentationProposedTitle, i, "");
 							}
 						})
 						.fail(() => {console.log("Error loading documentation")});
 					console.log("Documentation text = ");
 					console.log(this.documentationText);
+					console.log("Documentation title = ");
+					console.log(this.documentationTitle);
 				},
 
 				documentationEdit: function(index) {
 					Vue.set(this.documentationEditMode, index, true);
 					this.documentationProposedText[index] = this.documentationText[index];
+					this.documentationProposedTitle[index] = this.documentationTitle[index];
 				},
 
 				documentationSave: function(index) {
 					Vue.set(this.documentationEditMode, index, false);
 					this.documentationText[index] = this.documentationProposedText[index];
+					this.documentationTitle[index] = this.documentationProposedTitle[index];
 
 					var path = "/saveDocumentation/" + index + this.cacheBust;
-					$.post(path, JSON.stringify({"text": this.documentationText[index]}), response => {
+					$.post(path, JSON.stringify({"title": this.documentationTitle[index], "text": this.documentationText[index]}), response => {
 						this.saveDocumentationSuccessCode = response;
 					}).fail(() => {console.log("Error saving documentation")});
 				},
@@ -2397,6 +2410,8 @@
 					this.documentationText.splice(indexToAdd, 0, "");
 					this.documentationProposedText.splice(indexToAdd, 0, "");
 					this.documentationEditMode.splice(indexToAdd, 0, false);
+					this.documentationTitle.splice(indexToAdd, 0, "");
+					this.documentationProposedTitle.splice(indexToAdd, 0, "");
 
 					var path = "/addDocumentation/" + indexToAdd + this.cacheBust;
 						$.getJSON(path).fail(() => {console.log("Error adding documentation entry")});
@@ -2407,6 +2422,8 @@
 					this.documentationText.splice(index, 1);
 					this.documentationProposedText.splice(index, 1);
 					this.documentationEditMode.splice(index, 1);
+					this.documentationTitle.splice(index, 1);
+					this.documentationProposedText.splice(index, 1);
 
 					var path = "/removeDocumentation/" + index + this.cacheBust;
 					$.getJSON(path).fail(() => {console.log("Error removing documentation entry")});
@@ -2425,6 +2442,14 @@
 					this.documentationEditMode.splice(index, 1);
 					this.documentationEditMode.splice(index-1, 0, editMode);
 
+					var title = this.documentationTitle[index];
+					this.documentationTitle.splice(index, 1);
+					this.documentationTitle.splice(index-1, 0, title);
+
+					var proposedTitle = this.documentationProposedTitle[index];
+					this.documentationProposedTitle.splice(index, 1);
+					this.documentationProposedTitle.splice(index-1, 0, proposedTitle);
+
 					var indexMinusOne = index-1;
 					var path = "/swapDocumentationFilenames/" + indexMinusOne + "/" + index + this.cacheBust;
 					$.getJSON(path).fail(() => {console.log("Error moving documentation entry up")});
@@ -2442,6 +2467,14 @@
 					var editMode = this.documentationEditMode[index];
 					this.documentationEditMode.splice(index, 1);
 					this.documentationEditMode.splice(index+1, 0, editMode);
+
+					var title = this.documentationTitle[index];
+					this.documentationTitle.splice(index, 1);
+					this.documentationTitle.splice(index+1, 0, title);
+
+					var proposedTitle = this.documentationProposedTitle[index];
+					this.documentationProposedTitle.splice(index, 1);
+					this.documentationProposedTitle.splice(index+1, 0, proposedTitle);
 
 					var indexPlusOne = index + 1;
 					var path = "/swapDocumentationFilenames/" + index + "/" + indexPlusOne + this.cacheBust;
