@@ -4,7 +4,7 @@ from utilities.MatplotlibUtility import *
 
 plotDescription = {
 	'plotCategory': 'chip',
-	'priority': 1010,
+	'priority': 1020,
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(5,4),

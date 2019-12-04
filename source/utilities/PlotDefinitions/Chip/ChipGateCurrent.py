@@ -1,15 +1,14 @@
 from utilities.MatplotlibUtility import *
-from utilities.PlotDefinitions.GateSweep.SubthresholdCurve import plot as importedSubthresholdCurvePlot
-
+from utilities.PlotDefinitions.GateSweep.GateCurrent import plot as importedGateCurrentPlot
 
 
 plotDescription = {
 	'plotCategory': 'chip',
-	'priority': 20,
+	'priority': 30,
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(2.5,3.125),
-		'colorMap':'cividis',
+		'colorMap':'viridis',
 	},
 }
 
@@ -20,4 +19,4 @@ def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, sp
 	mode_parameters['colorsOverride'] = (plotDescription['plotDefaults']['colorMap'], 0.85, 0) if(mode_parameters['colorsOverride'] == []) else mode_parameters['colorsOverride']
 	mode_parameters['figureSizeOverride'] = plotDescription['plotDefaults']['figsize'] 		   if(mode_parameters['figureSizeOverride'] is None) else mode_parameters['figureSizeOverride']
 	
-	return importedSubthresholdCurvePlot(specificRunChipHistory, identifiers=identifiers, mode_parameters=mode_parameters)
+	return importedGateCurrentPlot(specificRunChipHistory, identifiers=identifiers, mode_parameters=mode_parameters)
