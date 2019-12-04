@@ -3,7 +3,6 @@ import time
 
 import pipes
 from procedures import Gate_Sweep as gateSweepScript
-from utilities import DataLoggerUtility as dlu
 
 
 # === Main ===
@@ -49,13 +48,14 @@ def runAutoGateSweep(parameters, smu_systems, arduino_systems, share=None):
 			# Send progress update
 			pipes.progressUpdate(share, 'Sweep', start=0, current=sweepCount, end=numberOfSweeps, barType="Sweep")
 			
-			# If desired, delay until next sweep should start
-			if(ags_parameters['timedSweepStarts']):
-				print('Starting next sweep ' + str(ags_parameters['delayBetweenSweeps']) + ' seconds after start of current sweep...')
-				waitDuration = startTime + ags_parameters['delayBetweenSweeps']*(sweepCount) - time.time()
-				time.sleep(max(0, waitDuration))
-			elif((ags_parameters['delayBetweenSweeps'] > 0) and (sweepCount <= numberOfSweeps)):
-				print('Waiting for ' + str(ags_parameters['delayBetweenSweeps']) + ' seconds...')
-				time.sleep(ags_parameters['delayBetweenSweeps'])
+			if(sweepCount < numberOfSweeps):
+				# If desired, delay until next sweep should start
+				if(ags_parameters['timedSweepStarts']):
+					print('Starting next sweep ' + str(ags_parameters['delayBetweenSweeps']) + ' seconds after start of current sweep...')
+					waitDuration = startTime + ags_parameters['delayBetweenSweeps']*(sweepCount) - time.time()
+					time.sleep(max(0, waitDuration))
+				elif(ags_parameters['delayBetweenSweeps'] > 0):
+					print('Waiting for ' + str(ags_parameters['delayBetweenSweeps']) + ' seconds...')
+					time.sleep(ags_parameters['delayBetweenSweeps'])
 				
 				
