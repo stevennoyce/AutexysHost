@@ -3,7 +3,7 @@ from utilities.MatplotlibUtility import *
 
 
 plotDescription = {
-	'plotCategory': 'chip',
+	'plotCategory': '',#'chip',
 	'priority': 1010,
 	'dataFileDependencies': ['index.json'],
 	'plotDefaults': {
