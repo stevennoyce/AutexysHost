@@ -4,14 +4,14 @@ from utilities.MatplotlibUtility import *
 
 plotDescription = {
 	'plotCategory': 'chip',
-	'priority': 3010,
+	'priority': 1010,
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
-		'figsize':(5,4),
+		'figsize':(2.75,4.5),
 		'automaticAxisLabels':True,
 		'includeOriginOnYaxis':True,
-		'xlabel':'Device',
-		'ylabel':'On/Off Ratio, (Order of Mag)'
+		'xlabel':'On/Off Ratio, (Order of Mag)',
+		'ylabel':'Device',
 	},
 }
 
@@ -29,20 +29,18 @@ def plot(identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, sp
 	for deviceRun in recentRunChipHistory:
 		lastOnOffRatios[devices.index(deviceRun['Identifiers']['device'])] = np.log10(deviceRun['Computed']['onOffRatio'])
 
-	lastOnOffRatios, devices, firstOnOffRatios = zip(*(reversed(sorted(zip(lastOnOffRatios, devices, firstOnOffRatios)))))
+	lastOnOffRatios, devices, firstOnOffRatios = zip(*(sorted(zip(lastOnOffRatios, devices, firstOnOffRatios))))
 
 	# Plot
-	line = ax.plot(range(len(devices)), firstOnOffRatios, color=plt.rcParams['axes.prop_cycle'].by_key()['color'][1], marker='o', markersize=6, linewidth=0, linestyle=None, label='First Run')[0]
-	line = ax.plot(range(len(devices)), lastOnOffRatios, color=plt.rcParams['axes.prop_cycle'].by_key()['color'][0], marker='o', markersize=4, linewidth=0, linestyle=None, label='Most Recent Run')[0]
+	line = ax.plot(firstOnOffRatios, range(len(devices)), color=plt.rcParams['axes.prop_cycle'].by_key()['color'][1], marker='o', markersize=6, linewidth=0, linestyle=None, label='First Run')[0]
+	line = ax.plot(lastOnOffRatios,  range(len(devices)), color=plt.rcParams['axes.prop_cycle'].by_key()['color'][0], marker='o', markersize=4, linewidth=0, linestyle=None, label='Most Recent Run')[0]
 
 	# Set tick label rotation
-	tickLabels(ax, devices, rotation=90)
+	ax.set_yticklabels(devices)
+	ax.set_yticks(range(len(devices)))
 	
 	# Add Legend
 	ax.legend(loc=mode_parameters['legendLoc'])
-	
-	# Adjust Y-lim (if desired)
-	includeOriginOnYaxis(ax, include=plotDescription['plotDefaults']['includeOriginOnYaxis'], stretchfactor=1.1)
 	
 	return (fig, (ax,))
 	
