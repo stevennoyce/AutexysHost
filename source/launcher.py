@@ -38,6 +38,9 @@ def run(additional_parameters, share=None):
 	parameters['Identifiers']['chip']    = 'Chip'    if(parameters['Identifiers']['chip']    == '') else parameters['Identifiers']['chip']
 	parameters['Identifiers']['device']  = 'Device'  if(parameters['Identifiers']['device']  == '') else parameters['Identifiers']['device']
 
+	# Make an explicit flag in the data noting the original 'runType' of the procedure since this can be changed over the course of the experiment
+	parameters['originalRunType'] = parameters['runType']
+
 	# Initialize measurement system
 	smu_systems = initializeMeasurementSystems(parameters)		
 
@@ -45,16 +48,12 @@ def run(additional_parameters, share=None):
 	arduino_systems = initializeArduino(parameters)
 	print("Sensor data: " + str(parameters['SensorData']))
 	
-	# Run specified action:
-	if((parameters['MeasurementSystem']['systemType'] == 'standalone' or parameters['MeasurementSystem']['systemType'] == 'emulator') and (len(parameters['MeasurementSystem']['deviceRange']) > 0)):
-		for device in parameters['MeasurementSystem']['deviceRange']:
-			params = copy.deepcopy(parameters)
-			params['Identifiers']['device'] = device
-			pipes.deviceNumberUpdate(share, device)
-			runAction(params, additional_parameters, smu_systems, arduino_systems, share=share)
-	else:
-		pipes.deviceNumberUpdate(share, parameters['Identifiers']['device'])
-		runAction(parameters, additional_parameters, smu_systems, arduino_systems, share=share)
+	# Initialize list of device we plan to measure
+	enable_multi_device_testing = ((parameters['MeasurementSystem']['systemType'] == 'standalone' or parameters['MeasurementSystem']['systemType'] == 'emulator') and (len(parameters['MeasurementSystem']['deviceRange']) > 0))
+	target_devices = [parameters['Identifiers']['device']] if(not enable_multi_device_testing) else (parameters['MeasurementSystem']['deviceRange'])
+	
+	# Run specified procedure
+	runProcedure(parameters, additional_parameters, target_devices, smu_systems, arduino_systems, share=share)
 	
 	# Print finishing message noting how long this job took to run
 	endTime = time.time()
@@ -63,62 +62,112 @@ def run(additional_parameters, share=None):
 
 
 # === Internal API ===
-def runAction(parameters, schedule_parameters, smu_systems, arduino_systems, share=None):
+def runProcedure(parameters, schedule_parameters, target_devices, smu_systems, arduino_systems, share=None):
 	"""Prepares the file system for the upcoming experiment and selects a Procedure to carry out the experiment.
 	In the event of an error during any procedure, this function is responsible for emergency ramping down the
 	SMU voltages and exiting as gracefully as possible."""
 	
-	# Make sure that the data save folder exists before beginning
-	print('Checking that save folder exists.')
-	dlu.makeFolder(dlu.getDeviceDirectory(parameters))
-	
-	# Print the experiment start message
-	experiment = dlu.incrementJSONExperimentNumber(dlu.getDeviceDirectory(parameters))
-	print('About to begin experiment #' + str(experiment) + ' for device ' + str(parameters['Identifiers']['wafer']) + str(parameters['Identifiers']['chip']) + ':' + str(parameters['Identifiers']['device']))
-	
-	# Make an explicit flag in the data noting the original 'runType' of the procedure since this can be changed over the course of the experiment
-	parameters['originalRunType'] = parameters['runType']
-	
-	# Save schedule file entry to 'SchedulesHistory'
-	parameters['startIndexes'] = dlu.loadJSONIndex(dlu.getDeviceDirectory(parameters))
-	parameters['startIndexes']['timestamp'] = time.time()
-	print('Saving to SchedulesHistory...')
-	dlu.saveJSON(dlu.getDeviceDirectory(parameters), 'SchedulesHistory', schedule_parameters, incrementIndex=False)
-	
-	# Set the SMU to the device that is about to be tested
-	for smu_name, smu_instance in smu_systems.items():
-		smu_instance.setDevice(parameters['Identifiers']['device'])
-	
 	# Find all procedures defined in the 'procedures' sub-directory
-	procedureDefinitions = initializeProcedures()
+	procedureDefinitions = initializeProcedures()	
 	
-	# === Run Procedure ===
-	try:
-		procedureDefinitions[parameters['runType']]['function'](parameters, smu_systems, arduino_systems, share=share)
-	except Exception as e:
-		# In case of an error, ramp down SMU voltages
+	# Begin a new experiment and setup data saving for all target devices
+	deviceIndexes = setUpDataSaving(parameters, schedule_parameters, target_devices)
+		
+	for device in target_devices:
+		# Print the experiment start message
+		print('About to begin experiment #' + str(deviceIndexes[device]['experimentNumber']) + ' for device ' + str(parameters['Identifiers']['wafer']) + str(parameters['Identifiers']['chip']) + ':' + str(device))
+	
+		# Make copy of parameters to run Procedure, adjusting relevant device-specific properties
+		deviceParameters = copy.deepcopy(parameters)
+		deviceParameters['Identifiers']['device'] = device
+		deviceParameters['startIndexes'] = deviceIndexes[device]	
+	
+		# Set the SMUs to the device that is about to be tested
 		for smu_name, smu_instance in smu_systems.items():
-			smu_instance.rampDownVoltages()
-			smu_instance.disconnect()
-		
-		# In case of an error, still try to save info to 'ParametersHistory'
-		parameters['endIndexes'] = dlu.loadJSONIndex(dlu.getDeviceDirectory(parameters))
-		parameters['endIndexes']['timestamp'] = time.time()
-		print('Saving to ParametersHistory...')
-		dlu.saveJSON(dlu.getDeviceDirectory(parameters), 'ParametersHistory', parameters, incrementIndex=False)
-		
-		print('ERROR: Exception raised during the experiment.')
-		raise
+			smu_instance.setDevice(device)
+	
+		# Notify the UI that a new device is about to be tested
+		pipes.deviceNumberUpdate(share, device)
+	
+		# === Run Procedure ===
+		try:
+			procedureDefinitions[deviceParameters['runType']]['function'](deviceParameters, smu_systems, arduino_systems, share=share)
+		except Exception as e:
+			# In case of an error, still try to ramp down SMU voltages, then disconnect
+			for smu_name, smu_instance in smu_systems.items():
+				smu_instance.rampDownVoltages()
+				smu_instance.disconnect()
+	
+			# Save data files to mark this experiment as ended before exiting
+			cleanUpDataSaving(parameters, target_devices, deviceIndexes)
+			
+			print('ERROR: Exception raised during the experiment.')
+			raise
+		# === Complete ===
 	
 	# Make sure to ramp down all SMU voltages now that the procedure has finished
 	for smu_name, smu_instance in smu_systems.items():
 		smu_instance.rampDownVoltages()
 	
-	# Save finished result to 'ParametersHistory' file and exit the launcher	
-	parameters['endIndexes'] = dlu.loadJSONIndex(dlu.getDeviceDirectory(parameters))
-	parameters['endIndexes']['timestamp'] = time.time()
-	print('Saving to ParametersHistory...')
-	dlu.saveJSON(dlu.getDeviceDirectory(parameters), 'ParametersHistory', parameters, incrementIndex=False)
+	# Save data files to mark this experiment as complete
+	cleanUpDataSaving(parameters, target_devices, deviceIndexes)
+	print('Procedure complete.')
+
+
+
+def setUpDataSaving(parameters, schedule_parameters, target_devices):
+	"""This function runs at the beginning of a procedure to set up all data structures needed to save data properly."""
+	
+	deviceIndexes = {}
+	
+	# Save a single starting timestamp for all target devices
+	startTime = time.time()
+	
+	# Initialize saving data structures for all devices
+	for device in target_devices:
+		# Avoid modifying the original parameters
+		deviceParameters = copy.deepcopy(parameters)
+		deviceParameters['Identifiers']['device'] = device
+		
+		# Make sure that the data save folder exists before beginning
+		print('Checking that save folder exists.')
+		dlu.makeFolder(dlu.getDeviceDirectory(deviceParameters))
+		
+		# Save un-modified schedule file entry to 'SchedulesHistory'
+		print('Saving to SchedulesHistory...')
+		dlu.saveJSON(dlu.getDeviceDirectory(deviceParameters), 'SchedulesHistory', schedule_parameters, incrementIndex=False)
+		
+		# Start a new experiment for each device
+		dlu.incrementJSONExperimentNumber(dlu.getDeviceDirectory(deviceParameters))
+		
+		# Store information about the start of this experiment for each device
+		deviceIndexes[device] = dlu.loadJSONIndex(dlu.getDeviceDirectory(deviceParameters))
+		deviceIndexes[device]['timestamp'] = startTime
+	
+	return deviceIndexes
+
+
+
+def cleanUpDataSaving(parameters, target_devices, deviceIndexes):
+	"""This function runs at the end of a procedure to tie off loose ends and return the system to a safe state."""
+	
+	# Save a single ending timestamp for all target devices
+	endTime = time.time()
+	
+	# Clean up saving data structures for all devices
+	for device in target_devices:
+		# Avoid modifying the original parameters
+		deviceParameters = copy.deepcopy(parameters)
+		deviceParameters['Identifiers']['device'] = device
+		
+		# Store information about the start and end of this experiment
+		deviceParameters['startIndexes'] = 	deviceIndexes[device]
+		deviceParameters['endIndexes'] = dlu.loadJSONIndex(dlu.getDeviceDirectory(deviceParameters))
+		deviceParameters['endIndexes']['timestamp'] = endTime
+		
+		# Save finished result to 'ParametersHistory' file
+		print('Saving to ParametersHistory...')
+		dlu.saveJSON(dlu.getDeviceDirectory(deviceParameters), 'ParametersHistory', deviceParameters, incrementIndex=False)
 
 
 

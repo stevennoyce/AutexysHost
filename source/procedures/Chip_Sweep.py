@@ -42,12 +42,14 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 	
 	# Save to ParametersHistory for all devices in this chip sweep
 	print('Saving ParametersHistory data for all devices...')
+	endTime = time.time()
 	for device in cs_parameters['devices']:
 		deviceParameters = copy.deepcopy(parameters)
 		deviceParameters['Identifiers']['device'] = device
 		deviceParameters['runType'] = cs_parameters['sweepType']
+		deviceParameters['startIndexes'] = deviceIndexes[device]
 		deviceParameters['endIndexes'] = dlu.loadJSONIndex(dlu.getDeviceDirectory(deviceParameters))
-		deviceParameters['endIndexes']['timestamp'] = time.time()
+		deviceParameters['endIndexes']['timestamp'] = endTime
 		dlu.saveJSON(dlu.getDeviceDirectory(deviceParameters), 'ParametersHistory', deviceParameters, incrementIndex=False)
 	
 	# Copy parameters and save the data structure that tracks the experiments of every device
