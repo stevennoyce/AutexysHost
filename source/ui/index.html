@@ -1099,6 +1099,9 @@
 														</v-flex>
 														
 													</v-layout>
+													<v-alert v-if="runnerToggleAdvancedSettings" :value="false" color="warning">
+														<b>Warning:</b> multiple devices have been enabled, but the chosen Measurement System cannot dynamically select devices.
+													</v-alert>
 												</v-container>
 								
 												<v-layout row wrap>
