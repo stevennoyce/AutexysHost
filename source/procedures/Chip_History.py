@@ -33,6 +33,7 @@ default_ch_parameters = {
 	'minOnCurrent': None,
 	'maxOnCurrent': None,
 	'maxOffCurrent': None,
+	'maxGateCurrent': None,
 	'showFigures': True,
 	'specificPlotToCreate': '',
 }
@@ -40,7 +41,7 @@ default_ch_parameters = {
 
 
 # === External Interface ===
-def makePlots(userID, projectID, waferID, chipID, specificPlot='', figureSize=None, sweepDirection=None, minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf'), loadOnlyMostRecentExperiments=True, numberOfRecentExperiments=1, numberOfRecentIndexes=1, specificDeviceList=None, minOnCurrent=None, maxOnCurrent=None, maxOffCurrent=None, deviceCategoryLists=None, dataFolder=None, saveFolder=None, plotSaveName='', saveFigures=False, showFigures=True, plot_mode_parameters=None):
+def makePlots(userID, projectID, waferID, chipID, specificPlot='', figureSize=None, sweepDirection=None, minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf'), loadOnlyMostRecentExperiments=True, numberOfRecentExperiments=1, numberOfRecentIndexes=1, specificDeviceList=None, minOnCurrent=None, maxOnCurrent=None, maxOffCurrent=None, maxGateCurrent=None, deviceCategoryLists=None, dataFolder=None, saveFolder=None, plotSaveName='', saveFigures=False, showFigures=True, plot_mode_parameters=None):
 	parameters = {}	
 	mode_parameters = {}
 	if(plot_mode_parameters is not None):
@@ -67,6 +68,7 @@ def makePlots(userID, projectID, waferID, chipID, specificPlot='', figureSize=No
 	parameters['minOnCurrent'] = minOnCurrent
 	parameters['maxOnCurrent'] = maxOnCurrent
 	parameters['maxOffCurrent'] = maxOffCurrent
+	parameters['maxGateCurrent'] = maxGateCurrent
 	parameters['deviceGroupList'] = deviceCategoryLists
 		
 	# Plot selection parameters	
@@ -101,13 +103,14 @@ def run(additional_parameters, plot_mode_parameters={}):
 
 	# If desired, look at the on-current from a gate sweep for each device before deciding to include it based on a cutoff value
 	devicesToInclude = parameters['specificDeviceList']
-	if((parameters['minOnCurrent'] is not None) or (parameters['maxOnCurrent'] is not None) or (parameters['maxOffCurrent'] is not None)):
+	if((parameters['minOnCurrent'] is not None) or (parameters['maxOnCurrent'] is not None) or (parameters['maxOffCurrent'] is not None) or(parameters['maxGateCurrent'] is not None)):
 		(chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory, groupedChipHistory) = loadDataBasedOnPlotDependencies(['GateSweep.json'], parameters, minIndex=parameters['minJSONIndex'], maxIndex=parameters['maxJSONIndex'], minExperiment=parameters['minJSONExperimentNumber'], maxExperiment=parameters['maxJSONExperimentNumber'], minRelativeIndex=parameters['minJSONRelativeIndex'], maxRelativeIndex=parameters['maxJSONRelativeIndex'], loadOnlyMostRecentExperiments=parameters['loadOnlyMostRecentExperiments'], numberOfOldestExperiments=1, numberOfOldestIndexes=1, numberOfRecentExperiments=parameters['numberOfRecentExperiments'], numberOfRecentIndexes=parameters['numberOfRecentIndexes'], specificDeviceList=devicesToInclude, deviceGroupList=parameters['deviceGroupList'])
 		devicesToInclude = []
 		for deviceRun in specificRunChipHistory:
-			abs_max_current = max(np.max(deviceRun['Results']['id_data']), abs(np.min(deviceRun['Results']['id_data'])))
-			abs_min_current = min(abs(np.min(deviceRun['Results']['id_data'])), abs(np.max(deviceRun['Results']['id_data'])))
-			if( ((parameters['minOnCurrent'] is None) or (abs_max_current > parameters['minOnCurrent'])) and ((parameters['maxOnCurrent'] is None) or (abs_max_current < parameters['maxOnCurrent'])) and ((parameters['maxOffCurrent'] is None) or (abs_min_current < parameters['maxOffCurrent'])) ):
+			abs_max_drain_current = max(np.max(deviceRun['Results']['id_data']), abs(np.min(deviceRun['Results']['id_data'])))
+			abs_min_drain_current = min(abs(np.min(deviceRun['Results']['id_data'])), abs(np.max(deviceRun['Results']['id_data'])))
+			abs_max_gate_current  = max(np.max(deviceRun['Results']['ig_data']), abs(np.min(deviceRun['Results']['ig_data'])))
+			if( ((parameters['minOnCurrent'] is None) or (abs_max_drain_current > parameters['minOnCurrent'])) and ((parameters['maxOnCurrent'] is None) or (abs_max_drain_current < parameters['maxOnCurrent'])) and ((parameters['maxOffCurrent'] is None) or (abs_min_drain_current < parameters['maxOffCurrent'])) and ((parameters['maxGateCurrent'] is None) or (abs_max_gate_current < parameters['maxGateCurrent'])) ):
 				devicesToInclude.append(deviceRun['Identifiers']['device'])
 
 	for plotType in plotsToCreate:
@@ -125,25 +128,30 @@ def run(additional_parameters, plot_mode_parameters={}):
 
 
 def loadDataBasedOnPlotDependencies(dataFileDependencies, parameters, minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf'), loadOnlyMostRecentExperiments=True, numberOfOldestExperiments=1, numberOfOldestIndexes=1, numberOfRecentExperiments=1, numberOfRecentIndexes=1, specificDeviceList=None, deviceGroupList=None):
+	# Define data arrays to return
 	chipIndexes = None
 	firstRunChipHistory = None
 	recentRunChipHistory = None
 	specificRunChipHistory = None
 	groupedChipHistory = None
-	if('index.json' in dataFileDependencies):
-		chipIndexes = dlu.loadChipIndexes(dlu.getChipDirectory(parameters))
-	if('GateSweep.json' in dataFileDependencies):
-		firstRunChipHistory = dlu.loadOldestChipHistory(dlu.getChipDirectory(parameters), 'GateSweep.json', numberOfOldestExperiments=numberOfOldestExperiments, numberOfOldestIndexes=numberOfOldestIndexes, specificDeviceList=specificDeviceList)
-		recentRunChipHistory = dlu.loadMostRecentChipHistory(dlu.getChipDirectory(parameters), 'GateSweep.json', numberOfRecentExperiments=numberOfRecentExperiments, numberOfRecentIndexes=numberOfRecentIndexes, specificDeviceList=specificDeviceList)
-		if(loadOnlyMostRecentExperiments):
-			specificRunChipHistory = recentRunChipHistory.copy()
-		else:
-			specificRunChipHistory = dlu.loadSpecificChipHistory(dlu.getChipDirectory(parameters), 'GateSweep.json', specificDeviceList=specificDeviceList, minIndex=minIndex, maxIndex=maxIndex, minExperiment=minExperiment, maxExperiment=maxExperiment, minRelativeIndex=minRelativeIndex, maxRelativeIndex=maxRelativeIndex)
-			if(deviceGroupList is not None):
-				groupedChipHistory = []
-				for deviceGroup in deviceGroupList:
-					chipHistoryForDeviceGroup = dlu.loadSpecificChipHistory(dlu.getChipDirectory(parameters), 'GateSweep.json', specificDeviceList=deviceGroup, minIndex=minIndex, maxIndex=maxIndex, minExperiment=minExperiment, maxExperiment=maxExperiment, minRelativeIndex=minRelativeIndex, maxRelativeIndex=maxRelativeIndex)
-					groupedChipHistory.append(chipHistoryForDeviceGroup)
+	
+	# For each fileName in dataFileDependencies, load data
+	for dependency in dataFileDependencies:
+		if(dependency == 'index.json'):
+			chipIndexes = dlu.loadChipIndexes(dlu.getChipDirectory(parameters))
+		elif(dependency in ['GateSweep.json', 'DrainSweep.json']):
+			firstRunChipHistory = dlu.loadOldestChipHistory(dlu.getChipDirectory(parameters), dependency, numberOfOldestExperiments=numberOfOldestExperiments, numberOfOldestIndexes=numberOfOldestIndexes, specificDeviceList=specificDeviceList)
+			recentRunChipHistory = dlu.loadMostRecentChipHistory(dlu.getChipDirectory(parameters), dependency, numberOfRecentExperiments=numberOfRecentExperiments, numberOfRecentIndexes=numberOfRecentIndexes, specificDeviceList=specificDeviceList)
+			if(loadOnlyMostRecentExperiments):
+				specificRunChipHistory = recentRunChipHistory.copy()
+			else:
+				specificRunChipHistory = dlu.loadSpecificChipHistory(dlu.getChipDirectory(parameters), dependency, specificDeviceList=specificDeviceList, minIndex=minIndex, maxIndex=maxIndex, minExperiment=minExperiment, maxExperiment=maxExperiment, minRelativeIndex=minRelativeIndex, maxRelativeIndex=maxRelativeIndex)
+				if(deviceGroupList is not None):
+					groupedChipHistory = []
+					for deviceGroup in deviceGroupList:
+						chipHistoryForDeviceGroup = dlu.loadSpecificChipHistory(dlu.getChipDirectory(parameters), dependency, specificDeviceList=deviceGroup, minIndex=minIndex, maxIndex=maxIndex, minExperiment=minExperiment, maxExperiment=maxExperiment, minRelativeIndex=minRelativeIndex, maxRelativeIndex=maxRelativeIndex)
+						groupedChipHistory.append(chipHistoryForDeviceGroup)
+						
 	return (chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory, groupedChipHistory)
 
 
