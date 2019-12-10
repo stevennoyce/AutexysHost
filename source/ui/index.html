@@ -2093,6 +2093,7 @@
 					this.chip = chipName;
 					localStorage.chip = JSON.stringify(chipName);
 					this.getDevices();
+					this.getPossibleChipPlots()
 					this.stepperPage++;
 				},
 				goToDevice: function(deviceName) {
