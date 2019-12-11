@@ -49,8 +49,9 @@ def run(additional_parameters, share=None):
 	print("Sensor data: " + str(parameters['SensorData']))
 	
 	# Initialize list of device we plan to measure
-	enable_multi_device_testing = ((parameters['MeasurementSystem']['systemType'] == 'standalone' or parameters['MeasurementSystem']['systemType'] == 'emulator') and (len(parameters['MeasurementSystem']['deviceRange']) > 0))
-	target_devices = [parameters['Identifiers']['device']] if(not enable_multi_device_testing) else (parameters['MeasurementSystem']['deviceRange'])
+	device_cycle_default = [str(x) + '-' + str(x+1) for x in range(1, 64)]
+	device_cycle = device_cycle_default if((parameters['MeasurementSystem']['specificDeviceRange'] is None) or (len(parameters['MeasurementSystem']['specificDeviceRange']) == 0)) else parameters['MeasurementSystem']['specificDeviceRange']
+	target_devices = [parameters['Identifiers']['device']] if(not parameters['MeasurementSystem']['deviceCycling']) else (device_cycle)
 	
 	# Run specified procedure
 	runProcedure(parameters, additional_parameters, target_devices, smu_systems, arduino_systems, share=share)
