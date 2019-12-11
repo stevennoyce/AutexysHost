@@ -248,10 +248,16 @@ default_parameters = {
 		
 	},
 	'MeasurementSystem':{
-		'systemType':			{'type':'choice', 'choices':['single', 'standalone', 'bluetooth', 'combo', 'inverter', 'double', 'emulator'], 'default':['single', 'standalone', 'bluetooth', 'inverter', 'double', 'emulator'][0], 'title':'System Type', 'description':''},
+		'systemType':				{'type':'choice',             'default':'single', 'title':'System Type',           'description':'The type of system used to capture measurements for this procedure.', 'choices':['single', 'standalone', 'bluetooth', 'combo', 'inverter', 'double', 'emulator']},
 		'systems': {},
-		'deviceCycling':		{'type':'bool', 'default': False, 'title':'Device Cycling', 'description':''},
-		'specificDeviceRange':	{'type':'array', 'choices':["1-2", "2-3", "3-4", "5-6", "6-7", "7-8", "9-10", "10-11", "11-12", "13-14", "14-15", "15-16", "19-20", "21-22", "27-28", "29-30", "30-31", "31-32", "33-34", "34-35", "35-36", "37-38", "38-39", "39-40", "41-42", "42-43", "43-44", "45-46", "46-47", "47-48", "51-52", "53-54", "59-60", "61-62", "62-63", "63-64"], 'default':[], 'title':'Specific Device Range', 'description':''}, 
+		'deviceCycling':			{'type':'bool',               'default': False,   'title':'Device Cycling',        'description':'When enabled, this procedure will run repeatedly across multiple devices.'},
+	},
+	'DeviceCycling':{
+		'numberOfCycles':		{'type':'int',   'units':'#', 'default': 1,       'title':'Number Of Cycles',      'description':'Number of times to repeat the measurement procedure on each device.'},
+		'specificDeviceRange':	{'type':'array',              'default': [],      'title':'Specific Device Range', 'description':'', 'choices':["1-2", "2-3", "3-4", "5-6", "6-7", "7-8", "9-10", "10-11", "11-12", "13-14", "14-15", "15-16", "19-20", "21-22", "27-28", "29-30", "30-31", "31-32", "33-34", "34-35", "35-36", "37-38", "38-39", "39-40", "41-42", "42-43", "43-44", "45-46", "46-47", "47-48", "51-52", "53-54", "59-60", "61-62", "62-63", "63-64"]}, 
+		'delayBetweenDevices': 	{'type':'float', 'units':'s', 'default': 0,       'title':'Delay Between Devices', 'description':'Delay between switching from one device to the next.'},
+		'delayBetweenCycles': 	{'type':'float', 'units':'s', 'default': 0,       'title':'Delay Between Cycles',  'description':'Delay between each cycle of devices.'},
+		'timedCycles': 			{'type':'bool',               'default': True,    'title':'Timed Cycles',          'description':'When enabled, the delay between cycles is dynamically reduced by the amount of time the last cycle took.'}, 
 	},
 	'dataFolder': {'type':'string', 'default':'../../AutexysData/', 'title':'Data Folder', 'description':''},
 	'ParametersFormatVersion': {'default': 4}	

@@ -48,13 +48,31 @@ def run(additional_parameters, share=None):
 	arduino_systems = initializeArduino(parameters)
 	print("Sensor data: " + str(parameters['SensorData']))
 	
-	# Initialize list of device we plan to measure
-	device_cycle_default = [str(x) + '-' + str(x+1) for x in range(1, 64)]
-	device_cycle = device_cycle_default if((parameters['MeasurementSystem']['specificDeviceRange'] is None) or (len(parameters['MeasurementSystem']['specificDeviceRange']) == 0)) else parameters['MeasurementSystem']['specificDeviceRange']
-	target_devices = [parameters['Identifiers']['device']] if(not parameters['MeasurementSystem']['deviceCycling']) else (device_cycle)
+	# Initialize list of devices we plan to measure (defaults to the single device in 'Identifiers')
+	target_devices = [parameters['Identifiers']['device']]
+	
+	# Initialize procedure cycling parameters (defaults to a single procedure run, with no addiitonal built-in delays)
+	procedure_cycles = 1
+	delay_between_devices = 0
+	delay_between_cycles = 0
+	timed_cycles = False
+	
+	# If device cycling is enabled for this measurement system, modify the target devices to include all devices of interest
+	if(parameters['MeasurementSystem']['deviceCycling']):
+		# By default, it will measure all devices numbered 1 to 64 unless a specific range of devices was specifed
+		device_cycle_specific = parameters['DeviceCycling']['specificDeviceRange']
+		device_cycle_default = [str(x) + '-' + str(x+1) for x in range(1, 64)]
+		device_cycle = device_cycle_default if((device_cycle_specific is None) or (len(device_cycle_specific) == 0)) else device_cycle_specific
+		
+		# Set all cycling parameters
+		target_devices = device_cycle
+		procedure_cycles      = parameters['DeviceCycling']['numberOfCycles']
+		delay_between_devices = parameters['DeviceCycling']['delayBetweenDevices']
+		delay_between_cycles  = parameters['DeviceCycling']['delayBetweenCycles']
+		timed_cycles          = parameters['DeviceCycling']['timedCycles']
 	
 	# Run specified procedure
-	runProcedure(parameters, additional_parameters, target_devices, smu_systems, arduino_systems, share=share)
+	runProcedure(parameters, additional_parameters, smu_systems, arduino_systems, target_devices, cycles=procedure_cycles, delay_between_devices=delay_between_devices, delay_between_cycles=delay_between_cycles, timed_cycles=timed_cycles, share=share)
 	
 	# Print finishing message noting how long this job took to run
 	endTime = time.time()
@@ -63,7 +81,7 @@ def run(additional_parameters, share=None):
 
 
 # === Internal API ===
-def runProcedure(parameters, schedule_parameters, target_devices, smu_systems, arduino_systems, share=None):
+def runProcedure(parameters, schedule_parameters, smu_systems, arduino_systems, target_devices, cycles=1, delay_between_devices=0, delay_between_cycles=0, timed_cycles=False, share=None):
 	"""Prepares the file system for the upcoming experiment and selects a Procedure to carry out the experiment.
 	In the event of an error during any procedure, this function is responsible for emergency ramping down the
 	SMU voltages and exiting as gracefully as possible."""
@@ -73,38 +91,61 @@ def runProcedure(parameters, schedule_parameters, target_devices, smu_systems, a
 	
 	# Begin a new experiment and setup data saving for all target devices
 	deviceIndexes = setUpDataSaving(parameters, schedule_parameters, target_devices)
-		
-	for device in target_devices:
-		# Print the experiment start message
-		print('About to begin experiment #' + str(deviceIndexes[device]['experimentNumber']) + ' for device ' + str(parameters['Identifiers']['wafer']) + str(parameters['Identifiers']['chip']) + ':' + str(device))
 	
-		# Make copy of parameters to run Procedure, adjusting relevant device-specific properties
-		deviceParameters = copy.deepcopy(parameters)
-		deviceParameters['Identifiers']['device'] = device
-		deviceParameters['startIndexes'] = deviceIndexes[device]	
+	# Mark the start of this procedure
+	startTime = time.time()
 	
-		# Set the SMUs to the device that is about to be tested
-		for smu_name, smu_instance in smu_systems.items():
-			smu_instance.setDevice(device)
-	
-		# Notify the UI that a new device is about to be tested
-		pipes.deviceNumberUpdate(share, device)
-	
-		# === Run Procedure ===
-		try:
-			procedureDefinitions[deviceParameters['runType']]['function'](deviceParameters, smu_systems, arduino_systems, share=share)
-		except Exception as e:
-			# In case of an error, still try to ramp down SMU voltages, then disconnect
-			for smu_name, smu_instance in smu_systems.items():
-				smu_instance.rampDownVoltages()
-				smu_instance.disconnect()
-	
-			# Save data files to mark this experiment as ended before exiting
-			cleanUpDataSaving(parameters, target_devices, deviceIndexes)
+	# Repeat the procedure 'cycles' number of times
+	for cycle_index in range(cycles):
+		# Cycle through all target devices	
+		for device_index in range(len(target_devices)):
+			device = target_devices[device_index]
 			
-			print('ERROR: Exception raised during the experiment.')
-			raise
-		# === Complete ===
+			# Print the experiment start message
+			print('Running experiment #' + str(deviceIndexes[device]['experimentNumber']) + ' for device ' + str(parameters['Identifiers']['wafer']) + str(parameters['Identifiers']['chip']) + ':' + str(device))
+		
+			# Make copy of parameters to run this Procedure, adjusting relevant device-specific properties
+			deviceParameters = copy.deepcopy(parameters)
+			deviceParameters['Identifiers']['device'] = device
+			deviceParameters['startIndexes'] = deviceIndexes[device]	
+		
+			# Set the SMUs to the device that is about to be tested
+			for smu_name, smu_instance in smu_systems.items():
+				smu_instance.setDevice(device)
+		
+			# Notify the UI that a new device is about to be tested
+			pipes.deviceNumberUpdate(share, device)
+		
+			# === Run Procedure ===
+			try:
+				procedureDefinitions[deviceParameters['runType']]['function'](deviceParameters, smu_systems, arduino_systems, share=share)
+			except Exception as e:
+				# In case of an error, still try to ramp down SMU voltages, then disconnect
+				for smu_name, smu_instance in smu_systems.items():
+					smu_instance.rampDownVoltages()
+					smu_instance.disconnect()
+		
+				# Save data files to mark this experiment as ended before exiting
+				cleanUpDataSaving(parameters, target_devices, deviceIndexes)
+				
+				print('ERROR: Exception raised during the experiment.')
+				raise
+			# === Procedure Complete ===
+			
+			# If desired, delay before moving on to the next device
+			if(device_index < len(target_devices)-1):
+				if(delay_between_devices > 0):
+					print('Waiting for ' + str(delay_between_devices) + ' seconds, before switching to next device...')
+					time.sleep(delay_between_devices)
+			
+		# If desired, delay until next cycle should start.	
+		if(cycle_index < cycles-1):
+			if(delay_between_cycles > 0):
+				wait_duration = (delay_between_devices) if(not timed_cycles) else ((startTime + delay_between_devices*cycle_index) - time.time())
+				print('Waiting for ' + str(wait_duration) + ' seconds, before beginning next cycle...')
+				time.sleep(max(0, wait_duration))
+	
+	# === all cycles complete ===
 	
 	# Make sure to ramp down all SMU voltages now that the procedure has finished
 	for smu_name, smu_instance in smu_systems.items():
