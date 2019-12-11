@@ -14,9 +14,13 @@
 			};
 		},
 		watch: {
-		 	stringRepresentation(val) {
+		 	stringRepresentation(newVal, oldVal) {
 		 		try {
-		 			var objectRepresentation = JSON.parse(this.stringRepresentation);
+		 			// if (newVal.split(",").length > oldVal.split(",").length) {
+		 			// 	var objectRepresentation = jsyaml.safeLoad(this.stringRepresentation);
+		 			// } else {
+		 				var objectRepresentation = JSON.parse(this.stringRepresentation);
+		 			// }
 		 			this.$emit('input', objectRepresentation);
 		 		} catch (e) {
 		 			console.log('Invalid JSON input to <s-json-field> component');
