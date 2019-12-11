@@ -1082,19 +1082,22 @@
 															</template>
 														</v-flex>
 														
-														<template v-if="runnerVerboseScheduleObjects[0]['MeasurementSystem']['deviceCycling']['default']">
-															<v-flex xs3 s3 md3 lg3>
-																<v-list class="roundedcorners">
-																	<v-list-tile>
-																		<v-list-tile-content><v-list-tile-title style="font-weight: bold">
-																			Device Cycling
-																		</v-list-tile-title></v-list-tile-content>
-																	</v-list-tile>
+														<v-flex xs3 s3 md3 lg3 v-if="runnerVerboseScheduleObjects[0]['MeasurementSystem']['deviceCycling']['default']">
+															<v-list class="roundedcorners">
+																<v-list-tile>
+																	<v-list-tile-content><v-list-tile-title style="font-weight: bold">
+																		Device Cycling
+																	</v-list-tile-title></v-list-tile-content>
+																</v-list-tile>
+																<template v-if="!runnerToggleAdvancedSettings && Object.keys(runnerScheduleObjects[0]).includes('DeviceCycling')">
+																	<s-item-group-edit :settings.sync="runnerScheduleObjects[0]['DeviceCycling']" :defaults="JSON.parse(JSON.stringify(runnerScheduleObjects[0]['DeviceCycling']))"></s-item-group-edit>
+																</template>
+																<template v-if="runnerToggleAdvancedSettings">
 																	<s-item-group-edit :settings.sync="runnerVerboseScheduleObjects[0]['DeviceCycling']" :defaults="JSON.parse(JSON.stringify(runnerVerboseScheduleObjects[0]['DeviceCycling']))"></s-item-group-edit>
-																</v-list>
-															</v-flex>
-														</template>
-	
+																</template>
+															</v-list>
+														</v-flex>
+													
 														<v-flex xs3 s3 md3 lg3 v-for="runConfig,runType in runnerScheduleObjects[0]['runConfigs']">
 															<v-list class="roundedcorners">
 																<v-list-tile>
