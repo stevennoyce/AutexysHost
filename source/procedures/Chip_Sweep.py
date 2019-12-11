@@ -35,8 +35,8 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 					devices=cs_parameters['devices'],
 					sweepsPerDevice=cs_parameters['sweepsPerDevice'],
 					delayBetweenDevices=cs_parameters['delayBetweenDevices'],
-					delayBetweenSweeps=cs_parameters['delayBetweenSweeps'],
-					timedSweepStarts=cs_parameters['timedSweepStarts'],
+					delayBetweenCycles=cs_parameters['delayBetweenCycles'],
+					timedCycles=cs_parameters['timedCycles'],
 					share=share)	
 	# === COMPLETE ===
 	
@@ -62,7 +62,7 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 
 	return jsonData
 
-def runChipSweep(parameters, smu_systems, arduino_systems, deviceIndexes, sweepType, devices, sweepsPerDevice, delayBetweenDevices, delayBetweenSweeps, timedSweepStarts, share=None):		
+def runChipSweep(parameters, smu_systems, arduino_systems, deviceIndexes, sweepType, devices, sweepsPerDevice, delayBetweenDevices, delayBetweenCycles, timedCycles, share=None):		
 	# Set up counters
 	numberOfDevices = len(devices)
 	numberOfSweeps = len(devices)*sweepsPerDevice
@@ -73,7 +73,7 @@ def runChipSweep(parameters, smu_systems, arduino_systems, deviceIndexes, sweepT
 	pipes.progressUpdate(share, 'Sweep', start=0, current=0, end=sweepsPerDevice, barType='Sweep')
 	pipes.progressUpdate(share, 'Device', start=0, current=0, end=numberOfDevices, barType='Group')
 	
-	for sweep_index in range(sweepsPerDevice):
+	for cycle_index in range(sweepsPerDevice):
 		# Sweep all devices in this chip sweep.
 		for device_index in range(len(devices)):
 			# Choose next device to sweep from the list
@@ -112,18 +112,18 @@ def runChipSweep(parameters, smu_systems, arduino_systems, deviceIndexes, sweepT
 					time.sleep(delayBetweenDevices)
 		
 		# Send progress update
-		pipes.progressUpdate(share, 'Sweep', start=0, current=sweep_index+1, end=sweepsPerDevice, barType='Sweep')
+		pipes.progressUpdate(share, 'Cycle', start=0, current=cycle_index+1, end=sweepsPerDevice, barType='Sweep')
 		
-		# If desired, delay until next sweep should start.	
+		# If desired, delay until next cycle should start.	
 		if(sweepCount < numberOfSweeps):
-			if(delayBetweenSweeps > 0):
-				if(timedSweepStarts):
-					print('Starting next sweep ' + str(delayBetweenSweeps) + ' seconds after start of current sweep...')
-					waitDuration = startTime + delayBetweenSweeps*sweepCount - time.time()
+			if(delayBetweenCycles > 0):
+				if(timedCycles):
+					print('Starting next sweep ' + str(delayBetweenCycles) + ' seconds after start of current sweep...')
+					waitDuration = startTime + delayBetweenCycles*(cycle_index+1) - time.time()
 					time.sleep(max(0, waitDuration))
 				else:
-					print('Waiting for ' + str(delayBetweenSweeps) + ' seconds...')
-					time.sleep(delayBetweenSweeps)
+					print('Waiting for ' + str(delayBetweenCycles) + ' seconds...')
+					time.sleep(delayBetweenCycles)
 		
 				
 				

@@ -149,10 +149,10 @@ default_parameters = {
 			'saveFileName': 				{'type':'constant', 'default': 'ChipSweep', 'title':'Save File Name', 'description':'The name of the file that will be saved with the data from this experiment. This name should typically not be changed.'},
 			'sweepType': 					{'type':'choice','essential':True,              'default': 'GateSweep',         'title':'Sweep Type',              'choices':['GateSweep', 'DrainSweep'], 'description':'Type of sweep to perform on each device.'},
 			'sweepsPerDevice': 				{'type':'int',   'essential':True, 'units':'#', 'default': 1,                   'title':'Sweeps Per Device',       'description':'Number of sweeps to take for each device on the chip.'},
-			'devices':						{'type':'array', 'essential':True, 'units':'',  'default': ['1-2','2-3','3-4'], 'title':'Device List',             'description':'List of devices to measure.'},
+			'devices':						{'type':'array', 'essential':True, 'units':'',  'default': ['1-2','2-3','3-4'], 'title':'Specific Device List',    'description':'List of devices to measure.'},
 			'delayBetweenDevices': 			{'type':'float',                   'units':'s', 'default': 0,                   'title':'Delay Between Devices',   'description':'Delay after a sweep completes before switching to the next device.'},
-			'delayBetweenSweeps': 			{'type':'float',                   'units':'s', 'default': 0,                   'title':'Delay Between Sweeps',    'description':'Delay between each sweep.'},
-			'timedSweepStarts': 			{'type':'bool',                                 'default': True,                'title':'Timed Sweeps',            'description':'When enabled, the delay between sweeps is dynamically reduced by the amount of time the sweep took.'}, 
+			'delayBetweenCycles': 			{'type':'float',                   'units':'s', 'default': 0,                   'title':'Delay Between Cycles',    'description':'Delay between each cycle of devices.'},
+			'timedCycles': 					{'type':'bool',                                 'default': True,                'title':'Timed Cycles',            'description':'When enabled, the delay between cycles is dynamically reduced by the amount of time the last cycle took.'}, 
 		},
 		'AutoStaticBias':{
 			'dependencies': 						{'ignore':True, 'value':['StaticBias','GateSweep']},
@@ -248,10 +248,10 @@ default_parameters = {
 		
 	},
 	'MeasurementSystem':{
-		'systemType':          {'type':'choice', 'choices':['single', 'standalone', 'bluetooth', 'combo', 'inverter', 'double', 'emulator'], 'default':['single', 'standalone', 'bluetooth', 'inverter', 'double', 'emulator'][0], 'title':'System Type', 'description':''},
+		'systemType':			{'type':'choice', 'choices':['single', 'standalone', 'bluetooth', 'combo', 'inverter', 'double', 'emulator'], 'default':['single', 'standalone', 'bluetooth', 'inverter', 'double', 'emulator'][0], 'title':'System Type', 'description':''},
 		'systems': {},
-		'deviceCycling':       {'type':'bool', 'default': False, 'title':'Device Cycling', 'description':''},
-		'specificDeviceRange': {'type':'array', 'choices':["1-2", "2-3", "3-4", "5-6", "6-7", "7-8", "9-10", "10-11", "11-12", "13-14", "14-15", "15-16", "19-20", "21-22", "27-28", "29-30", "30-31", "31-32", "33-34", "34-35", "35-36", "37-38", "38-39", "39-40", "41-42", "42-43", "43-44", "45-46", "46-47", "47-48", "51-52", "53-54", "59-60", "61-62", "62-63", "63-64"], 'default':[], 'title':'Specific Device Range', 'description':''}, 
+		'deviceCycling':		{'type':'bool', 'default': False, 'title':'Device Cycling', 'description':''},
+		'specificDeviceRange':	{'type':'array', 'choices':["1-2", "2-3", "3-4", "5-6", "6-7", "7-8", "9-10", "10-11", "11-12", "13-14", "14-15", "15-16", "19-20", "21-22", "27-28", "29-30", "30-31", "31-32", "33-34", "34-35", "35-36", "37-38", "38-39", "39-40", "41-42", "42-43", "43-44", "45-46", "46-47", "47-48", "51-52", "53-54", "59-60", "61-62", "62-63", "63-64"], 'default':[], 'title':'Specific Device Range', 'description':''}, 
 	},
 	'dataFolder': {'type':'string', 'default':'../../AutexysData/', 'title':'Data Folder', 'description':''},
 	'ParametersFormatVersion': {'default': 4}	
