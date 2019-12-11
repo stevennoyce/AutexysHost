@@ -1033,7 +1033,7 @@
 										<v-form>
 									</template>
 								
-									<template v-if="scheduleExperimentUser && scheduleExperimentProject && scheduleExperimentFileName && (runnerScheduleObjects.length === 1)">
+									<template v-if="scheduleExperimentUser && scheduleExperimentProject && scheduleExperimentFileName && (runnerScheduleObjects.length === 1) && (runnerVerboseScheduleObjects.length === 1)">
 										<v-expansion-panel expand class="mt-1 mb-2">
 											<v-expansion-panel-content class="grey lighten-4">
 												
@@ -1099,8 +1099,8 @@
 														</v-flex>
 														
 													</v-layout>
-													<v-alert v-if="runnerToggleAdvancedSettings" :value="false" color="warning">
-														<b>Warning:</b> multiple devices have been enabled, but the chosen Measurement System cannot dynamically select devices.
+													<v-alert :value="(['single', 'double'].includes(runnerVerboseScheduleObjects[0]['MeasurementSystem']['systemType']['default'])) && (runnerVerboseScheduleObjects[0]['MeasurementSystem']['deviceRange']['default'].length > 0)" icon="warning "color="warning">
+														<b>Advanced:</b> multiple devices have been enabled, but the chosen Measurement System cannot dynamically select devices.
 													</v-alert>
 												</v-container>
 								
@@ -1130,14 +1130,14 @@
 												</form>
 											</template>
 											<v-spacer></v-spacer>
-											<v-btn class="mb-3 mt-3" @click="{ saveRunnerScheduleFile(); dispatchSchedule(); }">Launch Experiments in Schedule File</v-btn>
+											<v-btn class="mb-3 mt-3" @click="saveRunnerScheduleFile(); dispatchSchedule();">Launch Experiments in Schedule File</v-btn>
 											<v-btn class="mb-3 mt-3" @click="stopAtNextJob()">Stop at Next Job</v-btn>
 										</v-card-actions>	
 									</template>
 									<template v-if="runnerChoice !== 'Schedule File' && runnerChoice !== ''">
 										<v-card-actions>
 											<v-spacer></v-spacer>
-											<v-btn class="mb-3 mt-3" @click="{ saveRunnerScheduleFile(); dispatchSchedule(); }" :disabled="!isPossibleToSaveRunnerScheduleFile()">Launch {{ runnerChoice }}</v-btn>
+											<v-btn class="mb-3 mt-3" @click="saveRunnerScheduleFile(); dispatchSchedule();" :disabled="!isPossibleToSaveRunnerScheduleFile()">Launch {{ runnerChoice }}</v-btn>
 										</v-card-actions>	
 									</template>
 								</v-form>							
@@ -2008,14 +2008,14 @@
 						console.log('saving path = ' + path);
 
 						if (path) {
-							$.post(path, JSON.stringify(this.runnerScheduleLines), response => {})
+							$.post(path, JSON.stringify(this.runnerScheduleLines), response => {
+								// After post completes and the data is saved, run the following:
+								console.log("Saved experiment runner schedule file.");
+								// Force re-load of schedule file to make sure everything is refreshed to its original state
+								this.loadRunnerScheduleFile();
+							})
 							.fail(() => {console.log("Error saving schedule file from the experiment runner.")});
 						}		
-									
-						console.log("Saved experiment runner schedule file.");
-						
-						// Re-load from file to force UI to update
-						this.loadRunnerScheduleFile();
 					}
 				},
 				isPossibleToSaveRunnerScheduleFile: function() {
