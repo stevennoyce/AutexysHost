@@ -1163,12 +1163,18 @@
 						<v-card class="mb-3" v-if="dispatcherRunning">
 							<v-toolbar dark dense class="color3 ">
 								<v-toolbar-title>
-									Run Progress
+									Progress
+								</v-toolbar-title>
+								<v-spacer></v-spacer>
+								<v-toolbar-title>
+									{{experimentRunnerProgress.timerModel.current - experimentRunnerProgress.timerModel.start | twoDecimalPoints}}
+									<v-icon>schedule</v-icon>
 								</v-toolbar-title>
 							</v-toolbar>
 							<v-list>
 								<v-list-tile v-if="experimentRunnerProgress.dispatcherBarModel.visible">
 									<v-list-tile-title>Dispatcher: {{experimentRunnerProgress.dispatcherBarModel.name}} {{experimentRunnerProgress.dispatcherBarModel.current}} of {{experimentRunnerProgress.dispatcherBarModel.end}} </v-list-tile-title>
+									<v-list-tile-sub-title v-if="false">{{experimentRunnerProgress.timerModel.current - experimentRunnerProgress.timerModel.start | twoDecimalPoints}}</v-list-tile-sub-title>
 									<v-progress-linear v-model="experimentRunnerProgress.dispatcherBarModel.percent"></v-progress-linear>
 								</v-list-tile>
 								<v-list-tile v-if="experimentRunnerProgress.sweepBarModel.visible">
@@ -1648,6 +1654,10 @@
 				ReadMeHTML: '',
 				dispatcherRunning: false,
 				experimentRunnerProgress: {
+					timerModel: {
+						start: 0,
+						current: 0
+					},
 					dispatcherBarModel: {
 						visible: false,
 						name: '',
@@ -1918,6 +1928,9 @@
 					if (this.scheduleSaveFileName == '') this.scheduleSaveFileName = this.scheduleLoadFileName;
 				},
 				clearProgressBars: function(){
+					this.experimentRunnerProgress.timerModel.start = 0;
+					this.experimentRunnerProgress.timerModel.current = 0;
+					
 					this.experimentRunnerProgress.dispatcherBarModel.visible = false;
 					this.experimentRunnerProgress.dispatcherBarModel.current = 0;
 					this.experimentRunnerProgress.dispatcherBarModel.end = 0;
@@ -2283,6 +2296,11 @@
 					if (message.type == 'Progress') {
 						this.dispatcherRunning = true;
 						
+						this.experimentRunnerProgress.timerModel.current = message.progress.timestamp;
+						if(this.experimentRunnerProgress.timerModel.start === 0) {
+							this.experimentRunnerProgress.timerModel.start = message.progress.timestamp;
+						}
+						
 						if(message.progress.barType === "Dispatcher"){
 							this.experimentRunnerProgress.dispatcherBarModel.visible = true;
 							this.experimentRunnerProgress.dispatcherBarModel.name = message.progress.name;
@@ -2591,6 +2609,16 @@
 				},
 				runType: function() {
 					return this.parameters['runType'];
+				}
+			},
+			filters:{
+				capitalize: function(value) {
+					if(!value) return '';
+					value = value.toString();
+					return value.charAt(0).toUpperCase() + value.slice(1);	
+				},
+				twoDecimalPoints: function(value) {
+					return parseFloat(value).toFixed(2)
 				}
 			}
 		});

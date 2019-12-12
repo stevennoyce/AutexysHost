@@ -1,4 +1,4 @@
-
+import time
 import queue
 
 def pipeSend(pipe, message):
@@ -106,7 +106,8 @@ def progressUpdate(share, progName, start, current, end, barType='Procedure'):
 					'barType': barType,
 					'start': start,
 					'current': current,
-					'end': end
+					'end': end,
+					'timestamp':time.time()
 				}
 			}
 		)
