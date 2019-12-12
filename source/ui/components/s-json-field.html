@@ -1,7 +1,7 @@
 
 
 <script type="text/html" id="s-json-field">
-	<v-text-field v-model="stringRepresentation" :label="label" :suffix="suffix"></v-text-field>
+	<v-text-field v-model="stringRepresentation" :label="label" :suffix="suffix" @blur="makeInputValidJSON"></v-text-field>
 </script>
 
 <script type="text/javascript">
@@ -13,18 +13,36 @@
 				stringRepresentation: JSON.stringify(this.value)
 			};
 		},
-		watch: {
-		 	stringRepresentation(newVal, oldVal) {
-		 		try {
-		 			// if (newVal.split(",").length > oldVal.split(",").length) {
-		 			// 	var objectRepresentation = jsyaml.safeLoad(this.stringRepresentation);
-		 			// } else {
-		 				var objectRepresentation = JSON.parse(this.stringRepresentation);
-		 			// }
+		methods: {
+			makeInputValidJSON: function() {
+				try {
+					let val = this.stringRepresentation;
+					if (val.indexOf('[') == -1) {
+						val = '[' + val;
+					}
+					if (val.indexOf(']') == -1) {
+						val = val + ']';
+					}
+		 			var objectRepresentation = jsyaml.safeLoad(val);
 		 			this.$emit('input', objectRepresentation);
 		 		} catch (e) {
 		 			console.log('Invalid JSON input to <s-json-field> component');
+		 			console.log(e);
 		 		}
+			},
+		},
+		watch: {
+		 	stringRepresentation(newVal, oldVal) {
+		 		// try {
+		 		// 	// if (newVal.split(",").length > oldVal.split(",").length) {
+		 		// 	// 	var objectRepresentation = jsyaml.safeLoad(this.stringRepresentation);
+		 		// 	// } else {
+		 		// 		var objectRepresentation = JSON.parse(this.stringRepresentation);
+		 		// 	// }
+		 		// 	this.$emit('input', objectRepresentation);
+		 		// } catch (e) {
+		 		// 	console.log('Invalid JSON input to <s-json-field> component');
+		 		// }
 			},
 			value(val) {
 				this.stringRepresentation = JSON.stringify(val);
