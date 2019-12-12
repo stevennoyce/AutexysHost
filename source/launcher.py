@@ -88,7 +88,8 @@ def runProcedure(parameters, schedule_parameters, smu_systems, arduino_systems, 
 	
 	# If any cycling will occur, notify the UI
 	if((cycles > 1) or (len(target_devices) > 1)):
-		pipes.progressUpdate(share, 'Cycle', start=0, current=0, end=cycles, barType='Group')
+		pipes.progressUpdate(share, 'Cycle', start=0, current=0, end=cycles, barType='Group1')
+		pipes.progressUpdate(share, 'Device', start=0, current=0, end=len(target_devices), barType='Group2')
 		print('Device Cycling is beginning.')
 	
 	# Mark the start of this procedure
@@ -131,6 +132,10 @@ def runProcedure(parameters, schedule_parameters, smu_systems, arduino_systems, 
 				raise
 			# === Procedure Complete ===
 			
+			# Send device progress update
+			if((cycles > 1) or (len(target_devices) > 1)):
+				pipes.progressUpdate(share, 'Device', start=0, current=(device_index+1), end=len(target_devices), barType='Group2')
+			
 			# If desired, delay before moving on to the next device
 			if(device_index < len(target_devices)-1):
 				if(delay_between_devices > 0):
@@ -139,7 +144,7 @@ def runProcedure(parameters, schedule_parameters, smu_systems, arduino_systems, 
 		
 		# Send cycle progress update
 		if((cycles > 1) or (len(target_devices) > 1)):
-			pipes.progressUpdate(share, 'Cycle', start=0, current=(cycle_index+1), end=cycles, barType='Group')
+			pipes.progressUpdate(share, 'Cycle', start=0, current=(cycle_index+1), end=cycles, barType='Group1')
 			
 		# If desired, delay until next cycle should start.	
 		if(cycle_index < cycles-1):

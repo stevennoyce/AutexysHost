@@ -1175,9 +1175,13 @@
 									<v-list-tile-title>Sweep: {{experimentRunnerProgress.sweepBarModel.name}} {{experimentRunnerProgress.sweepBarModel.current}} of {{experimentRunnerProgress.sweepBarModel.end}} </v-list-tile-title>
 									<v-progress-linear v-model="experimentRunnerProgress.sweepBarModel.percent"></v-progress-linear>
 								</v-list-tile>
-								<v-list-tile v-if="experimentRunnerProgress.groupBarModel.visible">
-									<v-list-tile-title>{{experimentRunnerProgress.groupBarModel.name}} {{experimentRunnerProgress.groupBarModel.current}} of {{experimentRunnerProgress.groupBarModel.end}} </v-list-tile-title>
-									<v-progress-linear v-model="experimentRunnerProgress.groupBarModel.percent"></v-progress-linear>
+								<v-list-tile v-if="experimentRunnerProgress.group1BarModel.visible">
+									<v-list-tile-title>{{experimentRunnerProgress.group1BarModel.name}} {{experimentRunnerProgress.group1BarModel.current}} of {{experimentRunnerProgress.group1BarModel.end}} </v-list-tile-title>
+									<v-progress-linear v-model="experimentRunnerProgress.group1BarModel.percent"></v-progress-linear>
+								</v-list-tile>
+								<v-list-tile v-if="experimentRunnerProgress.group2BarModel.visible">
+									<v-list-tile-title>{{experimentRunnerProgress.group2BarModel.name}} {{experimentRunnerProgress.group2BarModel.current}} of {{experimentRunnerProgress.group2BarModel.end}} </v-list-tile-title>
+									<v-progress-linear v-model="experimentRunnerProgress.group2BarModel.percent"></v-progress-linear>
 								</v-list-tile>
 								<v-list-tile v-if="experimentRunnerProgress.procedureBarModel.visible">
 									<v-list-tile-title>Procedure: {{experimentRunnerProgress.procedureBarModel.name}} {{experimentRunnerProgress.procedureBarModel.current}} of {{experimentRunnerProgress.procedureBarModel.end}} </v-list-tile-title>
@@ -1658,7 +1662,14 @@
 						end: 0,
 						percent: 0
 					},
-					groupBarModel: {
+					group1BarModel: {
+						visible: false,
+						name: '',
+						current: 0,
+						end: 0,
+						percent: 0
+					},
+					group2BarModel: {
 						visible: false,
 						name: '',
 						current: 0,
@@ -1917,10 +1928,15 @@
 					this.experimentRunnerProgress.sweepBarModel.end = 0;
 					this.experimentRunnerProgress.sweepBarModel.percent = 0;
 					
-					this.experimentRunnerProgress.groupBarModel.visible = false;
-					this.experimentRunnerProgress.groupBarModel.current = 0;
-					this.experimentRunnerProgress.groupBarModel.end = 0;
-					this.experimentRunnerProgress.groupBarModel.percent = 0;
+					this.experimentRunnerProgress.group1BarModel.visible = false;
+					this.experimentRunnerProgress.group1BarModel.current = 0;
+					this.experimentRunnerProgress.group1BarModel.end = 0;
+					this.experimentRunnerProgress.group1BarModel.percent = 0;
+					
+					this.experimentRunnerProgress.group2BarModel.visible = false;
+					this.experimentRunnerProgress.group2BarModel.current = 0;
+					this.experimentRunnerProgress.group2BarModel.end = 0;
+					this.experimentRunnerProgress.group2BarModel.percent = 0;
 
 					this.experimentRunnerProgress.procedureBarModel.visible = false;
 					this.experimentRunnerProgress.procedureBarModel.current = 0;
@@ -2281,12 +2297,19 @@
 							this.experimentRunnerProgress.sweepBarModel.end = message.progress.end;
 							this.experimentRunnerProgress.sweepBarModel.percent = computeProgressPercent(message.progress.start, message.progress.current, message.progress.end);
 						}
-						else if(message.progress.barType == "Group"){
-							this.experimentRunnerProgress.groupBarModel.visible = true;
-							this.experimentRunnerProgress.groupBarModel.name = message.progress.name;
-							this.experimentRunnerProgress.groupBarModel.current = message.progress.current;
-							this.experimentRunnerProgress.groupBarModel.end = message.progress.end;
-							this.experimentRunnerProgress.groupBarModel.percent = computeProgressPercent(message.progress.start, message.progress.current, message.progress.end);
+						else if(message.progress.barType == "Group1"){
+							this.experimentRunnerProgress.group1BarModel.visible = true;
+							this.experimentRunnerProgress.group1BarModel.name = message.progress.name;
+							this.experimentRunnerProgress.group1BarModel.current = message.progress.current;
+							this.experimentRunnerProgress.group1BarModel.end = message.progress.end;
+							this.experimentRunnerProgress.group1BarModel.percent = computeProgressPercent(message.progress.start, message.progress.current, message.progress.end);
+						}
+						else if(message.progress.barType == "Group2"){
+							this.experimentRunnerProgress.group2BarModel.visible = true;
+							this.experimentRunnerProgress.group2BarModel.name = message.progress.name;
+							this.experimentRunnerProgress.group2BarModel.current = message.progress.current;
+							this.experimentRunnerProgress.group2BarModel.end = message.progress.end;
+							this.experimentRunnerProgress.group2BarModel.percent = computeProgressPercent(message.progress.start, message.progress.current, message.progress.end);
 						}
 						else if(message.progress.barType === "Procedure"){
 							this.experimentRunnerProgress.procedureBarModel.visible = true;

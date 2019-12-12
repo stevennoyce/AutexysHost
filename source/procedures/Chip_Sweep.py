@@ -71,7 +71,7 @@ def runChipSweep(parameters, smu_systems, arduino_systems, deviceIndexes, sweepT
 	
 	# Send initial progress update
 	pipes.progressUpdate(share, 'Sweep', start=0, current=0, end=sweepsPerDevice, barType='Sweep')
-	pipes.progressUpdate(share, 'Device', start=0, current=0, end=numberOfDevices, barType='Group')
+	pipes.progressUpdate(share, 'Device', start=0, current=0, end=numberOfDevices, barType='Group1')
 	
 	for cycle_index in range(sweepsPerDevice):
 		# Sweep all devices in this chip sweep.
@@ -103,7 +103,7 @@ def runChipSweep(parameters, smu_systems, arduino_systems, deviceIndexes, sweepT
 			sweepCount += 1
 			
 			# Send progress update
-			pipes.progressUpdate(share, 'Device', start=0, current=device_index+1, end=numberOfDevices, barType='Group')
+			pipes.progressUpdate(share, 'Device', start=0, current=device_index+1, end=numberOfDevices, barType='Group1')
 			
 			# If desired, delay before moving on to the next device
 			if(sweepCount < numberOfSweeps):
