@@ -52,24 +52,18 @@ def run(additional_parameters, share=None):
 	target_devices = [parameters['Identifiers']['device']]
 	
 	# Initialize procedure cycling parameters (defaults to a single procedure run, with no addiitonal built-in delays)
-	procedure_cycles = 1
-	delay_between_devices = 0
-	delay_between_cycles = 0
-	timed_cycles = False
+	is_cycling = parameters['MeasurementSystem']['deviceCycling']
+	procedure_cycles      = 1     if(not is_cycling) else parameters['DeviceCycling']['numberOfCycles']
+	delay_between_devices = 0     if(not is_cycling) else parameters['DeviceCycling']['delayBetweenDevices']
+	delay_between_cycles  = 0     if(not is_cycling) else parameters['DeviceCycling']['delayBetweenCycles']
+	timed_cycles          = False if(not is_cycling) else parameters['DeviceCycling']['timedCycles']
 	
 	# If device cycling is enabled for this measurement system, modify the target devices to include all devices of interest
-	if(parameters['MeasurementSystem']['deviceCycling']):
+	if(is_cycling):
 		# By default, it will measure all devices numbered 1 to 64 unless a specific range of devices was specifed
 		device_cycle_specific = parameters['DeviceCycling']['specificDeviceRange']
 		device_cycle_default = [str(x) + '-' + str(x+1) for x in range(1, 64)]
-		device_cycle = device_cycle_default if((device_cycle_specific is None) or (len(device_cycle_specific) == 0)) else device_cycle_specific
-		
-		# Set all cycling parameters
-		target_devices = device_cycle
-		procedure_cycles      = parameters['DeviceCycling']['numberOfCycles']
-		delay_between_devices = parameters['DeviceCycling']['delayBetweenDevices']
-		delay_between_cycles  = parameters['DeviceCycling']['delayBetweenCycles']
-		timed_cycles          = parameters['DeviceCycling']['timedCycles']
+		target_devices = device_cycle_default if((device_cycle_specific is None) or (len(device_cycle_specific) == 0)) else device_cycle_specific		
 	
 	# Run specified procedure
 	runProcedure(parameters, additional_parameters, smu_systems, arduino_systems, target_devices, cycles=procedure_cycles, delay_between_devices=delay_between_devices, delay_between_cycles=delay_between_cycles, timed_cycles=timed_cycles, share=share)
@@ -91,6 +85,11 @@ def runProcedure(parameters, schedule_parameters, smu_systems, arduino_systems, 
 	
 	# Begin a new experiment and setup data saving for all target devices
 	deviceIndexes = setUpDataSaving(parameters, schedule_parameters, target_devices)
+	
+	# If any cycling will occur, notify the UI
+	if((cycles > 1) or (len(target_devices) > 1)):
+		pipes.progressUpdate(share, 'Cycle', start=0, current=0, end=cycles, barType='Group')
+		print('Device Cycling is beginning.')
 	
 	# Mark the start of this procedure
 	startTime = time.time()
@@ -137,6 +136,10 @@ def runProcedure(parameters, schedule_parameters, smu_systems, arduino_systems, 
 				if(delay_between_devices > 0):
 					print('Waiting for ' + str(delay_between_devices) + ' seconds, before switching to next device...')
 					time.sleep(delay_between_devices)
+		
+		# Send cycle progress update
+		if((cycles > 1) or (len(target_devices) > 1)):
+			pipes.progressUpdate(share, 'Cycle', start=0, current=(cycle_index+1), end=cycles, barType='Group')
 			
 		# If desired, delay until next cycle should start.	
 		if(cycle_index < cycles-1):
@@ -172,11 +175,9 @@ def setUpDataSaving(parameters, schedule_parameters, target_devices):
 		deviceParameters['Identifiers']['device'] = device
 		
 		# Make sure that the data save folder exists before beginning
-		print('Checking that save folder exists.')
 		dlu.makeFolder(dlu.getDeviceDirectory(deviceParameters))
 		
 		# Save un-modified schedule file entry to 'SchedulesHistory'
-		print('Saving to SchedulesHistory...')
 		dlu.saveJSON(dlu.getDeviceDirectory(deviceParameters), 'SchedulesHistory', schedule_parameters, incrementIndex=False)
 		
 		# Start a new experiment for each device
@@ -185,6 +186,9 @@ def setUpDataSaving(parameters, schedule_parameters, target_devices):
 		# Store information about the start of this experiment for each device
 		deviceIndexes[device] = dlu.loadJSONIndex(dlu.getDeviceDirectory(deviceParameters))
 		deviceIndexes[device]['timestamp'] = startTime
+		
+		# Print the experiment start message
+		print('Set up experiment #' + str(deviceIndexes[device]['experimentNumber']) + ' for device ' + str(deviceParameters['Identifiers']['wafer']) + str(deviceParameters['Identifiers']['chip']) + ':' + str(device))
 	
 	return deviceIndexes
 
