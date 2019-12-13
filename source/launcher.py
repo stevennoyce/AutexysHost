@@ -217,23 +217,29 @@ def cleanUpDataSaving(parameters, target_devices, deviceIndexes):
 		print('Saving to ParametersHistory...')
 		dlu.saveJSON(dlu.getDeviceDirectory(deviceParameters), 'ParametersHistory', deviceParameters, incrementIndex=False)
 	
-	# If multiple devices were involved in this procedure, we need additional information to be saved in order to track this
+	# If multiple devices were involved in this procedure, we need an additional file to be saved to track this
 	if(len(target_devices) > 1):
-		# This file will be in a folder named for the procedure run
-		chipParameters = copy.deepcopy(parameters)
-		chipParameters['Identifiers']['device'] = chipParameters['runType']
-		chipParameters['DeviceCycling']['deviceIndexes'] = deviceIndexes
+		# Avoid modifying the original parameters
+		cyclingParameters = copy.deepcopy(parameters)
+		cyclingParameters['Identifiers']['device'] = 'DeviceCycling'
+		
+		# This is the key information we need to recover later in order to find all of the data from this multi-device procedure
+		cyclingParameters['DeviceCycling']['deviceIndexes'] = deviceIndexes
 		
 		# Set up save folder + indexing system for this additonal file
-		dlu.makeFolder(dlu.getDeviceDirectory(chipParameters))
-		experiment = dlu.incrementJSONExperimentNumber(dlu.getDeviceDirectory(chipParameters))
+		dlu.makeFolder(dlu.getDeviceDirectory(cyclingParameters))
+		dlu.incrementJSONExperimentNumber(dlu.getDeviceDirectory(cyclingParameters))
+		indexes = dlu.loadJSONIndex(dlu.getDeviceDirectory(cyclingParameters))
+		cyclingParameters['startIndexes'] = indexes
+		cyclingParameters['startIndexes']['timestamp'] = endTime
+		cyclingParameters['endIndexes']   = indexes
+		cyclingParameters['endIndexes']['timestamp']   = endTime
 		
 		# Save an additional file that contains information about all of the devices just involved in the last experiment
 		print('Saving to DeviceCycling...')
-		dlu.saveJSON(dlu.getDeviceDirectory(chipParameters), 'DeviceCycling', chipParameters, subDirectory='Ex'+str(experiment))
-	
+		dlu.saveJSON(dlu.getDeviceDirectory(cyclingParameters), 'DeviceCycling', cyclingParameters, subDirectory='Ex'+str(cyclingParameters['startIndexes']['experimentNumber']))
+		dlu.saveJSON(dlu.getDeviceDirectory(cyclingParameters), 'ParametersHistory', cyclingParameters, incrementIndex=False)
 		
-
 
 
 # === SMU Connection ===
