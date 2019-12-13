@@ -1,0 +1,30 @@
+<script type="text/html" id="j-progress-bar-timed">
+	
+	<v-list-tile v-if="visible">
+		
+		<v-list-tile-content style="flex-direction:row;align-items:center;" class="mr-3">
+			<v-list-tile-title>{{titleprefix}} {{title}} {{valuecurrent}} of {{valuemaximum}} </v-list-tile-title>
+			<v-progress-linear class="roundedcorners" height="10" color="success" v-model="valuepercent"></v-progress-linear>
+		</v-list-tile-content>
+		
+		<v-list-tile-action style="text-align:right;">	
+			<v-list-tile-sub-title>{{time | formatTimestamp}}</v-list-tile-sub-title>
+		</v-list-tile-action>
+	
+	</v-list-tile>
+	
+</script>
+
+<script type="text/javascript">
+	Vue.component('j-progress-bar-timed', {
+		template: '#j-progress-bar-timed',
+		props: ['visible', 'titleprefix', 'title', 'time', 'valuecurrent', 'valuemaximum', 'valuepercent'],
+		filters:{
+			formatTimestamp: function(value) {
+				if(!value) return '';
+				return parseFloat(value).toFixed(2);
+			}
+		}
+	});
+</script>
+

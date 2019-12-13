@@ -1172,10 +1172,25 @@
 								</v-toolbar-title>
 							</v-toolbar>
 							<v-list>
+								<j-progress-bar-timed :visible="experimentRunnerProgress.dispatcherBarModel.visible" titleprefix="Dispatcher:" :title="experimentRunnerProgress.dispatcherBarModel.name" :valuecurrent="experimentRunnerProgress.dispatcherBarModel.current" :valuemaximum="experimentRunnerProgress.dispatcherBarModel.end" :valuepercent="experimentRunnerProgress.dispatcherBarModel.percent"></j-progress-bar-timed>
+								
+								<j-progress-bar-timed :visible="experimentRunnerProgress.sweepBarModel.visible" titleprefix="Sweep:" :title="experimentRunnerProgress.sweepBarModel.name" :valuecurrent="experimentRunnerProgress.sweepBarModel.current" :valuemaximum="experimentRunnerProgress.sweepBarModel.end" :valuepercent="experimentRunnerProgress.sweepBarModel.percent"></j-progress-bar-timed>
+								
+								<j-progress-bar-timed :visible="experimentRunnerProgress.group1BarModel.visible" titleprefix="" :title="experimentRunnerProgress.group1BarModel.name" :valuecurrent="experimentRunnerProgress.group1BarModel.current" :valuemaximum="experimentRunnerProgress.group1BarModel.end" :valuepercent="experimentRunnerProgress.group1BarModel.percent"></j-progress-bar-timed>
+								
+								<j-progress-bar-timed :visible="experimentRunnerProgress.group2BarModel.visible" titleprefix="" :title="experimentRunnerProgress.group2BarModel.name" :valuecurrent="experimentRunnerProgress.group2BarModel.current" :valuemaximum="experimentRunnerProgress.group2BarModel.end" :valuepercent="experimentRunnerProgress.group2BarModel.percent"></j-progress-bar-timed>
+								
+								<j-progress-bar-timed :visible="experimentRunnerProgress.procedureBarModel.visible" titleprefix="Procedure:" :title="experimentRunnerProgress.procedureBarModel.name" :time="experimentRunnerProgress.procedureBarModel.time_current - experimentRunnerProgress.procedureBarModel.time_start" :valuecurrent="experimentRunnerProgress.procedureBarModel.current" :valuemaximum="experimentRunnerProgress.procedureBarModel.end" :valuepercent="experimentRunnerProgress.procedureBarModel.percent"></j-progress-bar-timed>
+								
+								<!--
 								<v-list-tile v-if="experimentRunnerProgress.dispatcherBarModel.visible">
-									<v-list-tile-title>Dispatcher: {{experimentRunnerProgress.dispatcherBarModel.name}} {{experimentRunnerProgress.dispatcherBarModel.current}} of {{experimentRunnerProgress.dispatcherBarModel.end}} </v-list-tile-title>
-									<v-list-tile-sub-title v-if="false">{{experimentRunnerProgress.timerModel.current - experimentRunnerProgress.timerModel.start | twoDecimalPoints}}</v-list-tile-sub-title>
-									<v-progress-linear v-model="experimentRunnerProgress.dispatcherBarModel.percent"></v-progress-linear>
+									<v-list-tile-content style="flex-direction:row;align-items:center;" class="mr-3">
+										<v-list-tile-title>Dispatcher: {{experimentRunnerProgress.dispatcherBarModel.name}} {{experimentRunnerProgress.dispatcherBarModel.current}} of {{experimentRunnerProgress.dispatcherBarModel.end}} </v-list-tile-title>
+										<v-progress-linear class="roundedcorners" height="10" color="success" v-model="experimentRunnerProgress.dispatcherBarModel.percent"></v-progress-linear>
+									</v-list-tile-content>
+									<v-list-tile-action style="text-align:right;">	
+										<v-list-tile-sub-title>{{experimentRunnerProgress.timerModel.current - experimentRunnerProgress.timerModel.start | twoDecimalPoints}}</v-list-tile-sub-title>
+									</v-list-tile-action>
 								</v-list-tile>
 								<v-list-tile v-if="experimentRunnerProgress.sweepBarModel.visible">
 									<v-list-tile-title>Sweep: {{experimentRunnerProgress.sweepBarModel.name}} {{experimentRunnerProgress.sweepBarModel.current}} of {{experimentRunnerProgress.sweepBarModel.end}} </v-list-tile-title>
@@ -1193,6 +1208,7 @@
 									<v-list-tile-title>Procedure: {{experimentRunnerProgress.procedureBarModel.name}} {{experimentRunnerProgress.procedureBarModel.current}} of {{experimentRunnerProgress.procedureBarModel.end}} </v-list-tile-title>
 									<v-progress-linear v-model="experimentRunnerProgress.procedureBarModel.percent"></v-progress-linear>
 								</v-list-tile>
+								-->
 							</v-list>
 							
 						</v-card>
@@ -1691,7 +1707,9 @@
 						name: '',
 						current: 0,
 						end: 0,
-						percent: 0
+						percent: 0,
+						time_start: 0,
+						time_current: 0
 					}
 				},
 
@@ -1955,6 +1973,8 @@
 					this.experimentRunnerProgress.procedureBarModel.current = 0;
 					this.experimentRunnerProgress.procedureBarModel.end = 0;
 					this.experimentRunnerProgress.procedureBarModel.percent = 0;
+					this.experimentRunnerProgress.procedureBarModel.time_start = 0;
+					this.experimentRunnerProgress.procedureBarModel.time_current = 0;
 				},
 				clearLivePlots: function() {
 					this.jobSelectChoice = 'Dummy';
@@ -2330,6 +2350,9 @@
 							this.experimentRunnerProgress.group2BarModel.percent = computeProgressPercent(message.progress.start, message.progress.current, message.progress.end);
 						}
 						else if(message.progress.barType === "Procedure"){
+							this.experimentRunnerProgress.procedureBarModel.time_start = checkStartTime(this.experimentRunnerProgress.procedureBarModel.time_start, this.experimentRunnerProgress.procedureBarModel.current, message.progress.current, message.progress.timestamp);
+							this.experimentRunnerProgress.procedureBarModel.time_current = message.progress.timestamp;
+							
 							this.experimentRunnerProgress.procedureBarModel.visible = true;
 							this.experimentRunnerProgress.procedureBarModel.name = message.progress.name;
 							this.experimentRunnerProgress.procedureBarModel.current = message.progress.current;
@@ -2708,6 +2731,13 @@
 			result /= parseFloat(end) - parseFloat(start);
 			result *= 100;
 			return result;
+		}
+		
+		function checkStartTime(start_time, prev_value, current_value, current_time){
+			if((start_time === 0) || (current_value < prev_value)){
+				return current_time;
+			}
+			return start_time;
 		}
 
 		window.addEventListener('online', updateConnectionStatus);
