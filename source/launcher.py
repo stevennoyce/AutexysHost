@@ -219,6 +219,17 @@ def cleanUpDataSaving(parameters, target_devices, deviceIndexes):
 		# Save finished result to 'ParametersHistory' file
 		print('Saving to ParametersHistory...')
 		dlu.saveJSON(dlu.getDeviceDirectory(deviceParameters), 'ParametersHistory', deviceParameters, incrementIndex=False)
+	
+	# Save an additional file that contains information about all of the devices just involved in the last experiment
+	chipParameters = copy.deepcopy(parameters)
+	chipParameters['Identifiers']['device'] = chipParameters['runType']
+	dlu.makeFolder(dlu.getDeviceDirectory(chipParameters))
+	experiment = dlu.incrementJSONExperimentNumber(dlu.getDeviceDirectory(chipParameters))
+	chipParameters['DeviceCycling']['deviceIndexes'] = deviceIndexes
+	print('Saving to DeviceCycling...')
+	dlu.saveJSON(dlu.getDeviceDirectory(chipParameters), 'DeviceCycling', chipParameters, subDirectory='Ex'+str(experiment))
+	
+		
 
 
 
