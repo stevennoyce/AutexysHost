@@ -182,9 +182,6 @@ def setUpDataSaving(parameters, schedule_parameters, target_devices):
 		# Make sure that the data save folder exists before beginning
 		dlu.makeFolder(dlu.getDeviceDirectory(deviceParameters))
 		
-		# Save un-modified schedule file entry to 'SchedulesHistory'
-		dlu.saveJSON(dlu.getDeviceDirectory(deviceParameters), 'SchedulesHistory', schedule_parameters, incrementIndex=False)
-		
 		# Start a new experiment for each device
 		dlu.incrementJSONExperimentNumber(dlu.getDeviceDirectory(deviceParameters))
 		
@@ -216,18 +213,24 @@ def cleanUpDataSaving(parameters, target_devices, deviceIndexes):
 		deviceParameters['endIndexes'] = dlu.loadJSONIndex(dlu.getDeviceDirectory(deviceParameters))
 		deviceParameters['endIndexes']['timestamp'] = endTime
 		
-		# Save finished result to 'ParametersHistory' file
+		# Save finished result to 'ParametersHistory' file for each device
 		print('Saving to ParametersHistory...')
 		dlu.saveJSON(dlu.getDeviceDirectory(deviceParameters), 'ParametersHistory', deviceParameters, incrementIndex=False)
 	
-	# Save an additional file that contains information about all of the devices just involved in the last experiment
-	chipParameters = copy.deepcopy(parameters)
-	chipParameters['Identifiers']['device'] = chipParameters['runType']
-	dlu.makeFolder(dlu.getDeviceDirectory(chipParameters))
-	experiment = dlu.incrementJSONExperimentNumber(dlu.getDeviceDirectory(chipParameters))
-	chipParameters['DeviceCycling']['deviceIndexes'] = deviceIndexes
-	print('Saving to DeviceCycling...')
-	dlu.saveJSON(dlu.getDeviceDirectory(chipParameters), 'DeviceCycling', chipParameters, subDirectory='Ex'+str(experiment))
+	# If multiple devices were involved in this procedure, we need additional information to be saved in order to track this
+	if(len(target_devices) > 1):
+		# This file will be in a folder named for the procedure run
+		chipParameters = copy.deepcopy(parameters)
+		chipParameters['Identifiers']['device'] = chipParameters['runType']
+		chipParameters['DeviceCycling']['deviceIndexes'] = deviceIndexes
+		
+		# Set up save folder + indexing system for this additonal file
+		dlu.makeFolder(dlu.getDeviceDirectory(chipParameters))
+		experiment = dlu.incrementJSONExperimentNumber(dlu.getDeviceDirectory(chipParameters))
+		
+		# Save an additional file that contains information about all of the devices just involved in the last experiment
+		print('Saving to DeviceCycling...')
+		dlu.saveJSON(dlu.getDeviceDirectory(chipParameters), 'DeviceCycling', chipParameters, subDirectory='Ex'+str(experiment))
 	
 		
 
