@@ -94,15 +94,20 @@ def makePlots(userID, projectID, waferID, chipID, deviceID, minExperiment=0,
 def run(additional_parameters, plot_mode_parameters=None, cacheBust=None):
 	"""Legacy 'run' function from when DeviceHistory was treated more like a typical procedure with parameters."""
 
+	# Combine additiona_parameters with the defaults
 	parameters = default_dh_parameters.copy()
 	parameters.update(additional_parameters)
 
-	p = parameters
-	plotList = []
-
+	# Combine plot_mode_parameters with the empty default dictionary
 	mode_parameters = {}
 	if(plot_mode_parameters != None):
 		mode_parameters.update(plot_mode_parameters)
+	
+	# Define return variable
+	plotList = []
+	
+	# Define nickname
+	p = parameters
 
 	# Print information about the device and experiment being plotted
 	print('  ' + parameters['Identifiers']['wafer'] + parameters['Identifiers']['chip'] + ':' + parameters['Identifiers']['device'])
@@ -122,15 +127,21 @@ def run(additional_parameters, plot_mode_parameters=None, cacheBust=None):
 	plotsToCreate = [p['specificPlotToCreate']] if(p['specificPlotToCreate'] != '') else plotsForExperiments(parameters, minExperiment=p['minJSONExperimentNumber'], maxExperiment=p['maxJSONExperimentNumber'])
 	for plotType in plotsToCreate:
 		print('Loading data for ' + str(plotType) + ' plot.')
+		
+		# Get a list of relevant data files needed for this plot
 		dataFileDependencies = dpu.getDataFileDependencies(plotType)
-		deviceHistory = []
+		
 		try:
+			# === Load the data ===
+			deviceHistory = []
 			for dataFile in dataFileDependencies:
-				if cacheBust is None:
-					cacheBust = str(time.time())
-				#deviceHistory += dlu.loadSpecificDeviceHistoryWithCaching(cacheBust, dlu.getDeviceDirectory(parameters), dataFile, minIndex=p['minJSONIndex'], maxIndex=p['maxJSONIndex'], minExperiment=p['minJSONExperimentNumber'], maxExperiment=p['maxJSONExperimentNumber'], minRelativeIndex=p['minJSONRelativeIndex'], maxRelativeIndex=p['maxJSONRelativeIndex'])
+				#deviceHistory += dlu.loadSpecificDeviceHistoryWithCaching((time.time() if(cacheBust is None) else cacheBust), dlu.getDeviceDirectory(parameters), dataFile, minIndex=p['minJSONIndex'], maxIndex=p['maxJSONIndex'], minExperiment=p['minJSONExperimentNumber'], maxExperiment=p['maxJSONExperimentNumber'], minRelativeIndex=p['minJSONRelativeIndex'], maxRelativeIndex=p['maxJSONRelativeIndex'])
 				deviceHistory += dlu.loadSpecificDeviceHistory(dlu.getDeviceDirectory(parameters), dataFile, minIndex=p['minJSONIndex'], maxIndex=p['maxJSONIndex'], minExperiment=p['minJSONExperimentNumber'], maxExperiment=p['maxJSONExperimentNumber'], minRelativeIndex=p['minJSONRelativeIndex'], maxRelativeIndex=p['maxJSONRelativeIndex'])
+			
+			# === Generate the plot ===
 			plot = dpu.makeDevicePlot(plotType, deviceHistory, parameters['Identifiers'], mode_parameters=mode_parameters)
+			
+			# Add generated plot to the results list
 			plotList.append(plot)
 		except FileNotFoundError as e:
 			print("Error: Unable to load data files for '" + str(plotType) + "' plot.")
@@ -146,10 +157,23 @@ def run(additional_parameters, plot_mode_parameters=None, cacheBust=None):
 
 
 
-def plotsForExperiments(parameters, minExperiment=0, maxExperiment=float('inf')):
+def plotsForExperiments(parameters, minExperiment=0, maxExperiment=float('inf'), linkingFile='DeviceCycling.json'):
 	"""Given the typical parameters used to run experiments, return a list of plots that could be made from the data that has been already collected."""
 
-	return dpu.getPlotTypesFromDependencies(dlu.getDataFileNamesForDeviceExperiments(dlu.getDeviceDirectory(parameters), minExperiment=minExperiment, maxExperiment=maxExperiment), plotCategory='device')
+	# Get a list of all saved data files for the given experiment range
+	available_data_files = dataFilesForExperiments(parameters, minExperiment=minExperiment, maxExperiment=maxExperiment)
+	
+	# Add linked data files to the list of available saved data files
+	if((linkingFile is not None) and (linkingFile in available_data_files)):
+		available_data_files += dlu.getLinkedFileNamesForDeviceExperiments(dlu.getDeviceDirectory(parameters), linkingFile, minExperiment=minExperiment, maxExperiment=maxExperiment)
+
+	# Return list of available plots based on the available data files
+	return dpu.getPlotTypesFromDependencies(available_data_files, plotCategory='device')
+
+def dataFilesForExperiments(parameters, minExperiment=0, maxExperiment=float('inf')):
+	"""Given the typical parameters used to run experiments, return a list files containing the saved data that has been collected."""
+
+	return dlu.getDataFileNamesForDeviceExperiments(dlu.getDeviceDirectory(parameters), minExperiment=minExperiment, maxExperiment=maxExperiment)
 
 
 

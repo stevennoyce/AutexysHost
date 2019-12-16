@@ -330,6 +330,20 @@ def getDataFileNamesForDeviceExperiments(directory, minExperiment=0, maxExperime
 				dataFileNames.append(dataFileName)
 	return dataFileNames
 
+def getLinkedFileNamesForDeviceExperiments(directory, linkingFile, minExperiment=0, maxExperiment=float('inf')):
+	"""Given a folder path, the name of a linking file, and range of experiments, get all of the unique .json file names that are pointed to by the linking file."""
+	dataFileNames = []
+	for experimentSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and (name[0:2] == 'Ex' and name[2:].isdigit()) and (int(name[2:]) >= minExperiment) and (int(name[2:]) <= maxExperiment))]:
+		if(os.path.exists(os.path.join(directory, experimentSubdirectory, linkingFile))):
+			jsonData = loadJSON(os.path.join(directory, experimentSubdirectory), linkingFile)
+			for deviceRun in jsonData:
+				for device,deviceIndex in deviceRun['DeviceCycling']['deviceIndexes'].items():
+					deviceDataFileNames = getDataFileNamesForDeviceExperiments(os.path.join(getChipDirectory(deviceRun), device), minExperiment=deviceIndex['experimentNumber'], maxExperiment=deviceIndex['experimentNumber'])
+					for dataFileName in deviceDataFileNames:
+						if(dataFileName not in dataFileNames):
+							dataFileNames.append(dataFileName)
+	return dataFileNames
+			
 def getIndexesForExperiments(directory, minExperiment, maxExperiment):
 	"""Given a device folder path and range of experiments, get a list of the indices for the data in those experiments."""
 	indexes = []

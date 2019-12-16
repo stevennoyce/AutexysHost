@@ -258,6 +258,7 @@ default_parameters = {
 		'delayBetweenDevices': 	{'type':'float', 'units':'s', 'default': 0,       'title':'Delay Between Devices', 'description':'Delay between switching from one device to the next.'},
 		'delayBetweenCycles': 	{'type':'float', 'units':'s', 'default': 0,       'title':'Delay Between Cycles',  'description':'Delay between each cycle of devices.'},
 		'timedCycles': 			{'type':'bool',               'default': False,   'title':'Timed Cycles',          'description':'When enabled, the delay between cycles is dynamically reduced by the amount of time the last cycle took.'}, 
+		'deviceIndexes': {},
 	},
 	'dataFolder': {'type':'string', 'default':'../../AutexysData/', 'title':'Data Folder', 'description':''},
 	'ParametersFormatVersion': {'default': 4}	
