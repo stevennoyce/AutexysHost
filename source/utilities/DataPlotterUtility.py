@@ -245,7 +245,7 @@ def getPlotTypesFromDependencies(availableDataFiles, plotCategory='device', maxP
 			except:
 				priority = default_plot_priority
 			
-			if(priority < maxPriority):
+			if(priority <= maxPriority):
 				plotPriorities.append(priority)
 			else:
 				plotTypes.remove(plotType)

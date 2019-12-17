@@ -5,6 +5,7 @@ import statistics
 
 plotDescription = {
 	'plotCategory': 'device',
+	'priority': 1e6,
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(2,2.5),

@@ -392,7 +392,7 @@ def sendChipPlot(user, project, wafer, chip, plotType):
 @app.route('/<user>/<project>/<wafer>/<chip>/<device>/availableDevicePlots.json')
 def availableDevicePlots(user, project, wafer, chip, device):
 	parameter_identifiers = {'dataFolder':default_data_path, 'Identifiers':{'user':user,'project':project,'wafer':wafer,'chip':chip,'device':device}}
-	plots = DH.plotsForExperiments(parameter_identifiers, maxPriority=40, linkingFile=None)
+	plots = DH.plotsForExperiments(parameter_identifiers, maxPriority=999, linkingFile=None)
 	return jsonvalid(plots)
 	
 @app.route('/<user>/<project>/<wafer>/<chip>/availableChipPlots.json')

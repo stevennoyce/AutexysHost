@@ -4,7 +4,7 @@ from utilities.MatplotlibUtility import *
 
 plotDescription = {
 	'plotCategory': 'device',
-	'priority': 310,
+	'priority': 710,
 	'dataFileDependencies': ['BurnOut.json'],
 	'plotDefaults': {
 		'figsize':(8,4.5),

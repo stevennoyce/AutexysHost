@@ -6,7 +6,7 @@ from utilities.MatplotlibUtility import *
 
 plotDescription = {
 	'plotCategory': 'device',
-	'priority': 100,
+	'priority': 640,
 	'dataFileDependencies': ['FlowStaticBias.json', 'GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(2,2.5),

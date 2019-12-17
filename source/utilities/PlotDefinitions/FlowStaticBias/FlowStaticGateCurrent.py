@@ -4,7 +4,7 @@ import copy
 
 plotDescription = {
 	'plotCategory': 'device',
-	'priority': 120,
+	'priority': 630,
 	'dataFileDependencies': ['FlowStaticBias.json'],
 	'plotDefaults': {
 		'figsize':(3,2.5),

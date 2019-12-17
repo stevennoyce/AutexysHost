@@ -6,7 +6,7 @@ import numpy as np
 
 plotDescription = {
 	'plotCategory': 'device',
-	'priority': 1040,
+	'priority': 2040,
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(2,2.5),

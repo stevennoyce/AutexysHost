@@ -4,7 +4,7 @@ import copy
 
 plotDescription = {
 	'plotCategory': 'device',
-	'priority': 110,
+	'priority': 330,
 	'dataFileDependencies': ['StaticCurrent.json'],
 	'plotDefaults': {
 		'figsize':(3,2.5),#(2*2.2,2*1.6),#(5,4),
