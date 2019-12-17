@@ -165,7 +165,7 @@ def run(additional_parameters, plot_mode_parameters=None, cacheBust=None):
 
 
 
-def plotsForExperiments(parameters, minExperiment=0, maxExperiment=float('inf'), linkingFile=default_linking_file):
+def plotsForExperiments(parameters, minExperiment=0, maxExperiment=float('inf'), maxPriority=float('inf'), linkingFile=default_linking_file):
 	"""Given the typical parameters used to run experiments, return a list of plots that could be made from the data that has been already collected."""
 
 	# Get a list of all saved data files for the given experiment range
@@ -176,7 +176,7 @@ def plotsForExperiments(parameters, minExperiment=0, maxExperiment=float('inf'),
 		available_data_files += dlu.getLinkedFileNamesForDeviceExperiments(dlu.getDeviceDirectory(parameters), linkingFile, minExperiment=minExperiment, maxExperiment=maxExperiment)
 
 	# Return list of available plots based on the available data files
-	return dpu.getPlotTypesFromDependencies(available_data_files, plotCategory='device')
+	return dpu.getPlotTypesFromDependencies(available_data_files, plotCategory='device', maxPriority=maxPriority)
 
 def dataFilesForExperiments(parameters, minExperiment=0, maxExperiment=float('inf')):
 	"""Given the typical parameters used to run experiments, return a list files containing the saved data that has been collected."""

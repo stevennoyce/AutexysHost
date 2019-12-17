@@ -444,20 +444,20 @@
 									<!-- container gives a couple summary plots that present data from all experiments on this device for comparisson (sn)-->
 									<!-- [Re: need to find way to use proper experiment item (nc)] Since we are doing a summary plot, there will essentially be one plot that shows all the experiments, instead of a plot for each experiment.  I may not have made that clear previously... In the end we may want a couple summary plots, but to begin with lets just get one working. (sn)-->
 									<v-container fluid grid-list-sm>
-											<!-- <v-layout row wrap>
-												<v-flex xs12 sm6 md4 lg3 xl2 v-for="possiblePlot in experiment.possiblePlots">
-													<v-card class="ma-1" height="100%">
-														<v-toolbar dark dense class="color1">
-															<v-toolbar-title>
-																 {{ possiblePlot }}
-															</v-toolbar-title>
-														</v-toolbar> 
-														<div class="text-xs-center">
-															<s-zoomable-image :src="'/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(deviceSummaryPlotSettings))"></s-zoomable-image>
-														</div>
-													</v-card>
-												</v-flex>
-											</v-layout> -->
+										<v-layout row wrap>
+											<v-flex xs12 sm6 md4 lg3 xl2 v-for="possiblePlot in possibleDevicePlots">
+												<v-card class="ma-1" height="100%">
+													<v-toolbar dark dense class="color1">
+														<v-toolbar-title>
+															 {{ possiblePlot }}
+														</v-toolbar-title>
+													</v-toolbar> 
+													<div class="text-xs-center">
+														<s-zoomable-image src="" :data-src="'/devicePlots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></s-zoomable-image>
+													</div>
+												</v-card>
+											</v-flex>
+										</v-layout>
 									</v-container>
 								</v-card>
 								
@@ -1631,6 +1631,7 @@
 				paths: {},
 				disabledPlots: localStorage.disabledPlots ? JSON.parse(localStorage.disabledPlots) : [],
 				possibleChipPlots: [],
+				possibleDevicePlots: [],
 				ReadMeHTML: '',
 				dispatcherRunning: false,
 				experimentRunnerProgress: {
@@ -1711,6 +1712,7 @@
 					this.getScheduleNames();
 					this.getPaths();
 					this.getPossibleChipPlots();
+					this.getPossibleDevicePlots()
 					
 					this.pageLoading = false;
 					this.getReadMe();
@@ -1746,13 +1748,6 @@
 					if (path) {
 						$.getJSON(path, response => {app.$data.chips = response})
 						.fail(() => {console.log("Error getting chips")});
-					}
-				},
-				getPossibleChipPlots: function() {
-					var path = '/' + this.user + '/' + this.project + '/' + this.wafer + '/' + this.chip + '/availableChipPlots.json' + this.cacheBust;
-					if (path) {
-						$.getJSON(path, response => {app.$data.possibleChipPlots = response})
-						.fail(() => {console.log("Error getting possible chip plots")});
 					}
 				},
 				getDevices: function() {
@@ -1805,6 +1800,20 @@
 				},
 				getExperiment: function() {
 					// $.getJSON('/' + this.wafer + '/' + this.chip + '/' + this.device + '/' + this.experiment + '/?.json', response => {app.$data.experiments = response}).fail(() => {console.log("Error getting devices")});
+				},
+				getPossibleChipPlots: function() {
+					var path = '/' + this.user + '/' + this.project + '/' + this.wafer + '/' + this.chip + '/availableChipPlots.json' + this.cacheBust;
+					if (path) {
+						$.getJSON(path, response => {app.$data.possibleChipPlots = response})
+						.fail(() => {console.log("Error getting possible chip plots")});
+					}
+				},
+				getPossibleDevicePlots: function() {
+					var path = '/' + this.user + '/' + this.project + '/' + this.wafer + '/' + this.chip + '/' + this.device + '/availableDevicePlots.json' + this.cacheBust;
+					if (path) {
+						$.getJSON(path, response => {app.$data.possibleDevicePlots = response})
+						.fail(() => {console.log("Error getting possible device plots")});
+					}
 				},
 				getIndexes: function() {
 					var path = '/' + this.user + '/' + this.project + '/indexes.json' + this.cacheBust;
@@ -2133,6 +2142,7 @@
 					this.device = deviceName;
 					localStorage.device = JSON.stringify(deviceName);
 					this.getExperiments();
+					this.getPossibleDevicePlots()
 					this.stepperPage++;
 				},
 				goToExperiment: function(experimentIndex) {
@@ -2553,9 +2563,6 @@
 				},
 				experimentsWithIndexes: function() {
 					return this.experiments.map((x, i) => { return {...x, i} });
-				},
-				chipSummaryPlotSettings: function() {
-					return null;
 				},
 				deviceSummaryPlotSettings: function() {
 					var settings = _.omitBy(this.setPlotSettings, (v,k) => ((this.defaultPlotSettings[k] == v) || v == '') );

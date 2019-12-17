@@ -219,23 +219,38 @@ def getDataFileDependencies(plotType):
 	except:
 		raise NotImplementedError('Unrecognized "plotType": ' + str(plotType))
 		
-def getPlotTypesFromDependencies(availableDataFiles, plotCategory='device'):
+def getPlotTypesFromDependencies(availableDataFiles, plotCategory='device', maxPriority=float('inf')):
 	"""Returns a list of plotTypes that can be made from the given data files. plotCategory can choose between device or chip plots."""
+	
+	# Obtain a list of possible plotTypes, filtering out those that are the wrong category
 	plotTypes = list(plotDefinitions.keys())
 	for plotType, definition in plotDefinitions.items():
-		for dataFileDependency in definition['description']['dataFileDependencies']:
-			if((dataFileDependency not in availableDataFiles) or (plotCategory != definition['description']['plotCategory'])):
-				if(plotType in plotTypes):
-					plotTypes.remove(plotType)
-	
-	# Try to sort the plots by the 'priority' key in their plotDescription if they have one
-	plotPriorities = []
-	for plotType in plotTypes:
 		try:
-			plotPriorities.append(plotDefinitions[plotType]['description']['priority'])
+			for dataFileDependency in definition['description']['dataFileDependencies']:
+				if((dataFileDependency not in availableDataFiles) or (plotCategory != definition['description']['plotCategory'])):
+					if(plotType in plotTypes):
+						plotTypes.remove(plotType)
 		except:
-			plotPriorities.append(1000000)
+			print('Error checking plot dependencies or category. Ignoring plotType: ' + str(plotType))
+			plotTypes.remove(plotType)
 	
+	# Obtain the corresponding list of plot priorities, filtering out those that exceed the maximum allowed priority
+	default_plot_priority = 1000000
+	plotPriorities = []
+	for plotType, definition in plotDefinitions.items():
+		if(plotType in plotTypes):
+			priority = 0
+			try:
+				priority = float(plotDefinitions[plotType]['description']['priority'])
+			except:
+				priority = default_plot_priority
+			
+			if(priority < maxPriority):
+				plotPriorities.append(priority)
+			else:
+				plotTypes.remove(plotType)
+	
+	# Sort plots by their assigned priority
 	if(len(plotTypes) > 0):
 		plotPriorities, plotTypes = zip(*sorted(zip(plotPriorities, plotTypes)))
 	

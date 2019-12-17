@@ -1,3 +1,4 @@
+# === Imports ===
 import io
 import os
 import sys
@@ -10,6 +11,7 @@ import numpy
 import webbrowser
 import threading
 import flask_socketio
+from collections import Mapping, Sequence
 
 import defaults
 import pipes
@@ -22,6 +24,7 @@ CH.dpu.mplu.plt.switch_backend('agg')
 
 from utilities import DataLoggerUtility as dlu
 
+# === Make this script runnable ===
 if __name__ == '__main__':
 	os.chdir(sys.path[0])
 	
@@ -29,15 +32,32 @@ if __name__ == '__main__':
 	if 'AutexysHost' in pathParents:
 		os.chdir(os.path.join(os.path.abspath(os.sep), *pathParents[0:pathParents.index('AutexysHost')+1], 'source'))
 
-
-# Globals
+# === Globals ===
 share = None
 
+# === Defaults ===
+default_makePlot_parameters = {
+	'minExperiment': None,
+	'maxExperiment': None,
+	'minRelativeIndex': 0,
+	'maxRelativeIndex': 1e10,
+	'specificPlot': '',
+	'plotSaveName': '',
+	'dataFolder': None,
+	'saveFolder': None,
+	'saveFigures': False,
+	'showFigures': True,
+	'plot_mode_parameters': None
+}
+
+default_data_path = '../../AutexysData/'
+default_documentation_path = '../../AutexysData/documentation'
+
+
+
+# === Formatting ===
 def eprint(*args, **kwargs):
 	print(*args, file=sys.stderr, **kwargs)
-
-
-from collections import Mapping, Sequence
 
 def replaceInfNan(obj):
 	if isinstance(obj, float):
@@ -62,6 +82,9 @@ def replaceInfNan(obj):
 def jsonvalid(obj):
 	return json.dumps(replaceInfNan(obj))
 
+
+
+# === Flask ===
 # Define custom delimiters for template rendering to not collide with Vue
 class CustomFlask(flask.Flask):
 	jinja_options = flask.Flask.jinja_options.copy()
@@ -82,6 +105,9 @@ app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.config['SECRET_KEY'] = 'secretkey'
 socketio = flask_socketio.SocketIO(app)
 
+
+
+# === Home Page ===
 @app.route('/')
 @app.route('/index')
 @app.route('/ui/index')
@@ -106,81 +132,9 @@ def sendStaticUI(path):
 def sendStatic(path):
 	return flask.send_from_directory('../', path)
 
-default_makePlot_parameters = {
-	'minExperiment': None,
-	'maxExperiment': None,
-	'minRelativeIndex': 0,
-	'maxRelativeIndex': 1e10,
-	'specificPlot': '',
-	'plotSaveName': '',
-	'dataFolder': None,
-	'saveFolder': None,
-	'saveFigures': False,
-	'showFigures': True,
-	'plot_mode_parameters': None
-}
 
-default_data_path = '../../AutexysData/'
-default_documentation_path = '../../AutexysData/documentation'
 
-@app.route('/plots/<user>/<project>/<wafer>/<chip>/<device>/<experiment>/<plotType>')
-def sendPlot(user, project, wafer, chip, device, experiment, plotType):
-	experiment = int(experiment)
-	
-	plotSettings = copy.deepcopy(default_makePlot_parameters)
-	receivedPlotSettings = json.loads(flask.request.args.get('plotSettings'))
-		
-	#afmPath = json.loads(flask.request.args.get('afmPath'))
-	#plotSettings.update(receivedPlotSettings)
-	
-	print('Plot settings updated: ' + str(receivedPlotSettings))
-	
-	primaryPlotSettings = receivedPlotSettings['primary']
-	modePlotSettings = receivedPlotSettings['mode_parameters']
-	
-	filebuf = io.BytesIO()
-	
-	# Update arguments to DeviceHistory.makePlots() call
-	for dynamicArgument in primaryPlotSettings.keys():
-		plotSettings[dynamicArgument] = primaryPlotSettings[dynamicArgument]
-	
-	# Set all fixed arguments to DeviceHistory.makePlots() call
-	if plotSettings['minExperiment'] == None:
-		plotSettings['minExperiment'] = experiment
-	if plotSettings['maxExperiment'] == None:
-		plotSettings['maxExperiment'] = experiment
-	plotSettings['specificPlot'] = ''
-	plotSettings['plotSaveName'] = filebuf
-	plotSettings['dataFolder'] = None
-	plotSettings['saveFolder'] = None
-	plotSettings['saveFigures'] = True
-	plotSettings['showFigures'] = False
-	plotSettings['specificPlot'] = plotType
-	plotSettings['cacheBust'] = flask.request.args.get('cb')
-	
-	# Set mode parameters for DeviceHistory.makePlots() call
-	if(plotSettings['plot_mode_parameters'] is None):
-		plotSettings['plot_mode_parameters'] = {}
-	for dynamicModeParameter in modePlotSettings.keys():
-		plotSettings['plot_mode_parameters'][dynamicModeParameter] = modePlotSettings[dynamicModeParameter]
-	
-	
-	# mode parameter 'AFMImagePath'
-	#if(plotType == 'AFMdeviationsImage'):
-	#	if(plotSettings['plot_mode_parameters'] == None):
-	#		plotSettings['plot_mode_parameters'] = {}
-	#	plotSettings['plot_mode_parameters']['afm_image_path'] = afmPath
-	
-	DH.makePlots(user, project, wafer, chip, device, **plotSettings)
-	# plt.savefig(mode_parameters['plotSaveName'], transparent=True, dpi=pngDPI, format='png')
-	filebuf.seek(0)
-	return flask.send_file(filebuf, attachment_filename='plot.png')
-
-# @app.route('/defaultPlotSettings.json')
-# def defaultPlotSettings():
-# 	settings = 
-# 	return json.dumps(settings)
-
+# === Browser ===
 @app.route('/users.json')
 def users():
 	paths = glob.glob(os.path.join(default_data_path, '*/'))
@@ -268,57 +222,6 @@ def devices(user, project, wafer, chip):
 	
 	return jsonvalid(devices)
 
-@app.route('/<user>/<project>/<wafer>/<chip>/availableChipPlots.json')
-def availableChipPlots(user, project, wafer, chip):
-	plots = CH.plotsForExperiments(default_data_path, user, project, wafer, chip)
-	return jsonvalid(plots)
-
-
-
-@app.route('/chipPlots/<user>/<project>/<wafer>/<chip>/<plotType>')
-def sendChipPlot(user, project, wafer, chip, plotType):
-	plotSettings = copy.deepcopy(default_makePlot_parameters)
-	receivedPlotSettings = json.loads(flask.request.args.get('plotSettings'))
-	#afmPath = json.loads(flask.request.args.get('afmPath'))
-	#plotSettings.update(receivedPlotSettings)
-	
-	print('Plot settings updated: ' + str(receivedPlotSettings))
-	
-	filebuf = io.BytesIO()
-	
-	primaryPlotSettings = receivedPlotSettings['primary']
-	modePlotSettings = receivedPlotSettings['mode_parameters']
-	chipPlotSettings = receivedPlotSettings['chip']
-	
-	# Update arguments to DeviceHistory.makePlots() call
-	for dynamicArgument in primaryPlotSettings.keys():
-		plotSettings[dynamicArgument] = primaryPlotSettings[dynamicArgument]
-	for dynamicArgument in chipPlotSettings.keys():
-		plotSettings[dynamicArgument] = chipPlotSettings[dynamicArgument]
-	
-	# Set all fixed arguments to DeviceHistory.makePlots() call
-	if plotSettings['minExperiment'] == None:
-		plotSettings['minExperiment'] = 0
-	if plotSettings['maxExperiment'] == None:
-		plotSettings['maxExperiment'] = float('inf')
-	plotSettings['specificPlot'] = ''
-	plotSettings['plotSaveName'] = filebuf
-	plotSettings['dataFolder'] = None
-	plotSettings['saveFolder'] = None
-	plotSettings['saveFigures'] = True
-	plotSettings['showFigures'] = False
-	plotSettings['specificPlot'] = plotType
-	
-	# Set mode parameters for DeviceHistory.makePlots() call
-	if(plotSettings['plot_mode_parameters'] is None):
-		plotSettings['plot_mode_parameters'] = {}
-	for dynamicModeParameter in modePlotSettings.keys():
-		plotSettings['plot_mode_parameters'][dynamicModeParameter] = modePlotSettings[dynamicModeParameter]
-	
-	CH.makePlots(user, project, wafer, chip, **plotSettings)
-	filebuf.seek(0)
-	return flask.send_file(filebuf, attachment_filename='plot.png')
-
 @app.route('/<user>/<project>/<wafer>/<chip>/<device>/experiments.json')
 def experiments(user, project, wafer, chip, device):	
 	folder = os.path.join(default_data_path, user, project, wafer, chip, device)
@@ -374,9 +277,135 @@ def experiments(user, project, wafer, chip, device):
 	return jsonvalid(experiments)
 
 
+
+# === Plots ===
+def sendPlot(user, project, wafer, chip, device, plotType, minExperiment, maxExperiment, cacheBust=False):
+	# === Setup ===
+	# Get default plot settings, plus any modifications specified by the UI
+	plotSettings = copy.deepcopy(default_makePlot_parameters)
+	receivedPlotSettings = json.loads(flask.request.args.get('plotSettings'))
+	
+	print('Special plot settings: ' + str(receivedPlotSettings))
+	
+	# Make nicknames for any plot setting modifications specified by the UI
+	primaryPlotSettings = receivedPlotSettings['primary']
+	modePlotSettings = receivedPlotSettings['mode_parameters']
+	
+	# Make a new file object to save the image for this plot
+	filebuf = io.BytesIO()
+	
+	# === Update Settings ===
+	# Update arguments to DeviceHistory.makePlots() call
+	for dynamicArgument in primaryPlotSettings.keys():
+		plotSettings[dynamicArgument] = primaryPlotSettings[dynamicArgument]
+	
+	# Set all fixed arguments to DeviceHistory.makePlots() call
+	if plotSettings['minExperiment'] == None:
+		plotSettings['minExperiment'] = minExperiment
+	if plotSettings['maxExperiment'] == None:
+		plotSettings['maxExperiment'] = maxExperiment
+	plotSettings['specificPlot'] = ''
+	plotSettings['plotSaveName'] = filebuf
+	plotSettings['dataFolder'] = None
+	plotSettings['saveFolder'] = None
+	plotSettings['saveFigures'] = True
+	plotSettings['showFigures'] = False
+	plotSettings['specificPlot'] = plotType
+	if(cacheBust):
+		plotSettings['cacheBust'] = flask.request.args.get('cb')
+	
+	# Set mode parameters for DeviceHistory.makePlots() call
+	if(plotSettings['plot_mode_parameters'] is None):
+		plotSettings['plot_mode_parameters'] = {}
+	for dynamicModeParameter in modePlotSettings.keys():
+		plotSettings['plot_mode_parameters'][dynamicModeParameter] = modePlotSettings[dynamicModeParameter]
+	
+	#afmPath = json.loads(flask.request.args.get('afmPath'))
+	# mode parameter 'AFMImagePath'
+	#if(plotType == 'AFMdeviationsImage'):
+	#	if(plotSettings['plot_mode_parameters'] == None):
+	#		plotSettings['plot_mode_parameters'] = {}
+	#	plotSettings['plot_mode_parameters']['afm_image_path'] = afmPath
+	
+	# === Plot ===
+	DH.makePlots(user, project, wafer, chip, device, **plotSettings)
+	# plt.savefig(filebuf, transparent=True, dpi=pngDPI, format='png')
+	filebuf.seek(0)
+	return flask.send_file(filebuf, attachment_filename='plot.png')
+
+@app.route('/plots/<user>/<project>/<wafer>/<chip>/<device>/<experiment>/<plotType>')
+def sendExperimentPlot(user, project, wafer, chip, device, experiment, plotType):
+	return sendPlot(user, project, wafer, chip, device, plotType, minExperiment=int(experiment), maxExperiment=int(experiment), cacheBust=True)
+
+@app.route('/devicePlots/<user>/<project>/<wafer>/<chip>/<device>/<plotType>')
+def sendDevicePlot(user, project, wafer, chip, device, plotType):
+	return sendPlot(user, project, wafer, chip, device, plotType, minExperiment=-1, maxExperiment=-1, cacheBust=False)
+
+@app.route('/chipPlots/<user>/<project>/<wafer>/<chip>/<plotType>')
+def sendChipPlot(user, project, wafer, chip, plotType):
+	# === Setup ===
+	# Get default plot settings, plus any modifications specified by the UI
+	plotSettings = copy.deepcopy(default_makePlot_parameters)
+	receivedPlotSettings = json.loads(flask.request.args.get('plotSettings'))
+	
+	print('Special chip plot settings: ' + str(receivedPlotSettings))
+	
+	# Make nicknames for any plot setting modifications specified by the UI
+	primaryPlotSettings = receivedPlotSettings['primary']
+	modePlotSettings = receivedPlotSettings['mode_parameters']
+	chipPlotSettings = receivedPlotSettings['chip']
+	
+	# Make a new file object to save the image for this plot
+	filebuf = io.BytesIO()
+	
+	# === Update Settings ===
+	# Update arguments to DeviceHistory.makePlots() call
+	for dynamicArgument in primaryPlotSettings.keys():
+		plotSettings[dynamicArgument] = primaryPlotSettings[dynamicArgument]
+	for dynamicArgument in chipPlotSettings.keys():
+		plotSettings[dynamicArgument] = chipPlotSettings[dynamicArgument]
+	
+	# Set all fixed arguments to DeviceHistory.makePlots() call
+	if plotSettings['minExperiment'] == None:
+		plotSettings['minExperiment'] = 0
+	if plotSettings['maxExperiment'] == None:
+		plotSettings['maxExperiment'] = float('inf')
+	plotSettings['specificPlot'] = ''
+	plotSettings['plotSaveName'] = filebuf
+	plotSettings['dataFolder'] = None
+	plotSettings['saveFolder'] = None
+	plotSettings['saveFigures'] = True
+	plotSettings['showFigures'] = False
+	plotSettings['specificPlot'] = plotType
+	
+	# Set mode parameters for DeviceHistory.makePlots() call
+	if(plotSettings['plot_mode_parameters'] is None):
+		plotSettings['plot_mode_parameters'] = {}
+	for dynamicModeParameter in modePlotSettings.keys():
+		plotSettings['plot_mode_parameters'][dynamicModeParameter] = modePlotSettings[dynamicModeParameter]
+	
+	# === Plot ===
+	CH.makePlots(user, project, wafer, chip, **plotSettings)
+	filebuf.seek(0)
+	return flask.send_file(filebuf, attachment_filename='plot.png')
+
+@app.route('/<user>/<project>/<wafer>/<chip>/<device>/availableDevicePlots.json')
+def availableDevicePlots(user, project, wafer, chip, device):
+	parameter_identifiers = {'dataFolder':default_data_path, 'Identifiers':{'user':user,'project':project,'wafer':wafer,'chip':chip,'device':device}}
+	plots = DH.plotsForExperiments(parameter_identifiers, maxPriority=40, linkingFile=None)
+	return jsonvalid(plots)
+	
+@app.route('/<user>/<project>/<wafer>/<chip>/availableChipPlots.json')
+def availableChipPlots(user, project, wafer, chip):
+	parameter_identifiers = {'dataFolder':default_data_path, 'Identifiers':{'user':user,'project':project,'wafer':wafer,'chip':chip}}
+	plots = CH.plotsForExperiments(parameter_identifiers)
+	return jsonvalid(plots)
+
+
+
+
 @app.route('/parametersDescription.json')
 def parametersDescription():
-	# return flask.jsonify(defaults.default_parameters_description)
 	return jsonvalid(defaults.default_parameters)
 
 @app.route('/defaultParameters.json')
@@ -386,6 +415,9 @@ def defaultParameters():
 @app.route('/defaultEssentialParameters.json')
 def defaultEssentialParameters():
 	return jsonvalid(defaults.full_essentials())
+
+
+
 
 @app.route('/addDocumentation/<indexToAdd>')
 def addDocumentation(indexToAdd):
@@ -456,6 +488,9 @@ def saveDocumentation(fileName):
 
 	return jsonvalid({'success': True})
 
+
+
+
 @app.route('/saveSchedule/<user>/<project>/<fileName>', methods=['POST'])
 def saveSchedule(user, project, fileName):
 	# receivedJobs = json.loads(flask.request.args.get('jobs'))
@@ -509,7 +544,7 @@ def stopAtNextJob():
 	return jsonvalid({'success': True})
 
 def getSubDirectories(directory):
-		return [os.path.basename(os.path.dirname(g)) for g in glob.glob(directory + '/*/')]
+	return [os.path.basename(os.path.dirname(g)) for g in glob.glob(directory + '/*/')]
 
 @app.route('/scheduleNames.json')
 def loadScheduleNames():
@@ -676,10 +711,9 @@ def makeShareGlobal(localShare):
 def start(share={}, debug=True, use_reloader=True):
 	makeShareGlobal(share)
 	
-	if 'AutexysUIRunning' in os.environ:
+	if('AutexysUIRunning' in os.environ):
 		print('Reload detected. Not opening browser.')
 		print('Still running on port {}'.format(os.environ['AutexysUIPort']))
-		
 	else:
 		port = findFirstOpenPort(startPort=5000)
 		print('Using port {}'.format(port))
