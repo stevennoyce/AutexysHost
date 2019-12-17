@@ -141,7 +141,6 @@ def run(additional_parameters, plot_mode_parameters=None, cacheBust=None):
 			
 			# If no data was loaded directly, check for possible linked data files
 			if(len(deviceHistory) == 0):
-				print('HERE:')
 				linkingHistory = dlu.loadSpecificDeviceHistory(dlu.getDeviceDirectory(parameters), default_linking_file, looseFiltering=True, minIndex=p['minJSONIndex'], maxIndex=p['maxJSONIndex'], minExperiment=p['minJSONExperimentNumber'], maxExperiment=p['maxJSONExperimentNumber'], minRelativeIndex=p['minJSONRelativeIndex'], maxRelativeIndex=p['maxJSONRelativeIndex'])
 				for linkingData in linkingHistory:
 					for dataFile in dataFileDependencies:

@@ -252,7 +252,7 @@
 							
 							<v-stepper-content step="1">
 								<v-card v-if="stepperPage > 0">
-									<v-toolbar dark class="color1">
+									<v-toolbar dark class="color4">
 										<v-toolbar-title>
 											Projects
 										</v-toolbar-title>
@@ -275,7 +275,7 @@
 							
 							<v-stepper-content step="2">
 								<v-card v-if="stepperPage > 1">
-									<v-toolbar dark class="color1">
+									<v-toolbar dark class="color4">
 										<v-btn icon @click="stepperPage--; getProjects()"><v-icon>arrow_back</v-icon></v-btn>
 										<v-toolbar-title>
 											Wafers
@@ -305,10 +305,10 @@
 							
 							<v-stepper-content step="3">
 								<v-card v-if="stepperPage > 2">
-									<v-toolbar dark class="color1">
+									<v-toolbar dark class="color4">
 										<v-btn icon @click="stepperPage--; getWafers()"><v-icon>arrow_back</v-icon></v-btn>
 										<v-toolbar-title>
-											{{ wafer }} Chips
+											"{{ wafer }}" Chips
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
 										<v-text-field v-model="chipTableSearch" append-icon="search" label="Search" single-line hide-details></v-text-field>
@@ -335,10 +335,10 @@
 							
 							<v-stepper-content step="4">
 								<v-card v-if="stepperPage > 3">
-									<v-toolbar dark class="color1">
+									<v-toolbar dark class="color4">
 										<v-btn icon @click="stepperPage--; getChips();"><v-icon>arrow_back</v-icon></v-btn>
 										<v-toolbar-title>
-											{{ wafer }}{{ chip }} Devices
+											"{{ wafer }}{{ chip }}" Devices
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
 										<v-text-field v-model="deviceTableSearch" append-icon="search" label="Search" single-line hide-details></v-text-field>
@@ -362,9 +362,9 @@
 								</v-card>
 
 								<v-card v-if="stepperPage == 4 ">
-									<v-toolbar dark class="color1">
+									<v-toolbar dark class="color4">
 										<v-toolbar-title>
-											{{ wafer }}{{ chip }} Chip Summary Plots
+											"{{ wafer }}{{ chip }}" Chip Summary Plots
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
 										<v-toolbar-items>
@@ -388,8 +388,6 @@
 										</v-toolbar-items>
 									</v-toolbar>
 									
-									<!-- container gives a couple chip summary plots that present data from all experiments on this chip for comparisson (sn)-->
-									
 									<v-container fluid grid-list-sm>
 											<v-layout row wrap>
 												<v-flex xs12 sm6 md4 lg3 xl2 v-for="possiblePlot in possibleChipPlots">
@@ -406,19 +404,15 @@
 												</v-flex>
 											</v-layout>
 									</v-container>
-
 								</v-card>
-
 							</v-stepper-content>
 
-
-							
 							<v-stepper-content step="5">
 								<v-card v-if="stepperPage > 4">
-									<v-toolbar dark class="color1">
+									<v-toolbar dark class="color4">
 										<v-btn icon @click="stepperPage--; getDevices();"><v-icon>arrow_back</v-icon></v-btn>
 										<v-toolbar-title>
-											{{ wafer }}{{ chip }} {{ device }} Experiments
+											"{{ wafer }}{{ chip }} {{ device }}" Experiments
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
 										<v-text-field v-model="experimentTableSearch" append-icon="search" label="Search" single-line hide-details></v-text-field>
@@ -429,24 +423,21 @@
 										no-results-text="Your search did not return any results."
 										:custom-filter="customVDataTableFilter"
 										:pagination.sync="experimentTablePagination">
-
 										<template slot="items" slot-scope="props">
 											<tr @click="goToExperiment(props.item.i)">
 												<td>{{ props.item.startIndexes.experimentNumber }}</td>
 												<td>{{ props.item.runType }}<template v-if="props.item.parametersHistoryGenerated && props.item.experimentNumber == experiments[experiments.length-1].experimentNumber"> - Running</template></td>
 												<td>{{ props.item.MeasurementSystem.systemType }}</td>
 												<td>{{ props.item.uiComputed.indexCount }}</td>
-												
 											</tr>
 										</template>
-										
 									</v-data-table>
 								</v-card>
 								
 								<v-card v-if="stepperPage == 5">
-									<v-toolbar dark class="color1">
+									<v-toolbar dark class="color4">
 										<v-toolbar-title>
-											{{ wafer }}{{ chip }} {{ device }} Device Summary Plots
+											"{{ wafer }}{{ chip }} {{ device }}" Device Summary Plots
 										</v-toolbar-title>
 									</v-toolbar>
 									
@@ -474,10 +465,10 @@
 							
 							<v-stepper-content step="6">
 								<v-card v-if="stepperPage > 5 && experiments.length > experimentIndex">
-									<v-toolbar dark class="color1 ">
+									<v-toolbar dark class="color4 ">
 										<v-btn icon @click="stepperPage--; getExperiments();"><v-icon>arrow_back</v-icon></v-btn>
 										<v-toolbar-title>
-											{{ wafer }}{{ chip }} {{ device }} Experiment #{{ experiment.startIndexes.experimentNumber }}
+											"{{ wafer }}{{ chip }} {{ device }}" Experiment #{{ experiment.startIndexes.experimentNumber }}
 										</v-toolbar-title>
 										<v-btn icon @click="experimentIndex--" :disabled="experimentIndex <= 0" class="ml-4"><v-icon>arrow_back_ios</v-icon></v-btn>
 										<v-btn icon @click="experimentIndex++" :disabled="experimentIndex >= experiments.length - 1"><v-icon>arrow_forward_ios</v-icon></v-btn>
@@ -541,25 +532,8 @@
 										</v-layout>
 									</v-container>
 									
-									
-									<!-- <v-container fluid grid-list-sm>
-										<v-layout row wrap>
-											<v-flex xs12 md6 lg4 xl3 v-for="section in _.keys(experiment)" v-if="typeof experiment[section] == 'object'">
-												<v-card class="ma-1" height="100%">
-													<v-card-title>{{ section }}</v-card-title>
-													<v-data-table :items="_.toPairs(experiment[section])" :headers="[{'text':'Property'},{'text':'Value'}]" hide-actions hide-headers>
-														<template slot="items" slot-scope="props">
-															<td> {{ props.item[0] }}</td>
-															<td> {{ props.item[1] }}</td>
-														</template>
-													</v-data-table>
-												</v-card>
-											</v-flex>
-										</v-layout>
-									</v-container> -->
-									
 									<v-card class="ma-1">
-										<v-toolbar dark dense class="color4 ">
+										<v-toolbar dark dense class="grey darken-2 ">
 											<v-toolbar-title>
 												Notes
 											</v-toolbar-title>
@@ -567,7 +541,6 @@
 										<v-text-field v-model="experiment.noteAddition"></v-text-field>
 										<v-btn @click="addToNote(experiment)">Save</v-btn>
 									</v-card>
-									
 									
 									<v-card class="ma-1" v-if="experiment.runType.includes('AFM') || experiment.runType.includes('SGM')">
 										<v-toolbar dark dense class="color1 ">
@@ -581,7 +554,6 @@
 											V<sub>tip</sub> = {{_.get(experiment, 'associatedAFMs.bestMatch.NapTipVoltage', '')}} V</br>
 											d<sub>tip</sub> = {{1e9*_.get(experiment, 'associatedAFMs.bestMatch.NapHeight', '')}} nm</br>
 										</div>
-										
 									</v-card>
 									
 									<v-card class="ma-1 mt-2 mb-2">
@@ -604,14 +576,18 @@
 												Data Export
 											</v-toolbar-title>
 										</v-toolbar>
+										
 										<v-card-actions class="ma-1">
 											<v-btn :href="'/saveCSV/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/data.csv' + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))">Save CSV</v-btn>
 											<v-spacer></v-spacer>
 											<v-btn @click="updateAFMRegistry()">Update AFM Registry</v-btn>
 										</v-card-actions>
 										
+										<v-chip v-for="file in experiment['dataFiles']" dark class="color4">
+											{{file}}
+										</v-chip>
+										
 										<v-form class="ma-3" style="overflow-x: scroll">
-											<p>This experiment has the following data files:<br/> {{ experiment['dataFiles'] }}</p>
 											<p>The data for this experiment is stored in:<br/> <a :href="'file://///' + experiment['dataFolderSpecificAbs']">{{ experiment['dataFolderSpecificAbs'] }}</a></p>
 											<p><i>Load data by executing:</i></p>
 											<v-card>
@@ -623,7 +599,6 @@
 												</p>
 											</v-card>
 										</v-form>
-										
 									</v-card>
 									
 								</v-card>
@@ -631,6 +606,8 @@
 						</v-stepper-items>
 					</v-stepper>
 					
+					<!-- End of browser -->
+					<!-- Start of sched creator -->
 					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'scheduleCreator'">
 						<v-card class="mb-3 pb-1">
@@ -643,7 +620,6 @@
 									<v-icon>settings_backup_restore</v-icon>
 								</v-btn>
 							</v-toolbar>
-							
 							
 							<v-list expand>
 								<v-list-group v-for="scheduleObject, scheduleObjectIndex in scheduleObjects" :key="scheduleObjectIndex" :prepend-icon="$vuetify.icons.expand">
@@ -712,21 +688,9 @@
 										{{ schedLine }} <br>
 									</template>
 								</v-card-text>
-								
-								<!--<v-card v-for="scheduleObject, scheduleObjectIndex in scheduleObjects">
-									<v-chip color="color2  text-color="white" v-if="scheduleObject['runType']['default'] != ''">
-										{{ scheduleObject['runType']['default'] }}
-									</v-chip>
-									<v-chip color="color1" text-color="white" v-for="setting, settingName in scheduleObject['runConfigs'][scheduleObject['runType']['default']]" v-if="
-											 _.get(scheduleObject,        ['runConfigs', scheduleObject['runType']['default'], settingName, 'default']) 
-										!= _.get(scheduleObjectDefault, ['runConfigs', scheduleObject['runType']['default'], settingName, 'default'])">
-										{{ settingName }}
-									</v-chip>
-								</v-card>-->
 							</v-card>
 							<!-- <v-btn fab small dark bottom right absolute @click="addScheduleJob(0)"><v-icon>add</v-icon></v-btn> -->
 						</v-card>
-						
 						
 						<v-layout row wrap>
 							<v-flex xs6 sm6 md6 lg6 class="pr-1">
@@ -762,7 +726,7 @@
 																		No results. Continuing will create a new project.
 																	</v-list-tile-title>
 																</v-list-tile-content>
-																</v-list-tile>
+															</v-list-tile>
 														</template>
 													</v-combobox>
 												</v-flex>
@@ -775,7 +739,7 @@
 																		No results. Continuing will create a new file.
 																	</v-list-tile-title>
 																</v-list-tile-content>
-																</v-list-tile>
+															</v-list-tile>
 														</template>
 													</v-combobox>
 												</v-flex>
@@ -855,9 +819,9 @@
 								</v-card>
 							</v-flex>
 						</v-layout>
-							
-						
 					</v-flex>
+					
+					<!-- End of sched creator -->
 					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'settings'">
 						<v-card>
@@ -1601,9 +1565,9 @@
 				waferTableHeaders: [
 					{'text':'Name', 'value':'name'},
 					{'text':'Path', 'value':'path', 'searchable':false},
-					{'text':'Modification Time', 'value':'modificationTime', 'searchable':false},
+					{'text':'Date Modified', 'value':'modificationTime', 'searchable':false},
 					{'text':'Size', 'value':'size', 'searchable':false},
-					{'text':'Tested Chips', 'value':'chipCount', 'searchable':false},
+					{'text':'Chips', 'value':'chipCount', 'searchable':false},
 					{'text':'Indexes', 'value':'indexCount', 'searchable':false},
 					{'text':'Experiments', 'value':'experimentCount', 'searchable':false}],
 				waferTableSearch: '',
@@ -1613,9 +1577,9 @@
 				chipTableHeaders: [
 					{'text':'Name', 'value':'name'},
 					{'text':'Path', 'value':'path', 'searchable':false},
-					{'text':'Modification Time', 'value':'modificationTime', 'searchable':false},
+					{'text':'Date Modified', 'value':'modificationTime', 'searchable':false},
 					{'text':'Size', 'value':'size', 'searchable':false},
-					{'text':'Tested Devices', 'value':'deviceCount', 'searchable':false},
+					{'text':'Devices', 'value':'deviceCount', 'searchable':false},
 					{'text':'Indexes', 'value':'indexCount', 'searchable':false},
 					{'text':'Experiments', 'value':'experimentCount', 'searchable':false}],
 				chipTableSearch: '',
@@ -1625,7 +1589,7 @@
 				deviceTableHeaders: [
 					{'text':'Name', 'value':'displayName'},
 					{'text':'Path', 'value':'path', 'searchable':false},
-					{'text':'Modification Time', 'value':'modificationTime', 'searchable':false},
+					{'text':'Date Modified', 'value':'modificationTime', 'searchable':false},
 					{'text':'Size', 'value':'size', 'searchable':false},
 					{'text':'Indexes', 'value':'indexCount', 'searchable':false},
 					{'text':'Experiments', 'value':'experimentCount', 'searchable':false}],
