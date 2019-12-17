@@ -247,10 +247,10 @@ def loadJSON_slow(directory, loadFileName):
 				print(e)
 	return jsonData
 
-def loadJSON_fast(directory, loadFileName, minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf')):
+def loadJSON_fast(directory, loadFileName, minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf'), looseFiltering=False):
 	"""Private method. Given filters of min/max index, experimentNumber, and relativeIndex this loads individual file lines much faster."""
 	fileLines = loadJSONtoStringArray(directory, loadFileName)
-	filteredFileLines = filterStringArrayByIndexAndExperiment(directory, fileLines, minIndex, maxIndex, minExperiment, maxExperiment, minRelativeIndex, maxRelativeIndex)
+	filteredFileLines = filterStringArrayByIndexAndExperiment(directory, fileLines, minIndex, maxIndex, minExperiment, maxExperiment, minRelativeIndex, maxRelativeIndex, looseFiltering=looseFiltering)
 	jsonData = parseLines(filteredFileLines)
 	return jsonData
 
@@ -267,7 +267,7 @@ def getExperimentDirectory(parameters, experimentNumber):
 	"""Given the typical parameters used to run an experiment, return the path to the directory where data will be saved for this device."""
 	return os.path.join(getDeviceDirectory(parameters), 'Ex'+str(experimentNumber)) + os.sep
 
-def loadSpecificDeviceHistory(directory, fileName, minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf')):
+def loadSpecificDeviceHistory(directory, fileName, minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf'), looseFiltering=False):
 	"""Given a folder path and fileName, load data for a device over a range of indices or experiments.
 	If minIndex/maxIndex or minExperiment/maxExperiment are negative, then index backwards (-1 == the most recent index/experiment)"""
 	indexData = loadJSONIndex(directory)
@@ -282,19 +282,11 @@ def loadSpecificDeviceHistory(directory, fileName, minIndex=0, maxIndex=float('i
 
 	filteredHistory = []
 
-	#folderlist = set()
-	#for name in os.listdir(directory):
-	#	if (os.path.isdir(os.path.join(directory, name)) and os.path.exists(os.path.join(directory, name, fileName)) and (name[0:2] == 'Ex' and name[2:].isdigit()) and (int(name[2:]) >= minExperiment) and (int(name[2:]) <= maxExperiment)):
-	#		folderlist.add(int(name[2:]))
-
-	#for experimentSubdirectory in ["Ex" + str(val) for val in folderlist]:
-	#	filteredHistory += loadJSON_fast(os.path.join(directory, experimentSubdirectory), fileName, minIndex, maxIndex, minExperiment, maxExperiment, minRelativeIndex, maxRelativeIndex)
-
 	string_to_int = lambda text: int(text) if text.isdigit() else text
 	natural_keys = lambda text: [string_to_int(c) for c in re.split('(\d+)', text)]
 
 	for experimentSubdirectory in sorted([name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and os.path.exists(os.path.join(directory, name, fileName)) and (name[0:2] == 'Ex' and name[2:].isdigit()) and (int(name[2:]) >= minExperiment) and (int(name[2:]) <= maxExperiment))], key=natural_keys):
-		filteredHistory += loadJSON_fast(os.path.join(directory, experimentSubdirectory), fileName, minIndex, maxIndex, minExperiment, maxExperiment, minRelativeIndex, maxRelativeIndex)
+		filteredHistory += loadJSON_fast(os.path.join(directory, experimentSubdirectory), fileName, minIndex, maxIndex, minExperiment, maxExperiment, minRelativeIndex, maxRelativeIndex, looseFiltering=looseFiltering)
 
 	return filteredHistory
 
@@ -378,9 +370,19 @@ def loadSpecificChipHistory(directory, fileName, specificDeviceList=None, minInd
 	The default loads all devices on the chip but specific devices can also be specified."""
 	chipHistory = []
 	for deviceSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and (specificDeviceList is None or name in specificDeviceList))]:
-		jsonData = loadSpecificDeviceHistory(os.path.join(directory, deviceSubdirectory), fileName, minIndex=minIndex, maxIndex=maxIndex, minExperiment=minExperiment, maxExperiment=maxExperiment, minRelativeIndex=minRelativeIndex, maxRelativeIndex=maxRelativeIndex)
-		for deviceRun in jsonData:
-			chipHistory.append(deviceRun)
+		deviceHistory = loadSpecificDeviceHistory(os.path.join(directory, deviceSubdirectory), fileName, minIndex=minIndex, maxIndex=maxIndex, minExperiment=minExperiment, maxExperiment=maxExperiment, minRelativeIndex=minRelativeIndex, maxRelativeIndex=maxRelativeIndex)
+		chipHistory.extend(deviceHistory)
+	return chipHistory
+
+def loadChipHistoryByIndex(directory, fileName, deviceIndexes={}, specificDeviceList=None):
+	"""Given a chip's folder path and a data fileName, load data from devices with specific individual experiments listed in the 'deviceIndexes' dictionary.
+	The default loads all devices with an index but specific devices can also be specified."""
+	linkedDevices = list(sorted(deviceIndexes.keys()))
+	chipHistory = []
+	for device in [device for device in linkedDevices if(os.path.isdir(os.path.join(directory, device)) and (specificDeviceList is None or device in specificDeviceList))]:
+		indexData = deviceIndexes[device]
+		deviceHistory = loadSpecificDeviceHistory(os.path.join(directory, device), fileName, minExperiment=indexData['experimentNumber'], maxExperiment=indexData['experimentNumber'])
+		chipHistory.extend(deviceHistory)
 	return chipHistory
 
 def loadOldestChipHistory(directory, fileName, numberOfOldestExperiments=1, numberOfOldestIndexes=1, specificDeviceList=None):
@@ -441,31 +443,31 @@ def loadJSONtoStringArray(directory, loadFileName):
 			fileLines.append(line)
 	return fileLines
 
-def filterStringArrayByIndexAndExperiment(directory, fileLines, minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf')):
+def filterStringArrayByIndexAndExperiment(directory, fileLines, minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf'), looseFiltering=False):
 	filteredFileLines = fileLines
 
 	if(minExperiment == maxExperiment):
-		filteredFileLines = filterFileLines(filteredFileLines, 'experimentNumber', minExperiment)
+		filteredFileLines = filterFileLines(filteredFileLines, 'experimentNumber', minExperiment, looseFiltering=looseFiltering)
 	else:
 		if(minExperiment > 0):
-			filteredFileLines = filterFileLinesGreaterThan(filteredFileLines, 'experimentNumber', minExperiment)
+			filteredFileLines = filterFileLinesGreaterThan(filteredFileLines, 'experimentNumber', minExperiment, looseFiltering=looseFiltering)
 		if(maxExperiment < float('inf')):
-			filteredFileLines = filterFileLinesLessThan(filteredFileLines, 'experimentNumber', maxExperiment)
+			filteredFileLines = filterFileLinesLessThan(filteredFileLines, 'experimentNumber', maxExperiment, looseFiltering=looseFiltering)
 
 	if(minIndex == maxIndex):
-		filteredFileLines = filterFileLines(filteredFileLines, 'index', minIndex)
+		filteredFileLines = filterFileLines(filteredFileLines, 'index', minIndex, looseFiltering=looseFiltering)
 	else:
 		if(minIndex > 0):
-			filteredFileLines = filterFileLinesGreaterThan(filteredFileLines, 'index', minIndex)
+			filteredFileLines = filterFileLinesGreaterThan(filteredFileLines, 'index', minIndex, looseFiltering=looseFiltering)
 		if(maxIndex < float('inf')):
-			filteredFileLines = filterFileLinesLessThan(filteredFileLines, 'index', maxIndex)
+			filteredFileLines = filterFileLinesLessThan(filteredFileLines, 'index', maxIndex, looseFiltering=looseFiltering)
 
 	if(minRelativeIndex > 0 or maxRelativeIndex < 1e10):
 		experimentBaseIndex = min(getIndexesForExperiments(os.path.join(directory, '../'), minExperiment, maxExperiment))
 		if(minRelativeIndex > 0):
-			filteredFileLines = filterFileLinesGreaterThan(filteredFileLines, 'index', experimentBaseIndex + minRelativeIndex)
+			filteredFileLines = filterFileLinesGreaterThan(filteredFileLines, 'index', experimentBaseIndex + minRelativeIndex, looseFiltering=looseFiltering)
 		if(maxRelativeIndex < float('inf')):
-			filteredFileLines = filterFileLinesLessThan(filteredFileLines, 'index', experimentBaseIndex + maxRelativeIndex)
+			filteredFileLines = filterFileLinesLessThan(filteredFileLines, 'index', experimentBaseIndex + maxRelativeIndex, looseFiltering=looseFiltering)
 
 	return filteredFileLines
 
@@ -534,29 +536,43 @@ def filterHistoryLessThan(deviceHistory, property, threshold):
 			print("Unable to apply filter on '"+str(property)+"' <= '"+str(value)+"'")
 	return filteredHistory
 
-def filterFileLines(fileLines, property, value):
+def filterFileLines(fileLines, property, value, looseFiltering=False):
 	filteredFileLines = []
 	for line in fileLines:
-		match = re.search(' "' + str(property) + '": ([^,}]*)' , line)
-		if(match and (match.group(1) == str(value))):
-			filteredFileLines.append(line)
+		if(looseFiltering):
+			matches = re.findall(' "' + str(property) + '": ([^,}]*)' , line)
+			if(str(value) in matches):
+				filteredFileLines.append(line)
+		else:
+			match = re.search(' "' + str(property) + '": ([^,}]*)' , line)
+			if(match and (match.group(1) == str(value))):
+				filteredFileLines.append(line)
 	return filteredFileLines
 
-def filterFileLinesGreaterThan(fileLines, property, value):
+def filterFileLinesGreaterThan(fileLines, property, value, looseFiltering=False):
 	filteredFileLines = []
 	for line in fileLines:
-		match = re.search(' "' + str(property) + '": ([^,}]*)' , line)
-		if(match and (float(match.group(1)) >= value)):
-			filteredFileLines.append(line)
-
+		if(looseFiltering):
+			matches = re.findall(' "' + str(property) + '": ([^,}]*)' , line)
+			if(str(value) in matches):
+				filteredFileLines.append(line)
+		else:
+			match = re.search(' "' + str(property) + '": ([^,}]*)' , line)
+			if(match and (float(match.group(1)) >= value)):
+				filteredFileLines.append(line)
 	return filteredFileLines
 
-def filterFileLinesLessThan(fileLines, property, value):
+def filterFileLinesLessThan(fileLines, property, value, looseFiltering=False):
 	filteredFileLines = []
 	for line in fileLines:
-		match = re.search(' "' + str(property) + '": ([^,}]*)' , line)
-		if(match and (float(match.group(1)) <= value)):
-			filteredFileLines.append(line)
+		if(looseFiltering):
+			matches = re.findall(' "' + str(property) + '": ([^,}]*)' , line)
+			if(str(value) in matches):
+				filteredFileLines.append(line)
+		else:
+			match = re.search(' "' + str(property) + '": ([^,}]*)' , line)
+			if(match and (float(match.group(1)) <= value)):
+				filteredFileLines.append(line)
 	return filteredFileLines
 
 

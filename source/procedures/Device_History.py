@@ -17,7 +17,6 @@ from utilities import PlotPostingUtility as plotPoster
 
 import time
 
-
 # === Defaults ===
 default_dh_parameters = {
 	'dataFolder': '../../AutexysData/',
@@ -30,6 +29,8 @@ default_dh_parameters = {
 	'showFigures': True,
 	'specificPlotToCreate': ''
 }
+
+default_linking_file = 'DeviceCycling.json'
 
 
 
@@ -94,7 +95,7 @@ def makePlots(userID, projectID, waferID, chipID, deviceID, minExperiment=0,
 def run(additional_parameters, plot_mode_parameters=None, cacheBust=None):
 	"""Legacy 'run' function from when DeviceHistory was treated more like a typical procedure with parameters."""
 
-	# Combine additiona_parameters with the defaults
+	# Combine additional_parameters with the defaults
 	parameters = default_dh_parameters.copy()
 	parameters.update(additional_parameters)
 
@@ -138,6 +139,14 @@ def run(additional_parameters, plot_mode_parameters=None, cacheBust=None):
 				#deviceHistory += dlu.loadSpecificDeviceHistoryWithCaching((time.time() if(cacheBust is None) else cacheBust), dlu.getDeviceDirectory(parameters), dataFile, minIndex=p['minJSONIndex'], maxIndex=p['maxJSONIndex'], minExperiment=p['minJSONExperimentNumber'], maxExperiment=p['maxJSONExperimentNumber'], minRelativeIndex=p['minJSONRelativeIndex'], maxRelativeIndex=p['maxJSONRelativeIndex'])
 				deviceHistory += dlu.loadSpecificDeviceHistory(dlu.getDeviceDirectory(parameters), dataFile, minIndex=p['minJSONIndex'], maxIndex=p['maxJSONIndex'], minExperiment=p['minJSONExperimentNumber'], maxExperiment=p['maxJSONExperimentNumber'], minRelativeIndex=p['minJSONRelativeIndex'], maxRelativeIndex=p['maxJSONRelativeIndex'])
 			
+			# If no data was loaded directly, check for possible linked data files
+			if(len(deviceHistory) == 0):
+				print('HERE:')
+				linkingHistory = dlu.loadSpecificDeviceHistory(dlu.getDeviceDirectory(parameters), default_linking_file, looseFiltering=True, minIndex=p['minJSONIndex'], maxIndex=p['maxJSONIndex'], minExperiment=p['minJSONExperimentNumber'], maxExperiment=p['maxJSONExperimentNumber'], minRelativeIndex=p['minJSONRelativeIndex'], maxRelativeIndex=p['maxJSONRelativeIndex'])
+				for linkingData in linkingHistory:
+					for dataFile in dataFileDependencies:
+						deviceHistory += dlu.loadChipHistoryByIndex(dlu.getChipDirectory(parameters), dataFile, deviceIndexes=linkingData['DeviceCycling']['deviceIndexes'])
+			
 			# === Generate the plot ===
 			plot = dpu.makeDevicePlot(plotType, deviceHistory, parameters['Identifiers'], mode_parameters=mode_parameters)
 			
@@ -157,7 +166,7 @@ def run(additional_parameters, plot_mode_parameters=None, cacheBust=None):
 
 
 
-def plotsForExperiments(parameters, minExperiment=0, maxExperiment=float('inf'), linkingFile='DeviceCycling.json'):
+def plotsForExperiments(parameters, minExperiment=0, maxExperiment=float('inf'), linkingFile=default_linking_file):
 	"""Given the typical parameters used to run experiments, return a list of plots that could be made from the data that has been already collected."""
 
 	# Get a list of all saved data files for the given experiment range

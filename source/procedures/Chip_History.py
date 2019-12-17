@@ -90,16 +90,20 @@ def makePlots(userID, projectID, waferID, chipID, specificPlot='', figureSize=No
 
 
 
-def run(additional_parameters, plot_mode_parameters={}):
+def run(additional_parameters, plot_mode_parameters=None):
 	"""Legacy 'run' function from when ChipHistory was treated more like a typical procedure with parameters."""
 	
+	# Combine additional_parameters with the defaults
 	parameters = default_ch_parameters.copy()
 	parameters.update(additional_parameters)
 
-	plotList = []
+	# Combine plot_mode_parameters with the empty default dictionary
+	mode_parameters = {}
+	if(plot_mode_parameters != None):
+		mode_parameters.update(plot_mode_parameters)
 
-	# Determine which plots are being requested and make them all
-	plotsToCreate = [parameters['specificPlotToCreate']] if(parameters['specificPlotToCreate'] != '') else plotsForExperiments(parameters['dataFolder'], parameters['Identifiers']['user'], parameters['Identifiers']['project'], parameters['Identifiers']['wafer'], parameters['Identifiers']['chip'], minExperiment=0, maxExperiment=float('inf'))
+	# Define return variable
+	plotList = []
 
 	# If desired, look at the on-current from a gate sweep for each device before deciding to include it based on a cutoff value
 	devicesToInclude = parameters['specificDeviceList']
@@ -113,10 +117,12 @@ def run(additional_parameters, plot_mode_parameters={}):
 			if( ((parameters['minOnCurrent'] is None) or (abs_max_drain_current > parameters['minOnCurrent'])) and ((parameters['maxOnCurrent'] is None) or (abs_max_drain_current < parameters['maxOnCurrent'])) and ((parameters['maxOffCurrent'] is None) or (abs_min_drain_current < parameters['maxOffCurrent'])) and ((parameters['maxGateCurrent'] is None) or (abs_max_gate_current < parameters['maxGateCurrent'])) ):
 				devicesToInclude.append(deviceRun['Identifiers']['device'])
 
+	# Determine which plots are being requested and make them all
+	plotsToCreate = [parameters['specificPlotToCreate']] if(parameters['specificPlotToCreate'] != '') else plotsForExperiments(parameters['dataFolder'], parameters['Identifiers']['user'], parameters['Identifiers']['project'], parameters['Identifiers']['wafer'], parameters['Identifiers']['chip'], minExperiment=0, maxExperiment=float('inf'))
 	for plotType in plotsToCreate:
 		dataFileDependencies = dpu.getDataFileDependencies(plotType)		
 		(chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory, groupedChipHistory) = loadDataBasedOnPlotDependencies(dataFileDependencies, parameters, minIndex=parameters['minJSONIndex'], maxIndex=parameters['maxJSONIndex'], minExperiment=parameters['minJSONExperimentNumber'], maxExperiment=parameters['maxJSONExperimentNumber'], minRelativeIndex=parameters['minJSONRelativeIndex'], maxRelativeIndex=parameters['maxJSONRelativeIndex'], loadOnlyMostRecentExperiments=parameters['loadOnlyMostRecentExperiments'], numberOfOldestExperiments=1, numberOfOldestIndexes=1, numberOfRecentExperiments=parameters['numberOfRecentExperiments'], numberOfRecentIndexes=parameters['numberOfRecentIndexes'], specificDeviceList=devicesToInclude, deviceGroupList=parameters['deviceGroupList'])
-		plot = dpu.makeChipPlot(plotType, parameters['Identifiers'], chipIndexes=chipIndexes, firstRunChipHistory=firstRunChipHistory, recentRunChipHistory=recentRunChipHistory, specificRunChipHistory=specificRunChipHistory, groupedChipHistory=groupedChipHistory, mode_parameters=plot_mode_parameters)
+		plot = dpu.makeChipPlot(plotType, parameters['Identifiers'], chipIndexes=chipIndexes, firstRunChipHistory=firstRunChipHistory, recentRunChipHistory=recentRunChipHistory, specificRunChipHistory=specificRunChipHistory, groupedChipHistory=groupedChipHistory, mode_parameters=mode_parameters)
 		plotList.append(plot)
 	
 	# Show figures if desired	
