@@ -11,6 +11,7 @@ import numpy
 import webbrowser
 import threading
 import flask_socketio
+import socket
 from collections import Mapping, Sequence
 
 import defaults
@@ -32,6 +33,9 @@ if __name__ == '__main__':
 	if 'AutexysHost' in pathParents:
 		os.chdir(os.path.join(os.path.abspath(os.sep), *pathParents[0:pathParents.index('AutexysHost')+1], 'source'))
 
+# === Constants ===
+UI_REFRESH_DELAY_SECONDS = 0.01
+
 # === Globals ===
 share = None
 
@@ -52,6 +56,54 @@ default_makePlot_parameters = {
 
 default_data_path = '../../AutexysData/'
 default_documentation_path = '../../AutexysData/documentation'
+
+
+
+# === Flask ===
+# Define custom delimiters for template rendering to not collide with Vue
+class CustomFlask(flask.Flask):
+	jinja_options = flask.Flask.jinja_options.copy()
+	jinja_options.update(dict(
+		block_start_string='<%',
+		block_end_string='%>',
+		variable_start_string='%%',
+		variable_end_string='%%',
+		comment_start_string='<#',
+		comment_end_string='#>',
+	))
+
+app = CustomFlask(__name__, static_url_path='', template_folder='ui')
+
+# Disable caching of static files
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+
+app.config['SECRET_KEY'] = 'secretkey'
+socketio = flask_socketio.SocketIO(app)
+
+
+
+# === SocketIO ===
+# Infinite loop for a background thread to handle UI messages that show up in the 'share' global shared memory object
+def managerMessageForwarder():
+	global share
+	
+	while(True):
+		while pipes.poll(share, 'QueueToUI'):
+			message = pipes.recv(share, 'QueueToUI')
+			socketio.emit('Server Message', message)
+		socketio.sleep(UI_REFRESH_DELAY_SECONDS)
+
+# Create UI handler thread when socketio is connected
+managerMessageForwarderthread = None
+@socketio.on('connect')
+def connect():
+	global managerMessageForwarderthread                                                               
+	if(managerMessageForwarderthread is None):
+		managerMessageForwarderthread = socketio.start_background_task(target=managerMessageForwarder)
+
+@socketio.on('my event')
+def handle_my_custom_event(json):
+	print('in my event, received json: ' + str(json))
 
 
 
@@ -84,29 +136,6 @@ def jsonvalid(obj):
 
 
 
-# === Flask ===
-# Define custom delimiters for template rendering to not collide with Vue
-class CustomFlask(flask.Flask):
-	jinja_options = flask.Flask.jinja_options.copy()
-	jinja_options.update(dict(
-		block_start_string='<%',
-		block_end_string='%>',
-		variable_start_string='%%',
-		variable_end_string='%%',
-		comment_start_string='<#',
-		comment_end_string='#>',
-	))
-
-app = CustomFlask(__name__, static_url_path='', template_folder='ui')
-
-# Disable caching of static files
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
-
-app.config['SECRET_KEY'] = 'secretkey'
-socketio = flask_socketio.SocketIO(app)
-
-
-
 # === Home Page ===
 @app.route('/')
 @app.route('/index')
@@ -131,6 +160,29 @@ def sendStaticUI(path):
 @app.route('/static/<path:path>')
 def sendStatic(path):
 	return flask.send_from_directory('../', path)
+
+
+
+# === System Info ===
+@app.route('/paths.json')
+def paths():
+	sourceAbsPath = os.path.abspath(os.path.dirname(__file__))
+	return jsonvalid({'sourceAbsPath': sourceAbsPath})
+
+
+
+# === System Parameters ===
+@app.route('/parametersDescription.json')
+def parametersDescription():
+	return jsonvalid(defaults.default_parameters)
+
+@app.route('/defaultParameters.json')
+def defaultParameters():
+	return jsonvalid(defaults.get())
+
+@app.route('/defaultEssentialParameters.json')
+def defaultEssentialParameters():
+	return jsonvalid(defaults.full_essentials())
 
 
 
@@ -403,22 +455,34 @@ def availableChipPlots(user, project, wafer, chip):
 
 
 
-
-@app.route('/parametersDescription.json')
-def parametersDescription():
-	return jsonvalid(defaults.default_parameters)
-
-@app.route('/defaultParameters.json')
-def defaultParameters():
-	return jsonvalid(defaults.get())
-
-@app.route('/defaultEssentialParameters.json')
-def defaultEssentialParameters():
-	return jsonvalid(defaults.full_essentials())
+# === README ===
+@app.route('/readme.md')
+def getReadMe():
+	with open('../README.md', 'r') as f:
+		return f.read()
 
 
 
+# === Notes ===
+@app.route('/addToNote', methods=['POST'])
+def addToNote():
+	experiment = flask.request.get_json(force=True)
+	experimentNumber = experiment['startIndexes']['experimentNumber']
+	noteAddition = experiment['noteAddition']
+	path = dlu.getExperimentDirectory(experiment, experimentNumber)
+	
+	dlu.appendTextToFile(path, 'Note.txt', noteAddition)
+	
+	return jsonvalid({'success': True})
 
+@app.route('/addToCorrection', methods=['POST'])
+def addToCorrection():	
+	folder = os.path.join(default_data_path, user, project, wafer, chip, device, 'Ex' + experimentNumber)
+	correction = flask.request.get_json(force=True)
+
+
+
+# === Documentation ===
 @app.route('/addDocumentation/<indexToAdd>')
 def addDocumentation(indexToAdd):
 	incrementFilenameNumbersFrom(indexToAdd, 1)
@@ -490,7 +554,7 @@ def saveDocumentation(fileName):
 
 
 
-
+# === Schedule Files ===
 @app.route('/saveSchedule/<user>/<project>/<fileName>', methods=['POST'])
 def saveSchedule(user, project, fileName):
 	# receivedJobs = json.loads(flask.request.args.get('jobs'))
@@ -525,9 +589,6 @@ def loadBriefSchedule(user, project, fileName):
 	
 	return jsonvalid(expandedScheduleData)
 
-def getSubDirectories(directory):
-	return [os.path.basename(os.path.dirname(g)) for g in glob.glob(directory + '/*/')]
-
 @app.route('/dispatchSchedule/<user>/<project>/<fileName>.json')
 def dispatchSchedule(user, project, fileName):
 	scheduleFilePath = os.path.join(default_data_path, user, project, 'schedules', fileName + '.json')
@@ -540,7 +601,6 @@ def dispatchSchedule(user, project, fileName):
 def stopAtNextJob():
 	eprint('UI stopping at next job')
 	pipes.send(share, 'QueueToDispatcher', {'type':'Stop', 'stop':'Dispatcher Job'})
-	
 	return jsonvalid({'success': True})
 
 def getSubDirectories(directory):
@@ -560,6 +620,9 @@ def loadScheduleNames():
 	
 	return jsonvalid(scheduleNames)
 
+
+
+# === AFM ===
 @app.route('/AFMFilesInTimestampRange/<startTime>/<endTime>/associatedAFMs.json')
 def AFMFilesInTimestampRange(startTime, endTime):
 	from utilities import AFMReader
@@ -578,53 +641,6 @@ def AFMFilesInTimestampRange(startTime, endTime):
 	
 	return jsonvalid({})
 
-@app.route('/addToNote', methods=['POST'])
-def addToNote():
-	experiment = flask.request.get_json(force=True)
-	experimentNumber = experiment['startIndexes']['experimentNumber']
-	noteAddition = experiment['noteAddition']
-	path = dlu.getExperimentDirectory(experiment, experimentNumber)
-	
-	dlu.appendTextToFile(path, 'Note.txt', noteAddition)
-	
-	return jsonvalid({'success': True})
-
-
-@app.route('/addToCorrection', methods=['POST'])
-def addToCorrection():	
-	folder = os.path.join(default_data_path, user, project, wafer, chip, device, 'Ex' + experimentNumber)
-	
-	correction = flask.request.get_json(force=True)
-
-@app.route('/paths.json')
-def paths():
-	sourceAbsPath = os.path.abspath(os.path.dirname(__file__))
-	
-	return jsonvalid({'sourceAbsPath': sourceAbsPath})
-
-@app.route('/saveCSV/<user>/<project>/<wafer>/<chip>/<device>/<experiment>/data.csv')
-def saveCSV(user, project, wafer, chip, device, experiment):
-	plotSettings = copy.deepcopy(default_makePlot_parameters)
-	receivedPlotSettings = json.loads(flask.request.args.get('plotSettings'))
-	#afmPath = json.loads(flask.request.args.get('afmPath'))
-	plotSettings.update(receivedPlotSettings)
-	
-	path = os.path.join(default_data_path, user, project, wafer, chip, device, 'Ex' + experiment)
-	fileNames = [os.path.basename(p) for p in glob.glob(os.path.join(path, '*.json'))]
-	
-	proxy = io.StringIO()
-	
-	deviceHistories = [dlu.loadJSON(path, fileName) for fileName in fileNames]
-	dlu.saveCSV(deviceHistories, proxy)
-	
-	filebuf = io.BytesIO()
-	filebuf.write(proxy.getvalue().encode('utf-8'))
-	
-	filebuf.seek(0)
-	proxy.close()
-	
-	return flask.send_file(filebuf, attachment_filename='data.csv')
-
 @app.route('/updateAFMRegistry')
 def updateAFMRegistry():
 	from utilities import AFMReader
@@ -634,37 +650,52 @@ def updateAFMRegistry():
 	return jsonvalid({'success':True})
 
 
+
+# === Data Export ===
+@app.route('/saveCSV/<user>/<project>/<wafer>/<chip>/<device>/<experiment>/data.csv')
+def saveCSV(user, project, wafer, chip, device, experiment):
+	# Find all '.json' files saved for this experiment
+	path = os.path.join(default_data_path, user, project, wafer, chip, device, 'Ex' + experiment)
+	fileNames = [os.path.basename(p) for p in glob.glob(os.path.join(path, '*.json'))]
+	
+	# Load data from all '.json' files
+	deviceHistories = [dlu.loadJSON(path, fileName) for fileName in fileNames]
+	
+	# Create data saving objects
+	proxy = io.StringIO()
+	filebuf = io.BytesIO()
+	
+	# Save into StringIO 
+	dlu.saveCSV(deviceHistories, proxy)
+	
+	# Convert from StringIO to BytesIO
+	filebuf.write(proxy.getvalue().encode('utf-8'))
+	proxy.close()
+	
+	filebuf.seek(0)
+	return flask.send_file(filebuf, attachment_filename='data.csv')
+
 @app.route('/getJSONData/<user>/<project>/<wafer>/<chip>/<device>/<experiment>/data.json')
 def getJSONData(user, project, wafer, chip, device, experiment):
-	plotSettings = copy.deepcopy(default_makePlot_parameters)
-	receivedPlotSettings = json.loads(flask.request.args.get('plotSettings'))
-	#afmPath = json.loads(flask.request.args.get('afmPath'))
-	plotSettings.update(receivedPlotSettings)
-	
 	path = os.path.join(default_data_path, user, project, wafer, chip, device, 'Ex' + experiment)
-	
 	deviceHistory = dlu.loadJSON(path, 'GateSweep.json')
-	
 	return jsonvalid(deviceHistory)
 
-@app.route('/readme.md')
-def getReadMe():
-	with open('../README.md', 'r') as f:
-		return f.read()
 
 
-# Disable server side caching
+# === ===
+# Disable server-side caching
 @app.after_request
 def add_header(response):
 	response.cache_control.max_age = 0
 	response.cache_control.no_store = True
-	if 'Cache-Control' not in response.headers:
+	if('Cache-Control' not in response.headers):
 		response.headers['Cache-Control'] = 'no-store'
 	return response
 
 
-import socket
 
+# === Webbrowser ===
 def findFirstOpenPort(startPort=1):
 	for port in range(startPort, 8081):
 		with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
@@ -675,39 +706,15 @@ def findFirstOpenPort(startPort=1):
 				return port
 			except Exception as e:
 				print('Port {} is not available'.format(port))
-
-def managerMessageForwarder():
-	global share
-	
-	while True:
-		while pipes.poll(share, 'QueueToUI'):
-			message = pipes.recv(share, 'QueueToUI')
-			# message = share['QueueToUI'].get()
-			socketio.emit('Server Message', message)
-		
-		socketio.sleep(0.01)
-
-@socketio.on('my event')
-def handle_my_custom_event(json):
-	print('in my event, received json: ' + str(json))
-
-managerMessageForwarderthread = None
-@socketio.on('connect')
-def connect():
-	global managerMessageForwarderthread                                                               
-	if managerMessageForwarderthread is None:
-		managerMessageForwarderthread = socketio.start_background_task(target=managerMessageForwarder)
-		pass
-
+				
 def launchBrowser(url):
 	socketio.sleep(2)
 	print('URL is "{}"'.format(url))
 	webbrowser.open_new(url)
 
-def makeShareGlobal(localShare):
-	global share
-	share = localShare
 
+
+# === Main ===
 def start(share={}, debug=True, use_reloader=True):
 	makeShareGlobal(share)
 	
@@ -729,10 +736,14 @@ def start(share={}, debug=True, use_reloader=True):
 	# app.run(debug=True, threaded=False, port=int(os.environ['AutexysUIPort']))
 	socketio.run(app, debug=debug, port=int(os.environ['AutexysUIPort']), use_reloader=use_reloader)
 
+def makeShareGlobal(localShare):
+	global share
+	share = localShare
+	
 
 
 if __name__ == '__main__':
-	start(debug=False)
+	start(debug=False, use_reloader=True)
 
 
 

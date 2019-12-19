@@ -125,8 +125,11 @@
 		</div>
 		</transition>
 		
-	<transition name="fade" mode="out-in" appear>
-		<v-app v-cloak>
+		<transition name="fade" mode="out-in" appear>
+			<v-app v-cloak>
+				
+				<!-- Start of app sidebar/toolbar -->
+				
 				<v-navigation-drawer clipped fixed v-model="drawer" class="color1" dark app>
 					<v-list dense>
 						<v-list-tile @click="setTopLevelPage('dashboard')">
@@ -195,6 +198,7 @@
 						</v-list-tile>
 					</v-list>
 				</v-navigation-drawer>
+				
 				<v-toolbar app fixed clipped-left dark color="color1 darken-1">
 					<v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
 					<v-toolbar-title>Autexys User Interface</v-toolbar-title>
@@ -231,7 +235,12 @@
 						</v-menu>
 					</v-toolbar-items>
 				</v-toolbar>
+				
+				<!-- End of app sidebar/toolbar -->
+				
 				<v-content>
+					
+					<!-- Start of browser -->
 					
 					<v-stepper v-if="topLevelPage == 'stepper'" v-model="stepperPage" style="background-color:rgba(255,255,255,0);height:100%;">
 						<v-stepper-header style="background-color:rgba(255,255,255,1);">
@@ -441,8 +450,6 @@
 										</v-toolbar-title>
 									</v-toolbar>
 									
-									<!-- container gives a couple summary plots that present data from all experiments on this device for comparisson (sn)-->
-									<!-- [Re: need to find way to use proper experiment item (nc)] Since we are doing a summary plot, there will essentially be one plot that shows all the experiments, instead of a plot for each experiment.  I may not have made that clear previously... In the end we may want a couple summary plots, but to begin with lets just get one working. (sn)-->
 									<v-container fluid grid-list-sm>
 										<v-layout row wrap>
 											<v-flex xs12 sm6 md4 lg3 xl2 v-for="possiblePlot in possibleDevicePlots">
@@ -583,22 +590,27 @@
 											<v-btn @click="updateAFMRegistry()">Update AFM Registry</v-btn>
 										</v-card-actions>
 										
-										<v-chip v-for="file in experiment['dataFiles']" dark class="color4">
-											{{file}}
-										</v-chip>
+										<v-layout class="ma-1">
+											<v-tooltip top>
+												<v-btn slot="activator" @click="copyHTMLStringToClip(experiment['dataFolderSpecificAbs'])">
+													Copy Folder Path
+												</v-btn>
+												<span>{{ experiment['dataFolderSpecificAbs'] }}</span>
+											</v-tooltip>
+											
+											<v-chip v-for="file in experiment['dataFiles']" dark class="color4">
+												{{file}}
+											</v-chip>
+										</v-layout>
 										
-										<v-form class="ma-3" style="overflow-x: scroll">
-											<p>The data for this experiment is stored in:<br/> <a :href="'file://///' + experiment['dataFolderSpecificAbs']">{{ experiment['dataFolderSpecificAbs'] }}</a></p>
-											<p><i>Load data by executing:</i></p>
+										<v-container>
 											<v-card>
 												<p><tt>from utilities import DataLoggerUtility as dlu</tt></p>
-												<p>
-													<tt>
-														dlu.loadSpecificDeviceHistory('{{ experiment['dataFolderSpecific'] }}', '{{ experiment['dataFiles'][0] }}', minIndex=0, maxIndex=float('inf'), minExperiment={{ experiment.startIndexes.experimentNumber }}, maxExperiment={{ experiment.startIndexes.experimentNumber }}, minRelativeIndex=0, maxRelativeIndex=float('inf'))
-													</tt>
-												</p>
+												<p><tt>
+													dlu.loadSpecificDeviceHistory('{{ experiment['dataFolderSpecific'] }}', '{{ experiment['dataFiles'][0] }}', minIndex=0, maxIndex=float('inf'), minExperiment={{ experiment.startIndexes.experimentNumber }}, maxExperiment={{ experiment.startIndexes.experimentNumber }}, minRelativeIndex=0, maxRelativeIndex=float('inf'))
+												</tt></p>
 											</v-card>
-										</v-form>
+										</v-container>
 									</v-card>
 									
 								</v-card>
@@ -822,21 +834,7 @@
 					</v-flex>
 					
 					<!-- End of sched creator -->
-					
-					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'settings'">
-						<v-card>
-							<v-toolbar dark dense class="color1 ">
-								<v-toolbar-title>
-									Settings
-								</v-toolbar-title>
-							</v-toolbar>
-							<v-container>
-								<p>
-									Settings page coming soon.
-								</p>
-							</v-container>
-						</v-card>
-					</v-flex>
+					<!-- Start of misc -->
 					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'dashboard'">
 						<v-card>
@@ -848,6 +846,21 @@
 							<v-container>
 								<p>
 									Dashboard page coming soon.
+								</p>
+							</v-container>
+						</v-card>
+					</v-flex>
+					
+					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'settings'">
+						<v-card>
+							<v-toolbar dark dense class="color1 ">
+								<v-toolbar-title>
+									Settings
+								</v-toolbar-title>
+							</v-toolbar>
+							<v-container>
+								<p>
+									Settings page coming soon.
 								</p>
 							</v-container>
 						</v-card>
@@ -893,6 +906,9 @@
 							</v-container>
 						</v-card>
 					</v-flex>
+					
+					<!-- End of misc -->
+					<!-- Start of documentation -->
 					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'documentation'">
 						<v-card class="mb-3">
@@ -963,6 +979,8 @@
 						</v-card>
 					</v-flex>
 
+					<!-- End of documentation -->
+					<!-- Start of experiment runner -->
 					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'experimentRunner'">
 						<v-card class="mb-3">
@@ -1131,18 +1149,19 @@
 								</v-toolbar-title>
 								<v-spacer></v-spacer>
 								<v-toolbar-title>
-									{{experimentRunnerProgress.timerModel.current - experimentRunnerProgress.timerModel.start | twoDecimalPoints}}
+									{{experimentRunnerProgress.timerModel.current - experimentRunnerProgress.timerModel.start | formatTimestamp}}
 									<v-icon>schedule</v-icon>
 								</v-toolbar-title>
 							</v-toolbar>
+							
 							<v-list>
 								<j-progress-bar-timed :visible="experimentRunnerProgress.dispatcherBarModel.visible" titleprefix="Dispatcher:" :title="experimentRunnerProgress.dispatcherBarModel.name" :valuecurrent="experimentRunnerProgress.dispatcherBarModel.current" :valuemaximum="experimentRunnerProgress.dispatcherBarModel.end" :valuepercent="experimentRunnerProgress.dispatcherBarModel.percent"></j-progress-bar-timed>
-								
-								<j-progress-bar-timed :visible="experimentRunnerProgress.sweepBarModel.visible" titleprefix="Sweep:" :title="experimentRunnerProgress.sweepBarModel.name" :valuecurrent="experimentRunnerProgress.sweepBarModel.current" :valuemaximum="experimentRunnerProgress.sweepBarModel.end" :valuepercent="experimentRunnerProgress.sweepBarModel.percent"></j-progress-bar-timed>
 								
 								<j-progress-bar-timed :visible="experimentRunnerProgress.group1BarModel.visible" titleprefix="" :title="experimentRunnerProgress.group1BarModel.name" :valuecurrent="experimentRunnerProgress.group1BarModel.current" :valuemaximum="experimentRunnerProgress.group1BarModel.end" :valuepercent="experimentRunnerProgress.group1BarModel.percent"></j-progress-bar-timed>
 								
 								<j-progress-bar-timed :visible="experimentRunnerProgress.group2BarModel.visible" titleprefix="" :title="experimentRunnerProgress.group2BarModel.name" :valuecurrent="experimentRunnerProgress.group2BarModel.current" :valuemaximum="experimentRunnerProgress.group2BarModel.end" :valuepercent="experimentRunnerProgress.group2BarModel.percent"></j-progress-bar-timed>
+								
+								<j-progress-bar-timed :visible="experimentRunnerProgress.sweepBarModel.visible" titleprefix="Sweep:" :title="experimentRunnerProgress.sweepBarModel.name" :valuecurrent="experimentRunnerProgress.sweepBarModel.current" :valuemaximum="experimentRunnerProgress.sweepBarModel.end" :valuepercent="experimentRunnerProgress.sweepBarModel.percent"></j-progress-bar-timed>
 								
 								<j-progress-bar-timed :visible="experimentRunnerProgress.procedureBarModel.visible" titleprefix="Procedure:" :title="experimentRunnerProgress.procedureBarModel.name" :time="experimentRunnerProgress.procedureBarModel.time_current - experimentRunnerProgress.procedureBarModel.time_start" :valuecurrent="experimentRunnerProgress.procedureBarModel.current" :valuemaximum="experimentRunnerProgress.procedureBarModel.end" :valuepercent="experimentRunnerProgress.procedureBarModel.percent"></j-progress-bar-timed>
 								
@@ -1174,7 +1193,6 @@
 								</v-list-tile>
 								-->
 							</v-list>
-							
 						</v-card>
 						
 						<v-card>
@@ -1182,31 +1200,29 @@
 								<v-toolbar-title>
 									Live Plots
 								</v-toolbar-title>
-								
 								<v-spacer></v-spacer>
-								
 								<v-menu bottom left offset-y>
 									<v-btn slot="activator" icon><v-icon>settings</v-icon></v-btn>
 									<v-list light>
-										
 										<v-list-tile @click="clearLivePlots()">
 											<v-list-tile-avatar>
 												<v-icon>clear</v-icon>
 											</v-list-tile-avatar>
+											
 											<v-list-tile-content><v-list-tile-title>
 												Clear All Plots
 											</v-list-tile-title></v-list-tile-content>
 										</v-list-tile>
-										
 									</v-list>
 								</v-menu>
-								
 							</v-toolbar>
+							
 							<v-container fluid grid-list-sm>
 								<v-flex xs12 sm6 md4 lg3>
 									<v-select box class="ma-1" :label="jobSelectLabel" v-model="jobSelectChoice" :items="jobSelectItems"></v-select>
 									<v-select box class="ma-1" :label="deviceSelectLabel" v-model="deviceSelectChoice" :items="deviceSelectItems"></v-select>
 								</v-flex>
+								
 								<v-row v-for="plot, i in livePlots[jobSelectChoice][deviceSelectChoice].plots">
 									<v-col>
 										<v-layout row wrap>
@@ -1217,33 +1233,32 @@
 															 Plot #{{ i+1 }} 
 														</v-toolbar-title>
 													
-													<v-spacer></v-spacer>
-													
-													<v-menu bottom left offset-y>
-														<v-btn slot="activator" icon><v-icon>settings</v-icon></v-btn>
-														<v-list light>
-															<v-list-tile @click="toggleLivePlotYAxisLog(plot)">
-																<v-list-tile-avatar>
-																	<v-icon>linear_scale</v-icon>
-																</v-list-tile-avatar>
-																<v-list-tile-content><v-list-tile-title>
-																	Toggle Y-Axis Log
-																</v-list-tile-title></v-list-tile-content>
-															</v-list-tile>
-															
-															<v-list-tile @click="clearLivePlot(plot)">
-																<v-list-tile-avatar>
-																	<v-icon>clear</v-icon>
-																</v-list-tile-avatar>
-																<v-list-tile-content><v-list-tile-title>
-																	Clear Plot Type
-																</v-list-tile-title></v-list-tile-content>
-															</v-list-tile>
-															
-														</v-list>
-													</v-menu>
-													
+														<v-spacer></v-spacer>
+														
+														<v-menu bottom left offset-y>
+															<v-btn slot="activator" icon><v-icon>settings</v-icon></v-btn>
+															<v-list light>
+																<v-list-tile @click="toggleLivePlotYAxisLog(plot)">
+																	<v-list-tile-avatar>
+																		<v-icon>linear_scale</v-icon>
+																	</v-list-tile-avatar>
+																	<v-list-tile-content><v-list-tile-title>
+																		Toggle Y-Axis Log
+																	</v-list-tile-title></v-list-tile-content>
+																</v-list-tile>
+																
+																<v-list-tile @click="clearLivePlot(plot)">
+																	<v-list-tile-avatar>
+																		<v-icon>clear</v-icon>
+																	</v-list-tile-avatar>
+																	<v-list-tile-content><v-list-tile-title>
+																		Clear Plot Type
+																	</v-list-tile-title></v-list-tile-content>
+																</v-list-tile>
+															</v-list>
+														</v-menu>
 													</v-toolbar>
+													
 													<div class="text-xs-center">
 														<s-plotly v-bind:data="formatForPlotly(plot)" v-bind:height="90" :column-number="1" :layout="{xaxis: {title: plot.xAxisTitle}, yaxis: {title: plot.yAxisTitle, type: plot.yScale, autorange: true}, legend: {'orientation': 'v', y: 1.1}, margin: {l: 60,r: 20,b: 70,t: 20,pad: 4}, automargin: true, autosize: true, exponentformat:'SI'}"></s-plotly>
 													</div>
@@ -1254,9 +1269,10 @@
 								</v-row>
 							</v-container>
 						</v-card>
-						
 					</v-flex>
 					
+					<!-- End of experiment runner -->
+
 				</v-content>
 				<v-footer inset>
 					<v-spacer></v-spacer><span class="pr-3">Created by Steven Noyce. Updated June 2019.</span>
@@ -2612,7 +2628,18 @@
 					return value.charAt(0).toUpperCase() + value.slice(1);	
 				},
 				twoDecimalPoints: function(value) {
+					if(!value) return '';
 					return parseFloat(value).toFixed(2)
+				},
+				formatTimestamp: function(value) {
+					if(!value) return '';
+					value = parseFloat(value)
+					hours = Math.floor(value/3600)
+					value %= 3600
+					minutes = Math.floor(value/60)
+					value %= 60
+					seconds = value
+					return hours + ':' + ('0' + minutes).slice(-2) + ':' + ('0' + seconds.toFixed(2)).slice(-5);
 				}
 			}
 		});
