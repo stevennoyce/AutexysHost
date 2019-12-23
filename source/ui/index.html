@@ -834,7 +834,7 @@
 					</v-flex>
 					
 					<!-- End of sched creator -->
-					<!-- Start of misc -->
+					<!-- Start of dashboard -->
 					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'dashboard'">
 						<v-card>
@@ -851,20 +851,72 @@
 						</v-card>
 					</v-flex>
 					
+					<!-- End of dashboard -->
+					<!-- Start of settings -->
+					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'settings'">
 						<v-card>
-							<v-toolbar dark dense class="color1 ">
+							<v-toolbar dark dense class="color4 ">
 								<v-toolbar-title>
 									Settings
 								</v-toolbar-title>
+								<v-spacer></v-spacer>
+								<v-tooltip top>
+									<v-btn slot="activator" icon @click="resetAllPlotSettings()"><v-icon>settings_backup_restore</v-icon></v-btn>
+									<span>Reset</span>
+								</v-tooltip>
+								<v-tooltip top>
+									<v-btn slot="activator" icon @click="updatePlotSettings()"><v-icon>save_alt</v-icon></v-btn>
+									<span>Apply</span>
+								</v-tooltip>
 							</v-toolbar>
 							<v-container>
-								<p>
-									Settings page coming soon.
-								</p>
+								<v-layout row wrap>
+									<v-flex xs3 sm3 md3 lg3 xl3>
+										<v-card class="ma-1">
+											<v-toolbar dark dense class="color1 ">
+												<v-toolbar-title>
+													Data
+												</v-toolbar-title>
+											</v-toolbar>
+											<v-list class="pt-3">
+												<s-item-group-edit :settings.sync="primaryPlotSettings" :defaults="primaryPlotSettingDefaults"></s-item-group-edit>
+											</v-list>
+										</v-card>
+									</v-flex>
+									
+									<v-flex xs3 sm3 md3 lg3 xl3>
+										<v-card class="ma-1">
+											<v-toolbar dark dense class="color1 ">
+												<v-toolbar-title>
+													Cosmetic
+												</v-toolbar-title>
+											</v-toolbar>
+											<v-list class="pt-3">
+												<s-item-group-edit :settings.sync="modePlotSettings" :defaults="modePlotSettingDefaults"></s-item-group-edit>
+											</v-list>
+										</v-card>
+									</v-flex>
+									
+									<v-flex xs3 sm3 md3 lg3 xl3>
+										<v-card class="ma-1">
+											<v-toolbar dark dense class="color1 ">
+												<v-toolbar-title>
+													Chip Summaries
+												</v-toolbar-title>
+											</v-toolbar>
+											<v-list class="pt-3">
+												<s-item-group-edit :settings.sync="chipPlotSettings" :defaults="chipPlotSettingDefaults"></s-item-group-edit>
+											</v-list>
+										</v-card>
+									</v-flex>
+								</v-layout>
 							</v-container>
 						</v-card>
 					</v-flex>
+					
+					<!-- End of settings -->
+					<!-- Start of about -->
 					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'about'">
 						<v-card>
@@ -894,6 +946,9 @@
 						</v-card>
 					</v-flex>
 					
+					<!-- End of about -->
+					<!-- Start of README -->
+					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'readme'">
 						<v-card>
 							<v-toolbar dark dense class="color1 ">
@@ -907,7 +962,7 @@
 						</v-card>
 					</v-flex>
 					
-					<!-- End of misc -->
+					<!-- End of README -->
 					<!-- Start of documentation -->
 					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'documentation'">
@@ -1482,7 +1537,7 @@
 					'plotInRealTime':     {'type': 'bool',  'default':true,  'title':'Show Real Time',    'description':''},
 					'timescale':          {'type': 'choice', 'choices': ['','seconds','min','hr','days','weeks','months'], 'default':'', 'title':'Time Scale', 'description':''},
 					'boxPlotBarChart':    {'type': 'bool',  'default':true,  'title':'Bar Charts',        'description':''},
-					'boxPlotShowPoints':  {'type': 'bool',  'default':true,  'title':'Show Points on Bar','description':''},
+					'boxPlotShowPoints':  {'type': 'bool',  'default':true,  'title':'Show Points on Bar  Charts','description':''},
 					
 					'enableLegend':       {'type': 'bool',  'default':true,  'title':'Enable Legend',     'description':''},
 					'enableErrorBars':    {'type': 'bool',  'default':false, 'title':'Enable Error Bars', 'description':''},
@@ -2271,12 +2326,17 @@
 				},
 				
 				resetPlotSettings: function() {
-					this.primaryPlotSettings = JSON.parse(JSON.stringify(this.primaryPlotSettingDefaults))	
-					this.modePlotSettings = JSON.parse(JSON.stringify(this.modePlotSettingDefaults))	
+					this.primaryPlotSettings = JSON.parse(JSON.stringify(this.primaryPlotSettingDefaults));	
+					this.modePlotSettings = JSON.parse(JSON.stringify(this.modePlotSettingDefaults));	
 				},
 				
 				resetChipPlotSettings: function() {
-					this.chipPlotSettings = JSON.parse(JSON.stringify(this.chipPlotSettingDefaults))	
+					this.chipPlotSettings = JSON.parse(JSON.stringify(this.chipPlotSettingDefaults));	
+				},
+				
+				resetAllPlotSettings: function() {
+					this.resetPlotSettings();
+					this.resetChipPlotSettings();
 				},
 				
 				removeValueFromArray: function(value, array) {
