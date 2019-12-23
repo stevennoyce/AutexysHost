@@ -2160,15 +2160,15 @@
 				isNecessaryToSaveRunnerScheduleFile: function() {
 					if(this.isPossibleToSaveRunnerScheduleFile()) {
 						 return this.runnerScheduleObjectsHasBeenModified || 
-						 (this.hasRunnerScheduleBeenModified()) || 
-						 (this.hasRunnerScheduleAdvancedBeenModified());
+						 (this.hasModifiedRunnerSchedule()) || 
+						 (this.hasModifiedRunnerScheduleAdvanced());
 					}
 					return false;
 				},
 				addAdvancedChangesToRunnerScheduleFile: function() {
 					if(this.runnerVerboseScheduleObjects.length === 1 && this.runnerScheduleObjects.length === 1) {
 						// Update the advanced options to match any changes made to the non-advanced options
-						if(this.hasRunnerScheduleBeenModified()) {
+						if(this.hasModifiedRunnerSchedule()) {
 							var basicChanges = objectDeepDiff(this.runnerScheduleObjects[0], this.runnerScheduleObjectDefaults[0]);
 							
 							this.runnerScheduleObjectDefaults[0]        = JSON.parse(JSON.stringify(this.runnerScheduleObjects[0]));
@@ -2179,7 +2179,7 @@
 						}
 						
 						// Apply changes to advanced options
-						if(this.hasRunnerScheduleAdvancedBeenModified()) {
+						if(this.hasModifiedRunnerScheduleAdvanced()) {
 							var advancedChanges = objectDeepDiff(this.runnerVerboseScheduleObjects[0], this.runnerVerboseScheduleObjectDefaults[0]);
 							this.runnerScheduleObjects = [objectDeepMerge(this.runnerScheduleObjects[0], advancedChanges)];
 							
@@ -2191,11 +2191,11 @@
 						}
 					}
 				},
-				hasRunnerScheduleBeenModified: function() {
+				hasModifiedRunnerSchedule: function() {
 					var basicChanges = objectDeepDiff(this.runnerScheduleObjects[0], this.runnerScheduleObjectDefaults[0]);
 					return (Object.keys(basicChanges).length > 0);
 				},
-				hasRunnerScheduleAdvancedBeenModified: function() {
+				hasModifiedRunnerScheduleAdvanced: function() {
 					var advancedChanges = objectDeepDiff(this.runnerVerboseScheduleObjects[0], this.runnerVerboseScheduleObjectDefaults[0]);
 					return (Object.keys(advancedChanges).length > 0);
 				},
