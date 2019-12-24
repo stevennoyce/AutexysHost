@@ -215,7 +215,7 @@
 							<v-card light>
 								<v-list>
 									<v-list-tile>
-										<v-btn @click="resetPlotSettings()">Reset</v-btn>
+										<v-btn @click="resetPlotSettings(); updatePlotSettings();" :disabled="!hasModifiedPlotSettings()">Reset</v-btn>
 										<v-spacer></v-spacer>
 										<v-btn @click="updatePlotSettings()">Save</v-btn>
 									</v-list-tile>
@@ -387,7 +387,7 @@
 												<v-card light>
 													<v-list>
 														<v-list-tile>
-															<v-btn @click="resetChipPlotSettings()">Reset</v-btn>
+															<v-btn @click="resetChipPlotSettings(); updatePlotSettings();" :disabled="!hasModifiedPlotSettings()">Reset</v-btn>
 															<v-spacer></v-spacer>
 															<v-btn @click="updatePlotSettings()">Save</v-btn>
 														</v-list-tile>
@@ -395,23 +395,26 @@
 												</v-card>
 											</v-menu>
 										</v-toolbar-items>
+										<v-toolbar-items class="pt-3 ml-4">
+											<v-switch color="white" label="" v-model="enableChipSummaryPlots"></v-switch>
+										</v-toolbar-items>
 									</v-toolbar>
 									
 									<v-container fluid grid-list-sm>
-											<v-layout row wrap>
-												<v-flex xs12 sm6 md4 lg3 xl2 v-for="possiblePlot in possibleChipPlots">
-													<v-card class="ma-1" height="100%">
-														<v-toolbar dark dense class="color1">
-															<v-toolbar-title>
-																 {{ possiblePlot }}
-															</v-toolbar-title>
-														</v-toolbar>
-														<div class="text-xs-center">
-															<s-zoomable-image src="" :data-src="'/chipPlots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></s-zoomable-image>
-														</div>
-													</v-card>
-												</v-flex>
-											</v-layout>
+										<v-layout row wrap v-if="enableChipSummaryPlots">
+											<v-flex xs12 sm6 md4 lg3 xl2 v-for="possiblePlot in possibleChipPlots">
+												<v-card class="ma-1" height="100%">
+													<v-toolbar dark dense class="color1">
+														<v-toolbar-title>
+															 {{ possiblePlot }}
+														</v-toolbar-title>
+													</v-toolbar>
+													<div class="text-xs-center">
+														<s-zoomable-image src="" :data-src="'/chipPlots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></s-zoomable-image>
+													</div>
+												</v-card>
+											</v-flex>
+										</v-layout>
 									</v-container>
 								</v-card>
 							</v-stepper-content>
@@ -448,10 +451,14 @@
 										<v-toolbar-title>
 											"{{ wafer }}{{ chip }} {{ device }}" Device Summary Plots
 										</v-toolbar-title>
+										<v-spacer></v-spacer>
+										<v-toolbar-items class="pt-3 ml-4">
+											<v-switch color="white" label="" v-model="enableDeviceSummaryPlots"></v-switch>
+										</v-toolbar-items>
 									</v-toolbar>
 									
 									<v-container fluid grid-list-sm>
-										<v-layout row wrap>
+										<v-layout row wrap v-if="enableDeviceSummaryPlots">
 											<v-flex xs12 sm6 md4 lg3 xl2 v-for="possiblePlot in possibleDevicePlots">
 												<v-card class="ma-1" height="100%">
 													<v-toolbar dark dense class="color1">
@@ -674,7 +681,7 @@
 										<!--<v-list-tile-action>
 											<v-tooltip top>
 												<v-btn icon @click.stop="resetScheduleJob(scheduleObjectIndex)" slot="activator"><v-icon>settings_backup_restore</v-icon></v-btn>
-												<span>Reset job settings to defaults</span>
+												<span>Restore job settings to defaults</span>
 											</v-tooltip>
 										</v-list-tile-action>-->
 										<v-list-tile-action>
@@ -862,7 +869,7 @@
 								</v-toolbar-title>
 								<v-spacer></v-spacer>
 								<v-btn light small @click="updatePlotSettings()">Save</v-btn>
-								<v-btn icon @click="resetAllPlotSettings()" :disabled="!hasModifiedPlotSettings()"><v-icon>settings_backup_restore</v-icon></v-btn>
+								<v-btn icon @click="resetAllPlotSettings(); updatePlotSettings();" :disabled="!hasModifiedPlotSettings()"><v-icon>settings_backup_restore</v-icon></v-btn>
 							</v-toolbar>
 							<v-container>
 								<v-layout row wrap>
@@ -1570,7 +1577,7 @@
 				},
 				
 				chipPlotSettings: {
-					'specificDeviceList':    {'type': 'array', 'default':null,  'title':'Specific Devices',      'description':''},
+					'specificDeviceList':    {'type': 'array', 'default':[],    'title':'Specific Devices',      'description':''},
 					'numberOfRecentIndexes': {'type': 'int',   'default':1,     'title':'Data Sets per Device',  'description':''},
 					'minOnCurrent':          {'type': 'float', 'default':null,  'title':'Min On-Current',        'description':''},
 					'maxOnCurrent':          {'type': 'float', 'default':null,  'title':'Max On-Current',        'description':''},
@@ -1579,7 +1586,7 @@
 				},
 				
 				chipPlotSettingDefaults: {
-					'specificDeviceList':    {'type': 'array', 'default':null,  'title':'Specific Devices',      'description':''},
+					'specificDeviceList':    {'type': 'array', 'default':[],    'title':'Specific Devices',      'description':''},
 					'numberOfRecentIndexes': {'type': 'int',   'default':1,     'title':'Data Sets per Device',  'description':''},
 					'minOnCurrent':          {'type': 'float', 'default':null,  'title':'Min On-Current',        'description':''},
 					'maxOnCurrent':          {'type': 'float', 'default':null,  'title':'Max On-Current',        'description':''},
@@ -1645,6 +1652,8 @@
 				
 				indexes: [],
 				
+				enableChipSummaryPlots: false,
+				enableDeviceSummaryPlots: false,
 				possibleChipPlots: [],
 				possibleDevicePlots: [],
 				
