@@ -862,7 +862,7 @@
 								</v-toolbar-title>
 								<v-spacer></v-spacer>
 								<v-btn light small @click="updatePlotSettings()">Save</v-btn>
-								<v-btn icon @click="resetAllPlotSettings()" :disabled="!isModifiedPlotSettings"><v-icon>settings_backup_restore</v-icon></v-btn>
+								<v-btn icon @click="resetAllPlotSettings()" :disabled="!hasModifiedPlotSettings()"><v-icon>settings_backup_restore</v-icon></v-btn>
 							</v-toolbar>
 							<v-container>
 								<v-layout row wrap>
@@ -1496,9 +1496,7 @@
 				addToNoteSuccessCode: {},
 				
 				// === Plot Settings ===
-				
-				isModifiedPlotSettings: true,
-				
+								
 				plotSettings: {'primary':{}, 'mode_parameters':{}, 'chip':{}},
 				
 				primaryPlotSettings: {
@@ -2280,28 +2278,32 @@
 				},
 				hasModifiedScheduleObjects: function() {
 					if(this.scheduleObjects.length !== 1) return true;
-					
 					var changes = objectDeepDiff(this.scheduleObjects[0], this.scheduleObjectDefault);
-					
 					return (Object.keys(changes).length > 0);
 				},
 				
 				// === Settings ===
 				
 				plotSettingsModifications: function() {
-					var primary_modifications = _.omitBy(this.primaryPlotSettings, (v,k) => ((this.primaryPlotSettingDefaults[k]['default'] === v['default'])) );
-					var mode_modifications = _.omitBy(this.modePlotSettings, (v,k) => ((this.modePlotSettingDefaults[k]['default'] === v['default'])) );
-					var chip_modifications = _.omitBy(this.chipPlotSettings, (v,k) => ((this.chipPlotSettingDefaults[k]['default'] === v['default'])) );
+					var primary_modifications = _.omitBy(this.primaryPlotSettings, (v,k) => {
+						return _.isEqual(v['default'], this.primaryPlotSettingDefaults[k]['default']);
+					});
+					var mode_modifications = _.omitBy(this.modePlotSettings, (v,k) => {
+						return _.isEqual(v['default'], this.modePlotSettingDefaults[k]['default']);
+					});
+					var chip_modifications = _.omitBy(this.chipPlotSettings, (v,k) => {
+						return _.isEqual(v['default'], this.chipPlotSettingDefaults[k]['default']);
+					});
 					
 					Object.keys(primary_modifications).forEach(function(key) {
-						primary_modifications[key] = primary_modifications[key]['default']
-					})
+						primary_modifications[key] = primary_modifications[key]['default'];
+					});
 					Object.keys(mode_modifications).forEach(function(key) {
-						mode_modifications[key] = mode_modifications[key]['default']
-					})
+						mode_modifications[key] = mode_modifications[key]['default'];
+					});
 					Object.keys(chip_modifications).forEach(function(key) {
-						chip_modifications[key] = chip_modifications[key]['default']
-					})
+						chip_modifications[key] = chip_modifications[key]['default'];
+					});
 					
 					var all_modifications = {'primary':primary_modifications, 'mode_parameters':mode_modifications, 'chip':chip_modifications};
 					
@@ -2324,6 +2326,18 @@
 				resetAllPlotSettings: function() {
 					this.resetPlotSettings();
 					this.resetChipPlotSettings();
+				},
+				hasModifiedPlotSettings: function() {
+					var all_modifications = this.plotSettingsModifications();
+					
+					var is_modified = false;
+					Object.keys(all_modifications).forEach(function(key) {
+						if(JSON.stringify(all_modifications[key]) !== "{}") {
+							is_modified = true;
+						}
+					});
+										
+					return is_modified;	
 				},
 				
 				// === Server Update ===
