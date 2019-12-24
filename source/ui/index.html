@@ -784,7 +784,7 @@
 									
 									<v-card-actions>
 										<v-spacer></v-spacer>
-										<v-btn @click="saveSchedule()">Save Schedule File</v-btn>
+										<v-btn @click="saveSchedule()" :disabled="!isValidScheduleSavePath()">Save Schedule File</v-btn>
 									</v-card-actions>
 								</v-card>
 							</v-flex>	
@@ -833,7 +833,7 @@
 																	
 									<v-card-actions>
 										<v-spacer></v-spacer>
-										<v-btn @click="loadSchedule()">Load Schedule File</v-btn>
+										<v-btn @click="loadSchedule()" :disabled="!isValidScheduleLoadPath()">Load Schedule File</v-btn>
 									</v-card-actions>
 								</v-card>
 							</v-flex>
@@ -2028,41 +2028,8 @@
 					this.stepperPage++;
 				},
 				
-				// === Schedule Files ===
+				// === Experiment Runner ===
 				
-				saveSchedule: function() {
-					var url = '/saveSchedule/' + this.scheduleSaveUser + '/' + this.scheduleSaveProject + '/' + this.scheduleSaveFileName;
-					url += this.cacheBust;
-					// url += '&jobs=' + encodeURI(JSON.stringify(this.scheduleObjectDefault));
-					console.log('saveSchedule(): ' + url);
-
-					$.post(url, JSON.stringify(this.scheduleLines), response => {
-						this.saveScheduleSuccessCode = response;
-					}).fail(() => {console.log("Error saving schedule file")});
-					
-					// $.getJSON(url, JSON.stringify(this.scheduleObjectDefault), response => {
-					// 	this.saveScheduleSuccessCode = response;
-					// }).fail(() => {console.log("Error saving schedule file")});
-					
-					if (this.scheduleExperimentUser == '') this.scheduleExperimentUser = this.scheduleSaveUser;
-					if (this.scheduleExperimentProject == '') this.scheduleExperimentProject = this.scheduleSaveProject;
-					if (this.scheduleExperimentFileName == '') this.scheduleExperimentFileName = this.scheduleSaveFileName;
-					
-					this.getScheduleNames();
-				},
-				loadSchedule: function() {
-					var path = '/loadSchedule/' + this.scheduleLoadUser + '/' + this.scheduleLoadProject + '/' + this.scheduleLoadFileName + '.json' + this.cacheBust;
-					console.log('loadSchedule(): ' + path);
-
-					if (path) {
-						$.getJSON(path, response => {app.$data.scheduleObjects = response})
-						.fail(() => {console.log("Error loading schedule file")});
-					}
-					
-					if (this.scheduleSaveUser == '') this.scheduleSaveUser = this.scheduleLoadUser;
-					if (this.scheduleSaveProject == '') this.scheduleSaveProject = this.scheduleLoadProject;
-					if (this.scheduleSaveFileName == '') this.scheduleSaveFileName = this.scheduleLoadFileName;
-				},
 				dispatchSchedule: function() {
 					this.clearProgressBars();
 					this.clearLivePlots();
@@ -2289,6 +2256,48 @@
 					if(this.scheduleObjects.length !== 1) return true;
 					var changes = objectDeepDiff(this.scheduleObjects[0], this.scheduleObjectDefault);
 					return (Object.keys(changes).length > 0);
+				},
+				
+				saveSchedule: function() {
+					var url = '/saveSchedule/' + this.scheduleSaveUser + '/' + this.scheduleSaveProject + '/' + this.scheduleSaveFileName;
+					url += this.cacheBust;
+					// url += '&jobs=' + encodeURI(JSON.stringify(this.scheduleObjectDefault));
+					console.log('saveSchedule(): ' + url);
+
+					$.post(url, JSON.stringify(this.scheduleLines), response => {
+						this.saveScheduleSuccessCode = response;
+					}).fail(() => {console.log("Error saving schedule file")});
+					
+					// $.getJSON(url, JSON.stringify(this.scheduleObjectDefault), response => {
+					// 	this.saveScheduleSuccessCode = response;
+					// }).fail(() => {console.log("Error saving schedule file")});
+					
+					if (this.scheduleExperimentUser == '') this.scheduleExperimentUser = this.scheduleSaveUser;
+					if (this.scheduleExperimentProject == '') this.scheduleExperimentProject = this.scheduleSaveProject;
+					if (this.scheduleExperimentFileName == '') this.scheduleExperimentFileName = this.scheduleSaveFileName;
+					
+					this.getScheduleNames();
+				},
+				isValidScheduleSavePath: function() {
+					return (this.scheduleSaveUser != null) && (this.scheduleSaveProject != null) && (this.scheduleSaveFileName != null) &&
+						   (this.scheduleSaveUser !== '') && (this.scheduleSaveProject !== '') && (this.scheduleSaveFileName !== '');	
+				},
+				loadSchedule: function() {
+					var path = '/loadSchedule/' + this.scheduleLoadUser + '/' + this.scheduleLoadProject + '/' + this.scheduleLoadFileName + '.json' + this.cacheBust;
+					console.log('loadSchedule(): ' + path);
+
+					if (path) {
+						$.getJSON(path, response => {app.$data.scheduleObjects = response})
+						.fail(() => {console.log("Error loading schedule file")});
+					}
+					
+					if (this.scheduleSaveUser == '') this.scheduleSaveUser = this.scheduleLoadUser;
+					if (this.scheduleSaveProject == '') this.scheduleSaveProject = this.scheduleLoadProject;
+					if (this.scheduleSaveFileName == '') this.scheduleSaveFileName = this.scheduleLoadFileName;
+				},
+				isValidScheduleLoadPath: function() {
+					return (this.scheduleLoadUser != null) && (this.scheduleLoadProject != null) && (this.scheduleLoadFileName != null) &&
+						   (this.scheduleLoadUser !== '') && (this.scheduleLoadProject !== '') && (this.scheduleLoadFileName !== '');	
 				},
 				
 				// === Settings ===
