@@ -331,39 +331,42 @@ def experiments(user, project, wafer, chip, device):
 
 
 # === Plots ===
-def sendPlot(user, project, wafer, chip, device, plotType, minExperiment, maxExperiment, cacheBust=False):
+def getPlotSettings(plotType, filebuf, minExperiment, maxExperiment, includeChipSummarySettings=False, includeDeviceSummarySettings=False, includeCacheBust=False):
 	# === Setup ===
 	# Get default plot settings, plus any modifications specified by the UI
 	plotSettings = copy.deepcopy(default_makePlot_parameters)
 	receivedPlotSettings = json.loads(flask.request.args.get('plotSettings'))
-	
-	print('Special plot settings: ' + str(receivedPlotSettings))
+	print('Loaded plot settings: ' + str(receivedPlotSettings))
 	
 	# Make nicknames for any plot setting modifications specified by the UI
 	primaryPlotSettings = receivedPlotSettings['primary']
 	modePlotSettings = receivedPlotSettings['mode_parameters']
-	
-	# Make a new file object to save the image for this plot
-	filebuf = io.BytesIO()
+	chipSummarySettings = receivedPlotSettings['chip']
+	deviceSummarySettings = receivedPlotSettings['device']
 	
 	# === Update Settings ===
-	# Update arguments to DeviceHistory.makePlots() call
+	# Update dynamic arguments to DeviceHistory.makePlots() call
 	for dynamicArgument in primaryPlotSettings.keys():
 		plotSettings[dynamicArgument] = primaryPlotSettings[dynamicArgument]
+	if(includeChipSummarySettings):
+		for dynamicArgument in chipSummarySettings.keys():
+			plotSettings[dynamicArgument] = chipSummarySettings[dynamicArgument]
+	if(includeDeviceSummarySettings):
+		for dynamicArgument in deviceSummarySettings.keys():
+			plotSettings[dynamicArgument] = deviceSummarySettings[dynamicArgument]
 	
 	# Set all fixed arguments to DeviceHistory.makePlots() call
 	if plotSettings['minExperiment'] == None:
 		plotSettings['minExperiment'] = minExperiment
 	if plotSettings['maxExperiment'] == None:
 		plotSettings['maxExperiment'] = maxExperiment
-	plotSettings['specificPlot'] = ''
 	plotSettings['plotSaveName'] = filebuf
 	plotSettings['dataFolder'] = None
 	plotSettings['saveFolder'] = None
 	plotSettings['saveFigures'] = True
 	plotSettings['showFigures'] = False
 	plotSettings['specificPlot'] = plotType
-	if(cacheBust):
+	if(includeCacheBust):
 		plotSettings['cacheBust'] = flask.request.args.get('cb')
 	
 	# Set mode parameters for DeviceHistory.makePlots() call
@@ -379,62 +382,43 @@ def sendPlot(user, project, wafer, chip, device, plotType, minExperiment, maxExp
 	#		plotSettings['plot_mode_parameters'] = {}
 	#	plotSettings['plot_mode_parameters']['afm_image_path'] = afmPath
 	
+	return plotSettings
+
+@app.route('/plots/<user>/<project>/<wafer>/<chip>/<device>/<experiment>/<plotType>')
+def sendExperimentPlot(user, project, wafer, chip, device, experiment, plotType):
+	# Make a new file object to save the image for this plot
+	filebuf = io.BytesIO()
+	
+	# Get all arguments for the DeviceHistory.makePlots() function call
+	plotSettings = getPlotSettings(plotType, filebuf, minExperiment=int(experiment), maxExperiment=int(experiment), includeCacheBust=True)
+	
 	# === Plot ===
 	DH.makePlots(user, project, wafer, chip, device, **plotSettings)
 	# plt.savefig(filebuf, transparent=True, dpi=pngDPI, format='png')
 	filebuf.seek(0)
 	return flask.send_file(filebuf, attachment_filename='plot.png')
-
-@app.route('/plots/<user>/<project>/<wafer>/<chip>/<device>/<experiment>/<plotType>')
-def sendExperimentPlot(user, project, wafer, chip, device, experiment, plotType):
-	return sendPlot(user, project, wafer, chip, device, plotType, minExperiment=int(experiment), maxExperiment=int(experiment), cacheBust=True)
-
+	
 @app.route('/devicePlots/<user>/<project>/<wafer>/<chip>/<device>/<plotType>')
 def sendDevicePlot(user, project, wafer, chip, device, plotType):
-	return sendPlot(user, project, wafer, chip, device, plotType, minExperiment=-1, maxExperiment=-1, cacheBust=False)
-
-@app.route('/chipPlots/<user>/<project>/<wafer>/<chip>/<plotType>')
-def sendChipPlot(user, project, wafer, chip, plotType):
-	# === Setup ===
-	# Get default plot settings, plus any modifications specified by the UI
-	plotSettings = copy.deepcopy(default_makePlot_parameters)
-	receivedPlotSettings = json.loads(flask.request.args.get('plotSettings'))
-	
-	print('Special chip plot settings: ' + str(receivedPlotSettings))
-	
-	# Make nicknames for any plot setting modifications specified by the UI
-	primaryPlotSettings = receivedPlotSettings['primary']
-	modePlotSettings = receivedPlotSettings['mode_parameters']
-	chipPlotSettings = receivedPlotSettings['chip']
-	
 	# Make a new file object to save the image for this plot
 	filebuf = io.BytesIO()
 	
-	# === Update Settings ===
-	# Update arguments to DeviceHistory.makePlots() call
-	for dynamicArgument in primaryPlotSettings.keys():
-		plotSettings[dynamicArgument] = primaryPlotSettings[dynamicArgument]
-	for dynamicArgument in chipPlotSettings.keys():
-		plotSettings[dynamicArgument] = chipPlotSettings[dynamicArgument]
+	# Get all arguments for the DeviceHistory.makePlots() function call
+	plotSettings = getPlotSettings(plotType, filebuf, minExperiment=-1, maxExperiment=-1, includeDeviceSummarySettings=True)
 	
-	# Set all fixed arguments to DeviceHistory.makePlots() call
-	if plotSettings['minExperiment'] == None:
-		plotSettings['minExperiment'] = 0
-	if plotSettings['maxExperiment'] == None:
-		plotSettings['maxExperiment'] = float('inf')
-	plotSettings['specificPlot'] = ''
-	plotSettings['plotSaveName'] = filebuf
-	plotSettings['dataFolder'] = None
-	plotSettings['saveFolder'] = None
-	plotSettings['saveFigures'] = True
-	plotSettings['showFigures'] = False
-	plotSettings['specificPlot'] = plotType
+	# === Plot ===
+	DH.makePlots(user, project, wafer, chip, device, **plotSettings)
+	filebuf.seek(0)
+	return flask.send_file(filebuf, attachment_filename='plot.png')
 	
-	# Set mode parameters for DeviceHistory.makePlots() call
-	if(plotSettings['plot_mode_parameters'] is None):
-		plotSettings['plot_mode_parameters'] = {}
-	for dynamicModeParameter in modePlotSettings.keys():
-		plotSettings['plot_mode_parameters'][dynamicModeParameter] = modePlotSettings[dynamicModeParameter]
+@app.route('/chipPlots/<user>/<project>/<wafer>/<chip>/<plotType>')
+def sendChipPlot(user, project, wafer, chip, plotType):
+	# Make a new file object to save the image for this plot
+	filebuf = io.BytesIO()
+	
+	# Get all arguments for the ChipHistory.makePlots() function call
+	plotSettings = getPlotSettings(plotType, filebuf, minExperiment=0, maxExperiment=float('inf'), includeChipSummarySettings=True)
+	plotSettings['numberOfRecentExperiments'] = (plotSettings['numberOfRecentIndexes']) if('numberOfRecentIndexes' in plotSettings) else (1)
 	
 	# === Plot ===
 	CH.makePlots(user, project, wafer, chip, **plotSettings)

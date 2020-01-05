@@ -381,13 +381,13 @@
 												<v-btn slot="activator" flat><v-icon>art_track</v-icon></v-btn>
 												<v-card light style="overflow-y: scroll; max-height:65vh">
 													<v-list>
-														<s-item-group-edit :settings.sync="chipPlotSettings" :defaults="chipPlotSettingDefaults"></s-item-group-edit>
+														<s-item-group-edit :settings.sync="chipSummarySettings" :defaults="chipSummarySettingDefaults"></s-item-group-edit>
 													</v-list>
 												</v-card>
 												<v-card light>
 													<v-list>
 														<v-list-tile>
-															<v-btn @click="resetChipPlotSettings(); updatePlotSettings();" :disabled="!hasModifiedPlotSettings()">Reset</v-btn>
+															<v-btn @click="resetChipSummarySettings(); updatePlotSettings();" :disabled="!hasModifiedPlotSettings()">Reset</v-btn>
 															<v-spacer></v-spacer>
 															<v-btn @click="updatePlotSettings()">Save</v-btn>
 														</v-list-tile>
@@ -890,7 +890,7 @@
 										<v-card class="ma-1">
 											<v-toolbar dark dense class="color1 ">
 												<v-toolbar-title>
-													Cosmetic
+													Plot Options
 												</v-toolbar-title>
 											</v-toolbar>
 											<v-list class="pt-3">
@@ -903,11 +903,24 @@
 										<v-card class="ma-1">
 											<v-toolbar dark dense class="color1 ">
 												<v-toolbar-title>
-													Chip Summaries
+													Chip Summary
 												</v-toolbar-title>
 											</v-toolbar>
 											<v-list class="pt-3">
-												<s-item-group-edit :settings.sync="chipPlotSettings" :defaults="chipPlotSettingDefaults"></s-item-group-edit>
+												<s-item-group-edit :settings.sync="chipSummarySettings" :defaults="chipSummarySettingDefaults"></s-item-group-edit>
+											</v-list>
+										</v-card>
+									</v-flex>
+									
+									<v-flex xs3 sm3 md3 lg3 xl3>
+										<v-card class="ma-1">
+											<v-toolbar dark dense class="color1 ">
+												<v-toolbar-title>
+													Device Summary
+												</v-toolbar-title>
+											</v-toolbar>
+											<v-list class="pt-3">
+												<s-item-group-edit :settings.sync="deviceSummarySettings" :defaults="deviceSummarySettingDefaults"></s-item-group-edit>
 											</v-list>
 										</v-card>
 									</v-flex>
@@ -1504,7 +1517,7 @@
 				
 				// === Plot Settings ===
 								
-				plotSettings: {'primary':{}, 'mode_parameters':{}, 'chip':{}},
+				plotSettings: {'primary':{}, 'mode_parameters':{}, 'chip':{}, 'device':{}},
 				
 				primaryPlotSettings: {
 					'minExperiment':      {'type': 'int',   'default':null,  'title':'Min Experiment',    'description':''},
@@ -1576,22 +1589,30 @@
 					'legendTitleOverride':{'type': 'string','default':'',    'title':'Legend Title',      'description':''},
 				},
 				
-				chipPlotSettings: {
-					'specificDeviceList':    {'type': 'array', 'default':[],    'title':'Specific Devices',      'description':''},
-					'numberOfRecentIndexes': {'type': 'int',   'default':1,     'title':'Data Sets per Device',  'description':''},
-					'minOnCurrent':          {'type': 'float', 'default':null,  'title':'Min On-Current',        'description':''},
-					'maxOnCurrent':          {'type': 'float', 'default':null,  'title':'Max On-Current',        'description':''},
-					'maxOffCurrent':         {'type': 'float', 'default':null,  'title':'Max Off-Current',       'description':''},
-					'maxGateCurrent':        {'type': 'float', 'default':null,  'title':'Max Gate Current',      'description':''},
+				chipSummarySettings: {
+					'specificDeviceList':        {'type': 'array', 'default':[],    'title':'Specific Devices',     'description':''},
+					'numberOfRecentIndexes':     {'type': 'int',   'default':1,     'title':'Data Sets per Device', 'description':''},
+					'minOnCurrent':              {'type': 'float', 'default':null,  'title':'Min On-Current',       'description':''},
+					'maxOnCurrent':              {'type': 'float', 'default':null,  'title':'Max On-Current',       'description':''},
+					'maxOffCurrent':             {'type': 'float', 'default':null,  'title':'Max Off-Current',      'description':''},
+					'maxGateCurrent':            {'type': 'float', 'default':null,  'title':'Max Gate Current',     'description':''},
 				},
 				
-				chipPlotSettingDefaults: {
-					'specificDeviceList':    {'type': 'array', 'default':[],    'title':'Specific Devices',      'description':''},
-					'numberOfRecentIndexes': {'type': 'int',   'default':1,     'title':'Data Sets per Device',  'description':''},
-					'minOnCurrent':          {'type': 'float', 'default':null,  'title':'Min On-Current',        'description':''},
-					'maxOnCurrent':          {'type': 'float', 'default':null,  'title':'Max On-Current',        'description':''},
-					'maxOffCurrent':         {'type': 'float', 'default':null,  'title':'Max Off-Current',       'description':''},
-					'maxGateCurrent':        {'type': 'float', 'default':null,  'title':'Max Gate Current',      'description':''},
+				chipSummarySettingDefaults: {
+					'specificDeviceList':        {'type': 'array', 'default':[],    'title':'Specific Devices',     'description':''},
+					'numberOfRecentIndexes':     {'type': 'int',   'default':1,     'title':'Data Sets per Device', 'description':''},
+					'minOnCurrent':              {'type': 'float', 'default':null,  'title':'Min On-Current',       'description':''},
+					'maxOnCurrent':              {'type': 'float', 'default':null,  'title':'Max On-Current',       'description':''},
+					'maxOffCurrent':             {'type': 'float', 'default':null,  'title':'Max Off-Current',      'description':''},
+					'maxGateCurrent':            {'type': 'float', 'default':null,  'title':'Max Gate Current',     'description':''},
+				},
+				
+				deviceSummarySettings: {
+
+				},
+				
+				deviceSummarySettingDefaults: {
+
 				},
 								
 				// === Browser ===
@@ -2309,8 +2330,11 @@
 					var mode_modifications = _.omitBy(this.modePlotSettings, (v,k) => {
 						return _.isEqual(v['default'], this.modePlotSettingDefaults[k]['default']);
 					});
-					var chip_modifications = _.omitBy(this.chipPlotSettings, (v,k) => {
-						return _.isEqual(v['default'], this.chipPlotSettingDefaults[k]['default']);
+					var chip_modifications = _.omitBy(this.chipSummarySettings, (v,k) => {
+						return _.isEqual(v['default'], this.chipSummarySettingDefaults[k]['default']);
+					});
+					var device_modifications = _.omitBy(this.deviceSummarySettings, (v,k) => {
+						return _.isEqual(v['default'], this.deviceSummarySettingDefaults[k]['default']);
 					});
 					
 					Object.keys(primary_modifications).forEach(function(key) {
@@ -2322,8 +2346,16 @@
 					Object.keys(chip_modifications).forEach(function(key) {
 						chip_modifications[key] = chip_modifications[key]['default'];
 					});
+					Object.keys(device_modifications).forEach(function(key) {
+						device_modifications[key] = device_modifications[key]['default'];
+					});
 					
-					var all_modifications = {'primary':primary_modifications, 'mode_parameters':mode_modifications, 'chip':chip_modifications};
+					var all_modifications = {
+						'primary':primary_modifications, 
+						'mode_parameters':mode_modifications, 
+						'chip':chip_modifications, 
+						'device':device_modifications,
+					};
 					
 					return all_modifications;
 				},
@@ -2338,12 +2370,16 @@
 					this.primaryPlotSettings = JSON.parse(JSON.stringify(this.primaryPlotSettingDefaults));	
 					this.modePlotSettings = JSON.parse(JSON.stringify(this.modePlotSettingDefaults));	
 				},
-				resetChipPlotSettings: function() {
-					this.chipPlotSettings = JSON.parse(JSON.stringify(this.chipPlotSettingDefaults));	
+				resetChipSummarySettings: function() {
+					this.chipSummarySettings = JSON.parse(JSON.stringify(this.chipSummarySettingDefaults));	
+				},
+				resetDeviceSummarySettings: function() {
+					this.deviceSummarySettings = JSON.parse(JSON.stringify(this.deviceSummarySettingDefaults));	
 				},
 				resetAllPlotSettings: function() {
 					this.resetPlotSettings();
-					this.resetChipPlotSettings();
+					this.resetChipSummarySettings();
+					this.resetDeviceSummarySettings();
 				},
 				hasModifiedPlotSettings: function() {
 					var all_modifications = this.plotSettingsModifications();
@@ -2722,13 +2758,6 @@
 				},
 				experimentsWithIndexes: function() {
 					return this.experiments.map((x, i) => { return {...x, i} });
-				},
-				deviceSummaryPlotSettings: function() {
-					var settings = _.omitBy(this.setPlotSettings, (v,k) => ((this.defaultPlotSettings[k] == v) || v == '') );
-					settings['minExperiment'] = 1;
-					settings['maxExperiment'] = 1e10;
-					return settings;
-					// return this.setPlotSettings;
 				},
 				defaultRunConfigs: function() {
 					return this.defaultParameters['runConfigs'];
