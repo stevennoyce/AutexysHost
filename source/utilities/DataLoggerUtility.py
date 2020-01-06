@@ -270,6 +270,8 @@ def getExperimentDirectory(parameters, experimentNumber):
 def loadSpecificDeviceHistory(directory, fileName, minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf'), looseFiltering=False):
 	"""Given a folder path and fileName, load data for a device over a range of indices or experiments.
 	If minIndex/maxIndex or minExperiment/maxExperiment are negative, then index backwards (-1 == the most recent index/experiment)"""
+	
+	# Handle negative indexing (loads data starting from the end of the file)
 	indexData = loadJSONIndex(directory)
 	if(minExperiment < 0):
 		minExperiment = indexData['experimentNumber'] + (minExperiment+1)
@@ -301,6 +303,8 @@ def loadOldestDeviceHistory(directory, fileName, numberOfOldestExperiments=1, nu
 	while(not os.path.exists(os.path.join(directory, 'Ex' + str(oldDeviceExperimentNumber), fileName)) and (oldDeviceExperimentNumber < mostRecentExperimentNumber)):
 		oldDeviceExperimentNumber += 1
 	oldestExperiments = loadSpecificDeviceHistory(directory, fileName, minExperiment=oldDeviceExperimentNumber, maxExperiment=oldDeviceExperimentNumber+(numberOfOldestExperiments-1))
+	if(len(oldestExperiments) <= numberOfOldestIndexes):
+		return oldestExperiments
 	return oldestExperiments[-numberOfOldestIndexes:]
 
 def loadMostRecentDeviceHistory(directory, fileName, numberOfRecentExperiments=1, numberOfRecentIndexes=1):
@@ -310,6 +314,8 @@ def loadMostRecentDeviceHistory(directory, fileName, numberOfRecentExperiments=1
 	while(not os.path.exists(os.path.join(directory, 'Ex' + str(recentDeviceExperimentNumber), fileName)) and (recentDeviceExperimentNumber > 0)):
 		recentDeviceExperimentNumber -= 1
 	recentExperiments = loadSpecificDeviceHistory(directory, fileName, minExperiment=recentDeviceExperimentNumber-(numberOfRecentExperiments-1), maxExperiment=recentDeviceExperimentNumber)
+	if(len(recentExperiments) <= numberOfRecentIndexes):
+		return recentExperiments
 	return recentExperiments[-numberOfRecentIndexes:]
 
 def getDataFileNamesForDeviceExperiments(directory, minExperiment=0, maxExperiment=float('inf')):
@@ -390,9 +396,8 @@ def loadOldestChipHistory(directory, fileName, numberOfOldestExperiments=1, numb
 	The default loads all devices on the chip but specific devices can also be specified."""
 	chipHistory = []
 	for deviceSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and (specificDeviceList is None or name in specificDeviceList))]:
-		jsonData = loadOldestDeviceHistory(os.path.join(directory, deviceSubdirectory), fileName, numberOfOldestExperiments=numberOfOldestExperiments, numberOfOldestIndexes=numberOfOldestIndexes)
-		for deviceRun in jsonData:
-			chipHistory.append(deviceRun)
+		deviceHistory = loadOldestDeviceHistory(os.path.join(directory, deviceSubdirectory), fileName, numberOfOldestExperiments=numberOfOldestExperiments, numberOfOldestIndexes=numberOfOldestIndexes)
+		chipHistory.extend(deviceHistory)
 	return chipHistory
 
 def loadMostRecentChipHistory(directory, fileName, numberOfRecentExperiments=1, numberOfRecentIndexes=1, specificDeviceList=None):
@@ -400,9 +405,8 @@ def loadMostRecentChipHistory(directory, fileName, numberOfRecentExperiments=1, 
 	The default loads all devices on the chip but specific devices can also be specified."""
 	chipHistory = []
 	for deviceSubdirectory in [name for name in os.listdir(directory) if(os.path.isdir(os.path.join(directory, name)) and (specificDeviceList is None or name in specificDeviceList))]:
-		jsonData = loadMostRecentDeviceHistory(os.path.join(directory, deviceSubdirectory), fileName, numberOfRecentExperiments=numberOfRecentExperiments, numberOfRecentIndexes=numberOfRecentIndexes)
-		for deviceRun in jsonData:
-			chipHistory.append(deviceRun)
+		deviceHistory = loadMostRecentDeviceHistory(os.path.join(directory, deviceSubdirectory), fileName, numberOfRecentExperiments=numberOfRecentExperiments, numberOfRecentIndexes=numberOfRecentIndexes)
+		chipHistory.extend(deviceHistory)
 	return chipHistory
 
 def getDataFileNamesForChipExperiments(directory, minExperiment=0, maxExperiment=float('inf'), specificDeviceList=None):

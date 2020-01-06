@@ -404,7 +404,8 @@ def sendDevicePlot(user, project, wafer, chip, device, plotType):
 	filebuf = io.BytesIO()
 	
 	# Get all arguments for the DeviceHistory.makePlots() function call
-	plotSettings = getPlotSettings(plotType, filebuf, minExperiment=-1, maxExperiment=-1, includeDeviceSummarySettings=True)
+	plotSettings = getPlotSettings(plotType, filebuf, minExperiment=0, maxExperiment=float('inf'), includeDeviceSummarySettings=True)
+	plotSettings['loadOnlyMostRecentExperiments'] = True
 	
 	# === Plot ===
 	DH.makePlots(user, project, wafer, chip, device, **plotSettings)

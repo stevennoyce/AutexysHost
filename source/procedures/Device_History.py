@@ -26,6 +26,9 @@ default_dh_parameters = {
 	'maxJSONExperimentNumber':  float('inf'),
 	'minJSONRelativeIndex': 0,
 	'maxJSONRelativeIndex':  float('inf'),
+	'loadOnlyMostRecentExperiments': False,
+	'numberOfRecentExperiments': 1,
+	'numberOfRecentIndexes': float('inf'),
 	'showFigures': True,
 	'specificPlotToCreate': ''
 }
@@ -35,9 +38,10 @@ default_linking_file = 'DeviceCycling.json'
 
 
 # === External Interface ===
-def makePlots(userID, projectID, waferID, chipID, deviceID, minExperiment=0, 
-				maxExperiment=float('inf'), specificPlot='', figureSize=None, sweepDirection=None, 
+def makePlots(userID, projectID, waferID, chipID, deviceID, minExperiment=0, maxExperiment=float('inf'), 
+				specificPlot='', figureSize=None, sweepDirection=None, 
 				dataFolder=None, saveFolder=None, plotSaveName='', saveFigures=False, showFigures=True, 
+				loadOnlyMostRecentExperiments=False, numberOfRecentExperiments=1, numberOfRecentIndexes=float('inf'),
 				minRelativeIndex=0, maxRelativeIndex=float('inf'), plot_mode_parameters=None, cacheBust=None):
 	"""Make plots for the device found in the userID/projectID/waferID/chipID/deviceID folder.
 
@@ -71,17 +75,22 @@ def makePlots(userID, projectID, waferID, chipID, deviceID, minExperiment=0,
 	parameters['maxJSONExperimentNumber'] = maxExperiment
 	parameters['minJSONRelativeIndex'] = minRelativeIndex
 	parameters['maxJSONRelativeIndex'] = maxRelativeIndex
+	parameters['loadOnlyMostRecentExperiments'] = loadOnlyMostRecentExperiments
+	parameters['numberOfRecentExperiments'] = numberOfRecentExperiments
+	parameters['numberOfRecentIndexes'] = numberOfRecentIndexes
 
 	# Plot selection parameters
 	parameters['showFigures'] = showFigures
 	parameters['specificPlotToCreate'] = specificPlot
 
-	# Plot decoration parameters
+	# Plot saving parameters
 	if(saveFolder is not None):
 		mode_parameters['plotSaveFolder'] = saveFolder
 	mode_parameters['saveFigures'] = saveFigures
 	mode_parameters['showFigures'] = showFigures
 	mode_parameters['plotSaveName'] = plotSaveName
+	
+	# Plot decoration parameters (this is here for convenience and should be eventually removed -- it is preferred that you specify these in plot_mode_parameters)
 	if(figureSize is not None):
 		mode_parameters['figureSizeOverride'] = figureSize
 	if(sweepDirection is not None):
@@ -136,8 +145,11 @@ def run(additional_parameters, plot_mode_parameters=None, cacheBust=None):
 			# === Load the data ===
 			deviceHistory = []
 			for dataFile in dataFileDependencies:
-				#deviceHistory += dlu.loadSpecificDeviceHistoryWithCaching((time.time() if(cacheBust is None) else cacheBust), dlu.getDeviceDirectory(parameters), dataFile, minIndex=p['minJSONIndex'], maxIndex=p['maxJSONIndex'], minExperiment=p['minJSONExperimentNumber'], maxExperiment=p['maxJSONExperimentNumber'], minRelativeIndex=p['minJSONRelativeIndex'], maxRelativeIndex=p['maxJSONRelativeIndex'])
-				deviceHistory += dlu.loadSpecificDeviceHistory(dlu.getDeviceDirectory(parameters), dataFile, minIndex=p['minJSONIndex'], maxIndex=p['maxJSONIndex'], minExperiment=p['minJSONExperimentNumber'], maxExperiment=p['maxJSONExperimentNumber'], minRelativeIndex=p['minJSONRelativeIndex'], maxRelativeIndex=p['maxJSONRelativeIndex'])
+				if(p['loadOnlyMostRecentExperiments']):
+					deviceHistory += dlu.loadMostRecentDeviceHistory(dlu.getDeviceDirectory(parameters), dataFile, numberOfRecentExperiments=p['numberOfRecentExperiments'], numberOfRecentIndexes=p['numberOfRecentIndexes'])
+				else:
+					#deviceHistory += dlu.loadSpecificDeviceHistoryWithCaching((time.time() if(cacheBust is None) else cacheBust), dlu.getDeviceDirectory(parameters), dataFile, minIndex=p['minJSONIndex'], maxIndex=p['maxJSONIndex'], minExperiment=p['minJSONExperimentNumber'], maxExperiment=p['maxJSONExperimentNumber'], minRelativeIndex=p['minJSONRelativeIndex'], maxRelativeIndex=p['maxJSONRelativeIndex'])
+					deviceHistory += dlu.loadSpecificDeviceHistory(dlu.getDeviceDirectory(parameters), dataFile, minIndex=p['minJSONIndex'], maxIndex=p['maxJSONIndex'], minExperiment=p['minJSONExperimentNumber'], maxExperiment=p['maxJSONExperimentNumber'], minRelativeIndex=p['minJSONRelativeIndex'], maxRelativeIndex=p['maxJSONRelativeIndex'])
 			
 			# If no data was loaded directly, check for possible linked data files
 			if(len(deviceHistory) == 0):

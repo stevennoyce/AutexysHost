@@ -41,7 +41,12 @@ default_ch_parameters = {
 
 
 # === External Interface ===
-def makePlots(userID, projectID, waferID, chipID, specificPlot='', figureSize=None, sweepDirection=None, minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf'), loadOnlyMostRecentExperiments=True, numberOfRecentExperiments=1, numberOfRecentIndexes=1, specificDeviceList=None, minOnCurrent=None, maxOnCurrent=None, maxOffCurrent=None, maxGateCurrent=None, deviceCategoryLists=None, dataFolder=None, saveFolder=None, plotSaveName='', saveFigures=False, showFigures=True, plot_mode_parameters=None):
+def makePlots(userID, projectID, waferID, chipID, specificPlot='', figureSize=None, sweepDirection=None, 
+				minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf'), 
+				loadOnlyMostRecentExperiments=True, numberOfRecentExperiments=1, numberOfRecentIndexes=1, specificDeviceList=None, 
+				minOnCurrent=None, maxOnCurrent=None, maxOffCurrent=None, maxGateCurrent=None, deviceCategoryLists=None, 
+				dataFolder=None, saveFolder=None, plotSaveName='', saveFigures=False, showFigures=True, plot_mode_parameters=None):
+
 	parameters = {}	
 	mode_parameters = {}
 	if(plot_mode_parameters is not None):
@@ -75,12 +80,14 @@ def makePlots(userID, projectID, waferID, chipID, specificPlot='', figureSize=No
 	parameters['showFigures'] = showFigures
 	parameters['specificPlotToCreate'] = specificPlot
 	
-	# Plot decoration parameters
+	# Plot saving parameters
 	if(saveFolder is not None):
 		mode_parameters['plotSaveFolder'] = saveFolder
-	mode_parameters['plotSaveName'] = plotSaveName
 	mode_parameters['saveFigures'] = saveFigures
 	mode_parameters['showFigures'] = showFigures
+	mode_parameters['plotSaveName'] = plotSaveName
+	
+	# Plot decoration parameters (this is here for convenience and should be eventually removed -- it is preferred that you specify these in plot_mode_parameters)
 	if(figureSize is not None):
 		mode_parameters['figureSizeOverride'] = figureSize
 	if(sweepDirection is not None):
