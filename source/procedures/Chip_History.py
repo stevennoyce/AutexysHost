@@ -40,8 +40,11 @@ default_ch_parameters = {
 
 
 
+# === Deprecated External Interface ===
+# makePlots(userID, projectID, waferID, chipID, specificPlot='', figureSize=None, sweepDirection=None, minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf'), loadOnlyMostRecentExperiments=True, numberOfRecentExperiments=1, numberOfRecentIndexes=1, specificDeviceList=None, minOnCurrent=None, maxOnCurrent=None, maxOffCurrent=None, maxGateCurrent=None, deviceCategoryLists=None, dataFolder=None, saveFolder=None, plotSaveName='', saveFigures=False, showFigures=True, plot_mode_parameters=None):
+
 # === External Interface ===
-def makePlots(userID, projectID, waferID, chipID, specificPlot='', figureSize=None, sweepDirection=None, 
+def makePlots(userID, projectID, waferID, chipID, specificPlot='', 
 				minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf'), 
 				loadOnlyMostRecentExperiments=True, numberOfRecentExperiments=1, numberOfRecentIndexes=1, specificDeviceList=None, 
 				minOnCurrent=None, maxOnCurrent=None, maxOffCurrent=None, maxGateCurrent=None, deviceCategoryLists=None, 
@@ -86,12 +89,6 @@ def makePlots(userID, projectID, waferID, chipID, specificPlot='', figureSize=No
 	mode_parameters['saveFigures'] = saveFigures
 	mode_parameters['showFigures'] = showFigures
 	mode_parameters['plotSaveName'] = plotSaveName
-	
-	# Plot decoration parameters (this is here for convenience and should be eventually removed -- it is preferred that you specify these in plot_mode_parameters)
-	if(figureSize is not None):
-		mode_parameters['figureSizeOverride'] = figureSize
-	if(sweepDirection is not None):
-		mode_parameters['sweepDirection'] = sweepDirection
 
 	return run(parameters, mode_parameters)
 

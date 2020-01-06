@@ -37,23 +37,23 @@ default_linking_file = 'DeviceCycling.json'
 
 
 
+# === Deprecated External Interface ===
+#def makePlots(userID, projectID, waferID, chipID, deviceID, minExperiment=0, maxExperiment=float('inf'), specificPlot='', figureSize=None, sweepDirection=None, dataFolder=None, saveFolder=None, plotSaveName='', saveFigures=False, showFigures=True, loadOnlyMostRecentExperiments=False, numberOfRecentExperiments=1, numberOfRecentIndexes=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf'), plot_mode_parameters=None, cacheBust=None):
+
 # === External Interface ===
-def makePlots(userID, projectID, waferID, chipID, deviceID, minExperiment=0, maxExperiment=float('inf'), 
-				specificPlot='', figureSize=None, sweepDirection=None, 
-				dataFolder=None, saveFolder=None, plotSaveName='', saveFigures=False, showFigures=True, 
+def makePlots(userID, projectID, waferID, chipID, deviceID, specificPlot='', 
+				minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf'),
 				loadOnlyMostRecentExperiments=False, numberOfRecentExperiments=1, numberOfRecentIndexes=float('inf'),
-				minRelativeIndex=0, maxRelativeIndex=float('inf'), plot_mode_parameters=None, cacheBust=None):
+				dataFolder=None, saveFolder=None, plotSaveName='', saveFigures=False, showFigures=True, plot_mode_parameters=None, cacheBust=None):
 	"""Make plots for the device found in the userID/projectID/waferID/chipID/deviceID folder.
 
-	minExperiment and maxExperiment specify a range of experiments to include in the plot(s).
 	specificPlot can be specified to only make one specific plot found in the plotDefintions folder, or by default all available plots are made.
-	figureSize can be specified as (width,height) to set the size of the plot.
+	minExperiment and maxExperiment specify a range of experiments to include in the plot(s).
+	minRelativeIndex and maxRelativeIndex can be used to limit the number of data entries shown if all entries have the same experimentNumber
 	dataFolder and saveFolder can specify the paths for loading .json data and saving .png plots, but they should not be necessary by default.
 	plotSaveName can add extra characters to the .png saved by this function if that is desireable.
 	saveFigures and showFigures are booleans that specify if a plot should be shown with the matplotlib pyplot interface or saved as a .png
-	sweepDirection is a commonly used plot decorator (can be 'both', 'forward', or 'reverse').
-	minRelativeIndex and maxRelativeIndex can be used to limit the number of data entries shown if all entries have the same experimentNumber
-
+	
 	plot_mode_parameters is a catch-all dictionary for parameters that affect the style of plots (but not the data shown!). See the DataPlotterUtility
 	for more information about available plot_mode_parameters."""
 
@@ -89,12 +89,6 @@ def makePlots(userID, projectID, waferID, chipID, deviceID, minExperiment=0, max
 	mode_parameters['saveFigures'] = saveFigures
 	mode_parameters['showFigures'] = showFigures
 	mode_parameters['plotSaveName'] = plotSaveName
-	
-	# Plot decoration parameters (this is here for convenience and should be eventually removed -- it is preferred that you specify these in plot_mode_parameters)
-	if(figureSize is not None):
-		mode_parameters['figureSizeOverride'] = figureSize
-	if(sweepDirection is not None):
-		mode_parameters['sweepDirection'] = sweepDirection
 
 	return run(parameters, plot_mode_parameters=mode_parameters, cacheBust=cacheBust)
 
