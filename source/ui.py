@@ -681,16 +681,17 @@ def add_header(response):
 
 
 # === Webbrowser ===
-def findFirstOpenPort(startPort=1):
+def findFirstOpenPort(startPort=1, blacklist=[5002]):
 	for port in range(startPort, 8081):
-		with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-			try:
-				print('Trying port {}'.format(port))
-				sock.bind(('127.0.0.1', port))
-				sock.close()
-				return port
-			except Exception as e:
-				print('Port {} is not available'.format(port))
+		if(port not in blacklist):
+			with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+				try:
+					print('Trying port {}'.format(port))
+					sock.bind(('127.0.0.1', port))
+					sock.close()
+					return port
+				except Exception as e:
+					print('Port {} is not available'.format(port))
 				
 def launchBrowser(url):
 	socketio.sleep(2)
