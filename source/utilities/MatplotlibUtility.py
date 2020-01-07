@@ -516,6 +516,14 @@ def includeOriginOnYaxis(axis, include=True, stretchfactor=1):
 			axis.set_ylim(bottom=0)
 	axis.set_ylim(bottom=axis.get_ylim()[0]*stretchfactor, top=axis.get_ylim()[1]*stretchfactor)
 
+def includeOriginOnXaxis(axis, include=True, stretchfactor=1):
+	if(include):
+		if(axis.get_xlim()[1] < 0):
+			axis.set_xlim(right=0)
+		elif(axis.get_xlim()[0] > 0):
+			axis.set_xlim(left=0)
+	axis.set_xlim(left=axis.get_xlim()[0]*stretchfactor, right=axis.get_xlim()[1]*stretchfactor)
+
 def getTestLabel(deviceHistory, identifiers):
 	if(identifiers is None):
 		return ''

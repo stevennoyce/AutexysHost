@@ -8,12 +8,16 @@ plotDescription = {
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(3.1,2.4),#(2*2.2,2*1.7),#(5,4),
+		'colorMap':'white_blue_black',
+		'colorDefault':[],
+		
 		'time_label':'Time ({:})',
 		'index_label':'Time Index of Gate Sweep (#)',
 		'ylabel':'$I_{{ON}}$ ($\\mathregular{\\mu}$A)',
 		'ylabel_dual_axis':'$I_{{OFF}}$ (nA)',
 		'vds_label': '$V_{{DS}}^{{Hold}}$ (V)',
 		'vgs_label': '$V_{{GS}}^{{Hold}}$ (V)',
+		
 		'subplot_height_ratio':[3,1],
 		'subplot_width_ratio': [1],
 		'subplotHeightPad': 0.03
@@ -24,6 +28,8 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	timescale = mode_parameters['timescale']
 	plotInRealTime = mode_parameters['plotInRealTime']
 	includeDualAxis = mode_parameters['includeDualAxis']
+	
+	colors = setupColors(None, 2, colorOverride=mode_parameters['colorsOverride'], colorDefault=plotDescription['plotDefaults']['colorDefault'], colorMapName=plotDescription['plotDefaults']['colorMap'], colorMapStart=0.7, colorMapEnd=0.3, enableColorBar=False)
 	
 	# Check if V_DS or V_GS are changing during this experiment
 	try:
@@ -74,18 +80,18 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	
 	# Plot On Current
 	if(plotInRealTime):
-		line = plotOverTime(ax1, timestamps, onCurrents, plt.rcParams['axes.prop_cycle'].by_key()['color'][3], offset=0, markerSize=3, lineWidth=0)
+		line = plotOverTime(ax1, timestamps, onCurrents, colors[0], offset=0, markerSize=3, lineWidth=0)
 	else:
-		line = ax1.plot(range(len(onCurrents)), onCurrents, color=plt.rcParams['axes.prop_cycle'].by_key()['color'][3], marker='o', markersize=3, linewidth=0, linestyle=None)[0]
+		line = ax1.plot(range(len(onCurrents)), onCurrents, color=colors[0], marker='o', markersize=3, linewidth=0, linestyle=None)[0]
 	setLabel(line, 'On-Currents')
 	ax1.set_ylim(bottom=0)
 	axisLabels(ax1, y_label=plotDescription['plotDefaults']['ylabel'])
 	
 	# Plot Off Current
 	if(plotInRealTime):
-		line = plotOverTime(ax2, timestamps, offCurrents, plt.rcParams['axes.prop_cycle'].by_key()['color'][1], offset=0, markerSize=2, lineWidth=0)
+		line = plotOverTime(ax2, timestamps, offCurrents, colors[1], offset=0, markerSize=2, lineWidth=0)
 	else:
-		line = ax2.plot(range(len(offCurrents)), offCurrents, color=plt.rcParams['axes.prop_cycle'].by_key()['color'][1], marker='o', markersize=2, linewidth=0, linestyle=None)
+		line = ax2.plot(range(len(offCurrents)), offCurrents, color=colors[1], marker='o', markersize=2, linewidth=0, linestyle=None)
 	setLabel(line, 'Off-Currents')
 	ax2.set_ylim(top=max(10, max(offCurrents)))
 	axisLabels(ax2, y_label=plotDescription['plotDefaults']['ylabel_dual_axis'])
@@ -101,9 +107,9 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 				t_i_next = timestamps[i] + deviceHistory[i]['runConfigs']['StaticBias']['totalBiasTime']/secondsPer(timescale)
 
 				if(vds_setpoint_changes):
-					vds_line = plotOverTime(vds_ax, [timestamps[i], t_i_next], [deviceHistory[i]['runConfigs']['StaticBias']['drainVoltageSetPoint']]*2, plt.rcParams['axes.prop_cycle'].by_key()['color'][0], offset=time_offset)
+					vds_line = plotOverTime(vds_ax, [timestamps[i], t_i_next], [deviceHistory[i]['runConfigs']['StaticBias']['drainVoltageSetPoint']]*2, colors[0], offset=time_offset)
 				if(vgs_setpoint_changes):
-					vgs_line = plotOverTime(vgs_ax, [timestamps[i], t_i_next], [deviceHistory[i]['runConfigs']['StaticBias']['gateVoltageSetPoint']]*2, plt.rcParams['axes.prop_cycle'].by_key()['color'][3], offset=time_offset)
+					vgs_line = plotOverTime(vgs_ax, [timestamps[i], t_i_next], [deviceHistory[i]['runConfigs']['StaticBias']['gateVoltageSetPoint']]*2, colors[1], offset=time_offset)
 			except:
 				pass
 	# Add Legend
