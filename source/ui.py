@@ -681,7 +681,7 @@ def add_header(response):
 
 
 # === Webbrowser ===
-def findFirstOpenPort(startPort=1, blacklist=[5002]):
+def findFirstOpenPort(startPort=1, blacklist=[5000,5002]):
 	for port in range(startPort, 8081):
 		if(port not in blacklist):
 			with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
