@@ -149,7 +149,7 @@ def runProcedure(parameters, schedule_parameters, smu_systems, arduino_systems, 
 		# If desired, delay until next cycle should start.	
 		if(cycle_index < cycles-1):
 			if(delay_between_cycles > 0):
-				wait_duration = (delay_between_devices) if(not timed_cycles) else ((startTime + delay_between_devices*cycle_index) - time.time())
+				wait_duration = (delay_between_devices) if(not timed_cycles) else ((startTime + delay_between_devices*(cycle_index+1)) - time.time())
 				print('Waiting for ' + str(wait_duration) + ' seconds, before beginning next cycle...')
 				time.sleep(max(0, wait_duration))
 	
