@@ -137,6 +137,7 @@ def runProcedure(parameters, schedule_parameters, smu_systems, arduino_systems, 
 				try:
 					pipes.progressUpdate(share, 'Device', start=0, current=(device_index+1), end=len(target_devices), barType='Group2', enableAbort=True)
 				except:
+					print('ABORT: Aborting device cycling...')
 					break
 			
 			# If desired, delay before moving on to the next device
@@ -150,12 +151,13 @@ def runProcedure(parameters, schedule_parameters, smu_systems, arduino_systems, 
 			try:
 				pipes.progressUpdate(share, 'Cycle', start=0, current=(cycle_index+1), end=cycles, barType='Group1', enableAbort=True)
 			except:
+				print('ABORT: Aborting procedure cycling...')
 				break
 			
 		# If desired, delay until next cycle should start.	
 		if(cycle_index < cycles-1):
 			if(delay_between_cycles > 0):
-				wait_duration = (delay_between_devices) if(not timed_cycles) else ((startTime + delay_between_devices*(cycle_index+1)) - time.time())
+				wait_duration = (delay_between_cycles) if(not timed_cycles) else ((startTime + delay_between_cycles*(cycle_index+1)) - time.time())
 				print('Waiting for ' + str(wait_duration) + ' seconds, before beginning next cycle...')
 				time.sleep(max(0, wait_duration))
 	
