@@ -244,13 +244,13 @@
 					
 					<v-stepper v-if="topLevelPage == 'stepper'" v-model="stepperPage" style="background-color:rgba(255,255,255,0);height:100%;">
 						<v-stepper-header style="background-color:rgba(255,255,255,1);">
-							<v-stepper-step step="1" :complete="stepperPage > 1" :editable="stepperPage > 1">Projects</v-stepper-step>
+							<v-stepper-step step="1" :complete="stepperPage > 1" :editable="stepperPage > 1" edit-icon="folder">Projects</v-stepper-step>
 							<v-divider></v-divider>
-							<v-stepper-step step="2" :complete="stepperPage > 2" :editable="stepperPage > 2">Wafers</v-stepper-step>
+							<v-stepper-step step="2" :complete="stepperPage > 2" :editable="stepperPage > 2" edit-icon="bubble_chart">Wafers</v-stepper-step>
 							<v-divider></v-divider>
-							<v-stepper-step step="3" :complete="stepperPage > 3" :editable="stepperPage > 3">Chips</v-stepper-step>
+							<v-stepper-step step="3" :complete="stepperPage > 3" :editable="stepperPage > 3" edit-icon="apps">Chips</v-stepper-step>
 							<v-divider></v-divider>
-							<v-stepper-step step="4" :complete="stepperPage > 4" :editable="stepperPage > 4">Devices</v-stepper-step>
+							<v-stepper-step step="4" :complete="stepperPage > 4" :editable="stepperPage > 4" edit-icon="memory">Devices</v-stepper-step>
 							<v-divider></v-divider>
 							<v-stepper-step step="5" :complete="stepperPage > 5" :editable="stepperPage > 5">Experiments</v-stepper-step>
 							<v-divider></v-divider>
@@ -303,7 +303,7 @@
 												<td>{{ props.item.path }}</td>
 												<td>{{ new Date(props.item.modificationTime*1000).toLocaleString() }}</td>
 												<td>{{ props.item.size }}</td>
-												<td>{{ props.item.chipCount }}</td>
+												<td><v-chip light>{{ props.item.chipCount }}</v-chip></td>
 												<td>{{ props.item.indexCount }}</td>
 												<td>{{ props.item.experimentCount }}</td>
 											</tr>
@@ -333,7 +333,7 @@
 												<td>{{ props.item.path }}</td>
 												<td>{{ new Date(props.item.modificationTime*1000).toLocaleString() }}</td>
 												<td>{{ props.item.size }}</td>
-												<td>{{ props.item.deviceCount }}</td>
+												<td><v-chip light>{{ props.item.deviceCount }}</v-chip></td>
 												<td>{{ props.item.indexCount }}</td>
 												<td>{{ props.item.experimentCount }}</td>
 											</tr>
@@ -364,7 +364,7 @@
 												<td>{{ new Date(props.item.modificationTime*1000).toLocaleString() }}</td>
 												<td>{{ props.item.size }}</td>
 												<td>{{ props.item.indexCount }}</td>
-												<td>{{ props.item.experimentCount }}</td>
+												<td><v-chip light>{{ props.item.experimentCount }}</v-chip></td>
 											</tr>
 										</template>
 									</v-data-table>
@@ -438,7 +438,7 @@
 										<template slot="items" slot-scope="props">
 											<tr @click="goToExperiment(props.item.i)">
 												<td>{{ props.item.startIndexes.experimentNumber }}</td>
-												<td>{{ props.item.runType }}<template v-if="props.item.parametersHistoryGenerated && props.item.experimentNumber == experiments[experiments.length-1].experimentNumber"> - Running</template></td>
+												<td><v-chip light :color="getRunTypeColor(props.item.runType)">{{ props.item.runType }}<template v-if="props.item.parametersHistoryGenerated && props.item.experimentNumber == experiments[experiments.length-1].experimentNumber"> - Running</template></v-chip></td>
 												<td>{{ props.item.MeasurementSystem.systemType }}</td>
 												<td>{{ props.item.uiComputed.indexCount }}</td>
 											</tr>
@@ -1617,6 +1617,12 @@
 								
 				// === Browser ===
 				
+				runTypeThemeColors: {
+					'GateSweep':'blue lighten-3',
+					'DrainSweep':'pink lighten-3',
+					'StaticBias':'indigo lighten-3',
+				},
+				
 				users: [],
 				user: localStorage.user ? JSON.parse(localStorage.user) : '',
 				
@@ -2217,6 +2223,11 @@
 					// const props = headers.filter(h => h.searchable === true).map(h => h.value); // include searchable:true
 					
 					return items.filter(item => props.some(prop => filter(_.get(item, prop), search)));
+				},
+				
+				getRunTypeColor: function(runType) {
+					if(Object.keys(this.runTypeThemeColors).includes(runType)) return this.runTypeThemeColors[runType];
+					return null;
 				},
 				
 				copyHTMLStringToClip: function (str) {
