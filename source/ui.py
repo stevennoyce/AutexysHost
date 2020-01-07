@@ -583,9 +583,9 @@ def dispatchSchedule(user, project, fileName):
 	return jsonvalid({'success': True})
 
 @app.route('/stopAtNextJob')
-def stopAtNextJob():
-	eprint('UI stopping at next job')
-	pipes.send(share, 'QueueToDispatcher', {'type':'Stop', 'stop':'Dispatcher Job'})
+def stopDispatcher():
+	eprint('Dispatcher stopping...')
+	pipes.send(share, 'QueueToDispatcher', {'type':'Stop'})
 	return jsonvalid({'success': True})
 
 def getSubDirectories(directory):

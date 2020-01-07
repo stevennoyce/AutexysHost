@@ -134,7 +134,10 @@ def runProcedure(parameters, schedule_parameters, smu_systems, arduino_systems, 
 			
 			# Send device progress update
 			if((cycles > 1) or (len(target_devices) > 1)):
-				pipes.progressUpdate(share, 'Device', start=0, current=(device_index+1), end=len(target_devices), barType='Group2')
+				try:
+					pipes.progressUpdate(share, 'Device', start=0, current=(device_index+1), end=len(target_devices), barType='Group2', enableAbort=True)
+				except:
+					break
 			
 			# If desired, delay before moving on to the next device
 			if(device_index < len(target_devices)-1):
@@ -144,7 +147,10 @@ def runProcedure(parameters, schedule_parameters, smu_systems, arduino_systems, 
 		
 		# Send cycle progress update
 		if((cycles > 1) or (len(target_devices) > 1)):
-			pipes.progressUpdate(share, 'Cycle', start=0, current=(cycle_index+1), end=cycles, barType='Group1')
+			try:
+				pipes.progressUpdate(share, 'Cycle', start=0, current=(cycle_index+1), end=cycles, barType='Group1', enableAbort=True)
+			except:
+				break
 			
 		# If desired, delay until next cycle should start.	
 		if(cycle_index < cycles-1):

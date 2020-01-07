@@ -1,107 +1,98 @@
+# === Imports ===
 import time
 import queue
 
-def pipeSend(pipe, message):
-	if pipe is None:
-		return
-	try:
-		pipe.send(message)
-	except Exception as e:
-		print('Pipe could not send message')
-		# print(e)
 
+
+# === Basic Queue Communication ===
 def send(share, qName, message):
 	try:
+		# Prevent null exceptions
 		if share is None:
 			return 
 		if qName not in share:
 			return
 		q = share[qName]
 		
-		if not q.full():
+		# Send "message" to "qName" Queue
+		if(not q.full()):
 			q.put_nowait(message)
 		else:
 			print('Queue is full')
+	
+	# Handle generic exceptions	
 	except Exception as e:
-		print('Queue could not put message', e)
+		print('Queue put exception: ', e)
 
-def pipePoll(pipe, timeout=0):
-	if pipe is None:
-		return False
+def poll(share, qName):
 	try:
-		result = pipe.poll(timeout)
-	except Exception as e:
-		print('Pipe could not poll: ', e)
-		result = False
-	return result
-
-def poll(share, qName, timeout=0):
-	try:
+		# Prevent null exceptions
 		if qName not in share:
-			return
+			return False
 		q = share[qName]
 		
-		if q.empty():
+		# Poll "qName" Queue
+		if(q.empty()):
 			return False
 		else:
 			return True
+	
+	# Handle generic exceptions	
 	except Exception as e:
-		print('Pipe could not poll: ', e)
+		print('Queue poll exception: ', e)
 		return False
-
-def pipeRecv(pipe):
-	if pipe is None:
-		return ''
-	try:
-		result = pipe.recv()
-	except Exception as e:
-		print('Pipe could not receive: ', e)
-		result = ''
-	return result
 
 def recv(share, qName, timeout=0):
 	try:
+		# Prevent null exceptions
 		if qName not in share:
 			return
 		q = share[qName]
 		
-		if timeout > 0:
+		# Recv message from "qName" Queue
+		if(timeout > 0):
 			return q.get(block=True, timeout=timeout)
 		else:
-			if q.empty():
+			if(q.empty()):
 				return None
 			return q.get_nowait()
+	
+	# Handle empty Queue			
 	except queue.Empty as e:
 		return None
+	
+	# Handle generic exceptions	
 	except Exception as e:
 		print('Queue get exception: ', e)
-	return None
 
 def clear(share, qName):
 	try:
+		# Prevent null exceptions
 		if qName not in share:
 			return
 		q = share[qName]
 		
-		while not q.empty():
+		# Clear "qName" Queue
+		while(not q.empty()):
 			q.get()
+	
+	# Handle generic exceptions	
 	except Exception as e:
-		print('Error clearing queue ', e)
+		print('Queue clearing exception: ', e)
 
-def progressUpdate(share, progName, start, current, end, barType='Procedure'):
+
+
+# === Progress Updates ===
+def progressUpdate(share, progName, start, current, end, barType='Procedure', enableAbort=False):
 	try:
-		abort = False
-		qName = 'QueueToUI'
-		
-		if share is None:
+		# Prevent null exceptions
+		if(share is None):
 			return
-		
-		if progName in share['procedureStopLocations']:
-			abort = True
 
-		send(share, qName, {
-			'type':'Progress',
-			'progress': {
+		# Send a progress-type message to the UI
+		send(share, 'QueueToUI', {
+				'type':'Progress',
+				'progress': {
 					'name': progName,
 					'barType': barType,
 					'start': start,
@@ -111,50 +102,71 @@ def progressUpdate(share, progName, start, current, end, barType='Procedure'):
 				}
 			}
 		)
+		
+		# Check for abort signals
+		abort = (enableAbort and poll(share, 'QueueToDispatcher'))
+				
+	# Handle generic exceptions	
 	except Exception as e:
-		print('Error updating progress: ', e)
+		print('Progress update exception: ', e)
 	
-	if abort:
-	 	raise Exception('Recieved stop command from UI. Aborting current procedure at {}.'.format(progName))
+	if(abort):
+	 	raise Exception('Aborting dispatcher. Aborting current procedure at {}.'.format(progName))
 
+
+
+# === Live-Plot Updates ===
 def livePlotUpdate(share, plots):
 	try:
-		qName = 'QueueToUI'
-
-		if share is None:
+		# Prevent null exceptions
+		if(share is None):
 			return
+		
+		# Send a data-type message to the UI
+		send(share, 'QueueToUI', {
+				'type':'Data',
+				'plots': [plot.toDict() for plot in plots]
+			}
+		)
 
-		send(share, qName, {
-					'type':'Data',
-					'plots': [plot.toDict() for plot in plots]})
-
+	# Handle generic exceptions	
 	except Exception as e:
-		print('Error updating live plot: ', e)
+		print('Live-plot update exception: ', e)
 
 def jobNumberUpdate(share, number):
 	try:
-		qName = 'QueueToUI'
-
-		if share is None:
+		# Prevent null exceptions
+		if(share is None):
 			return
+			
+		# Send a jobnumber-type message to the UI
+		send(share, 'QueueToUI', {
+				'type':'JobNumberUpdate',
+				'number':number
+			}
+		)
 
-		send(share, qName, {
-					'type':'JobNumberUpdate',
-					'number':number})
-
+	# Handle generic exceptions	
 	except Exception as e:
-		print('Error updating live plot: ', e)
+		print('Job-number update exception: ', e)
 
 def deviceNumberUpdate(share, number):
 	try:
-		qName = 'QueueToUI'
-
-		if share is None:
+		# Prevent null exceptions
+		if(share is None):
 			return
 
-		send(share, qName, {
-					'type':'DeviceNumberUpdate',
-					'number':number})
+		# Send a devicenumber-type message to the UI
+		send(share, 'QueueToUI', {
+				'type':'DeviceNumberUpdate',
+				'number':number
+			}
+		)
 
+	# Handle generic exceptions	
 	except Exception as e:
-		print('Error updating live plot: ', e)
+		print('Device-number update exception: ', e)
+		
+		
+		
+		
