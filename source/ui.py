@@ -582,7 +582,7 @@ def dispatchSchedule(user, project, fileName):
 	eprint('UI Sent RUN:')
 	return jsonvalid({'success': True})
 
-@app.route('/stopAtNextJob')
+@app.route('/stopDispatcher')
 def stopDispatcher():
 	eprint('Dispatcher stopping...')
 	pipes.send(share, 'QueueToDispatcher', {'type':'Stop'})

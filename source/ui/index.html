@@ -1200,7 +1200,7 @@
 											</template>
 											<v-spacer></v-spacer>
 											<v-btn class="mb-3 mt-3" @click="saveRunnerScheduleFile(); dispatchSchedule();">Launch Experiments in Schedule File</v-btn>
-											<v-btn class="mb-3 mt-3" @click="stopAtNextJob()">Stop at Next Job</v-btn>
+											<v-btn class="mb-3 mt-3" @click="stopDispatcher()">Stop</v-btn>
 										</v-card-actions>	
 									</template>
 									<template v-if="runnerChoice !== 'Schedule File' && runnerChoice !== ''">
@@ -1512,6 +1512,7 @@
 				ReadMeHTML: '',
 				
 				scheduleExperimentSuccessCode: {},
+				stopDispatcherSuccessCode: {},
 				saveScheduleSuccessCode: {},
 				addToNoteSuccessCode: {},
 				
@@ -2069,11 +2070,11 @@
 						.fail(() => {console.log("Error dispatching schedule file")});
 					}
 				},
-				stopAtNextJob: function() {
-					var path = '/stopAtNextJob' + this.cacheBust;
+				stopDispatcher: function() {
+					var path = '/stopDispatcher' + this.cacheBust;
 					if (path) {
-						$.getJSON(path, response => {app.$data.stopAtNextJobSuccessCode = response})
-						.fail(() => {console.log("Error stopping at next job")});
+						$.getJSON(path, response => {app.$data.stopDispatcherSuccessCode = response})
+						.fail(() => {console.log("Error stopping dispatcher")});
 					}
 				},
 				resetRunnerChoice: function() {
