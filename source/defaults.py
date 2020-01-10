@@ -144,16 +144,6 @@ default_parameters = {
 			'delayBetweenSweeps': 			{'type':'float',                   'units':'s', 'default': 2,          'title':'Delay Between Sweeps',    'description':'Delay between each sweep.'},
 			'timedSweepStarts': 			{'type':'bool',                                 'default': False,      'title':'Timed Sweep Starts',      'description':'When enabled, the delay between sweeps is dynamically reduced by the amount of time the sweep took.'}, 
 		},
-		'ChipSweep':{
-			'dependencies': 				{'ignore':True, 'value':['GateSweep','DrainSweep']},
-			'saveFileName': 				{'type':'constant', 'default': 'ChipSweep', 'title':'Save File Name', 'description':'The name of the file that will be saved with the data from this experiment. This name should typically not be changed.'},
-			'sweepType': 					{'type':'choice','essential':True,              'default': 'GateSweep',         'title':'Sweep Type',              'choices':['GateSweep', 'DrainSweep'], 'description':'Type of sweep to perform on each device.'},
-			'sweepsPerDevice': 				{'type':'int',   'essential':True, 'units':'#', 'default': 1,                   'title':'Sweeps Per Device',       'description':'Number of sweeps to take for each device on the chip.'},
-			'devices':						{'type':'array', 'essential':True, 'units':'',  'default': ['1-2','2-3','3-4'], 'title':'Specific Device List',    'description':'List of devices to measure.'},
-			'delayBetweenDevices': 			{'type':'float',                   'units':'s', 'default': 0,                   'title':'Delay Between Devices',   'description':'Delay after a sweep completes before switching to the next device.'},
-			'delayBetweenCycles': 			{'type':'float',                   'units':'s', 'default': 0,                   'title':'Delay Between Cycles',    'description':'Delay between each cycle of devices.'},
-			'timedCycles': 					{'type':'bool',                                 'default': True,                'title':'Timed Cycles',            'description':'When enabled, the delay between cycles is dynamically reduced by the amount of time the last cycle took.'}, 
-		},
 		'AutoStaticBias':{
 			'dependencies': 						{'ignore':True, 'value':['StaticBias','GateSweep']},
 			'numberOfStaticBiases': 				{'type':'int',   'essential':True, 'units':'#', 'default': 1,     'title':'Number Of Static Biases',          'description':'Number of successive static bias trials.'},

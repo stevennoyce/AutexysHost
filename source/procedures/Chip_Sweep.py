@@ -1,3 +1,5 @@
+""" IMPORTANT: this file is deprecated and no longer supported. Use "DeviceCycling" to achieve the same kind of procedure as this one, with improved generality."""
+
 # === Imports ===
 import time
 import copy
