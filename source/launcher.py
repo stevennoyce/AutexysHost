@@ -51,7 +51,7 @@ def run(additional_parameters, share=None):
 	print("Sensor data: " + str(parameters['SensorData']))
 	
 	# === Start ===
-	startProcedure(parameters, smu_systems, arduino_systems)
+	startProcedure(parameters, smu_systems, arduino_systems, share=share)
 	# === Complete ===
 	
 	# Print finishing message noting how long this job took to run
@@ -60,7 +60,7 @@ def run(additional_parameters, share=None):
 
 
 # === Internal API ===
-def startProcedure(parameters, smu_systems, arduino_systems):
+def startProcedure(parameters, smu_systems, arduino_systems, share=None):
 	"""Determines if this procedure should run in normal or DeviceCycling mode. Also does the setup, error handling, and clean up
 	for the procedure."""
 	
@@ -83,7 +83,7 @@ def startProcedure(parameters, smu_systems, arduino_systems):
 	
 	# === Setup ===
 	# Begin a new experiment and set up data saving for each target device
-	deviceIndexes = setUpDataSaving(parameters, additional_parameters, target_devices)
+	deviceIndexes = setUpDataSaving(parameters, target_devices)
 	
 	# === Run Procedure ===
 	try:
@@ -138,7 +138,7 @@ def runProcedure(parameters, smu_systems, arduino_systems, deviceIndexes, target
 			
 			# Send the UI an initial notification before the first device starts. Also resets this progress bar for each new cycle.
 			if(is_cycling and (device_index == 0)):
-				pipes.progressUpdate(share, 'Device', start=0, current=0, end=len(target_devices), barType='Group2')
+				pipes.progressUpdate(share, 'Device', start=0, current=0, end=len(target_devices), barType='Group2', enableAbort=True)
 			
 			# Print the experiment start message
 			print('Running experiment #' + str(deviceIndexes[device]['experimentNumber']) + ' for device ' + str(parameters['Identifiers']['wafer']) + str(parameters['Identifiers']['chip']) + ':' + str(device))
@@ -183,7 +183,7 @@ def runProcedure(parameters, smu_systems, arduino_systems, deviceIndexes, target
 	
 	
 
-def setUpDataSaving(parameters, schedule_parameters, target_devices):
+def setUpDataSaving(parameters, target_devices):
 	"""This function runs at the beginning of a procedure to set up all data structures needed to save data properly."""
 	
 	deviceIndexes = {}
