@@ -27,6 +27,8 @@ def send(share, qName, message):
 def poll(share, qName):
 	try:
 		# Prevent null exceptions
+		if share is None:
+			return False
 		if qName not in share:
 			return False
 		q = share[qName]
@@ -45,6 +47,8 @@ def poll(share, qName):
 def recv(share, qName, timeout=0):
 	try:
 		# Prevent null exceptions
+		if share is None:
+			return
 		if qName not in share:
 			return
 		q = share[qName]
@@ -68,6 +72,8 @@ def recv(share, qName, timeout=0):
 def clear(share, qName):
 	try:
 		# Prevent null exceptions
+		if share is None:
+			return
 		if qName not in share:
 			return
 		q = share[qName]
@@ -105,17 +111,20 @@ def progressUpdate(share, progName, start, current, end, barType='Procedure', en
 					'timestamp':time.time()
 				}
 			}
-		)
-		
-		# Check for abort signals
-		abort = (enableAbort and poll(share, 'QueueToDispatcher'))
-				
+		)		
 	# Handle generic exceptions	
 	except Exception as e:
 		print('Progress update exception: ', e)
 	
-	if(abort):
-	 	raise AbortError('Aborting current procedure at {}.'.format(progName))
+	if(enableAbort):
+	 	checkAbortStatus(share)
+
+def checkAbortStatus(share):
+	if(abortStatus(share)):
+		raise AbortError('Aborting current procedure.')
+
+def abortStatus(share):
+	return poll(share, 'QueueToDispatcher')
 
 
 

@@ -32,7 +32,7 @@ def dispatch(schedule_file_path=None, share=None):
 		choice = input('Choose a schedule file to run: ')
 	
 	# File must end in '.json'
-	file = choice if(choice[-5:] == '.json') else (choice + '.json')
+	file = choice if(choice[-5:] == '.json') else (str(choice) + '.json')
 	file = file.strip()
 	
 	run_file(file, share)
@@ -48,28 +48,30 @@ def run_file(schedule_file_path, share=None):
 	"""Given a shedule file path, open the file and step through each experiment."""
 	schedule_index = 0
 	
-	print('Opening schedule file: ' + schedule_file_path)
+	print('Opening schedule file: ' + str(schedule_file_path))
 	
 	while( schedule_index < len(dlu.loadJSON(directory='', loadFileName=schedule_file_path)) ):
+		# Re-load the entire schedule file
 		print('Loading line #' + str(schedule_index+1) + ' in schedule file ' + schedule_file_path)
 		parameter_list = dlu.loadJSON(directory='', loadFileName=schedule_file_path)
 
+		# Print launch message for the current line of the schedule file
 		print('Launching job #' + str(schedule_index+1) + ' of ' + str(len(parameter_list)) + ' in schedule file ' + schedule_file_path)
-		print('Schedule contains ' + str(len(parameter_list) - schedule_index - 1) + ' other incomplete jobs.')
 		additional_parameters = parameter_list[schedule_index].copy()
 
+		# Notify the UI that a new job is about to start
 		pipes.jobNumberUpdate(share, schedule_index)
 
-		# Send progress update if this dispatcher was run by a manager
+		# Update dispatcher progress bar
 		pipes.progressUpdate(share, 'Job', start=0, current=schedule_index, end=len(parameter_list), barType='Dispatcher')
 		
 		launcher.run(additional_parameters, share)
 		schedule_index += 1
 		
-		# Send progress update if this dispatcher was run by a manager
+		# Update dispatcher progress bar
 		pipes.progressUpdate(share, 'Job', start=0, current=schedule_index, end=len(parameter_list), barType='Dispatcher')
 	
-	print('Closing schedule file: ' + schedule_file_path)
+	print('Closing schedule file: ' + str(schedule_file_path))
 	
 
 

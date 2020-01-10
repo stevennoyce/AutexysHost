@@ -71,7 +71,7 @@ def runAutoStaticBias(parameters, smu_systems, arduino_systems, gateSweepParamet
 		print('Completed static bias #'+str(i+1)+' of '+str(numberOfStaticBiases))
 
 		# Send progress update
-		pipes.progressUpdate(share, 'Bias', start=0, current=i+1, end=numberOfStaticBiases, barType="Sweep")
+		pipes.progressUpdate(share, 'Bias', start=0, current=i+1, end=numberOfStaticBiases, barType="Sweep", enableAbort=True)
 
 		# Delay before doing the next StaticBias
 		if((asb_parameters['delayBetweenBiases'] > 0) and (i+1 < numberOfStaticBiases)):

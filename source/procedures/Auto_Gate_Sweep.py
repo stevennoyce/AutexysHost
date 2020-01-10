@@ -46,7 +46,7 @@ def runAutoGateSweep(parameters, smu_systems, arduino_systems, share=None):
 			sweepCount += 1
 			
 			# Send progress update
-			pipes.progressUpdate(share, 'Sweep', start=0, current=sweepCount, end=numberOfSweeps, barType="Sweep")
+			pipes.progressUpdate(share, 'Sweep', start=0, current=sweepCount, end=numberOfSweeps, barType="Sweep", enableAbort=True)
 			
 			if(sweepCount < numberOfSweeps):
 				# If desired, delay until next sweep should start

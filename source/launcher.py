@@ -88,9 +88,10 @@ def startProcedure(parameters, smu_systems, arduino_systems, share=None):
 	
 	# === Run Procedure ===
 	try:
+		pipes.checkAbortStatus(share)
 		runProcedure(parameters, smu_systems, arduino_systems, deviceIndexes, target_devices, cycles=procedure_cycles, delay_between_devices=delay_between_devices, delay_between_cycles=delay_between_cycles, timed_cycles=timed_cycles, share=share)
 	except pipes.AbortError as e:
-		print("ABORT: launcher aborted.")
+		print("ABORT. Launcher received abort: " + str(e))
 	except:
 		# In case of a general procedure error, still try to ramp down SMU voltages, then disconnect
 		for smu_name, smu_instance in smu_systems.items():
@@ -125,7 +126,7 @@ def runProcedure(parameters, smu_systems, arduino_systems, deviceIndexes, target
 	
 	# If any cycling will occur, notify the UI
 	if(is_cycling):
-		pipes.progressUpdate(share, 'Cycle', start=0, current=0, end=cycles, barType='Group1')
+		pipes.progressUpdate(share, 'Cycle', start=0, current=0, end=cycles, barType='Group1', enableAbort=True)
 		print('Device Cycling is beginning.')
 	
 	# Mark the start of this procedure

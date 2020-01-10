@@ -584,7 +584,7 @@ def dispatchSchedule(user, project, fileName):
 
 @app.route('/stopDispatcher')
 def stopDispatcher():
-	eprint('Dispatcher stopping...')
+	eprint('Requesting Dispatcher Abort...')
 	pipes.send(share, 'QueueToDispatcher', {'type':'Stop'})
 	return jsonvalid({'success': True})
 
