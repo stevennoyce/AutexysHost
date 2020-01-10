@@ -1200,7 +1200,7 @@
 											</template>
 											<v-spacer></v-spacer>
 											<v-btn class="mb-3 mt-3" @click="saveRunnerScheduleFile(); dispatchSchedule();">Launch Experiments in Schedule File</v-btn>
-											<v-btn class="mb-3 mt-3" @click="stopDispatcher()">Stop</v-btn>
+											<v-btn class="mb-3 mt-3" @click="stopDispatcher()" :disabled="!dispatcherRunning">Stop</v-btn>
 										</v-card-actions>	
 									</template>
 									<template v-if="runnerChoice !== 'Schedule File' && runnerChoice !== ''">
@@ -1213,7 +1213,7 @@
 							</v-container>
 						</v-card>
 						
-						<v-card class="mb-3" v-if="dispatcherRunning">
+						<v-card class="mb-3" v-if="showProgress">
 							<v-toolbar dark dense class="color3 ">
 								<v-toolbar-title>
 									Progress
@@ -1511,8 +1511,6 @@
 				paths: {},
 				ReadMeHTML: '',
 				
-				scheduleExperimentSuccessCode: {},
-				stopDispatcherSuccessCode: {},
 				saveScheduleSuccessCode: {},
 				addToNoteSuccessCode: {},
 				
@@ -1706,6 +1704,8 @@
 				
 				// === Experiment Runner ===
 				
+				dispatcherRunning: false,
+				
 				isModifiedRunnerChoice: false,
 				
 				runnerLabel: 'Experiment Type',
@@ -1748,7 +1748,7 @@
 				
 				// === Progress Bars ===
 				
-				dispatcherRunning: false,
+				showProgress: false,
 				
 				experimentRunnerProgress: {
 					timerModel: {
@@ -2066,14 +2066,14 @@
 					
 					var path = '/dispatchSchedule/' + this.scheduleExperimentUser + '/' + this.scheduleExperimentProject + '/' + this.scheduleExperimentFileName + '.json' + this.cacheBust;
 					if (path) {
-						$.getJSON(path, response => {app.$data.scheduleExperimentSuccessCode = response})
+						$.getJSON(path, response => {app.$data.dispatcherRunning = true})
 						.fail(() => {console.log("Error dispatching schedule file")});
 					}
 				},
 				stopDispatcher: function() {
 					var path = '/stopDispatcher' + this.cacheBust;
 					if (path) {
-						$.getJSON(path, response => {app.$data.stopDispatcherSuccessCode = response})
+						$.getJSON(path, response => {app.$data.dispatcherRunning = false})
 						.fail(() => {console.log("Error stopping dispatcher")});
 					}
 				},
@@ -2424,7 +2424,7 @@
 					}
 
 					if (message.type == 'Progress') {
-						this.dispatcherRunning = true;
+						this.showProgress = true;
 						
 						this.experimentRunnerProgress.timerModel.current = message.progress.timestamp;
 						if(this.experimentRunnerProgress.timerModel.start === 0) {
@@ -2472,7 +2472,7 @@
 
 					}
 					if (message.type == 'Data') {
-						this.dispatcherRunning = true;
+						this.showProgress = true;
 
 						for(myPlot of message.plots){
 							var myPlotInLivePlots = null;
