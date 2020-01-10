@@ -83,6 +83,10 @@ def clear(share, qName):
 
 
 # === Progress Updates ===
+class AbortError(Exception):
+	"""Error type for a progress update that needs to trigger the abort sequence."""
+	pass
+
 def progressUpdate(share, progName, start, current, end, barType='Procedure', enableAbort=False):
 	try:
 		# Prevent null exceptions
@@ -111,7 +115,7 @@ def progressUpdate(share, progName, start, current, end, barType='Procedure', en
 		print('Progress update exception: ', e)
 	
 	if(abort):
-	 	raise Exception('Aborting dispatcher. Aborting current procedure at {}.'.format(progName))
+	 	raise AbortError('Aborting current procedure at {}.'.format(progName))
 
 
 
