@@ -64,6 +64,7 @@ def startProcedure(parameters, smu_systems, arduino_systems, share=None):
 	"""Determines if this procedure should run in normal or DeviceCycling mode. Also does the setup, error handling, and clean up
 	for the procedure."""
 	
+	# === Cycling ===
 	# Initialize list of devices we plan to measure (defaults to the single device in 'Identifiers')
 	target_devices = [parameters['Identifiers']['device']]
 	
