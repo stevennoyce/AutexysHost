@@ -168,8 +168,11 @@ def loadDataBasedOnPlotDependencies(dataFileDependencies, parameters, minIndex=0
 
 def plotsForExperiments(parameters, minExperiment=0, maxExperiment=float('inf'), maxPriority=float('inf')):
 	"""Given the typical parameters used to run experiments, return a list of plots that could be made from the data that has been already collected."""
-	return dpu.getPlotTypesFromDependencies(dlu.getDataFileNamesForChipExperiments(dlu.getChipDirectory(parameters), minExperiment=minExperiment, maxExperiment=maxExperiment), plotCategory='chip', maxPriority=maxPriority)
-
+	try:
+		return dpu.getPlotTypesFromDependencies(dlu.getDataFileNamesForChipExperiments(dlu.getChipDirectory(parameters), minExperiment=minExperiment, maxExperiment=maxExperiment), plotCategory='chip', maxPriority=maxPriority)
+	except FileNotFoundError:
+		print('No chip plots available for the requested experiments.')
+		return []
 
 
 

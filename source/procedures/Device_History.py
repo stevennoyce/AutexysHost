@@ -173,16 +173,19 @@ def run(additional_parameters, plot_mode_parameters=None, cacheBust=None):
 
 def plotsForExperiments(parameters, minExperiment=0, maxExperiment=float('inf'), maxPriority=float('inf'), linkingFile=default_linking_file):
 	"""Given the typical parameters used to run experiments, return a list of plots that could be made from the data that has been already collected."""
+	try:
+		# Get a list of all saved data files for the given experiment range
+		available_data_files = dataFilesForExperiments(parameters, minExperiment=minExperiment, maxExperiment=maxExperiment)
+		
+		# Add linked data files to the list of available saved data files
+		if((linkingFile is not None) and (linkingFile in available_data_files)):
+			available_data_files += dlu.getLinkedFileNamesForDeviceExperiments(dlu.getDeviceDirectory(parameters), linkingFile, minExperiment=minExperiment, maxExperiment=maxExperiment)
 
-	# Get a list of all saved data files for the given experiment range
-	available_data_files = dataFilesForExperiments(parameters, minExperiment=minExperiment, maxExperiment=maxExperiment)
-	
-	# Add linked data files to the list of available saved data files
-	if((linkingFile is not None) and (linkingFile in available_data_files)):
-		available_data_files += dlu.getLinkedFileNamesForDeviceExperiments(dlu.getDeviceDirectory(parameters), linkingFile, minExperiment=minExperiment, maxExperiment=maxExperiment)
-
-	# Return list of available plots based on the available data files
-	return dpu.getPlotTypesFromDependencies(available_data_files, plotCategory='device', maxPriority=maxPriority)
+		# Return list of available plots based on the available data files
+		return dpu.getPlotTypesFromDependencies(available_data_files, plotCategory='device', maxPriority=maxPriority)
+	except FileNotFoundError:
+		print('No device plots available for the requested experiments.')
+		return []
 
 def dataFilesForExperiments(parameters, minExperiment=0, maxExperiment=float('inf')):
 	"""Given the typical parameters used to run experiments, return a list files containing the saved data that has been collected."""
