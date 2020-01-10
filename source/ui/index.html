@@ -1199,7 +1199,7 @@
 												</form>
 											</template>
 											<v-spacer></v-spacer>
-											<v-btn class="mb-3 mt-3" @click="saveRunnerScheduleFile(); dispatchSchedule();">Launch Experiments in Schedule File</v-btn>
+											<v-btn class="mb-3 mt-3" @click="saveRunnerScheduleFile(); dispatchSchedule();" :disabled="!(scheduleExperimentUser && scheduleExperimentProject && scheduleExperimentFileName)">Launch Schedule File</v-btn>
 											<v-btn class="mb-3 mt-3" @click="stopDispatcher()" :disabled="!dispatcherRunning">Stop</v-btn>
 										</v-card-actions>	
 									</template>
@@ -1266,7 +1266,7 @@
 							</v-list>
 						</v-card>
 						
-						<v-card>
+						<v-card v-if="showProgress">
 							<v-toolbar dark dense class="color3 ">
 								<v-toolbar-title>
 									Live Plots
