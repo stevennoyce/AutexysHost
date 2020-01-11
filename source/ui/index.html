@@ -117,12 +117,12 @@
 	<div id="app">
 		
 		<transition name="loaderfadeaway">
-		<div style="height:100%; width: 100%; z-index: 1000; position: absolute; background-color: rgb(255,255,255);" v-if="pageLoading">
-			<div class="spinner">
-				<div class="dot1"></div>
-				<div class="dot2"></div>
+			<div style="height:100%; width: 100%; z-index: 1000; position: absolute; background-color: rgb(255,255,255);" v-if="pageLoading">
+				<div class="spinner">
+					<div class="dot1"></div>
+					<div class="dot2"></div>
+				</div>
 			</div>
-		</div>
 		</transition>
 		
 		<transition name="fade" mode="out-in" appear>
@@ -547,7 +547,7 @@
 									</v-container>
 									
 									<v-card class="ma-1">
-										<v-toolbar dark dense class="grey darken-2 ">
+										<v-toolbar dark dense class="info">
 											<v-toolbar-title>
 												Notes
 											</v-toolbar-title>
@@ -697,7 +697,7 @@
 							</v-list>
 							
 							<v-card class="ma-3" v-if="!(_.isEqual(scheduleLines, [{}]) || _.isEqual(scheduleLines, []))">
-								<v-toolbar dark dense class="grey">
+								<v-toolbar dark dense class="info">
 									<v-toolbar-title>
 										Preview Schedule File
 									</v-toolbar-title>
@@ -796,15 +796,6 @@
 											Load Schedule File
 										</v-toolbar-title>
 									</v-toolbar>
-									<!-- <v-menu attach bottom left offset-y>
-										<v-btn slot="activator" flat>{{ scheduleSaveUser }}<v-icon right>people</v-icon></v-btn>
-										<v-list light>
-											<v-list-tile v-for="u in users" @click="scheduleSaveUser = u">
-												<v-list-tile-avatar color="color1 "><v-icon dark>account_circle</v-icon></v-list-tile-avatar>
-												<v-list-tile-content><v-list-tile-title>{{ u }}</v-list-tile-title></v-list-tile-content>
-											</v-list-tile>
-										</v-list>
-									</v-menu> -->
 									
 									<v-form>
 										<v-container>
@@ -845,7 +836,7 @@
 					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'dashboard'">
 						<v-card>
-							<v-toolbar dark dense class="color1 ">
+							<v-toolbar dark dense class="color1 darken-1">
 								<v-toolbar-title>
 									Dashboard
 								</v-toolbar-title>
@@ -943,14 +934,7 @@
 								<p>
 									Autexys - the Automated Experimentation System
 								</p>
-								<v-toolbar dark dense v-for="color, i in colors" :style="{'background-color': color}">
-									<v-toolbar-title>
-										Colors[{{ i }}]
-									</v-toolbar-title>
-								</v-toolbar>
-								
-								<p></p>
-								
+																
 								<v-toolbar dark dense v-for="colorValue, colorName in $vuetify.theme" :color="colorValue">
 									<v-toolbar-title>
 										{{ colorName }}
@@ -1068,7 +1052,6 @@
 									</v-flex>
 								</v-form>
 							
-								
 								<v-form>
 									<template v-if="runnerChoice === 'Schedule File'">
 										<v-form class="ma-2">
@@ -2172,6 +2155,7 @@
 						// Update the advanced options to match any changes made to the non-advanced options
 						if(this.hasModifiedRunnerSchedule()) {
 							var basicChanges = objectDeepDiff(this.runnerScheduleObjects[0], this.runnerScheduleObjectDefaults[0]);
+							this.runnerVerboseScheduleObjects = [objectDeepMerge(this.runnerVerboseScheduleObjects[0], basicChanges)]
 							
 							this.runnerScheduleObjectDefaults[0]        = JSON.parse(JSON.stringify(this.runnerScheduleObjects[0]));
 							this.runnerVerboseScheduleObjectDefaults[0] = JSON.parse(JSON.stringify(this.runnerVerboseScheduleObjects[0]));
@@ -2838,7 +2822,7 @@
 		app.$vuetify.theme.accent = '#7395AE';
 		app.$vuetify.theme.error = '#BF360C';
 		app.$vuetify.theme.success = '#00897B';
-		app.$vuetify.theme.info = '#B1A296';
+		app.$vuetify.theme.info = '#A3B2BD';
 		app.$vuetify.theme.warning = '#FFB300';
 		
 		// Mint theme
@@ -2882,7 +2866,8 @@
 		}
 		app.$vuetify.theme.primary = app.$vuetify.theme.color1;
 		app.$vuetify.theme.secondary = app.$vuetify.theme.color2;
-		app.$vuetify.theme.accent = app.$vuetify.theme.color3;
+		app.$vuetify.theme.tertiary = app.$vuetify.theme.color3;
+		app.$vuetify.theme.accent = app.$vuetify.theme.color4;
 		
 		// colors = {
 		// 	'dark': {
