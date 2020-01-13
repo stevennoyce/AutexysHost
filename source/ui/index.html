@@ -507,34 +507,25 @@
 															<!-- !this.$parent.getElementsByClassName('sZoomableImage')[0].complete -->
 															<v-list light>
 																<v-list-tile @click="copyHTMLImageToClip('/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings)))">
-																	<v-list-tile-avatar>
-																		<v-icon>photo</v-icon>
-																	</v-list-tile-avatar>
+																	<v-list-tile-avatar><v-icon>photo</v-icon></v-list-tile-avatar>
 																	<v-list-tile-content><v-list-tile-title>
 																		Copy
 																	</v-list-tile-title></v-list-tile-content>
 																</v-list-tile>
-																
 																<v-list-tile @click="disabledPlots.push(possiblePlot)">
-																	<v-list-tile-avatar>
-																		<v-icon>photo</v-icon>
-																	</v-list-tile-avatar>
+																	<v-list-tile-avatar><v-icon>photo</v-icon></v-list-tile-avatar>
 																	<v-list-tile-content><v-list-tile-title>
 																		Disable
 																	</v-list-tile-title></v-list-tile-content>
 																</v-list-tile>
-																
 																<v-list-tile @click="removeValueFromArray(possiblePlot, disabledPlots)">
-																	<v-list-tile-avatar>
-																		<v-icon>photo</v-icon>
-																	</v-list-tile-avatar>
+																	<v-list-tile-avatar><v-icon>photo</v-icon></v-list-tile-avatar>
 																	<v-list-tile-content><v-list-tile-title>
 																		Enable
 																	</v-list-tile-title></v-list-tile-content>
 																</v-list-tile>
 															</v-list>
 														</v-menu>
-														
 													</v-toolbar>
 													
 													<div class="text-xs-center" v-if="!disabledPlots.includes(possiblePlot)">
@@ -634,7 +625,46 @@
 								<v-toolbar-title>
 									Schedule Creator
 								</v-toolbar-title>
+								
 								<v-spacer></v-spacer>
+								
+								<v-menu bottom left offset-y :close-on-content-click="false">
+									<v-btn slot="activator" icon><v-icon>folder</v-icon></v-btn>
+									<v-toolbar dark dense class="color2">
+										<v-toolbar-title>
+											Load Schedule File
+										</v-toolbar-title>
+										<v-spacer></v-spacer>
+										<v-btn icon @click="resetScheduleLoadPath()" :disabled="!isValidScheduleLoadPath()">
+											<v-icon>settings_backup_restore</v-icon>
+										</v-btn>
+									</v-toolbar>
+									<v-card light>
+										<v-list>
+											<v-list-tile>
+												<v-autocomplete clearable v-model="scheduleLoadUser" label="User" :items="Object.keys(scheduleNames)"></v-autocomplete>
+											</v-list-tile>
+											<v-list-tile>
+												<v-autocomplete clearable v-model="scheduleLoadProject" label="Project" :items="_.keys(_.get(scheduleNames, [scheduleLoadUser], {}))"></v-autocomplete>
+											</v-list-tile>
+											<v-list-tile>
+												<v-autocomplete clearable v-model="scheduleLoadFileName" label="File Name" :items="_.get(scheduleNames, [scheduleLoadUser, scheduleLoadProject], [])"></v-autocomplete>
+											</v-list-tile>
+										</v-list>
+									<v-card light>
+										<v-list>
+											<v-list-tile>
+												<v-spacer></v-spacer>
+												<v-tooltip top :disabled="!isValidScheduleLoadPath()">
+													<v-btn slot="activator" @click="loadSchedule()" :disabled="!isValidScheduleLoadPath()">Load Schedule File</v-btn>
+													<span>AutexysData/{{ scheduleLoadUser }}/{{ scheduleLoadProject }}/schedules/{{ scheduleLoadFileName }}.json</span>
+												</v-tooltip>
+												<v-spacer></v-spacer>
+											</v-list-tile>
+										</v-list>
+									</v-card>
+								</v-menu>
+								
 								<v-btn icon @click="scheduleObjects = [JSON.parse(JSON.stringify(scheduleObjectDefault))]" :disabled="!hasModifiedScheduleObjects()"><v-icon>settings_backup_restore</v-icon></v-btn>
 							</v-toolbar>
 							
@@ -755,31 +785,23 @@
 											</v-layout>
 										</v-container>
 									</v-form>
-										
+									
 									<template v-if="isValidScheduleSavePath()">
-										<v-form class="ma-3" style="overflow-x: scroll">
-											<p>
-												<i>Saving to:</i><br/> 
-												AutexysData/{{ scheduleSaveUser }}/{{ scheduleSaveProject }}/schedules/{{ scheduleSaveFileName }}.json
-											</p>
-											<p>
-												<i>Run by executing:</i><br/>
-												<tt>
-													cd "{{ paths['sourceAbsPath'] }}"<br/>
-													python dispatcher.py "../../AutexysData/{{ scheduleSaveUser }}/{{ scheduleSaveProject }}/schedules/{{ scheduleSaveFileName }}.json"
-												</tt>
-											</p>
-										</v-form>
+										<v-btn @click='copyHTMLStringToClip("cd \"" + paths["sourceAbsPath"] + "\" \n" + "python dispatcher.py \"" + "../../AutexysData/" + scheduleSaveUser + "/" + scheduleSaveProject + "/schedules/" + scheduleSaveFileName + ".json\"")' :disabled="!isValidScheduleSavePath()">Copy Unix</v-btn>
 									</template>
 									
 									<v-card-actions>
 										<v-switch class="ml-1" label="Preview" v-model="showScheduleCreatorPreview"></v-switch>
 										<v-spacer></v-spacer>
-										<v-btn @click="saveSchedule()" :disabled="!isValidScheduleSavePath()">Save Schedule File</v-btn>
+										<v-tooltip top :disabled="!isValidScheduleSavePath()">
+											<v-btn slot="activator" @click="saveSchedule()" :disabled="!isValidScheduleSavePath()">Save Schedule File</v-btn>
+											<span>AutexysData/{{ scheduleSaveUser }}/{{ scheduleSaveProject }}/schedules/{{ scheduleSaveFileName }}.json</span>
+										</v-tooltip>
 									</v-card-actions>
 								</v-card>
 							</v-flex>	
-						
+							
+							<!--
 							<v-flex xs6 sm6 md6 lg6 class="pl-1">
 								<v-card class="mb-3" v-if="!nonTrivialScheduleObjects()">
 									<v-toolbar dark dense class="color2 ">
@@ -822,7 +844,7 @@
 										<v-btn @click="loadSchedule()" :disabled="!isValidScheduleLoadPath()">Load Schedule File</v-btn>
 									</v-card-actions>
 								</v-card>
-							</v-flex>
+							</v-flex> -->
 						</v-layout>
 					</v-flex>
 					
@@ -1254,9 +1276,7 @@
 									<v-btn slot="activator" icon><v-icon>settings</v-icon></v-btn>
 									<v-list light>
 										<v-list-tile @click="clearLivePlots()">
-											<v-list-tile-avatar>
-												<v-icon>clear</v-icon>
-											</v-list-tile-avatar>
+											<v-list-tile-avatar><v-icon>clear</v-icon></v-list-tile-avatar>
 											
 											<v-list-tile-content><v-list-tile-title>
 												Clear All Plots
@@ -1288,18 +1308,14 @@
 															<v-btn slot="activator" icon><v-icon>settings</v-icon></v-btn>
 															<v-list light>
 																<v-list-tile @click="toggleLivePlotYAxisLog(plot)">
-																	<v-list-tile-avatar>
-																		<v-icon>linear_scale</v-icon>
-																	</v-list-tile-avatar>
+																	<v-list-tile-avatar><v-icon>linear_scale</v-icon></v-list-tile-avatar>
 																	<v-list-tile-content><v-list-tile-title>
 																		Toggle Y-Axis Log
 																	</v-list-tile-title></v-list-tile-content>
 																</v-list-tile>
 																
 																<v-list-tile @click="clearLivePlot(plot)">
-																	<v-list-tile-avatar>
-																		<v-icon>clear</v-icon>
-																	</v-list-tile-avatar>
+																	<v-list-tile-avatar><v-icon>clear</v-icon></v-list-tile-avatar>
 																	<v-list-tile-content><v-list-tile-title>
 																		Clear Plot Type
 																	</v-list-tile-title></v-list-tile-content>
