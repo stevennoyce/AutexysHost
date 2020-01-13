@@ -632,12 +632,10 @@
 						<v-card class="mb-3 pb-1">
 							<v-toolbar dark dense class="color2 ">
 								<v-toolbar-title>
-									Define Jobs
+									Schedule Creator
 								</v-toolbar-title>
 								<v-spacer></v-spacer>
-								<v-btn icon @click="scheduleObjects = [JSON.parse(JSON.stringify(scheduleObjectDefault))]" :disabled="!hasModifiedScheduleObjects()">
-									<v-icon>settings_backup_restore</v-icon>
-								</v-btn>
+								<v-btn icon @click="scheduleObjects = [JSON.parse(JSON.stringify(scheduleObjectDefault))]" :disabled="!hasModifiedScheduleObjects()"><v-icon>settings_backup_restore</v-icon></v-btn>
 							</v-toolbar>
 							
 							<v-list expand>
@@ -696,7 +694,7 @@
 								</v-list-group>
 							</v-list>
 							
-							<v-card class="ma-3" v-if="!(_.isEqual(scheduleLines, [{}]) || _.isEqual(scheduleLines, []))">
+							<v-card class="ma-3" v-if="showScheduleCreatorPreview && nonTrivialScheduleObjects()">
 								<v-toolbar dark dense class="info">
 									<v-toolbar-title>
 										Preview Schedule File
@@ -713,11 +711,15 @@
 						
 						<v-layout row wrap>
 							<v-flex xs6 sm6 md6 lg6 class="pr-1">
-								<v-card class="mb-3">
+								<v-card class="mb-3" v-if="nonTrivialScheduleObjects()">
 									<v-toolbar dark dense class="color2 ">
 										<v-toolbar-title>
 											Save Schedule File
 										</v-toolbar-title>
+										<v-spacer></v-spacer>
+										<v-btn icon @click="resetScheduleSavePath()" :disabled="!isValidScheduleSavePath()">
+											<v-icon>settings_backup_restore</v-icon>
+										</v-btn>
 									</v-toolbar>
 									
 									<v-form>
@@ -726,39 +728,27 @@
 												<v-flex xs4 sm4 md4 lg4 outline>
 													<v-combobox clearable v-model="scheduleSaveUser" label="User" :items="Object.keys(scheduleNames)">
 														<template slot="no-data">
-															<v-list-tile>
-																<v-list-tile-content>
-																	<v-list-tile-title>
-																		No results. Continuing will create a new user.
-																	</v-list-tile-title>
-																</v-list-tile-content>
-																</v-list-tile>
+															<v-list-tile><v-list-tile-content><v-list-tile-title>
+																No results. Continuing will create a new user.
+															</v-list-tile-title></v-list-tile-content></v-list-tile>
 														</template>
 													</v-combobox>
 												</v-flex>
 												<v-flex xs4 sm4 md4 lg4 solo>
 													<v-combobox clearable v-model="scheduleSaveProject" label="Project" :items="_.keys(_.get(scheduleNames, [scheduleSaveUser], {}))">
 														<template slot="no-data">
-															<v-list-tile>
-																<v-list-tile-content>
-																	<v-list-tile-title>
-																		No results. Continuing will create a new project.
-																	</v-list-tile-title>
-																</v-list-tile-content>
-															</v-list-tile>
+															<v-list-tile><v-list-tile-content><v-list-tile-title>
+																No results. Continuing will create a new project.
+															</v-list-tile-title></v-list-tile-content></v-list-tile>
 														</template>
 													</v-combobox>
 												</v-flex>
 												<v-flex xs4 sm4 md4 lg4 solo>
 													<v-combobox clearable v-model="scheduleSaveFileName" label="File Name" :items="_.get(scheduleNames, [scheduleSaveUser, scheduleSaveProject], [])">
 														<template slot="no-data">
-															<v-list-tile>
-																<v-list-tile-content>
-																	<v-list-tile-title>
-																		No results. Continuing will create a new file.
-																	</v-list-tile-title>
-																</v-list-tile-content>
-															</v-list-tile>
+															<v-list-tile><v-list-tile-content><v-list-tile-title>
+																No results. Continuing will create a new file.
+															</v-list-tile-title></v-list-tile-content></v-list-tile>
 														</template>
 													</v-combobox>
 												</v-flex>
@@ -766,7 +756,7 @@
 										</v-container>
 									</v-form>
 										
-									<template v-if="scheduleSaveUser && scheduleSaveProject && scheduleSaveFileName">
+									<template v-if="isValidScheduleSavePath()">
 										<v-form class="ma-3" style="overflow-x: scroll">
 											<p>
 												<i>Saving to:</i><br/> 
@@ -783,6 +773,7 @@
 									</template>
 									
 									<v-card-actions>
+										<v-switch class="ml-1" label="Preview" v-model="showScheduleCreatorPreview"></v-switch>
 										<v-spacer></v-spacer>
 										<v-btn @click="saveSchedule()" :disabled="!isValidScheduleSavePath()">Save Schedule File</v-btn>
 									</v-card-actions>
@@ -790,11 +781,15 @@
 							</v-flex>	
 						
 							<v-flex xs6 sm6 md6 lg6 class="pl-1">
-								<v-card class="mb-3">
+								<v-card class="mb-3" v-if="!nonTrivialScheduleObjects()">
 									<v-toolbar dark dense class="color2 ">
 										<v-toolbar-title>
 											Load Schedule File
 										</v-toolbar-title>
+										<v-spacer></v-spacer>
+										<v-btn icon @click="resetScheduleLoadPath()" :disabled="!isValidScheduleLoadPath()">
+											<v-icon>settings_backup_restore</v-icon>
+										</v-btn>
 									</v-toolbar>
 									
 									<v-form>
@@ -813,7 +808,7 @@
 										</v-container>
 									</v-form>
 									
-									<template v-if="scheduleLoadUser && scheduleLoadProject && scheduleLoadFileName">
+									<template v-if="isValidScheduleLoadPath()">
 										<v-form class="ma-3" style="overflow-x: scroll">
 											<p>
 												<i>Loading from:</i><br/> 
@@ -1678,6 +1673,8 @@
 				
 				scheduleNames: {},
 				
+				showScheduleCreatorPreview: false,
+				
 				scheduleSaveUser: '',
 				scheduleSaveProject: '',
 				scheduleSaveFileName: '',
@@ -2269,10 +2266,34 @@
 					var job = this.scheduleObjects[index];
 					// var twin = 
 				},
+				
 				hasModifiedScheduleObjects: function() {
 					if(this.scheduleObjects.length !== 1) return true;
 					var changes = objectDeepDiff(this.scheduleObjects[0], this.scheduleObjectDefault);
 					return (Object.keys(changes).length > 0);
+				},
+				nonTrivialScheduleObjects: function() {
+					return !((this.scheduleLines.length === 0) || _.isEqual(this.scheduleLines, [{}]));
+				},
+				
+				resetScheduleSavePath: function() {
+					this.scheduleSaveUser = '';	
+					this.scheduleSaveProject = '';	
+					this.scheduleSaveFileName = '';	
+				},
+				resetScheduleLoadPath: function() {
+					this.scheduleLoadUser = '';	
+					this.scheduleLoadProject = '';	
+					this.scheduleLoadFileName = '';	
+				},
+				
+				isValidScheduleSavePath: function() {
+					return (this.scheduleSaveUser != null) && (this.scheduleSaveProject != null) && (this.scheduleSaveFileName != null) &&
+						   (this.scheduleSaveUser !== '') && (this.scheduleSaveProject !== '') && (this.scheduleSaveFileName !== '');	
+				},
+				isValidScheduleLoadPath: function() {
+					return (this.scheduleLoadUser != null) && (this.scheduleLoadProject != null) && (this.scheduleLoadFileName != null) &&
+						   (this.scheduleLoadUser !== '') && (this.scheduleLoadProject !== '') && (this.scheduleLoadFileName !== '');	
 				},
 				
 				saveSchedule: function() {
@@ -2285,19 +2306,11 @@
 						this.saveScheduleSuccessCode = response;
 					}).fail(() => {console.log("Error saving schedule file")});
 					
-					// $.getJSON(url, JSON.stringify(this.scheduleObjectDefault), response => {
-					// 	this.saveScheduleSuccessCode = response;
-					// }).fail(() => {console.log("Error saving schedule file")});
-					
 					if (this.scheduleExperimentUser == '') this.scheduleExperimentUser = this.scheduleSaveUser;
 					if (this.scheduleExperimentProject == '') this.scheduleExperimentProject = this.scheduleSaveProject;
 					if (this.scheduleExperimentFileName == '') this.scheduleExperimentFileName = this.scheduleSaveFileName;
 					
 					this.getScheduleNames();
-				},
-				isValidScheduleSavePath: function() {
-					return (this.scheduleSaveUser != null) && (this.scheduleSaveProject != null) && (this.scheduleSaveFileName != null) &&
-						   (this.scheduleSaveUser !== '') && (this.scheduleSaveProject !== '') && (this.scheduleSaveFileName !== '');	
 				},
 				loadSchedule: function() {
 					var path = '/loadSchedule/' + this.scheduleLoadUser + '/' + this.scheduleLoadProject + '/' + this.scheduleLoadFileName + '.json' + this.cacheBust;
@@ -2311,10 +2324,6 @@
 					if (this.scheduleSaveUser == '') this.scheduleSaveUser = this.scheduleLoadUser;
 					if (this.scheduleSaveProject == '') this.scheduleSaveProject = this.scheduleLoadProject;
 					if (this.scheduleSaveFileName == '') this.scheduleSaveFileName = this.scheduleLoadFileName;
-				},
-				isValidScheduleLoadPath: function() {
-					return (this.scheduleLoadUser != null) && (this.scheduleLoadProject != null) && (this.scheduleLoadFileName != null) &&
-						   (this.scheduleLoadUser !== '') && (this.scheduleLoadProject !== '') && (this.scheduleLoadFileName !== '');	
 				},
 				
 				// === Settings ===
