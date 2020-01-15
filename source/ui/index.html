@@ -857,11 +857,60 @@
 								<v-toolbar-title>
 									Dashboard
 								</v-toolbar-title>
+								<v-spacer></v-spacer>
+								<v-btn icon @click="" :disabled="true"><v-icon>refresh</v-icon></v-btn>
 							</v-toolbar>
+							
 							<v-container>
-								<p>
-									Dashboard page coming soon.
-								</p>
+								<v-layout row wrap>
+									<v-flex xs4 sm4 md4 lg4 xl4 class="pa-1">
+										<v-toolbar dark class="color4 roundedcorners">
+											<v-toolbar-title>
+												Browser
+											</v-toolbar-title>
+											<v-spacer></v-spacer>
+											<v-btn light small fab @click="setTopLevelPage('stepper')">Go!</v-btn>
+										</v-toolbar>
+									</v-flex>
+									
+									<v-flex xs4 sm4 md4 lg4 xl4 class="pa-1">
+										<v-toolbar dark class="color2 roundedcorners">
+											<v-toolbar-title>
+												Schedule Creator
+											</v-toolbar-title>
+											<v-spacer></v-spacer>
+											<v-btn light small fab @click="setTopLevelPage('scheduleCreator')">Go!</v-btn>
+										</v-toolbar>	
+									</v-flex>
+									
+									<v-flex xs4 sm4 md4 lg4 xl4 class="pa-1">
+										<v-toolbar dark class="color3 roundedcorners">
+											<v-toolbar-title>
+												Experiment Runner
+											</v-toolbar-title>
+											<v-spacer></v-spacer>
+											<v-btn light small fab @click="setTopLevelPage('experimentRunner')">Go!</v-btn>
+										</v-toolbar>
+									</v-flex>
+								</v-layout>
+							</v-container>
+							
+							<v-container>
+								<v-card class="ma-1">
+									<v-toolbar dark dense class="color1 darken-1">
+										<v-toolbar-title>
+											Recent Activity
+										</v-toolbar-title>
+										<v-spacer></v-spacer>
+										<v-btn icon @click="" :disabled="true"><v-icon>refresh</v-icon></v-btn>
+									</v-toolbar>
+									
+									<v-list class="pt-3 pb-3">
+										<v-list-tile>
+											
+										</v-list-tile>
+									</v-list>
+								</v-card>
 							</v-container>
 						</v-card>
 					</v-flex>
@@ -879,6 +928,7 @@
 								<v-btn light small @click="updatePlotSettings()">Save</v-btn>
 								<v-btn icon @click="resetAllPlotSettings(); updatePlotSettings();" :disabled="!hasModifiedPlotSettings()"><v-icon>settings_backup_restore</v-icon></v-btn>
 							</v-toolbar>
+							
 							<v-container>
 								<v-layout row wrap>
 									<v-flex xs3 sm3 md3 lg3 xl3>
