@@ -1036,7 +1036,7 @@
 											<p v-if="!documentationEditMode[index]">
 												{{ documentationText[index] }}
 											</p>
-											<v-textarea solo v-if="documentationEditMode[index]" label="Enter documentation title" v-model="documentationProposedTitle[index]" auto-grow></v-textarea>
+											<v-text-field solo v-if="documentationEditMode[index]" label="Enter documentation title" v-model="documentationProposedTitle[index]" auto-grow></v-text-field>
 											<v-textarea solo v-if="documentationEditMode[index]" label="Enter documentation text" v-model="documentationProposedText[index]" auto-grow>
 											</v-textarea>
 											<v-btn v-if="!documentationEditMode[index]" class="mb-3 mt-3" @click="documentationEdit(index)">Edit</v-btn>
