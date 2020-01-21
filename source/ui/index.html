@@ -1010,10 +1010,10 @@
 								<v-expansion-panel expand class="mt-1 mb-2" v-for="(documentationItemText, index) in documentationText" :prepend-icon="$vuetify.icons.expand">
 									<v-expansion-panel-content class="grey lighten-4" v-for="(panel, i) in 1" :key="i">
 										<span slot="header">
-											<span>
-											{{ index + 1 }}. {{ documentationTitle[index] }}
-											</span>
-											<span>
+											<div style="display:inline; height: 50px; line-height: 50px;">
+												{{ index + 1 }}. {{ documentationTitle[index] }}
+											</div>
+											<div style="display:inline; float:right;">
 												<v-tooltip top>
 													<v-btn icon @click.stop="moveDocumentationEntryUp(index)" slot="activator" :disabled="index == 0"><v-icon>arrow_upward</v-icon></v-btn>
 													<span>Move entry up</span>
@@ -1030,7 +1030,7 @@
 													<v-btn icon @click.stop="removeDocumentationEntry(index)" slot="activator" :disabled="documentationText.length == 1"><v-icon>cancel</v-icon></v-btn>
 													<span>Delete entry</span>
 												</v-tooltip>
-											</span>
+											</div>
 										</span>
 										<v-container> 
 											<p v-if="!documentationEditMode[index]">
