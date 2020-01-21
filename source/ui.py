@@ -515,7 +515,6 @@ def incrementFilenameNumbersFrom(startIndex, increment):
 			tempFilename = "TDoc" + newSuffix + ".json"
 			tempFilenames.append(tempFilename)
 			os.rename(os.path.join(default_documentation_path, originalFilename), os.path.join(default_documentation_path, tempFilename))
-			print("tempFilename = ", tempFilename)
 
 	for tempFilename in tempFilenames:
 		os.rename(os.path.join(default_documentation_path, tempFilename), os.path.join(default_documentation_path, tempFilename[1:]))
