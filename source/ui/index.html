@@ -1027,9 +1027,14 @@
 													<span>Add new entry after</span>
 												</v-tooltip>
 												<v-tooltip top>
-													<v-btn icon @click.stop="removeDocumentationEntry(index)" slot="activator" :disabled="documentationText.length == 1"><v-icon>cancel</v-icon></v-btn>
+													<v-btn icon @click.stop="documentationDeleteDialogVisible = true; documentationDeleteIndex=index;" slot="activator" :disabled="documentationText.length == 1"><v-icon>cancel</v-icon></v-btn>
 													<span>Delete entry</span>
 												</v-tooltip>
+												<v-snackbar v-model="documentationDeleteDialogVisible" :top="true" :timeout="0" :multi-line="true" color="red lighten-2">
+													Once this entry is deleted, it will be permanently removed from Autexys. Are you sure you want to continue?
+													<v-btn color="red" text @click="documentationDeleteDialogVisible = false">Cancel</v-btn>
+													<v-btn color="red" text @click="documentationDeleteDialogVisible = false; removeDocumentationEntry(documentationDeleteIndex);">Continue</v-btn>
+												</v-snackbar>
 											</div>
 										</span>
 										<v-container> 
@@ -1814,7 +1819,9 @@
 				documentationText: [],
 				documentationProposedText: [],
 				documentationTitle: [],
-				documentationProposedTitle: []
+				documentationProposedTitle: [],
+				documentationDeleteDialogVisible: false,
+				documentationDeleteIndex: -1
 			},
 			methods: {
 				
@@ -2639,10 +2646,6 @@
 							}
 						})
 						.fail(() => {console.log("Error loading documentation")});
-					console.log("Documentation text = ");
-					console.log(this.documentationText);
-					console.log("Documentation title = ");
-					console.log(this.documentationTitle);
 				},
 
 				documentationEdit: function(index) {
@@ -2680,14 +2683,16 @@
 				},
 				
 				removeDocumentationEntry: function(index) {
-					this.documentationText.splice(index, 1);
-					this.documentationProposedText.splice(index, 1);
-					this.documentationEditMode.splice(index, 1);
-					this.documentationTitle.splice(index, 1);
-					this.documentationProposedText.splice(index, 1);
+					if(index != -1){
+						this.documentationText.splice(index, 1);
+						this.documentationProposedText.splice(index, 1);
+						this.documentationEditMode.splice(index, 1);
+						this.documentationTitle.splice(index, 1);
+						this.documentationProposedText.splice(index, 1);
 
-					var path = "/removeDocumentation/" + index + this.cacheBust;
-					$.getJSON(path).fail(() => {console.log("Error removing documentation entry")});
+						var path = "/removeDocumentation/" + index + this.cacheBust;
+						$.getJSON(path).fail(() => {console.log("Error removing documentation entry")});
+					}
 				},
 
 				moveDocumentationEntryUp: function(index) {
