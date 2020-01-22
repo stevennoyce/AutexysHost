@@ -506,12 +506,13 @@ def loadAllDocumentation():
 
 def getDocumentationFilenames():
 	filenames = []
-	directoryListings = os.listdir(default_documentation_path)
-	# directoryListings in arbitrary order
-	for listing in directoryListings:
-		if len(listing) >= 3 and listing[0:3] == "Doc" and listing[-5:] == ".json":
-			filenames.append(listing)
-	filenames.sort(key=lambda listing : int(listing[3:-5]))
+	if(os.path.exists(default_documentation_path)):
+		directoryListings = os.listdir(default_documentation_path)
+		# directoryListings in arbitrary order
+		for listing in directoryListings:
+			if len(listing) >= 3 and listing[0:3] == "Doc" and listing[-5:] == ".json":
+				filenames.append(listing)
+		filenames.sort(key=lambda listing : int(listing[3:-5]))
 	return filenames
 
 
