@@ -285,7 +285,7 @@
 							<v-stepper-content step="2">
 								<v-card v-if="stepperPage > 1">
 									<v-toolbar dark class="color4">
-										<v-btn icon @click="stepperPage--; getProjects()"><v-icon>arrow_back</v-icon></v-btn>
+										<v-btn icon @click="goBack(); getProjects()"><v-icon>arrow_back</v-icon></v-btn>
 										<v-toolbar-title>
 											Wafers
 										</v-toolbar-title>
@@ -315,7 +315,7 @@
 							<v-stepper-content step="3">
 								<v-card v-if="stepperPage > 2">
 									<v-toolbar dark class="color4">
-										<v-btn icon @click="stepperPage--; getWafers()"><v-icon>arrow_back</v-icon></v-btn>
+										<v-btn icon @click="goBack(); getWafers()"><v-icon>arrow_back</v-icon></v-btn>
 										<v-toolbar-title>
 											"{{ wafer }}" Chips
 										</v-toolbar-title>
@@ -345,7 +345,7 @@
 							<v-stepper-content step="4">
 								<v-card v-if="stepperPage > 3">
 									<v-toolbar dark class="color4">
-										<v-btn icon @click="stepperPage--; getChips();"><v-icon>arrow_back</v-icon></v-btn>
+										<v-btn icon @click="goBack(); getChips();"><v-icon>arrow_back</v-icon></v-btn>
 										<v-toolbar-title>
 											"{{ wafer }}{{ chip }}" Devices
 										</v-toolbar-title>
@@ -422,7 +422,7 @@
 							<v-stepper-content step="5">
 								<v-card v-if="stepperPage > 4">
 									<v-toolbar dark class="color4">
-										<v-btn icon @click="stepperPage--; getDevices();"><v-icon>arrow_back</v-icon></v-btn>
+										<v-btn icon @click="goBack(); getDevices();"><v-icon>arrow_back</v-icon></v-btn>
 										<v-toolbar-title>
 											"{{ wafer }}{{ chip }} {{ device }}" Experiments
 										</v-toolbar-title>
@@ -480,7 +480,7 @@
 							<v-stepper-content step="6">
 								<v-card v-if="stepperPage > 5 && experiments.length > experimentIndex">
 									<v-toolbar dark class="color4 ">
-										<v-btn icon @click="stepperPage--; getExperiments();"><v-icon>arrow_back</v-icon></v-btn>
+										<v-btn icon @click="goBack(); getExperiments();"><v-icon>arrow_back</v-icon></v-btn>
 										<v-toolbar-title>
 											"{{ wafer }}{{ chip }} {{ device }}" Experiment #{{ experiment.startIndexes.experimentNumber }}
 										</v-toolbar-title>
@@ -786,14 +786,14 @@
 										</v-container>
 									</v-form>
 									
-									<template v-if="isValidScheduleSavePath()">
-										<v-btn @click='copyHTMLStringToClip("cd \"" + paths["sourceAbsPath"] + "\" \n" + "python dispatcher.py \"" + "../../AutexysData/" + scheduleSaveUser + "/" + scheduleSaveProject + "/schedules/" + scheduleSaveFileName + ".json\"")' :disabled="!isValidScheduleSavePath()">Copy Unix</v-btn>
-									</template>
-									
 									<v-card-actions>
 										<v-switch class="ml-1" label="Preview" v-model="showScheduleCreatorPreview"></v-switch>
 										<v-spacer></v-spacer>
-										<v-tooltip top :disabled="!isValidScheduleSavePath()">
+										<v-tooltip top v-if="isValidScheduleSavePath()">
+											<v-btn slot="activator" icon @click='copyHTMLStringToClip("cd \"" + paths["sourceAbsPath"] + "\" \n" + "python dispatcher.py \"" + "../../AutexysData/" + scheduleSaveUser + "/" + scheduleSaveProject + "/schedules/" + scheduleSaveFileName + ".json\"")' :disabled="!isValidScheduleSavePath()"><v-icon>settings_ethernet</v-icon></v-btn>
+											<span>Copy launch commands for Terminal</span>
+										</v-tooltip>
+										<v-tooltip top :disabled="!isValidScheduleSavePath()" class="ml-2">
 											<v-btn slot="activator" @click="saveSchedule()" :disabled="!isValidScheduleSavePath()">Save Schedule File</v-btn>
 											<span>AutexysData/{{ scheduleSaveUser }}/{{ scheduleSaveProject }}/schedules/{{ scheduleSaveFileName }}.json</span>
 										</v-tooltip>
@@ -858,10 +858,65 @@
 									Dashboard
 								</v-toolbar-title>
 							</v-toolbar>
+							
 							<v-container>
-								<p>
-									Dashboard page coming soon.
-								</p>
+								<v-layout row wrap>
+									<v-flex xs4 sm4 md4 lg4 xl4 class="pa-1">
+										<v-toolbar dark class="color4 roundedcorners">
+											<v-toolbar-title>
+												Browser
+											</v-toolbar-title>
+											<v-spacer></v-spacer>
+											<v-btn icon @click="setTopLevelPage('stepper')"><v-icon>arrow_back</v-icon></v-btn>
+										</v-toolbar>
+									</v-flex>
+									
+									<v-flex xs4 sm4 md4 lg4 xl4 class="pa-1">
+										<v-toolbar dark class="color2 roundedcorners">
+											<v-toolbar-title>
+												Schedule Creator
+											</v-toolbar-title>
+											<v-spacer></v-spacer>
+											<v-btn icon @click="setTopLevelPage('scheduleCreator')"><v-icon>arrow_back</v-icon></v-btn>
+										</v-toolbar>	
+									</v-flex>
+									
+									<v-flex xs4 sm4 md4 lg4 xl4 class="pa-1">
+										<v-toolbar dark class="color3 roundedcorners">
+											<v-toolbar-title>
+												Experiment Runner
+											</v-toolbar-title>
+											<v-spacer></v-spacer>
+											<v-btn icon @click="setTopLevelPage('experimentRunner')"><v-icon>arrow_back</v-icon></v-btn>
+										</v-toolbar>
+									</v-flex>
+								</v-layout>
+							</v-container>
+							
+							<v-container>
+								<v-card class="ma-1">
+									<v-toolbar dark dense class="color1 darken-1">
+										<v-toolbar-title>
+											Recent Activity
+										</v-toolbar-title>
+										<v-spacer></v-spacer>
+										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
+									</v-toolbar>
+									
+									<v-data-table must-sort :items="recentActivity" :headers="recentActivityTableHeaders" 
+										:rows-per-page-items="[10,20,50,{'text':'$vuetify.dataIterator.rowsPerPageAll','value':-1}]"
+										:pagination.sync="recentActivityPagination" :hide-headers="false" :hide-actions="false">
+										<template slot="items" slot-scope="props">
+											<tr @click="setTopLevelPage('stepper'); goToBeginning(); goToProject(props.item.project); goToWafer(props.item.wafer); goToChip(props.item.chip);">
+												<td>{{ props.item.user }}</td>
+												<td>{{ props.item.project }}</td>
+												<td>{{ props.item.wafer }}</td>
+												<td>{{ props.item.chip }}</td>
+												<td>{{ new Date(props.item.modified*1000).toLocaleDateString() }}</td>
+											</tr>
+										</template>
+									</v-data-table>
+								</v-card>
 							</v-container>
 						</v-card>
 					</v-flex>
@@ -879,6 +934,7 @@
 								<v-btn light small @click="updatePlotSettings()">Save</v-btn>
 								<v-btn icon @click="resetAllPlotSettings(); updatePlotSettings();" :disabled="!hasModifiedPlotSettings()"><v-icon>settings_backup_restore</v-icon></v-btn>
 							</v-toolbar>
+							
 							<v-container>
 								<v-layout row wrap>
 									<v-flex xs3 sm3 md3 lg3 xl3>
@@ -1497,8 +1553,6 @@
 				stepperPage: localStorage.stepperPage ? JSON.parse(localStorage.stepperPage) : 1,
 				topLevelPage: localStorage.topLevelPage ? JSON.parse(localStorage.topLevelPage) : 'stepper',
 				pageNames: ['projects','wafers','chips','devices','experiments','experiment'],
-				parametersTab: 0,
-				parametersSection: '',
 				cacheBust: '',
 				
 				// === System Parameters ===
@@ -1612,6 +1666,18 @@
 				deviceSummarySettingDefaults: {
 					'numberOfRecentExperiments': {'type': 'int',   'default':1,     'title':'Recent Experiments to Show', 'description':''},
 				},
+				
+				// === Dashboard ===
+				
+				recentActivity: [],
+				recentActivityTableHeaders: [
+					{'text':'User',    'value':'user'},
+					{'text':'Project', 'value':'project'},
+					{'text':'Wafer',   'value':'wafer'},
+					{'text':'Chip',    'value':'chip'},
+					{'text':'Modified','value':'modified'},
+				],
+				recentActivityPagination: {'sortBy':'modified', 'descending': true},
 								
 				// === Browser ===
 				
@@ -1834,6 +1900,8 @@
 					this.getChips();
 					this.getDevices();
 					this.getExperiments();
+					this.getRecentActivity();
+					
 					this.getPossibleChipPlots();
 					this.getPossibleDevicePlots();
 					this.getDefaultParameters();
@@ -1925,8 +1993,12 @@
 						//.fail(() => {console.log("Error getting experiments");});
 					}
 				},
-				getExperiment: function() {
-					// $.getJSON('/' + this.wafer + '/' + this.chip + '/' + this.device + '/' + this.experiment + '/?.json', response => {app.$data.experiments = response}).fail(() => {console.log("Error getting devices")});
+				getRecentActivity: function() {
+					var path = '/' + this.user + '/recentActivity.json' + this.cacheBust;
+					if (path) {
+						$.getJSON(path, response => {app.$data.recentActivity = response})
+						.fail(() => {console.log("Error getting recent activity")});
+					}
 				},
 				getIndexes: function() {
 					var path = '/' + this.user + '/' + this.project + '/indexes.json' + this.cacheBust;
@@ -1935,6 +2007,7 @@
 						.fail(() => {console.log("Error getting indexes")});
 					}
 				},
+				
 				getPossibleChipPlots: function() {
 					var path = '/' + this.user + '/' + this.project + '/' + this.wafer + '/' + this.chip + '/availableChipPlots.json' + this.cacheBust;
 					if (path) {
@@ -2017,10 +2090,17 @@
 					localStorage.topLevelPage = JSON.stringify(name);
 				},
 				
+				goToBeginning: function() {
+					this.stepperPage = 1;
+				},
+				goBack: function() {
+					this.stepperPage--;
+				},
 				goToUser: function(userName) {
 					this.user = userName;
 					localStorage.user = JSON.stringify(userName);
-					this.getProjects();
+					this.getAll();
+					this.goToBeginning();
 				},
 				goToProject: function(projectName) {
 					this.project = projectName;
@@ -2051,11 +2131,6 @@
 				goToExperiment: function(experimentIndex) {
 					this.experimentIndex = experimentIndex;
 					localStorage.experimentIndex = JSON.stringify(experimentIndex);
-					// this.experiment = experimentParameters;
-					this.parametersTab = this.experiments[experimentIndex].runType;
-					this.parametersSection = this.experiments[experimentIndex].runType;
-					this.getExperiment();
-					
 					this.stepperPage++;
 				},
 				

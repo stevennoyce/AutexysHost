@@ -7,7 +7,7 @@ import flask
 import json
 import copy
 import time
-import numpy
+import numpy as np
 import webbrowser
 import threading
 import flask_socketio
@@ -113,7 +113,7 @@ def eprint(*args, **kwargs):
 
 def replaceInfNan(obj):
 	if isinstance(obj, float):
-		if numpy.isnan(obj):
+		if np.isnan(obj):
 			return None
 		if obj == float('inf'):
 			return 1e99
@@ -191,7 +191,7 @@ def defaultEssentialParameters():
 def users():
 	paths = glob.glob(os.path.join(default_data_path, '*/'))
 	names = [os.path.basename(os.path.dirname(p)) for p in paths]
-	return json.dumps(names)
+	return jsonvalid(names)
 
 @app.route('/<user>/projects.json')
 def projects(user):
@@ -201,28 +201,6 @@ def projects(user):
 	projects = [{'name': n} for n in names]
 	
 	return jsonvalid(projects)
-
-@app.route('/<user>/<project>/indexes.json')
-def indexes(user, project):
-	indexObject = {}
-	
-	waferPaths = glob.glob(os.path.join(default_data_path, user, project, '*/'))
-	waferNames = [os.path.basename(os.path.dirname(p)) for p in waferPaths]
-	
-	for waferPath, waferName in zip(waferPaths, waferNames):
-		indexObject[waferName] = {}
-		chipPaths = glob.glob(waferPath + '/*/')
-		chipNames = [os.path.basename(os.path.dirname(p)) for p in chipPaths]
-		
-		for chipPath, chipName in zip(chipPaths, chipNames):
-			indexObject[waferName][chipName] = {}
-			devicePaths = glob.glob(chipPath + '/*/index.json')
-			deviceNames = [os.path.basename(os.path.dirname(p)) for p in devicePaths]
-			
-			for devicePath, deviceName in zip(devicePaths, deviceNames):
-				indexObject[waferName][chipName][deviceName] = dlu.loadJSONIndex(os.path.dirname(devicePath))
-	
-	return jsonvalid(indexObject)
 
 @app.route('/<user>/<project>/wafers.json')
 def wafers(user, project):
@@ -328,6 +306,40 @@ def experiments(user, project, wafer, chip, device):
 	
 	return jsonvalid(experiments)
 
+@app.route('/<user>/recentActivity.json')
+def recentActivity(user):
+	basename = lambda path: os.path.basename(os.path.dirname(path))
+	
+	# Get list of all projects, wafers, chips for this user. Each element in the list is a dictionary containing the relevant identifiers, plus its modification time.
+	projects  =                         [{'modified':os.path.getmtime(p), 'project': basename(p)}                                                for p in glob.glob(os.path.join(default_data_path, user, '*/'))]
+	wafers    = [(elem) for sublist in [[{'modified':os.path.getmtime(w), 'project': item['project'], 'wafer':basename(w)}                       for w in glob.glob(os.path.join(default_data_path, user, item['project'], '*/'))]                for item in projects] for elem in sublist]
+	chips     = [(elem) for sublist in [[{'modified':os.path.getmtime(c), 'project': item['project'], 'wafer':item['wafer'], 'chip':basename(c)} for c in glob.glob(os.path.join(default_data_path, user, item['project'], item['wafer'], '*/'))] for item in wafers]   for elem in sublist]
+			
+	recentActivity = [{'user':user, 'project':item['project'], 'wafer':item['wafer'], 'chip':item['chip'], 'modified':item['modified']} for item in chips]
+		
+	return jsonvalid(recentActivity)
+
+@app.route('/<user>/<project>/indexes.json')
+def indexes(user, project):
+	indexObject = {}
+	
+	waferPaths = glob.glob(os.path.join(default_data_path, user, project, '*/'))
+	waferNames = [os.path.basename(os.path.dirname(p)) for p in waferPaths]
+	
+	for waferPath, waferName in zip(waferPaths, waferNames):
+		indexObject[waferName] = {}
+		chipPaths = glob.glob(waferPath + '/*/')
+		chipNames = [os.path.basename(os.path.dirname(p)) for p in chipPaths]
+		
+		for chipPath, chipName in zip(chipPaths, chipNames):
+			indexObject[waferName][chipName] = {}
+			devicePaths = glob.glob(chipPath + '/*/index.json')
+			deviceNames = [os.path.basename(os.path.dirname(p)) for p in devicePaths]
+			
+			for devicePath, deviceName in zip(devicePaths, deviceNames):
+				indexObject[waferName][chipName][deviceName] = dlu.loadJSONIndex(os.path.dirname(devicePath))
+	
+	return jsonvalid(indexObject)
 
 
 # === Plots ===
