@@ -2501,15 +2501,20 @@
 				
 				handleServerMessage: function(message) {
 					if (message.type == 'JobNumberUpdate') {
-						this.livePlots[message.number] = {};
-						this.jobSelectItems.push(message.number);
+						Vue.set(this.livePlots, message.number, {});
+						//this.livePlots[message.number] = {};
+						Vue.set(this.jobSelectItems, this.jobSelectItems.length, message.number);
+						//this.jobSelectItems.push(message.number);
 						this.jobSelectChoice = message.number;
 						this.jobSelectActive = message.number;
 					}
 
 					if (message.type == 'DeviceNumberUpdate') {
-						this.livePlots[this.jobSelectChoice][message.number] = {plots:[]};
-						this.deviceSelectItems.push(message.number);
+						Vue.set(this.livePlots[this.jobSelectChoice], message.number, {});
+						Vue.set(this.livePlots[this.jobSelectChoice][message.number], "plots", []);
+						//this.livePlots[this.jobSelectChoice][message.number] = {plots:[]};
+						Vue.set(this.deviceSelectItems, this.deviceSelectItems.length, message.number);
+						//this.deviceSelectItems.push(message.number);
 						this.deviceSelectChoice = message.number;
 						this.deviceSelectActive = message.number;
 					}
@@ -2564,12 +2569,16 @@
 					}
 					if (message.type == 'Data') {
 						this.showProgress = true;
-
+						
+						console.log("Starting block of interest");
+						
+						var livePlotsClone = JSON.parse(JSON.stringify(this.livePlots));
+						console.log(livePlotsClone);
 						for(myPlot of message.plots){
 							var myPlotInLivePlots = null;
 
 							//Find the correct livePlot in the JS variable
-							for(livePlot of this.livePlots[this.jobSelectActive][this.deviceSelectActive].plots){
+							for(livePlot of livePlotsClone[this.jobSelectActive][this.deviceSelectActive].plots){
 								if(livePlot.plotID == myPlot.plotID){
 									myPlotInLivePlots = livePlot;
 								}
@@ -2586,7 +2595,7 @@
 								}
 
 								//Add to livePlots JS variable
-								this.livePlots[this.jobSelectActive][this.deviceSelectActive].plots.push(myPlotInLivePlots);
+								livePlotsClone[this.jobSelectActive][this.deviceSelectActive].plots.push(myPlotInLivePlots);
 							}
 							else{
 								//myPlot does not include series which have not been updated on this message
@@ -2614,6 +2623,10 @@
 
 								}
 							}
+
+							this.safeParseToVueVariable(livePlotsClone, this.livePlots);
+							console.log(this.livePlots);
+							
 						}
 					}
 				},
@@ -2654,6 +2667,64 @@
 				
 				// === Live Plots ===
 				
+				//Base case: originalVar is a primitive, empty array/object
+			    //originalVar must be an Array or plain object, with nested fields that
+			    //are arrays, plain objects, or strings.
+			    
+			    safeParseToVueVariable: function(originalVar, vueVar){
+			      	//console.log("Starting safeParseToVueVariable() with originialVar as:");
+			        //console.log(originalVar);
+			        //console.log("--------");
+			      	if(typeof(originalVar) == "string" || typeof(originialVar) == "number"){
+			        	//Will only be here if the top-level object is a simple string. Will never be
+			          //here through recursion because the string case in parseIterableObject() never
+			          //calls safeParseToVueVariable()
+			          //Do nothing.
+			        }
+			        else if(typeof(originalVar) == "object" && originalVar != null){
+			        	if(Array.isArray(originalVar)){
+			          	  this.parseIterableObject(originalVar.keys(), originalVar, vueVar);
+			          }
+			          else{
+			          		this.parseIterableObject(Object.keys(originalVar), originalVar, vueVar);
+			          }
+			        }
+			        else{
+			        	console.log("Error in safeParseToVueVariable() -- attempted to convert unsupported data type.");
+			        }
+			      },
+			      
+			    parseIterableObject: function(indicesOrKeys, originalVar, vueVar){
+			      		//fieldName may be index or key name
+			           for(var fieldName of indicesOrKeys){
+			            	if(typeof(originalVar[fieldName]) == "string" || typeof(originalVar[fieldName]) == "number"){
+			                if(!vueVar.hasOwnProperty(fieldName)){
+			                  Vue.set(vueVar, fieldName, originalVar[fieldName]);
+			                }
+			              }
+			              else if(typeof(originalVar[fieldName]) == "object" && originalVar != null){
+			              	if(Array.isArray(originalVar[fieldName])){
+			                  if(!vueVar.hasOwnProperty(fieldName)){
+			                  	Vue.set(vueVar, fieldName, []);
+			                   }
+			                  this.safeParseToVueVariable(originalVar[fieldName], vueVar[fieldName]);
+			                }
+			                else{
+			                  if(!vueVar.hasOwnProperty(fieldName)){
+			                  	Vue.set(vueVar, fieldName, {});
+			                  }
+			                	this.safeParseToVueVariable(originalVar[fieldName], vueVar[fieldName]);
+			                }
+			              }
+			              else{
+			              	console.log("Error in parseIterableObject() -- attempted to convert unsupported data type.");
+			          		return;
+			              }
+			      		}
+			      
+			    },
+
+
 				clearLivePlot: function(plot) {
 					while(plot.seriesList.length > 0){
 						plot.seriesList.pop();
