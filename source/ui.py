@@ -306,12 +306,14 @@ def experiments(user, project, wafer, chip, device):
 	
 	return jsonvalid(experiments)
 
-@app.route('/<user>/recentActivity.json')
-def recentActivity(user):
+@app.route('/<user>/<project>/recentActivity.json')
+def recentActivity(user, project):
 	basename = lambda path: os.path.basename(os.path.dirname(path))
 	
+	projects_included = '*/' if(project is None or project == 'undefined') else ('{:}/'.format(project))
+				
 	# Get list of all projects, wafers, chips for this user. Each element in the list is a dictionary containing the relevant identifiers, plus its modification time.
-	projects  =                         [{'modified':os.path.getmtime(p), 'project': basename(p)}                                                for p in glob.glob(os.path.join(default_data_path, user, '*/'))]
+	projects  =                         [{'modified':os.path.getmtime(p), 'project': basename(p)}                                                for p in glob.glob(os.path.join(default_data_path, user, projects_included))]
 	wafers    = [(elem) for sublist in [[{'modified':os.path.getmtime(w), 'project': item['project'], 'wafer':basename(w)}                       for w in glob.glob(os.path.join(default_data_path, user, item['project'], '*/'))]                for item in projects] for elem in sublist]
 	chips     = [(elem) for sublist in [[{'modified':os.path.getmtime(c), 'project': item['project'], 'wafer':item['wafer'], 'chip':basename(c)} for c in glob.glob(os.path.join(default_data_path, user, item['project'], item['wafer'], '*/'))] for item in wafers]   for elem in sublist]
 			

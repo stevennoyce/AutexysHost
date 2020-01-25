@@ -857,6 +857,8 @@
 								<v-toolbar-title>
 									Dashboard
 								</v-toolbar-title>
+								<v-spacer></v-spacer>
+								<v-btn icon @click="resetRecentActivityFilter()" :disabled="!hasModifiedRecentActivityFilter()"><v-icon>settings_backup_restore</v-icon></v-btn>
 							</v-toolbar>
 							
 							<v-container>
@@ -900,7 +902,15 @@
 											Recent Activity
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
-										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
+										<v-toolbar-items>
+											<v-flex xs6>
+												<v-select clearable class="" label="Project" v-model="recentActivityProject" :items="_.keys(_.get(scheduleNames, [user], {}))"></v-select>
+											</v-flex>
+										</v-toolbar-items>
+										<v-spacer></v-spacer>
+										<v-toolbar-items>
+											<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
+										</v-toolbar-items>
 									</v-toolbar>
 									
 									<v-data-table must-sort :items="recentActivity" :headers="recentActivityTableHeaders" 
@@ -1678,6 +1688,9 @@
 					{'text':'Modified','value':'modified'},
 				],
 				recentActivityPagination: {'sortBy':'modified', 'descending': true},
+				
+				recentActivityProject: undefined,
+				
 								
 				// === Browser ===
 				
@@ -1994,7 +2007,7 @@
 					}
 				},
 				getRecentActivity: function() {
-					var path = '/' + this.user + '/recentActivity.json' + this.cacheBust;
+					var path = '/' + this.user + '/' + this.recentActivityProject + '/recentActivity.json' + this.cacheBust;
 					if (path) {
 						$.getJSON(path, response => {app.$data.recentActivity = response})
 						.fail(() => {console.log("Error getting recent activity")});
@@ -2132,6 +2145,15 @@
 					this.experimentIndex = experimentIndex;
 					localStorage.experimentIndex = JSON.stringify(experimentIndex);
 					this.stepperPage++;
+				},
+				
+				// === Dashboard ===
+				
+				resetRecentActivityFilter: function() {
+					this.recentActivityProject = undefined;	
+				},
+				hasModifiedRecentActivityFilter : function() {
+					return (this.recentActivityProject && true);
 				},
 				
 				// === Experiment Runner ===
@@ -2914,10 +2936,13 @@
 				scheduleObjectClipboard: function(val) { localStorage.scheduleObjectClipboard = JSON.stringify(val); },
 				disabledPlots:           function(val) { localStorage.disabledPlots = JSON.stringify(val); },
 				
-				// Respond to user's input
+				// Experiment Runner user input
 				runnerChoice:                 function(val) { this.updateRunnerChoice(); },
 				scheduleExperimentFileName:   function(val) { this.loadRunnerScheduleFile(); },
 				runnerToggleAdvancedSettings: function(val) { this.addAdvancedChangesToRunnerScheduleFile(); },
+				
+				// Dashboard user input
+				recentActivityProject: function(val) { this.getRecentActivity(); },
 				
 				experimentIndex: function(val) { this.getAssociatedAFMs(); },
 			},
