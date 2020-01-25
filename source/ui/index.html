@@ -858,38 +858,32 @@
 									Dashboard
 								</v-toolbar-title>
 								<v-spacer></v-spacer>
-								<v-btn icon @click="resetRecentActivityFilter()" :disabled="!hasModifiedRecentActivityFilter()"><v-icon>settings_backup_restore</v-icon></v-btn>
+								<v-btn icon @click="resetDashboard()" :disabled="!hasModifiedRecentActivityFilter()"><v-icon>settings_backup_restore</v-icon></v-btn>
 							</v-toolbar>
 							
 							<v-container>
 								<v-layout row wrap>
 									<v-flex xs4 sm4 md4 lg4 xl4 class="pa-1">
-										<v-toolbar dark class="color4 roundedcorners">
+										<v-toolbar dark class="color4 roundedcorners" style="cursor: pointer;" @click="setTopLevelPage('stepper')">
 											<v-toolbar-title>
 												Browser
 											</v-toolbar-title>
-											<v-spacer></v-spacer>
-											<v-btn icon @click="setTopLevelPage('stepper')"><v-icon>arrow_back</v-icon></v-btn>
 										</v-toolbar>
 									</v-flex>
 									
 									<v-flex xs4 sm4 md4 lg4 xl4 class="pa-1">
-										<v-toolbar dark class="color2 roundedcorners">
+										<v-toolbar dark class="color2 roundedcorners" style="cursor: pointer;" @click="setTopLevelPage('scheduleCreator')">
 											<v-toolbar-title>
 												Schedule Creator
 											</v-toolbar-title>
-											<v-spacer></v-spacer>
-											<v-btn icon @click="setTopLevelPage('scheduleCreator')"><v-icon>arrow_back</v-icon></v-btn>
 										</v-toolbar>	
 									</v-flex>
 									
 									<v-flex xs4 sm4 md4 lg4 xl4 class="pa-1">
-										<v-toolbar dark class="color3 roundedcorners">
+										<v-toolbar dark class="color3 roundedcorners" style="cursor: pointer;" @click="setTopLevelPage('experimentRunner')">
 											<v-toolbar-title>
 												Experiment Runner
 											</v-toolbar-title>
-											<v-spacer></v-spacer>
-											<v-btn icon @click="setTopLevelPage('experimentRunner')"><v-icon>arrow_back</v-icon></v-btn>
 										</v-toolbar>
 									</v-flex>
 								</v-layout>
@@ -901,28 +895,47 @@
 										<v-toolbar-title>
 											Recent Activity
 										</v-toolbar-title>
+										
 										<v-spacer></v-spacer>
-										<v-toolbar-items>
-											<v-flex xs6>
-												<v-select clearable class="" label="Project" v-model="recentActivityProject" :items="_.keys(_.get(scheduleNames, [user], {}))"></v-select>
-											</v-flex>
+										
+										<v-toolbar-items class="pt-2">
+											<v-chip small light @click="setRecentActivityCategory('project')" :selected="recentActivityIncludes(['project', 'wafer', 'chip', 'device'])" >Projects</v-chip>
+											<v-chip small light @click="setRecentActivityCategory('wafer')" :selected="recentActivityIncludes(['wafer', 'chip', 'device'])" >Wafers</v-chip>
+											<v-chip small light @click="setRecentActivityCategory('chip')" :selected="recentActivityIncludes(['chip', 'device'])">Chips</v-chip>
+											<v-chip small light @click="setRecentActivityCategory('device')" :selected="recentActivityIncludes(['device'])">Devices</v-chip>
 										</v-toolbar-items>
+										
 										<v-spacer></v-spacer>
+										
 										<v-toolbar-items>
+											<v-menu bottom left offset-y :close-on-content-click="false">
+												<v-btn slot="activator" flat>Filter</v-btn>
+												<v-card light>
+													<v-list>
+														<v-list-tile>
+															<v-autocomplete clearable label="Project" v-model="recentActivityProject" :items="_.keys(_.get(scheduleNames, [user], {}))"></v-autocomplete>
+														</v-list-tile>
+														<v-list-tile>
+															<v-autocomplete clearable label="Wafer" v-model="recentActivityWafer" :items="[]"></v-autocomplete>
+														</v-list-tile>
+													</v-list>
+												</v-card>
+											</v-menu>
 											<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
 										</v-toolbar-items>
 									</v-toolbar>
 									
-									<v-data-table must-sort :items="recentActivity" :headers="recentActivityTableHeaders" 
+									<v-data-table must-sort :items="recentActivity" :headers="dynamicRecentActivityTableHeaders" 
 										:rows-per-page-items="[10,20,50,{'text':'$vuetify.dataIterator.rowsPerPageAll','value':-1}]"
 										:pagination.sync="recentActivityPagination" :hide-headers="false" :hide-actions="false">
 										<template slot="items" slot-scope="props">
 											<tr @click="setTopLevelPage('stepper'); goToBeginning(); goToProject(props.item.project); goToWafer(props.item.wafer); goToChip(props.item.chip);">
-												<td>{{ props.item.user }}</td>
-												<td>{{ props.item.project }}</td>
-												<td>{{ props.item.wafer }}</td>
-												<td>{{ props.item.chip }}</td>
-												<td>{{ new Date(props.item.modified*1000).toLocaleDateString() }}</td>
+												<td v-if="recentActivityTableHeaders.find(h => h.value === 'user').visible">{{ props.item.user }}</td>
+												<td v-if="recentActivityTableHeaders.find(h => h.value === 'project').visible">{{ props.item.project }}</td>
+												<td v-if="recentActivityTableHeaders.find(h => h.value === 'wafer').visible">{{ props.item.wafer }}</td>
+												<td v-if="recentActivityTableHeaders.find(h => h.value === 'chip').visible">{{ props.item.chip }}</td>
+												<td v-if="recentActivityTableHeaders.find(h => h.value === 'device').visible">{{ props.item.device }}</td>
+												<td v-if="recentActivityTableHeaders.find(h => h.value === 'modified').visible">{{ new Date(props.item.modified*1000).toLocaleDateString() }}</td>
 											</tr>
 										</template>
 									</v-data-table>
@@ -1679,18 +1692,21 @@
 				
 				// === Dashboard ===
 				
+				recentActivityCategory: 'chip',
+				
 				recentActivity: [],
 				recentActivityTableHeaders: [
-					{'text':'User',    'value':'user'},
-					{'text':'Project', 'value':'project'},
-					{'text':'Wafer',   'value':'wafer'},
-					{'text':'Chip',    'value':'chip'},
-					{'text':'Modified','value':'modified'},
+					{'text':'User',    'value':'user',     'visible':true},
+					{'text':'Project', 'value':'project',  'visible':true},
+					{'text':'Wafer',   'value':'wafer',    'visible':true},
+					{'text':'Chip',    'value':'chip',     'visible':true},
+					{'text':'Device',  'value':'device',   'visible':true},
+					{'text':'Modified','value':'modified', 'visible':true},
 				],
 				recentActivityPagination: {'sortBy':'modified', 'descending': true},
 				
 				recentActivityProject: undefined,
-				
+				recentActivityWafer:   undefined,
 								
 				// === Browser ===
 				
@@ -2007,7 +2023,7 @@
 					}
 				},
 				getRecentActivity: function() {
-					var path = '/' + this.user + '/' + this.recentActivityProject + '/recentActivity.json' + this.cacheBust;
+					var path = '/' + this.user + '/' + this.recentActivityProject + '/' + this.recentActivityWafer + '/' + this.recentActivityCategory + '/recentActivity.json' + this.cacheBust;
 					if (path) {
 						$.getJSON(path, response => {app.$data.recentActivity = response})
 						.fail(() => {console.log("Error getting recent activity")});
@@ -2149,11 +2165,23 @@
 				
 				// === Dashboard ===
 				
+				resetDashboard: function() {
+					this.resetRecentActivityFilter();
+					this.recentActivityCategory = 'chip';
+				},
 				resetRecentActivityFilter: function() {
 					this.recentActivityProject = undefined;	
+					this.recentActivityWafer   = undefined;
 				},
 				hasModifiedRecentActivityFilter : function() {
 					return (this.recentActivityProject && true);
+				},
+				setRecentActivityCategory: function(category) {
+					this.recentActivityCategory = category;
+					this.getRecentActivity();
+				},
+				recentActivityIncludes: function(category_list) {
+					return (category_list.includes(this.recentActivityCategory));
 				},
 				
 				// === Experiment Runner ===
@@ -2943,6 +2971,7 @@
 				
 				// Dashboard user input
 				recentActivityProject: function(val) { this.getRecentActivity(); },
+				recentActivityWafer: function(val) { this.getRecentActivity(); },
 				
 				experimentIndex: function(val) { this.getAssociatedAFMs(); },
 			},
@@ -2988,7 +3017,11 @@
 				},
 				runType: function() {
 					return this.parameters['runType'];
-				}
+				},
+				
+				dynamicRecentActivityTableHeaders: function() {
+					return this.recentActivityTableHeaders.filter(h => h.visible)
+				},
 			},
 			filters:{
 				capitalize: function(value) {

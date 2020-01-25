@@ -306,18 +306,33 @@ def experiments(user, project, wafer, chip, device):
 	
 	return jsonvalid(experiments)
 
-@app.route('/<user>/<project>/recentActivity.json')
-def recentActivity(user, project):
+@app.route('/<user>/<project>/<wafer>/<category>/recentActivity.json')
+def recentActivity(user, project, wafer, category):
 	basename = lambda path: os.path.basename(os.path.dirname(path))
 	
+	# Create a regex for each directory for glob
 	projects_included = '*/' if(project is None or project == 'undefined') else ('{:}/'.format(project))
+	wafers_included =   '*/' if(wafer   is None or wafer   == 'undefined') else ('{:}/'.format(wafer))
 				
-	# Get list of all projects, wafers, chips for this user. Each element in the list is a dictionary containing the relevant identifiers, plus its modification time.
-	projects  =                         [{'modified':os.path.getmtime(p), 'project': basename(p)}                                                for p in glob.glob(os.path.join(default_data_path, user, projects_included))]
-	wafers    = [(elem) for sublist in [[{'modified':os.path.getmtime(w), 'project': item['project'], 'wafer':basename(w)}                       for w in glob.glob(os.path.join(default_data_path, user, item['project'], '*/'))]                for item in projects] for elem in sublist]
-	chips     = [(elem) for sublist in [[{'modified':os.path.getmtime(c), 'project': item['project'], 'wafer':item['wafer'], 'chip':basename(c)} for c in glob.glob(os.path.join(default_data_path, user, item['project'], item['wafer'], '*/'))] for item in wafers]   for elem in sublist]
-			
-	recentActivity = [{'user':user, 'project':item['project'], 'wafer':item['wafer'], 'chip':item['chip'], 'modified':item['modified']} for item in chips]
+	# Get list of all projects, wafers, chips, devices for this user. Each element in the list is a dictionary containing the relevant identifiers, plus its modification time.
+	projects  =                         [{'modified':os.path.getmtime(p), 'project': basename(p)}                                                                       for p in glob.glob(os.path.join(default_data_path, user, projects_included))]
+	wafers    = [(elem) for sublist in [[{'modified':os.path.getmtime(w), 'project': item['project'], 'wafer':basename(w)}                                              for w in glob.glob(os.path.join(default_data_path, user, item['project'], wafers_included))]                   for item in projects] for elem in sublist] if(category not in ['project']) else None
+	chips     = [(elem) for sublist in [[{'modified':os.path.getmtime(c), 'project': item['project'], 'wafer':item['wafer'], 'chip':basename(c)}                        for c in glob.glob(os.path.join(default_data_path, user, item['project'], item['wafer'], '*/'))]               for item in wafers]   for elem in sublist] if(category not in ['project', 'wafer']) else None
+	devices   = [(elem) for sublist in [[{'modified':os.path.getmtime(d), 'project': item['project'], 'wafer':item['wafer'], 'chip':item['chip'], 'device':basename(d)} for d in glob.glob(os.path.join(default_data_path, user, item['project'], item['wafer'], item['chip'], '*/'))] for item in chips]    for elem in sublist] if(category not in ['project', 'wafer', 'chip']) else None
+	
+	# Choose which list to report as the recent activity list
+	if(wafers is None):	
+		recentActivity = projects
+	elif(chips is None):
+		recentActivity = [elem for elem in wafers if(elem['wafer'] != 'schedules')]
+	elif(devices is None):
+		recentActivity = chips
+	else:
+		recentActivity = devices
+	
+	# Add 'user' tag to every entry
+	for item in recentActivity:
+		item['user'] = user
 		
 	return jsonvalid(recentActivity)
 
