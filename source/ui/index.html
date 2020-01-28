@@ -270,7 +270,7 @@
 										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
 									<v-data-table :items="projects" :headers="projectTableHeaders" :search="projectTableSearch" must-sort
-										:rows-per-page-items="[10,20,50,{'text':'$vuetify.dataIterator.rowsPerPageAll','value':-1}]"
+										:rows-per-page-items="[10,50,{'text':'$vuetify.dataIterator.rowsPerPageAll','value':-1}]"
 										no-results-text="Your search did not return any results."
 										:custom-filter="customVDataTableFilter">
 										<template slot="items" slot-scope="props">
@@ -294,7 +294,7 @@
 										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
 									<v-data-table :items="wafers" :headers="waferTableHeaders" :search="waferTableSearch" must-sort
-										:rows-per-page-items="[10,20,50,{'text':'$vuetify.dataIterator.rowsPerPageAll','value':-1}]"
+										:rows-per-page-items="[10,50,{'text':'$vuetify.dataIterator.rowsPerPageAll','value':-1}]"
 										no-results-text="Your search did not return any results."
 										:custom-filter="customVDataTableFilter">
 										<template slot="items" slot-scope="props">
@@ -324,7 +324,7 @@
 										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
 									<v-data-table :items="chips" :headers="chipTableHeaders" :search="chipTableSearch" must-sort
-										:rows-per-page-items="[10,20,50,{'text':'$vuetify.dataIterator.rowsPerPageAll','value':-1}]"
+										:rows-per-page-items="[10,50,{'text':'$vuetify.dataIterator.rowsPerPageAll','value':-1}]"
 										no-results-text="Your search did not return any results."
 										:custom-filter="customVDataTableFilter">
 										<template slot="items" slot-scope="props">
@@ -354,7 +354,7 @@
 										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
 									<v-data-table :items="devices" :headers="deviceTableHeaders" :search="deviceTableSearch" must-sort
-										:rows-per-page-items="[10,20,50,{'text':'$vuetify.dataIterator.rowsPerPageAll','value':-1}]"
+										:rows-per-page-items="[10,50,{'text':'$vuetify.dataIterator.rowsPerPageAll','value':-1}]"
 										no-results-text="Your search did not return any results."
 										:custom-filter="customVDataTableFilter">
 										<template slot="items" slot-scope="props">
@@ -431,7 +431,7 @@
 										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
 									<v-data-table :items="experimentsWithIndexes" :headers="experimentTableHeaders" :search="experimentTableSearch" must-sort
-										:rows-per-page-items="[10,20,50,{'text':'$vuetify.dataIterator.rowsPerPageAll','value':-1}]"
+										:rows-per-page-items="[10,50,{'text':'$vuetify.dataIterator.rowsPerPageAll','value':-1}]"
 										no-results-text="Your search did not return any results."
 										:custom-filter="customVDataTableFilter"
 										:pagination.sync="experimentTablePagination">
@@ -899,10 +899,10 @@
 										<v-spacer></v-spacer>
 										
 										<v-toolbar-items class="pt-2">
-											<v-chip small light @click="setRecentActivityCategory('project')" :selected="recentActivityIncludes(['project', 'wafer', 'chip', 'device'])" >Projects</v-chip>
-											<v-chip small light @click="setRecentActivityCategory('wafer')" :selected="recentActivityIncludes(['wafer', 'chip', 'device'])" >Wafers</v-chip>
-											<v-chip small light @click="setRecentActivityCategory('chip')" :selected="recentActivityIncludes(['chip', 'device'])">Chips</v-chip>
-											<v-chip small light @click="setRecentActivityCategory('device')" :selected="recentActivityIncludes(['device'])">Devices</v-chip>
+											<v-chip small light color="white" @click="setRecentActivityCategory('project')" :selected="recentActivityIncludesCategory(['project', 'wafer', 'chip', 'device'])" >Projects</v-chip>
+											<v-chip small light color="white" @click="setRecentActivityCategory('wafer')" :selected="recentActivityIncludesCategory(['wafer', 'chip', 'device'])" >Wafers</v-chip>
+											<v-chip small light color="white" @click="setRecentActivityCategory('chip')" :selected="recentActivityIncludesCategory(['chip', 'device'])">Chips</v-chip>
+											<v-chip small light color="white" @click="setRecentActivityCategory('device')" :selected="recentActivityIncludesCategory(['device'])">Devices</v-chip>
 										</v-toolbar-items>
 										
 										<v-spacer></v-spacer>
@@ -926,16 +926,16 @@
 									</v-toolbar>
 									
 									<v-data-table must-sort :items="recentActivity" :headers="dynamicRecentActivityTableHeaders" 
-										:rows-per-page-items="[10,20,50,{'text':'$vuetify.dataIterator.rowsPerPageAll','value':-1}]"
+										:rows-per-page-items="[10,50,{'text':'$vuetify.dataIterator.rowsPerPageAll','value':-1}]"
 										:pagination.sync="recentActivityPagination" :hide-headers="false" :hide-actions="false">
 										<template slot="items" slot-scope="props">
-											<tr @click="setTopLevelPage('stepper'); goToBeginning(); goToProject(props.item.project); goToWafer(props.item.wafer); goToChip(props.item.chip);">
-												<td v-if="recentActivityTableHeaders.find(h => h.value === 'user').visible">{{ props.item.user }}</td>
-												<td v-if="recentActivityTableHeaders.find(h => h.value === 'project').visible">{{ props.item.project }}</td>
-												<td v-if="recentActivityTableHeaders.find(h => h.value === 'wafer').visible">{{ props.item.wafer }}</td>
-												<td v-if="recentActivityTableHeaders.find(h => h.value === 'chip').visible">{{ props.item.chip }}</td>
-												<td v-if="recentActivityTableHeaders.find(h => h.value === 'device').visible">{{ props.item.device }}</td>
-												<td v-if="recentActivityTableHeaders.find(h => h.value === 'modified').visible">{{ new Date(props.item.modified*1000).toLocaleDateString() }}</td>
+											<tr @click="setTopLevelPage('stepper'); goToDirectly(props.item.project, props.item.wafer, props.item.chip, props.item.device);">
+												<td v-if="recentActivityHeaders.find(h => h.value ==='user').visible">{{ props.item.user }}</td>
+												<td v-if="recentActivityHeaders.find(h => h.value ==='project').visible">{{ props.item.project }}</td>
+												<td v-if="recentActivityHeaders.find(h => h.value ==='wafer').visible">{{ props.item.wafer }}</td>
+												<td v-if="recentActivityHeaders.find(h => h.value ==='chip').visible">{{ props.item.chip }}</td>
+												<td v-if="recentActivityHeaders.find(h => h.value ==='device').visible">{{ props.item.device }}</td>
+												<td v-if="recentActivityHeaders.find(h => h.value ==='modified').visible">{{ new Date(props.item.modified*1000).toLocaleDateString() }}</td>
 											</tr>
 										</template>
 									</v-data-table>
@@ -1694,8 +1694,11 @@
 				
 				recentActivityCategory: 'chip',
 				
+				recentActivityProject: undefined,
+				recentActivityWafer:   undefined,
+				
 				recentActivity: [],
-				recentActivityTableHeaders: [
+				recentActivityHeaders: [
 					{'text':'User',    'value':'user',     'visible':true},
 					{'text':'Project', 'value':'project',  'visible':true},
 					{'text':'Wafer',   'value':'wafer',    'visible':true},
@@ -1704,9 +1707,6 @@
 					{'text':'Modified','value':'modified', 'visible':true},
 				],
 				recentActivityPagination: {'sortBy':'modified', 'descending': true},
-				
-				recentActivityProject: undefined,
-				recentActivityWafer:   undefined,
 								
 				// === Browser ===
 				
@@ -2125,6 +2125,13 @@
 				goBack: function() {
 					this.stepperPage--;
 				},
+				goToDirectly: function(projectName, waferName, chipName, deviceName) {
+					this.goToBeginning();
+					if(projectName) { this.goToProject(projectName); } else { return; }
+					if(waferName)   { this.goToWafer(waferName);     } else { return; }
+					if(chipName)    { this.goToChip(chipName);       } else { return; }
+					if(deviceName)  { this.goToDevice(deviceName);   } else { return; }
+				},
 				goToUser: function(userName) {
 					this.user = userName;
 					localStorage.user = JSON.stringify(userName);
@@ -2174,13 +2181,13 @@
 					this.recentActivityWafer   = undefined;
 				},
 				hasModifiedRecentActivityFilter : function() {
-					return (this.recentActivityProject && true);
+					return (this.recentActivityProject || this.recentActivityWafer);
 				},
 				setRecentActivityCategory: function(category) {
 					this.recentActivityCategory = category;
 					this.getRecentActivity();
 				},
-				recentActivityIncludes: function(category_list) {
+				recentActivityIncludesCategory: function(category_list) {
 					return (category_list.includes(this.recentActivityCategory));
 				},
 				
@@ -3020,7 +3027,7 @@
 				},
 				
 				dynamicRecentActivityTableHeaders: function() {
-					return this.recentActivityTableHeaders.filter(h => h.visible)
+					return this.recentActivityHeaders.filter(h => h.visible)
 				},
 			},
 			filters:{
