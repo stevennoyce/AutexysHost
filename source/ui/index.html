@@ -226,7 +226,7 @@
 							<v-btn slot="activator" flat>{{ user }}<v-icon right>people</v-icon></v-btn>
 							<v-card style="max-height:85vh">
 								<v-list light>
-									<v-list-tile v-for="u in users" @click="goToUser(u)">
+									<v-list-tile v-for="u in users" :key="u" @click="goToUser(u)">
 										<v-list-tile-avatar color="color1"><v-icon dark>account_circle</v-icon></v-list-tile-avatar>
 										<v-list-tile-content><v-list-tile-title>{{ u }}</v-list-tile-title></v-list-tile-content>
 									</v-list-tile>
@@ -402,7 +402,7 @@
 									
 									<v-container fluid grid-list-sm>
 										<v-layout row wrap v-if="enableChipSummaryPlots">
-											<v-flex xs12 sm6 md4 lg3 xl2 v-for="possiblePlot in possibleChipPlots">
+											<v-flex xs12 sm6 md4 lg3 xl2 v-for="possiblePlot in possibleChipPlots" :key="possiblePlot">
 												<v-card class="ma-1" height="100%">
 													<v-toolbar dark dense class="color1">
 														<v-toolbar-title>
@@ -459,7 +459,7 @@
 									
 									<v-container fluid grid-list-sm>
 										<v-layout row wrap v-if="enableDeviceSummaryPlots">
-											<v-flex xs12 sm6 md4 lg3 xl2 v-for="possiblePlot in possibleDevicePlots">
+											<v-flex xs12 sm6 md4 lg3 xl2 v-for="possiblePlot in possibleDevicePlots" :key="possiblePlot">
 												<v-card class="ma-1" height="100%">
 													<v-toolbar dark dense class="color1">
 														<v-toolbar-title>
@@ -493,7 +493,7 @@
 									<v-container fluid grid-list-sm>
 										<v-layout row wrap>
 											
-											<v-flex xs12 sm6 md4 lg3 xl2 v-for="possiblePlot in experiment.possiblePlots">
+											<v-flex xs12 sm6 md4 lg3 xl2 v-for="possiblePlot in experiment.possiblePlots" :key="possiblePlot">
 												<v-card class="ma-1" height="100%">
 													<v-toolbar dark dense class="color1 ">
 														<v-toolbar-title>
@@ -563,7 +563,7 @@
 									
 									<v-card class="ma-1 mt-2 mb-2">
 										<v-expansion-panel dark expand>
-											<v-expansion-panel-content class="color2 " v-for="section in _.keys(experiment)" v-if="typeof experiment[section] == 'object'" ripple>
+											<v-expansion-panel-content ripple class="color2 " v-for="section in _.keys(experiment)" :key="section" v-if="typeof experiment[section] == 'object'">
 												<div slot="header">{{ section }}</div>
 												<v-data-table :items="_.toPairs(experiment[section])" :headers="[{'text':'Property'},{'text':'Value'}]" hide-actions hide-headers light>
 													<template slot="items" slot-scope="props">
@@ -596,7 +596,7 @@
 												<span>{{ experiment['dataFolderSpecificAbs'] }}</span>
 											</v-tooltip>
 											
-											<v-chip v-for="file in experiment['dataFiles']" dark class="color4">
+											<v-chip dark class="color4" v-for="file in experiment['dataFiles']" :key="file">
 												{{file}}
 											</v-chip>
 										</v-layout>
@@ -1031,7 +1031,7 @@
 									Autexys - the Automated Experimentation System
 								</p>
 																
-								<v-toolbar dark dense v-for="colorValue, colorName in $vuetify.theme" :color="colorValue">
+								<v-toolbar dark dense v-for="colorValue, colorName in $vuetify.theme" :key="colorName" :color="colorValue">
 									<v-toolbar-title>
 										{{ colorName }}
 									</v-toolbar-title>
@@ -1086,7 +1086,7 @@
 								This documentation is intended for anyone using Autexys.
 							</v-container>
 							<v-container>
-								<v-expansion-panel expand class="mt-1 mb-2" v-for="(documentationItemText, index) in documentationText" :prepend-icon="$vuetify.icons.expand">
+								<v-expansion-panel expand class="mt-1 mb-2" v-for="(documentationItemText, index) in documentationText" :key="index" :prepend-icon="$vuetify.icons.expand">
 									<v-expansion-panel-content class="grey lighten-4" v-for="(panel, i) in 1" :key="i">
 										<span slot="header">
 											<div style="display:inline; height: 50px; line-height: 50px;">
@@ -1235,7 +1235,7 @@
 															</v-list>
 														</v-flex>
 													
-														<v-flex xs3 s3 md3 lg3 v-for="runConfig,runType in runnerScheduleObjects[0]['runConfigs']">
+														<v-flex xs3 s3 md3 lg3 v-for="runConfig,runType in runnerScheduleObjects[0]['runConfigs']" :key="runType">
 															<v-list class="roundedcorners">
 																<v-list-tile>
 																	<v-list-tile-content><v-list-tile-title style="font-weight: bold">
@@ -1376,7 +1376,7 @@
 									<v-select box class="ma-1" :label="deviceSelectLabel" v-model="deviceSelectChoice" :items="deviceSelectItems"></v-select>
 								</v-flex>
 								
-								<v-row v-for="plot, i in livePlots[jobSelectChoice][deviceSelectChoice].plots">
+								<v-row v-for="plot, i in livePlots[jobSelectChoice][deviceSelectChoice].plots" :key="i">
 									<v-col>
 										<v-layout row wrap>
 											<v-flex xs12 sm12 md6 lg6 xl4>
@@ -1565,7 +1565,9 @@
 	<% endfor %>
 	
 	
-	<script type="text/javascript">	
+	<script type="text/javascript">		
+		console.log('Building Vuetify app...');
+		
 		var app = new Vue({
 			el: '#app',
 			data: {
@@ -1997,7 +1999,7 @@
 					var path = '/' + this.user + '/' + this.project + '/' + this.wafer + '/' + this.chip + '/' + this.device + '/experiments.json' + this.cacheBust;
 					if (path) {
 						$.getJSON(path, response => {
-							console.log("Starting to receive experiments");
+							console.log("Loading experiments.");
 							for (var i = 0; i < response.length; i++) {
 								response[i]['uiComputed'] = {};
 								response[i]['uiComputed']['indexCount'] = response[i]['endIndexes']['index'] - response[i]['startIndexes']['index'];
@@ -3052,6 +3054,8 @@
 				}
 			}
 		});
+		
+		console.log('Vuetify app built.');
 		
 		// colors: ['#F4FFFD', '#E3E4DB', '#EDF4ED', '#CCDAD1', '#9CAEA9', '#8C9A9E', '#788585', '#656565', '#4C5760', '#2B3D41', '#1E3231'],
 		// colors: ['#F0F7F4', '#9EC1A3', '#70A9A1', '#679289', '#40798C', '#B3BFB8', '#7E8D85', '#9AA0A8', '#465362', '#011936', '#673C4F'],
