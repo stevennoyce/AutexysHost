@@ -256,7 +256,7 @@ def FET_Fit_Simple(V_GS_data, I_D_data, V_DS, I_OFF_guess=100e-12, gm_region_len
 
 ## === Internal ===
 def _max_subthreshold_swing(V_GS_data, I_D_data, region_length_override=None):
-	region_length = (int(len(I_D_data)/10) + 1) if(region_length_override is None) else (region_length_override)
+	region_length = (int(len(I_D_data)/10) + 2) if(region_length_override is None) else (region_length_override)
 	#print('SS region length: ' + str(region_length))
 	startIndex, endIndex = _find_steepest_region(V_GS_data, np.log10(np.abs(I_D_data)), region_length)
 	V_GS_steepest_region = V_GS_data[startIndex:endIndex+1]
@@ -266,7 +266,7 @@ def _max_subthreshold_swing(V_GS_data, I_D_data, region_length_override=None):
 	return SS_mV_dec, (V_GS_steepest_region, fitted_steepest_region)
 
 def _max_transconductance(V_GS_data, I_D_data, region_length_override=None):
-	region_length = (int(len(I_D_data)/10) + 1) if(region_length_override is None) else (region_length_override)
+	region_length = (int(len(I_D_data)/10) + 2) if(region_length_override is None) else (region_length_override)
 	#print('gm region length: ' + str(region_length))
 	startIndex, endIndex = _find_steepest_region(V_GS_data, np.abs(I_D_data), region_length)
 	V_GS_steepest_region = V_GS_data[startIndex:endIndex+1]
@@ -278,16 +278,17 @@ def _max_transconductance(V_GS_data, I_D_data, region_length_override=None):
 	return g_m_max, V_T_approx, (V_GS_steepest_region, fitted_steepest_region)
 
 def _find_steepest_region(V_GS_data, I_D_data, region_length): 
-	numberOfPoints = (int(len(I_D_data)/10) + 1) if(region_length is None) else (region_length)
+	numberOfPoints = (int(len(I_D_data)/10) + 2) if(region_length is None) else (int(region_length))
+	numberOfPoints = max(2, numberOfPoints)
 	maxSlope = 0
 	index = 0
-	for i in range(len(I_D_data) - numberOfPoints):
-		slope = abs(_linearFit(V_GS_data[i:i+numberOfPoints], I_D_data[i:i+numberOfPoints])['slope'])
+	for i in range(len(I_D_data) + 1 - numberOfPoints):
+		slope = abs(_linearFit(V_GS_data[i:i+numberOfPoints], I_D_data[i:i+numberOfPoints], slopeInterceptOnly=True)['slope'])
 		if(slope > maxSlope):
 			maxSlope = slope
 			index = i
-	regionStart = max(0, index)
-	regionEnd = min(len(I_D_data)-1, index + numberOfPoints)
+	regionStart = index
+	regionEnd = index + (numberOfPoints-1)
 	return (int(regionStart), int(regionEnd))
 
 def _getXValueAtYValue(x_data, y_data, y_value, index_guess=0):
@@ -299,7 +300,7 @@ def _getXValueAtYValue(x_data, y_data, y_value, index_guess=0):
 		raise NotImplementedError('Drain current value was too close to edge of data for VT extraction.')
 		
 	# Perform a local linear fit to increase effective measurement resolution at the point of interest, then solve for x_value analytically
-	fit = _linearFit(x_data[index-1:index+2], y_data[index-1:index+2])
+	fit = _linearFit(x_data[index-1:index+2], y_data[index-1:index+2], slopeInterceptOnly=True)
 	x_value = (y_value - fit['y_intercept'])/fit['slope']
 	
 	return x_value
@@ -350,10 +351,9 @@ def _indexOfValue(y, value, guess=0):
 			break
 	return index
 
-def _linearFit(x, y):
+def _linearFit(x, y, slopeInterceptOnly=False):
 	slope, intercept = np.polyfit(x, y, 1)
-	fitted_data = [slope*x[i] + intercept for i in range(len(x))]
-	return {'fitted_data': fitted_data,'slope':slope, 'y_intercept':intercept, 'x_intercept':-intercept/slope}
+	return {'fitted_data': (None) if(slopeInterceptOnly) else [slope*x[i] + intercept for i in range(len(x))], 'slope':slope, 'y_intercept':intercept, 'x_intercept':-intercept/slope}
 
 def _semilogFit(x, y):
 	fit_results = _linearFit(x, np.log10(np.abs(y)))
