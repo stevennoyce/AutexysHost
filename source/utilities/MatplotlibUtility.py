@@ -238,13 +238,19 @@ def extractSweep(axis, jsonData, direction='both', x_data='gate voltage', y_data
 
 	# If desired, can calculate the derivative of y with respect to x at each point and plot this instead
 	if(derivative):
-		N = 5
 		dy_dx = []
 		for i in range(len(x)):
 			x_segment = x[i]
 			y_segment = y[i] if(not logScale) else (np.log10(y[i]))
+			
+			# Take the derivative over a window that scales with size of the data (and is >3)
+			derivative_fit_length = int(3 + 2*int(len(x_segment)/20))
+			N = int(derivative_fit_length/2)
+			
 			#dy_dx_segment = [(y_segment[j+N] - y_segment[j-N])/(x_segment[j+N] - x_segment[j-N]) for j in range(N, len(x_segment) - N)]
 			dy_dx_segment = [linearFit(x_segment[j-N:j+N+1],y_segment[j-N:j+N+1])['slope'] for j in range(N, len(x_segment) - N)]
+			
+			# Trim x to match the dimensions of dy/dx
 			x[i] = x_segment[N:-N]
 			dy_dx.append(dy_dx_segment)
 		y = dy_dx

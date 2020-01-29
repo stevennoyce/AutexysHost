@@ -256,7 +256,7 @@ def FET_Fit_Simple(V_GS_data, I_D_data, V_DS, I_OFF_guess=100e-12, gm_region_len
 
 ## === Internal ===
 def _max_subthreshold_swing(V_GS_data, I_D_data, region_length_override=None):
-	region_length = (int(len(I_D_data)/10) + 2) if(region_length_override is None) else (region_length_override)
+	region_length = int(3 + 2*int(len(x_segment)/20)) if(region_length_override is None) else (region_length_override)
 	#print('SS region length: ' + str(region_length))
 	startIndex, endIndex = _find_steepest_region(V_GS_data, np.log10(np.abs(I_D_data)), region_length)
 	V_GS_steepest_region = V_GS_data[startIndex:endIndex+1]
@@ -266,7 +266,7 @@ def _max_subthreshold_swing(V_GS_data, I_D_data, region_length_override=None):
 	return SS_mV_dec, (V_GS_steepest_region, fitted_steepest_region)
 
 def _max_transconductance(V_GS_data, I_D_data, region_length_override=None):
-	region_length = (int(len(I_D_data)/10) + 2) if(region_length_override is None) else (region_length_override)
+	region_length = int(3 + 2*int(len(x_segment)/20)) if(region_length_override is None) else (region_length_override)
 	#print('gm region length: ' + str(region_length))
 	startIndex, endIndex = _find_steepest_region(V_GS_data, np.abs(I_D_data), region_length)
 	V_GS_steepest_region = V_GS_data[startIndex:endIndex+1]
@@ -278,7 +278,7 @@ def _max_transconductance(V_GS_data, I_D_data, region_length_override=None):
 	return g_m_max, V_T_approx, (V_GS_steepest_region, fitted_steepest_region)
 
 def _find_steepest_region(V_GS_data, I_D_data, region_length): 
-	numberOfPoints = (int(len(I_D_data)/10) + 2) if(region_length is None) else (int(region_length))
+	numberOfPoints = int(3 + 2*int(len(x_segment)/20)) if(region_length is None) else (int(region_length))
 	numberOfPoints = max(2, numberOfPoints)
 	maxSlope = 0
 	index = 0
