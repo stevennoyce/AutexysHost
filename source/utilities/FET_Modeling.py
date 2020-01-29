@@ -259,8 +259,8 @@ def _max_subthreshold_swing(V_GS_data, I_D_data, region_length_override=None):
 	region_length = (int(len(I_D_data)/10) + 1) if(region_length_override is None) else (region_length_override)
 	#print('SS region length: ' + str(region_length))
 	startIndex, endIndex = _find_steepest_region(V_GS_data, np.log10(np.abs(I_D_data)), region_length)
-	V_GS_steepest_region = V_GS_data[startIndex:endIndex]
-	I_D_steepest_region = I_D_data[startIndex:endIndex]
+	V_GS_steepest_region = V_GS_data[startIndex:endIndex+1]
+	I_D_steepest_region = I_D_data[startIndex:endIndex+1]
 	fitted_steepest_region = _semilogFit(V_GS_steepest_region, I_D_steepest_region)['fitted_data']
 	SS_mV_dec = (abs( (V_GS_steepest_region[0] - V_GS_steepest_region[-1]) / (np.log10(np.abs(fitted_steepest_region[0])) - np.log10(np.abs(fitted_steepest_region[-1]))) ) * 1000)
 	return SS_mV_dec, (V_GS_steepest_region, fitted_steepest_region)
@@ -269,8 +269,8 @@ def _max_transconductance(V_GS_data, I_D_data, region_length_override=None):
 	region_length = (int(len(I_D_data)/10) + 1) if(region_length_override is None) else (region_length_override)
 	#print('gm region length: ' + str(region_length))
 	startIndex, endIndex = _find_steepest_region(V_GS_data, np.abs(I_D_data), region_length)
-	V_GS_steepest_region = V_GS_data[startIndex:endIndex]
-	I_D_steepest_region = I_D_data[startIndex:endIndex]
+	V_GS_steepest_region = V_GS_data[startIndex:endIndex+1]
+	I_D_steepest_region = I_D_data[startIndex:endIndex+1]
 	fit = _linearFit(V_GS_steepest_region, I_D_steepest_region)
 	fitted_steepest_region = fit['fitted_data']
 	V_T_approx = fit['x_intercept']
