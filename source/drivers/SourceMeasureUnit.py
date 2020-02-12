@@ -184,10 +184,12 @@ def getConnectionToEmulator():
 	return Emulator()
 
 class SourceMeasureUnit:
+	# === Generic instance variables ===
 	system_id = ''
 	stepsPerRamp = 15
 	measurementsPerSecond = None
 	measurementRateVariabilityFactor = None
+	nplc = 1
 	
 	def turnChannelsOn(self):
 		raise NotImplementedError("Please implement SourceMeasureUnit.turnChannelsOn()")
@@ -340,12 +342,15 @@ class SourceMeasureUnit:
 	
 	
 class B2912A(SourceMeasureUnit):
-	smu = None
+	# === Generic instance variables ===
 	system_id = ''
 	stepsPerRamp = 20
 	measurementsPerSecond = 40
 	measurementRateVariabilityFactor = 2
 	nplc = 1
+	
+	# === System-specific instance variables ===
+	smu = None
 	source1_mode = 'voltage'
 	source2_mode = 'voltage'
 	system_settings = {}
@@ -453,13 +458,13 @@ class B2912A(SourceMeasureUnit):
 	def setChannel1SourceMode(self, mode="voltage"):
 		if(mode in ["voltage", "current"]):
 			self.setParameter(":source1:function:mode {}".format(mode))
-			source1_mode = mode
+			self.source1_mode = mode
 			print('Source 1 mode set to: ' + str(mode))
 
 	def setChannel2SourceMode(self, mode="voltage"):
 		if(mode in ["voltage", "current"]):
 			self.setParameter(":source2:function:mode {}".format(mode))
-			source2_mode = mode
+			self.source2_mode = mode
 			print('Source 2 mode set to: ' + str(mode))
 
 	def getDrainSourceMode(self):
@@ -670,12 +675,16 @@ class B2912A(SourceMeasureUnit):
 
 
 class PCB_System(SourceMeasureUnit):
-	ser = None
+	# === Generic instance variables ===
 	system_id = ''
 	stepsPerRamp = 5
 	measurementsPerSecond = 10
 	measurementRateVariabilityFactor = 2
 	nplc = 1
+	
+	# === System-specific instance variables ===
+	ser = None
+	signal_channel = 1
 
 	def __init__(self, pySerial, pcb_port, system_settings):
 		self.ser = pySerial
@@ -684,7 +693,8 @@ class PCB_System(SourceMeasureUnit):
 			print('Enabling bluetooth communication (can be slow).')
 			self.setParameter('enable-uart-sending !', responseStartsWith='#')
 		if((system_settings is not None) and ('channel' in system_settings)):
-			self.setParameter('switch-all-selectors-to-signal {:}!'.format(system_settings['channel']), responseStartsWith='#')
+			self.signal_channel = system_settings['channel']
+			self.setParameter('switch-all-selectors-to-signal {:}!'.format(self.signal_channel), responseStartsWith='#')
 
 	def setComplianceCurrent(self, complianceCurrent):
 		pass
@@ -724,13 +734,23 @@ class PCB_System(SourceMeasureUnit):
 
 	# Make connections to a specific device
 	def setDevice(self, deviceID):
-		self.setParameter('connect-all-selectors !', responseStartsWith='#')
+		# Disconnect any previously connected devices
 		self.setParameter('disconnect-all-from-all !', responseStartsWith='#')
+		
+		# Make sure the device selector is delivering the correct signal to our device of interest
+		if(self.signal_channel == 2):
+			self.setParameter('connect-all-selectors-secondary !', responseStartsWith='#')
+		else:
+			self.setParameter('connect-all-selectors !', responseStartsWith='#')
+			
+		# Extract device contact numbers from the deviceID
 		if('-' not in deviceID):
 			print('PCB system is unable to connect to device: "' + str(deviceID) +'".')
 			return
 		contactPad1 = int(deviceID.split('-')[0])
 		contactPad2 = int(deviceID.split('-')[1])
+		
+		# Connect to device and run calibration routine
 		self.setParameter("connect-device {:} {:}!".format(contactPad1, contactPad2), responseStartsWith='#')
 		self.setParameter("calibrate-adc-offset !", responseStartsWith='#')
 		print('Switched to device: ' + str(deviceID))
@@ -883,12 +903,15 @@ class Emulator(SourceMeasureUnit):
 	for use when testing.
 	'''
 
-	smu = None
+	# === Generic instance variables ===
 	system_id = ''
 	stepsPerRamp = 20
 	measurementsPerSecond = 40
 	measurementRateVariabilityFactor = 2
 	nplc = 1
+	
+	# === System-specific instance variables ===
+	smu = None
 	source1_mode = 'voltage'
 	source2_mode = 'voltage'
 	system_settings = {}
@@ -1031,7 +1054,10 @@ class Emulator(SourceMeasureUnit):
 		pass
 
 if (__name__ == '__main__'):
-	getConnectionToVisaResource()
+	pcb = getConnectionToPCB(system_settings=smu_system_configurations['combo']['PCB']['settings'])
+	keysight = getConnectionToVisaResource(system_settings=smu_system_configurations['combo']['SMU']['settings'])
+	pcb.setDevice('1-2')		
+	print(keysight.takeMeasurement())
 
 
 
