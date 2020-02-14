@@ -226,7 +226,19 @@ default_parameters = {
 			'gateVoltages':				{'type':'array', 'essential':True, 'units':'V', 'default': [-1,0,1],         'title':'Gate Voltages',  'description':''},
 			'drainVoltages':			{'type':'array', 'essential':True, 'units':'V', 'default': [0.05,0.10,0.15], 'title':'Drain Voltages', 'description':''},
 			'groundingTime':			{'type':'float',                   'units':'s', 'default': 1,                'title':'Grounding Time', 'description':''}, 
-		}
+		},
+		'FreeRun':{
+			'dependencies':				{'ignore':True, 'value':[]},
+			'complianceCurrent':		{'type':'float',                   'units':'A',  'default': 100e-6,    'title':'Compliance Current',         'description':'Maximum current limit for the SMU.'},
+			'pointLimit':				{'type':'float',                                 'default': None,      'title':'Point Limit',                'description':'Limit on the number of points to collect in this free run.'},
+			'gateVoltageMinimum': 		{'type':'float', 'essential':True, 'units':'V',  'default': -1,        'title':'Gate Voltage Min',           'description':'Gate voltage minimum value.'},
+			'gateVoltageMaximum': 		{'type':'float', 'essential':True, 'units':'V',  'default': 1,         'title':'Gate Voltage Max',           'description':'Gate voltage maximum value.'}, 
+			'drainVoltageMinimum': 		{'type':'float', 'essential':True, 'units':'V',  'default': 0.5,       'title':'Drain Voltage Min',          'description':'Drain voltage minimum value.'},
+			'drainVoltageMaximum': 		{'type':'float', 'essential':True, 'units':'V',  'default': 0.5,       'title':'Drain Voltage Max',          'description':'Drain voltage maximum value.'}, 
+			'delayBetweenMeasurements': {'type':'float',                   'units':'s',  'default': 0,         'title':'Delay Between Measurements', 'description':'Duration of time to delay after taking a measurement.'},
+			'gateVoltageDistribution':  {'type':'choice',                                'default': 'uniform', 'title':'Gate Voltage Distribution',  'description':'Distribution of gate voltages to apply.',  'choices':['uniform', 'striped']},
+			'drainVoltageDistribution': {'type':'choice',                                'default': 'uniform', 'title':'Drain Voltage Distribution', 'description':'Distribution of drain voltages to apply.', 'choices':['uniform', 'striped']},
+		},
 	},
 	'Results':{
 		
