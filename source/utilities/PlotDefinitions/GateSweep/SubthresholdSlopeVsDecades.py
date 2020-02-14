@@ -40,7 +40,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Adjust y-scale and y-axis labels 
 	max_value = np.max(SS_list)
 	min_value = np.min(SS_list)
-	abs_min_value = min(max_value, abs(min_value)) if(mode_parameters['yscale'] is None) else mode_parameters['yscale']
+	abs_min_value = min(max_value, abs(min_value)) if(mode_parameters['yscale'] is None) else float(mode_parameters['yscale'])
 	yscale, ylabel = (1e-3, plotDescription['plotDefaults']['V_ylabel']) if(abs_min_value >= 1e3) else (1, plotDescription['plotDefaults']['mV_ylabel']) 
 		
 	# Plot

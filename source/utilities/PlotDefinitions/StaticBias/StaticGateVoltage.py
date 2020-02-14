@@ -90,7 +90,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	# Adjust y-scale and y-axis labels 
 	max_voltage = np.max([np.max(deviceRun['Results']['vgs_data']) for deviceRun in deviceHistory])
 	min_voltage = np.min([np.min(deviceRun['Results']['vgs_data']) for deviceRun in deviceHistory])
-	abs_max_voltage = max(max_voltage, abs(min_voltage)) if(mode_parameters['yscale'] is None) else mode_parameters['yscale']
+	abs_max_voltage = max(max_voltage, abs(min_voltage)) if(mode_parameters['yscale'] is None) else float(mode_parameters['yscale'])
 	voltage_scale, ylabel = (1, plotDescription['plotDefaults']['ylabel']) if(abs_max_voltage >= 1) else (1e3, plotDescription['plotDefaults']['milli_ylabel'])
 	
 	# Find best scale for current axis

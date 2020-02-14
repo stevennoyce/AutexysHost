@@ -32,7 +32,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 		
 	# Adjust y-scale and y-axis labels 
 	vgs_fwd, id_fwd, vgs_rev, id_rev = deviceHistory[0]['Results']['vgs_data'][0], deviceHistory[0]['Results']['id_data'][0], deviceHistory[0]['Results']['vgs_data'][1], deviceHistory[0]['Results']['id_data'][1]
-	max_hysteresis = np.max(fet_model.FET_Hysteresis(vgs_fwd, id_fwd, vgs_rev, id_rev, noise_floor=1e-10)['H']) if(mode_parameters['yscale'] is None) else mode_parameters['yscale']
+	max_hysteresis = np.max(fet_model.FET_Hysteresis(vgs_fwd, id_fwd, vgs_rev, id_rev, noise_floor=1e-10)['H']) if(mode_parameters['yscale'] is None) else float(mode_parameters['yscale'])
 	voltage_scale, ylabel = (1, plotDescription['plotDefaults']['unity_ylabel']) if(max_hysteresis >= 1) else (1e3, plotDescription['plotDefaults']['milli_ylabel'])
 		
 	# Plot
