@@ -242,7 +242,7 @@
 					
 					<!-- Start of browser -->
 					
-					<v-stepper v-if="topLevelPage == 'stepper'" v-model="stepperPage" style="background-color:rgba(255,255,255,0);height:100%;">
+					<v-stepper v-if="topLevelPage === 'stepper'" v-model="stepperPage" style="background-color:rgba(255,255,255,0);height:100%;">
 						<v-stepper-header style="background-color:rgba(255,255,255,1);">
 							<v-stepper-step step="1" :complete="stepperPage > 1" :editable="stepperPage > 1" edit-icon="folder">Projects</v-stepper-step>
 							<v-divider></v-divider>
@@ -370,7 +370,7 @@
 									</v-data-table>
 								</v-card>
 
-								<v-card v-if="stepperPage == 4 ">
+								<v-card v-if="stepperPage === 4 ">
 									<v-toolbar dark class="color4">
 										<v-toolbar-title>
 											"{{ wafer }}{{ chip }}" Chip Summary Plots
@@ -446,7 +446,7 @@
 									</v-data-table>
 								</v-card>
 								
-								<v-card v-if="stepperPage == 5">
+								<v-card v-if="stepperPage === 5">
 									<v-toolbar dark class="color4">
 										<v-toolbar-title>
 											"{{ wafer }}{{ chip }} {{ device }}" Device Summary Plots
@@ -851,7 +851,7 @@
 					<!-- End of sched creator -->
 					<!-- Start of dashboard -->
 					
-					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'dashboard'">
+					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'dashboard'">
 						<v-card>
 							<v-toolbar dark dense class="color1 darken-1">
 								<v-toolbar-title>
@@ -947,7 +947,7 @@
 					<!-- End of dashboard -->
 					<!-- Start of settings -->
 					
-					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'settings'">
+					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'settings'">
 						<v-card>
 							<v-toolbar dark dense class="color4 ">
 								<v-toolbar-title>
@@ -1019,7 +1019,7 @@
 					<!-- End of settings -->
 					<!-- Start of about -->
 					
-					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'about'">
+					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'about'">
 						<v-card>
 							<v-toolbar dark dense class="color1 ">
 								<v-toolbar-title>
@@ -1043,7 +1043,7 @@
 					<!-- End of about -->
 					<!-- Start of README -->
 					
-					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'readme'">
+					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'readme'">
 						<v-card>
 							<v-toolbar dark dense class="color1 ">
 								<v-toolbar-title>
@@ -1059,7 +1059,7 @@
 					<!-- End of README -->
 					<!-- Start of documentation -->
 					
-					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'documentation'">
+					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'documentation'">
 						<v-card class="mb-3">
 							<v-toolbar dark dense class="color1 ">
 								<v-toolbar-title>
@@ -1136,7 +1136,7 @@
 					<!-- End of documentation -->
 					<!-- Start of experiment runner -->
 					
-					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'experimentRunner'">
+					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'experimentRunner'">
 						<v-card class="mb-3">
 							<v-toolbar dark dense class="color3 ">
 								<v-toolbar-title>
@@ -1360,61 +1360,53 @@
 									<v-list light>
 										<v-list-tile @click="clearLivePlots()">
 											<v-list-tile-avatar><v-icon>clear</v-icon></v-list-tile-avatar>
-											
-											<v-list-tile-content><v-list-tile-title>
-												Clear All Plots
-											</v-list-tile-title></v-list-tile-content>
+											<v-list-tile-content><v-list-tile-title>Clear All Plots</v-list-tile-title></v-list-tile-content>
 										</v-list-tile>
 									</v-list>
 								</v-menu>
 							</v-toolbar>
 							
 							<v-container fluid grid-list-sm>
-								<v-flex xs12 sm6 md4 lg3>
-									<v-select box class="ma-1" :label="jobSelectLabel" v-model="jobSelectChoice" :items="jobSelectItems"></v-select>
-									<v-select box class="ma-1" :label="deviceSelectLabel" v-model="deviceSelectChoice" :items="deviceSelectItems"></v-select>
-								</v-flex>
+								<v-form class="ma-2">
+									<v-flex xs12 sm6 md4 lg3>
+										<v-select box class="ma-1" :label="jobSelectLabel" v-model="jobSelectChoice" :items="jobSelectItems"></v-select>
+										<v-select box class="ma-1" :label="deviceSelectLabel" v-model="deviceSelectChoice" :items="deviceSelectItems"></v-select>
+									</v-flex>
+								</v-form>
 								
-								<v-row v-for="plot, i in livePlots[jobSelectChoice][deviceSelectChoice].plots" :key="i">
-									<v-col>
-										<v-layout row wrap>
-											<v-flex xs12 sm12 md6 lg6 xl4>
-												<v-card class="ma-1" width="150%" height="100%">
-													<v-toolbar dark dense class="color1 ">
-														<v-toolbar-title>
-															 Plot #{{ i+1 }} 
-														</v-toolbar-title>
-													
-														<v-spacer></v-spacer>
+								<v-layout row wrap>
+									<v-flex xs12 sm12 md6 lg6 xl4 v-for="plot, i in livePlots[jobSelectChoice][deviceSelectChoice].plots" :key="i">
+										<v-card class="ma-1" height="100%">
+											<v-toolbar dark dense class="color3 ">
+												<v-toolbar-title>
+													 Plot #{{ i+1 }} 
+												</v-toolbar-title>
+											
+												<v-spacer></v-spacer>
+												
+												<v-menu bottom left offset-y>
+													<v-btn slot="activator" icon><v-icon>settings</v-icon></v-btn>
+													<v-list light>
+														<v-list-tile @click="toggleLivePlotYAxisLog(plot)">
+															<v-list-tile-avatar><v-icon>linear_scale</v-icon></v-list-tile-avatar>
+															<v-list-tile-content><v-list-tile-title>Toggle Y-Axis Log</v-list-tile-title></v-list-tile-content>
+														</v-list-tile>
 														
-														<v-menu bottom left offset-y>
-															<v-btn slot="activator" icon><v-icon>settings</v-icon></v-btn>
-															<v-list light>
-																<v-list-tile @click="toggleLivePlotYAxisLog(plot)">
-																	<v-list-tile-avatar><v-icon>linear_scale</v-icon></v-list-tile-avatar>
-																	<v-list-tile-content><v-list-tile-title>
-																		Toggle Y-Axis Log
-																	</v-list-tile-title></v-list-tile-content>
-																</v-list-tile>
-																
-																<v-list-tile @click="clearLivePlot(plot)">
-																	<v-list-tile-avatar><v-icon>clear</v-icon></v-list-tile-avatar>
-																	<v-list-tile-content><v-list-tile-title>
-																		Clear Plot Type
-																	</v-list-tile-title></v-list-tile-content>
-																</v-list-tile>
-															</v-list>
-														</v-menu>
-													</v-toolbar>
-													
-													<div class="text-xs-center">
-														<s-plotly v-bind:data="formatForPlotly(plot)" v-bind:height="90" :column-number="1" :layout="{xaxis: {title: plot.xAxisTitle}, yaxis: {title: plot.yAxisTitle, type: plot.yScale, autorange: true}, legend: {'orientation': 'v', y: 1.1}, margin: {l: 60,r: 20,b: 70,t: 20,pad: 4}, automargin: true, autosize: true, exponentformat:'SI'}"></s-plotly>
-													</div>
-												</v-card>
-											</v-flex>
-										</v-layout>
-									</v-col>
-								</v-row>
+														<v-list-tile @click="clearLivePlot(plot)">
+															<v-list-tile-avatar><v-icon>clear</v-icon></v-list-tile-avatar>
+															<v-list-tile-content><v-list-tile-title>Clear Plot</v-list-tile-title></v-list-tile-content>
+														</v-list-tile>
+													</v-list>
+												</v-menu>
+											</v-toolbar>
+											
+											<div class="text-xs-center">
+												<s-plotly v-bind:data="extractPlotlyData(plot)" :layout="extractPlotlyLayout(plot)"></s-plotly>
+											</div>
+										</v-card>
+									</v-flex>
+								</v-layout>
+								
 							</v-container>
 						</v-card>
 					</v-flex>
@@ -2467,9 +2459,9 @@
 						this.saveScheduleSuccessCode = response;
 					}).fail(() => {console.log("Error saving schedule file")});
 					
-					if (this.scheduleExperimentUser == '') this.scheduleExperimentUser = this.scheduleSaveUser;
-					if (this.scheduleExperimentProject == '') this.scheduleExperimentProject = this.scheduleSaveProject;
-					if (this.scheduleExperimentFileName == '') this.scheduleExperimentFileName = this.scheduleSaveFileName;
+					if (this.scheduleExperimentUser === '') this.scheduleExperimentUser = this.scheduleSaveUser;
+					if (this.scheduleExperimentProject === '') this.scheduleExperimentProject = this.scheduleSaveProject;
+					if (this.scheduleExperimentFileName === '') this.scheduleExperimentFileName = this.scheduleSaveFileName;
 					
 					this.getScheduleNames();
 				},
@@ -2482,9 +2474,9 @@
 						.fail(() => {console.log("Error loading schedule file")});
 					}
 					
-					if (this.scheduleSaveUser == '') this.scheduleSaveUser = this.scheduleLoadUser;
-					if (this.scheduleSaveProject == '') this.scheduleSaveProject = this.scheduleLoadProject;
-					if (this.scheduleSaveFileName == '') this.scheduleSaveFileName = this.scheduleLoadFileName;
+					if (this.scheduleSaveUser === '') this.scheduleSaveUser = this.scheduleLoadUser;
+					if (this.scheduleSaveProject === '') this.scheduleSaveProject = this.scheduleLoadProject;
+					if (this.scheduleSaveFileName === '') this.scheduleSaveFileName = this.scheduleLoadFileName;
 				},
 				
 				// === Settings ===
@@ -2563,26 +2555,25 @@
 				// === Server Update ===
 				
 				handleServerMessage: function(message) {
-					if (message.type == 'JobNumberUpdate') {
-						Vue.set(this.livePlots, message.number, {});
-						//this.livePlots[message.number] = {};
-						Vue.set(this.jobSelectItems, this.jobSelectItems.length, message.number);
+					if (message.type === 'JobNumberUpdate') {
+						Vue.set(this.livePlots, message.number, {"Dummy":{plots: []}}); 
+						//this.livePlots[message.number] = {"Dummy":{plots: []}};
+						Vue.set(this.jobSelectItems, this.jobSelectItems.length, message.number); 
 						//this.jobSelectItems.push(message.number);
 						this.jobSelectChoice = message.number;
 						this.jobSelectActive = message.number;
 					}
 
-					if (message.type == 'DeviceNumberUpdate') {
-						Vue.set(this.livePlots[this.jobSelectChoice], message.number, {});
-						Vue.set(this.livePlots[this.jobSelectChoice][message.number], "plots", []);
+					if (message.type === 'DeviceNumberUpdate') {
+						Vue.set(this.livePlots[this.jobSelectChoice], message.number, {plots: []}); 
 						//this.livePlots[this.jobSelectChoice][message.number] = {plots:[]};
-						Vue.set(this.deviceSelectItems, this.deviceSelectItems.length, message.number);
+						Vue.set(this.deviceSelectItems, this.deviceSelectItems.length, message.number); 
 						//this.deviceSelectItems.push(message.number);
 						this.deviceSelectChoice = message.number;
 						this.deviceSelectActive = message.number;
 					}
 
-					if (message.type == 'Progress') {
+					if (message.type === 'Progress') {
 						this.showProgress = true;
 						
 						this.experimentRunnerProgress.timerModel.current = message.progress.timestamp;
@@ -2597,21 +2588,21 @@
 							this.experimentRunnerProgress.dispatcherBarModel.end = message.progress.end;
 							this.experimentRunnerProgress.dispatcherBarModel.percent = computeProgressPercent(message.progress.start, message.progress.current, message.progress.end);
 						}
-						else if(message.progress.barType == "Sweep"){
+						else if(message.progress.barType === "Sweep"){
 							this.experimentRunnerProgress.sweepBarModel.visible = true;
 							this.experimentRunnerProgress.sweepBarModel.name = message.progress.name;
 							this.experimentRunnerProgress.sweepBarModel.current = message.progress.current;
 							this.experimentRunnerProgress.sweepBarModel.end = message.progress.end;
 							this.experimentRunnerProgress.sweepBarModel.percent = computeProgressPercent(message.progress.start, message.progress.current, message.progress.end);
 						}
-						else if(message.progress.barType == "Group1"){
+						else if(message.progress.barType === "Group1"){
 							this.experimentRunnerProgress.group1BarModel.visible = true;
 							this.experimentRunnerProgress.group1BarModel.name = message.progress.name;
 							this.experimentRunnerProgress.group1BarModel.current = message.progress.current;
 							this.experimentRunnerProgress.group1BarModel.end = message.progress.end;
 							this.experimentRunnerProgress.group1BarModel.percent = computeProgressPercent(message.progress.start, message.progress.current, message.progress.end);
 						}
-						else if(message.progress.barType == "Group2"){
+						else if(message.progress.barType === "Group2"){
 							this.experimentRunnerProgress.group2BarModel.visible = true;
 							this.experimentRunnerProgress.group2BarModel.name = message.progress.name;
 							this.experimentRunnerProgress.group2BarModel.current = message.progress.current;
@@ -2630,20 +2621,19 @@
 						}
 
 					}
-					if (message.type == 'Data') {
+					if (message.type === 'Data') {
 						this.showProgress = true;
-						
-						console.log("Starting block of interest");
-						
+												
 						var livePlotsClone = JSON.parse(JSON.stringify(this.livePlots));
-						console.log(livePlotsClone);
+						
 						for(myPlot of message.plots){
 							var myPlotInLivePlots = null;
 
-							//Find the correct livePlot in the JS variable
-							for(livePlot of livePlotsClone[this.jobSelectActive][this.deviceSelectActive].plots){
-								if(livePlot.plotID == myPlot.plotID){
-									myPlotInLivePlots = livePlot;
+							//Find the correct plot in the JS variable
+							for(plot of livePlotsClone[this.jobSelectActive][this.deviceSelectActive].plots){
+								if(plot.plotID === myPlot.plotID){
+									myPlotInLivePlots = plot;
+									break;
 								}
 							}
 
@@ -2659,16 +2649,18 @@
 
 								//Add to livePlots JS variable
 								livePlotsClone[this.jobSelectActive][this.deviceSelectActive].plots.push(myPlotInLivePlots);
-							}
-							else{
+							} else {
 								//myPlot does not include series which have not been updated on this message
 								for(mySeries of myPlot.seriesList){
-									mySeriesInLivePlots = null;
+									var mySeriesInLivePlots = null;
+									
 									for(livePlotSeries of myPlotInLivePlots.seriesList){
-										if(livePlotSeries.seriesName == mySeries.seriesName){
+										if(livePlotSeries.seriesName === mySeries.seriesName){
 											mySeriesInLivePlots = livePlotSeries;
+											break;
 										}
 									}
+									
 									//Add any series which have not yet been added to JS variable
 									if(mySeriesInLivePlots == null){
 										mySeriesInLivePlots = JSON.parse(JSON.stringify(mySeries));
@@ -2683,13 +2675,10 @@
 									//Add this data point
 									mySeriesInLivePlots.xData.push(mySeries.xData);
 									mySeriesInLivePlots.yData.push(mySeries.yData);
-
 								}
 							}
 
-							this.safeParseToVueVariable(livePlotsClone, this.livePlots);
-							console.log(this.livePlots);
-							
+							this.safeParseToVueVariable(livePlotsClone, this.livePlots);							
 						}
 					}
 				},
@@ -2787,7 +2776,6 @@
 			      
 			    },
 
-
 				clearLivePlot: function(plot) {
 					while(plot.seriesList.length > 0){
 						plot.seriesList.pop();
@@ -2812,25 +2800,84 @@
 				},
 
 				toggleLivePlotYAxisLog: function(plot){
-					if(plot.yScale == "linear"){
+					if(plot.yScale === "linear"){
 						plot.yScale = "log";
 					}
-					else if(plot.yScale == "log"){
+					else if(plot.yScale === "log"){
 						plot.yScale = "linear";
 					}
 				},
 
-				formatForPlotly: function(plot) {
-					var listToReturn = [];
+				extractPlotlyData: function(plot) {
+					var dataTraces = [];
 					for(series of plot.seriesList){
-						listToReturn.push({
-						x: series.xData,
-						y: series.yData,
-						mode: 'lines',
-						name: series.seriesName
+						dataTraces.push({
+							type: 'scatter',
+							name: series.seriesName,
+							x: series.xData,
+							y: series.yData,
+							mode: 'lines',
+							line:   {width: 3, dash: 'solid'},
+							marker: {size: 9, symbol:'circle'},
+							//showlegend: true,
 						});
 					}
-					return listToReturn;
+					return dataTraces;
+				},
+				extractPlotlyLayout: function(plot) {
+					 return {
+						xaxis: { 
+							autorange: true,
+							title: plot.xAxisTitle,
+							
+							zeroline: false,
+							zerolinewidth: 1,
+							showgrid: true,
+							gridwidth: 1,
+							showline: true,
+							linewidth: 2,
+							linecolor: 'rgb(200,200,200)',
+							showticklabels: true,
+							ticks:'outside',
+							tickwidth: 2,
+							ticklen: 5,
+							tickcolor: 'rgb(200,200,200)',
+						}, 
+						yaxis: {
+							type: plot.yScale, 
+							autorange: true,
+							title: plot.yAxisTitle, 
+							
+							zeroline: false,
+							zerolinewidth: 1,
+							showgrid: true,
+							gridwidth: 1,
+							showline: true,
+							linewidth: 2,
+							linecolor: 'rgb(200,200,200)',
+							showticklabels: true,
+							ticks:'outside',
+							tickwidth: 2,
+							ticklen: 5,
+							tickcolor: 'rgb(200,200,200)',
+						}, 
+						legend: {
+							y: 1.0,
+							orientation: 'v', 
+							font:{
+								family: 'Arial',
+								size: 12,
+							},
+						}, 
+						margin: {l: 75, r: 20, b: 75, t: 20, pad: 1}, 
+						automargin: true, 
+						autosize: true, 
+						font:{
+							family: 'Arial',
+							size: 12,
+						},
+						exponentformat:'SI',
+					};
 				},
 
 				// === Documentation ===
