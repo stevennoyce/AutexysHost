@@ -59,7 +59,7 @@ def runFree(smu_instance, pointLimit, gateVoltageMinimum, gateVoltageMaximum, dr
 	# Begin continuously applying randomly selected voltages from their distributions and taking measurements (until an interrupt is triggers by pipes, or a limit is reached)
 	while((pointLimit is None) or (index < pointLimit)):
 		# Send a progress message
-		pipes.progressUpdate(share, 'Free Run Point', start=0, current=index, end=(pointLimit if(pointLimit is not None) else index))
+		pipes.progressUpdate(share, 'Free Run Point', start=0, current=index, end=(pointLimit if(pointLimit is not None) else index), enableAbort=True)
 		index += 1
 
 		# Get drain and gate voltage from random distributions
@@ -80,6 +80,7 @@ def runFree(smu_instance, pointLimit, gateVoltageMinimum, gateVoltageMaximum, dr
 		# Send a data message
 		pipes.livePlotUpdate(share, plots=
 		[livePlotter.createDataSeries(plotID='transfer', 
+										labels=['Drain Current'],
 										xValues=[measurement['V_gs']], 
 										yValues=[measurement['I_d']], 
 										xAxisTitle='Gate Voltage (V)', 
@@ -88,6 +89,7 @@ def runFree(smu_instance, pointLimit, gateVoltageMinimum, gateVoltageMaximum, dr
 										enumerateLegend=False,
 										timeseries=False),
 		 livePlotter.createDataSeries(plotID='subthreshold', 
+		 								labels=['Drain Current'],
 										xValues=[measurement['V_gs']], 
 										yValues=[measurement['I_d']], 
 										xAxisTitle='Gate Voltage (V)', 
@@ -96,6 +98,7 @@ def runFree(smu_instance, pointLimit, gateVoltageMinimum, gateVoltageMaximum, dr
 										enumerateLegend=False,
 										timeseries=False),
 		 livePlotter.createDataSeries(plotID='output', 
+		 								labels=['Drain Current'],
 										xValues=[measurement['V_ds']], 
 										yValues=[measurement['I_d']], 
 										xAxisTitle='Drain Voltage (V)', 
