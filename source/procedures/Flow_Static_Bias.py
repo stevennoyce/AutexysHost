@@ -3,8 +3,8 @@ import time
 import numpy as np
 
 import pipes
-from Live_Plot_Data_Point import Live_Plot_Data_Point
-from Live_Plot_Data_Point import Live_Plot_Series_Data_Point
+from Live_Plot_Data_Point import Live_Plot_Figure
+from Live_Plot_Data_Point import Live_Plot_Trace
 from utilities import DataLoggerUtility as dlu
 
 
@@ -333,19 +333,17 @@ def runFlowStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gate
 			parameters['SensorData'][measurement].append(value)
 
 		# Send a data message
-		pipes.livePlotUpdate(share,plots=[Live_Plot_Data_Point(plotID='Current vs. Time',
-														   xAxisTitle='Time [s]',
-														   yAxisTitle='Current [A]',
-														   yScale='log',
-														   seriesList=[
-															   Live_Plot_Series_Data_Point(
-																   seriesName='Flow Static Bias Gate Current [A]',
-																   xData=timestamp,
-																   yData=ig_data_median),
-															   Live_Plot_Series_Data_Point(
-																   seriesName='Flow Static Bias Drain Current [A]',
-																   xData=timestamp,
-																   yData=id_data_median)])])
+		pipes.livePlotUpdate(share,plots=
+		[livePlotter.createDataSeries(plotID='Current vs. Time',
+										labels=['Flow Static Bias Drain Current [A]', 'Flow Static Bias Gate Current [A]'],
+										xValues=[timestamp, timestamp], 
+										yValues=[id_data_median, ig_data_median], 
+										xAxisTitle='Time (s)', 
+										yAxisTitle='Current (A)', 
+										yscale='log', 
+										enumerateLegend=False,
+										timeseries=True),
+		])
 
 		# Update Flow Progress
 		elapsedTime = time.time() - startTime

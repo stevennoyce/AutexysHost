@@ -137,6 +137,7 @@ def runDrainSweep(smu_instance, isFastSweep, fastSweepSpeed, gateVoltageSetPoint
 												xAxisTitle='Drain Voltage (V)', 
 												yAxisTitle='Current (A)', 
 												yscale='linear', 
+												plotMode='lines',
 												enumerateLegend=True,
 												timeseries=False),
 				 livePlotter.createDataSeries(plotID='Response vs. Time', 
@@ -146,6 +147,7 @@ def runDrainSweep(smu_instance, isFastSweep, fastSweepSpeed, gateVoltageSetPoint
 												xAxisTitle='Time (s)', 
 												yAxisTitle='Current (A)', 
 												yscale='linear', 
+												plotMode='lines',
 												enumerateLegend=True,
 												timeseries=True),
 				])

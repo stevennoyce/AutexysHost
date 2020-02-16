@@ -86,6 +86,7 @@ def runFree(smu_instance, pointLimit, gateVoltageMinimum, gateVoltageMaximum, dr
 										xAxisTitle='Gate Voltage (V)', 
 										yAxisTitle='Drain Current (A)', 
 										yscale='linear', 
+										plotMode='markers',
 										enumerateLegend=False,
 										timeseries=False),
 		 livePlotter.createDataSeries(plotID='subthreshold', 
@@ -95,6 +96,7 @@ def runFree(smu_instance, pointLimit, gateVoltageMinimum, gateVoltageMaximum, dr
 										xAxisTitle='Gate Voltage (V)', 
 										yAxisTitle='Drain Current (A)', 
 										yscale='log', 
+										plotMode='markers',
 										enumerateLegend=False,
 										timeseries=False),
 		 livePlotter.createDataSeries(plotID='output', 
@@ -104,6 +106,7 @@ def runFree(smu_instance, pointLimit, gateVoltageMinimum, gateVoltageMaximum, dr
 										xAxisTitle='Drain Voltage (V)', 
 										yAxisTitle='Drain Current (A)', 
 										yscale='linear', 
+										plotMode='markers',
 										enumerateLegend=False,
 										timeseries=False),
 		])
