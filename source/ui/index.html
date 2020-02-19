@@ -133,68 +133,42 @@
 				<v-navigation-drawer clipped fixed v-model="drawer" class="color1" dark app>
 					<v-list dense>
 						<v-list-tile @click="setTopLevelPage('dashboard')">
-							<v-list-tile-action>
-								<v-icon>dashboard</v-icon>
-							</v-list-tile-action>
-							<v-list-tile-content>
-								<v-list-tile-title>Dashboard</v-list-tile-title>
-							</v-list-tile-content>
+							<v-list-tile-action><v-icon>dashboard</v-icon></v-list-tile-action>
+							<v-list-tile-content><v-list-tile-title>Dashboard</v-list-tile-title></v-list-tile-content>
 						</v-list-tile>
 						<v-list-tile @click="setTopLevelPage('stepper')">
-							<v-list-tile-action>
-								<v-icon>list</v-icon>
-							</v-list-tile-action>
-							<v-list-tile-content>
-								<v-list-tile-title>Browser</v-list-tile-title>
-							</v-list-tile-content>
+							<v-list-tile-action><v-icon>list</v-icon></v-list-tile-action>
+							<v-list-tile-content><v-list-tile-title>Browser</v-list-tile-title></v-list-tile-content>
 						</v-list-tile>
 						<v-list-tile @click="setTopLevelPage('scheduleCreator')">
-							<v-list-tile-action>
-								<v-icon>schedule</v-icon>
-							</v-list-tile-action>
-							<v-list-tile-content>
-								<v-list-tile-title>Schedule Creator</v-list-tile-title>
-							</v-list-tile-content>
+							<v-list-tile-action><v-icon>schedule</v-icon></v-list-tile-action>
+							<v-list-tile-content><v-list-tile-title>Schedule Creator</v-list-tile-title></v-list-tile-content>
 						</v-list-tile>
 						<v-list-tile @click="setTopLevelPage('experimentRunner')">
-							<v-list-tile-action>
-								<v-icon>play_circle_outline</v-icon>
-							</v-list-tile-action>
-							<v-list-tile-content>
-								<v-list-tile-title>Experiment Runner</v-list-tile-title>
-							</v-list-tile-content>
+							<v-list-tile-action><v-icon>play_circle_outline</v-icon></v-list-tile-action>
+							<v-list-tile-content><v-list-tile-title>Experiment Runner</v-list-tile-title></v-list-tile-content>
 						</v-list-tile>
+						<v-list-group>
+							<v-list-tile slot="activator">
+								<v-list-tile-action><v-icon>cloud</v-icon></v-list-tile-action>
+								<v-list-tile-content><v-list-tile-title>Applications</v-list-tile-title></v-list-tile-content>
+							</v-list-tile>
+							<v-list-tile @click="setTopLevelPage('performance')">
+								<v-list-tile-action class="ml-4"><v-icon>speed</v-icon></v-list-tile-action>
+								<v-list-tile-content><v-list-tile-title>Performance</v-list-tile-title></v-list-tile-content>
+							</v-list-tile>
+						</v-list-group>
 						<v-list-tile @click="setTopLevelPage('settings')">
-							<v-list-tile-action>
-								<v-icon>settings</v-icon>
-							</v-list-tile-action>
-							<v-list-tile-content>
-								<v-list-tile-title>Settings</v-list-tile-title>
-							</v-list-tile-content>
+							<v-list-tile-action><v-icon>settings</v-icon></v-list-tile-action>
+							<v-list-tile-content><v-list-tile-title>Settings</v-list-tile-title></v-list-tile-content>
 						</v-list-tile>
 						<v-list-tile @click="setTopLevelPage('about')">
-							<v-list-tile-action>
-								<v-icon>info_outline</v-icon>
-							</v-list-tile-action>
-							<v-list-tile-content>
-								<v-list-tile-title>About</v-list-tile-title>
-							</v-list-tile-content>
-						</v-list-tile>
-						<v-list-tile @click="setTopLevelPage('readme')">
-							<v-list-tile-action>
-								<v-icon>info_outline</v-icon>
-							</v-list-tile-action>
-							<v-list-tile-content>
-								<v-list-tile-title>Read Me</v-list-tile-title>
-							</v-list-tile-content>
+							<v-list-tile-action><v-icon>info_outline</v-icon></v-list-tile-action>
+							<v-list-tile-content><v-list-tile-title>About (and README)</v-list-tile-title></v-list-tile-content>
 						</v-list-tile>
 						<v-list-tile @click="setTopLevelPage('documentation')">
-							<v-list-tile-action>
-								<v-icon>info_outline</v-icon>
-							</v-list-tile-action>
-							<v-list-tile-content>
-								<v-list-tile-title>Documentation</v-list-tile-title>
-							</v-list-tile-content>
+							<v-list-tile-action><v-icon>info_outline</v-icon></v-list-tile-action>
+							<v-list-tile-content><v-list-tile-title>Documentation</v-list-tile-title></v-list-tile-content>
 						</v-list-tile>
 					</v-list>
 				</v-navigation-drawer>
@@ -240,6 +214,102 @@
 				
 				<v-content>
 					
+					<!-- Start of dashboard -->
+					
+					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'dashboard'">
+						<v-card>
+							<v-toolbar dark dense class="color1 darken-1">
+								<v-toolbar-title>
+									Dashboard
+								</v-toolbar-title>
+								<v-spacer></v-spacer>
+								<v-btn icon @click="resetDashboard()" :disabled="!hasModifiedRecentActivityFilter()"><v-icon>settings_backup_restore</v-icon></v-btn>
+							</v-toolbar>
+							
+							<v-container>
+								<v-layout row wrap>
+									<v-flex xs4 sm4 md4 lg4 xl4 class="pa-1">
+										<v-toolbar dark class="color4 roundedcorners" style="cursor: pointer;" @click="setTopLevelPage('stepper')">
+											<v-toolbar-title>
+												Browser
+											</v-toolbar-title>
+										</v-toolbar>
+									</v-flex>
+									
+									<v-flex xs4 sm4 md4 lg4 xl4 class="pa-1">
+										<v-toolbar dark class="color2 roundedcorners" style="cursor: pointer;" @click="setTopLevelPage('scheduleCreator')">
+											<v-toolbar-title>
+												Schedule Creator
+											</v-toolbar-title>
+										</v-toolbar>	
+									</v-flex>
+									
+									<v-flex xs4 sm4 md4 lg4 xl4 class="pa-1">
+										<v-toolbar dark class="color3 roundedcorners" style="cursor: pointer;" @click="setTopLevelPage('experimentRunner')">
+											<v-toolbar-title>
+												Experiment Runner
+											</v-toolbar-title>
+										</v-toolbar>
+									</v-flex>
+								</v-layout>
+							</v-container>
+							
+							<v-container>
+								<v-card class="ma-1">
+									<v-toolbar dark dense class="color1 darken-1">
+										<v-toolbar-title>
+											Recent Activity
+										</v-toolbar-title>
+										
+										<v-spacer></v-spacer>
+										
+										<v-toolbar-items class="pt-2">
+											<v-chip small light color="white" @click="setRecentActivityCategory('project')" :selected="recentActivityIncludesCategory(['project', 'wafer', 'chip', 'device'])" >Projects</v-chip>
+											<v-chip small light color="white" @click="setRecentActivityCategory('wafer')" :selected="recentActivityIncludesCategory(['wafer', 'chip', 'device'])" >Wafers</v-chip>
+											<v-chip small light color="white" @click="setRecentActivityCategory('chip')" :selected="recentActivityIncludesCategory(['chip', 'device'])">Chips</v-chip>
+											<v-chip small light color="white" @click="setRecentActivityCategory('device')" :selected="recentActivityIncludesCategory(['device'])">Devices</v-chip>
+										</v-toolbar-items>
+										
+										<v-spacer></v-spacer>
+										
+										<v-toolbar-items>
+											<v-menu bottom left offset-y :close-on-content-click="false">
+												<v-btn slot="activator" flat>Filter</v-btn>
+												<v-card light>
+													<v-list>
+														<v-list-tile>
+															<v-autocomplete clearable label="Project" v-model="recentActivityProject" :items="_.keys(_.get(scheduleNames, [user], {}))"></v-autocomplete>
+														</v-list-tile>
+														<v-list-tile>
+															<v-autocomplete clearable label="Wafer" v-model="recentActivityWafer" :items="[]"></v-autocomplete>
+														</v-list-tile>
+													</v-list>
+												</v-card>
+											</v-menu>
+											<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
+										</v-toolbar-items>
+									</v-toolbar>
+									
+									<v-data-table must-sort :items="recentActivity" :headers="dynamicRecentActivityTableHeaders" 
+										:rows-per-page-items="[10,50,{'text':'$vuetify.dataIterator.rowsPerPageAll','value':-1}]"
+										:pagination.sync="recentActivityPagination" :hide-headers="false" :hide-actions="false">
+										<template slot="items" slot-scope="props">
+											<tr @click="setTopLevelPage('stepper'); goToDirectly(props.item.project, props.item.wafer, props.item.chip, props.item.device);">
+												<td v-if="recentActivityHeaders.find(h => h.value ==='user').visible">{{ props.item.user }}</td>
+												<td v-if="recentActivityHeaders.find(h => h.value ==='project').visible">{{ props.item.project }}</td>
+												<td v-if="recentActivityHeaders.find(h => h.value ==='wafer').visible">{{ props.item.wafer }}</td>
+												<td v-if="recentActivityHeaders.find(h => h.value ==='chip').visible">{{ props.item.chip }}</td>
+												<td v-if="recentActivityHeaders.find(h => h.value ==='device').visible">{{ props.item.device }}</td>
+												<td v-if="recentActivityHeaders.find(h => h.value ==='modified').visible">{{ new Date(props.item.modified*1000).toLocaleDateString() }}</td>
+											</tr>
+										</template>
+									</v-data-table>
+								</v-card>
+							</v-container>
+						</v-card>
+					</v-flex>
+					
+					<!-- End of dashboard -->
 					<!-- Start of browser -->
 					
 					<v-stepper v-if="topLevelPage === 'stepper'" v-model="stepperPage" style="background-color:rgba(255,255,255,0);height:100%;">
@@ -799,264 +869,12 @@
 										</v-tooltip>
 									</v-card-actions>
 								</v-card>
-							</v-flex>	
-							
-							<!--
-							<v-flex xs6 sm6 md6 lg6 class="pl-1">
-								<v-card class="mb-3" v-if="!nonTrivialScheduleObjects()">
-									<v-toolbar dark dense class="color2 ">
-										<v-toolbar-title>
-											Load Schedule File
-										</v-toolbar-title>
-										<v-spacer></v-spacer>
-										<v-btn icon @click="resetScheduleLoadPath()" :disabled="!isValidScheduleLoadPath()">
-											<v-icon>settings_backup_restore</v-icon>
-										</v-btn>
-									</v-toolbar>
-									
-									<v-form>
-										<v-container>
-											<v-layout row wrap>
-												<v-flex xs4 sm4 md4 lg4 outline>
-													<v-autocomplete clearable v-model="scheduleLoadUser" label="User" :items="Object.keys(scheduleNames)"></v-autocomplete>
-												</v-flex>
-												<v-flex xs4 sm4 md4 lg4 solo>
-													<v-autocomplete clearable v-model="scheduleLoadProject" label="Project" :items="_.keys(_.get(scheduleNames, [scheduleLoadUser], {}))"></v-autocomplete>
-												</v-flex>
-												<v-flex xs4 sm4 md4 lg4 solo>
-													<v-autocomplete clearable v-model="scheduleLoadFileName" label="File Name" :items="_.get(scheduleNames, [scheduleLoadUser, scheduleLoadProject], [])"></v-autocomplete>
-												</v-flex>
-											</v-layout>
-										</v-container>
-									</v-form>
-									
-									<template v-if="isValidScheduleLoadPath()">
-										<v-form class="ma-3" style="overflow-x: scroll">
-											<p>
-												<i>Loading from:</i><br/> 
-												AutexysData/{{ scheduleLoadUser }}/{{ scheduleLoadProject }}/schedules/{{ scheduleLoadFileName }}.json
-											</p>
-										</v-form>
-									</template>
-																	
-									<v-card-actions>
-										<v-spacer></v-spacer>
-										<v-btn @click="loadSchedule()" :disabled="!isValidScheduleLoadPath()">Load Schedule File</v-btn>
-									</v-card-actions>
-								</v-card>
-							</v-flex> -->
+							</v-flex>
+								
 						</v-layout>
 					</v-flex>
 					
 					<!-- End of sched creator -->
-					<!-- Start of dashboard -->
-					
-					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'dashboard'">
-						<v-card>
-							<v-toolbar dark dense class="color1 darken-1">
-								<v-toolbar-title>
-									Dashboard
-								</v-toolbar-title>
-								<v-spacer></v-spacer>
-								<v-btn icon @click="resetDashboard()" :disabled="!hasModifiedRecentActivityFilter()"><v-icon>settings_backup_restore</v-icon></v-btn>
-							</v-toolbar>
-							
-							<v-container>
-								<v-layout row wrap>
-									<v-flex xs4 sm4 md4 lg4 xl4 class="pa-1">
-										<v-toolbar dark class="color4 roundedcorners" style="cursor: pointer;" @click="setTopLevelPage('stepper')">
-											<v-toolbar-title>
-												Browser
-											</v-toolbar-title>
-										</v-toolbar>
-									</v-flex>
-									
-									<v-flex xs4 sm4 md4 lg4 xl4 class="pa-1">
-										<v-toolbar dark class="color2 roundedcorners" style="cursor: pointer;" @click="setTopLevelPage('scheduleCreator')">
-											<v-toolbar-title>
-												Schedule Creator
-											</v-toolbar-title>
-										</v-toolbar>	
-									</v-flex>
-									
-									<v-flex xs4 sm4 md4 lg4 xl4 class="pa-1">
-										<v-toolbar dark class="color3 roundedcorners" style="cursor: pointer;" @click="setTopLevelPage('experimentRunner')">
-											<v-toolbar-title>
-												Experiment Runner
-											</v-toolbar-title>
-										</v-toolbar>
-									</v-flex>
-								</v-layout>
-							</v-container>
-							
-							<v-container>
-								<v-card class="ma-1">
-									<v-toolbar dark dense class="color1 darken-1">
-										<v-toolbar-title>
-											Recent Activity
-										</v-toolbar-title>
-										
-										<v-spacer></v-spacer>
-										
-										<v-toolbar-items class="pt-2">
-											<v-chip small light color="white" @click="setRecentActivityCategory('project')" :selected="recentActivityIncludesCategory(['project', 'wafer', 'chip', 'device'])" >Projects</v-chip>
-											<v-chip small light color="white" @click="setRecentActivityCategory('wafer')" :selected="recentActivityIncludesCategory(['wafer', 'chip', 'device'])" >Wafers</v-chip>
-											<v-chip small light color="white" @click="setRecentActivityCategory('chip')" :selected="recentActivityIncludesCategory(['chip', 'device'])">Chips</v-chip>
-											<v-chip small light color="white" @click="setRecentActivityCategory('device')" :selected="recentActivityIncludesCategory(['device'])">Devices</v-chip>
-										</v-toolbar-items>
-										
-										<v-spacer></v-spacer>
-										
-										<v-toolbar-items>
-											<v-menu bottom left offset-y :close-on-content-click="false">
-												<v-btn slot="activator" flat>Filter</v-btn>
-												<v-card light>
-													<v-list>
-														<v-list-tile>
-															<v-autocomplete clearable label="Project" v-model="recentActivityProject" :items="_.keys(_.get(scheduleNames, [user], {}))"></v-autocomplete>
-														</v-list-tile>
-														<v-list-tile>
-															<v-autocomplete clearable label="Wafer" v-model="recentActivityWafer" :items="[]"></v-autocomplete>
-														</v-list-tile>
-													</v-list>
-												</v-card>
-											</v-menu>
-											<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
-										</v-toolbar-items>
-									</v-toolbar>
-									
-									<v-data-table must-sort :items="recentActivity" :headers="dynamicRecentActivityTableHeaders" 
-										:rows-per-page-items="[10,50,{'text':'$vuetify.dataIterator.rowsPerPageAll','value':-1}]"
-										:pagination.sync="recentActivityPagination" :hide-headers="false" :hide-actions="false">
-										<template slot="items" slot-scope="props">
-											<tr @click="setTopLevelPage('stepper'); goToDirectly(props.item.project, props.item.wafer, props.item.chip, props.item.device);">
-												<td v-if="recentActivityHeaders.find(h => h.value ==='user').visible">{{ props.item.user }}</td>
-												<td v-if="recentActivityHeaders.find(h => h.value ==='project').visible">{{ props.item.project }}</td>
-												<td v-if="recentActivityHeaders.find(h => h.value ==='wafer').visible">{{ props.item.wafer }}</td>
-												<td v-if="recentActivityHeaders.find(h => h.value ==='chip').visible">{{ props.item.chip }}</td>
-												<td v-if="recentActivityHeaders.find(h => h.value ==='device').visible">{{ props.item.device }}</td>
-												<td v-if="recentActivityHeaders.find(h => h.value ==='modified').visible">{{ new Date(props.item.modified*1000).toLocaleDateString() }}</td>
-											</tr>
-										</template>
-									</v-data-table>
-								</v-card>
-							</v-container>
-						</v-card>
-					</v-flex>
-					
-					<!-- End of dashboard -->
-					<!-- Start of settings -->
-					
-					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'settings'">
-						<v-card>
-							<v-toolbar dark dense class="color4 ">
-								<v-toolbar-title>
-									Settings
-								</v-toolbar-title>
-								<v-spacer></v-spacer>
-								<v-btn light small @click="updatePlotSettings()">Save</v-btn>
-								<v-btn icon @click="resetAllPlotSettings(); updatePlotSettings();" :disabled="!hasModifiedPlotSettings()"><v-icon>settings_backup_restore</v-icon></v-btn>
-							</v-toolbar>
-							
-							<v-container>
-								<v-layout row wrap>
-									<v-flex xs3 sm3 md3 lg3 xl3>
-										<v-card class="ma-1">
-											<v-toolbar dark dense class="color1 ">
-												<v-toolbar-title>
-													Data
-												</v-toolbar-title>
-											</v-toolbar>
-											<v-list class="pt-3">
-												<s-item-group-edit :settings.sync="primaryPlotSettings" :defaults="primaryPlotSettingDefaults"></s-item-group-edit>
-											</v-list>
-										</v-card>
-									</v-flex>
-									
-									<v-flex xs3 sm3 md3 lg3 xl3>
-										<v-card class="ma-1">
-											<v-toolbar dark dense class="color1 ">
-												<v-toolbar-title>
-													Plot Options
-												</v-toolbar-title>
-											</v-toolbar>
-											<v-list class="pt-3">
-												<s-item-group-edit :settings.sync="modePlotSettings" :defaults="modePlotSettingDefaults"></s-item-group-edit>
-											</v-list>
-										</v-card>
-									</v-flex>
-									
-									<v-flex xs3 sm3 md3 lg3 xl3>
-										<v-card class="ma-1">
-											<v-toolbar dark dense class="color1 ">
-												<v-toolbar-title>
-													Chip Summary
-												</v-toolbar-title>
-											</v-toolbar>
-											<v-list class="pt-3">
-												<s-item-group-edit :settings.sync="chipSummarySettings" :defaults="chipSummarySettingDefaults"></s-item-group-edit>
-											</v-list>
-										</v-card>
-									</v-flex>
-									
-									<v-flex xs3 sm3 md3 lg3 xl3>
-										<v-card class="ma-1">
-											<v-toolbar dark dense class="color1 ">
-												<v-toolbar-title>
-													Device Summary
-												</v-toolbar-title>
-											</v-toolbar>
-											<v-list class="pt-3">
-												<s-item-group-edit :settings.sync="deviceSummarySettings" :defaults="deviceSummarySettingDefaults"></s-item-group-edit>
-											</v-list>
-										</v-card>
-									</v-flex>
-								</v-layout>
-							</v-container>
-						</v-card>
-					</v-flex>
-					
-					<!-- End of settings -->
-					<!-- Start of about -->
-					
-					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'about'">
-						<v-card>
-							<v-toolbar dark dense class="color1 ">
-								<v-toolbar-title>
-									About
-								</v-toolbar-title>
-							</v-toolbar>
-							<v-container>
-								<p>
-									Autexys - the Automated Experimentation System
-								</p>
-																
-								<v-toolbar dark dense v-for="colorValue, colorName in $vuetify.theme" :key="colorName" :color="colorValue">
-									<v-toolbar-title>
-										{{ colorName }}
-									</v-toolbar-title>
-								</v-toolbar>
-							</v-container>
-						</v-card>
-					</v-flex>
-					
-					<!-- End of about -->
-					<!-- Start of README -->
-					
-					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'readme'">
-						<v-card>
-							<v-toolbar dark dense class="color1 ">
-								<v-toolbar-title>
-									Read Me
-								</v-toolbar-title>
-							</v-toolbar>
-							<v-container>
-								<div v-html="ReadMeHTML"></div>
-							</v-container>
-						</v-card>
-					</v-flex>
-					
-					<!-- End of README -->
 					<!-- Start of documentation -->
 					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'documentation'">
@@ -1379,7 +1197,7 @@
 										<v-card class="ma-1" height="100%">
 											<v-toolbar dark dense class="color3 ">
 												<v-toolbar-title>
-													 Plot #{{ i+1 }} 
+													Plot #{{ i+1 }} 
 												</v-toolbar-title>
 											
 												<v-spacer></v-spacer>
@@ -1388,7 +1206,7 @@
 													<v-btn slot="activator" icon><v-icon>settings</v-icon></v-btn>
 													<v-list light>
 														<v-list-tile @click="toggleLivePlotYAxisLog(plot)">
-															<v-list-tile-avatar><v-icon>linear_scale</v-icon></v-list-tile-avatar>
+															<v-list-tile-avatar><v-icon>timeline</v-icon></v-list-tile-avatar>
 															<v-list-tile-content><v-list-tile-title>Toggle Y-Axis Log</v-list-tile-title></v-list-tile-content>
 														</v-list-tile>
 														
@@ -1412,6 +1230,127 @@
 					</v-flex>
 					
 					<!-- End of experiment runner -->
+					<!-- Start of applications -->
+					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'performance'">
+						<v-card>
+							<v-toolbar dark dense class="color1 ">
+								<v-toolbar-title>
+									Performance
+								</v-toolbar-title>
+								<v-spacer></v-spacer>
+								<v-btn icon @click="" :disabled="true"><v-icon>settings_backup_restore</v-icon></v-btn>
+							</v-toolbar>
+							
+							<v-container>
+								<p>Coming soon.</p>
+							</v-container>
+						</v-card>
+					</v-flex>
+					
+					<!-- End of applications -->
+					<!-- Start of settings -->
+					
+					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'settings'">
+						<v-card>
+							<v-toolbar dark dense class="color4 ">
+								<v-toolbar-title>
+									Settings
+								</v-toolbar-title>
+								<v-spacer></v-spacer>
+								<v-btn light small @click="updatePlotSettings()">Save</v-btn>
+								<v-btn icon @click="resetAllPlotSettings(); updatePlotSettings();" :disabled="!hasModifiedPlotSettings()"><v-icon>settings_backup_restore</v-icon></v-btn>
+							</v-toolbar>
+							
+							<v-container>
+								<v-layout row wrap>
+									<v-flex xs3 sm3 md3 lg3 xl3>
+										<v-card class="ma-1">
+											<v-toolbar dark dense class="color1 ">
+												<v-toolbar-title>
+													Data
+												</v-toolbar-title>
+											</v-toolbar>
+											<v-list class="pt-3">
+												<s-item-group-edit :settings.sync="primaryPlotSettings" :defaults="primaryPlotSettingDefaults"></s-item-group-edit>
+											</v-list>
+										</v-card>
+									</v-flex>
+									
+									<v-flex xs3 sm3 md3 lg3 xl3>
+										<v-card class="ma-1">
+											<v-toolbar dark dense class="color1 ">
+												<v-toolbar-title>
+													Plot Options
+												</v-toolbar-title>
+											</v-toolbar>
+											<v-list class="pt-3">
+												<s-item-group-edit :settings.sync="modePlotSettings" :defaults="modePlotSettingDefaults"></s-item-group-edit>
+											</v-list>
+										</v-card>
+									</v-flex>
+									
+									<v-flex xs3 sm3 md3 lg3 xl3>
+										<v-card class="ma-1">
+											<v-toolbar dark dense class="color1 ">
+												<v-toolbar-title>
+													Chip Summary
+												</v-toolbar-title>
+											</v-toolbar>
+											<v-list class="pt-3">
+												<s-item-group-edit :settings.sync="chipSummarySettings" :defaults="chipSummarySettingDefaults"></s-item-group-edit>
+											</v-list>
+										</v-card>
+									</v-flex>
+									
+									<v-flex xs3 sm3 md3 lg3 xl3>
+										<v-card class="ma-1">
+											<v-toolbar dark dense class="color1 ">
+												<v-toolbar-title>
+													Device Summary
+												</v-toolbar-title>
+											</v-toolbar>
+											<v-list class="pt-3">
+												<s-item-group-edit :settings.sync="deviceSummarySettings" :defaults="deviceSummarySettingDefaults"></s-item-group-edit>
+											</v-list>
+										</v-card>
+									</v-flex>
+								</v-layout>
+							</v-container>
+						</v-card>
+					</v-flex>
+					
+					<!-- End of settings -->
+					<!-- Start of about -->
+					
+					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'about'">
+						<v-card>
+							<v-toolbar dark dense class="color1 ">
+								<v-toolbar-title>
+									README for Autexys - the Automated Experimentation System
+								</v-toolbar-title>
+							</v-toolbar>
+							<v-container>
+								<div v-html="ReadMeHTML"></div>
+							</v-container>
+						</v-card>
+						
+						<v-card>
+							<v-toolbar dark dense class="color1 ">
+								<v-toolbar-title>
+									About
+								</v-toolbar-title>
+							</v-toolbar>
+							<v-container>								
+								<v-toolbar dark dense v-for="colorValue, colorName in $vuetify.theme" :key="colorName" :color="colorValue">
+									<v-toolbar-title>
+										{{ colorName }}
+									</v-toolbar-title>
+								</v-toolbar>
+							</v-container>
+						</v-card>
+					</v-flex>
+					
+					<!-- End of about -->
 
 				</v-content>
 				<v-footer inset>
