@@ -31,8 +31,11 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 						drainVoltageMinimum=fr_parameters['drainVoltageMinimum'],
 						drainVoltageMaximum=fr_parameters['drainVoltageMaximum'],
 						delayBetweenMeasurements=fr_parameters['delayBetweenMeasurements'],
+						stepsBetweenMeasurements=fr_parameters['stepsBetweenMeasurements'],
 						gateVoltageDistribution=fr_parameters['gateVoltageDistribution'],
 						drainVoltageDistribution=fr_parameters['drainVoltageDistribution'],
+						gateVoltageDistributionParameter=fr_parameters['gateVoltageDistributionParameter'],
+						drainVoltageDistributionParameter=fr_parameters['drainVoltageDistributionParameter'],
 						share=share)
 	
 	# Ramp down channels
@@ -45,13 +48,14 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 	return jsonData
 
 # === Data Collection ===
-def runFree(smu_instance, pointLimit, gateVoltageMinimum, gateVoltageMaximum, drainVoltageMinimum, drainVoltageMaximum, delayBetweenMeasurements, gateVoltageDistribution='uniform', drainVoltageDistribution='uniform', share=None):
+def runFree(smu_instance, pointLimit, gateVoltageMinimum, gateVoltageMaximum, drainVoltageMinimum, drainVoltageMaximum, delayBetweenMeasurements=0, stepsBetweenMeasurements=10, gateVoltageDistribution='random', drainVoltageDistribution='random', gateVoltageDistributionParameter=2, drainVoltageDistributionParameter=2, share=None):
 	index = 0
 	
 	# Define possible distributions
 	distributions = {
-		'uniform': lambda minimum, maximum: random.uniform(minimum, maximum),
-		'striped': lambda minimum, maximum: random.choice(np.linspace(minimum, maximum, 5)),
+		'random':  lambda minimum, maximum, index, factor: random.uniform(minimum, maximum),
+		'striped': lambda minimum, maximum, index, factor: random.choice(np.linspace(minimum, maximum, factor)),
+		'looped':  lambda minimum, maximum, index, factor: (np.linspace(minimum, maximum, factor) + np.linspace(maximum, minimum, factor))[index % (2*factor)]
 	}
 	nextGateVoltage = distributions[gateVoltageDistribution]
 	nextDrainVoltage = distributions[drainVoltageDistribution]
@@ -60,15 +64,18 @@ def runFree(smu_instance, pointLimit, gateVoltageMinimum, gateVoltageMaximum, dr
 	while((pointLimit is None) or (index < pointLimit)):
 		# Send a progress message
 		pipes.progressUpdate(share, 'Free Run Point', start=0, current=index, end=(pointLimit if(pointLimit is not None) else index), enableAbort=True)
-		index += 1
 
 		# Get drain and gate voltage from random distributions
-		gateVoltage  = nextGateVoltage(gateVoltageMinimum, gateVoltageMaximum)
-		drainVoltage = nextDrainVoltage(drainVoltageMinimum, drainVoltageMaximum)
+		gateVoltage  = nextGateVoltage(gateVoltageMinimum, gateVoltageMaximum, index, gateVoltageDistributionParameter)
+		drainVoltage = nextDrainVoltage(drainVoltageMinimum, drainVoltageMaximum, index, drainVoltageDistributionParameter)
 
 		# Apply bias voltages
-		smu_instance.rampGateVoltageTo(gateVoltage, steps=10)
-		smu_instance.rampDrainVoltageTo(drainVoltage, steps=10)
+		if(stepsBetweenMeasurements <= 1):
+			smu_instance.setVgs(gateVoltage)
+			smu_instance.setVds(drainVoltage)
+		else:
+			smu_instance.rampGateVoltageTo(gateVoltage, steps=stepsBetweenMeasurements)
+			smu_instance.rampDrainVoltageTo(drainVoltage, steps=stepsBetweenMeasurements)
 
 		# If delayBetweenMeasurements is non-zero, wait before taking the measurement
 		if(delayBetweenMeasurements > 0):
@@ -110,7 +117,10 @@ def runFree(smu_instance, pointLimit, gateVoltageMinimum, gateVoltageMaximum, dr
 										enumerateLegend=False,
 										timeseries=False),
 		])
-			
+		
+		# Increment loop index
+		index += 1
+					
 	return {
 		
 	}
