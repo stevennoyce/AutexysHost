@@ -967,7 +967,7 @@
 							<v-container>
 								<v-form class="ma-2">
 									<v-flex xs12 sm6 md4 lg3>
-										<v-select box class="ma-1" :label="runnerLabel" v-model="runnerChoice" :items="['Schedule File'].concat(Object.keys(runnerStandardFileNames))"></v-select>
+										<v-select box class="ma-1" :label="runnerChoiceLabel" v-model="runnerChoice" :items="['Schedule File'].concat(Object.keys(runnerStandardFileNames))"></v-select>
 									</v-flex>
 								</v-form>
 							
@@ -1244,40 +1244,56 @@
 							</v-toolbar>
 							
 							<v-container>
-								<p>Coming soon.</p>
-								
-								<v-container>
-									<v-layout row wrap>
-										<v-flex xs3 s3 md3 lg3>
-											<v-list class="roundedcorners">
-												<v-list-tile>
-													
-												</v-list-tile>
-											</v-list>
-										</v-flex>
-										<v-flex xs3 s3 md3 lg3>
-											<v-list class="roundedcorners">
-												<v-list-tile>
-													
-												</v-list-tile>
-											</v-list>
-										</v-flex>
-										<v-flex xs3 s3 md3 lg3>
-											<v-list class="roundedcorners">
-												<v-list-tile>
-													
-												</v-list-tile>
-											</v-list>
-										</v-flex>
-										<v-flex xs3 s3 md3 lg3>
-											<v-list class="roundedcorners">
-												<v-list-tile>
-													
-												</v-list-tile>
-											</v-list>
-										</v-flex>
-									</v-layout>
-								</v-container>
+															
+								<v-card flat class="grey lighten-4 roundedcorners" v-if="Object.keys(performanceScheduleObject).length > 0">
+									<v-container>
+										<v-layout row wrap>
+											<v-flex xs3 s3 md3 lg3>
+												<v-list class="roundedcorners ma-1">
+													<v-list-tile>
+														<v-list-tile-content><v-list-tile-title style="font-weight: bold">
+															Identifiers
+														</v-list-tile-title></v-list-tile-content>
+													</v-list-tile>
+													<v-list-tile>
+														<s-item-edit :setting.sync="performanceScheduleObject['Identifiers']['device']"></s-item-edit>
+													</v-list-tile>
+												</v-list>
+												<v-list class="roundedcorners ma-1 mt-2">
+													<v-list-tile>
+														<v-list-tile-content><v-list-tile-title style="font-weight: bold">
+															Measurement System
+														</v-list-tile-title></v-list-tile-content>
+													</v-list-tile>
+													<v-list-tile>
+														<s-item-edit :setting.sync="performanceScheduleObject['MeasurementSystem']['systemType']"></s-item-edit>
+													</v-list-tile>
+												</v-list>
+											</v-flex>
+											<v-flex xs3 s3 md3 lg3>
+												<v-list class="roundedcorners ma-1">
+													<v-list-tile>
+														
+													</v-list-tile>
+												</v-list>
+											</v-flex>
+											<v-flex xs3 s3 md3 lg3>
+												<v-list class="roundedcorners ma-1">
+													<v-list-tile>
+														
+													</v-list-tile>
+												</v-list>
+											</v-flex>
+											<v-flex xs3 s3 md3 lg3>
+												<v-list class="roundedcorners ma-1">
+													<v-list-tile>
+														
+													</v-list-tile>
+												</v-list>
+											</v-flex>
+										</v-layout>
+									</v-container>
+								</v-card>
 								
 								<v-card flat>
 									<v-card-actions>
@@ -1290,7 +1306,6 @@
 										<v-spacer></v-spacer>
 									</v-card-actions>
 								</v-card>
-								
 								
 							</v-container>
 						</v-card>
@@ -1562,11 +1577,8 @@
 				// === System Parameters ===
 				
 				defaultParameters: {},
-				parameters: {},
-				parametersDescription: {},
-				
+				defaultParametersDescription: {},
 				paths: {},
-				ReadMeHTML: '',
 				
 				saveScheduleSuccessCode: {},
 				addToNoteSuccessCode: {},
@@ -1581,7 +1593,7 @@
 					'minRelativeIndex':   {'type': 'int',   'default':0,     'title':'Min Rel. Index',    'description':''},
 					'maxRelativeIndex':   {'type': 'int',   'default':1e10,  'title':'Max Rel. Index',    'description':''},
 				},
-				primaryPlotSettingDefaults: {},
+				primaryPlotSettingDefaults: undefined,
 				
 				modePlotSettings: {
 					'sweepDirection':     {'type': 'choice', 'choices': ['both', 'forward', 'reverse'], 'default':'both', 'title':'Sweep Direction', 'description':''},
@@ -1610,7 +1622,7 @@
 					'legendLabels':       {'type': 'array', 'default':[],    'title':'Legend Labels',     'description':''},
 					'legendTitleOverride':{'type': 'string','default':'',    'title':'Legend Title',      'description':''},
 				},
-				modePlotSettingDefaults: {},
+				modePlotSettingDefaults: undefined,
 				
 				chipSummarySettings: {
 					'specificDeviceList':        {'type': 'array', 'default':[],    'title':'Specific Devices',     'description':''},
@@ -1620,12 +1632,12 @@
 					'maxOffCurrent':             {'type': 'float', 'default':null,  'title':'Max Off-Current',      'description':''},
 					'maxGateCurrent':            {'type': 'float', 'default':null,  'title':'Max Gate Current',     'description':''},
 				},
-				chipSummarySettingDefaults: {},
+				chipSummarySettingDefaults: undefined,
 				
 				deviceSummarySettings: {
 					'numberOfRecentExperiments': {'type': 'int',   'default':1,     'title':'Recent Experiments to Show', 'description':''},
 				},
-				deviceSummarySettingDefaults: {},
+				deviceSummarySettingDefaults: undefined,
 				
 				// === Dashboard ===
 				
@@ -1738,12 +1750,15 @@
 				// === Experiment Runner ===
 				
 				dispatcherRunning: false,
+				runnerEnableScheduleSaving: true, 
 				
+				runnerChoiceLabel: 'Experiment Type',
+				runnerChoice: '',
 				isModifiedRunnerChoice: false,
 				
-				runnerLabel: 'Experiment Type',
-				runnerChoice: '',
-				runnerEnableScheduleSaving: true, 
+				runnerUser: '',
+				runnerProject: '',
+				runnerFileName: '',
 				
 				runnerScheduleObjects: [],
 				runnerScheduleObjectDefaults: [],
@@ -1774,10 +1789,6 @@
 					'Multiple CNT Burn Outs': 'default_auto_burn_out',
 					'Delay': 'default_delay',
 				},
-				
-				runnerUser: '',
-				runnerProject: '',
-				runnerFileName: '',
 				
 				// === Progress Bars ===
 				
@@ -1847,6 +1858,11 @@
 
 				// === Performance App ===
 				
+				performanceScheduleObject: {},
+				
+				// === About ===
+				
+				ReadMeHTML: '',
 				
 				// === Documentation ===
 
@@ -2003,14 +2019,14 @@
 				getDefaultParameters() {
 					$.getJSON("/defaultParameters.json" + this.$data.cacheBust, response => {
 						this.$data.defaultParameters = response;
-						this.$data.parameters = JSON.parse(JSON.stringify(response));
 					}).fail(() => {console.log("Error getting default parameters")});
 					
-					$.getJSON("/parametersDescription.json" + this.$data.cacheBust, response => {
-						this.$data.parametersDescription = response;
-						this.$data.scheduleObjectDefault = JSON.parse(JSON.stringify(response));
-						this.$data.scheduleObjects = [JSON.parse(JSON.stringify(response))];
-					}).fail(() => {console.log("Error getting parameters description")});
+					$.getJSON("/defaultParametersDescription.json" + this.$data.cacheBust, response => {
+						this.$data.defaultParametersDescription = response;
+						this.$data.scheduleObjectDefault     = JSON.parse(JSON.stringify(response));
+						this.$data.scheduleObjects          = [JSON.parse(JSON.stringify(response))];
+						this.$data.performanceScheduleObject = JSON.parse(JSON.stringify(response));
+					}).fail(() => {console.log("Error getting default parameters description")});
 					
 					$.getJSON("/defaultEssentialParameters.json" + this.$data.cacheBust, response => {
 						this.$data.essentialScheduleParameters = response;
@@ -2185,7 +2201,7 @@
 					if(this.runnerUser && this.runnerProject && this.runnerFileName) {
 						var path = '/loadBriefSchedule/' + this.runnerUser + '/' + this.runnerProject + '/' + this.runnerFileName + '.json' + this.cacheBust;
 						
-						console.log('loading path = ' + path);
+						console.log('runner loading path = ' + path);
 						if (path) {
 							$.getJSON(path, response => {app.$data.runnerScheduleObjects = response})
 							.fail(() => {console.log("Error loading schedule file into the experiment runner.")});
@@ -2195,8 +2211,7 @@
 						
 						var path = '/loadSchedule/' + this.runnerUser + '/' + this.runnerProject + '/' + this.runnerFileName + '.json' + this.cacheBust;
 
-						console.log('loading path = ' + path);
-
+						console.log('runner loading path = ' + path);
 						if (path) {
 							$.getJSON(path, response => {app.$data.runnerVerboseScheduleObjects = response})
 							.fail(() => {console.log("Error loading schedule file into the experiment runner.")});
@@ -2230,7 +2245,7 @@
 						// Save current file
 						var path = '/saveSchedule/' + this.runnerUser + '/' + this.runnerProject + '/' + this.runnerFileName + '.json' + this.cacheBust;
 
-						console.log('saving path = ' + path);
+						console.log('runner saving path = ' + path);
 
 						if (path) {
 							$.post(path, JSON.stringify(this.runnerScheduleLines), response => {
@@ -2406,14 +2421,14 @@
 				},
 				
 				saveSchedule: function() {
-					var url = '/saveSchedule/' + this.creatorSaveUser + '/' + this.creatorSaveProject + '/' + this.creatorSaveFileName;
-					url += this.cacheBust;
-					// url += '&jobs=' + encodeURI(JSON.stringify(this.scheduleObjectDefault));
-					console.log('saveSchedule(): ' + url);
-
-					$.post(url, JSON.stringify(this.scheduleLines), response => {
-						this.saveScheduleSuccessCode = response;
-					}).fail(() => {console.log("Error saving schedule file")});
+					var path = '/saveSchedule/' + this.creatorSaveUser + '/' + this.creatorSaveProject + '/' + this.creatorSaveFileName;
+					path += this.cacheBust;
+										
+					console.log('saving path = ' + path);
+					if(path) {
+						$.post(path, JSON.stringify(this.scheduleLines), response => {this.saveScheduleSuccessCode = response;})
+						.fail(() => {console.log("Error saving schedule file")});
+					}
 					
 					if (this.runnerUser === '') this.runnerUser = this.creatorSaveUser;
 					if (this.runnerProject === '') this.runnerProject = this.creatorSaveProject;
@@ -2423,8 +2438,8 @@
 				},
 				loadSchedule: function() {
 					var path = '/loadSchedule/' + this.creatorLoadUser + '/' + this.creatorLoadProject + '/' + this.creatorLoadFileName + '.json' + this.cacheBust;
-					console.log('loadSchedule(): ' + path);
-
+					
+					console.log('loading path = ' + path);
 					if (path) {
 						$.getJSON(path, response => {app.$data.scheduleObjects = response})
 						.fail(() => {console.log("Error loading schedule file")});
@@ -2480,7 +2495,10 @@
 					
 					console.log("Updated plot settings: " + JSON.stringify(all_modifications));
 				},
-				hasModifiedPlotSettings: function() {
+				hasModifiedPlotSettings: function() {	
+					if( this.primaryPlotSettingDefaults === undefined || this.modePlotSettingDefaults === undefined || 
+						this.chipSummarySettingDefaults === undefined || this.deviceSummarySettingDefaults === undefined) { return false; }
+					
 					var all_modifications = this.plotSettingsModifications();
 					
 					var is_modified = false;
@@ -2515,6 +2533,10 @@
 					this.resetChipSummarySettings();
 					this.resetDeviceSummarySettings();
 				},
+				
+				// === Performance App ===
+				
+				
 				
 				// === Server Update ===
 				
@@ -3003,12 +3025,12 @@
 				
 				// Experiment Runner user input
 				runnerChoice:                 function(val) { this.updateRunnerChoice(); },
-				runnerFileName:   function(val) { this.loadRunnerScheduleFile(); },
+				runnerFileName:               function(val) { this.loadRunnerScheduleFile(); },
 				runnerToggleAdvancedSettings: function(val) { this.addAdvancedChangesToRunnerScheduleFile(); },
 				
 				// Dashboard user input
 				recentActivityProject: function(val) { this.getRecentActivity(); },
-				recentActivityWafer: function(val) { this.getRecentActivity(); },
+				recentActivityWafer:   function(val) { this.getRecentActivity(); },
 				
 				experimentIndex: function(val) { this.getAssociatedAFMs(); },
 			},
@@ -3021,12 +3043,6 @@
 				},
 				experimentsWithIndexes: function() {
 					return this.experiments.map((x, i) => { return {...x, i} });
-				},
-				defaultRunConfigs: function() {
-					return this.defaultParameters['runConfigs'];
-				},
-				scheduleLine: function() {
-					return objectDeepDiff(this.parameters, this.defaultParameters);
 				},
 				scheduleLines: function() {
 					var modifications = this.scheduleObjects.map(obj => objectDeepDiff(obj, this.scheduleObjectDefault));
@@ -3051,9 +3067,6 @@
 				},
 				runnerScheduleLines: function() {
 					return this.runnerScheduleObjects.map(obj => extractDefaults(obj));
-				},
-				runType: function() {
-					return this.parameters['runType'];
 				},
 				
 				dynamicRecentActivityTableHeaders: function() {

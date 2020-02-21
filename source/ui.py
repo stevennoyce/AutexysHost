@@ -172,13 +172,13 @@ def paths():
 
 
 # === System Parameters ===
-@app.route('/parametersDescription.json')
-def parametersDescription():
-	return jsonvalid(defaults.default_parameters)
-
 @app.route('/defaultParameters.json')
 def defaultParameters():
 	return jsonvalid(defaults.get())
+
+@app.route('/defaultParametersDescription.json')
+def defaultParametersDescription():
+	return jsonvalid(defaults.full())
 
 @app.route('/defaultEssentialParameters.json')
 def defaultEssentialParameters():

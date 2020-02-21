@@ -283,6 +283,29 @@ def with_added(additional_parameters):
 	combined = merge(default, additional_parameters)
 	return combined
 
+# --- Get all default parameters (with the structure defined in this file) ---
+def full():
+	full_defaults = copy.deepcopy(default_parameters)
+	return full_defaults
+
+# --- Get all default parameters (with the structure defined in this file), with some modified values ---
+def full_with_added(additional_parameters):
+	full_defaults = copy.deepcopy(default_parameters)
+	combined = mergeDefaults(full_defaults, additional_parameters)
+	return combined
+	
+# --- Convert "additional_parameters" into the structure defined in this file ---
+def full_with_only(additional_parameters):
+	full_defaults = copy.deepcopy(default_parameters)
+	reduced_defaults = intersectionDefaults(additional_parameters, full_defaults)
+	return reduced_defaults
+
+# --- Get all default parameters (with the structure defined in this file) that are tagged as 'essential: True' ---
+def full_essentials():
+	full_defaults = copy.deepcopy(default_parameters)
+	essential_defaults = mustInclude(full_defaults, keyword='essential')
+	return essential_defaults
+
 # --- private method: merge the changes specified by "b" into "a" ---
 def merge(a, b):
 	for key in b:
@@ -291,27 +314,6 @@ def merge(a, b):
 		else:
 			a[key] = b[key]
 	return a
-
-# --- private method: get all of the subdictionaries of "a" that include the "keyword" as one of their keys ---	
-def mustInclude(a, keyword):
-	def eventuallyIncludes(dictionary, keyword):
-		if(not isinstance(dictionary, dict)):
-			return False
-		if(keyword in dictionary.keys()):
-			return True
-		for key in dictionary.keys():
-			if(isinstance(dictionary[key], dict)):
-				if(eventuallyIncludes(dictionary[key], keyword)):
-					return True
-		return False
-		
-	reduced = {}
-	for key in a.keys():
-		if(isinstance(a[key], dict) and (keyword in a[key])):
-			reduced[key] = a[key]
-		elif(isinstance(a[key], dict) and eventuallyIncludes(a[key], keyword)):
-			reduced[key] = mustInclude(a[key], keyword)
-	return reduced
 
 # --- private method: get the actual values out of the data structure defined in this file ---
 def extractDefaults(d):
@@ -347,24 +349,26 @@ def intersectionDefaults(a, b):
 			reduced[key] = a[key]
 	return reduced
 
-# --- Get all default parameters (with the structure defined in this file), with some modified values ---
-def full_with_added(additional_parameters):
-	full_defaults = copy.deepcopy(default_parameters)
-	combined = mergeDefaults(full_defaults, additional_parameters)
-	return combined
-	
-# --- Convert "additional_parameters" into the structure defined in this file ---
-def full_with_only(additional_parameters):
-	full_defaults = copy.deepcopy(default_parameters)
-	reduced_defaults = intersectionDefaults(additional_parameters, full_defaults)
-	return reduced_defaults
-
-# --- Get all default parameters (with the structure defined in this file) that are tagged as 'essential: True' ---
-def full_essentials():
-	full_defaults = copy.deepcopy(default_parameters)
-	reduced = mustInclude(full_defaults, keyword='essential')
+# --- private method: get all of the subdictionaries of "a" that include the "keyword" as one of their keys ---	
+def mustInclude(a, keyword):
+	def eventuallyIncludes(dictionary, keyword):
+		if(not isinstance(dictionary, dict)):
+			return False
+		if(keyword in dictionary.keys()):
+			return True
+		for key in dictionary.keys():
+			if(isinstance(dictionary[key], dict)):
+				if(eventuallyIncludes(dictionary[key], keyword)):
+					return True
+		return False
+		
+	reduced = {}
+	for key in a.keys():
+		if(isinstance(a[key], dict) and (keyword in a[key])):
+			reduced[key] = a[key]
+		elif(isinstance(a[key], dict) and eventuallyIncludes(a[key], keyword)):
+			reduced[key] = mustInclude(a[key], keyword)
 	return reduced
-
 	
 
 if __name__ == '__main__':
