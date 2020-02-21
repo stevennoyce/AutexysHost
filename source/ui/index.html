@@ -154,7 +154,7 @@
 								<v-list-tile-content><v-list-tile-title>Applications</v-list-tile-title></v-list-tile-content>
 							</v-list-tile>
 							<v-list-tile @click="setTopLevelPage('performance')">
-								<v-list-tile-action class="ml-4"><v-icon>speed</v-icon></v-list-tile-action>
+								<v-list-tile-action><v-icon>speed</v-icon></v-list-tile-action>
 								<v-list-tile-content><v-list-tile-title>Performance</v-list-tile-title></v-list-tile-content>
 							</v-list-tile>
 						</v-list-group>
@@ -712,13 +712,13 @@
 									<v-card light>
 										<v-list>
 											<v-list-tile>
-												<v-autocomplete clearable v-model="scheduleLoadUser" label="User" :items="Object.keys(scheduleNames)"></v-autocomplete>
+												<v-autocomplete clearable v-model="creatorLoadUser" label="User" :items="Object.keys(scheduleNames)"></v-autocomplete>
 											</v-list-tile>
 											<v-list-tile>
-												<v-autocomplete clearable v-model="scheduleLoadProject" label="Project" :items="_.keys(_.get(scheduleNames, [scheduleLoadUser], {}))"></v-autocomplete>
+												<v-autocomplete clearable v-model="creatorLoadProject" label="Project" :items="_.keys(_.get(scheduleNames, [creatorLoadUser], {}))"></v-autocomplete>
 											</v-list-tile>
 											<v-list-tile>
-												<v-autocomplete clearable v-model="scheduleLoadFileName" label="File Name" :items="_.get(scheduleNames, [scheduleLoadUser, scheduleLoadProject], [])"></v-autocomplete>
+												<v-autocomplete clearable v-model="creatorLoadFileName" label="File Name" :items="_.get(scheduleNames, [creatorLoadUser, creatorLoadProject], [])"></v-autocomplete>
 											</v-list-tile>
 										</v-list>
 									<v-card light>
@@ -727,7 +727,7 @@
 												<v-spacer></v-spacer>
 												<v-tooltip top :disabled="!isValidScheduleLoadPath()">
 													<v-btn slot="activator" @click="loadSchedule()" :disabled="!isValidScheduleLoadPath()">Load Schedule File</v-btn>
-													<span>AutexysData/{{ scheduleLoadUser }}/{{ scheduleLoadProject }}/schedules/{{ scheduleLoadFileName }}.json</span>
+													<span>AutexysData/{{ creatorLoadUser }}/{{ creatorLoadProject }}/schedules/{{ creatorLoadFileName }}.json</span>
 												</v-tooltip>
 												<v-spacer></v-spacer>
 											</v-list-tile>
@@ -826,7 +826,7 @@
 										<v-container>
 											<v-layout row wrap>
 												<v-flex xs4 sm4 md4 lg4 outline>
-													<v-combobox clearable v-model="scheduleSaveUser" label="User" :items="Object.keys(scheduleNames)">
+													<v-combobox clearable v-model="creatorSaveUser" label="User" :items="Object.keys(scheduleNames)">
 														<template slot="no-data">
 															<v-list-tile><v-list-tile-content><v-list-tile-title>
 																No results. Continuing will create a new user.
@@ -835,7 +835,7 @@
 													</v-combobox>
 												</v-flex>
 												<v-flex xs4 sm4 md4 lg4 solo>
-													<v-combobox clearable v-model="scheduleSaveProject" label="Project" :items="_.keys(_.get(scheduleNames, [scheduleSaveUser], {}))">
+													<v-combobox clearable v-model="creatorSaveProject" label="Project" :items="_.keys(_.get(scheduleNames, [creatorSaveUser], {}))">
 														<template slot="no-data">
 															<v-list-tile><v-list-tile-content><v-list-tile-title>
 																No results. Continuing will create a new project.
@@ -844,7 +844,7 @@
 													</v-combobox>
 												</v-flex>
 												<v-flex xs4 sm4 md4 lg4 solo>
-													<v-combobox clearable v-model="scheduleSaveFileName" label="File Name" :items="_.get(scheduleNames, [scheduleSaveUser, scheduleSaveProject], [])">
+													<v-combobox clearable v-model="creatorSaveFileName" label="File Name" :items="_.get(scheduleNames, [creatorSaveUser, creatorSaveProject], [])">
 														<template slot="no-data">
 															<v-list-tile><v-list-tile-content><v-list-tile-title>
 																No results. Continuing will create a new file.
@@ -860,12 +860,12 @@
 										<v-switch class="ml-1" label="Preview" v-model="showScheduleCreatorPreview"></v-switch>
 										<v-spacer></v-spacer>
 										<v-tooltip top v-if="isValidScheduleSavePath()">
-											<v-btn slot="activator" icon @click='copyHTMLStringToClip("cd \"" + paths["sourceAbsPath"] + "\" \n" + "python dispatcher.py \"" + "../../AutexysData/" + scheduleSaveUser + "/" + scheduleSaveProject + "/schedules/" + scheduleSaveFileName + ".json\"")' :disabled="!isValidScheduleSavePath()"><v-icon>settings_ethernet</v-icon></v-btn>
+											<v-btn slot="activator" icon @click='copyHTMLStringToClip("cd \"" + paths["sourceAbsPath"] + "\" \n" + "python dispatcher.py \"" + "../../AutexysData/" + creatorSaveUser + "/" + creatorSaveProject + "/schedules/" + creatorSaveFileName + ".json\"")' :disabled="!isValidScheduleSavePath()"><v-icon>settings_ethernet</v-icon></v-btn>
 											<span>Copy launch commands for Terminal</span>
 										</v-tooltip>
 										<v-tooltip top :disabled="!isValidScheduleSavePath()" class="ml-2">
 											<v-btn slot="activator" @click="saveSchedule()" :disabled="!isValidScheduleSavePath()">Save Schedule File</v-btn>
-											<span>AutexysData/{{ scheduleSaveUser }}/{{ scheduleSaveProject }}/schedules/{{ scheduleSaveFileName }}.json</span>
+											<span>AutexysData/{{ creatorSaveUser }}/{{ creatorSaveProject }}/schedules/{{ creatorSaveFileName }}.json</span>
 										</v-tooltip>
 									</v-card-actions>
 								</v-card>
@@ -971,127 +971,127 @@
 									</v-flex>
 								</v-form>
 							
-								<v-form>
-									<template v-if="runnerChoice === 'Schedule File'">
-										<v-form class="ma-2">
-											<v-layout row wrap>
-												<v-flex xs12 sm6 md4 lg3 outline class="ma-2">
-													<v-autocomplete clearable v-model="scheduleExperimentUser" label="User" :items="Object.keys(scheduleNames)"></v-autocomplete>
-												</v-flex>
-												<v-flex xs12 sm6 md4 lg3 solo class="ma-2">
-													<v-autocomplete clearable v-model="scheduleExperimentProject" label="Project" :items="_.keys(_.get(scheduleNames, [scheduleExperimentUser], {}))"></v-autocomplete>
-												</v-flex>
-												<v-flex xs12 sm6 md4 lg3 solo class="ma-2">
-													<v-autocomplete clearable v-model="scheduleExperimentFileName" label="File Name" :items="_.get(scheduleNames, [scheduleExperimentUser, scheduleExperimentProject], [])"></v-autocomplete>
-												</v-flex>
-											</v-layout>
-										<v-form>
-									</template>
-								
-									<template v-if="scheduleExperimentUser && scheduleExperimentProject && scheduleExperimentFileName && (runnerScheduleObjects.length === 1) && (runnerVerboseScheduleObjects.length === 1)">
-										<v-expansion-panel expand class="mt-1 mb-2">
-											<v-expansion-panel-content class="grey lighten-4">
-												
-												<div slot="header">
-													<v-layout row wrap>
-														<div style="font-weight: bold;">
-															Options
-														</div>
-														<v-spacer></v-spacer>
-													</v-layout>
-												</div>
-												
-												<v-container grid-list-md>
-													<v-layout row wrap>
-														
-														<v-flex xs3 s3 md3 lg3>
-															<v-list class="roundedcorners">
-																<v-list-tile>
-																	<v-list-tile-content><v-list-tile-title style="font-weight: bold">
-																		Identifiers
-																	</v-list-tile-title></v-list-tile-content>
-																</v-list-tile>
-																<template v-if="!runnerToggleAdvancedSettings && Object.keys(runnerScheduleObjects[0]).includes('Identifiers')">
-																	<s-item-group-edit :settings.sync="runnerScheduleObjects[0]['Identifiers']" :defaults="JSON.parse(JSON.stringify(runnerScheduleObjects[0]['Identifiers']))"></s-item-group-edit>
-																</template>
-																<template v-if="runnerToggleAdvancedSettings || !Object.keys(runnerScheduleObjects[0]).includes('Identifiers')">
-																	<s-item-group-edit :settings.sync="runnerVerboseScheduleObjects[0]['Identifiers']" :defaults="JSON.parse(JSON.stringify(runnerVerboseScheduleObjects[0]['Identifiers']))"></s-item-group-edit>
-																</template>
-															</v-list>
-															
-															<template v-if="runnerToggleAdvancedSettings">
-																<v-list class="mt-3 roundedcorners">
-																	<v-list-tile>
-																		<v-list-tile-content><v-list-tile-title style="font-weight: bold">
-																			Measurement System
-																		</v-list-tile-title></v-list-tile-content>
-																	</v-list-tile>
-																	<s-item-group-edit :settings.sync="runnerVerboseScheduleObjects[0]['MeasurementSystem']" :defaults="JSON.parse(JSON.stringify(runnerVerboseScheduleObjects[0]['MeasurementSystem']))"></s-item-group-edit>
-																</v-list>
-															</template>
-															
-															<template v-if="runnerToggleAdvancedSettings && runnerEnableScheduleSaving">
-																<v-list class="mt-3 roundedcorners">
-																	<v-select box class="ma-3" label="Run Type" v-model="runnerVerboseScheduleObjects[0]['runType']['default']" :items="Object.keys(JSON.parse(JSON.stringify(runnerVerboseScheduleObjects[0]['runConfigs'] || {})))"></v-select>
-																</v-list>
-															</template>
-														</v-flex>
-														
-														<v-flex xs3 s3 md3 lg3 v-if="runnerVerboseScheduleObjects[0]['MeasurementSystem']['deviceCycling']['default']">
-															<v-list class="roundedcorners">
-																<v-list-tile>
-																	<v-list-tile-content><v-list-tile-title style="font-weight: bold">
-																		Device Cycling
-																	</v-list-tile-title></v-list-tile-content>
-																</v-list-tile>
-																<template v-if="!runnerToggleAdvancedSettings && Object.keys(runnerScheduleObjects[0]).includes('DeviceCycling')">
-																	<s-item-group-edit :settings.sync="runnerScheduleObjects[0]['DeviceCycling']" :defaults="JSON.parse(JSON.stringify(runnerScheduleObjects[0]['DeviceCycling']))"></s-item-group-edit>
-																</template>
-																<template v-if="runnerToggleAdvancedSettings">
-																	<s-item-group-edit :settings.sync="runnerVerboseScheduleObjects[0]['DeviceCycling']" :defaults="JSON.parse(JSON.stringify(runnerVerboseScheduleObjects[0]['DeviceCycling']))"></s-item-group-edit>
-																</template>
-															</v-list>
-														</v-flex>
-													
-														<v-flex xs3 s3 md3 lg3 v-for="runConfig,runType in runnerScheduleObjects[0]['runConfigs']" :key="runType">
-															<v-list class="roundedcorners">
-																<v-list-tile>
-																	<v-list-tile-content><v-list-tile-title style="font-weight: bold">
-																		{{ runType }}
-																	</v-list-tile-title></v-list-tile-content>
-																</v-list-tile>
-																<template v-if="!runnerToggleAdvancedSettings">
-																	<s-item-group-edit :settings.sync="runnerScheduleObjects[0]['runConfigs'][runType]" :defaults="JSON.parse(JSON.stringify(runnerScheduleObjects[0]['runConfigs'][runType]))"></s-item-group-edit>
-																</template>
-																<template v-if="runnerToggleAdvancedSettings">
-																	<s-item-group-edit :settings.sync="runnerVerboseScheduleObjects[0]['runConfigs'][runType]" :defaults="JSON.parse(JSON.stringify(runnerVerboseScheduleObjects[0]['runConfigs'][runType]))"></s-item-group-edit>
-																</template>
-															</v-list>
-														</v-flex>
-														
-													</v-layout>
-													<v-alert :value="(['single', 'double'].includes(runnerVerboseScheduleObjects[0]['MeasurementSystem']['systemType']['default'])) && (runnerVerboseScheduleObjects[0]['MeasurementSystem']['deviceCycling']['default'])" icon="warning "color="warning">
-														<b>Advanced:</b> Device Cycling has been enabled, but the chosen Measurement System cannot dynamically select devices.
-													</v-alert>
-												</v-container>
-								
+								<template v-if="runnerChoice === 'Schedule File'">
+									<v-form class="ma-2">
+										<v-layout row wrap>
+											<v-flex xs12 sm6 md4 lg3 outline class="ma-2">
+												<v-autocomplete clearable v-model="scheduleExperimentUser" label="User" :items="Object.keys(scheduleNames)"></v-autocomplete>
+											</v-flex>
+											<v-flex xs12 sm6 md4 lg3 solo class="ma-2">
+												<v-autocomplete clearable v-model="scheduleExperimentProject" label="Project" :items="_.keys(_.get(scheduleNames, [scheduleExperimentUser], {}))"></v-autocomplete>
+											</v-flex>
+											<v-flex xs12 sm6 md4 lg3 solo class="ma-2">
+												<v-autocomplete clearable v-model="scheduleExperimentFileName" label="File Name" :items="_.get(scheduleNames, [scheduleExperimentUser, scheduleExperimentProject], [])"></v-autocomplete>
+											</v-flex>
+										</v-layout>
+									<v-form>
+								</template>
+							
+								<template v-if="scheduleExperimentUser && scheduleExperimentProject && scheduleExperimentFileName && (runnerScheduleObjects.length === 1) && (runnerVerboseScheduleObjects.length === 1)">
+									<v-expansion-panel expand class="mt-1 mb-2">
+										<v-expansion-panel-content class="grey lighten-4">
+											
+											<div slot="header">
 												<v-layout row wrap>
-													<v-switch class="ml-3" :label="'Advanced'" v-model="runnerToggleAdvancedSettings"></v-switch>
+													<div style="font-weight: bold;">
+														Options
+													</div>
 													<v-spacer></v-spacer>
-													<v-btn class="mr-3" small @click="saveRunnerScheduleFile()" :disabled="!isNecessaryToSaveRunnerScheduleFile()">Save</v-btn>
 												</v-layout>
+											</div>
+											
+											<v-container grid-list-md>
+												<v-layout row wrap>
+													
+													<v-flex xs3 s3 md3 lg3>
+														<v-list class="roundedcorners">
+															<v-list-tile>
+																<v-list-tile-content><v-list-tile-title style="font-weight: bold">
+																	Identifiers
+																</v-list-tile-title></v-list-tile-content>
+															</v-list-tile>
+															<template v-if="!runnerToggleAdvancedSettings && Object.keys(runnerScheduleObjects[0]).includes('Identifiers')">
+																<s-item-group-edit :settings.sync="runnerScheduleObjects[0]['Identifiers']" :defaults="JSON.parse(JSON.stringify(runnerScheduleObjects[0]['Identifiers']))"></s-item-group-edit>
+															</template>
+															<template v-if="runnerToggleAdvancedSettings || !Object.keys(runnerScheduleObjects[0]).includes('Identifiers')">
+																<s-item-group-edit :settings.sync="runnerVerboseScheduleObjects[0]['Identifiers']" :defaults="JSON.parse(JSON.stringify(runnerVerboseScheduleObjects[0]['Identifiers']))"></s-item-group-edit>
+															</template>
+														</v-list>
+														
+														<template v-if="runnerToggleAdvancedSettings">
+															<v-list class="mt-3 roundedcorners">
+																<v-list-tile>
+																	<v-list-tile-content><v-list-tile-title style="font-weight: bold">
+																		Measurement System
+																	</v-list-tile-title></v-list-tile-content>
+																</v-list-tile>
+																<s-item-group-edit :settings.sync="runnerVerboseScheduleObjects[0]['MeasurementSystem']" :defaults="JSON.parse(JSON.stringify(runnerVerboseScheduleObjects[0]['MeasurementSystem']))"></s-item-group-edit>
+															</v-list>
+														</template>
+														
+														<template v-if="runnerToggleAdvancedSettings && runnerEnableScheduleSaving">
+															<v-list class="mt-3 roundedcorners">
+																<v-select box class="ma-3" label="Run Type" v-model="runnerVerboseScheduleObjects[0]['runType']['default']" :items="Object.keys(JSON.parse(JSON.stringify(runnerVerboseScheduleObjects[0]['runConfigs'] || {})))"></v-select>
+															</v-list>
+														</template>
+													</v-flex>
+													
+													<v-flex xs3 s3 md3 lg3 v-if="runnerVerboseScheduleObjects[0]['MeasurementSystem']['deviceCycling']['default']">
+														<v-list class="roundedcorners">
+															<v-list-tile>
+																<v-list-tile-content><v-list-tile-title style="font-weight: bold">
+																	Device Cycling
+																</v-list-tile-title></v-list-tile-content>
+															</v-list-tile>
+															<template v-if="!runnerToggleAdvancedSettings && Object.keys(runnerScheduleObjects[0]).includes('DeviceCycling')">
+																<s-item-group-edit :settings.sync="runnerScheduleObjects[0]['DeviceCycling']" :defaults="JSON.parse(JSON.stringify(runnerScheduleObjects[0]['DeviceCycling']))"></s-item-group-edit>
+															</template>
+															<template v-if="runnerToggleAdvancedSettings">
+																<s-item-group-edit :settings.sync="runnerVerboseScheduleObjects[0]['DeviceCycling']" :defaults="JSON.parse(JSON.stringify(runnerVerboseScheduleObjects[0]['DeviceCycling']))"></s-item-group-edit>
+															</template>
+														</v-list>
+													</v-flex>
 												
-											</v-expansion-panel-content>
-										</v-expansion-panel>
-									</template>
-									<template v-else>
-										<v-list>
-											<v-list-tile>
-											</v-list-tile>
-										</v-list>
-									</template>
-								
-									<template v-if="runnerChoice !== ''">
+													<v-flex xs3 s3 md3 lg3 v-for="runConfig,runType in runnerScheduleObjects[0]['runConfigs']" :key="runType">
+														<v-list class="roundedcorners">
+															<v-list-tile>
+																<v-list-tile-content><v-list-tile-title style="font-weight: bold">
+																	{{ runType }}
+																</v-list-tile-title></v-list-tile-content>
+															</v-list-tile>
+															<template v-if="!runnerToggleAdvancedSettings">
+																<s-item-group-edit :settings.sync="runnerScheduleObjects[0]['runConfigs'][runType]" :defaults="JSON.parse(JSON.stringify(runnerScheduleObjects[0]['runConfigs'][runType]))"></s-item-group-edit>
+															</template>
+															<template v-if="runnerToggleAdvancedSettings">
+																<s-item-group-edit :settings.sync="runnerVerboseScheduleObjects[0]['runConfigs'][runType]" :defaults="JSON.parse(JSON.stringify(runnerVerboseScheduleObjects[0]['runConfigs'][runType]))"></s-item-group-edit>
+															</template>
+														</v-list>
+													</v-flex>
+													
+												</v-layout>
+												<v-alert :value="(['single', 'double'].includes(runnerVerboseScheduleObjects[0]['MeasurementSystem']['systemType']['default'])) && (runnerVerboseScheduleObjects[0]['MeasurementSystem']['deviceCycling']['default'])" icon="warning "color="warning">
+													<b>Advanced:</b> Device Cycling has been enabled, but the chosen Measurement System cannot dynamically select devices.
+												</v-alert>
+											</v-container>
+							
+											<v-layout row wrap>
+												<v-switch class="ml-3" :label="'Advanced'" v-model="runnerToggleAdvancedSettings"></v-switch>
+												<v-spacer></v-spacer>
+												<v-btn class="mr-3" small @click="saveRunnerScheduleFile()" :disabled="!isNecessaryToSaveRunnerScheduleFile()">Save</v-btn>
+											</v-layout>
+											
+										</v-expansion-panel-content>
+									</v-expansion-panel>
+								</template>
+								<template v-else>
+									<v-list>
+										<v-list-tile>
+										</v-list-tile>
+									</v-list>
+								</template>
+							
+								<template v-if="runnerChoice !== ''">
+									<v-card flat>
 										<v-card-actions>
 											<template v-if="runnerChoice === 'Schedule File' && (scheduleExperimentUser && scheduleExperimentProject && scheduleExperimentFileName)">
 												<form class="ml-1 mr-3" style="overflow-x: scroll">
@@ -1109,8 +1109,9 @@
 											</template>
 											<v-btn class="mb-3 mt-3" @click="stopDispatcher()" :disabled="!dispatcherRunning">Stop</v-btn>
 										</v-card-actions>	
-									</template>
-								</v-form>							
+									</v-card>
+								</template>
+								
 							</v-container>
 						</v-card>
 						
@@ -1121,47 +1122,47 @@
 								</v-toolbar-title>
 								<v-spacer></v-spacer>
 								<v-toolbar-title>
-									{{experimentRunnerProgress.timerModel.current - experimentRunnerProgress.timerModel.start | formatTimestamp}}
+									{{experimentProgressModel.timer.current - experimentProgressModel.timer.start | formatTimestamp}}
 									<v-icon>schedule</v-icon>
 								</v-toolbar-title>
 							</v-toolbar>
 							
 							<v-list>
-								<j-progress-bar-timed :visible="experimentRunnerProgress.dispatcherBarModel.visible" titleprefix="Dispatcher:" :title="experimentRunnerProgress.dispatcherBarModel.name" :valuecurrent="experimentRunnerProgress.dispatcherBarModel.current" :valuemaximum="experimentRunnerProgress.dispatcherBarModel.end" :valuepercent="experimentRunnerProgress.dispatcherBarModel.percent"></j-progress-bar-timed>
+								<j-progress-bar-timed :visible="experimentProgressModel.dispatcherBar.visible" titleprefix="Dispatcher:" :title="experimentProgressModel.dispatcherBar.name" :valuecurrent="experimentProgressModel.dispatcherBar.current" :valuemaximum="experimentProgressModel.dispatcherBar.end" :valuepercent="experimentProgressModel.dispatcherBar.percent"></j-progress-bar-timed>
 								
-								<j-progress-bar-timed :visible="experimentRunnerProgress.group1BarModel.visible" titleprefix="" :title="experimentRunnerProgress.group1BarModel.name" :valuecurrent="experimentRunnerProgress.group1BarModel.current" :valuemaximum="experimentRunnerProgress.group1BarModel.end" :valuepercent="experimentRunnerProgress.group1BarModel.percent"></j-progress-bar-timed>
+								<j-progress-bar-timed :visible="experimentProgressModel.group1Bar.visible" titleprefix="" :title="experimentProgressModel.group1Bar.name" :valuecurrent="experimentProgressModel.group1Bar.current" :valuemaximum="experimentProgressModel.group1Bar.end" :valuepercent="experimentProgressModel.group1Bar.percent"></j-progress-bar-timed>
 								
-								<j-progress-bar-timed :visible="experimentRunnerProgress.group2BarModel.visible" titleprefix="" :title="experimentRunnerProgress.group2BarModel.name" :valuecurrent="experimentRunnerProgress.group2BarModel.current" :valuemaximum="experimentRunnerProgress.group2BarModel.end" :valuepercent="experimentRunnerProgress.group2BarModel.percent"></j-progress-bar-timed>
+								<j-progress-bar-timed :visible="experimentProgressModel.group2Bar.visible" titleprefix="" :title="experimentProgressModel.group2Bar.name" :valuecurrent="experimentProgressModel.group2Bar.current" :valuemaximum="experimentProgressModel.group2Bar.end" :valuepercent="experimentProgressModel.group2Bar.percent"></j-progress-bar-timed>
 								
-								<j-progress-bar-timed :visible="experimentRunnerProgress.sweepBarModel.visible" titleprefix="Sweep:" :title="experimentRunnerProgress.sweepBarModel.name" :valuecurrent="experimentRunnerProgress.sweepBarModel.current" :valuemaximum="experimentRunnerProgress.sweepBarModel.end" :valuepercent="experimentRunnerProgress.sweepBarModel.percent"></j-progress-bar-timed>
+								<j-progress-bar-timed :visible="experimentProgressModel.sweepBar.visible" titleprefix="Sweep:" :title="experimentProgressModel.sweepBar.name" :valuecurrent="experimentProgressModel.sweepBar.current" :valuemaximum="experimentProgressModel.sweepBar.end" :valuepercent="experimentProgressModel.sweepBar.percent"></j-progress-bar-timed>
 								
-								<j-progress-bar-timed :visible="experimentRunnerProgress.procedureBarModel.visible" titleprefix="Procedure:" :title="experimentRunnerProgress.procedureBarModel.name" :time="experimentRunnerProgress.procedureBarModel.time_current - experimentRunnerProgress.procedureBarModel.time_start" :valuecurrent="experimentRunnerProgress.procedureBarModel.current" :valuemaximum="experimentRunnerProgress.procedureBarModel.end" :valuepercent="experimentRunnerProgress.procedureBarModel.percent"></j-progress-bar-timed>
+								<j-progress-bar-timed :visible="experimentProgressModel.procedureBar.visible" titleprefix="Procedure:" :title="experimentProgressModel.procedureBar.name" :time="experimentProgressModel.procedureBar.time_current - experimentProgressModel.procedureBar.time_start" :valuecurrent="experimentProgressModel.procedureBar.current" :valuemaximum="experimentProgressModel.procedureBar.end" :valuepercent="experimentProgressModel.procedureBar.percent"></j-progress-bar-timed>
 								
 								<!--
-								<v-list-tile v-if="experimentRunnerProgress.dispatcherBarModel.visible">
+								<v-list-tile v-if="experimentProgressModel.dispatcherBar.visible">
 									<v-list-tile-content style="flex-direction:row;align-items:center;" class="mr-3">
-										<v-list-tile-title>Dispatcher: {{experimentRunnerProgress.dispatcherBarModel.name}} {{experimentRunnerProgress.dispatcherBarModel.current}} of {{experimentRunnerProgress.dispatcherBarModel.end}} </v-list-tile-title>
-										<v-progress-linear class="roundedcorners" height="10" color="success" v-model="experimentRunnerProgress.dispatcherBarModel.percent"></v-progress-linear>
+										<v-list-tile-title>Dispatcher: {{experimentProgressModel.dispatcherBar.name}} {{experimentProgressModel.dispatcherBar.current}} of {{experimentProgressModel.dispatcherBar.end}} </v-list-tile-title>
+										<v-progress-linear class="roundedcorners" height="10" color="success" v-model="experimentProgressModel.dispatcherBar.percent"></v-progress-linear>
 									</v-list-tile-content>
 									<v-list-tile-action style="text-align:right;">	
-										<v-list-tile-sub-title>{{experimentRunnerProgress.timerModel.current - experimentRunnerProgress.timerModel.start | twoDecimalPoints}}</v-list-tile-sub-title>
+										<v-list-tile-sub-title>{{experimentProgressModel.timer.current - experimentProgressModel.timer.start | twoDecimalPoints}}</v-list-tile-sub-title>
 									</v-list-tile-action>
 								</v-list-tile>
-								<v-list-tile v-if="experimentRunnerProgress.sweepBarModel.visible">
-									<v-list-tile-title>Sweep: {{experimentRunnerProgress.sweepBarModel.name}} {{experimentRunnerProgress.sweepBarModel.current}} of {{experimentRunnerProgress.sweepBarModel.end}} </v-list-tile-title>
-									<v-progress-linear v-model="experimentRunnerProgress.sweepBarModel.percent"></v-progress-linear>
+								<v-list-tile v-if="experimentProgressModel.sweepBar.visible">
+									<v-list-tile-title>Sweep: {{experimentProgressModel.sweepBar.name}} {{experimentProgressModel.sweepBar.current}} of {{experimentProgressModel.sweepBar.end}} </v-list-tile-title>
+									<v-progress-linear v-model="experimentProgressModel.sweepBar.percent"></v-progress-linear>
 								</v-list-tile>
-								<v-list-tile v-if="experimentRunnerProgress.group1BarModel.visible">
-									<v-list-tile-title>{{experimentRunnerProgress.group1BarModel.name}} {{experimentRunnerProgress.group1BarModel.current}} of {{experimentRunnerProgress.group1BarModel.end}} </v-list-tile-title>
-									<v-progress-linear v-model="experimentRunnerProgress.group1BarModel.percent"></v-progress-linear>
+								<v-list-tile v-if="experimentProgressModel.group1Bar.visible">
+									<v-list-tile-title>{{experimentProgressModel.group1Bar.name}} {{experimentProgressModel.group1Bar.current}} of {{experimentProgressModel.group1Bar.end}} </v-list-tile-title>
+									<v-progress-linear v-model="experimentProgressModel.group1Bar.percent"></v-progress-linear>
 								</v-list-tile>
-								<v-list-tile v-if="experimentRunnerProgress.group2BarModel.visible">
-									<v-list-tile-title>{{experimentRunnerProgress.group2BarModel.name}} {{experimentRunnerProgress.group2BarModel.current}} of {{experimentRunnerProgress.group2BarModel.end}} </v-list-tile-title>
-									<v-progress-linear v-model="experimentRunnerProgress.group2BarModel.percent"></v-progress-linear>
+								<v-list-tile v-if="experimentProgressModel.group2Bar.visible">
+									<v-list-tile-title>{{experimentProgressModel.group2Bar.name}} {{experimentProgressModel.group2Bar.current}} of {{experimentProgressModel.group2Bar.end}} </v-list-tile-title>
+									<v-progress-linear v-model="experimentProgressModel.group2Bar.percent"></v-progress-linear>
 								</v-list-tile>
-								<v-list-tile v-if="experimentRunnerProgress.procedureBarModel.visible">
-									<v-list-tile-title>Procedure: {{experimentRunnerProgress.procedureBarModel.name}} {{experimentRunnerProgress.procedureBarModel.current}} of {{experimentRunnerProgress.procedureBarModel.end}} </v-list-tile-title>
-									<v-progress-linear v-model="experimentRunnerProgress.procedureBarModel.percent"></v-progress-linear>
+								<v-list-tile v-if="experimentProgressModel.procedureBar.visible">
+									<v-list-tile-title>Procedure: {{experimentProgressModel.procedureBar.name}} {{experimentProgressModel.procedureBar.current}} of {{experimentProgressModel.procedureBar.end}} </v-list-tile-title>
+									<v-progress-linear v-model="experimentProgressModel.procedureBar.percent"></v-progress-linear>
 								</v-list-tile>
 								-->
 							</v-list>
@@ -1231,6 +1232,7 @@
 					
 					<!-- End of experiment runner -->
 					<!-- Start of applications -->
+					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'performance'">
 						<v-card>
 							<v-toolbar dark dense class="color1 ">
@@ -1243,6 +1245,53 @@
 							
 							<v-container>
 								<p>Coming soon.</p>
+								
+								<v-container>
+									<v-layout row wrap>
+										<v-flex xs3 s3 md3 lg3>
+											<v-list class="roundedcorners">
+												<v-list-tile>
+													
+												</v-list-tile>
+											</v-list>
+										</v-flex>
+										<v-flex xs3 s3 md3 lg3>
+											<v-list class="roundedcorners">
+												<v-list-tile>
+													
+												</v-list-tile>
+											</v-list>
+										</v-flex>
+										<v-flex xs3 s3 md3 lg3>
+											<v-list class="roundedcorners">
+												<v-list-tile>
+													
+												</v-list-tile>
+											</v-list>
+										</v-flex>
+										<v-flex xs3 s3 md3 lg3>
+											<v-list class="roundedcorners">
+												<v-list-tile>
+													
+												</v-list-tile>
+											</v-list>
+										</v-flex>
+									</v-layout>
+								</v-container>
+								
+								<v-card flat>
+									<v-card-actions>
+										<v-spacer></v-spacer>
+										<v-btn @click=""><v-icon>play_arrow</v-icon></v-btn>
+										<v-spacer></v-spacer>
+										<v-btn @click=""><v-icon>pause</v-icon></v-btn>
+										<v-spacer></v-spacer>
+										<v-btn @click=""><v-icon>refresh</v-icon></v-btn>
+										<v-spacer></v-spacer>
+									</v-card-actions>
+								</v-card>
+								
+								
 							</v-container>
 						</v-card>
 					</v-flex>
@@ -1532,13 +1581,7 @@
 					'minRelativeIndex':   {'type': 'int',   'default':0,     'title':'Min Rel. Index',    'description':''},
 					'maxRelativeIndex':   {'type': 'int',   'default':1e10,  'title':'Max Rel. Index',    'description':''},
 				},
-				
-				primaryPlotSettingDefaults: {
-					'minExperiment':      {'type': 'int',   'default':null,  'title':'Min Experiment',    'description':''},
-					'maxExperiment':      {'type': 'int',   'default':null,  'title':'Max Experiment',    'description':''},
-					'minRelativeIndex':   {'type': 'int',   'default':0,     'title':'Min Rel. Index',    'description':''},
-					'maxRelativeIndex':   {'type': 'int',   'default':1e10,  'title':'Max Rel. Index',    'description':''},
-				},
+				primaryPlotSettingDefaults: {},
 				
 				modePlotSettings: {
 					'sweepDirection':     {'type': 'choice', 'choices': ['both', 'forward', 'reverse'], 'default':'both', 'title':'Sweep Direction', 'description':''},
@@ -1567,34 +1610,7 @@
 					'legendLabels':       {'type': 'array', 'default':[],    'title':'Legend Labels',     'description':''},
 					'legendTitleOverride':{'type': 'string','default':'',    'title':'Legend Title',      'description':''},
 				},
-				
-				modePlotSettingDefaults: {
-					'sweepDirection':     {'type': 'choice', 'choices': ['both', 'forward', 'reverse'], 'default':'both', 'title':'Sweep Direction', 'description':''},
-					'plotInRealTime':     {'type': 'bool',  'default':true,  'title':'Show Real Time',    'description':''},
-					'timescale':          {'type': 'choice', 'choices': ['','seconds','min','hr','days','weeks','months'], 'default':'', 'title':'Time Scale', 'description':''},
-					'boxPlotBarChart':    {'type': 'bool',  'default':true,  'title':'Bar Charts',        'description':''},
-					'boxPlotShowPoints':  {'type': 'bool',  'default':true,  'title':'Show Points on Bar  Charts','description':''},
-					
-					'enableLegend':       {'type': 'bool',  'default':true,  'title':'Enable Legend',     'description':''},
-					'enableErrorBars':    {'type': 'bool',  'default':false, 'title':'Enable Error Bars', 'description':''},
-					'enableColorBar':     {'type': 'bool',  'default':true,  'title':'Enable Color Bar',  'description':''},
-					'enableGradient':     {'type': 'bool',  'default':false, 'title':'Enable Gradient',   'description':''},
-					
-					'xlim':               {'type': 'array', 'default':null,  'title':'X Limits',          'description':''},
-					'ylim':               {'type': 'array', 'default':null,  'title':'Y Limits',          'description':''},
-					'xscale':             {'type': 'float', 'default':null,  'title':'X Scale',           'description':''},
-					'yscale':             {'type': 'float', 'default':null,  'title':'Y Scale',           'description':''},
-					'xticks':             {'type': 'array', 'default':null,  'title':'X Ticks',           'description':''},
-					'yticks':             {'type': 'array', 'default':null,  'title':'Y Ticks',           'description':''},
-					
-					'publication_mode':   {'type': 'bool',  'default':false, 'title':'Publication Mode',  'description':''},
-					'default_png_dpi':    {'type': 'int',   'default':300,   'title':'Default PNG DPI',   'description':''},
-					'figureSizeOverride': {'type': 'array', 'default':null,  'title':'Figure Size',       'description':''},
-					'colorsOverride':     {'type': 'array', 'default':[],    'title':'Colors Override',   'description':''},
-					'legendLoc':          {'type': 'choice', 'choices': ['best', 'lower left', 'lower center', 'lower right', 'upper left', 'upper center', 'upper right', 'center left', 'center', 'center right'], 'default':'best', 'title':'Legend Location', 'description':''},
-					'legendLabels':       {'type': 'array', 'default':[],    'title':'Legend Labels',     'description':''},
-					'legendTitleOverride':{'type': 'string','default':'',    'title':'Legend Title',      'description':''},
-				},
+				modePlotSettingDefaults: {},
 				
 				chipSummarySettings: {
 					'specificDeviceList':        {'type': 'array', 'default':[],    'title':'Specific Devices',     'description':''},
@@ -1604,23 +1620,12 @@
 					'maxOffCurrent':             {'type': 'float', 'default':null,  'title':'Max Off-Current',      'description':''},
 					'maxGateCurrent':            {'type': 'float', 'default':null,  'title':'Max Gate Current',     'description':''},
 				},
-				
-				chipSummarySettingDefaults: {
-					'specificDeviceList':        {'type': 'array', 'default':[],    'title':'Specific Devices',     'description':''},
-					'numberOfRecentIndexes':     {'type': 'int',   'default':1,     'title':'Data Sets per Device', 'description':''},
-					'minOnCurrent':              {'type': 'float', 'default':null,  'title':'Min On-Current',       'description':''},
-					'maxOnCurrent':              {'type': 'float', 'default':null,  'title':'Max On-Current',       'description':''},
-					'maxOffCurrent':             {'type': 'float', 'default':null,  'title':'Max Off-Current',      'description':''},
-					'maxGateCurrent':            {'type': 'float', 'default':null,  'title':'Max Gate Current',     'description':''},
-				},
+				chipSummarySettingDefaults: {},
 				
 				deviceSummarySettings: {
 					'numberOfRecentExperiments': {'type': 'int',   'default':1,     'title':'Recent Experiments to Show', 'description':''},
 				},
-				
-				deviceSummarySettingDefaults: {
-					'numberOfRecentExperiments': {'type': 'int',   'default':1,     'title':'Recent Experiments to Show', 'description':''},
-				},
+				deviceSummarySettingDefaults: {},
 				
 				// === Dashboard ===
 				
@@ -1723,12 +1728,12 @@
 				
 				showScheduleCreatorPreview: false,
 				
-				scheduleSaveUser: '',
-				scheduleSaveProject: '',
-				scheduleSaveFileName: '',
-				scheduleLoadUser: '',
-				scheduleLoadProject: '',
-				scheduleLoadFileName: '',
+				creatorSaveUser: '',
+				creatorSaveProject: '',
+				creatorSaveFileName: '',
+				creatorLoadUser: '',
+				creatorLoadProject: '',
+				creatorLoadFileName: '',
 				
 				// === Experiment Runner ===
 				
@@ -1778,40 +1783,40 @@
 				
 				showProgress: false,
 				
-				experimentRunnerProgress: {
-					timerModel: {
+				experimentProgressModel: {
+					timer: {
 						start: 0,
 						current: 0
 					},
-					dispatcherBarModel: {
+					dispatcherBar: {
 						visible: false,
 						name: '',
 						current: 0,
 						end: 0,
 						percent: 0
 					},
-					sweepBarModel: {
+					sweepBar: {
 						visible: false,
 						name: '',
 						current: 0,
 						end: 0,
 						percent: 0
 					},
-					group1BarModel: {
+					group1Bar: {
 						visible: false,
 						name: '',
 						current: 0,
 						end: 0,
 						percent: 0
 					},
-					group2BarModel: {
+					group2Bar: {
 						visible: false,
 						name: '',
 						current: 0,
 						end: 0,
 						percent: 0
 					},
-					procedureBarModel: {
+					procedureBar: {
 						visible: false,
 						name: '',
 						current: 0,
@@ -1840,6 +1845,9 @@
 				deviceSelectActive: 'Dummy',
 				deviceSelectItems: [],
 
+				// === Performance App ===
+				
+				
 				// === Documentation ===
 
 				documentationEditMode: [],
@@ -1851,6 +1859,15 @@
 				documentationDeleteIndex: -1
 			},
 			methods: {
+				// === Initialization ===
+				
+				initialize: function() {
+					// Call this method once on start-up to get everything ready
+					
+					this.getAll();
+					this.initializePlotSettingDefaults();
+					this.initializeDocumentation();
+				},
 				
 				// === Refresh ===
 				
@@ -2369,27 +2386,27 @@
 				},
 				
 				resetScheduleSavePath: function() {
-					this.scheduleSaveUser = '';	
-					this.scheduleSaveProject = '';	
-					this.scheduleSaveFileName = '';	
+					this.creatorSaveUser = '';	
+					this.creatorSaveProject = '';	
+					this.creatorSaveFileName = '';	
 				},
 				resetScheduleLoadPath: function() {
-					this.scheduleLoadUser = '';	
-					this.scheduleLoadProject = '';	
-					this.scheduleLoadFileName = '';	
+					this.creatorLoadUser = '';	
+					this.creatorLoadProject = '';	
+					this.creatorLoadFileName = '';	
 				},
 				
 				isValidScheduleSavePath: function() {
-					return (this.scheduleSaveUser != null) && (this.scheduleSaveProject != null) && (this.scheduleSaveFileName != null) &&
-						   (this.scheduleSaveUser !== '') && (this.scheduleSaveProject !== '') && (this.scheduleSaveFileName !== '');	
+					return (this.creatorSaveUser != null) && (this.creatorSaveProject != null) && (this.creatorSaveFileName != null) &&
+						   (this.creatorSaveUser !== '') && (this.creatorSaveProject !== '') && (this.creatorSaveFileName !== '');	
 				},
 				isValidScheduleLoadPath: function() {
-					return (this.scheduleLoadUser != null) && (this.scheduleLoadProject != null) && (this.scheduleLoadFileName != null) &&
-						   (this.scheduleLoadUser !== '') && (this.scheduleLoadProject !== '') && (this.scheduleLoadFileName !== '');	
+					return (this.creatorLoadUser != null) && (this.creatorLoadProject != null) && (this.creatorLoadFileName != null) &&
+						   (this.creatorLoadUser !== '') && (this.creatorLoadProject !== '') && (this.creatorLoadFileName !== '');	
 				},
 				
 				saveSchedule: function() {
-					var url = '/saveSchedule/' + this.scheduleSaveUser + '/' + this.scheduleSaveProject + '/' + this.scheduleSaveFileName;
+					var url = '/saveSchedule/' + this.creatorSaveUser + '/' + this.creatorSaveProject + '/' + this.creatorSaveFileName;
 					url += this.cacheBust;
 					// url += '&jobs=' + encodeURI(JSON.stringify(this.scheduleObjectDefault));
 					console.log('saveSchedule(): ' + url);
@@ -2398,14 +2415,14 @@
 						this.saveScheduleSuccessCode = response;
 					}).fail(() => {console.log("Error saving schedule file")});
 					
-					if (this.scheduleExperimentUser === '') this.scheduleExperimentUser = this.scheduleSaveUser;
-					if (this.scheduleExperimentProject === '') this.scheduleExperimentProject = this.scheduleSaveProject;
-					if (this.scheduleExperimentFileName === '') this.scheduleExperimentFileName = this.scheduleSaveFileName;
+					if (this.scheduleExperimentUser === '') this.scheduleExperimentUser = this.creatorSaveUser;
+					if (this.scheduleExperimentProject === '') this.scheduleExperimentProject = this.creatorSaveProject;
+					if (this.scheduleExperimentFileName === '') this.scheduleExperimentFileName = this.creatorSaveFileName;
 					
 					this.getScheduleNames();
 				},
 				loadSchedule: function() {
-					var path = '/loadSchedule/' + this.scheduleLoadUser + '/' + this.scheduleLoadProject + '/' + this.scheduleLoadFileName + '.json' + this.cacheBust;
+					var path = '/loadSchedule/' + this.creatorLoadUser + '/' + this.creatorLoadProject + '/' + this.creatorLoadFileName + '.json' + this.cacheBust;
 					console.log('loadSchedule(): ' + path);
 
 					if (path) {
@@ -2413,9 +2430,9 @@
 						.fail(() => {console.log("Error loading schedule file")});
 					}
 					
-					if (this.scheduleSaveUser === '') this.scheduleSaveUser = this.scheduleLoadUser;
-					if (this.scheduleSaveProject === '') this.scheduleSaveProject = this.scheduleLoadProject;
-					if (this.scheduleSaveFileName === '') this.scheduleSaveFileName = this.scheduleLoadFileName;
+					if (this.creatorSaveUser === '') this.creatorSaveUser = this.creatorLoadUser;
+					if (this.creatorSaveProject === '') this.creatorSaveProject = this.creatorLoadProject;
+					if (this.creatorSaveFileName === '') this.creatorSaveFileName = this.creatorLoadFileName;
 				},
 				
 				// === Settings ===
@@ -2463,21 +2480,6 @@
 					
 					console.log("Updated plot settings: " + JSON.stringify(all_modifications));
 				},
-				resetPlotSettings: function() {
-					this.primaryPlotSettings = JSON.parse(JSON.stringify(this.primaryPlotSettingDefaults));	
-					this.modePlotSettings = JSON.parse(JSON.stringify(this.modePlotSettingDefaults));	
-				},
-				resetChipSummarySettings: function() {
-					this.chipSummarySettings = JSON.parse(JSON.stringify(this.chipSummarySettingDefaults));	
-				},
-				resetDeviceSummarySettings: function() {
-					this.deviceSummarySettings = JSON.parse(JSON.stringify(this.deviceSummarySettingDefaults));	
-				},
-				resetAllPlotSettings: function() {
-					this.resetPlotSettings();
-					this.resetChipSummarySettings();
-					this.resetDeviceSummarySettings();
-				},
 				hasModifiedPlotSettings: function() {
 					var all_modifications = this.plotSettingsModifications();
 					
@@ -2489,6 +2491,29 @@
 					});
 										
 					return is_modified;	
+				},
+				
+				initializePlotSettingDefaults: function() {
+					this.primaryPlotSettingDefaults   = JSON.parse(JSON.stringify(this.primaryPlotSettings));	
+					this.modePlotSettingDefaults      = JSON.parse(JSON.stringify(this.modePlotSettings));	
+					this.chipSummarySettingDefaults   = JSON.parse(JSON.stringify(this.chipSummarySettings));	
+					this.deviceSummarySettingDefaults = JSON.parse(JSON.stringify(this.deviceSummarySettings));	
+				},
+				
+				resetPlotSettings: function() {
+					this.primaryPlotSettings = JSON.parse(JSON.stringify(this.primaryPlotSettingDefaults));	
+					this.modePlotSettings    = JSON.parse(JSON.stringify(this.modePlotSettingDefaults));	
+				},
+				resetChipSummarySettings: function() {
+					this.chipSummarySettings = JSON.parse(JSON.stringify(this.chipSummarySettingDefaults));	
+				},
+				resetDeviceSummarySettings: function() {
+					this.deviceSummarySettings = JSON.parse(JSON.stringify(this.deviceSummarySettingDefaults));	
+				},
+				resetAllPlotSettings: function() {
+					this.resetPlotSettings();
+					this.resetChipSummarySettings();
+					this.resetDeviceSummarySettings();
 				},
 				
 				// === Server Update ===
@@ -2515,48 +2540,48 @@
 					if (message.type === 'Progress') {
 						this.showProgress = true;
 						
-						this.experimentRunnerProgress.timerModel.current = message.progress.timestamp;
-						if(this.experimentRunnerProgress.timerModel.start === 0) {
-							this.experimentRunnerProgress.timerModel.start = message.progress.timestamp;
+						this.experimentProgressModel.timer.current = message.progress.timestamp;
+						if(this.experimentProgressModel.timer.start === 0) {
+							this.experimentProgressModel.timer.start = message.progress.timestamp;
 						}
 						
 						if(message.progress.barType === "Dispatcher"){
-							this.experimentRunnerProgress.dispatcherBarModel.visible = true;
-							this.experimentRunnerProgress.dispatcherBarModel.name = message.progress.name;
-							this.experimentRunnerProgress.dispatcherBarModel.current = message.progress.current;
-							this.experimentRunnerProgress.dispatcherBarModel.end = message.progress.end;
-							this.experimentRunnerProgress.dispatcherBarModel.percent = computeProgressPercent(message.progress.start, message.progress.current, message.progress.end);
+							this.experimentProgressModel.dispatcherBar.visible = true;
+							this.experimentProgressModel.dispatcherBar.name = message.progress.name;
+							this.experimentProgressModel.dispatcherBar.current = message.progress.current;
+							this.experimentProgressModel.dispatcherBar.end = message.progress.end;
+							this.experimentProgressModel.dispatcherBar.percent = this.computeProgressPercent(message.progress.start, message.progress.current, message.progress.end);
 						}
 						else if(message.progress.barType === "Sweep"){
-							this.experimentRunnerProgress.sweepBarModel.visible = true;
-							this.experimentRunnerProgress.sweepBarModel.name = message.progress.name;
-							this.experimentRunnerProgress.sweepBarModel.current = message.progress.current;
-							this.experimentRunnerProgress.sweepBarModel.end = message.progress.end;
-							this.experimentRunnerProgress.sweepBarModel.percent = computeProgressPercent(message.progress.start, message.progress.current, message.progress.end);
+							this.experimentProgressModel.sweepBar.visible = true;
+							this.experimentProgressModel.sweepBar.name = message.progress.name;
+							this.experimentProgressModel.sweepBar.current = message.progress.current;
+							this.experimentProgressModel.sweepBar.end = message.progress.end;
+							this.experimentProgressModel.sweepBar.percent = this.computeProgressPercent(message.progress.start, message.progress.current, message.progress.end);
 						}
 						else if(message.progress.barType === "Group1"){
-							this.experimentRunnerProgress.group1BarModel.visible = true;
-							this.experimentRunnerProgress.group1BarModel.name = message.progress.name;
-							this.experimentRunnerProgress.group1BarModel.current = message.progress.current;
-							this.experimentRunnerProgress.group1BarModel.end = message.progress.end;
-							this.experimentRunnerProgress.group1BarModel.percent = computeProgressPercent(message.progress.start, message.progress.current, message.progress.end);
+							this.experimentProgressModel.group1Bar.visible = true;
+							this.experimentProgressModel.group1Bar.name = message.progress.name;
+							this.experimentProgressModel.group1Bar.current = message.progress.current;
+							this.experimentProgressModel.group1Bar.end = message.progress.end;
+							this.experimentProgressModel.group1Bar.percent = this.computeProgressPercent(message.progress.start, message.progress.current, message.progress.end);
 						}
 						else if(message.progress.barType === "Group2"){
-							this.experimentRunnerProgress.group2BarModel.visible = true;
-							this.experimentRunnerProgress.group2BarModel.name = message.progress.name;
-							this.experimentRunnerProgress.group2BarModel.current = message.progress.current;
-							this.experimentRunnerProgress.group2BarModel.end = message.progress.end;
-							this.experimentRunnerProgress.group2BarModel.percent = computeProgressPercent(message.progress.start, message.progress.current, message.progress.end);
+							this.experimentProgressModel.group2Bar.visible = true;
+							this.experimentProgressModel.group2Bar.name = message.progress.name;
+							this.experimentProgressModel.group2Bar.current = message.progress.current;
+							this.experimentProgressModel.group2Bar.end = message.progress.end;
+							this.experimentProgressModel.group2Bar.percent = this.computeProgressPercent(message.progress.start, message.progress.current, message.progress.end);
 						}
 						else if(message.progress.barType === "Procedure"){
-							this.experimentRunnerProgress.procedureBarModel.time_start = checkStartTime(this.experimentRunnerProgress.procedureBarModel.time_start, this.experimentRunnerProgress.procedureBarModel.current, message.progress.current, message.progress.timestamp);
-							this.experimentRunnerProgress.procedureBarModel.time_current = message.progress.timestamp;
+							this.experimentProgressModel.procedureBar.time_start = this.checkStartTime(this.experimentProgressModel.procedureBar.time_start, this.experimentProgressModel.procedureBar.current, message.progress.timestamp, message.progress.current);
+							this.experimentProgressModel.procedureBar.time_current = message.progress.timestamp;
 							
-							this.experimentRunnerProgress.procedureBarModel.visible = true;
-							this.experimentRunnerProgress.procedureBarModel.name = message.progress.name;
-							this.experimentRunnerProgress.procedureBarModel.current = message.progress.current;
-							this.experimentRunnerProgress.procedureBarModel.end = message.progress.end;
-							this.experimentRunnerProgress.procedureBarModel.percent = computeProgressPercent(message.progress.start, message.progress.current, message.progress.end);
+							this.experimentProgressModel.procedureBar.visible = true;
+							this.experimentProgressModel.procedureBar.name = message.progress.name;
+							this.experimentProgressModel.procedureBar.current = message.progress.current;
+							this.experimentProgressModel.procedureBar.end = message.progress.end;
+							this.experimentProgressModel.procedureBar.percent = this.computeProgressPercent(message.progress.start, message.progress.current, message.progress.end);
 						}
 
 					}
@@ -2625,35 +2650,48 @@
 				// === Progress Bars ===
 				
 				clearProgressBars: function(){
-					this.experimentRunnerProgress.timerModel.start = 0;
-					this.experimentRunnerProgress.timerModel.current = 0;
+					this.experimentProgressModel.timer.start = 0;
+					this.experimentProgressModel.timer.current = 0;
 					
-					this.experimentRunnerProgress.dispatcherBarModel.visible = false;
-					this.experimentRunnerProgress.dispatcherBarModel.current = 0;
-					this.experimentRunnerProgress.dispatcherBarModel.end = 0;
-					this.experimentRunnerProgress.dispatcherBarModel.percent = 0;
+					this.experimentProgressModel.dispatcherBar.visible = false;
+					this.experimentProgressModel.dispatcherBar.current = 0;
+					this.experimentProgressModel.dispatcherBar.end = 0;
+					this.experimentProgressModel.dispatcherBar.percent = 0;
 
-					this.experimentRunnerProgress.sweepBarModel.visible = false;
-					this.experimentRunnerProgress.sweepBarModel.current = 0;
-					this.experimentRunnerProgress.sweepBarModel.end = 0;
-					this.experimentRunnerProgress.sweepBarModel.percent = 0;
+					this.experimentProgressModel.sweepBar.visible = false;
+					this.experimentProgressModel.sweepBar.current = 0;
+					this.experimentProgressModel.sweepBar.end = 0;
+					this.experimentProgressModel.sweepBar.percent = 0;
 					
-					this.experimentRunnerProgress.group1BarModel.visible = false;
-					this.experimentRunnerProgress.group1BarModel.current = 0;
-					this.experimentRunnerProgress.group1BarModel.end = 0;
-					this.experimentRunnerProgress.group1BarModel.percent = 0;
+					this.experimentProgressModel.group1Bar.visible = false;
+					this.experimentProgressModel.group1Bar.current = 0;
+					this.experimentProgressModel.group1Bar.end = 0;
+					this.experimentProgressModel.group1Bar.percent = 0;
 					
-					this.experimentRunnerProgress.group2BarModel.visible = false;
-					this.experimentRunnerProgress.group2BarModel.current = 0;
-					this.experimentRunnerProgress.group2BarModel.end = 0;
-					this.experimentRunnerProgress.group2BarModel.percent = 0;
+					this.experimentProgressModel.group2Bar.visible = false;
+					this.experimentProgressModel.group2Bar.current = 0;
+					this.experimentProgressModel.group2Bar.end = 0;
+					this.experimentProgressModel.group2Bar.percent = 0;
 
-					this.experimentRunnerProgress.procedureBarModel.visible = false;
-					this.experimentRunnerProgress.procedureBarModel.current = 0;
-					this.experimentRunnerProgress.procedureBarModel.end = 0;
-					this.experimentRunnerProgress.procedureBarModel.percent = 0;
-					this.experimentRunnerProgress.procedureBarModel.time_start = 0;
-					this.experimentRunnerProgress.procedureBarModel.time_current = 0;
+					this.experimentProgressModel.procedureBar.visible = false;
+					this.experimentProgressModel.procedureBar.current = 0;
+					this.experimentProgressModel.procedureBar.end = 0;
+					this.experimentProgressModel.procedureBar.percent = 0;
+					this.experimentProgressModel.procedureBar.time_start = 0;
+					this.experimentProgressModel.procedureBar.time_current = 0;
+				},
+				computeProgressPercent: function(start, current, end) {
+					start = parseFloat(start);
+					current = parseFloat(current);
+					end = parseFloat(end);
+					var result = (current - start)/(end - start);
+					return result*100;
+				},
+				checkStartTime: function(prev_time, prev_value, current_time, current_value) {
+					if((prev_time === 0) || (current_value < prev_value)){
+						return current_time;
+					}
+					return prev_time;
 				},
 				
 				// === Live Plots ===
@@ -3127,20 +3165,6 @@
 		function updateConnectionStatus() {
 			app.$set(app, 'online', navigator.onLine);
 		}
-		
-		function computeProgressPercent(start, current, end){
-			var result = parseFloat(current) - parseFloat(start);
-			result /= parseFloat(end) - parseFloat(start);
-			result *= 100;
-			return result;
-		}
-		
-		function checkStartTime(start_time, prev_value, current_value, current_time){
-			if((start_time === 0) || (current_value < prev_value)){
-				return current_time;
-			}
-			return start_time;
-		}
 
 		window.addEventListener('online', updateConnectionStatus);
 		window.addEventListener('offline', updateConnectionStatus);
@@ -3150,9 +3174,8 @@
 			localStorage.exists = JSON.stringify('True');
 		}
 		
-		app.getAll();
-
-		app.initializeDocumentation();
+		// Finish getting everything ready to go
+		app.initialize();
 		
 	</script>
 </body>
