@@ -1240,12 +1240,12 @@
 									Performance
 								</v-toolbar-title>
 								<v-spacer></v-spacer>
-								<v-btn icon @click="" :disabled="true"><v-icon>settings_backup_restore</v-icon></v-btn>
+								<v-btn icon @click="getDefaultParameters()" :disabled="true"><v-icon>settings_backup_restore</v-icon></v-btn>
 							</v-toolbar>
 							
 							<v-container>
 															
-								<v-card flat class="grey lighten-4 roundedcorners" v-if="Object.keys(performanceScheduleObject).length > 0">
+								<v-card class="mb-1 grey lighten-4 roundedcorners" v-if="Object.keys(performanceScheduleObject).length > 0">
 									<v-container>
 										<v-layout row wrap>
 											<v-flex xs3 s3 md3 lg3>
@@ -1295,7 +1295,7 @@
 									</v-container>
 								</v-card>
 								
-								<v-card flat>
+								<v-card flat class="ma-4">
 									<v-card-actions>
 										<v-spacer></v-spacer>
 										<v-btn @click=""><v-icon>play_arrow</v-icon></v-btn>
@@ -1305,6 +1305,12 @@
 										<v-btn @click=""><v-icon>refresh</v-icon></v-btn>
 										<v-spacer></v-spacer>
 									</v-card-actions>
+								</v-card>
+								
+								<v-card flat>
+									<div class="text-xs-center">
+										<s-plotly v-bind:data="extractPlotlyData(performancePlot)" :layout="extractPlotlyLayout(performancePlot)"></s-plotly>
+									</div>
 								</v-card>
 								
 							</v-container>
@@ -1859,6 +1865,17 @@
 				// === Performance App ===
 				
 				performanceScheduleObject: {},
+				performancePlot: {
+					'xAxisTitle':'Gate Voltage (V)',
+					'yAxisTitle':'Drain Current (A)',
+					'yScale':'linear',
+					'seriesList':[{
+						'seriesName':'',
+						'xData':[],
+						'yData':[],
+						'plotMode':'markers',
+					}],
+				},
 				
 				// === About ===
 				
