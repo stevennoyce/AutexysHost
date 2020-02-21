@@ -975,19 +975,19 @@
 									<v-form class="ma-2">
 										<v-layout row wrap>
 											<v-flex xs12 sm6 md4 lg3 outline class="ma-2">
-												<v-autocomplete clearable v-model="scheduleExperimentUser" label="User" :items="Object.keys(scheduleNames)"></v-autocomplete>
+												<v-autocomplete clearable v-model="runnerUser" label="User" :items="Object.keys(scheduleNames)"></v-autocomplete>
 											</v-flex>
 											<v-flex xs12 sm6 md4 lg3 solo class="ma-2">
-												<v-autocomplete clearable v-model="scheduleExperimentProject" label="Project" :items="_.keys(_.get(scheduleNames, [scheduleExperimentUser], {}))"></v-autocomplete>
+												<v-autocomplete clearable v-model="runnerProject" label="Project" :items="_.keys(_.get(scheduleNames, [runnerUser], {}))"></v-autocomplete>
 											</v-flex>
 											<v-flex xs12 sm6 md4 lg3 solo class="ma-2">
-												<v-autocomplete clearable v-model="scheduleExperimentFileName" label="File Name" :items="_.get(scheduleNames, [scheduleExperimentUser, scheduleExperimentProject], [])"></v-autocomplete>
+												<v-autocomplete clearable v-model="runnerFileName" label="File Name" :items="_.get(scheduleNames, [runnerUser, runnerProject], [])"></v-autocomplete>
 											</v-flex>
 										</v-layout>
 									<v-form>
 								</template>
 							
-								<template v-if="scheduleExperimentUser && scheduleExperimentProject && scheduleExperimentFileName && (runnerScheduleObjects.length === 1) && (runnerVerboseScheduleObjects.length === 1)">
+								<template v-if="runnerUser && runnerProject && runnerFileName && (runnerScheduleObjects.length === 1) && (runnerVerboseScheduleObjects.length === 1)">
 									<v-expansion-panel expand class="mt-1 mb-2">
 										<v-expansion-panel-content class="grey lighten-4">
 											
@@ -1093,16 +1093,16 @@
 								<template v-if="runnerChoice !== ''">
 									<v-card flat>
 										<v-card-actions>
-											<template v-if="runnerChoice === 'Schedule File' && (scheduleExperimentUser && scheduleExperimentProject && scheduleExperimentFileName)">
+											<template v-if="runnerChoice === 'Schedule File' && (runnerUser && runnerProject && runnerFileName)">
 												<form class="ml-1 mr-3" style="overflow-x: scroll">
 													<p>
-														Schedule file: AutexysData/{{ scheduleExperimentUser }}/{{ scheduleExperimentProject }}/schedules/{{ scheduleExperimentFileName }}.json
+														Schedule file: AutexysData/{{ runnerUser }}/{{ runnerProject }}/schedules/{{ runnerFileName }}.json
 													</p>
 												</form>
 											</template>
 											<v-spacer></v-spacer>
 											<template v-if="runnerChoice === 'Schedule File'">
-												<v-btn class="mb-3 mt-3" @click="saveRunnerScheduleFile(); dispatchSchedule();" :disabled="!(scheduleExperimentUser && scheduleExperimentProject && scheduleExperimentFileName)">Launch Schedule File.</v-btn>
+												<v-btn class="mb-3 mt-3" @click="saveRunnerScheduleFile(); dispatchSchedule();" :disabled="!(runnerUser && runnerProject && runnerFileName)">Launch Schedule File.</v-btn>
 											</template>
 											<template v-if="runnerChoice !== 'Schedule File'">
 												<v-btn class="mb-3 mt-3" @click="saveRunnerScheduleFile(); dispatchSchedule();" :disabled="!isPossibleToSaveRunnerScheduleFile()">Launch {{ runnerChoice }}</v-btn>
@@ -1775,9 +1775,9 @@
 					'Delay': 'default_delay',
 				},
 				
-				scheduleExperimentUser: '',
-				scheduleExperimentProject: '',
-				scheduleExperimentFileName: '',
+				runnerUser: '',
+				runnerProject: '',
+				runnerFileName: '',
 				
 				// === Progress Bars ===
 				
@@ -2148,7 +2148,7 @@
 					this.clearJobSelect();
 					this.clearDeviceSelect();
 					
-					var path = '/dispatchSchedule/' + this.scheduleExperimentUser + '/' + this.scheduleExperimentProject + '/' + this.scheduleExperimentFileName + '.json' + this.cacheBust;
+					var path = '/dispatchSchedule/' + this.runnerUser + '/' + this.runnerProject + '/' + this.runnerFileName + '.json' + this.cacheBust;
 					if (path) {
 						$.getJSON(path, response => {app.$data.dispatcherRunning = true})
 						.fail(() => {console.log("Error dispatching schedule file")});
@@ -2170,20 +2170,20 @@
 								
 					if((this.runnerChoice === 'Schedule File') || (this.runnerChoice === '')) { 
 						this.runnerEnableScheduleSaving = true;
-						this.scheduleExperimentUser = '';
-						this.scheduleExperimentProject = '';
-						this.scheduleExperimentFileName = '';
+						this.runnerUser = '';
+						this.runnerProject = '';
+						this.runnerFileName = '';
 						return; 
 					}
 					
 					this.runnerEnableScheduleSaving = false;
-					this.scheduleExperimentUser = 'admin';
-					this.scheduleExperimentProject = 'standards';
-					this.scheduleExperimentFileName = this.runnerStandardFileNames[this.runnerChoice];
+					this.runnerUser = 'admin';
+					this.runnerProject = 'standards';
+					this.runnerFileName = this.runnerStandardFileNames[this.runnerChoice];
 				},
 				loadRunnerScheduleFile: function() {
-					if(this.scheduleExperimentUser && this.scheduleExperimentProject && this.scheduleExperimentFileName) {
-						var path = '/loadBriefSchedule/' + this.scheduleExperimentUser + '/' + this.scheduleExperimentProject + '/' + this.scheduleExperimentFileName + '.json' + this.cacheBust;
+					if(this.runnerUser && this.runnerProject && this.runnerFileName) {
+						var path = '/loadBriefSchedule/' + this.runnerUser + '/' + this.runnerProject + '/' + this.runnerFileName + '.json' + this.cacheBust;
 						
 						console.log('loading path = ' + path);
 						if (path) {
@@ -2193,7 +2193,7 @@
 							.fail(() => {console.log("Error loading schedule file into the experiment runner.")});
 						}
 						
-						var path = '/loadSchedule/' + this.scheduleExperimentUser + '/' + this.scheduleExperimentProject + '/' + this.scheduleExperimentFileName + '.json' + this.cacheBust;
+						var path = '/loadSchedule/' + this.runnerUser + '/' + this.runnerProject + '/' + this.runnerFileName + '.json' + this.cacheBust;
 
 						console.log('loading path = ' + path);
 
@@ -2223,12 +2223,12 @@
 							} catch(err) {}
 							if(activeUser === '') { activeUser = 'guest'; }
 							if(activeProject === '') { activeProject = 'Project'; }
-							this.scheduleExperimentUser = activeUser;
-							this.scheduleExperimentProject = activeProject;
+							this.runnerUser = activeUser;
+							this.runnerProject = activeProject;
 						} 
 						
 						// Save current file
-						var path = '/saveSchedule/' + this.scheduleExperimentUser + '/' + this.scheduleExperimentProject + '/' + this.scheduleExperimentFileName + '.json' + this.cacheBust;
+						var path = '/saveSchedule/' + this.runnerUser + '/' + this.runnerProject + '/' + this.runnerFileName + '.json' + this.cacheBust;
 
 						console.log('saving path = ' + path);
 
@@ -2244,7 +2244,7 @@
 					}
 				},
 				isPossibleToSaveRunnerScheduleFile: function() {
-					return (this.scheduleExperimentUser && this.scheduleExperimentProject && this.scheduleExperimentFileName && 
+					return (this.runnerUser && this.runnerProject && this.runnerFileName && 
 						(this.runnerScheduleObjects.length === 1) && (this.runnerScheduleObjectDefaults.length === 1) && 
 						(this.runnerVerboseScheduleObjects.length === 1) && ((this.runnerVerboseScheduleObjectDefaults.length === 1)));
 				}, 
@@ -2415,9 +2415,9 @@
 						this.saveScheduleSuccessCode = response;
 					}).fail(() => {console.log("Error saving schedule file")});
 					
-					if (this.scheduleExperimentUser === '') this.scheduleExperimentUser = this.creatorSaveUser;
-					if (this.scheduleExperimentProject === '') this.scheduleExperimentProject = this.creatorSaveProject;
-					if (this.scheduleExperimentFileName === '') this.scheduleExperimentFileName = this.creatorSaveFileName;
+					if (this.runnerUser === '') this.runnerUser = this.creatorSaveUser;
+					if (this.runnerProject === '') this.runnerProject = this.creatorSaveProject;
+					if (this.runnerFileName === '') this.runnerFileName = this.creatorSaveFileName;
 					
 					this.getScheduleNames();
 				},
@@ -3003,7 +3003,7 @@
 				
 				// Experiment Runner user input
 				runnerChoice:                 function(val) { this.updateRunnerChoice(); },
-				scheduleExperimentFileName:   function(val) { this.loadRunnerScheduleFile(); },
+				runnerFileName:   function(val) { this.loadRunnerScheduleFile(); },
 				runnerToggleAdvancedSettings: function(val) { this.addAdvancedChangesToRunnerScheduleFile(); },
 				
 				// Dashboard user input
