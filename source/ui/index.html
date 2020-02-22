@@ -1011,10 +1011,10 @@
 																</v-list-tile-title></v-list-tile-content>
 															</v-list-tile>
 															<template v-if="!runnerToggleAdvancedSettings && Object.keys(runnerScheduleObjects[0]).includes('Identifiers')">
-																<s-item-group-edit :settings.sync="runnerScheduleObjects[0]['Identifiers']" :defaults="JSON.parse(JSON.stringify(runnerScheduleObjects[0]['Identifiers']))"></s-item-group-edit>
+																<a-item-edit-group :settings.sync="runnerScheduleObjects[0]['Identifiers']"></a-item-edit-group>
 															</template>
 															<template v-if="runnerToggleAdvancedSettings || !Object.keys(runnerScheduleObjects[0]).includes('Identifiers')">
-																<s-item-group-edit :settings.sync="runnerVerboseScheduleObjects[0]['Identifiers']" :defaults="JSON.parse(JSON.stringify(runnerVerboseScheduleObjects[0]['Identifiers']))"></s-item-group-edit>
+																<a-item-edit-group :settings.sync="runnerVerboseScheduleObjects[0]['Identifiers']"></a-item-edit-group>
 															</template>
 														</v-list>
 														
@@ -1025,7 +1025,7 @@
 																		Measurement System
 																	</v-list-tile-title></v-list-tile-content>
 																</v-list-tile>
-																<s-item-group-edit :settings.sync="runnerVerboseScheduleObjects[0]['MeasurementSystem']" :defaults="JSON.parse(JSON.stringify(runnerVerboseScheduleObjects[0]['MeasurementSystem']))"></s-item-group-edit>
+																<a-item-edit-group :settings.sync="runnerVerboseScheduleObjects[0]['MeasurementSystem']"></a-item-edit-group>
 															</v-list>
 														</template>
 														
@@ -1044,10 +1044,10 @@
 																</v-list-tile-title></v-list-tile-content>
 															</v-list-tile>
 															<template v-if="!runnerToggleAdvancedSettings && Object.keys(runnerScheduleObjects[0]).includes('DeviceCycling')">
-																<s-item-group-edit :settings.sync="runnerScheduleObjects[0]['DeviceCycling']" :defaults="JSON.parse(JSON.stringify(runnerScheduleObjects[0]['DeviceCycling']))"></s-item-group-edit>
+																<a-item-edit-group :settings.sync="runnerScheduleObjects[0]['DeviceCycling']"></a-item-edit-group>
 															</template>
 															<template v-if="runnerToggleAdvancedSettings">
-																<s-item-group-edit :settings.sync="runnerVerboseScheduleObjects[0]['DeviceCycling']" :defaults="JSON.parse(JSON.stringify(runnerVerboseScheduleObjects[0]['DeviceCycling']))"></s-item-group-edit>
+																<a-item-edit-group :settings.sync="runnerVerboseScheduleObjects[0]['DeviceCycling']"></a-item-edit-group>
 															</template>
 														</v-list>
 													</v-flex>
@@ -1060,10 +1060,10 @@
 																</v-list-tile-title></v-list-tile-content>
 															</v-list-tile>
 															<template v-if="!runnerToggleAdvancedSettings">
-																<s-item-group-edit :settings.sync="runnerScheduleObjects[0]['runConfigs'][runType]" :defaults="JSON.parse(JSON.stringify(runnerScheduleObjects[0]['runConfigs'][runType]))"></s-item-group-edit>
+																<a-item-edit-group :settings.sync="runnerScheduleObjects[0]['runConfigs'][runType]"></a-item-edit-group>
 															</template>
 															<template v-if="runnerToggleAdvancedSettings">
-																<s-item-group-edit :settings.sync="runnerVerboseScheduleObjects[0]['runConfigs'][runType]" :defaults="JSON.parse(JSON.stringify(runnerVerboseScheduleObjects[0]['runConfigs'][runType]))"></s-item-group-edit>
+																<a-item-edit-group :settings.sync="runnerVerboseScheduleObjects[0]['runConfigs'][runType]"></a-item-edit-group>
 															</template>
 														</v-list>
 													</v-flex>
