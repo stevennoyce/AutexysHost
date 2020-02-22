@@ -1128,15 +1128,15 @@
 							</v-toolbar>
 							
 							<v-list>
-								<j-progress-bar-timed :visible="experimentProgressModel.dispatcherBar.visible" titleprefix="Dispatcher:" :title="experimentProgressModel.dispatcherBar.name" :valuecurrent="experimentProgressModel.dispatcherBar.current" :valuemaximum="experimentProgressModel.dispatcherBar.end" :valuepercent="experimentProgressModel.dispatcherBar.percent"></j-progress-bar-timed>
+								<a-progress-bar-timed :visible="experimentProgressModel.dispatcherBar.visible" titleprefix="Dispatcher:" :title="experimentProgressModel.dispatcherBar.name" :valuecurrent="experimentProgressModel.dispatcherBar.current" :valuemaximum="experimentProgressModel.dispatcherBar.end" :valuepercent="experimentProgressModel.dispatcherBar.percent"></a-progress-bar-timed>
 								
-								<j-progress-bar-timed :visible="experimentProgressModel.group1Bar.visible" titleprefix="" :title="experimentProgressModel.group1Bar.name" :valuecurrent="experimentProgressModel.group1Bar.current" :valuemaximum="experimentProgressModel.group1Bar.end" :valuepercent="experimentProgressModel.group1Bar.percent"></j-progress-bar-timed>
+								<a-progress-bar-timed :visible="experimentProgressModel.group1Bar.visible" titleprefix="" :title="experimentProgressModel.group1Bar.name" :valuecurrent="experimentProgressModel.group1Bar.current" :valuemaximum="experimentProgressModel.group1Bar.end" :valuepercent="experimentProgressModel.group1Bar.percent"></a-progress-bar-timed>
 								
-								<j-progress-bar-timed :visible="experimentProgressModel.group2Bar.visible" titleprefix="" :title="experimentProgressModel.group2Bar.name" :valuecurrent="experimentProgressModel.group2Bar.current" :valuemaximum="experimentProgressModel.group2Bar.end" :valuepercent="experimentProgressModel.group2Bar.percent"></j-progress-bar-timed>
+								<a-progress-bar-timed :visible="experimentProgressModel.group2Bar.visible" titleprefix="" :title="experimentProgressModel.group2Bar.name" :valuecurrent="experimentProgressModel.group2Bar.current" :valuemaximum="experimentProgressModel.group2Bar.end" :valuepercent="experimentProgressModel.group2Bar.percent"></a-progress-bar-timed>
 								
-								<j-progress-bar-timed :visible="experimentProgressModel.sweepBar.visible" titleprefix="Sweep:" :title="experimentProgressModel.sweepBar.name" :valuecurrent="experimentProgressModel.sweepBar.current" :valuemaximum="experimentProgressModel.sweepBar.end" :valuepercent="experimentProgressModel.sweepBar.percent"></j-progress-bar-timed>
+								<a-progress-bar-timed :visible="experimentProgressModel.sweepBar.visible" titleprefix="Sweep:" :title="experimentProgressModel.sweepBar.name" :valuecurrent="experimentProgressModel.sweepBar.current" :valuemaximum="experimentProgressModel.sweepBar.end" :valuepercent="experimentProgressModel.sweepBar.percent"></a-progress-bar-timed>
 								
-								<j-progress-bar-timed :visible="experimentProgressModel.procedureBar.visible" titleprefix="Procedure:" :title="experimentProgressModel.procedureBar.name" :time="experimentProgressModel.procedureBar.time_current - experimentProgressModel.procedureBar.time_start" :valuecurrent="experimentProgressModel.procedureBar.current" :valuemaximum="experimentProgressModel.procedureBar.end" :valuepercent="experimentProgressModel.procedureBar.percent"></j-progress-bar-timed>
+								<a-progress-bar-timed :visible="experimentProgressModel.procedureBar.visible" titleprefix="Procedure:" :title="experimentProgressModel.procedureBar.name" :time="experimentProgressModel.procedureBar.time_current - experimentProgressModel.procedureBar.time_start" :valuecurrent="experimentProgressModel.procedureBar.current" :valuemaximum="experimentProgressModel.procedureBar.end" :valuepercent="experimentProgressModel.procedureBar.percent"></a-progress-bar-timed>
 								
 								<!--
 								<v-list-tile v-if="experimentProgressModel.dispatcherBar.visible">
