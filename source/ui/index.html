@@ -182,8 +182,8 @@
 							<v-btn slot="activator" flat><v-icon>art_track</v-icon></v-btn>
 							<v-card light style="overflow-y: scroll; max-height:65vh">
 								<v-list>
-									<s-item-group-edit :settings.sync="primaryPlotSettings" :defaults="primaryPlotSettingDefaults"></s-item-group-edit>
-									<s-item-group-edit :settings.sync="modePlotSettings" :defaults="modePlotSettingDefaults"></s-item-group-edit>
+									<a-item-edit-group :settings.sync="primaryPlotSettings"></a-item-edit-group>
+									<a-item-edit-group :settings.sync="modePlotSettings"></a-item-edit-group>
 								</v-list>
 							</v-card>
 							<v-card light>
@@ -440,7 +440,7 @@
 									</v-data-table>
 								</v-card>
 
-								<v-card v-if="stepperPage === 4 ">
+								<v-card v-if="stepperPage == 4 ">
 									<v-toolbar dark class="color4">
 										<v-toolbar-title>
 											"{{ wafer }}{{ chip }}" Chip Summary Plots
@@ -451,7 +451,7 @@
 												<v-btn slot="activator" flat><v-icon>art_track</v-icon></v-btn>
 												<v-card light style="overflow-y: scroll; max-height:65vh">
 													<v-list>
-														<s-item-group-edit :settings.sync="chipSummarySettings" :defaults="chipSummarySettingDefaults"></s-item-group-edit>
+														<a-item-edit-group :settings.sync="chipSummarySettings"></a-item-edit-group>
 													</v-list>
 												</v-card>
 												<v-card light>
@@ -516,7 +516,7 @@
 									</v-data-table>
 								</v-card>
 								
-								<v-card v-if="stepperPage === 5">
+								<v-card v-if="stepperPage == 5">
 									<v-toolbar dark class="color4">
 										<v-toolbar-title>
 											"{{ wafer }}{{ chip }} {{ device }}" Device Summary Plots
@@ -1362,7 +1362,7 @@
 												</v-toolbar-title>
 											</v-toolbar>
 											<v-list class="pt-3">
-												<s-item-group-edit :settings.sync="primaryPlotSettings" :defaults="primaryPlotSettingDefaults"></s-item-group-edit>
+												<a-item-edit-group :settings.sync="primaryPlotSettings"></a-item-edit-group>
 											</v-list>
 										</v-card>
 									</v-flex>
@@ -1375,7 +1375,7 @@
 												</v-toolbar-title>
 											</v-toolbar>
 											<v-list class="pt-3">
-												<s-item-group-edit :settings.sync="modePlotSettings" :defaults="modePlotSettingDefaults"></s-item-group-edit>
+												<a-item-edit-group :settings.sync="modePlotSettings"></a-item-edit-group>
 											</v-list>
 										</v-card>
 									</v-flex>
@@ -1388,7 +1388,7 @@
 												</v-toolbar-title>
 											</v-toolbar>
 											<v-list class="pt-3">
-												<s-item-group-edit :settings.sync="chipSummarySettings" :defaults="chipSummarySettingDefaults"></s-item-group-edit>
+												<a-item-edit-group :settings.sync="chipSummarySettings"></a-item-edit-group>
 											</v-list>
 										</v-card>
 									</v-flex>
@@ -1401,7 +1401,7 @@
 												</v-toolbar-title>
 											</v-toolbar>
 											<v-list class="pt-3">
-												<s-item-group-edit :settings.sync="deviceSummarySettings" :defaults="deviceSummarySettingDefaults"></s-item-group-edit>
+												<a-item-edit-group :settings.sync="deviceSummarySettings"></a-item-edit-group>
 											</v-list>
 										</v-card>
 									</v-flex>

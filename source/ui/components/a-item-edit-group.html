@@ -1,0 +1,31 @@
+<script type="text/html" id="a-item-edit-group">
+	<div>
+		<template v-for="(setting, settingName) in settings" v-if="['bool','float','int','string','choice','array'].includes(setting.type)">
+			<v-tooltip top>
+				<v-list-tile slot="activator">
+					<s-item-edit :setting.sync="settings[settingName]"></s-item-edit>
+				</v-list-tile>
+				<span v-if="setting.units"><b>{{ setting.title }}</b></br>Type: <{{ setting.type }}>, Units: [{{ setting.units }}]</br>{{ setting.description }}</span>
+				<span v-if="!setting.units"><b>{{ setting.title }}</b></br>Type: <{{ setting.type }}></br>{{ setting.description }}</span>
+			</v-tooltip>
+		</template>
+	</div>
+</script>
+
+<script type="text/javascript">
+	Vue.component('a-item-edit-group', {
+		template: '#a-item-edit-group',
+		props: ['settings'],
+		data: function() {
+			return {
+				
+			};
+		},
+		watch: {
+			settings(val) {
+				this.$emit('update:settings', val);
+			},
+		}
+	});
+</script>
+
