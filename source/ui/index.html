@@ -480,7 +480,7 @@
 														</v-toolbar-title>
 													</v-toolbar>
 													<div class="text-xs-center">
-														<s-zoomable-image src="" :data-src="'/chipPlots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></s-zoomable-image>
+														<a-zoomable-image src="" :data-src="'/chipPlots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></a-zoomable-image>
 													</div>
 												</v-card>
 											</v-flex>
@@ -537,7 +537,7 @@
 														</v-toolbar-title>
 													</v-toolbar> 
 													<div class="text-xs-center">
-														<s-zoomable-image src="" :data-src="'/devicePlots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></s-zoomable-image>
+														<a-zoomable-image src="" :data-src="'/devicePlots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></a-zoomable-image>
 													</div>
 												</v-card>
 											</v-flex>
@@ -599,7 +599,7 @@
 													</v-toolbar>
 													
 													<div class="text-xs-center" v-if="!disabledPlots.includes(possiblePlot)">
-														<s-zoomable-image src="" :data-src="'/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></s-zoomable-image>
+														<a-zoomable-image src="" :data-src="'/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></a-zoomable-image>
 													</div>
 												</v-card>
 											</v-flex>
@@ -790,7 +790,7 @@
 										</v-list-tile-action>
 									</v-list-tile>
 
-									<s-schedule-job-edit :job.sync="scheduleObjects[scheduleObjectIndex]" :job-default="scheduleObjectDefault"></s-schedule-job-edit>
+									<a-schedule-job-edit :job.sync="scheduleObjects[scheduleObjectIndex]" :job-default="scheduleObjectDefault"></a-schedule-job-edit>
 								</v-list-group>
 							</v-list>
 							
@@ -1220,7 +1220,7 @@
 											</v-toolbar>
 											
 											<div class="text-xs-center">
-												<s-plotly v-bind:data="extractPlotlyData(plot)" :layout="extractPlotlyLayout(plot)"></s-plotly>
+												<a-plotly v-bind:data="extractPlotlyData(plot)" :layout="extractPlotlyLayout(plot)"></a-plotly>
 											</div>
 										</v-card>
 									</v-flex>
@@ -1330,7 +1330,7 @@
 								
 								<v-card flat>
 									<div class="text-xs-center">
-										<s-plotly v-bind:data="extractPlotlyData(performancePlot)" :layout="extractPlotlyLayout(performancePlot)"></s-plotly>
+										<a-plotly v-bind:data="extractPlotlyData(performancePlot)" :layout="extractPlotlyLayout(performancePlot)"></a-plotly>
 									</div>
 								</v-card>
 								

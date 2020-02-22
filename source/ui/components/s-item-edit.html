@@ -24,9 +24,9 @@
 		:items="setting.choices">
 	</v-select>
 	
-	<s-json-field v-else-if="setting.type == 'array'"
+	<a-json-field v-else-if="setting.type == 'array'"
 		:label="setting.title" :suffix="setting.units" v-model="setting.default">
-	</s-json-field>
+	</a-json-field>
 	
 </script>
 <script type="text/javascript">

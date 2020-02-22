@@ -1,7 +1,7 @@
 
-<!-- <s-schedule-job-edit v-model="job" :schedule-object-default="scheduleObjectDefault"></s-schedule-job-edit> -->
+<!-- <a-schedule-job-edit v-model="job" :schedule-object-default="scheduleObjectDefault"></a-schedule-job-edit> -->
 
-<script type="text/html" id="s-schedule-job-edit">
+<script type="text/html" id="a-schedule-job-edit">
 <v-container fluid grid-list-md v-if="job != undefined && jobDefault != undefined">
 	<v-layout row wrap>
 		
@@ -101,8 +101,8 @@
 </script>
 
 <script type="text/javascript">
-	Vue.component('s-schedule-job-edit', {
-		template: '#s-schedule-job-edit',
+	Vue.component('a-schedule-job-edit', {
+		template: '#a-schedule-job-edit',
 		props: ['job', 'job-default'],
 		data: function() {
 			return {

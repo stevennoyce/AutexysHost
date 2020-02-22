@@ -1,12 +1,12 @@
 
 
-<script type="text/html" id="s-json-field">
+<script type="text/html" id="a-json-field">
 	<v-text-field v-model="stringRepresentation" :label="label" :suffix="suffix" @blur="makeInputValidJSON"></v-text-field>
 </script>
 
 <script type="text/javascript">
-	Vue.component('s-json-field', {
-		template: '#s-json-field',
+	Vue.component('a-json-field', {
+		template: '#a-json-field',
 		props: ['value', 'label', 'suffix'],
 		data: function() {
 			return {
@@ -26,7 +26,7 @@
 		 			var objectRepresentation = jsyaml.safeLoad(val);
 		 			this.$emit('input', objectRepresentation);
 		 		} catch (e) {
-		 			console.log('Invalid JSON input to <s-json-field> component');
+		 			console.log('Invalid JSON input to <a-json-field> component');
 		 			console.log(e);
 		 		}
 			},
@@ -41,7 +41,7 @@
 		 		// 	// }
 		 		// 	this.$emit('input', objectRepresentation);
 		 		// } catch (e) {
-		 		// 	console.log('Invalid JSON input to <s-json-field> component');
+		 		// 	console.log('Invalid JSON input to <a-json-field> component');
 		 		// }
 			},
 			value(val) {
