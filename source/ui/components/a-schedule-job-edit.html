@@ -19,15 +19,11 @@
 					
 					<v-subheader class="grey lighten-3">Identifiers</v-subheader>
 					
-					<s-item-group-edit class="grey lighten-3"
-						:settings.sync="job['Identifiers']"
-						:defaults="jobDefault['Identifiers']"></s-item-group-edit>
+					<a-item-edit-group class="grey lighten-3" :settings.sync="job['Identifiers']"></a-item-edit-group>
 					
 					<v-subheader>Measurement System</v-subheader>
 					
-					<s-item-group-edit 
-						:settings.sync="job['MeasurementSystem']"
-						:defaults="jobDefault['MeasurementSystem']"></s-item-group-edit>
+					<a-item-edit-group :settings.sync="job['MeasurementSystem']"></a-item-edit-group>
 					
 				</v-list>
 			</v-card>
@@ -47,9 +43,7 @@
 				</v-toolbar>
 				
 				<v-list class="pt-3">
-					<s-item-group-edit 
-						:settings.sync="job['DeviceCycling']"
-						:defaults="jobDefault['DeviceCycling']"></s-item-group-edit>
+					<a-item-edit-group :settings.sync="job['DeviceCycling']"></a-item-edit-group>
 				</v-list>
 			</v-card>
 		</v-flex>
@@ -68,9 +62,7 @@
 				</v-toolbar>
 				
 				<v-list class="pt-3">
-					<s-item-group-edit 
-						:settings.sync="job['runConfigs'][job['runType']['default']]"
-						:defaults="jobDefault['runConfigs'][job['runType']['default']]"></s-item-group-edit>
+					<a-item-edit-group :settings.sync="job['runConfigs'][job['runType']['default']]"></a-item-edit-group>
 				</v-list>
 			</v-card>
 		</v-flex>
@@ -89,9 +81,7 @@
 				</v-toolbar>
 				
 				<v-list class="pt-3">
-					<s-item-group-edit 
-						:settings.sync="job['runConfigs'][dependency]"
-						:defaults="jobDefault['runConfigs'][dependency]"></s-item-group-edit>
+					<a-item-edit-group :settings.sync="job['runConfigs'][dependency]"></a-item-edit-group>
 				</v-list>
 			</v-card>
 		</v-flex>
@@ -122,7 +112,7 @@
 					<!-- <template v-for="(setting, settingName) in jobDefault['MeasurementSystem']" v-if="['bool','float','int','string','choice','array'].includes(setting.type)">
 						<v-tooltip top>
 							<v-list-tile slot="activator" style="overflow:scroll; overscroll-behavior: contain">
-								<s-item-edit v-model="job['MeasurementSystem'][settingName]"></s-item-edit>
+								<a-item-edit v-model="job['MeasurementSystem'][settingName]"></a-item-edit>
 								
 								<v-combobox v-if="setting.type == 'array'" :label="setting.title"
 									v-model="job['MeasurementSystem'][settingName]['default']" :items="job['MeasurementSystem'][settingName]['choices']" multiple small-chips :delimiters="[',',' ',';']"></v-combobox>
@@ -134,7 +124,7 @@
 					<!-- <template v-for="(setting, settingName) in jobDefault['runConfigs'][job['runType']['default']]" v-if="['bool','float','int','string','choice','array'].includes(setting.type)">
 						<v-tooltip top>
 							<v-list-tile slot="activator">
-								<s-item-edit v-model="job['runConfigs'][job['runType']['default']][settingName]" :suffix="' ('+_.get(setting,['units'])+')'"></s-item-edit>
+								<a-item-edit v-model="job['runConfigs'][job['runType']['default']][settingName]" :suffix="' ('+_.get(setting,['units'])+')'"></a-item-edit>
 								
 							</v-list-tile>
 							<span><b>{{ setting.title }}</b></br>Type: <{{ setting.type }}>, Units: [{{ setting.units }}]</br>{{ setting.description }}</span>
@@ -144,7 +134,7 @@
 					<!-- <template v-for="(setting, settingName) in jobDefault['runConfigs'][dependency]" v-if="['bool','float','int','string','choice','array'].includes(setting.type)">
 						<v-tooltip top>
 							<v-list-tile slot="activator">
-								<s-item-edit v-model="job['runConfigs'][dependency][settingName]" :suffix="' ('+_.get(setting,['units'])+')'"></s-item-edit>
+								<a-item-edit v-model="job['runConfigs'][dependency][settingName]" :suffix="' ('+_.get(setting,['units'])+')'"></a-item-edit>
 								
 							</v-list-tile>
 						</v-list-tile>

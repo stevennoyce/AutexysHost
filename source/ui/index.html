@@ -689,7 +689,7 @@
 					<!-- End of browser -->
 					<!-- Start of sched creator -->
 					
-					<v-flex xs12 class="ma-3" v-if="topLevelPage == 'scheduleCreator'">
+					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'scheduleCreator'">
 						<v-card class="mb-3 pb-1">
 							<v-toolbar dark dense class="color2 ">
 								<v-toolbar-title>
@@ -735,7 +735,7 @@
 									</v-card>
 								</v-menu>
 								
-								<v-btn icon @click="scheduleObjects = [JSON.parse(JSON.stringify(scheduleObjectDefault))]" :disabled="!hasModifiedScheduleObjects()"><v-icon>settings_backup_restore</v-icon></v-btn>
+								<v-btn icon @click="resetScheduleCreator()" :disabled="!hasModifiedScheduleObjects()"><v-icon>settings_backup_restore</v-icon></v-btn>
 							</v-toolbar>
 							
 							<v-list expand>
@@ -961,7 +961,7 @@
 									Experiment Runner
 								</v-toolbar-title>
 								<v-spacer></v-spacer>
-								<v-btn icon @click="resetRunnerChoice()" :disabled="!isModifiedRunnerChoice"><v-icon>settings_backup_restore</v-icon></v-btn>
+								<v-btn icon @click="resetExperimentRunner()" :disabled="!isModifiedRunnerChoice"><v-icon>settings_backup_restore</v-icon></v-btn>
 							</v-toolbar>
 							
 							<v-container>
@@ -987,7 +987,7 @@
 									<v-form>
 								</template>
 							
-								<template v-if="runnerUser && runnerProject && runnerFileName && (runnerScheduleObjects.length === 1) && (runnerVerboseScheduleObjects.length === 1)">
+								<template v-if="(runnerChoice !== '') && (runnerUser && runnerProject && runnerFileName) && (runnerScheduleObjects.length === 1) && (runnerVerboseScheduleObjects.length === 1)">
 									<v-expansion-panel expand class="mt-1 mb-2">
 										<v-expansion-panel-content class="grey lighten-4">
 											
@@ -1256,7 +1256,7 @@
 														</v-list-tile-title></v-list-tile-content>
 													</v-list-tile>
 													<v-list-tile>
-														<s-item-edit :setting.sync="performanceScheduleObject['Identifiers']['device']"></s-item-edit>
+														<a-item-edit :setting.sync="performanceScheduleObject['Identifiers']['device']"></a-item-edit>
 													</v-list-tile>
 												</v-list>
 												<v-list class="roundedcorners ma-1 mt-2">
@@ -1266,49 +1266,55 @@
 														</v-list-tile-title></v-list-tile-content>
 													</v-list-tile>
 													<v-list-tile>
-														<s-item-edit :setting.sync="performanceScheduleObject['MeasurementSystem']['systemType']"></s-item-edit>
+														<a-item-edit :setting.sync="performanceScheduleObject['MeasurementSystem']['systemType']"></a-item-edit>
 													</v-list-tile>
 												</v-list>
 											</v-flex>
 											<v-flex xs3 s3 md3 lg3>
 												<v-list class="roundedcorners ma-1">
 													<v-list-tile>
-														<s-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['gateVoltageMinimum']"></s-item-edit>
+														<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['gateVoltageMinimum']"></a-item-edit>
 													</v-list-tile>
 													<v-list-tile>
-														<s-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['gateVoltageMaximum']"></s-item-edit>
+														<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['gateVoltageMaximum']"></a-item-edit>
 													</v-list-tile>
 													<v-list-tile>
-														<s-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['drainVoltageMinimum']"></s-item-edit>
+														<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['drainVoltageMinimum']"></a-item-edit>
 													</v-list-tile>
 													<v-list-tile>
-														<s-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['drainVoltageMaximum']"></s-item-edit>
-													</v-list-tile>
-												</v-list>
-											</v-flex>
-											<v-flex xs3 s3 md3 lg3>
-												<v-list class="roundedcorners ma-1">
-													<v-list-tile>
-														<s-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['pointLimit']"></s-item-edit>
-													</v-list-tile>
-													<v-list-tile>
-														<s-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['delayBetweenMeasurements']"></s-item-edit>
+														<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['drainVoltageMaximum']"></a-item-edit>
 													</v-list-tile>
 												</v-list>
 											</v-flex>
 											<v-flex xs3 s3 md3 lg3>
 												<v-list class="roundedcorners ma-1">
 													<v-list-tile>
-														<s-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['stepsBetweenMeasurements']"></s-item-edit>
+														<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['pointLimit']"></a-item-edit>
 													</v-list-tile>
 													<v-list-tile>
-														<s-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['complianceCurrent']"></s-item-edit>
+														<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['delayBetweenMeasurements']"></a-item-edit>
+													</v-list-tile>
+												</v-list>
+											</v-flex>
+											<v-flex xs3 s3 md3 lg3>
+												<v-list class="roundedcorners ma-1">
+													<v-list-tile>
+														<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['stepsBetweenMeasurements']"></a-item-edit>
 													</v-list-tile>
 													<v-list-tile>
-														<s-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['gateVoltageDistribution']"></s-item-edit>
+														<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['complianceCurrent']"></a-item-edit>
 													</v-list-tile>
 													<v-list-tile>
-														<s-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['drainVoltageDistribution']"></s-item-edit>
+														<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['gateVoltageDistribution']"></a-item-edit>
+														<v-flex xs3 class="ml-1" v-if="performanceScheduleObject['runConfigs']['FreeRun']['gateVoltageDistribution']['default'] !== 'random'"> 
+															<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['gateVoltageDistributionParameter']"></a-item-edit>
+														</v-flex>
+													</v-list-tile>
+													<v-list-tile>
+														<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['drainVoltageDistribution']"></a-item-edit>
+														<v-flex xs3 class="ml-1" v-if="performanceScheduleObject['runConfigs']['FreeRun']['drainVoltageDistribution']['default'] !== 'random'">
+															<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['drainVoltageDistributionParameter']"></a-item-edit>
+														</v-flex>
 													</v-list-tile>
 												</v-list>
 											</v-flex>
@@ -2215,7 +2221,7 @@
 						.fail(() => {console.log("Error stopping dispatcher")});
 					}
 				},
-				resetRunnerChoice: function() {
+				resetExperimentRunner: function() {
 					this.runnerChoice = '';
 					this.showProgress = false;
 				},
@@ -2396,14 +2402,16 @@
 				
 				// === Schedule Creator ===
 				
+				resetScheduleCreator: function() {
+					this.scheduleObjects = [JSON.parse(JSON.stringify(this.scheduleObjectDefault))];
+				},
+				
 				addScheduleJob: function(index) {
 					this.scheduleObjects.splice(index, 0, JSON.parse(JSON.stringify(this.scheduleObjects[index])));
 					// this.scheduleObjects.push(JSON.parse(JSON.stringify(this.scheduleObjects.slice(-1)[0])));
 				},
 				removeScheduleJob: function(index) {
 					this.scheduleObjects.splice(index, 1);
-					// this.scheduleObjects.splice(index, 0, JSON.parse(JSON.stringify(this.scheduleObjects[index])));
-					// this.scheduleObjects.push(JSON.parse(JSON.stringify(this.scheduleObjects.slice(-1)[0])));
 				},
 				resetScheduleJob: function(index) {
 					this.scheduleObjects.splice(index, 1, JSON.parse(JSON.stringify(this.scheduleObjectDefault)));

@@ -1,4 +1,4 @@
-<script type="text/html" id="s-item-edit">
+<script type="text/html" id="a-item-edit">
 	
 	<v-switch v-if="setting.type == 'bool'"
 		:label="setting.title" :suffix="setting.units" v-model="setting.default">
@@ -30,8 +30,8 @@
 	
 </script>
 <script type="text/javascript">
-	Vue.component('s-item-edit', {
-		template: '#s-item-edit',
+	Vue.component('a-item-edit', {
+		template: '#a-item-edit',
 		props: ['setting'],
 		data: function() {
 			return {
