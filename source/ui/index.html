@@ -1075,7 +1075,7 @@
 											</v-container>
 							
 											<v-layout row wrap>
-												<v-switch class="ml-3" :label="'Advanced'" v-model="runnerToggleAdvancedSettings"></v-switch>
+												<v-switch class="ml-3" label="Advanced" v-model="runnerToggleAdvancedSettings"></v-switch>
 												<v-spacer></v-spacer>
 												<v-btn class="mr-3" small @click="saveRunnerScheduleFile()" :disabled="!isNecessaryToSaveRunnerScheduleFile()">Save</v-btn>
 											</v-layout>
@@ -1250,7 +1250,7 @@
 										<v-layout row wrap>
 											<v-flex xs3 s3 md3 lg3>
 												<v-list class="roundedcorners ma-1">
-													<v-list-tile>
+													<v-list-tile class="pb-1">
 														<v-list-tile-content><v-list-tile-title style="font-weight: bold">
 															Identifiers
 														</v-list-tile-title></v-list-tile-content>
@@ -1260,7 +1260,7 @@
 													</v-list-tile>
 												</v-list>
 												<v-list class="roundedcorners ma-1 mt-2">
-													<v-list-tile>
+													<v-list-tile class="pb-1">
 														<v-list-tile-content><v-list-tile-title style="font-weight: bold">
 															Measurement System
 														</v-list-tile-title></v-list-tile-content>
@@ -1272,6 +1272,11 @@
 											</v-flex>
 											<v-flex xs3 s3 md3 lg3>
 												<v-list class="roundedcorners ma-1">
+													<v-list-tile class="pb-1">
+														<v-list-tile-content><v-list-tile-title style="font-weight: bold">
+															Voltages
+														</v-list-tile-title></v-list-tile-content>
+													</v-list-tile>
 													<v-list-tile>
 														<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['gateVoltageMinimum']"></a-item-edit>
 													</v-list-tile>
@@ -1288,16 +1293,31 @@
 											</v-flex>
 											<v-flex xs3 s3 md3 lg3>
 												<v-list class="roundedcorners ma-1">
+													<v-list-tile class="pb-1">
+														<v-list-tile-content><v-list-tile-title style="font-weight: bold">
+															Options
+														</v-list-tile-title></v-list-tile-content>
+													</v-list-tile>
 													<v-list-tile>
 														<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['pointLimit']"></a-item-edit>
 													</v-list-tile>
 													<v-list-tile>
 														<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['delayBetweenMeasurements']"></a-item-edit>
 													</v-list-tile>
+													<v-list-tile>
+														<v-spacer></v-spacer>
+														<v-switch label="Advanced" v-model="performanceToggleAdvancedSettings"></v-switch>
+														<v-spacer></v-spacer>
+													</v-list-tile>
 												</v-list>
 											</v-flex>
-											<v-flex xs3 s3 md3 lg3>
+											<v-flex xs3 s3 md3 lg3 v-if="performanceToggleAdvancedSettings">
 												<v-list class="roundedcorners ma-1">
+													<v-list-tile class="pb-1">
+														<v-list-tile-content><v-list-tile-title style="font-weight: bold">
+															Advanced
+														</v-list-tile-title></v-list-tile-content>
+													</v-list-tile>
 													<v-list-tile>
 														<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['stepsBetweenMeasurements']"></a-item-edit>
 													</v-list-tile>
@@ -1892,6 +1912,9 @@
 				// === Performance App ===
 				
 				performanceScheduleObject: {},
+				
+				performanceToggleAdvancedSettings: false,
+				
 				performancePlot: {
 					'xAxisTitle':'Gate Voltage (V)',
 					'yAxisTitle':'Drain Current (A)',
