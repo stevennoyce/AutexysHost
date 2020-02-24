@@ -1019,7 +1019,7 @@
 															</v-list>
 														</template>
 														
-														<template v-if="runnerToggleAdvancedSettings && (!runnerLoadingFromDefaults)">
+														<template v-if="runnerToggleAdvancedSettings && (!standardScheduleNames.includes(runnerChoice))">
 															<v-list class="mt-3 roundedcorners">
 																<v-select box class="ma-3" label="Run Type" v-model="runnerVerboseScheduleObjects[0]['runType']['default']" :items="Object.keys(JSON.parse(JSON.stringify(runnerVerboseScheduleObjects[0]['runConfigs'] || {})))"></v-select>
 															</v-list>
