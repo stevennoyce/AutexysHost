@@ -29,14 +29,14 @@ smu_system_configurations = {
 			'settings': {}
 		}
 	},
-	'bluetooth': {
+	'Bluetooth': {
 		'PCB': {
 			'uniqueID': '/dev/tty.HC-05-DevB',
 			'type': 'PCB_System',
 			'settings': {}
 		}
 	},
-	'combo': {
+	'Combo': {
 		'SMU': {
 			'uniqueID': '',
 			'type': 'B2912A',
@@ -72,7 +72,7 @@ smu_system_configurations = {
 			}
 		}
 	},
-	'inverter': {
+	'Inverter': {
 		'logicSignalSMU':{
 			'uniqueID': 'USB0::0x0957::0x8E18::MY51141241::INSTR',
 			'type': 'B2912A',
@@ -90,7 +90,7 @@ smu_system_configurations = {
 			}
 		}
 	},
-	'emulator':{
+	'Emulator':{
 		'SMU': {
 			'uniqueID': '',
 			'type': 'Emulator_System',
@@ -689,7 +689,7 @@ class PCB_System(SourceMeasureUnit):
 	def __init__(self, pySerial, pcb_port, system_settings):
 		self.ser = pySerial
 		self.system_id = pcb_port
-		if(pcb_port == smu_system_configurations['bluetooth']['PCB']['uniqueID']):
+		if(pcb_port == smu_system_configurations['Bluetooth']['PCB']['uniqueID']):
 			print('Enabling bluetooth communication (can be slow).')
 			self.setParameter('enable-uart-sending !', responseStartsWith='#')
 		if((system_settings is not None) and ('channel' in system_settings)):
@@ -1054,8 +1054,8 @@ class Emulator(SourceMeasureUnit):
 		pass
 
 if (__name__ == '__main__'):
-	pcb = getConnectionToPCB(system_settings=smu_system_configurations['combo']['PCB']['settings'])
-	keysight = getConnectionToVisaResource(system_settings=smu_system_configurations['combo']['SMU']['settings'])
+	pcb = getConnectionToPCB(system_settings=smu_system_configurations['Combo']['PCB']['settings'])
+	keysight = getConnectionToVisaResource(system_settings=smu_system_configurations['Combo']['SMU']['settings'])
 	pcb.setDevice('1-2')		
 	print(keysight.takeMeasurement())
 

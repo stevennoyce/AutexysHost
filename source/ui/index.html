@@ -217,96 +217,86 @@
 					<!-- Start of dashboard -->
 					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'dashboard'">
-						<v-card>
-							<v-toolbar dark dense class="color1 darken-1">
-								<v-toolbar-title>
-									Dashboard
-								</v-toolbar-title>
-								<v-spacer></v-spacer>
-								<v-btn icon @click="resetDashboard()" :disabled="!hasModifiedRecentActivityFilter()"><v-icon>settings_backup_restore</v-icon></v-btn>
-							</v-toolbar>
-							
-							<v-container>
-								<v-layout row wrap>
-									<v-flex xs4 sm4 md4 lg4 xl4 class="pa-1">
-										<v-toolbar dark class="color4 roundedcorners" style="cursor: pointer;" @click="setTopLevelPage('stepper')">
-											<v-toolbar-title>
-												Browser
-											</v-toolbar-title>
-										</v-toolbar>
-									</v-flex>
-									
-									<v-flex xs4 sm4 md4 lg4 xl4 class="pa-1">
-										<v-toolbar dark class="color2 roundedcorners" style="cursor: pointer;" @click="setTopLevelPage('scheduleCreator')">
-											<v-toolbar-title>
-												Schedule Creator
-											</v-toolbar-title>
-										</v-toolbar>	
-									</v-flex>
-									
-									<v-flex xs4 sm4 md4 lg4 xl4 class="pa-1">
-										<v-toolbar dark class="color3 roundedcorners" style="cursor: pointer;" @click="setTopLevelPage('experimentRunner')">
-											<v-toolbar-title>
-												Experiment Runner
-											</v-toolbar-title>
-										</v-toolbar>
-									</v-flex>
-								</v-layout>
-							</v-container>
-							
-							<v-container>
-								<v-card class="ma-1">
-									<v-toolbar dark dense class="color1 darken-1">
+						<v-container>
+							<v-layout row wrap>
+								<v-flex xs4 sm4 md4 lg4 xl4 class="pa-1">
+									<v-toolbar dark class="color4 roundedcorners" style="cursor: pointer;" @click="setTopLevelPage('stepper')">
 										<v-toolbar-title>
-											Recent Activity
+											Browser
 										</v-toolbar-title>
-										
-										<v-spacer></v-spacer>
-										
-										<v-toolbar-items class="pt-2">
-											<v-chip small light color="white" @click="setRecentActivityCategory('project')" :selected="recentActivityIncludesCategory(['project', 'wafer', 'chip', 'device'])" >Projects</v-chip>
-											<v-chip small light color="white" @click="setRecentActivityCategory('wafer')" :selected="recentActivityIncludesCategory(['wafer', 'chip', 'device'])" >Wafers</v-chip>
-											<v-chip small light color="white" @click="setRecentActivityCategory('chip')" :selected="recentActivityIncludesCategory(['chip', 'device'])">Chips</v-chip>
-											<v-chip small light color="white" @click="setRecentActivityCategory('device')" :selected="recentActivityIncludesCategory(['device'])">Devices</v-chip>
-										</v-toolbar-items>
-										
-										<v-spacer></v-spacer>
-										
-										<v-toolbar-items>
-											<v-menu bottom left offset-y :close-on-content-click="false">
-												<v-btn slot="activator" flat>Filter</v-btn>
-												<v-card light>
-													<v-list>
-														<v-list-tile>
-															<v-autocomplete clearable label="Project" v-model="recentActivityProject" :items="_.keys(_.get(scheduleNames, [user], {}))"></v-autocomplete>
-														</v-list-tile>
-														<v-list-tile>
-															<v-autocomplete clearable label="Wafer" v-model="recentActivityWafer" :items="[]"></v-autocomplete>
-														</v-list-tile>
-													</v-list>
-												</v-card>
-											</v-menu>
-											<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
-										</v-toolbar-items>
 									</v-toolbar>
+								</v-flex>
+								
+								<v-flex xs4 sm4 md4 lg4 xl4 class="pa-1">
+									<v-toolbar dark class="color2 roundedcorners" style="cursor: pointer;" @click="setTopLevelPage('scheduleCreator')">
+										<v-toolbar-title>
+											Schedule Creator
+										</v-toolbar-title>
+									</v-toolbar>	
+								</v-flex>
+								
+								<v-flex xs4 sm4 md4 lg4 xl4 class="pa-1">
+									<v-toolbar dark class="color3 roundedcorners" style="cursor: pointer;" @click="setTopLevelPage('experimentRunner')">
+										<v-toolbar-title>
+											Experiment Runner
+										</v-toolbar-title>
+									</v-toolbar>
+								</v-flex>
+							</v-layout>
+						</v-container>
+						
+						<v-container>
+							<v-card class="ma-1">
+								<v-toolbar dark dense class="color1 darken-1">
+									<v-toolbar-title>
+										Recent Activity
+									</v-toolbar-title>
 									
-									<v-data-table must-sort :items="recentActivity" :headers="dynamicRecentActivityTableHeaders" 
-										:rows-per-page-items="[10,50,{'text':'$vuetify.dataIterator.rowsPerPageAll','value':-1}]"
-										:pagination.sync="recentActivityPagination" :hide-headers="false" :hide-actions="false">
-										<template slot="items" slot-scope="props">
-											<tr @click="setTopLevelPage('stepper'); goToDirectly(props.item.project, props.item.wafer, props.item.chip, props.item.device);">
-												<td v-if="recentActivityHeaders.find(h => h.value ==='user').visible">{{ props.item.user }}</td>
-												<td v-if="recentActivityHeaders.find(h => h.value ==='project').visible">{{ props.item.project }}</td>
-												<td v-if="recentActivityHeaders.find(h => h.value ==='wafer').visible">{{ props.item.wafer }}</td>
-												<td v-if="recentActivityHeaders.find(h => h.value ==='chip').visible">{{ props.item.chip }}</td>
-												<td v-if="recentActivityHeaders.find(h => h.value ==='device').visible">{{ props.item.device }}</td>
-												<td v-if="recentActivityHeaders.find(h => h.value ==='modified').visible">{{ new Date(props.item.modified*1000).toLocaleDateString() }}</td>
-											</tr>
-										</template>
-									</v-data-table>
-								</v-card>
-							</v-container>
-						</v-card>
+									<v-spacer></v-spacer>
+									
+									<v-toolbar-items class="pt-2">
+										<v-chip small light color="white" @click="setRecentActivityCategory('project')" :selected="recentActivityIncludesCategory(['project', 'wafer', 'chip', 'device'])" >Projects</v-chip>
+										<v-chip small light color="white" @click="setRecentActivityCategory('wafer')" :selected="recentActivityIncludesCategory(['wafer', 'chip', 'device'])" >Wafers</v-chip>
+										<v-chip small light color="white" @click="setRecentActivityCategory('chip')" :selected="recentActivityIncludesCategory(['chip', 'device'])">Chips</v-chip>
+										<v-chip small light color="white" @click="setRecentActivityCategory('device')" :selected="recentActivityIncludesCategory(['device'])">Devices</v-chip>
+									</v-toolbar-items>
+									
+									<v-spacer></v-spacer>
+									
+									<v-toolbar-items>
+										<v-menu bottom left offset-y :close-on-content-click="false">
+											<v-btn slot="activator" flat>Filter</v-btn>
+											<v-card light>
+												<v-list>
+													<v-list-tile>
+														<v-autocomplete clearable label="Project" v-model="recentActivityProject" :items="_.keys(_.get(scheduleNames, [user], {}))"></v-autocomplete>
+													</v-list-tile>
+													<v-list-tile>
+														<v-autocomplete clearable label="Wafer" v-model="recentActivityWafer" :items="[]"></v-autocomplete>
+													</v-list-tile>
+												</v-list>
+											</v-card>
+										</v-menu>
+										<v-btn icon @click="resetDashboard(); getAll();"><v-icon>refresh</v-icon></v-btn>
+									</v-toolbar-items>
+								</v-toolbar>
+								
+								<v-data-table must-sort :items="recentActivity" :headers="dynamicRecentActivityTableHeaders" 
+									:rows-per-page-items="[10,50,{'text':'$vuetify.dataIterator.rowsPerPageAll','value':-1}]"
+									:pagination.sync="recentActivityPagination" :hide-headers="false" :hide-actions="false">
+									<template slot="items" slot-scope="props">
+										<tr @click="setTopLevelPage('stepper'); goToDirectly(props.item.project, props.item.wafer, props.item.chip, props.item.device);">
+											<td v-if="recentActivityHeaders.find(h => h.value ==='user').visible">{{ props.item.user }}</td>
+											<td v-if="recentActivityHeaders.find(h => h.value ==='project').visible">{{ props.item.project }}</td>
+											<td v-if="recentActivityHeaders.find(h => h.value ==='wafer').visible">{{ props.item.wafer }}</td>
+											<td v-if="recentActivityHeaders.find(h => h.value ==='chip').visible">{{ props.item.chip }}</td>
+											<td v-if="recentActivityHeaders.find(h => h.value ==='device').visible">{{ props.item.device }}</td>
+											<td v-if="recentActivityHeaders.find(h => h.value ==='modified').visible">{{ new Date(props.item.modified*1000).toLocaleDateString() }}</td>
+										</tr>
+									</template>
+								</v-data-table>
+							</v-card>
+						</v-container>
 					</v-flex>
 					
 					<!-- End of dashboard -->
@@ -1235,12 +1225,12 @@
 					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'performance'">
 						<v-card>
-							<v-toolbar dark dense class="color1 ">
+							<v-toolbar dark dense class="color1 darken-1">
 								<v-toolbar-title>
 									Performance
 								</v-toolbar-title>
 								<v-spacer></v-spacer>
-								<v-btn icon @click="getDefaultParameters()" :disabled="true"><v-icon>settings_backup_restore</v-icon></v-btn>
+								<v-btn icon @click="getDefaultParameters()" :disabled="false"><v-icon>settings_backup_restore</v-icon></v-btn>
 							</v-toolbar>
 							
 							<v-container>
@@ -1252,7 +1242,7 @@
 												<v-list class="roundedcorners ma-1">
 													<v-list-tile class="pb-1">
 														<v-list-tile-content><v-list-tile-title style="font-weight: bold">
-															Identifiers
+															Device ID
 														</v-list-tile-title></v-list-tile-content>
 													</v-list-tile>
 													<v-list-tile>
@@ -1292,92 +1282,116 @@
 												</v-list>
 											</v-flex>
 											<v-flex xs3 s3 md3 lg3>
-												<v-list class="roundedcorners ma-1">
-													<v-list-tile class="pb-1">
-														<v-list-tile-content><v-list-tile-title style="font-weight: bold">
-															Options
-														</v-list-tile-title></v-list-tile-content>
-													</v-list-tile>
-													<v-list-tile>
-														<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['pointLimit']"></a-item-edit>
-													</v-list-tile>
-													<v-list-tile>
-														<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['delayBetweenMeasurements']"></a-item-edit>
-													</v-list-tile>
-													<v-list-tile>
-														<v-spacer></v-spacer>
-														<v-switch label="Advanced" v-model="performanceToggleAdvancedSettings"></v-switch>
-														<v-spacer></v-spacer>
-													</v-list-tile>
-												</v-list>
+												<v-expansion-panel class="roundedcorners ma-1 pr-1 elevation-0">
+													<v-expansion-panel-content class="roundedcorners">
+														<div slot="header" style="font-weight:bold;font-size:12pt">Options</div>
+														<v-list class="roundedcorners ">
+															<v-list-tile>
+																<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['pointLimit']"></a-item-edit>
+															</v-list-tile>
+															<v-list-tile>
+																<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['delayBetweenMeasurements']"></a-item-edit>
+															</v-list-tile>
+														</v-list>
+													</v-expansion-panel-content>
+												</v-expansion-panel>
 											</v-flex>
-											<v-flex xs3 s3 md3 lg3 v-if="performanceToggleAdvancedSettings">
-												<v-list class="roundedcorners ma-1">
-													<v-list-tile class="pb-1">
-														<v-list-tile-content><v-list-tile-title style="font-weight: bold">
-															Advanced
-														</v-list-tile-title></v-list-tile-content>
-													</v-list-tile>
-													<v-list-tile>
-														<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['stepsBetweenMeasurements']"></a-item-edit>
-													</v-list-tile>
-													<v-list-tile>
-														<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['complianceCurrent']"></a-item-edit>
-													</v-list-tile>
-													<v-list-tile>
-														<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['gateVoltageDistribution']"></a-item-edit>
-														<v-flex xs3 class="ml-1" v-if="performanceScheduleObject['runConfigs']['FreeRun']['gateVoltageDistribution']['default'] !== 'random'"> 
-															<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['gateVoltageDistributionParameter']"></a-item-edit>
-														</v-flex>
-													</v-list-tile>
-													<v-list-tile>
-														<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['drainVoltageDistribution']"></a-item-edit>
-														<v-flex xs3 class="ml-1" v-if="performanceScheduleObject['runConfigs']['FreeRun']['drainVoltageDistribution']['default'] !== 'random'">
-															<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['drainVoltageDistributionParameter']"></a-item-edit>
-														</v-flex>
-													</v-list-tile>
-												</v-list>
+											<v-flex xs3 s3 md3 lg3>
+												<v-expansion-panel class="roundedcorners ma-1 pl-1 elevation-0">
+													<v-expansion-panel-content class="roundedcorners">
+														<div slot="header" style="font-weight:bold;font-size:12pt">Advanced</div>
+														<v-list class="roundedcorners">
+															<v-list-tile>
+																<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['stepsBetweenMeasurements']"></a-item-edit>
+															</v-list-tile>
+															<v-list-tile>
+																<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['complianceCurrent']"></a-item-edit>
+															</v-list-tile>
+															<v-list-tile>
+																<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['gateVoltageDistribution']"></a-item-edit>
+																<v-flex xs3 class="ml-1" v-if="performanceScheduleObject['runConfigs']['FreeRun']['gateVoltageDistribution']['default'] !== 'random'"> 
+																	<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['gateVoltageDistributionParameter']"></a-item-edit>
+																</v-flex>
+															</v-list-tile>
+															<v-list-tile>
+																<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['drainVoltageDistribution']"></a-item-edit>
+																<v-flex xs3 class="ml-1" v-if="performanceScheduleObject['runConfigs']['FreeRun']['drainVoltageDistribution']['default'] !== 'random'">
+																	<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['drainVoltageDistributionParameter']"></a-item-edit>
+																</v-flex>
+															</v-list-tile>
+														</v-list>
+													</v-expansion-panel-content>
+												</v-expansion-panel>
 											</v-flex>
 										</v-layout>
 									</v-container>
 								</v-card>
 								
-								<v-card flat class="mt-3">
-									<v-toolbar dark flat color="color1">
-										<v-spacer></v-spacer>
-										<v-toolbar-items>
-											<v-btn color="color1 lighten-1" @click=""><v-icon>play_arrow</v-icon></v-btn>
-										</v-toolbar-items><v-spacer></v-spacer>
-										<v-toolbar-items>
-											<v-btn color="color1 lighten-1" @click=""><v-icon>pause</v-icon></v-btn>
-										</v-toolbar-items><v-spacer></v-spacer>
-										<v-toolbar-items>
-											<v-btn color="color1 lighten-1" @click=""><v-icon>refresh</v-icon></v-btn>
-										</v-toolbar-items><v-spacer></v-spacer>
-									</v-toolbar>
-									
-									<v-tabs dark centered grow value="tab-T" color="color1" slider-color="white">
-										<v-tab href="#tab-S">Subthreshold Curve</v-tab>
-										<v-tab href="#tab-T">Transfer Curve</v-tab>
-										<v-tab href="#tab-O">Output Curve</v-tab>
-										<v-tab-item value="tab-S">
-											<div class="text-xs-center">
-												<a-plotly v-bind:data="extractPlotlyData(performancePlots['subthreshold'])" :layout="extractPlotlyLayout(performancePlots['subthreshold'])"></a-plotly>
-											</div>
-										</v-tab-item>
-										<v-tab-item value="tab-T">
-											<div class="text-xs-center">
-												<a-plotly v-bind:data="extractPlotlyData(performancePlots['transfer'])" :layout="extractPlotlyLayout(performancePlots['transfer'])"></a-plotly>
-											</div>
-										</v-tab-item>
-										<v-tab-item value="tab-O">
-											<div class="text-xs-center">
-												<a-plotly v-bind:data="extractPlotlyData(performancePlots['output'])" :layout="extractPlotlyLayout(performancePlots['output'])"></a-plotly>
-											</div>
-										</v-tab-item>
-									</v-tabs>
-									
-								</v-card>
+								<v-layout row wrap>
+									<v-flex xs10 sm10 md10 lg10>
+										<v-card flat class="mt-3">
+											<v-toolbar dark flat color="color1 darken-1">
+												<v-spacer></v-spacer>
+												<v-toolbar-items>
+													<v-btn color="color1 darken-2" @click=""><v-icon>play_arrow</v-icon></v-btn>
+												</v-toolbar-items><v-spacer></v-spacer>
+												<v-toolbar-items>
+													<v-btn color="color1 darken-2" @click=""><v-icon>pause</v-icon></v-btn>
+												</v-toolbar-items><v-spacer></v-spacer>
+												<v-toolbar-items>
+													<v-btn color="color1 darken-2" @click=""><v-icon>refresh</v-icon></v-btn>
+												</v-toolbar-items><v-spacer></v-spacer>
+											</v-toolbar>
+											
+											<v-tabs dark centered grow value="tab-T" color="color1 darken-1" slider-color="white">
+												<v-tab href="#tab-S">Subthreshold Curve</v-tab>
+												<v-tab href="#tab-T">Transfer Curve</v-tab>
+												<v-tab href="#tab-O">Output Curve</v-tab>
+												<v-tab-item value="tab-S">
+													<div class="text-xs-center">
+														<a-plotly v-bind:data="extractPlotlyData(performancePlots['subthreshold'])" :layout="extractPlotlyLayout(performancePlots['subthreshold'])"></a-plotly>
+													</div>
+												</v-tab-item>
+												<v-tab-item value="tab-T">
+													<div class="text-xs-center">
+														<a-plotly v-bind:data="extractPlotlyData(performancePlots['transfer'])" :layout="extractPlotlyLayout(performancePlots['transfer'])"></a-plotly>
+													</div>
+												</v-tab-item>
+												<v-tab-item value="tab-O">
+													<div class="text-xs-center">
+														<a-plotly v-bind:data="extractPlotlyData(performancePlots['output'])" :layout="extractPlotlyLayout(performancePlots['output'])"></a-plotly>
+													</div>
+												</v-tab-item>
+											</v-tabs>
+										</v-card>
+									</v-flex>
+									<v-flex>
+										<v-card flat class="mt-3 ml-2">
+											<v-toolbar dark flat color="color1 darken-1" extended extension-height="48">
+												<v-spacer></v-spacer>
+												<v-toolbar-items><v-icon x-large>speed</v-icon></v-toolbar-items>
+												<v-spacer></v-spacer>
+											</v-toolbar>
+											<v-list>
+												<v-list-tile>
+													<v-list-tile-content><v-list-tile-title style="font-weight: bold">
+														gm = {{performanceMetrics['gm'] | formatConductance}}
+													</v-list-tile-title></v-list-tile-content>
+												</v-list-tile>
+												<v-list-tile>
+													<v-list-tile-content><v-list-tile-title style="font-weight: bold">
+														SS = {{performanceMetrics['SS'] | formatSubthresholdSwing}}
+													</v-list-tile-title></v-list-tile-content>
+												</v-list-tile>
+												<v-list-tile>
+													<v-list-tile-content><v-list-tile-title style="font-weight: bold">
+														VT = {{performanceMetrics['VT'] | formatVoltage}}
+													</v-list-tile-title></v-list-tile-content>
+												</v-list-tile>
+											</v-list>
+										</v-card>
+									</v-flex>
+								</v-layout>
 								
 							</v-container>
 						</v-card>
@@ -1932,8 +1946,12 @@
 				
 				performanceScheduleObject: {},
 				
-				performanceToggleAdvancedSettings: false,
-				
+				performanceMetrics: {
+					'gm':undefined,
+					'SS':undefined,
+					'VT':undefined,
+				},
+								
 				performancePlots: {
 					'transfer':{
 						'xAxisTitle':'Gate Voltage (V)',
@@ -3204,7 +3222,38 @@
 					value %= 60
 					seconds = value
 					return hours + ':' + ('0' + minutes).slice(-2) + ':' + ('0' + seconds.toFixed(2)).slice(-5);
-				}
+				},
+				formatConductance: function(value) {
+					if(value == undefined) return '';
+					var units = "";
+					if(value < 1) {
+						value *= 1e3;
+						units = " mS";
+					}
+					if(value < 1) {
+						value *= 1e3;
+						units = " uS";
+					}
+					if(value < 1) {
+						value *= 1e3;
+						units = " nS";
+					}
+					return value + units;	
+				},
+				formatSubthresholdSwing: function(value) {
+					if(value == undefined) return '';
+					var units = " mV/dec"
+					return value + units;	
+				},
+				formatVoltage: function(value) {
+					if(value == undefined) return '';
+					var units = " V";
+					if(value < 0.9) {
+						value *= 1e3;
+						units = " mV";
+					}
+					return value + units;	
+				},
 			}
 		});
 		

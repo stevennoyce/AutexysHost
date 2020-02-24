@@ -253,7 +253,7 @@ default_parameters = {
 		
 	},
 	'MeasurementSystem':{
-		'systemType':				{'type':'choice',             'default':'single', 'title':'System Type',           'description':'The type of system used to capture measurements for this procedure.', 'choices':['single', 'standalone', 'bluetooth', 'combo', 'inverter', 'double', 'emulator']},
+		'systemType':				{'type':'choice',             'default':'single', 'title':'System Type',           'description':'The type of system used to capture measurements for this procedure.', 'choices':['single', 'standalone', 'Bluetooth', 'Combo', 'Inverter', 'double', 'Emulator']},
 		'systems': {},
 		'deviceCycling':			{'type':'bool',               'default': False,   'title':'Device Cycling',        'description':'When enabled, this procedure will run repeatedly across multiple devices.'},
 	},
