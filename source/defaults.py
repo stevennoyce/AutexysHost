@@ -1,4 +1,4 @@
-
+# --- Default Parameters ---
 
 default_parameters = {
 	'runType': {'type': 'keyChoice', 'ChoiceFrom': 'runConfigs', 'default':''},
@@ -269,6 +269,30 @@ default_parameters = {
 	'ParametersFormatVersion': {'default': 4}	
 }
 
+# --- Default Schedules ---
+
+default_schedules = {
+	'Gate Sweep':             {"runType": "GateSweep",      "Identifiers": {"user": "", "project": "", "wafer": "", "chip": "", "device": "", "step": 0}, "runConfigs": {"GateSweep": {"gateVoltageMinimum": -1, "gateVoltageMaximum": 1, "drainVoltageSetPoint": 0.5, "stepsInVGSPerDirection": 100}}},
+	'Drain Sweep':            {"runType": "DrainSweep",     "Identifiers": {"user": "", "project": "", "wafer": "", "chip": "", "device": "", "step": 0}, "runConfigs": {"DrainSweep": {"drainVoltageMinimum": 0, "drainVoltageMaximum": 1, "gateVoltageSetPoint": 0, "stepsInVDSPerDirection": 100}}},
+	'Static Bias':            {"runType": "StaticBias",     "Identifiers": {"user": "", "project": "", "wafer": "", "chip": "", "device": "", "step": 0}, "runConfigs": {"StaticBias": {"gateVoltageSetPoint": 0, "drainVoltageSetPoint": 0.5, "totalBiasTime": 60, "measurementTime": 1}}},
+	'Multiple Gate Sweeps':   {"runType": "AutoGateSweep",  "Identifiers": {"user": "", "project": "", "wafer": "", "chip": "", "device": "", "step": 0}, "runConfigs": {"AutoGateSweep": {"sweepsPerVDS": 3, "drainVoltageSetPoints": []}, "GateSweep": {"gateVoltageMinimum": -1, "gateVoltageMaximum": 1, "drainVoltageSetPoint": 0.5, "stepsInVGSPerDirection": 100}}},
+	'Multiple Drain Sweeps':  {"runType": "AutoDrainSweep", "Identifiers": {"user": "", "project": "", "wafer": "", "chip": "", "device": "", "step": 0}, "runConfigs": {"AutoDrainSweep": {"sweepsPerVGS": 1, "gateVoltageSetPoints": [-1, 0, 1]}, "DrainSweep": {"drainVoltageMinimum": 0, "drainVoltageMaximum": 1, "gateVoltageSetPoint": 0, "stepsInVDSPerDirection": 100}}},
+	'Multiple Static Biases': {"runType": "AutoStaticBias", "Identifiers": {"user": "", "project": "", "wafer": "", "chip": "", "device": "", "step": 0}, "runConfigs": {"AutoStaticBias": {"numberOfStaticBiases": 1, "doInitialGateSweep": True, "applyGateSweepBetweenBiases": False, "biasTimeList": [], "gateVoltageSetPointList": [], "drainVoltageSetPointList": []}, "StaticBias": {"gateVoltageSetPoint": 0, "drainVoltageSetPoint": 0.5, "totalBiasTime": 60, "measurementTime": 1}, "GateSweep": {"gateVoltageMinimum": -1, "gateVoltageMaximum": 1, "drainVoltageSetPoint": 0.5, "stepsInVGSPerDirection": 100}}},
+	'Rapid Bias':             {"runType": "RapidBias",      "Identifiers": {"user": "", "project": "", "wafer": "", "chip": "", "device": "", "step": 0}, "runConfigs": {"RapidBias": {"waveform": "square", "drainVoltageSetPoints": [0.1], "gateVoltageSetPoints": [0, 1, 0, 1, 0], "measurementPoints": [50, 50, 50, 50, 50]}}},
+	'Free Run':               {"runType": "FreeRun",        "Identifiers": {"device": ""}, "runConfigs": {"FreeRun": {"gateVoltageMinimum": -1, "gateVoltageMaximum": 1, "drainVoltageMinimum": 0.5, "drainVoltageMaximum": 0.5}}},
+	'Noise Collection':       {"runType": "NoiseCollection","Identifiers": {"user": "", "project": "", "wafer": "", "chip": "", "device": "", "step": 0}, "runConfigs": {"NoiseCollection": {"measurementSpeed": 10000, "points": 10000, "gateVoltage": 0, "drainVoltage": 0.5}}},
+	'Noise Grid':             {"runType": "NoiseGrid",      "Identifiers": {"user": "", "project": "", "wafer": "", "chip": "", "device": "", "step": 0}, "runConfigs": {"NoiseGrid": {"gateVoltages":[], "drainVoltages":[], "groundingTime":0}, "NoiseCollection": {"measurementSpeed": 10000, "points": 10000, "gateVoltage": 0, "drainVoltage": 0.5}}},
+	'Inverter Sweep':         {"runType": "InverterSweep",  "Identifiers": {"user": "", "project": "", "wafer": "", "chip": "", "device": "", "step": 0}, "runConfigs": {"InverterSweep": {"inputVoltageMinimum": 0, "inputVoltageMaximum": 1, "vddSupplyVoltageSetPoint": 1, "stepsInVINPerDirection": 100}}, "MeasurementSystem": {"systemType": "Inverter"}},
+	'Inverter Bias':          {"runType": "InverterBias",   "Identifiers": {"user": "", "project": "", "wafer": "", "chip": "", "device": "", "step": 0}, "runConfigs": {"InverterBias": {"inputVoltageSetPoint": 0, "vddSupplyVoltageSetPoint": 1.0, "totalBiasTime": 60, "measurementTime":1}}, "MeasurementSystem": {"systemType": "Inverter"}},
+	'AFM Control':            {"runType": "AFMControl",     "Identifiers": {"user": "", "project": "", "wafer": "", "chip": "", "device": "", "step": 0}, "runConfigs": {"AFMControl": {"lines": 3, "scanRate": 1, "napOn": True, "drainVoltageSetPoint": 0.01, "gateVoltageSetPoint": 0, "startOnFrameSwitch": False, "deviceMeasurementSpeed": 60, "XYCableSwap": False}}, "MeasurementSystem": {"systemType": "double"}},
+	'SGM Control':            {"runType": "SGMControl",     "Identifiers": {"user": "", "project": "", "wafer": "", "chip": "", "device": "", "step": 0}, "runConfigs": {"SGMControl": {"lines": 3, "scanRate": 1, "napOn": True, "drainVoltageSetPoint": 0.01, "gateVoltageSetPoint": 0, "startOnFrameSwitch": False, "complianceCurrent": 0.000001, "deviceMeasurementSpeed": 60, "XYCableSwap": False, "tracesToMeasure": 1, "scans": 1}}, "MeasurementSystem": {"systemType": "double"}},
+	'Flow Static Bias':       {"runType": "FlowStaticBias", "Identifiers": {"user": "", "project": "", "wafer": "", "chip": "", "device": "", "step": 0}, "runConfigs": {"FlowStaticBias": {"flowDurations": [], "subCycleDurations": [], "cycleCount": 3, "solutions": [], "gateVoltageSetPoint": 0, "drainVoltageSetPoint": 0.5, "measurementTime": 1}}},
+	'Multiple Flow Static Biases': {"runType": "AutoFlowStaticBias", "Identifiers": {"user": "", "project": "", "wafer": "", "chip": "", "device": "", "step": 0}, "runConfigs": {"AutoFlowStaticBias": {"numberOfFlowStaticBiases": 1, "doInitialGateSweep": True, "applyGateSweepBetweenBiases": False, "numberOfBiasesBetweenIncrements": 1, "biasTimeList": [], "incrementStaticGateVoltage": 0, "incrementStaticDrainVoltage": 0}, "FlowStaticBias": {"flowDurations": [], "subCycleDurations": [], "cycleCount": 3, "solutions": [], "gateVoltageSetPoint": 0, "drainVoltageSetPoint": 0.5, "measurementTime": 1}, "GateSweep": {"gateVoltageMinimum": -1, "gateVoltageMaximum": 1, "drainVoltageSetPoint": 0.5, "stepsInVGSPerDirection": 100}}},
+	'CNT Burn Out':           {"runType": "BurnOut",        "Identifiers": {"user": "", "project": "", "wafer": "", "chip": "", "device": "", "step": 0}, "runConfigs": {"BurnOut": {"gateVoltageSetPoint": 15, "drainVoltageMaxPoint": 5, "minimumAppliedDrainVoltage": 1.1}}},
+	'Multiple CNT Burn Outs': {"runType": "AutoBurnOut",    "Identifiers": {"user": "", "project": "", "wafer": "", "chip": "", "device": "", "step": 0}, "runConfigs": {"AutoBurnOut": {"targetOnOffRatio": 80, "limitBurnOutsAllowed": 8}, "BurnOut": {"gateVoltageSetPoint": 15, "drainVoltageMaxPoint": 5, "minimumAppliedDrainVoltage": 1.1}}},
+	'Delay':                  {"runType": "Delay",          "Identifiers": {"user": "", "project": "", "wafer": "", "chip": "", "device": "", "step": 0}, "runConfigs": {"Delay": {"delayTime": 60}}},
+}
+
 
 
 import copy
@@ -285,38 +309,39 @@ def with_added(additional_parameters):
 
 # --- Get all default parameters (with the structure defined in this file) ---
 def full():
-	full_defaults = copy.deepcopy(default_parameters)
-	return full_defaults
+	return copy.deepcopy(default_parameters)
 
 # --- Get all default parameters (with the structure defined in this file), with some modified values ---
 def full_with_added(additional_parameters):
-	full_defaults = copy.deepcopy(default_parameters)
+	full_defaults = full()
 	combined = mergeDefaults(full_defaults, additional_parameters)
 	return combined
 	
 # --- Convert "additional_parameters" into the structure defined in this file ---
 def full_with_only(additional_parameters):
-	full_defaults = copy.deepcopy(default_parameters)
+	full_defaults = full()
 	reduced_defaults = intersectionDefaults(additional_parameters, full_defaults)
 	return reduced_defaults
 
 # --- Get all default parameters (with the structure defined in this file) that are tagged as 'essential: True' ---
 def full_essentials():
-	full_defaults = copy.deepcopy(default_parameters)
+	full_defaults = full()
 	essential_defaults = mustInclude(full_defaults, keyword='essential')
 	return essential_defaults
 
-# --- For a specific runType, get default parameters (with the structure defined in this file) that are tagged as 'essential: True' ---
-def full_essentials_for_runtype(runType):
-	full_defaults = full()
-	essentials = full_essentials()
-	runtype_essentials = {'runType': full_defaults['runType'], 'Identifiers': full_defaults['Identifiers'], 'runConfigs':{}}
-	runtype_essentials['runType']['default'] = runType
-	dependencies = full_defaults['runConfigs'][runType]['dependencies']['value'] + [runType]
-	for runConfigType, runConfig in essentials['runConfigs'].items():
-		if(runConfigType in dependencies):
-			runtype_essentials['runConfigs'][runConfigType] = runConfig
-	return runtype_essentials
+# --- Get a list of standard schedule files ---
+def schedules():
+	return copy.deepcopy(default_schedules)
+
+# --- Get one of the standard schedule files, merged with all other default parameters (with the structure defined in this file)  ---
+def full_schedule(scheduleName):
+	return full_with_added(schedules()[scheduleName])
+
+# --- Get one of the standard schedule files (with the structure defined in this file)  ---
+def full_brief_schedule(scheduleName):
+	return full_with_only(schedules()[scheduleName])
+
+
 
 # --- private method: merge the changes specified by "b" into "a" ---
 def merge(a, b):
@@ -388,5 +413,5 @@ if __name__ == '__main__':
 	import deepdiff
 	#pprint.pprint(deepdiff.DeepDiff(default_parameters, get()))
 	
-	pprint.pprint(full_essentials_for_runtype('GateSweep'))
+	pprint.pprint(full_brief_schedule('Gate Sweep'))
 
