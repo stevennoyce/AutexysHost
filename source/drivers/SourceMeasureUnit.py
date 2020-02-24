@@ -911,9 +911,8 @@ class Emulator(SourceMeasureUnit):
 	nplc = 1
 	
 	# === System-specific instance variables ===
-	smu = None
-	source1_mode = 'voltage'
-	source2_mode = 'voltage'
+	vds = 0
+	vgs = 0
 	system_settings = {}
 
 	def __init__(self):
@@ -970,10 +969,10 @@ class Emulator(SourceMeasureUnit):
 		return self.source2_mode
 
 	def setVds(self, voltage):
-		pass
+		self.vds = voltage
 
 	def setVgs(self, voltage):
-		pass
+		self.vgs = voltage
 
 	def setId(self, current):
 		pass
@@ -990,10 +989,20 @@ class Emulator(SourceMeasureUnit):
 	def takeMeasurement(self, retries=3):
 		time.sleep(0.1)
 
+		K = 100e-6
+		vt = 0.5
+
+		vds = self.vds
+		vgs = self.vgs
+		i_d = (K*( (vgs - vt)*vds - 0.5*(vds**2) )) if(vds < vgs-vt) else (0.5 * K * ((max(0, vgs-vt))**2))
+		vds = 1*random.randint(0,1)
+		vgs = 3.3*random.randint(0,1)
+		i_d = 0.001*random.randint(0,1)
+
 		return {
-			'V_ds': 1*random.randint(0,1),
-			'I_d': 0.001*random.randint(0,1),
-			'V_gs': 3.3*random.randint(0,1),
+			'V_ds': vds,
+			'I_d': i_d,
+			'V_gs': vgs,
 			'I_g': 0.00000000001*random.randint(0,1)
 		}
 
