@@ -306,6 +306,18 @@ def full_essentials():
 	essential_defaults = mustInclude(full_defaults, keyword='essential')
 	return essential_defaults
 
+# --- For a specific runType, get default parameters (with the structure defined in this file) that are tagged as 'essential: True' ---
+def full_essentials_for_runtype(runType):
+	full_defaults = full()
+	essentials = full_essentials()
+	runtype_essentials = {'runType': full_defaults['runType'], 'Identifiers': full_defaults['Identifiers'], 'runConfigs':{}}
+	runtype_essentials['runType']['default'] = runType
+	dependencies = full_defaults['runConfigs'][runType]['dependencies']['value'] + [runType]
+	for runConfigType, runConfig in essentials['runConfigs'].items():
+		if(runConfigType in dependencies):
+			runtype_essentials['runConfigs'][runConfigType] = runConfig
+	return runtype_essentials
+
 # --- private method: merge the changes specified by "b" into "a" ---
 def merge(a, b):
 	for key in b:
@@ -376,5 +388,5 @@ if __name__ == '__main__':
 	import deepdiff
 	#pprint.pprint(deepdiff.DeepDiff(default_parameters, get()))
 	
-	pprint.pprint(full_essentials())
+	pprint.pprint(full_essentials_for_runtype('GateSweep'))
 
