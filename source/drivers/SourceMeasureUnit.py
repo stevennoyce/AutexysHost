@@ -72,7 +72,7 @@ smu_system_configurations = {
 			}
 		}
 	},
-	'Inverter': {
+	'B29x2A (inverter)': {
 		'logicSignalSMU':{
 			'uniqueID': 'USB0::0x0957::0x8E18::MY51141241::INSTR',
 			'type': 'B2912A',
