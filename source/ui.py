@@ -605,6 +605,16 @@ def loadBriefSchedule(user, project, fileName):
 	
 	return jsonvalid(expandedScheduleData)
 
+@app.route('/loadDefaultSchedule/<fileName>.json')
+def loadScheduleFromDefaults(fileName):
+	expandedScheduleData = [defaults.full_schedule(fileName)]
+	return jsonvalid(expandedScheduleData)
+
+@app.route('/loadBriefDefaultSchedule/<fileName>.json')
+def loadBriefScheduleFromDefaults(fileName):
+	expandedScheduleData = [defaults.full_brief_schedule(fileName)]
+	return jsonvalid(expandedScheduleData)
+
 @app.route('/dispatchSchedule/<user>/<project>/<fileName>.json')
 def dispatchSchedule(user, project, fileName):
 	scheduleFilePath = os.path.join(default_data_path, user, project, 'schedules', fileName + '.json')

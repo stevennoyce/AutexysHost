@@ -957,7 +957,7 @@
 							<v-container>
 								<v-form class="ma-2">
 									<v-flex xs12 sm6 md4 lg3>
-										<v-select box class="ma-1" :label="runnerChoiceLabel" v-model="runnerChoice" :items="['Schedule File'].concat(Object.keys(runnerStandardFileNames))"></v-select>
+										<v-select box class="ma-1" :label="runnerChoiceLabel" v-model="runnerChoice" :items="['Schedule File'].concat(runnerStandardFileNames)"></v-select>
 									</v-flex>
 								</v-form>
 							
@@ -1019,7 +1019,7 @@
 															</v-list>
 														</template>
 														
-														<template v-if="runnerToggleAdvancedSettings && runnerEnableScheduleSaving">
+														<template v-if="runnerToggleAdvancedSettings && (!runnerLoadingFromDefaults)">
 															<v-list class="mt-3 roundedcorners">
 																<v-select box class="ma-3" label="Run Type" v-model="runnerVerboseScheduleObjects[0]['runType']['default']" :items="Object.keys(JSON.parse(JSON.stringify(runnerVerboseScheduleObjects[0]['runConfigs'] || {})))"></v-select>
 															</v-list>
@@ -1836,7 +1836,7 @@
 				// === Experiment Runner ===
 				
 				dispatcherRunning: false,
-				runnerEnableScheduleSaving: true, 
+				runnerLoadingFromDefaults: false, 
 				
 				runnerChoiceLabel: 'Experiment Type',
 				runnerChoice: '',
@@ -1854,27 +1854,27 @@
 				runnerToggleAdvancedSettings: false,
 				runnerScheduleObjectsHasBeenModified: false,
 
-				runnerStandardFileNames: {
-					'Gate Sweep': 'default_gate_sweep',
-					'Drain Sweep': 'default_drain_sweep',
-					'Static Bias': 'default_static_bias',
-					'Multiple Gate Sweeps': 'default_auto_gate_sweep',
-					'Multiple Drain Sweeps': 'default_auto_drain_sweep',
-					'Multiple Static Biases': 'default_auto_static_bias',
-					'Rapid Bias': 'default_rapid_bias',
-					'Free Run': 'default_free_run',
-					'Noise Collection': 'default_noise_collection',
-					'Noise Grid': 'default_noise_grid',
-					'Inverter Sweep': 'default_inverter_sweep',
-					'Inverter Bias': 'default_inverter_bias',
-					'AFM Control': 'default_afm_control',
-					'SGM Control': 'default_sgm_control',
-					'Flow Static Bias': 'default_flow_static_bias',
-					'Multiple Flow Static Biases': 'default_auto_flow_static_bias',
-					'CNT Burn Out': 'default_burn_out',
-					'Multiple CNT Burn Outs': 'default_auto_burn_out',
-					'Delay': 'default_delay',
-				},
+				runnerStandardFileNames: [
+					'Gate Sweep',
+					'Drain Sweep',
+					'Static Bias',
+					'Multiple Gate Sweeps',
+					'Multiple Drain Sweeps',
+					'Multiple Static Biases',
+					'Rapid Bias',
+					'Free Run',
+					'Noise Collection',
+					'Noise Grid',
+					'Inverter Sweep',
+					'Inverter Bias',
+					'AFM Control',
+					'SGM Control',
+					'Flow Static Bias',
+					'Multiple Flow Static Biases',
+					'CNT Burn Out',
+					'Multiple CNT Burn Outs',
+					'Delay',
+				],
 				
 				// === Progress Bars ===
 				
@@ -2263,6 +2263,20 @@
 					this.stepperPage++;
 				},
 				
+				// === File Loading/Saving ===
+				
+				loadSchedulePath: function(user, project, fileName, cacheBust, requestFromDefaults=false) {
+					if(requestFromDefaults) return '/loadDefaultSchedule/' + fileName + '.json' + cacheBust;
+					return '/loadSchedule/'   + user + '/' + project + '/' + fileName + '.json' + cacheBust;
+				},
+				loadBriefSchedulePath: function(user, project, fileName, cacheBust, requestFromDefaults=false) {
+					if(requestFromDefaults) return '/loadBriefDefaultSchedule/' + fileName + '.json' + cacheBust;
+					return '/loadBriefSchedule/'   + user + '/' + project + '/' + fileName + '.json' + cacheBust;
+				},
+				saveSchedulePath: function(user, project, fileName, cacheBust) {
+					return '/saveSchedule/' + user + '/' + project + '/' + fileName + '.json' + cacheBust;
+				},
+				
 				// === Dashboard ===
 				
 				resetDashboard: function() {
@@ -2313,41 +2327,39 @@
 					this.isModifiedRunnerChoice = (this.runnerChoice !== '');
 								
 					if((this.runnerChoice === 'Schedule File') || (this.runnerChoice === '')) { 
-						this.runnerEnableScheduleSaving = true;
+						this.runnerLoadingFromDefaults = false;
 						this.runnerUser = '';
 						this.runnerProject = '';
 						this.runnerFileName = '';
 						return; 
 					}
 					
-					this.runnerEnableScheduleSaving = false;
+					this.runnerLoadingFromDefaults = true;
 					this.runnerUser = 'admin';
 					this.runnerProject = 'standards';
-					this.runnerFileName = this.runnerStandardFileNames[this.runnerChoice];
+					this.runnerFileName = this.runnerChoice;
 				},
 				loadRunnerScheduleFile: function() {
 					if(this.runnerUser && this.runnerProject && this.runnerFileName) {
-						var path = '/loadBriefSchedule/' + this.runnerUser + '/' + this.runnerProject + '/' + this.runnerFileName + '.json' + this.cacheBust;
+						var path = this.loadBriefSchedulePath(this.runnerUser, this.runnerProject, this.runnerFileName, this.cacheBust, this.runnerLoadingFromDefaults);
 						
-						console.log('runner loading path = ' + path);
 						if (path) {
 							$.getJSON(path, response => {app.$data.runnerScheduleObjects = response})
-							.fail(() => {console.log("Error loading schedule file into the experiment runner.")});
+							.fail(() => {console.log("Error loading schedule file (experiment runner).")});
 							$.getJSON(path, response => {app.$data.runnerScheduleObjectDefaults = response})
-							.fail(() => {console.log("Error loading schedule file into the experiment runner.")});
+							.fail(() => {console.log("Error loading schedule file (experiment runner).")});
 						}
 						
-						var path = '/loadSchedule/' + this.runnerUser + '/' + this.runnerProject + '/' + this.runnerFileName + '.json' + this.cacheBust;
+						var path = this.loadSchedulePath(this.runnerUser, this.runnerProject, this.runnerFileName, this.cacheBust, this.runnerLoadingFromDefaults);
 
-						console.log('runner loading path = ' + path);
 						if (path) {
 							$.getJSON(path, response => {app.$data.runnerVerboseScheduleObjects = response})
-							.fail(() => {console.log("Error loading schedule file into the experiment runner.")});
+							.fail(() => {console.log("Error loading schedule file (experiment runner).")});
 							$.getJSON(path, response => {app.$data.runnerVerboseScheduleObjectDefaults = response})
-							.fail(() => {console.log("Error loading schedule file into the experiment runner.")});
+							.fail(() => {console.log("Error loading schedule file (experiment runner).")});
 						}
 						
-						console.log("Loaded the active experiment runner schedule file.");
+						console.log("Loaded the active experiment runner schedule file: " + path);
 						this.runnerScheduleObjectsHasBeenModified = false;
 					}
 				},
@@ -2357,7 +2369,7 @@
 						this.addAdvancedChangesToRunnerScheduleFile();
 						
 						// If we are running a default file that we don't have permission to modify, must change save location
-						if(!this.runnerEnableScheduleSaving) {
+						if(this.runnerLoadingFromDefaults) {
 							var activeUser = '';
 							var activeProject = '';
 							try {
@@ -2371,10 +2383,9 @@
 						} 
 						
 						// Save current file
-						var path = '/saveSchedule/' + this.runnerUser + '/' + this.runnerProject + '/' + this.runnerFileName + '.json' + this.cacheBust;
+						var path = this.saveSchedulePath(this.runnerUser, this.runnerProject, this.runnerFileName, this.cacheBust);
 
 						console.log('runner saving path = ' + path);
-
 						if (path) {
 							$.post(path, JSON.stringify(this.runnerScheduleLines), response => {
 								// After post completes and the data is saved, run the following:
@@ -2551,13 +2562,12 @@
 				},
 				
 				saveSchedule: function() {
-					var path = '/saveSchedule/' + this.creatorSaveUser + '/' + this.creatorSaveProject + '/' + this.creatorSaveFileName;
-					path += this.cacheBust;
+					var path = this.saveSchedulePath(this.creatorSaveUser, this.creatorSaveProject, this.creatorSaveFileName, this.cacheBust);
 										
 					console.log('saving path = ' + path);
 					if(path) {
-						$.post(path, JSON.stringify(this.scheduleLines), response => {this.saveScheduleSuccessCode = response;})
-						.fail(() => {console.log("Error saving schedule file")});
+						$.post(path, JSON.stringify(this.scheduleLines), response => {app.$data.saveScheduleSuccessCode = response;})
+						.fail(() => {console.log("Error saving schedule file.")});
 					}
 					
 					if (this.runnerUser === '') this.runnerUser = this.creatorSaveUser;
@@ -2567,12 +2577,12 @@
 					this.getScheduleNames();
 				},
 				loadSchedule: function() {
-					var path = '/loadSchedule/' + this.creatorLoadUser + '/' + this.creatorLoadProject + '/' + this.creatorLoadFileName + '.json' + this.cacheBust;
+					var path = this.loadSchedulePath(this.creatorLoadUser, this.creatorLoadProject, this.creatorLoadFileName, this.cacheBust);
 					
 					console.log('loading path = ' + path);
 					if (path) {
 						$.getJSON(path, response => {app.$data.scheduleObjects = response})
-						.fail(() => {console.log("Error loading schedule file")});
+						.fail(() => {console.log("Error loading schedule file.")});
 					}
 					
 					if (this.creatorSaveUser === '') this.creatorSaveUser = this.creatorLoadUser;
