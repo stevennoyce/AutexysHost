@@ -605,13 +605,13 @@ def loadBriefSchedule(user, project, fileName):
 	
 	return jsonvalid(expandedScheduleData)
 
-@app.route('/loadDefaultSchedule/<fileName>.json')
-def loadScheduleFromDefaults(fileName):
+@app.route('/loadStandardSchedule/<fileName>.json')
+def loadStandardSchedule(fileName):
 	expandedScheduleData = [defaults.full_schedule(fileName)]
 	return jsonvalid(expandedScheduleData)
 
-@app.route('/loadBriefDefaultSchedule/<fileName>.json')
-def loadBriefScheduleFromDefaults(fileName):
+@app.route('/loadBriefStandardSchedule/<fileName>.json')
+def loadBriefStandardSchedule(fileName):
 	expandedScheduleData = [defaults.full_brief_schedule(fileName)]
 	return jsonvalid(expandedScheduleData)
 
@@ -629,11 +629,15 @@ def stopDispatcher():
 	pipes.send(share, 'QueueToDispatcher', {'type':'Stop'})
 	return jsonvalid({'success': True})
 
+@app.route('/standardScheduleNames.json')
+def listStandardScheduleNames():
+	return jsonvalid(list(defaults.schedules().keys()))
+
 def getSubDirectories(directory):
 	return [os.path.basename(os.path.dirname(g)) for g in glob.glob(directory + '/*/')]
 
-@app.route('/scheduleNames.json')
-def loadScheduleNames():
+@app.route('/userDefinedScheduleNames.json')
+def loadUserDefinedScheduleNames():
 	scheduleNames = {}
 	
 	for userName in getSubDirectories(default_data_path):

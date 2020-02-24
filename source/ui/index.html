@@ -269,7 +269,7 @@
 											<v-card light>
 												<v-list>
 													<v-list-tile>
-														<v-autocomplete clearable label="Project" v-model="recentActivityProject" :items="_.keys(_.get(scheduleNames, [user], {}))"></v-autocomplete>
+														<v-autocomplete clearable label="Project" v-model="recentActivityProject" :items="_.keys(_.get(userDefinedScheduleNames, [user], {}))"></v-autocomplete>
 													</v-list-tile>
 													<v-list-tile>
 														<v-autocomplete clearable label="Wafer" v-model="recentActivityWafer" :items="[]"></v-autocomplete>
@@ -702,13 +702,13 @@
 									<v-card light>
 										<v-list>
 											<v-list-tile>
-												<v-autocomplete clearable v-model="creatorLoadUser" label="User" :items="Object.keys(scheduleNames)"></v-autocomplete>
+												<v-autocomplete clearable v-model="creatorLoadUser" label="User" :items="Object.keys(userDefinedScheduleNames)"></v-autocomplete>
 											</v-list-tile>
 											<v-list-tile>
-												<v-autocomplete clearable v-model="creatorLoadProject" label="Project" :items="_.keys(_.get(scheduleNames, [creatorLoadUser], {}))"></v-autocomplete>
+												<v-autocomplete clearable v-model="creatorLoadProject" label="Project" :items="_.keys(_.get(userDefinedScheduleNames, [creatorLoadUser], {}))"></v-autocomplete>
 											</v-list-tile>
 											<v-list-tile>
-												<v-autocomplete clearable v-model="creatorLoadFileName" label="File Name" :items="_.get(scheduleNames, [creatorLoadUser, creatorLoadProject], [])"></v-autocomplete>
+												<v-autocomplete clearable v-model="creatorLoadFileName" label="File Name" :items="_.get(userDefinedScheduleNames, [creatorLoadUser, creatorLoadProject], [])"></v-autocomplete>
 											</v-list-tile>
 										</v-list>
 									<v-card light>
@@ -816,7 +816,7 @@
 										<v-container>
 											<v-layout row wrap>
 												<v-flex xs4 sm4 md4 lg4 outline>
-													<v-combobox clearable v-model="creatorSaveUser" label="User" :items="Object.keys(scheduleNames)">
+													<v-combobox clearable v-model="creatorSaveUser" label="User" :items="Object.keys(userDefinedScheduleNames)">
 														<template slot="no-data">
 															<v-list-tile><v-list-tile-content><v-list-tile-title>
 																No results. Continuing will create a new user.
@@ -825,7 +825,7 @@
 													</v-combobox>
 												</v-flex>
 												<v-flex xs4 sm4 md4 lg4 solo>
-													<v-combobox clearable v-model="creatorSaveProject" label="Project" :items="_.keys(_.get(scheduleNames, [creatorSaveUser], {}))">
+													<v-combobox clearable v-model="creatorSaveProject" label="Project" :items="_.keys(_.get(userDefinedScheduleNames, [creatorSaveUser], {}))">
 														<template slot="no-data">
 															<v-list-tile><v-list-tile-content><v-list-tile-title>
 																No results. Continuing will create a new project.
@@ -834,7 +834,7 @@
 													</v-combobox>
 												</v-flex>
 												<v-flex xs4 sm4 md4 lg4 solo>
-													<v-combobox clearable v-model="creatorSaveFileName" label="File Name" :items="_.get(scheduleNames, [creatorSaveUser, creatorSaveProject], [])">
+													<v-combobox clearable v-model="creatorSaveFileName" label="File Name" :items="_.get(userDefinedScheduleNames, [creatorSaveUser, creatorSaveProject], [])">
 														<template slot="no-data">
 															<v-list-tile><v-list-tile-content><v-list-tile-title>
 																No results. Continuing will create a new file.
@@ -957,7 +957,7 @@
 							<v-container>
 								<v-form class="ma-2">
 									<v-flex xs12 sm6 md4 lg3>
-										<v-select box class="ma-1" :label="runnerChoiceLabel" v-model="runnerChoice" :items="['Schedule File'].concat(runnerStandardFileNames)"></v-select>
+										<v-select box class="ma-1" :label="runnerChoiceLabel" v-model="runnerChoice" :items="['Schedule File'].concat(standardScheduleNames)"></v-select>
 									</v-flex>
 								</v-form>
 							
@@ -965,13 +965,13 @@
 									<v-form class="ma-2">
 										<v-layout row wrap>
 											<v-flex xs12 sm6 md4 lg3 outline class="ma-2">
-												<v-autocomplete clearable v-model="runnerUser" label="User" :items="Object.keys(scheduleNames)"></v-autocomplete>
+												<v-autocomplete clearable v-model="runnerUser" label="User" :items="Object.keys(userDefinedScheduleNames)"></v-autocomplete>
 											</v-flex>
 											<v-flex xs12 sm6 md4 lg3 solo class="ma-2">
-												<v-autocomplete clearable v-model="runnerProject" label="Project" :items="_.keys(_.get(scheduleNames, [runnerUser], {}))"></v-autocomplete>
+												<v-autocomplete clearable v-model="runnerProject" label="Project" :items="_.keys(_.get(userDefinedScheduleNames, [runnerUser], {}))"></v-autocomplete>
 											</v-flex>
 											<v-flex xs12 sm6 md4 lg3 solo class="ma-2">
-												<v-autocomplete clearable v-model="runnerFileName" label="File Name" :items="_.get(scheduleNames, [runnerUser, runnerProject], [])"></v-autocomplete>
+												<v-autocomplete clearable v-model="runnerFileName" label="File Name" :items="_.get(userDefinedScheduleNames, [runnerUser, runnerProject], [])"></v-autocomplete>
 											</v-flex>
 										</v-layout>
 									<v-form>
@@ -1666,6 +1666,9 @@
 				defaultParametersDescription: {},
 				paths: {},
 				
+				standardScheduleNames: [],
+				userDefinedScheduleNames: {},
+				
 				saveScheduleSuccessCode: {},
 				addToNoteSuccessCode: {},
 				
@@ -1822,8 +1825,6 @@
 				
 				essentialScheduleParameters: {},
 				
-				scheduleNames: {},
-				
 				showScheduleCreatorPreview: false,
 				
 				creatorSaveUser: '',
@@ -1853,28 +1854,6 @@
 				
 				runnerToggleAdvancedSettings: false,
 				runnerScheduleObjectsHasBeenModified: false,
-
-				runnerStandardFileNames: [
-					'Gate Sweep',
-					'Drain Sweep',
-					'Static Bias',
-					'Multiple Gate Sweeps',
-					'Multiple Drain Sweeps',
-					'Multiple Static Biases',
-					'Rapid Bias',
-					'Free Run',
-					'Noise Collection',
-					'Noise Grid',
-					'Inverter Sweep',
-					'Inverter Bias',
-					'AFM Control',
-					'SGM Control',
-					'Flow Static Bias',
-					'Multiple Flow Static Biases',
-					'CNT Burn Out',
-					'Multiple CNT Burn Outs',
-					'Delay',
-				],
 				
 				// === Progress Bars ===
 				
@@ -2161,10 +2140,15 @@
 					}).fail(() => {console.log("Error getting essential default parameters")});
 				},
 				getScheduleNames: function() {
-					var path = '/scheduleNames.json' + this.cacheBust;
-					if (path) {
-						$.getJSON(path, response => {app.$data.scheduleNames = response})
-						.fail(() => {console.log("Error getting schedule names")});
+					var path1 = '/userDefinedScheduleNames.json' + this.cacheBust;
+					if (path1) {
+						$.getJSON(path1, response => {app.$data.userDefinedScheduleNames = response})
+						.fail(() => {console.log("Error getting all user-defined schedule names.")});
+					}
+					var path2 = '/standardScheduleNames.json' + this.cacheBust;
+					if (path2) {
+						$.getJSON(path2, response => {app.$data.standardScheduleNames = response})
+						.fail(() => {console.log("Error getting standard schedule names.")});
 					}
 				},
 				getPaths: function() {
@@ -2266,11 +2250,11 @@
 				// === File Loading/Saving ===
 				
 				loadSchedulePath: function(user, project, fileName, cacheBust, requestFromDefaults=false) {
-					if(requestFromDefaults) return '/loadDefaultSchedule/' + fileName + '.json' + cacheBust;
+					if(requestFromDefaults) return '/loadStandardSchedule/' + fileName + '.json' + cacheBust;
 					return '/loadSchedule/'   + user + '/' + project + '/' + fileName + '.json' + cacheBust;
 				},
 				loadBriefSchedulePath: function(user, project, fileName, cacheBust, requestFromDefaults=false) {
-					if(requestFromDefaults) return '/loadBriefDefaultSchedule/' + fileName + '.json' + cacheBust;
+					if(requestFromDefaults) return '/loadBriefStandardSchedule/' + fileName + '.json' + cacheBust;
 					return '/loadBriefSchedule/'   + user + '/' + project + '/' + fileName + '.json' + cacheBust;
 				},
 				saveSchedulePath: function(user, project, fileName, cacheBust) {
@@ -2328,6 +2312,7 @@
 								
 					if((this.runnerChoice === 'Schedule File') || (this.runnerChoice === '')) { 
 						this.runnerLoadingFromDefaults = false;
+						this.runnerScheduleObjectsHasBeenModified = false;
 						this.runnerUser = '';
 						this.runnerProject = '';
 						this.runnerFileName = '';
@@ -2335,6 +2320,7 @@
 					}
 					
 					this.runnerLoadingFromDefaults = true;
+					this.runnerScheduleObjectsHasBeenModified = true;
 					this.runnerUser = 'admin';
 					this.runnerProject = 'standards';
 					this.runnerFileName = this.runnerChoice;
@@ -2360,7 +2346,6 @@
 						}
 						
 						console.log("Loaded the active experiment runner schedule file: " + path);
-						this.runnerScheduleObjectsHasBeenModified = false;
 					}
 				},
 				saveRunnerScheduleFile: function() {
@@ -2385,11 +2370,12 @@
 						// Save current file
 						var path = this.saveSchedulePath(this.runnerUser, this.runnerProject, this.runnerFileName, this.cacheBust);
 
-						console.log('runner saving path = ' + path);
 						if (path) {
 							$.post(path, JSON.stringify(this.runnerScheduleLines), response => {
 								// After post completes and the data is saved, run the following:
-								console.log("Saved experiment runner schedule file.");
+								console.log("Saved experiment runner schedule file: " + path);
+								this.runnerLoadingFromDefaults = false;
+								this.runnerScheduleObjectsHasBeenModified = false;
 								// Force re-load of schedule file to make sure everything is refreshed to its original state
 								this.loadRunnerScheduleFile();
 							})
