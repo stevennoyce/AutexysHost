@@ -1333,17 +1333,17 @@
 											<v-toolbar dark flat color="color1 darken-1">
 												<v-spacer></v-spacer>
 												<v-toolbar-items>
-													<v-btn color="color1 darken-2" @click=""><v-icon>play_arrow</v-icon></v-btn>
+													<v-btn color="color1 darken-2 roundedcorners" @click=""><v-icon>play_arrow</v-icon></v-btn>
 												</v-toolbar-items><v-spacer></v-spacer>
 												<v-toolbar-items>
-													<v-btn color="color1 darken-2" @click=""><v-icon>pause</v-icon></v-btn>
+													<v-btn color="color1 darken-2 roundedcorners" @click="stopDispatcher()" :disabled="false"><v-icon>pause</v-icon></v-btn>
 												</v-toolbar-items><v-spacer></v-spacer>
 												<v-toolbar-items>
-													<v-btn color="color1 darken-2" @click=""><v-icon>refresh</v-icon></v-btn>
+													<v-btn color="color1 darken-2 roundedcorners" @click="resetPerformancePlots()" :disabled="false"><v-icon>refresh</v-icon></v-btn>
 												</v-toolbar-items><v-spacer></v-spacer>
 											</v-toolbar>
 											
-											<v-tabs dark centered grow value="tab-T" color="color1 darken-1" slider-color="white">
+											<v-tabs dark centered grow value="tab-T" color="color1 darken-1" slider-color="orange darken-2">
 												<v-tab href="#tab-S">Subthreshold Curve</v-tab>
 												<v-tab href="#tab-T">Transfer Curve</v-tab>
 												<v-tab href="#tab-O">Output Curve</v-tab>
@@ -2669,6 +2669,11 @@
 					this.performanceShowOptions = undefined;
 					this.performanceShowAdvanced = undefined;	
 					this.getDefaultParameters();
+				},
+				resetPerformancePlots: function() {
+					Object.entries(this.performancePlots).forEach(([plotID, plot]) => {
+						plot['seriesList'] = [];
+					});
 				},
 				
 				// === Server Update ===
