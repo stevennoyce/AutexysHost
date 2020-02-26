@@ -31,12 +31,12 @@ def createDataSeries(plotID, labels=[], xValues=[], yValues=[], xAxisTitle='', y
         for i in range(len(xValues)):
             xValues[i] = xValues[i] - startTime()
     
-    # Create a series-data-point for each series
-    seriesList = []
+    # Create a Live_Plot_Trace for each index of the labels/xValues/yValues arrays
+    traces = {}
     for i in range(min(len(labels), len(xValues), len(yValues))):
-        seriesList.append(Live_Plot_Trace(labels[i], xValues[i], yValues[i]))
+        traces[labels[i]] = Live_Plot_Trace(labels[i], xValues[i], yValues[i])
     
-    return Live_Plot_Figure(plotID, xAxisTitle, yAxisTitle, yscale, plotMode, seriesList)
+    return Live_Plot_Figure(plotID, xAxisTitle, yAxisTitle, yscale, plotMode, traces)
  
 def createDataPoint(plotID, label, xValue, yValue, xAxisTitle='', yAxisTitle='', yscale='log', enumerateLegend=False, timeseries=False):
     return createDataSeries(plotID, labels=[label], xValues=[xValue], yValues=[yValue], xAxisTitle=xAxisTitle, yAxisTitle=yAxisTitle, yscale=yscale, enumerateLegend=enumerateLegend, timeseries=timeseries)
@@ -49,32 +49,35 @@ class Live_Plot_Figure:
     Data collected in a single iteration of a procedure, formatted so it can be sent to the web frontend.
     Represents a single live plot.
     '''
-    def __init__(self, plotID, xAxisTitle, yAxisTitle, yScale, plotMode, seriesList):
+    def __init__(self, plotID, xAxisTitle, yAxisTitle, yScale, plotMode, traces):
         self.plotID = plotID
         self.xAxisTitle = xAxisTitle
         self.yAxisTitle = yAxisTitle
         self.yScale = yScale
         self.plotMode = plotMode
-        self.seriesList = seriesList # list of Live_Plot_Traces
+        self.traces = traces # list of Live_Plot_Traces
 
     def toDict(self):
         '''
         Call before sending to web frontend. Includes checking for unset fields.
         '''
 
-        dict = {
+        result = {
             'plotID': self.plotID,
             'xAxisTitle': self.xAxisTitle,
             'yAxisTitle': self.yAxisTitle,
             'yScale': self.yScale,
             'plotMode': self.plotMode,
-            'seriesList': [series.toDict() for series in self.seriesList]
+            'traces': {},
         }
+        
+        for traceID, trace in self.traces.items():
+            result['traces'][traceID] = trace.toDict()
 
-        for k, v in dict.items():
+        for k, v in result.items():
             if v == None:
                 raise Exception("Cannot convert data to dictionary. The ", k, " field was never set.")
-        return dict
+        return result
         
 
 
@@ -83,19 +86,19 @@ class Live_Plot_Trace:
     Data collected in a single iteration of a procedure, but just for
      a single series, formatted so it can be sent to the web frontend.
     '''
-    def __init__(self, seriesName, xData, yData):
-        self.seriesName = seriesName
+    def __init__(self, traceID, xData, yData):
+        self.traceID = traceID
         self.xData = xData
         self.yData = yData
 
     def toDict(self):
-        dict = {
-            'seriesName': self.seriesName,
+        result = {
+            'traceID': self.traceID,
             'xData': self.xData,
             'yData': self.yData
         }
 
-        for (k, v) in dict.items():
+        for (k, v) in result.items():
             if v == None:
                 raise Exception("Cannot convert data to dictionary. The ", k, " field was never set.")
-        return dict
+        return result

@@ -1190,13 +1190,13 @@
 									</v-flex>
 								</v-layout>
 								
-								<template v-if="(jobSelectChoice !== '') && (deviceSelectChoice !== '')">
+								<template v-if="(jobSelectChoice !== '') && (deviceSelectChoice !== '') && (livePlots[jobSelectChoice]) && (livePlots[jobSelectChoice][deviceSelectChoice])">
 									<v-layout row wrap>
-										<v-flex xs12 sm12 md6 lg6 xl4 v-for="plot, i in livePlots[jobSelectChoice][deviceSelectChoice].plots" :key="i">
+										<v-flex xs12 sm12 md6 lg6 xl4 v-for="[plotID, plot] of Object.entries(livePlots[jobSelectChoice][deviceSelectChoice])" :key="plotID">
 											<v-card class="ma-1" height="100%">
 												<v-toolbar dark dense class="color3 ">
 													<v-toolbar-title>
-														Plot #{{ i+1 }} 
+														Plot: {{ plotID }} 
 													</v-toolbar-title>
 												
 													<v-spacer></v-spacer>
@@ -1919,8 +1919,8 @@
 
 				// === Live Plots ===
 				
-				livePlots: {'exampleJob':{'exampleDevice':{plots:[]}}},   //Rows = job number, Cols = device number, example: {'0':{'2-3': {plots: []}, '4-5': {plots: []}, '9-10': {plots: []}},
-												//												   '1':{'2-3': {plots: []}, '4-5': {plots: []}, '9-10': {plots: []}}}
+				livePlots: {'exampleJob':{'exampleDevice':{'examplePlotID':undefined}}},   
+				
 				listInputTest: [{'text': 'a', 'value': '1'}, {'text': 'b', 'value': '2'}],
 				dataPlotData: [{ x: [1, 2, 3], y: [1, 3, 1], mode: 'lines' }],
 				colors: [],
@@ -1954,33 +1954,39 @@
 						'xAxisTitle':'Gate Voltage (V)',
 						'yAxisTitle':'Drain Current (A)',
 						'yScale':'linear',
-						'seriesList':[{
-							'seriesName':'',
-							'xData':[],
-							'yData':[],
-							'plotMode':'markers',
-						}],
+						'traces':{
+							'Drain Current':{
+								'traceID':'Drain Current',
+								'xData':[],
+								'yData':[],
+								'plotMode':'markers',
+							},
+						},
 					},
 					'subthreshold':{
 						'xAxisTitle':'Gate Voltage (V)',
 						'yAxisTitle':'Drain Current (A)',
 						'yScale':'log',
-						'seriesList':[{
-							'seriesName':'',
-							'xData':[],
-							'yData':[],
-							'plotMode':'markers',
-						}],
+						'traces':{
+							'Drain Current':{
+								'traceID':'Drain Current',
+								'xData':[],
+								'yData':[],
+								'plotMode':'markers',
+							},
+						},
 					},
 					'output':{
 						'xAxisTitle':'Drain Voltage (V)',
 						'yAxisTitle':'Drain Current (A)',
 						'yScale':'linear',
-						'seriesList':[{
-							'seriesName':'',
-							'xData':[],
-							'yData':[],
-							'plotMode':'markers',
+						'traces':[{
+							'Drain Current':{
+								'traceID':'Drain Current',
+								'xData':[],
+								'yData':[],
+								'plotMode':'markers',
+							},
 						}],
 					},
 				},
@@ -2701,7 +2707,7 @@
 				},
 				performanceClear: function() {
 					Object.entries(this.performancePlots).forEach(([plotID, plot]) => {
-						plot['seriesList'] = [];
+						plot['traces'] = {};
 					});
 				},
 				performanceSave: function() {
@@ -2741,8 +2747,8 @@
 					}
 
 					if (message.type === 'DeviceNumberUpdate') {
-						Vue.set(this.livePlots[this.jobSelectActive], message.number, {plots: []}); 
-						//this.livePlots[this.jobSelectActive][message.number] = {plots:[]};
+						Vue.set(this.livePlots[this.jobSelectActive], message.number, {}); 
+						//this.livePlots[this.jobSelectActive][message.number] = {};
 						this.deviceSelectItems.push(message.number);
 						this.deviceSelectActive = message.number;
 						this.deviceSelectChoice = message.number;
@@ -2778,58 +2784,67 @@
 					
 					if (message.type === 'Data') {
 						this.showProgress = true;
-												
-						var livePlotsClone = JSON.parse(JSON.stringify(this.livePlots));
 						
-						for(myPlot of message.plots){
-							//Find the correct plot in the JS variable
-							var plotsMatchedByID = livePlotsClone[this.jobSelectActive][this.deviceSelectActive].plots.filter(p => (p.plotID === myPlot.plotID));
+						// Add any new live plots that are not currently being displayed
+						this.addNewLivePlots(this.livePlots, message.plots, this.jobSelectActive, this.deviceSelectActive);
+												
+						// Add any new traces on live plots that are not currently being displayed
+						this.addNewLiveTraces(this.livePlots, message.plots, this.jobSelectActive, this.deviceSelectActive);
+						
+						// Append data from this message to all relevant Live Plots
+						this.addNewLiveData(this.livePlots, message.plots, this.jobSelectActive, this.deviceSelectActive);
+										
+						// var livePlotsClone = JSON.parse(JSON.stringify(this.livePlots));
+						
+						// for(myPlot of message.plots){
+						// 	//Find the correct plot in the JS variable
+						// 	var plotsMatchedByID = livePlotsClone[this.jobSelectActive][this.deviceSelectActive].plots.filter(p => (p.plotID === myPlot.plotID));
 							
-							//If has not been added yet to JS variable, add it
-							if(plotsMatchedByID.length === 0){
-								var myPlotInLivePlots = JSON.parse(JSON.stringify(myPlot));
+						// 	//If has not been added yet to JS variable, add it
+						// 	if(plotsMatchedByID.length === 0){
+						// 		var myPlotInLivePlots = JSON.parse(JSON.stringify(myPlot));
 
-								//Convert xData and yData from points to arrays
-								for(series of myPlotInLivePlots.seriesList){
-									series.xData = [series.xData];
-									series.yData = [series.yData];
-								}
+						// 		//Convert xData and yData from points to arrays
+						// 		for(series of myPlotInLivePlots.seriesList){
+						// 			series.xData = [series.xData];
+						// 			series.yData = [series.yData];
+						// 		}
 
-								//Add to livePlots JS variable
-								livePlotsClone[this.jobSelectActive][this.deviceSelectActive].plots.push(myPlotInLivePlots);
-							} else {
-								var myPlotInLivePlots = plotsMatchedByID[0]
+						// 		//Add to livePlots JS variable
+						// 		livePlotsClone[this.jobSelectActive][this.deviceSelectActive].plots.push(myPlotInLivePlots);
+						// 	} else {
+						// 		var myPlotInLivePlots = plotsMatchedByID[0]
 								
-								//myPlot does not include series which have not been updated on this message
-								for(mySeries of myPlot.seriesList){
-									var mySeriesInLivePlots = null;
+						// 		//myPlot does not include series which have not been updated on this message
+						// 		for(mySeries of myPlot.seriesList){
+						// 			var mySeriesInLivePlots = null;
 									
-									for(livePlotSeries of myPlotInLivePlots.seriesList){
-										if(livePlotSeries.seriesName === mySeries.seriesName){
-											mySeriesInLivePlots = livePlotSeries;
-											break;
-										}
-									}
+						// 			for(livePlotSeries of myPlotInLivePlots.seriesList){
+						// 				if(livePlotSeries.seriesName === mySeries.seriesName){
+						// 					mySeriesInLivePlots = livePlotSeries;
+						// 					break;
+						// 				}
+						// 			}
 									
-									//Add any series which have not yet been added to JS variable
-									if(mySeriesInLivePlots == null){
-										mySeriesInLivePlots = JSON.parse(JSON.stringify(mySeries));
+						// 			//Add any series which have not yet been added to JS variable
+						// 			if(mySeriesInLivePlots == null){
+						// 				mySeriesInLivePlots = JSON.parse(JSON.stringify(mySeries));
 
-										//Convert xData and yData from points to arrays (data added after if statement)
-										mySeriesInLivePlots.xData = [];
-										mySeriesInLivePlots.yData = [];
+						// 				//Convert xData and yData from points to arrays (data added after if statement)
+						// 				mySeriesInLivePlots.xData = [];
+						// 				mySeriesInLivePlots.yData = [];
 
-										myPlotInLivePlots.seriesList.push(mySeriesInLivePlots);
-									}
+						// 				myPlotInLivePlots.seriesList.push(mySeriesInLivePlots);
+						// 			}
 
-									//Add this data point
-									mySeriesInLivePlots.xData.push(mySeries.xData);
-									mySeriesInLivePlots.yData.push(mySeries.yData);
-								}
-							}
+						// 			//Add this data point
+						// 			mySeriesInLivePlots.xData.push(mySeries.xData);
+						// 			mySeriesInLivePlots.yData.push(mySeries.yData);
+						// 		}
+						// 	}
 
-							this.safeParseToVueVariable(livePlotsClone, this.livePlots);							
-						}
+						// 	this.safeParseToVueVariable(livePlotsClone, this.livePlots);							
+						// }
 					}
 				},
 
@@ -2865,11 +2880,82 @@
 				},
 				
 				// === Live Plots ===
-				
-				//Base case: originalVar is a primitive, empty array/object
+			    
+			    addNewLivePlots: function(livePlots, newPlotsData, jobIndex, deviceIndex) {
+			    	// Filter for any "newPlots" that are not found in "livePlots"
+			    	var missingPlots = newPlotsData.filter( p => !(Object.keys(livePlots[jobIndex][deviceIndex]).includes(p.plotID)) );
+			    	if(missingPlots.length < 1) return;
+			    	
+			    	// Get a reference to a non-live copy of all current Live Plots
+			    	var staticPlots = JSON.parse(JSON.stringify(livePlots));
+			    	
+			    	for(newPlot of missingPlots) {
+			    		// Make a copy of newPlot to avoid corrupting it with modifications
+				    	var plot = JSON.parse(JSON.stringify(newPlot));
+				    	
+				    	// Initialize all traces to have empty data arrays
+				    	Object.entries(plot['traces']).forEach(([traceID, trace]) => {
+				    		trace.xData = [];
+				    		trace.yData = [];
+				    	});
+				    	
+				    	// Push the new plot into place in the non-live data structure
+				    	staticPlots[jobIndex][deviceIndex][plot.plotID] = plot;
+			    	}
+			    	
+			    	// Copy all changes over to Live Plots
+			    	this.safeParseToVueVariable(staticPlots, livePlots);
+			    },
+			    addNewLiveTraces: function(livePlots, newPlotsData, jobIndex, deviceIndex) {
+			    	for(newPlot of newPlotsData) {
+			    		var plotID = newPlot.plotID
+
+			    		// Filter for any traces that are not found in this plot in "livePlots"
+			    		var missingTraceIDs = Object.keys(newPlot.traces).filter( traceID => !(Object.keys(livePlots[jobIndex][deviceIndex][plotID].traces).includes(traceID)) );
+			    		var missingTraces = missingTraceIDs.map( traceID => newPlot['traces'][traceID] );
+			    		if(missingTraces.length < 1) continue;
+			    		
+			    		// Get a reference to a non-live copy of all current Live Plots
+			    		var staticPlots = JSON.parse(JSON.stringify(livePlots));
+			    		
+			    		for(newTrace of missingTraces) {
+			    			// Make a copy of newTrace to avoid corrupting it with modifications
+			    			var trace = JSON.parse(JSON.stringify(newTrace));
+			    			
+			    			// Initialize new trace to have empty data arrays
+			    			trace.xData = [];
+			    			trace.yData = [];
+			    			
+			    			// Push the new trace into place in the non-live data structure
+				    		staticPlots[jobIndex][deviceIndex][plotID]['traces'][trace.traceID] = trace;
+			    		}
+			    		
+			    		// Copy all changes over to Live Plots
+			    		this.safeParseToVueVariable(staticPlots, livePlots);
+			    	}	
+			    },
+			    addNewLiveData: function(livePlots, newPlotsData, jobIndex, deviceIndex) {
+			    	// Get a reference to a non-live copy of all current Live Plots
+			    	var staticPlots = JSON.parse(JSON.stringify(livePlots));
+			    	
+			    	for(newPlot of newPlotsData) {
+			    		var plotID = newPlot.plotID;
+			    		
+			    		for(traceID of Object.keys(newPlot.traces)) {
+			    			var newTrace = newPlot.traces[traceID];
+			    			
+			    			staticPlots[jobIndex][deviceIndex][plotID].traces[traceID].xData.push(newTrace.xData);
+			    			staticPlots[jobIndex][deviceIndex][plotID].traces[traceID].yData.push(newTrace.yData);
+			    		}
+			    	}
+			    	
+			    	// Copy all changes over to Live Plots
+			    	this.safeParseToVueVariable(staticPlots, livePlots);
+			    },
+			    
+			    //Base case: originalVar is a primitive, empty array/object
 			    //originalVar must be an Array or plain object, with nested fields that
 			    //are arrays, plain objects, or strings.
-			    
 			    safeParseToVueVariable: function(originalVar, vueVar){
 			      	//console.log("Starting safeParseToVueVariable() with originialVar as:");
 			        //console.log(originalVar);
@@ -2924,9 +3010,7 @@
 			    },
 
 				clearLivePlot: function(plot) {
-					while(plot.seriesList.length > 0){
-						plot.seriesList.pop();
-					}
+					plot['traces'] = {};
 				},
 				clearLivePlots: function() {
 					this.clearJobSelect();
@@ -2955,12 +3039,12 @@
 
 				extractPlotlyData: function(plot) {
 					var dataTraces = [];
-					for(series of plot.seriesList){
+					for([traceID, trace] of Object.entries(plot.traces)){
 						dataTraces.push({
 							type: 'scatter',
-							name: series.seriesName,
-							x: series.xData,
-							y: series.yData,
+							name: trace.traceID,
+							x: trace.xData,
+							y: trace.yData,
 							mode: plot.plotMode,
 							line:   {width: 3, dash: 'solid'},
 							marker: {size: 9, symbol:'circle'},
