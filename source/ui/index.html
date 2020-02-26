@@ -1112,47 +1112,52 @@
 								</v-toolbar-title>
 								<v-spacer></v-spacer>
 								<v-toolbar-title>
-									{{experimentProgressModel.timer.current - experimentProgressModel.timer.start | formatTimestamp}}
+									{{experimentProgressTimer.current - experimentProgressTimer.start | formatTimestamp}}
 									<v-icon>schedule</v-icon>
 								</v-toolbar-title>
 							</v-toolbar>
 							
 							<v-list>
-								<a-progress-bar-timed :visible="experimentProgressModel.dispatcherBar.visible" titleprefix="Dispatcher:" :title="experimentProgressModel.dispatcherBar.name" :valuecurrent="experimentProgressModel.dispatcherBar.current" :valuemaximum="experimentProgressModel.dispatcherBar.end" :valuepercent="experimentProgressModel.dispatcherBar.percent"></a-progress-bar-timed>
+								<a-progress-bar-timed v-for="barID in ['Dispatcher', 'Group1', 'Group2', 'Sweep']" :key="barID" 
+								:visible="experimentProgressModel[barID].visible" 
+								:title="experimentProgressModel[barID].title + experimentProgressModel[barID].name" 
+								:valuestart="experimentProgressModel[barID].start" 
+								:valuecurrent="experimentProgressModel[barID].current" 
+								:valuemaximum="experimentProgressModel[barID].end"></a-progress-bar-timed>
 								
-								<a-progress-bar-timed :visible="experimentProgressModel.group1Bar.visible" titleprefix="" :title="experimentProgressModel.group1Bar.name" :valuecurrent="experimentProgressModel.group1Bar.current" :valuemaximum="experimentProgressModel.group1Bar.end" :valuepercent="experimentProgressModel.group1Bar.percent"></a-progress-bar-timed>
-								
-								<a-progress-bar-timed :visible="experimentProgressModel.group2Bar.visible" titleprefix="" :title="experimentProgressModel.group2Bar.name" :valuecurrent="experimentProgressModel.group2Bar.current" :valuemaximum="experimentProgressModel.group2Bar.end" :valuepercent="experimentProgressModel.group2Bar.percent"></a-progress-bar-timed>
-								
-								<a-progress-bar-timed :visible="experimentProgressModel.sweepBar.visible" titleprefix="Sweep:" :title="experimentProgressModel.sweepBar.name" :valuecurrent="experimentProgressModel.sweepBar.current" :valuemaximum="experimentProgressModel.sweepBar.end" :valuepercent="experimentProgressModel.sweepBar.percent"></a-progress-bar-timed>
-								
-								<a-progress-bar-timed :visible="experimentProgressModel.procedureBar.visible" titleprefix="Procedure:" :title="experimentProgressModel.procedureBar.name" :time="experimentProgressModel.procedureBar.time_current - experimentProgressModel.procedureBar.time_start" :valuecurrent="experimentProgressModel.procedureBar.current" :valuemaximum="experimentProgressModel.procedureBar.end" :valuepercent="experimentProgressModel.procedureBar.percent"></a-progress-bar-timed>
+								<a-progress-bar-timed 
+								:visible="experimentProgressModel['Procedure'].visible" 
+								:title="experimentProgressModel['Procedure'].title + experimentProgressModel['Procedure'].name" 
+								:valuestart="experimentProgressModel['Procedure'].start" 
+								:valuecurrent="experimentProgressModel['Procedure'].current" 
+								:valuemaximum="experimentProgressModel['Procedure'].end" 
+								:time="experimentProgressModel['Procedure'].time_current - experimentProgressModel['Procedure'].time_start"></a-progress-bar-timed>
 								
 								<!--
-								<v-list-tile v-if="experimentProgressModel.dispatcherBar.visible">
+								<v-list-tile v-if="experimentProgressModel['Dispatcher'].visible">
 									<v-list-tile-content style="flex-direction:row;align-items:center;" class="mr-3">
-										<v-list-tile-title>Dispatcher: {{experimentProgressModel.dispatcherBar.name}} {{experimentProgressModel.dispatcherBar.current}} of {{experimentProgressModel.dispatcherBar.end}} </v-list-tile-title>
-										<v-progress-linear class="roundedcorners" height="10" color="success" v-model="experimentProgressModel.dispatcherBar.percent"></v-progress-linear>
+										<v-list-tile-title>Dispatcher: {{experimentProgressModel['Dispatcher'].name}} {{experimentProgressModel['Dispatcher'].current}} of {{experimentProgressModel['Dispatcher'].end}} </v-list-tile-title>
+										<v-progress-linear class="roundedcorners" height="10" color="success" v-model="experimentProgressModel['Dispatcher'].percent"></v-progress-linear>
 									</v-list-tile-content>
 									<v-list-tile-action style="text-align:right;">	
-										<v-list-tile-sub-title>{{experimentProgressModel.timer.current - experimentProgressModel.timer.start | twoDecimalPoints}}</v-list-tile-sub-title>
+										<v-list-tile-sub-title>{{experimentProgressTimer.current - experimentProgressTimer.start | twoDecimalPoints}}</v-list-tile-sub-title>
 									</v-list-tile-action>
 								</v-list-tile>
-								<v-list-tile v-if="experimentProgressModel.sweepBar.visible">
-									<v-list-tile-title>Sweep: {{experimentProgressModel.sweepBar.name}} {{experimentProgressModel.sweepBar.current}} of {{experimentProgressModel.sweepBar.end}} </v-list-tile-title>
-									<v-progress-linear v-model="experimentProgressModel.sweepBar.percent"></v-progress-linear>
+								<v-list-tile v-if="experimentProgressModel['Sweep'].visible">
+									<v-list-tile-title>Sweep: {{experimentProgressModel['Sweep'].name}} {{experimentProgressModel['Sweep'].current}} of {{experimentProgressModel['Sweep'].end}} </v-list-tile-title>
+									<v-progress-linear v-model="experimentProgressModel['Sweep'].percent"></v-progress-linear>
 								</v-list-tile>
-								<v-list-tile v-if="experimentProgressModel.group1Bar.visible">
-									<v-list-tile-title>{{experimentProgressModel.group1Bar.name}} {{experimentProgressModel.group1Bar.current}} of {{experimentProgressModel.group1Bar.end}} </v-list-tile-title>
-									<v-progress-linear v-model="experimentProgressModel.group1Bar.percent"></v-progress-linear>
+								<v-list-tile v-if="experimentProgressModel['Group1'].visible">
+									<v-list-tile-title>{{experimentProgressModel['Group1'].name}} {{experimentProgressModel['Group1'].current}} of {{experimentProgressModel['Group1'].end}} </v-list-tile-title>
+									<v-progress-linear v-model="experimentProgressModel['Group1'].percent"></v-progress-linear>
 								</v-list-tile>
-								<v-list-tile v-if="experimentProgressModel.group2Bar.visible">
-									<v-list-tile-title>{{experimentProgressModel.group2Bar.name}} {{experimentProgressModel.group2Bar.current}} of {{experimentProgressModel.group2Bar.end}} </v-list-tile-title>
-									<v-progress-linear v-model="experimentProgressModel.group2Bar.percent"></v-progress-linear>
+								<v-list-tile v-if="experimentProgressModel['Group2'].visible">
+									<v-list-tile-title>{{experimentProgressModel['Group2'].name}} {{experimentProgressModel['Group2'].current}} of {{experimentProgressModel['Group2'].end}} </v-list-tile-title>
+									<v-progress-linear v-model="experimentProgressModel['Group2'].percent"></v-progress-linear>
 								</v-list-tile>
-								<v-list-tile v-if="experimentProgressModel.procedureBar.visible">
-									<v-list-tile-title>Procedure: {{experimentProgressModel.procedureBar.name}} {{experimentProgressModel.procedureBar.current}} of {{experimentProgressModel.procedureBar.end}} </v-list-tile-title>
-									<v-progress-linear v-model="experimentProgressModel.procedureBar.percent"></v-progress-linear>
+								<v-list-tile v-if="experimentProgressModel['Procedure'].visible">
+									<v-list-tile-title>Procedure: {{experimentProgressModel['Procedure'].name}} {{experimentProgressModel['Procedure'].current}} of {{experimentProgressModel['Procedure'].end}} </v-list-tile-title>
+									<v-progress-linear v-model="experimentProgressModel['Procedure'].percent"></v-progress-linear>
 								</v-list-tile>
 								-->
 							</v-list>
@@ -1333,7 +1338,7 @@
 											<v-toolbar dark flat color="color1 darken-1">
 												<v-spacer></v-spacer>
 												<v-toolbar-items>
-													<v-btn color="color1 darken-2 roundedcorners" @click="performanceStart()" :disabled="performanceRunning"><v-icon>play_arrow</v-icon></v-btn>
+													<v-btn color="color1 darken-2 roundedcorners" @click="performanceSave(); performanceStart();" :disabled="performanceRunning"><v-icon>play_arrow</v-icon></v-btn>
 												</v-toolbar-items><v-spacer></v-spacer>
 												<v-toolbar-items>
 													<v-btn color="color1 darken-2 roundedcorners" @click="performanceStop()" :disabled="!performanceRunning"><v-icon>pause</v-icon></v-btn>
@@ -1859,45 +1864,51 @@
 				
 				showProgress: false,
 				
+				experimentProgressTimer: {
+					start: 0,
+					current: 0
+				},
+				
 				experimentProgressModel: {
-					timer: {
+					'Dispatcher': {
+						title: 'Dispatcher: ',
+						visible: false,
+						name: '',
 						start: 0,
-						current: 0
-					},
-					dispatcherBar: {
-						visible: false,
-						name: '',
 						current: 0,
 						end: 0,
-						percent: 0
 					},
-					sweepBar: {
+					'Sweep': {
+						title: 'Sweep: ',
 						visible: false,
 						name: '',
+						start: 0,
 						current: 0,
 						end: 0,
-						percent: 0
 					},
-					group1Bar: {
+					'Group1': {
+						title: '',
 						visible: false,
 						name: '',
+						start: 0,
 						current: 0,
 						end: 0,
-						percent: 0
 					},
-					group2Bar: {
+					'Group2': {
+						title: '',
 						visible: false,
 						name: '',
+						start: 0,
 						current: 0,
 						end: 0,
-						percent: 0
 					},
-					procedureBar: {
+					'Procedure': {
+						title: 'Procedure: ',
 						visible: false,
 						name: '',
+						start: 0,
 						current: 0,
 						end: 0,
-						percent: 0,
 						time_start: 0,
 						time_current: 0
 					}
@@ -2693,8 +2704,18 @@
 						plot['seriesList'] = [];
 					});
 				},
+				performanceSave: function() {
+					this.performanceScheduleObject['runType'] = 'FreeRun';
+					
+					var path = this.saveSchedulePath('guest', 'Project', 'PerformanceApp');
+					if (path) {
+						$.post(path, JSON.stringify([extractDefaults(this.performanceScheduleObject)]), response => {
+							console.log("Saved performance app schedule file: " + path);
+						}).fail(() => {console.log("Error saving performance app schedule file.")});
+					}
+				},
 				performanceStart: function() {
-					var path = '';
+					var path = this.launchDispatcherPath('guest', 'Project', 'PerformanceApp');
 					if (path) {
 						$.getJSON(path, response => {app.$data.performanceRunning = true})
 						.fail(() => {console.log("Error starting performance app.")});
@@ -2730,53 +2751,33 @@
 					}
 
 					if (message.type === 'Progress') {
+						// Enable progress bar display
 						this.showProgress = true;
 						
-						this.experimentProgressModel.timer.current = message.progress.timestamp;
-						if(this.experimentProgressModel.timer.start === 0) {
-							this.experimentProgressModel.timer.start = message.progress.timestamp;
+						// Update progress bar global timer
+						this.experimentProgressTimer.current = message.progress.timestamp;
+						if(this.experimentProgressTimer.start === 0) {
+							this.experimentProgressTimer.start = message.progress.timestamp;
 						}
 						
-						if(message.progress.barType === "Dispatcher"){
-							this.experimentProgressModel.dispatcherBar.visible = true;
-							this.experimentProgressModel.dispatcherBar.name = message.progress.name;
-							this.experimentProgressModel.dispatcherBar.current = message.progress.current;
-							this.experimentProgressModel.dispatcherBar.end = message.progress.end;
-							this.experimentProgressModel.dispatcherBar.percent = this.computeProgressPercent(message.progress.start, message.progress.current, message.progress.end);
-						}
-						else if(message.progress.barType === "Sweep"){
-							this.experimentProgressModel.sweepBar.visible = true;
-							this.experimentProgressModel.sweepBar.name = message.progress.name;
-							this.experimentProgressModel.sweepBar.current = message.progress.current;
-							this.experimentProgressModel.sweepBar.end = message.progress.end;
-							this.experimentProgressModel.sweepBar.percent = this.computeProgressPercent(message.progress.start, message.progress.current, message.progress.end);
-						}
-						else if(message.progress.barType === "Group1"){
-							this.experimentProgressModel.group1Bar.visible = true;
-							this.experimentProgressModel.group1Bar.name = message.progress.name;
-							this.experimentProgressModel.group1Bar.current = message.progress.current;
-							this.experimentProgressModel.group1Bar.end = message.progress.end;
-							this.experimentProgressModel.group1Bar.percent = this.computeProgressPercent(message.progress.start, message.progress.current, message.progress.end);
-						}
-						else if(message.progress.barType === "Group2"){
-							this.experimentProgressModel.group2Bar.visible = true;
-							this.experimentProgressModel.group2Bar.name = message.progress.name;
-							this.experimentProgressModel.group2Bar.current = message.progress.current;
-							this.experimentProgressModel.group2Bar.end = message.progress.end;
-							this.experimentProgressModel.group2Bar.percent = this.computeProgressPercent(message.progress.start, message.progress.current, message.progress.end);
-						}
-						else if(message.progress.barType === "Procedure"){
-							this.experimentProgressModel.procedureBar.time_start = this.checkStartTime(this.experimentProgressModel.procedureBar.time_start, this.experimentProgressModel.procedureBar.current, message.progress.timestamp, message.progress.current);
-							this.experimentProgressModel.procedureBar.time_current = message.progress.timestamp;
+						// Update individual progress bars
+						if(Object.keys(this.experimentProgressModel).includes(message.progress.barType)){
+							var progressBarModel = this.experimentProgressModel[message.progress.barType];
 							
-							this.experimentProgressModel.procedureBar.visible = true;
-							this.experimentProgressModel.procedureBar.name = message.progress.name;
-							this.experimentProgressModel.procedureBar.current = message.progress.current;
-							this.experimentProgressModel.procedureBar.end = message.progress.end;
-							this.experimentProgressModel.procedureBar.percent = this.computeProgressPercent(message.progress.start, message.progress.current, message.progress.end);
+							progressBarModel.visible = true;
+							progressBarModel.name = message.progress.name;
+							progressBarModel.start = message.progress.start;
+							progressBarModel.current = message.progress.current;
+							progressBarModel.end = message.progress.end;
 						}
-
+						
+						// Update "Procedure" bar's individual timer display
+						if(message.progress.barType === "Procedure"){
+							this.experimentProgressModel['Procedure'].time_start = this.checkStartTime(this.experimentProgressModel['Procedure'].time_start, this.experimentProgressModel['Procedure'].current, message.progress.timestamp, message.progress.current);
+							this.experimentProgressModel['Procedure'].time_current = message.progress.timestamp;
+						}
 					}
+					
 					if (message.type === 'Data') {
 						this.showProgress = true;
 												
@@ -2842,35 +2843,19 @@
 				// === Progress Bars ===
 				
 				clearProgressBars: function(){
-					this.experimentProgressModel.timer.start = 0;
-					this.experimentProgressModel.timer.current = 0;
+					this.experimentProgressTimer.start = 0;
+					this.experimentProgressTimer.current = 0;
 					
-					this.experimentProgressModel.dispatcherBar.visible = false;
-					this.experimentProgressModel.dispatcherBar.current = 0;
-					this.experimentProgressModel.dispatcherBar.end = 0;
-					this.experimentProgressModel.dispatcherBar.percent = 0;
-
-					this.experimentProgressModel.sweepBar.visible = false;
-					this.experimentProgressModel.sweepBar.current = 0;
-					this.experimentProgressModel.sweepBar.end = 0;
-					this.experimentProgressModel.sweepBar.percent = 0;
+					Object.entries(this.experimentProgressModel).forEach(([barID, barModel]) => {
+						barModel.visible = false;
+						barModel.name = '';
+						barModel.start = 0;
+						barModel.current = 0;
+						barModel.end = 0;
+					});
 					
-					this.experimentProgressModel.group1Bar.visible = false;
-					this.experimentProgressModel.group1Bar.current = 0;
-					this.experimentProgressModel.group1Bar.end = 0;
-					this.experimentProgressModel.group1Bar.percent = 0;
-					
-					this.experimentProgressModel.group2Bar.visible = false;
-					this.experimentProgressModel.group2Bar.current = 0;
-					this.experimentProgressModel.group2Bar.end = 0;
-					this.experimentProgressModel.group2Bar.percent = 0;
-
-					this.experimentProgressModel.procedureBar.visible = false;
-					this.experimentProgressModel.procedureBar.current = 0;
-					this.experimentProgressModel.procedureBar.end = 0;
-					this.experimentProgressModel.procedureBar.percent = 0;
-					this.experimentProgressModel.procedureBar.time_start = 0;
-					this.experimentProgressModel.procedureBar.time_current = 0;
+					this.experimentProgressModel['Procedure'].time_start = 0;
+					this.experimentProgressModel['Procedure'].time_current = 0;
 				},
 				computeProgressPercent: function(start, current, end) {
 					start = parseFloat(start);

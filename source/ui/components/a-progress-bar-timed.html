@@ -3,8 +3,8 @@
 	<v-list-tile v-if="visible">
 		
 		<v-list-tile-content style="flex-direction:row;align-items:center;" class="mr-3">
-			<v-list-tile-title>{{titleprefix}} {{title}} {{valuecurrent}} of {{valuemaximum}} </v-list-tile-title>
-			<v-progress-linear class="roundedcorners" height="10" color="success" v-model="valuepercent"></v-progress-linear>
+			<v-list-tile-title>{{title}} {{valuecurrent}} of {{valuemaximum}} </v-list-tile-title>
+			<v-progress-linear class="roundedcorners" height="10" color="success" v-model="progressPercent"></v-progress-linear>
 		</v-list-tile-content>
 		
 		<v-list-tile-action style="text-align:right;">	
@@ -18,7 +18,7 @@
 <script type="text/javascript">
 	Vue.component('a-progress-bar-timed', {
 		template: '#a-progress-bar-timed',
-		props: ['visible', 'titleprefix', 'title', 'time', 'valuecurrent', 'valuemaximum', 'valuepercent'],
+		props: ['visible', 'title', 'time', 'valuestart', 'valuecurrent', 'valuemaximum'],
 		filters:{
 			formatTimestamp: function(value) {
 				if(!value) return '';
@@ -30,7 +30,18 @@
 				seconds = value
 				return ('0' + minutes).slice(-2) + ':' + ('0' + seconds.toFixed(2)).slice(-5);
 			}
-		}
+		},
+		computed:{
+			progressPercent: function() {
+				if(!this.valuecurrent || !this.valuemaximum) return;
+				
+				if(this.valuestart){ 
+					return (this.valuecurrent - this.valuestart)/(this.valuemaximum - this.valuestart)*100;
+				} 
+				
+				return (this.valuecurrent)/(this.valuemaximum)*100;
+			}
+		},
 	});
 </script>
 
