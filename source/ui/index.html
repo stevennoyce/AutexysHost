@@ -957,7 +957,7 @@
 							<v-container>
 								<v-form class="ma-2">
 									<v-flex xs12 sm6 md4 lg3>
-										<v-select box class="ma-1" :label="runnerChoiceLabel" v-model="runnerChoice" :items="['Schedule File'].concat(standardScheduleNames)"></v-select>
+										<v-select box class="ma-1" label="Experiment Type" v-model="runnerChoice" :items="['Schedule File'].concat(standardScheduleNames)"></v-select>
 									</v-flex>
 								</v-form>
 							
@@ -1181,45 +1181,49 @@
 							</v-toolbar>
 							
 							<v-container fluid grid-list-sm>
-								<v-form class="ma-2">
-									<v-flex xs12 sm6 md4 lg3>
-										<v-select box class="ma-1" :label="jobSelectLabel" v-model="jobSelectChoice" :items="jobSelectItems"></v-select>
-										<v-select box class="ma-1" :label="deviceSelectLabel" v-model="deviceSelectChoice" :items="deviceSelectItems"></v-select>
-									</v-flex>
-								</v-form>
-								
 								<v-layout row wrap>
-									<v-flex xs12 sm12 md6 lg6 xl4 v-for="plot, i in livePlots[jobSelectChoice][deviceSelectChoice].plots" :key="i">
-										<v-card class="ma-1" height="100%">
-											<v-toolbar dark dense class="color3 ">
-												<v-toolbar-title>
-													Plot #{{ i+1 }} 
-												</v-toolbar-title>
-											
-												<v-spacer></v-spacer>
-												
-												<v-menu bottom left offset-y>
-													<v-btn slot="activator" icon><v-icon>settings</v-icon></v-btn>
-													<v-list light>
-														<v-list-tile @click="toggleLivePlotYAxisLog(plot)">
-															<v-list-tile-avatar><v-icon>timeline</v-icon></v-list-tile-avatar>
-															<v-list-tile-content><v-list-tile-title>Toggle Y-Axis Log</v-list-tile-title></v-list-tile-content>
-														</v-list-tile>
-														
-														<v-list-tile @click="clearLivePlot(plot)">
-															<v-list-tile-avatar><v-icon>clear</v-icon></v-list-tile-avatar>
-															<v-list-tile-content><v-list-tile-title>Clear Plot</v-list-tile-title></v-list-tile-content>
-														</v-list-tile>
-													</v-list>
-												</v-menu>
-											</v-toolbar>
-											
-											<div class="text-xs-center">
-												<a-plotly v-bind:data="extractPlotlyData(plot)" :layout="extractPlotlyLayout(plot)"></a-plotly>
-											</div>
-										</v-card>
+									<v-flex xs12 sm6 md4 lg3>
+										<v-select box class="ma-1" label="Job Number" v-model="jobSelectChoice" :items="jobSelectItems"></v-select>
+									</v-flex>
+									<v-flex xs12 sm6 md4 lg3>
+										<v-select box class="ma-1" label="Device Number" v-model="deviceSelectChoice" :items="deviceSelectItems"></v-select>
 									</v-flex>
 								</v-layout>
+								
+								<template v-if="(jobSelectChoice !== '') && (deviceSelectChoice !== '')">
+									<v-layout row wrap>
+										<v-flex xs12 sm12 md6 lg6 xl4 v-for="plot, i in livePlots[jobSelectChoice][deviceSelectChoice].plots" :key="i">
+											<v-card class="ma-1" height="100%">
+												<v-toolbar dark dense class="color3 ">
+													<v-toolbar-title>
+														Plot #{{ i+1 }} 
+													</v-toolbar-title>
+												
+													<v-spacer></v-spacer>
+													
+													<v-menu bottom left offset-y>
+														<v-btn slot="activator" icon><v-icon>settings</v-icon></v-btn>
+														<v-list light>
+															<v-list-tile @click="toggleLivePlotYAxisLog(plot)">
+																<v-list-tile-avatar><v-icon>timeline</v-icon></v-list-tile-avatar>
+																<v-list-tile-content><v-list-tile-title>Toggle Y-Axis Log</v-list-tile-title></v-list-tile-content>
+															</v-list-tile>
+															
+															<v-list-tile @click="clearLivePlot(plot)">
+																<v-list-tile-avatar><v-icon>clear</v-icon></v-list-tile-avatar>
+																<v-list-tile-content><v-list-tile-title>Clear Plot</v-list-tile-title></v-list-tile-content>
+															</v-list-tile>
+														</v-list>
+													</v-menu>
+												</v-toolbar>
+												
+												<div class="text-xs-center">
+													<a-plotly v-bind:data="extractPlotlyData(plot)" :layout="extractPlotlyLayout(plot)"></a-plotly>
+												</div>
+											</v-card>
+										</v-flex>
+									</v-layout>
+								</template>
 								
 							</v-container>
 						</v-card>
@@ -1844,7 +1848,6 @@
 				dispatcherRunning: false,
 				runnerLoadingFromDefaults: false, 
 				
-				runnerChoiceLabel: 'Experiment Type',
 				runnerChoice: '',
 				isModifiedRunnerChoice: false,
 				
@@ -1916,20 +1919,19 @@
 
 				// === Live Plots ===
 				
-				livePlots: {'Dummy':{'Dummy':{plots:[]}}},   //Rows = job number, Cols = device number, example: {'0':{'2-3': {plots: []}, '4-5': {plots: []}, '9-10': {plots: []}},
+				livePlots: {'exampleJob':{'exampleDevice':{plots:[]}}},   //Rows = job number, Cols = device number, example: {'0':{'2-3': {plots: []}, '4-5': {plots: []}, '9-10': {plots: []}},
 												//												   '1':{'2-3': {plots: []}, '4-5': {plots: []}, '9-10': {plots: []}}}
 				listInputTest: [{'text': 'a', 'value': '1'}, {'text': 'b', 'value': '2'}],
 				dataPlotData: [{ x: [1, 2, 3], y: [1, 3, 1], mode: 'lines' }],
 				colors: [],
 				
 				//Job and Device Number v-select (dropdowns)
-				jobSelectLabel: 'Job Number',
-				jobSelectChoice: 'Dummy',
-				jobSelectActive: 'Dummy',
+				jobSelectChoice: '',
+				jobSelectActive: '',
 				jobSelectItems: [],
-				deviceSelectLabel: 'Device Number',
-				deviceSelectChoice: 'Dummy',
-				deviceSelectActive: 'Dummy',
+				
+				deviceSelectChoice: '',
+				deviceSelectActive: '',
 				deviceSelectItems: [],
 
 				// === Performance App ===
@@ -2318,8 +2320,6 @@
 				runnerClear: function() {
 					this.clearProgressBars();
 					this.clearLivePlots();
-					this.clearJobSelect();
-					this.clearDeviceSelect();
 				},
 				runnerUpdateChoice: function() {	
 					this.isModifiedRunnerChoice = (this.runnerChoice !== '');
@@ -2733,21 +2733,19 @@
 				
 				handleServerMessage: function(message) {
 					if (message.type === 'JobNumberUpdate') {
-						Vue.set(this.livePlots, message.number, {"Dummy":{plots: []}}); 
-						//this.livePlots[message.number] = {"Dummy":{plots: []}};
-						Vue.set(this.jobSelectItems, this.jobSelectItems.length, message.number); 
-						//this.jobSelectItems.push(message.number);
-						this.jobSelectChoice = message.number;
+						Vue.set(this.livePlots, message.number, {}); 
+						//this.livePlots[message.number] = {};
+						this.jobSelectItems.push(message.number);
 						this.jobSelectActive = message.number;
+						this.jobSelectChoice = message.number;
 					}
 
 					if (message.type === 'DeviceNumberUpdate') {
-						Vue.set(this.livePlots[this.jobSelectChoice], message.number, {plots: []}); 
-						//this.livePlots[this.jobSelectChoice][message.number] = {plots:[]};
-						Vue.set(this.deviceSelectItems, this.deviceSelectItems.length, message.number); 
-						//this.deviceSelectItems.push(message.number);
-						this.deviceSelectChoice = message.number;
+						Vue.set(this.livePlots[this.jobSelectActive], message.number, {plots: []}); 
+						//this.livePlots[this.jobSelectActive][message.number] = {plots:[]};
+						this.deviceSelectItems.push(message.number);
 						this.deviceSelectActive = message.number;
+						this.deviceSelectChoice = message.number;
 					}
 
 					if (message.type === 'Progress') {
@@ -2784,19 +2782,12 @@
 						var livePlotsClone = JSON.parse(JSON.stringify(this.livePlots));
 						
 						for(myPlot of message.plots){
-							var myPlotInLivePlots = null;
-
 							//Find the correct plot in the JS variable
-							for(plot of livePlotsClone[this.jobSelectActive][this.deviceSelectActive].plots){
-								if(plot.plotID === myPlot.plotID){
-									myPlotInLivePlots = plot;
-									break;
-								}
-							}
-
+							var plotsMatchedByID = livePlotsClone[this.jobSelectActive][this.deviceSelectActive].plots.filter(p => (p.plotID === myPlot.plotID));
+							
 							//If has not been added yet to JS variable, add it
-							if(myPlotInLivePlots == null){
-								myPlotInLivePlots = JSON.parse(JSON.stringify(myPlot));
+							if(plotsMatchedByID.length === 0){
+								var myPlotInLivePlots = JSON.parse(JSON.stringify(myPlot));
 
 								//Convert xData and yData from points to arrays
 								for(series of myPlotInLivePlots.seriesList){
@@ -2807,6 +2798,8 @@
 								//Add to livePlots JS variable
 								livePlotsClone[this.jobSelectActive][this.deviceSelectActive].plots.push(myPlotInLivePlots);
 							} else {
+								var myPlotInLivePlots = plotsMatchedByID[0]
+								
 								//myPlot does not include series which have not been updated on this message
 								for(mySeries of myPlot.seriesList){
 									var mySeriesInLivePlots = null;
@@ -2936,20 +2929,18 @@
 					}
 				},
 				clearLivePlots: function() {
-					this.jobSelectChoice = 'Dummy';
-					this.jobSelectActive = 'Dummy';
-					this.deviceSelectChoice = 'Dummy';
-					this.deviceSelectActive = 'Dummy';
-					this.livePlots = {'Dummy':{'Dummy':{plots:[]}}};
+					this.clearJobSelect();
+					this.clearDeviceSelect();
+					this.livePlots = {};
 				},
 				clearJobSelect: function() {
-					this.jobSelectChoice = 'Dummy';
-					this.jobSelectActive = 'Dummy'
+					this.jobSelectChoice = '';
+					this.jobSelectActive = ''
 					this.jobSelectItems = [];
 				},
 				clearDeviceSelect: function() {
-					this.deviceSelectChoice = 'Dummy';
-					this.deviceSelectActive = 'Dummy';
+					this.deviceSelectChoice = '';
+					this.deviceSelectActive = '';
 					this.deviceSelectItems = [];
 				},
 
