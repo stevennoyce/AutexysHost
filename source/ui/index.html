@@ -1981,13 +1981,13 @@
 						'yAxisTitle':'Drain Current (A)',
 						'yScale':'linear',
 						'plotMode':'markers',
-						'traces':[{
+						'traces':{
 							'Drain Current':{
 								'traceID':'Drain Current',
 								'xData':[],
 								'yData':[],
 							},
-						}],
+						},
 					},
 				},
 				
@@ -2849,7 +2849,7 @@
 			    	if(missingPlots.length < 1) return;
 			    	
 			    	// Get a reference to a non-live copy of all current Live Plots
-			    	//var staticPlots = JSON.parse(JSON.stringify(livePlots));
+			    	var staticPlots = JSON.parse(JSON.stringify(livePlots));
 			    	
 			    	for(newPlot of missingPlots) {
 			    		// Make a copy of newPlot to avoid corrupting it with modifications
@@ -2862,14 +2862,14 @@
 				    	});
 				    	
 				    	// Put the new plot into place (in the non-live copy of Live Plots)
-				    	//staticPlots[plot.plotID] = plot;
+				    	staticPlots[plot.plotID] = plot;
 				    	
-				    	// Put the new plot into place (seems to be working directly using this rather than staticPlots)
-				    	livePlots[plot.plotID] = plot;
+				    	// Put the new plot into place (possible option if you don't want to use staticPlots)
+				    	//livePlots[plot.plotID] = plot;
 			    	}
 			    	
 			    	// Copy all changes over to Live Plots
-			    	//this.safeParseToVueVariable(staticPlots, livePlots);
+			    	this.safeParseToVueVariable(staticPlots, livePlots);
 			    },
 			    addNewLiveTraces: function(livePlots, newPlotsData) {
 			    	for(newPlot of newPlotsData) {
@@ -2881,7 +2881,7 @@
 			    		if(missingTraces.length < 1) continue;
 			    		
 			    		// Get a reference to a non-live copy of all current Live Plots
-			    		//var staticPlots = JSON.parse(JSON.stringify(livePlots));
+			    		var staticPlots = JSON.parse(JSON.stringify(livePlots));
 			    		
 			    		for(newTrace of missingTraces) {
 			    			// Make a copy of newTrace to avoid corrupting it with modifications
@@ -2892,14 +2892,14 @@
 			    			trace.yData = [];
 			    			
 			    			// Put the new trace into place (in the non-live copy of Live Plots)
-				    		//staticPlots[plotID]['traces'][trace.traceID] = trace;
+				    		staticPlots[plotID]['traces'][trace.traceID] = trace;
 			    			
-			    			// Put the new trace into place (seems to be working directly using this rather than staticPlots)
-				    		livePlots[plotID]['traces'][trace.traceID] = trace;
+			    			// Put the new trace into place (possible option if you don't want to use staticPlots)
+				    		//livePlots[plotID]['traces'][trace.traceID] = trace;
 			    		}
 			    		
 			    		// Copy all changes over to Live Plots
-			    		//this.safeParseToVueVariable(staticPlots, livePlots);
+			    		this.safeParseToVueVariable(staticPlots, livePlots);
 			    	}	
 			    },
 			    addNewLiveData: function(livePlots, newPlotsData) {
