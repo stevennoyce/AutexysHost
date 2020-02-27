@@ -2722,6 +2722,7 @@
 				},
 				performanceEnablePlots: function() {
 					var deviceID = this.performanceScheduleObject['Identifiers']['device']['default'];
+					if(!deviceID) deviceID = 'Device';
 					this.livePlots[0] = {};
 					this.livePlots[0][deviceID] = {};
 					this.livePlots[0][deviceID]['transfer'] = this.performancePlots['transfer'];
