@@ -1342,7 +1342,7 @@
 											<v-toolbar dark flat color="color1 darken-1">
 												<v-spacer></v-spacer>
 												<v-toolbar-items>
-													<v-btn color="color1 darken-2 roundedcorners" @click="performanceSave(); performanceStart();" :disabled="performanceRunning"><v-icon>play_arrow</v-icon></v-btn>
+													<v-btn color="color1 darken-2 roundedcorners" @click="performanceSave(); performanceEnablePlots(); performanceStart();" :disabled="performanceRunning"><v-icon>play_arrow</v-icon></v-btn>
 												</v-toolbar-items><v-spacer></v-spacer>
 												<v-toolbar-items>
 													<v-btn color="color1 darken-2 roundedcorners" @click="performanceStop()" :disabled="!performanceRunning"><v-icon>pause</v-icon></v-btn>
@@ -1954,12 +1954,12 @@
 						'xAxisTitle':'Gate Voltage (V)',
 						'yAxisTitle':'Drain Current (A)',
 						'yScale':'linear',
+						'plotMode':'markers',
 						'traces':{
 							'Drain Current':{
 								'traceID':'Drain Current',
 								'xData':[],
 								'yData':[],
-								'plotMode':'markers',
 							},
 						},
 					},
@@ -1967,12 +1967,12 @@
 						'xAxisTitle':'Gate Voltage (V)',
 						'yAxisTitle':'Drain Current (A)',
 						'yScale':'log',
+						'plotMode':'markers',
 						'traces':{
 							'Drain Current':{
 								'traceID':'Drain Current',
 								'xData':[],
 								'yData':[],
-								'plotMode':'markers',
 							},
 						},
 					},
@@ -1980,12 +1980,12 @@
 						'xAxisTitle':'Drain Voltage (V)',
 						'yAxisTitle':'Drain Current (A)',
 						'yScale':'linear',
+						'plotMode':'markers',
 						'traces':[{
 							'Drain Current':{
 								'traceID':'Drain Current',
 								'xData':[],
 								'yData':[],
-								'plotMode':'markers',
 							},
 						}],
 					},
@@ -2720,6 +2720,14 @@
 						}).fail(() => {console.log("Error saving performance app schedule file.")});
 					}
 				},
+				performanceEnablePlots: function() {
+					var deviceID = this.performanceScheduleObject['Identifiers']['device']['default'];
+					this.livePlots[0] = {};
+					this.livePlots[0][deviceID] = {};
+					this.livePlots[0][deviceID]['transfer'] = this.performancePlots['transfer'];
+					this.livePlots[0][deviceID]['subthreshold'] = this.performancePlots['subthreshold'];
+					this.livePlots[0][deviceID]['output'] = this.performancePlots['output'];
+				},
 				performanceStart: function() {
 					var path = this.launchDispatcherPath('guest', 'Project', 'PerformanceApp');
 					if (path) {
@@ -2739,16 +2747,22 @@
 				
 				handleServerMessage: function(message) {
 					if (message.type === 'JobNumberUpdate') {
-						Vue.set(this.livePlots, message.number, {}); 
-						//this.livePlots[message.number] = {};
+						if(!Object.keys(this.livePlots).includes("" + message.number)){
+							Vue.set(this.livePlots, message.number, {}); 
+							//this.livePlots[message.number] = {};
+							console.log('New live job number added: ' + message.number);
+						}
 						this.jobSelectItems.push(message.number);
 						this.jobSelectActive = message.number;
 						this.jobSelectChoice = message.number;
 					}
 
 					if (message.type === 'DeviceNumberUpdate') {
-						Vue.set(this.livePlots[this.jobSelectActive], message.number, {}); 
-						//this.livePlots[this.jobSelectActive][message.number] = {};
+						if(!Object.keys(this.livePlots[this.jobSelectActive]).includes(message.number)){
+							Vue.set(this.livePlots[this.jobSelectActive], message.number, {}); 
+							//this.livePlots[this.jobSelectActive][message.number] = {};
+							console.log('New live device number added: ' + message.number)
+						}
 						this.deviceSelectItems.push(message.number);
 						this.deviceSelectActive = message.number;
 						this.deviceSelectChoice = message.number;
@@ -2793,58 +2807,6 @@
 						
 						// Append data from this message to all relevant Live Plots
 						this.addNewLiveData(this.livePlots[this.jobSelectActive][this.deviceSelectActive], message.plots);
-										
-						// var livePlotsClone = JSON.parse(JSON.stringify(this.livePlots));
-						
-						// for(myPlot of message.plots){
-						// 	//Find the correct plot in the JS variable
-						// 	var plotsMatchedByID = livePlotsClone[this.jobSelectActive][this.deviceSelectActive].plots.filter(p => (p.plotID === myPlot.plotID));
-							
-						// 	//If has not been added yet to JS variable, add it
-						// 	if(plotsMatchedByID.length === 0){
-						// 		var myPlotInLivePlots = JSON.parse(JSON.stringify(myPlot));
-
-						// 		//Convert xData and yData from points to arrays
-						// 		for(series of myPlotInLivePlots.seriesList){
-						// 			series.xData = [series.xData];
-						// 			series.yData = [series.yData];
-						// 		}
-
-						// 		//Add to livePlots JS variable
-						// 		livePlotsClone[this.jobSelectActive][this.deviceSelectActive].plots.push(myPlotInLivePlots);
-						// 	} else {
-						// 		var myPlotInLivePlots = plotsMatchedByID[0]
-								
-						// 		//myPlot does not include series which have not been updated on this message
-						// 		for(mySeries of myPlot.seriesList){
-						// 			var mySeriesInLivePlots = null;
-									
-						// 			for(livePlotSeries of myPlotInLivePlots.seriesList){
-						// 				if(livePlotSeries.seriesName === mySeries.seriesName){
-						// 					mySeriesInLivePlots = livePlotSeries;
-						// 					break;
-						// 				}
-						// 			}
-									
-						// 			//Add any series which have not yet been added to JS variable
-						// 			if(mySeriesInLivePlots == null){
-						// 				mySeriesInLivePlots = JSON.parse(JSON.stringify(mySeries));
-
-						// 				//Convert xData and yData from points to arrays (data added after if statement)
-						// 				mySeriesInLivePlots.xData = [];
-						// 				mySeriesInLivePlots.yData = [];
-
-						// 				myPlotInLivePlots.seriesList.push(mySeriesInLivePlots);
-						// 			}
-
-						// 			//Add this data point
-						// 			mySeriesInLivePlots.xData.push(mySeries.xData);
-						// 			mySeriesInLivePlots.yData.push(mySeries.yData);
-						// 		}
-						// 	}
-
-						// 	this.safeParseToVueVariable(livePlotsClone, this.livePlots);							
-						// }
 					}
 				},
 
