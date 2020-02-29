@@ -55,7 +55,7 @@ def runFree(smu_instance, pointLimit, gateVoltageMinimum, gateVoltageMaximum, dr
 	distributions = {
 		'random':  lambda minimum, maximum, index, factor: random.uniform(minimum, maximum),
 		'striped': lambda minimum, maximum, index, factor: random.choice(np.linspace(minimum, maximum, factor)),
-		'looped':  lambda minimum, maximum, index, factor: (np.linspace(minimum, maximum, factor) + np.linspace(maximum, minimum, factor))[index % (2*factor)]
+		'looped':  lambda minimum, maximum, index, factor: (list(np.linspace(minimum, maximum, factor)) + list(np.linspace(maximum, minimum, factor)))[index % (2*factor)]
 	}
 	nextGateVoltage = distributions[gateVoltageDistribution]
 	nextDrainVoltage = distributions[drainVoltageDistribution]

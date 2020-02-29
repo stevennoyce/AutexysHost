@@ -987,7 +987,7 @@ class Emulator(SourceMeasureUnit):
 		pass
 
 	def takeMeasurement(self, retries=3):
-		time.sleep(0.1)
+		time.sleep(0.025)
 
 		K = 100e-6
 		vt = 0.5
