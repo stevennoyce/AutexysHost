@@ -1380,7 +1380,7 @@
 									
 									<v-flex xs2>
 										<v-card flat class="mt-3 ml-2">
-											<v-toolbar dark flat color="color1 darken-1" class="pb-1" extended extension-height="48">
+											<v-toolbar dark flat color="color1 darken-1" class="pb-1">
 												<v-spacer></v-spacer>
 												<v-toolbar-items><v-icon large>speed</v-icon></v-toolbar-items>
 												<v-toolbar-title v-if="liveDataCounter">
@@ -1388,7 +1388,12 @@
 												</v-toolbar-title>
 												<v-spacer></v-spacer>													
 											</v-toolbar>
-											<v-list>
+											<v-toolbar dark flat color="color1 darken-1" dense>
+												<v-spacer></v-spacer>
+												<v-toolbar-items><v-switch class="ml-2" color="white" label="" v-model="performanceMetrics.visible"></v-switch></v-toolbar-items>
+												<v-spacer></v-spacer>
+											</v-toolbar>
+											<v-list v-if="performanceMetrics.visible">
 												<v-list-tile>
 													<v-list-tile-content><v-list-tile-title style="font-weight: bold">
 														gm = {{performanceMetrics['gm'] | formatConductance}}
@@ -1947,6 +1952,7 @@
 				performanceScheduleObject: {},
 				
 				performanceMetrics: {
+					'visible': true,
 					'gm':undefined,
 					'SS':undefined,
 					'VT':undefined,
