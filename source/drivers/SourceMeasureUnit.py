@@ -1,6 +1,8 @@
 """This module defines a common Python interface for communicating to SMU systems. It also defines the possible sets of SMUs that can be
 connected to and the ports/MAC addresses need to connect."""
 
+# === Imports ===
+
 import ast
 import random
 
@@ -13,6 +15,10 @@ import random as rand
 import numpy as np
 import json
 import copy
+
+
+
+# === Measurement System Configurations ===
 
 smu_system_configurations = {
 	'single': {
@@ -90,6 +96,9 @@ smu_system_configurations = {
 			}
 		}
 	},
+	'Arduino':{
+		
+	},
 	'Emulator':{
 		'SMU': {
 			'uniqueID': '',
@@ -140,12 +149,14 @@ smu_system_configurations = {
 	},
 }
 
-defaultTimeout = 60000
+
+
+# === Connection API ===
 
 def getSystemConfiguration(systemType):
 	return copy.deepcopy(smu_system_configurations[systemType])
 
-def getConnectionToVisaResource(uniqueIdentifier='', system_settings=None, defaultComplianceCurrent=100e-6, smuTimeout=defaultTimeout):
+def getConnectionToVisaResource(uniqueIdentifier='', system_settings=None, defaultComplianceCurrent=100e-6, smuTimeout=60000):
 	import visa
 	
 	try:
@@ -183,6 +194,10 @@ def getConnectionToPCB(pcb_port='', system_settings=None):
 def getConnectionToEmulator():
 	return Emulator()
 
+
+
+# === SMU Base Class Definition ===
+
 class SourceMeasureUnit:
 	# === Generic instance variables ===
 	system_id = ''
@@ -191,20 +206,25 @@ class SourceMeasureUnit:
 	measurementRateVariabilityFactor = None
 	nplc = 1
 	
+	# --- Communication ---
+	def setParameter(self, parameter):
+		raise NotImplementedError("Please implement SourceMeasureUnit.setParameter()")
+	
+	def setDevice(self, deviceID):
+		raise NotImplementedError("Please implement SourceMeasureUnit.setDevice()")
+	
+	def disconnect(self):
+		raise NotImplementedError("Please implement SourceMeasureUnit.disconnect()")
+	
+	# --- Measurement Channels ---
+	def setComplianceCurrent(self, complianceCurrent):
+		raise NotImplementedError("Please implement SourceMeasureUnit.setComplianceCurrent()")
+	
 	def turnChannelsOn(self):
 		raise NotImplementedError("Please implement SourceMeasureUnit.turnChannelsOn()")
 	
 	def turnChannelsOff(self):
 		raise NotImplementedError("Please implement SourceMeasureUnit.turnChannelsOff()")
-	
-	def setComplianceCurrent(self, complianceCurrent):
-		raise NotImplementedError("Please implement SourceMeasureUnit.setComplianceCurrent()")
-
-	def setDevice(self, deviceID):
-		raise NotImplementedError("Please implement SourceMeasureUnit.setDevice()")
-
-	def setParameter(self, parameter):
-		raise NotImplementedError("Please implement SourceMeasureUnit.setParameter()")
 
 	def getDrainSourceMode(self):
 		raise NotImplementedError("Please implement SourceMeasureUnit.getDrainSourceMode()")
@@ -212,6 +232,7 @@ class SourceMeasureUnit:
 	def getGateSourceMode(self):
 		raise NotImplementedError("Please implement SourceMeasureUnit.getGateSourceMode()")
 
+	# --- Source ---
 	def setVds(self, voltage):
 		raise NotImplementedError("Please implement SourceMeasureUnit.setVds()")
 
@@ -224,15 +245,15 @@ class SourceMeasureUnit:
 	def setIg(self, current):
 		raise NotImplementedError("Please implement SourceMeasureUnit.setIg()")
 
+	# --- Measure ---
 	def takeMeasurement(self):
 		raise NotImplementedError("Please implement SourceMeasureUnit.takeMeasurement()")
 
+	# --- Sweep ---
 	def takeSweep(self, src1start, src1stop, src2start, src2stop, points, triggerInterval=None, src1vals=None, src2vals=None):
 		raise NotImplementedError("Please implement SourceMeasureUnit.takeSweep()")
 	
-	def disconnect(self):
-		raise NotImplementedError("Please implement SourceMeasureUnit.disconnect()")
-
+	# --- Specific Channel Measurement ---
 	def getVds(self):
 		return self.takeMeasurement()['V_ds']
 
@@ -245,6 +266,7 @@ class SourceMeasureUnit:
 	def getIg(self):
 		return self.takeMeasurement()['I_g']
 
+	# --- Voltage Ramps ---
 	def rampGateVoltage(self, voltageStart, voltageSetPoint, steps=None):
 		if(steps == None):
 			steps = abs(voltageStart - voltageSetPoint)//1e-6
@@ -292,6 +314,7 @@ class SourceMeasureUnit:
 		self.rampDrainVoltageDown(steps)
 		self.rampGateVoltageDown(steps)
 	
+	# --- Current Ramps ---
 	def rampGateCurrent(self, currentStart, currentSetPoint, steps=None):
 		if(steps == None):
 			steps = abs(currentStart - currentSetPoint)//1e-9
@@ -341,6 +364,8 @@ class SourceMeasureUnit:
 		
 	
 	
+# === B2900A Sub-Class Definition ===
+	
 class B2912A(SourceMeasureUnit):
 	# === Generic instance variables ===
 	system_id = ''
@@ -363,6 +388,7 @@ class B2912A(SourceMeasureUnit):
 		self.initialize()
 		self.setComplianceCurrent(defaultComplianceCurrent)
 	
+	# --- Internal ---
 	def initialize(self):
 		if((self.system_settings is not None) and ('reset' in self.system_settings) and (not self.system_settings['reset'])):
 			pass # don't reset on startup if you are specifically told not to by the system settings
@@ -400,30 +426,27 @@ class B2912A(SourceMeasureUnit):
 		
 		self.smu.write("*WAI") # Explicitly wait for all of these commands to finish before handling new commands
 	
+	def setTimeout(self, timeout_ms=60000):
+		self.smu.timeout = timeout_ms
+	
+	# --- Communication ---
+	def setParameter(self, parameter):
+		self.smu.write(parameter)
+	
 	def setDevice(self, deviceID):
 		pass
 	
-	def setBinaryDataTransfer(self, useBinary=True):
-		if useBinary and not self.use_binary:
-			self.smu.write(':form real,32')
-			self.smu.write(':form:border swap')
-			self.smu.values_format.use_binary('d', False, list)
-		
-		if not useBinary and self.use_binary:
-			self.smu.write(':form asc')
-			self.smu.write(':form:border norm')
-			self.smu.values_format.use_ascii('f', ',', list)
-		
-		self.use_binary = useBinary
+	def disconnect(self):
+		pass
 	
-	def query_values(self, query):
-		if self.use_binary:
-			return self.smu.query_binary_values(query)
-		
-		return self.smu.query_ascii_values(query)
-	
-	def setParameter(self, parameter):
-		self.smu.write(parameter)
+	# --- Measurement Channels ---	
+	def setComplianceCurrent(self, complianceCurrent=100e-6):
+		self.setParameter(":sense1:curr:prot {}".format(complianceCurrent))
+		self.setParameter(":sense2:curr:prot {}".format(complianceCurrent))
+
+	def setComplianceVoltage(self, complianceVoltage):
+		self.setParameter(":sense1:volt:prot {}".format(complianceVoltage))
+		self.setParameter(":sense2:volt:prot {}".format(complianceVoltage))
 
 	def turnChannelsOn(self):
 		self.setParameter(":output1 ON")
@@ -447,14 +470,6 @@ class B2912A(SourceMeasureUnit):
 		self.setParameter(':sense1:curr:range:auto OFF')
 		self.setParameter(':sense2:curr:range:auto OFF')
 
-	def setComplianceCurrent(self, complianceCurrent=100e-6):
-		self.setParameter(":sense1:curr:prot {}".format(complianceCurrent))
-		self.setParameter(":sense2:curr:prot {}".format(complianceCurrent))
-
-	def setComplianceVoltage(self, complianceVoltage):
-		self.setParameter(":sense1:volt:prot {}".format(complianceVoltage))
-		self.setParameter(":sense2:volt:prot {}".format(complianceVoltage))
-
 	def setChannel1SourceMode(self, mode="voltage"):
 		if(mode in ["voltage", "current"]):
 			self.setParameter(":source1:function:mode {}".format(mode))
@@ -473,6 +488,7 @@ class B2912A(SourceMeasureUnit):
 	def getGateSourceMode(self):
 		return self.source2_mode
 
+	# --- Source ---	
 	def setVds(self, voltage):
 		self.setParameter(":source1:voltage {}".format(voltage))
 
@@ -485,12 +501,24 @@ class B2912A(SourceMeasureUnit):
 	def setIg(self, current):
 		self.setParameter(":source2:current {}".format(current))
 	
-	def setTimeout(self, timeout_ms=defaultTimeout):
-		self.smu.timeout = timeout_ms
-	
-	def clearAndDisarm(self):
-		self.smu.clear()
-		self.smu.write(':abort:all (@1,2)')
+	# --- Measure ---	
+	def setBinaryDataTransfer(self, useBinary=True):
+		if useBinary and not self.use_binary:
+			self.smu.write(':form real,32')
+			self.smu.write(':form:border swap')
+			self.smu.values_format.use_binary('d', False, list)
+		
+		if not useBinary and self.use_binary:
+			self.smu.write(':form asc')
+			self.smu.write(':form:border norm')
+			self.smu.values_format.use_ascii('f', ',', list)
+		
+		self.use_binary = useBinary
+		
+	def query_values(self, query):
+		if(self.use_binary):
+			return self.smu.query_binary_values(query)
+		return self.smu.query_ascii_values(query)
 	
 	def takeMeasurement(self, retries=3):
 		for i in range(retries):
@@ -509,6 +537,7 @@ class B2912A(SourceMeasureUnit):
 			'I_g':  data[7]
 		}
 	
+	# --- Sweep ---
 	# SWEEP: configure all hardware settings to prepare a sweep
 	def setupSweep(self, src1start, src1stop, src2start, src2stop, points, triggerInterval=None, src1vals=None, src2vals=None):
 		points = int(points)
@@ -607,6 +636,7 @@ class B2912A(SourceMeasureUnit):
 		
 		return self.endSweep(endMode='fixed', includeCurrents=includeCurrents, includeVoltages=includeVoltages, includeTimes=includeTimes)
 	
+	# --- Arm ---
 	def arm(self, count=1):
 		"""Arm the instrument.
 		
@@ -622,6 +652,10 @@ class B2912A(SourceMeasureUnit):
 		
 		self.smu.write(':arm1:acq:count {}'.format(count))
 		self.smu.write(':arm2:acq:count {}'.format(count))
+	
+	def clearAndDisarm(self):
+		self.smu.clear()
+		self.smu.write(':abort:all (@1,2)')
 	
 	def enableHardwareTriggerReception(self, pin=1):
 		"""Configure the instrument to enable the reception of hardware triggers whenever it is armed."""
@@ -653,9 +687,7 @@ class B2912A(SourceMeasureUnit):
 		self.smu.write(':arm1:all:source:signal ext{}'.format(pin))
 		self.smu.write(':arm2:all:source:signal ext{}'.format(pin))
 	
-	def disconnect(self):
-		pass
-	
+	# --- Digital GPIO ---
 	def digitalWrite(self, pin, signal):
 		if pin < 0:
 			return
@@ -673,6 +705,8 @@ class B2912A(SourceMeasureUnit):
 			self.smu.write(":source:digital:data " + str(int(prior) & ~decBin))
 		
 
+
+# === PCB Sub-Class Definition ===
 
 class PCB_System(SourceMeasureUnit):
 	# === Generic instance variables ===
@@ -696,14 +730,7 @@ class PCB_System(SourceMeasureUnit):
 			self.signal_channel = system_settings['channel']
 			self.setParameter('switch-all-selectors-to-signal {:}!'.format(self.signal_channel), responseStartsWith='#')
 
-	def setComplianceCurrent(self, complianceCurrent):
-		pass
-
-	def setParameter(self, parameter, responseStartsWith=None):
-		self.ser.write( str(parameter).encode('UTF-8') )
-		if(responseStartsWith is not None):
-			self.getResponse(startsWith=responseStartsWith)
-
+	# --- Internal ---
 	# Wait for PCB to send a message. The best way to use this is to specify a unique character that the message will start with so that you know when you've received it. 
 	def getResponse(self, startsWith='', lines=1, printResponse=True):
 		response = ''
@@ -718,19 +745,11 @@ class PCB_System(SourceMeasureUnit):
 			print(response, end='')
 		return response
 
-	# Convert to the standard data format
-	def formatMeasurement(self, measurement):
-		data = json.loads(str(measurement))
-		i_d = float(data[0])
-		v_gs = float(data[1])
-		v_ds = float(data[2])
-		i_g = float(data[3]) if(len(data) >= 4) else 0.0
-		return {
-			'V_ds': v_ds,
-			'I_d':  i_d,
-			'V_gs': v_gs,
-			'I_g':  i_g
-		}
+	# --- Communication ---
+	def setParameter(self, parameter, responseStartsWith=None):
+		self.ser.write( str(parameter).encode('UTF-8') )
+		if(responseStartsWith is not None):
+			self.getResponse(startsWith=responseStartsWith)
 
 	# Make connections to a specific device
 	def setDevice(self, deviceID):
@@ -738,10 +757,7 @@ class PCB_System(SourceMeasureUnit):
 		self.setParameter('disconnect-all-from-all !', responseStartsWith='#')
 		
 		# Make sure the device selector is delivering the correct signal to our device of interest
-		if(self.signal_channel == 2):
-			self.setParameter('connect-all-selectors-secondary !', responseStartsWith='#')
-		else:
-			self.setParameter('connect-all-selectors !', responseStartsWith='#')
+		self.turnChannelsOn()
 			
 		# Extract device contact numbers from the deviceID
 		if('-' not in deviceID):
@@ -755,12 +771,29 @@ class PCB_System(SourceMeasureUnit):
 		self.setParameter("calibrate-adc-offset !", responseStartsWith='#')
 		print('Switched to device: ' + str(deviceID))
 
+	def disconnect(self):
+		self.ser.close()
+	
+	# --- Measurement Channels ---
+	def setComplianceCurrent(self, complianceCurrent):
+		pass
+
+	def turnChannelsOn(self):
+		if(self.signal_channel == 2):
+			self.setParameter('connect-all-selectors-secondary !', responseStartsWith='#')
+		else:
+			self.setParameter('connect-all-selectors !', responseStartsWith='#')
+	
+	def turnChannelsOff(self):
+		self.setParameter('disconnect-all-selectors !', responseStartsWith='#')
+
 	def getDrainSourceMode(self):
-		return "voltage"
+		return 'voltage'
 	
 	def getGateSourceMode(self):
-		raise "voltage"
+		raise 'voltage'
 
+	# --- Source ---
 	# Set Vds in millivolts (easy communication, avoids using decimal numbers)
 	def setVds_mV(self, voltage):
 		self.setParameter("set-vds-mv {:.0f}!".format(voltage*1000), responseStartsWith='#')
@@ -777,13 +810,29 @@ class PCB_System(SourceMeasureUnit):
 	def setVgs(self, voltage):
 		self.setParameter("set-vgs {:.3f}!".format(voltage), responseStartsWith='#')
 
+	# --- Measure ---
+	# Convert to the standard data format
+	def formatMeasurement(self, measurement):
+		data = json.loads(str(measurement))
+		i_d = float(data[0])
+		v_gs = float(data[1])
+		v_ds = float(data[2])
+		i_g = float(data[3]) if(len(data) >= 4) else 0.0
+		return {
+			'V_ds': v_ds,
+			'I_d':  i_d,
+			'V_gs': v_gs,
+			'I_g':  i_g
+		}
+
 	def takeMeasurement(self):
 		self.setParameter('measure !')
 		response = self.getResponse(startsWith='[', printResponse=False)
 		print('MEASURE: ' + str(response), end='')
 		return self.formatMeasurement(response)
 
-	# SWEEP: figure out all hardware settings to prepare a sweep
+	# --- Sweep ---
+	# SWEEP: configure all hardware settings to prepare a sweep
 	def setupSweep(self, src1start, src1stop, src2start, src2stop, points, triggerInterval=None, src1vals=None, src2vals=None):
 		points = int(points)
 		
@@ -893,9 +942,10 @@ class PCB_System(SourceMeasureUnit):
 		time.sleep(timeToTakeMeasurements)	
 		
 		return self.endSweep()
-	
-	def disconnect(self):
-		self.ser.close()
+
+
+
+# === Emulator Sub-Class Definition ===
 
 class Emulator(SourceMeasureUnit):
 	'''
@@ -918,34 +968,21 @@ class Emulator(SourceMeasureUnit):
 	def __init__(self):
 		pass
 
-	def initialize(self):
+	# --- Communication ---
+	def setParameter(self, parameter):
 		pass
 
 	def setDevice(self, deviceID):
 		pass
-
-	def setBinaryDataTransfer(self, useBinary=True):
+	
+	def disconnect(self):
 		pass
 
-	def query_values(self, query):
-		return [1, 2, 3, 4, 5]
-
-	def setParameter(self, parameter):
-		pass
-
+	# --- Measurement Channels ---
 	def turnChannelsOn(self):
 		pass
 
 	def turnChannelsOff(self):
-		pass
-
-	def setNPLC(self, nplc=1):
-		pass
-
-	def turnAutoRangingOn(self):
-		pass
-
-	def turnAutoRangingOff(self):
 		pass
 
 	def setComplianceCurrent(self, complianceCurrent=100e-6):
@@ -968,6 +1005,7 @@ class Emulator(SourceMeasureUnit):
 	def getGateSourceMode(self):
 		return self.source2_mode
 
+	# --- Source ---
 	def setVds(self, voltage):
 		self.vds = voltage
 
@@ -980,21 +1018,17 @@ class Emulator(SourceMeasureUnit):
 	def setIg(self, current):
 		pass
 
-	def setTimeout(self, timeout_ms=defaultTimeout):
-		pass
-
-	def clearAndDisarm(self):
-		pass
-
+	# --- Measure ---
+	def canonical_model(self, K, vt, vgs, vds):
+		return ( (K*( (vgs - vt)*vds - 0.5*(vds**2) )) if(vds < vgs-vt) else (0.5 * K * ((max(0, vgs-vt))**2)) )
+	
 	def takeMeasurement(self, retries=3):
 		time.sleep(0.025)
 
-		K = 100e-6
-		vt = 0.5
-
 		vds = self.vds
 		vgs = self.vgs
-		i_d = (K*( (vgs - vt)*vds - 0.5*(vds**2) )) if(vds < vgs-vt) else (0.5 * K * ((max(0, vgs-vt))**2))
+		i_d = self.canonical_model(100e-6, 0.5, vgs, vds)
+		
 		vds = 1*random.randint(0,1)
 		vgs = 3.3*random.randint(0,1)
 		i_d = 0.001*random.randint(0,1)
@@ -1006,28 +1040,8 @@ class Emulator(SourceMeasureUnit):
 			'I_g': 0.00000000001*random.randint(0,1)
 		}
 
-	def setupSweep(self, src1start, src1stop, src2start, src2stop, points, triggerInterval=None, src1vals=None,
-				   src2vals=None):
-		return 10
-
-	def initSweep(self):
-		pass
-
-	def startSweep(self, src1start, src1stop, src2start, src2stop, points, triggerInterval=None, src1vals=None,
-				   src2vals=None):
-		return 10
-
-	def endSweep(self, endMode=None, includeCurrents=[True, True], includeVoltages=[True, True], includeTimes=True):
-		return {
-			'Vds_data': [[1*random.randint(0,1)]*10]*2,
-			'Id_data': [[0.001*random.randint(0,1)]*10]*2,
-			'Vgs_data': [[3.3*random.randint(0,1)]*10]*2,
-			'Ig_data': [[0.00000000001*random.randint(0,1)]*10]*2,
-			'timestamps': [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [10, 11, 12, 13, 14, 15, 16, 17, 18, 19]]
-		}
-
-	def takeSweep(self, src1start, src1stop, src2start, src2stop, points, triggerInterval=None, src1vals=None,
-				  src2vals=None, includeCurrents=True, includeVoltages=True, includeTimes=True):
+	# --- Sweep ---
+	def takeSweep(self, src1start, src1stop, src2start, src2stop, points, triggerInterval=None, src1vals=None, src2vals=None):
 		time.sleep(0.1)
 
 		return {
@@ -1037,30 +1051,9 @@ class Emulator(SourceMeasureUnit):
 			'Ig_data': [0.00000000001*random.randint(0,1)]*20,
 			'timestamps': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
 		}
+	
 
-
-		# return {
-		# 	'Vds_data': [[1*random.randint(0,1)]*10]*2,
-		# 	'Id_data': [[0.001*random.randint(0,1)]*10]*2,
-		# 	'Vgs_data': [[3.3*random.randint(0,1)]*10]*2,
-		# 	'Ig_data': [[0.00000000001*random.randint(0,1)]*10]*2,
-		# 	'timestamps': [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [10, 11, 12, 13, 14, 15, 16, 17, 18, 19]]
-		# }
-
-	def arm(self, count=1):
-		pass
-
-	def enableHardwareTriggerReception(self, pin=1):
-		pass
-
-	def enableHardwareArmReception(self, pin=1):
-		pass
-
-	def disconnect(self):
-		pass
-
-	def digitalWrite(self, pin, signal):
-		pass
+	
 
 if (__name__ == '__main__'):
 	pcb = getConnectionToPCB(system_settings=smu_system_configurations['Combo']['PCB']['settings'])
