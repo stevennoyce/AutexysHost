@@ -15,21 +15,12 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 	smu_names = list(smu_systems.keys())
 	smu_instance = smu_systems[smu_names[0]]
 	
-	# This script uses the default Ardunio, which is the first one in the list of Ardunio systems
-	arduino_names = list(arduino_systems.keys())
-	arduino_instance = arduino_systems[arduino_names[0]]
-	
 	# Get shorthand name to easily refer to configuration parameters
 	fsb_parameters = parameters['runConfigs']['FlowStaticBias']
 
 	# Print the starting message
 	print('Applying flow static bias of V_GS='+str(fsb_parameters['gateVoltageSetPoint'])+'V, V_DS='+str(fsb_parameters['drainVoltageSetPoint'])+'V')
 	smu_instance.setComplianceCurrent(fsb_parameters['complianceCurrent'])	
-
-	# Ensure all sensor data is reset to empty lists so that there is one-to-one mapping between device and sensor measurements
-	sensor_data = arduino_instance.takeMeasurement()
-	for (measurement, value) in sensor_data.items():
-		parameters['SensorData'][measurement] = []
 
 	# === START ===
 	# Apply voltages
@@ -45,7 +36,6 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 	'''
 
 	results = runFlowStaticBias(smu_instance, 
-							arduino_instance,
 							drainVoltageSetPoint=fsb_parameters['drainVoltageSetPoint'],
 							gateVoltageSetPoint=fsb_parameters['gateVoltageSetPoint'],
 							measurementTime=fsb_parameters['measurementTime'],
@@ -121,7 +111,7 @@ def flushingPins(smu_instance, flushPins, reversePumpPins, pinToFlush):
 	time.sleep(1)
 
 # === Data Collection ===
-def runFlowStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gateVoltageSetPoint, measurementTime, flowDurations, subCycleDurations, pumpPins, reversePumpPins, flushPins, cycleCount, solutions, share=None):
+def runFlowStaticBias(smu_instance, drainVoltageSetPoint, gateVoltageSetPoint, measurementTime, flowDurations, subCycleDurations, pumpPins, reversePumpPins, flushPins, cycleCount, solutions, share=None):
 	
 	smu_instance.digitalWrite(1, "LOW")
 	
@@ -326,11 +316,6 @@ def runFlowStaticBias(smu_instance, arduino_instance, drainVoltageSetPoint, gate
 			ig_normalized = np.array(measurements['Ig_data']) - np.polyval(np.polyfit(range(len(measurements['Ig_data'])), measurements['Ig_data'], 1), np.array(measurements['Ig_data']))			
 		id_std.append(np.std(id_normalized))
 		ig_std.append(np.std(ig_normalized))
-
-		# Take a measurement with the Arduino
-		sensor_data = arduino_instance.takeMeasurement()
-		for (measurement, value) in sensor_data.items():
-			parameters['SensorData'][measurement].append(value)
 
 		# Send a data message
 		pipes.livePlotUpdate(share,plots=

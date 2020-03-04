@@ -292,9 +292,9 @@ def initializeArduino(parameters):
 	
 	arduino_instance = arduinoBoard.getConnection(baud=9600)
 	
-	sensor_data = arduino_instance.takeMeasurement()
-	for (measurement, value) in sensor_data.items():
-		parameters['SensorData'][measurement] = [value]
+	#sensor_data = arduino_instance.takeMeasurement()
+	#for (measurement, value) in sensor_data.items():
+	#	parameters['SensorData'][measurement] = [value]
 		
 	arduino_systems = {'Arduino': arduino_instance}
 	return arduino_systems

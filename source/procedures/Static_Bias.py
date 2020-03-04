@@ -14,21 +14,12 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 	smu_names = list(smu_systems.keys())
 	smu_instance = smu_systems[smu_names[0]]
 	
-	# This script uses the default Ardunio, which is the first one in the list of Ardunio systems
-	arduino_names = list(arduino_systems.keys())
-	arduino_instance = arduino_systems[arduino_names[0]]
-	
 	# Get shorthand name to easily refer to configuration parameters
 	sb_parameters = parameters['runConfigs']['StaticBias']
 
 	# Print the starting message
 	print('Applying static bias of V_GS='+str(sb_parameters['gateVoltageSetPoint'])+'V, V_DS='+str(sb_parameters['drainVoltageSetPoint'])+'V for '+str(sb_parameters['totalBiasTime'])+' seconds...')
 	smu_instance.setComplianceCurrent(sb_parameters['complianceCurrent'])	
-
-	# Ensure all sensor data is reset to empty lists so that there is one-to-one mapping between device and sensor measurements
-	sensor_data = arduino_instance.takeMeasurement()
-	for (measurement, value) in sensor_data.items():
-		parameters['SensorData'][measurement] = []
 
 	# === START ===
 	# Apply bias voltages (or change channels to high-resistance mode)
@@ -53,7 +44,6 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 		time.sleep(sb_parameters['delayBeforeMeasurementsBegin'])
 
 	results = runStaticBias(smu_instance, 
-							arduino_instance,
 							totalBiasTime=sb_parameters['totalBiasTime'], 
 							measurementTime=sb_parameters['measurementTime'],
 							share=share)
@@ -110,7 +100,7 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 	return jsonData
 
 # === Data Collection ===
-def runStaticBias(smu_instance, arduino_instance, totalBiasTime, measurementTime, share=None):
+def runStaticBias(smu_instance, totalBiasTime, measurementTime, share=None):
 	vds_data = []
 	id_data = []
 	vgs_data = []
@@ -198,11 +188,6 @@ def runStaticBias(smu_instance, arduino_instance, totalBiasTime, measurementTime
 			ig_normalized = np.array(measurements['Ig_data']) - np.polyval(np.polyfit(range(len(measurements['Ig_data'])), measurements['Ig_data'], 1), np.array(measurements['Ig_data']))			
 		id_std.append(np.std(id_normalized))
 		ig_std.append(np.std(ig_normalized))
-
-		# Take a measurement with the Arduino
-		sensor_data = arduino_instance.takeMeasurement()
-		for (measurement, value) in sensor_data.items():
-			parameters['SensorData'][measurement].append(value)
 
 		# Send a data message
 		pipes.livePlotUpdate(share,plots=
