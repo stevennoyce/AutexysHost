@@ -1,16 +1,38 @@
 """This module defines a common Python interface for communicating to Arduino boards over the Arduino Serial interface."""
 
+# === Imports ===
 import serial as pySerial
 import time
 import json
 import numpy as np
 
-def getConnection(port, baud):
-	ser = pySerial.Serial(port, baud, timeout=0.5)
-	return ArduinoSerial(ser)
 
-def getNullInstance():
-	return NullArduinoSerial()
+
+# === Connection API ===
+
+def getConnection(baud):
+	# Iterate over possible USB connections
+	ser = None
+	for port in ['/dev/cu.wchusbserial1410', '/dev/cu.wchusbserial1420']:
+		try:
+			ser = pySerial.Serial(port, baud, timeout=0.5)
+			break
+		except:
+			pass
+	
+	# If not able to connect, return null instance
+	if(ser is None): 
+		print("No Arduino connected.")
+		return NullArduinoSerial()			
+	
+	# Return Arduino reference
+	arduino_instance = ArduinoSerial(ser)
+	print("Connected to Arduino on port: " + str(port))
+	return arduino_instance
+
+
+
+# === Arduino Base Class Definition ===
 
 class ArduinoSerial:
 	ser = None
@@ -37,6 +59,10 @@ class ArduinoSerial:
 		self.writeSerial("MEAS!")
 		sensor_data = json.loads(self.getResponse(startsWith='{'))
 		return sensor_data
+
+
+
+# === Null Arduino Class Definition ===
 
 class NullArduinoSerial(ArduinoSerial):
 	def __init__(self):

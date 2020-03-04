@@ -290,20 +290,8 @@ def initializeMeasurementSystems(parameters):
 def initializeArduino(parameters):
 	"""Given the parameters for running an experiment, sets up a connection to the (usually optional) Arduino."""
 	
-	arduino_instance = None
-	baud = 9600
-	try:
-		port = '/dev/cu.wchusbserial1410'
-		arduino_instance = arduinoBoard.getConnection(port, baud)
-		print("Connected to Arduino on port: " + str(port))
-	except: 
-		try:
-			port = '/dev/cu.wchusbserial1420'
-			arduino_instance = arduinoBoard.getConnection(port, baud)
-			print("Connected to Arduino on port: " + str(port))
-		except: 
-			print("No Arduino connected.")
-			arduino_instance = arduinoBoard.getNullInstance()
+	arduino_instance = arduinoBoard.getConnection(baud=9600)
+	
 	sensor_data = arduino_instance.takeMeasurement()
 	for (measurement, value) in sensor_data.items():
 		parameters['SensorData'][measurement] = [value]
