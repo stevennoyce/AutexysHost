@@ -951,7 +951,7 @@
 									Experiment Runner
 								</v-toolbar-title>
 								<v-spacer></v-spacer>
-								<v-btn icon @click="runnerReset()" :disabled="!isModifiedRunnerChoice"><v-icon>settings_backup_restore</v-icon></v-btn>
+								<v-btn icon @click="runnerReset()" :disabled="(runnerChoice === '') && (!showProgress)"><v-icon>settings_backup_restore</v-icon></v-btn>
 							</v-toolbar>
 							
 							<v-container>
@@ -1193,28 +1193,32 @@
 								<template v-if="(jobSelectChoice !== '') && (deviceSelectChoice !== '') && (livePlots[jobSelectChoice]) && (livePlots[jobSelectChoice][deviceSelectChoice])">
 									<v-layout row wrap>
 										<v-flex xs12 sm12 md6 lg6 xl4 v-for="[plotID, plot] of Object.entries(livePlots[jobSelectChoice][deviceSelectChoice])" :key="plotID">
-											<v-card class="ma-1" height="100%">
+											<v-card class="ma-1">
 												<v-toolbar dark dense class="color3 ">
 													<v-toolbar-title>
-														Plot: {{ plotID }} 
+														{{ plotID }} 
 													</v-toolbar-title>
 												
 													<v-spacer></v-spacer>
 													
-													<v-menu bottom left offset-y>
-														<v-btn slot="activator" icon><v-icon>settings</v-icon></v-btn>
-														<v-list light>
-															<v-list-tile @click="toggleLivePlotYAxisLog(plot)">
-																<v-list-tile-avatar><v-icon>timeline</v-icon></v-list-tile-avatar>
-																<v-list-tile-content><v-list-tile-title>Toggle Y-Axis Log</v-list-tile-title></v-list-tile-content>
-															</v-list-tile>
-															
-															<v-list-tile @click="clearLivePlot(plot)">
-																<v-list-tile-avatar><v-icon>clear</v-icon></v-list-tile-avatar>
-																<v-list-tile-content><v-list-tile-title>Clear Plot</v-list-tile-title></v-list-tile-content>
-															</v-list-tile>
-														</v-list>
-													</v-menu>
+													<v-toolbar-items>
+														<v-tooltip top>
+															<v-btn slot="activator" icon @click="toggleLivePlotYAxisLog(plot)"><v-icon>timeline</v-icon></v-btn>
+															<span>Toggle Log Scale</span>
+														</v-tooltip>
+													</v-toolbar-items>
+													
+													<v-toolbar-items>
+														<v-menu bottom left offset-y>
+															<v-btn slot="activator" icon><v-icon>settings</v-icon></v-btn>
+															<v-list light>																
+																<v-list-tile @click="clearLivePlot(plot); delete livePlots[jobSelectChoice][deviceSelectChoice][plotID];">
+																	<v-list-tile-avatar><v-icon>clear</v-icon></v-list-tile-avatar>
+																	<v-list-tile-content><v-list-tile-title>Clear Plot</v-list-tile-title></v-list-tile-content>
+																</v-list-tile>
+															</v-list>
+														</v-menu>
+													</v-toolbar-items>
 												</v-toolbar>
 												
 												<div class="text-xs-center">
@@ -1361,17 +1365,17 @@
 												<v-tab href="#tab-O">Output Curve</v-tab>
 												<v-tab-item value="tab-S">
 													<v-card flat>
-														<a-plotly v-bind:data="extractPlotlyData(performancePlots['subthreshold'])" :layout="extractPlotlyLayout(performancePlots['subthreshold'])"></a-plotly>
+														<a-plotly v-bind:data="extractPlotlyData(performancePlots['Subthreshold Curve'])" :layout="extractPlotlyLayout(performancePlots['Subthreshold Curve'])"></a-plotly>
 													</v-card>
 												</v-tab-item>
 												<v-tab-item value="tab-T">
 													<v-card flat>
-														<a-plotly v-bind:data="extractPlotlyData(performancePlots['transfer'])" :layout="extractPlotlyLayout(performancePlots['transfer'])"></a-plotly>
+														<a-plotly v-bind:data="extractPlotlyData(performancePlots['Transfer Curve'])" :layout="extractPlotlyLayout(performancePlots['Transfer Curve'])"></a-plotly>
 													</v-card>
 												</v-tab-item>
 												<v-tab-item value="tab-O">
 													<v-card flat>
-														<a-plotly v-bind:data="extractPlotlyData(performancePlots['output'])" :layout="extractPlotlyLayout(performancePlots['output'])"></a-plotly>
+														<a-plotly v-bind:data="extractPlotlyData(performancePlots['Output Curve'])" :layout="extractPlotlyLayout(performancePlots['Output Curve'])"></a-plotly>
 													</v-card>
 												</v-tab-item>
 											</v-tabs>
@@ -1861,7 +1865,6 @@
 				runnerLoadingFromDefaults: false, 
 				
 				runnerChoice: '',
-				isModifiedRunnerChoice: false,
 				
 				runnerUser: '',
 				runnerProject: '',
@@ -1959,7 +1962,7 @@
 				},
 								
 				performancePlots: {
-					'transfer':{
+					'Transfer Curve':{
 						'xAxisTitle':'Gate Voltage (V)',
 						'yAxisTitle':'Drain Current (A)',
 						'yScale':'linear',
@@ -1972,7 +1975,7 @@
 							},
 						},
 					},
-					'subthreshold':{
+					'Subthreshold Curve':{
 						'xAxisTitle':'Gate Voltage (V)',
 						'yAxisTitle':'Drain Current (A)',
 						'yScale':'log',
@@ -1985,7 +1988,7 @@
 							},
 						},
 					},
-					'output':{
+					'Output Curve':{
 						'xAxisTitle':'Drain Voltage (V)',
 						'yAxisTitle':'Drain Current (A)',
 						'yScale':'linear',
@@ -2336,9 +2339,7 @@
 					this.clearProgressBars();
 					this.clearLivePlots();
 				},
-				runnerUpdateChoice: function() {	
-					this.isModifiedRunnerChoice = (this.runnerChoice !== '');
-								
+				runnerUpdateChoice: function() {									
 					if((this.runnerChoice === 'Schedule File') || (this.runnerChoice === '')) { 
 						this.runnerLoadingFromDefaults = false;
 						this.runnerScheduleObjectsHasBeenModified = false;
@@ -2735,9 +2736,9 @@
 					if(!deviceID) deviceID = 'Device';
 					this.livePlots[0] = {};
 					this.livePlots[0][deviceID] = {};
-					this.livePlots[0][deviceID]['transfer'] = this.performancePlots['transfer'];
-					this.livePlots[0][deviceID]['subthreshold'] = this.performancePlots['subthreshold'];
-					this.livePlots[0][deviceID]['output'] = this.performancePlots['output'];
+					this.livePlots[0][deviceID]['Transfer Curve'] = this.performancePlots['Transfer Curve'];
+					this.livePlots[0][deviceID]['Subthreshold Curve'] = this.performancePlots['Subthreshold Curve'];
+					this.livePlots[0][deviceID]['Output Curve'] = this.performancePlots['Output Curve'];
 				},
 				performanceStart: function() {
 					var path = this.launchDispatcherPath('guest', 'Project', 'PerformanceApp');

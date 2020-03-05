@@ -130,7 +130,7 @@ def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint
 				# Send a data message
 				preppedGateVoltage = gateVoltage if abs((gateVoltage - measurement['V_gs'])) < abs(0.1*gateVoltage) else measurement['V_gs']
 				pipes.livePlotUpdate(share, plots=
-				[livePlotter.createDataSeries(plotID='Response vs. Gate Voltage', 
+				[livePlotter.createDataSeries(plotID='Transfer Curve', 
 												labels=['Drain Current', 'Gate Current'],
 												xValues=[preppedGateVoltage, preppedGateVoltage], 
 												yValues=[measurement['I_d'], measurement['I_g']], 
