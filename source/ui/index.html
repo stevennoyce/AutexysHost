@@ -1520,12 +1520,12 @@
 											<v-list>
 												<v-list-tile>
 													<v-list-tile-content><v-list-tile-title style="font-weight: bold">
-														Zmax = {{ptSensorMetrics['Zmax']}}
+														Zmax = {{ptSensorMaxImpedance | formatImpedance}}
 													</v-list-tile-title></v-list-tile-content>
 												</v-list-tile>
 												<v-list-tile>
 													<v-list-tile-content><v-list-tile-title style="font-weight: bold">
-														tmax = {{ptSensorMetrics['tmax']}}
+														tmax = {{ 0 }}
 													</v-list-tile-title></v-list-tile-content>
 												</v-list-tile>
 											</v-list>
@@ -2104,10 +2104,6 @@
 				
 				ptSensorRunning: false,
 				ptSensorScheduleObject: {},
-				ptSensorMetrics: {
-					'Zmax':undefined,
-					'tmax':undefined,
-				},
 				ptSensorPlots: {
 					'Impedance': {
 						'xAxisTitle':'Time (s)',
@@ -3437,7 +3433,13 @@
 				},
 				
 				dynamicRecentActivityTableHeaders: function() {
-					return this.recentActivityHeaders.filter(h => h.visible)
+					return this.recentActivityHeaders.filter(h => h.visible);
+				},
+				
+				ptSensorMaxImpedance: function() {
+					impedanceTraces = Object.entries(this.ptSensorPlots['Impedance']['traces']).map(entry => entry[1]);
+					if(!impedanceTraces.length) return;
+					return Math.max.apply(null, impedanceTraces.map(trace => Math.max.apply(null, trace.yData)));	
 				},
 			},
 			filters:{
@@ -3494,6 +3496,11 @@
 						value *= 1e3;
 						units = " mV";
 					}
+					return value + units;	
+				},
+				formatImpedance: function(value) {
+					if(value == undefined) return '';
+					var units = " Ohms";
 					return value + units;	
 				},
 			}
