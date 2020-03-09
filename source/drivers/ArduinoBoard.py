@@ -13,7 +13,7 @@ import numpy as np
 def getConnection(baud):
 	# Iterate over possible USB connections
 	ser = None
-	for port in ['/dev/cu.wchusbserial1410', '/dev/cu.wchusbserial1420']:
+	for port in ['/dev/cu.wchusbserial1410', '/dev/cu.wchusbserial1420', '/dev/cu.usbmodem1411']:
 		try:
 			ser = pySerial.Serial(port, baud, timeout=0.5)
 			break
@@ -41,7 +41,8 @@ class ArduinoSerial:
 	def __init__(self, pySerial):
 		self.ser = pySerial
 		time.sleep(2)
-		print(self.getResponse(), end='')
+		self.writeSerial('CONN!')
+		print(self.getResponse(startsWith='#'), end='')
 
 	def writeSerial(self, message):
 		self.ser.write( str(message).encode('UTF-8') )
@@ -58,6 +59,7 @@ class ArduinoSerial:
 	def takeMeasurement(self):
 		self.writeSerial("MEAS!")
 		sensor_data = json.loads(self.getResponse(startsWith='{'))
+		print(sensor_data)
 		return sensor_data
 
 

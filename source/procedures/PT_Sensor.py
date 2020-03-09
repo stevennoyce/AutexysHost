@@ -43,7 +43,7 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 
 	# Save results as a JSON object
 	print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
-	dlu.saveJSON(dlu.getDeviceDirectory(parameters), gs_parameters['saveFileName'], jsonData, subDirectory='Ex'+str(parameters['startIndexes']['experimentNumber']))
+	dlu.saveJSON(dlu.getDeviceDirectory(parameters), pt_parameters['saveFileName'], jsonData, subDirectory='Ex'+str(parameters['startIndexes']['experimentNumber']))
 
 	return jsonData
 
@@ -57,7 +57,7 @@ def runPTSensor(arduino_reference, totalSensingTime, delayBetweenMeasurements, s
 	
 	while((time.time() - startTime) < totalSensingTime):
 		# Send a progress message
-		pipes.progressUpdate(share, 'Impedance Point', start=0, current=index, end=index * totalSensingTime / (time.time() - startTime))
+		pipes.progressUpdate(share, 'Impedance Point', start=0, current=index, end=index * totalSensingTime / (time.time() - startTime), enableAbort=True)
 		index += 1
 
 		# If delayBetweenMeasurements is non-zero, wait before taking the measurement
@@ -74,7 +74,7 @@ def runPTSensor(arduino_reference, totalSensingTime, delayBetweenMeasurements, s
 
 		# Send a data message
 		pipes.livePlotUpdate(share, plots=
-		[livePlotter.createDataSeries(plotID='Response vs. Time', 
+		[livePlotter.createDataSeries(plotID='Impedance', 
 										labels=['Drain Current'],
 										xValues=[timestamp], 
 										yValues=[measurement['impedance']], 
