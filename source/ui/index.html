@@ -1401,23 +1401,16 @@
 												<v-toolbar-items><v-switch class="ml-2" color="white" label="" v-model="performanceMetrics.visible"></v-switch></v-toolbar-items>
 												<v-spacer></v-spacer>
 											</v-toolbar>
-											<v-list v-if="performanceMetrics.visible">
-												<v-list-tile>
-													<v-list-tile-content><v-list-tile-title style="font-weight: bold">
-														gm = {{performanceMetrics['gm'] | formatConductance}}
-													</v-list-tile-title></v-list-tile-content>
-												</v-list-tile>
-												<v-list-tile>
-													<v-list-tile-content><v-list-tile-title style="font-weight: bold">
-														SS = {{performanceMetrics['SS'] | formatSubthresholdSwing}}
-													</v-list-tile-title></v-list-tile-content>
-												</v-list-tile>
-												<v-list-tile>
-													<v-list-tile-content><v-list-tile-title style="font-weight: bold">
-														VT = {{performanceMetrics['VT'] | formatVoltage}}
-													</v-list-tile-title></v-list-tile-content>
-												</v-list-tile>
-											</v-list>
+											<v-data-table v-if="performanceMetrics.visible" hide-actions hide-headers light 
+												:items="[{'label':'gm', 'value':performanceMetrics['gm'], 'decimals':2, 'units':' uS'}, 
+														 {'label':'SS', 'value':performanceMetrics['SS'], 'decimals':0, 'units':' mV/dec'},
+														 {'label':'VT', 'value':performanceMetrics['VT'], 'decimals':2, 'units':' V'}]">
+												<template slot="items" slot-scope="props">
+													<td> {{ props.item['label'] }}</td>
+													<td> {{ props.item['value'] | decimalPlaces(props.item['decimals']) 
+																				| withUnits(props.item['units']) }}</td>
+												</template>
+											</v-data-table>
 										</v-card>
 									</v-flex>
 								</v-layout>
@@ -1515,20 +1508,16 @@
 												<v-toolbar-items><v-icon large>opacity</v-icon></v-toolbar-items>
 												<v-spacer></v-spacer>													
 											</v-toolbar>
-											<v-toolbar dark flat color="color1 darken-1" dense>
-											</v-toolbar>
-											<v-list>
-												<v-list-tile>
-													<v-list-tile-content><v-list-tile-title style="font-weight: bold">
-														Zmax = {{ptSensorMaxImpedance | formatImpedance}}
-													</v-list-tile-title></v-list-tile-content>
-												</v-list-tile>
-												<v-list-tile>
-													<v-list-tile-content><v-list-tile-title style="font-weight: bold">
-														tmax = {{ 0 }}
-													</v-list-tile-title></v-list-tile-content>
-												</v-list-tile>
-											</v-list>
+											<v-toolbar dark flat color="color1 darken-1" dense></v-toolbar>
+											<v-data-table hide-actions hide-headers light 
+												:items="[{'label': 'Max', 'value': ptSensorMaxImpedance,      'decimals': 0, 'units': ' Ohms'}, 
+														 {'label': 'PT', 'value': ptSensorTimeOfMaxImpedance, 'decimals': 2, 'units': ' sec'}]">
+												<template slot="items" slot-scope="props">
+													<td> {{ props.item['label'] }}</td>
+													<td> {{ props.item['value'] | decimalPlaces(props.item['decimals']) 
+																				| withUnits(props.item['units']) }}</td>
+												</template>
+											</v-data-table>
 										</v-card>
 									</v-flex>
 								</v-layout>
@@ -3437,21 +3426,49 @@
 				},
 				
 				ptSensorMaxImpedance: function() {
-					impedanceTraces = Object.entries(this.ptSensorPlots['Impedance']['traces']).map(entry => entry[1]);
+					impedanceTraces = Object.entries(this.ptSensorPlots['Impedance']['traces']).map(([key, value]) => value);
 					if(!impedanceTraces.length) return;
-					return Math.max.apply(null, impedanceTraces.map(trace => Math.max.apply(null, trace.yData)));	
+					return Math.max( ...(impedanceTraces.map(trace => Math.max( ...(trace.yData) ))) );	
+				},
+				ptSensorTimeOfMaxImpedance: function() {
+					function indexOfMax(arr) {
+				    	var maxIndex = 0; var max = arr[0];
+					    for (var i = 1; i < arr.length; i++) {
+					        if (arr[i] > max) { maxIndex = i; max = arr[i]; }
+					    }
+					    return maxIndex;
+					}
+					
+					impedanceTraces = Object.entries(this.ptSensorPlots['Impedance']['traces']).map(([key, value]) => value);
+					if(!impedanceTraces.length) return;
+					
+					maxTrace = impedanceTraces.filter(trace => Math.max(...(trace.yData)) === this.ptSensorMaxImpedance)[0]
+					return maxTrace.xData[indexOfMax(maxTrace.yData)];
 				},
 			},
 			filters:{
+				// === Generic Text Filters ===
 				capitalize: function(value) {
 					if(!value) return '';
 					value = value.toString();
 					return value.charAt(0).toUpperCase() + value.slice(1);	
 				},
-				twoDecimalPoints: function(value) {
+				
+				// === Numerical Text Filters ===
+				hideNull: function(value) {
 					if(!value) return '';
-					return parseFloat(value).toFixed(2)
+					return value
 				},
+				decimalPlaces: function(value, places) {
+					if(!value) return '';
+					return parseFloat(value).toFixed(places)
+				},
+				withUnits: function(value, units) {
+					if(!value) return '';
+					return value + units;
+				},
+				
+				// === Specialized GUI Object Text Filters ===
 				formatTimestamp: function(value) {
 					if(!value) return '';
 					value = parseFloat(value)
@@ -3466,6 +3483,17 @@
 					if(!value) return '';
 					if(value > 200) value = 10*(Math.floor(value/10));
 					return value;
+				},
+				
+				// === Dynamic Units ===
+				formatVoltage: function(value) {
+					if(value == undefined) return '';
+					var units = " V";
+					if(value < 0.9) {
+						value *= 1e3;
+						units = " mV";
+					}
+					return value + units;	
 				},
 				formatConductance: function(value) {
 					if(value == undefined) return '';
@@ -3482,25 +3510,6 @@
 						value *= 1e3;
 						units = " nS";
 					}
-					return value + units;	
-				},
-				formatSubthresholdSwing: function(value) {
-					if(value == undefined) return '';
-					var units = " mV/dec"
-					return value + units;	
-				},
-				formatVoltage: function(value) {
-					if(value == undefined) return '';
-					var units = " V";
-					if(value < 0.9) {
-						value *= 1e3;
-						units = " mV";
-					}
-					return value + units;	
-				},
-				formatImpedance: function(value) {
-					if(value == undefined) return '';
-					var units = " Ohms";
 					return value + units;	
 				},
 			}
