@@ -13,7 +13,7 @@ import numpy as np
 def getConnection(baud):
 	# Iterate over possible USB connections
 	ser = None
-	for port in ['/dev/cu.wchusbserial1410', '/dev/cu.wchusbserial1420', '/dev/cu.usbmodem1411', '/dev/cu.usbmodem1421']:
+	for port in ['/dev/cu.wchusbserial1410', '/dev/cu.wchusbserial1420']:
 		try:
 			ser = pySerial.Serial(port, baud, timeout=0.5)
 			break
