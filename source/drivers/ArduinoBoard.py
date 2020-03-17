@@ -1,24 +1,30 @@
 """This module defines a common Python interface for communicating to Arduino boards over the Arduino Serial interface."""
 
 # === Imports ===
-import serial as pySerial
 import time
 import json
 import numpy as np
+
+import serial as pySerial
+import serial.tools.list_ports as pySerialPorts
 
 
 
 # === Connection API ===
 
 def getConnection(baud):
-	# Iterate over possible USB connections
 	ser = None
-	for port in ['/dev/cu.wchusbserial1410', '/dev/cu.wchusbserial1420', '/dev/cu.usbmodem1411', '/dev/cu.usbmodem1421']:
-		try:
-			ser = pySerial.Serial(port, baud, timeout=0.5)
-			break
-		except:
-			pass
+	
+	# Iterate over possible USB connections
+	active_ports = [port for port in pySerialPorts.comports() if(port.description != 'n/a')]
+	if(len(active_ports) > 0):
+		arduino_port = active_ports[0]
+		for port in [arduino_port, arduino_port.device]: #['/dev/cu.wchusbserial1410', '/dev/cu.wchusbserial1420', '/dev/cu.usbmodem1411', '/dev/cu.usbmodem1421']:
+			try:
+				ser = pySerial.Serial(port, baud, timeout=0.5)
+				break
+			except:
+				pass
 	
 	# If not able to connect, return null instance
 	if(ser is None): 
