@@ -42,7 +42,7 @@ smu_system_configurations = {
 			'settings': {},
 		}
 	},
-	'Combo': {
+	'B2900A + PCB': {
 		'SMU': {
 			'uniqueID': '',
 			'type': 'B2912A',
@@ -56,7 +56,7 @@ smu_system_configurations = {
 			},
 		}
 	},
-	'double': {
+	'B2900A (double)': {
 		'deviceSMU':{
 			'uniqueID': 'USB0::0x0957::0x8E18::MY51141244::INSTR',
 			'type': 'B2912A',
@@ -78,7 +78,7 @@ smu_system_configurations = {
 			},
 		}
 	},
-	'B29x2A (inverter)': {
+	'B2900A (inverter)': {
 		'logicSignalSMU':{
 			'uniqueID': 'USB0::0x0957::0x8E18::MY51141241::INSTR',
 			'type': 'B2912A',
@@ -1069,8 +1069,8 @@ class Emulator(SourceMeasureUnit):
 	
 
 if (__name__ == '__main__'):
-	pcb = getConnectionToPCB(system_settings=smu_system_configurations['Combo']['PCB']['settings'])
-	keysight = getConnectionToVisaResource(system_settings=smu_system_configurations['Combo']['SMU']['settings'])
+	pcb = getConnectionToPCB(system_settings=smu_system_configurations['B2900A + PCB']['PCB']['settings'])
+	keysight = getConnectionToVisaResource(system_settings=smu_system_configurations['B2900A + PCB']['SMU']['settings'])
 	pcb.setDevice('1-2')		
 	print(keysight.takeMeasurement())
 
