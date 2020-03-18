@@ -280,7 +280,7 @@ def initializeMeasurementSystems(parameters):
 		if(system_type == 'B2912A'):
 			smu_systems[system_name] = smu.getConnectionToVisaResource(system_id, system_settings, defaultComplianceCurrent=100e-6, smuTimeout=60*1000)
 		elif(system_type == 'PCB_System'):
-			smu_systems[system_name] = smu.getConnectionToPCB(system_id, system_settings)
+			smu_systems[system_name] = smu.getConnectionToPCB(port=system_id, baud=115200, system_settings=system_settings)
 		elif(system_type == 'Emulator_System'):
 			smu_systems[system_name] = smu.getConnectionToEmulator()
 		elif(system_type == 'Arduino_System'):
@@ -309,11 +309,11 @@ def initializeArduino(parameters):
 		
 		# Only handle connections of type 'Arduino_System'
 		if(system_type == 'Arduino_System'):
-			arduino_systems[system_name] = arduinoBoard.getConnection(baud=9600)
+			arduino_systems[system_name] = arduinoBoard.getConnection(port=system_id, baud=9600, system_settings=system_settings)
 	
 	# If no specific Arduino_System was specified in configuration, still check to see if any are available to connect 
 	if(len(arduino_systems.keys()) == 0):	
-		arduino_systems = {'MCU': arduinoBoard.getConnection(baud=9600)}
+		arduino_systems = {'MCU': arduinoBoard.getConnection(port='', baud=9600)}
 	
 	#for arduino_reference in arduino_systems:
 	#	sensor_data = arduino_reference.takeMeasurement()

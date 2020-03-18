@@ -98,7 +98,7 @@ smu_system_configurations = {
 	},
 	'Arduino':{
 		'MCU': {
-			'uniqueID': '',
+			'uniqueID': 'any',
 			'type': 'Arduino_System',
 			'settings': {},
 		}
@@ -186,23 +186,22 @@ def getConnectionToVisaResource(uniqueIdentifier='', system_settings=None, defau
 	
 	return B2912A(visa_system, uniqueIdentifier, defaultComplianceCurrent, system_settings)
 
-def getConnectionToPCB(pcb_port='', system_settings=None):
+def getConnectionToPCB(port='', baud=115200, system_settings=None):
 	# Iterate over possible USB connections
-	if(pcb_port == ''):
-		active_ports = [port for port in pySerialPorts.comports() if(port.description != 'n/a')]
+	if(port == ''):
+		active_ports = [serial_port for serial_port in pySerialPorts.comports() if(serial_port.description != 'n/a')]
 		if(len(active_ports) == 0):
 			raise Exception('Unable to find any active serial ports to connect to PCB.')
 		else:
-			pcb_port = active_ports[0].device
+			port = active_ports[0].device
 			
 	# Connect to PCB over pyserial
-	baud = 115200
-	ser = pySerial.Serial(pcb_port, baud)
+	ser = pySerial.Serial(port, baud)
 	
 	# Print connection beginning message
-	print('Beginning connection to PCB on serial port: ' + str(pcb_port))
+	print('Beginning connection to PCB on serial port: ' + str(port))
 		
-	return PCB_System(ser, pcb_port, system_settings)
+	return PCB_System(ser, port, system_settings)
 
 def getConnectionToEmulator():
 	return Emulator()
@@ -733,10 +732,10 @@ class PCB_System(SourceMeasureUnit):
 	ser = None
 	signal_channel = 1
 
-	def __init__(self, pySerial, pcb_port, system_settings):
+	def __init__(self, pySerial, port, system_settings):
 		self.ser = pySerial
-		self.system_id = pcb_port
-		if(pcb_port == smu_system_configurations['Bluetooth']['PCB']['uniqueID']):
+		self.system_id = port
+		if(port == smu_system_configurations['Bluetooth']['PCB']['uniqueID']):
 			print('Enabling bluetooth communication (can be slow).')
 			self.setParameter('enable-uart-sending !', responseStartsWith='#')
 		if((system_settings is not None) and ('channel' in system_settings)):
