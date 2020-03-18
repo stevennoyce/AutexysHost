@@ -178,17 +178,18 @@ def getConnectionToVisaResource(uniqueIdentifier='', system_settings=None, defau
 	return B2912A(instance, uniqueIdentifier, defaultComplianceCurrent, system_settings)
 
 def getConnectionToPCB(pcb_port='', system_settings=None):
+	# Iterate over possible USB connections
 	if(pcb_port == ''):
 		active_ports = [port for port in pySerialPorts.comports() if(port.description != 'n/a')]
 		if(len(active_ports) == 0):
 			raise Exception('Unable to find any active serial ports to connect to PCB.')
 		else:
-			pcb_port = active_ports[0]
-	try:
-		ser = pySerial.Serial(pcb_port, 115200)
-	except:
-		ser = pySerial.Serial(pcb_port.device, 115200)
-		pcb_port = pcb_port.device
+			pcb_port = active_ports[0].device
+			
+	# Connect to PCB over pyserial
+	baud = 115200
+	ser = pySerial.Serial(pcb_port, baud)
+		
 	return PCB_System(ser, pcb_port, system_settings)
 
 def getConnectionToEmulator():
