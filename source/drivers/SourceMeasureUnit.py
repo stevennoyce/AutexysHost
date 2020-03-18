@@ -25,35 +25,35 @@ smu_system_configurations = {
 		'SMU': {
 			'uniqueID': '',
 			'type': 'B2912A',
-			'settings': {}
+			'settings': {},
 		}
 	},
 	'standalone': {
 		'PCB': {
 			'uniqueID': '',
 			'type': 'PCB_System',
-			'settings': {}
+			'settings': {},
 		}
 	},
 	'Bluetooth': {
 		'PCB': {
 			'uniqueID': '/dev/tty.HC-05-DevB',
 			'type': 'PCB_System',
-			'settings': {}
+			'settings': {},
 		}
 	},
 	'Combo': {
 		'SMU': {
 			'uniqueID': '',
 			'type': 'B2912A',
-			'settings': {}
+			'settings': {},
 		},
 		'PCB': {
 			'uniqueID': '',
 			'type': 'PCB_System',
 			'settings': {
 				'channel':2,
-			}
+			},
 		}
 	},
 	'double': {
@@ -65,7 +65,7 @@ smu_system_configurations = {
 				'turnChannelsOn': False,
 				'channel1SourceMode': 'voltage',
 				'channel2SourceMode': 'voltage'
-			}
+			},
 		},
 		'secondarySMU':{
 			'uniqueID': 'USB0::0x0957::0x8E18::MY51141241::INSTR',
@@ -75,7 +75,7 @@ smu_system_configurations = {
 				'turnChannelsOn': False,
 				'channel1SourceMode': 'current',
 				'channel2SourceMode': 'current'
-			}
+			},
 		}
 	},
 	'B29x2A (inverter)': {
@@ -85,7 +85,7 @@ smu_system_configurations = {
 			'settings': {
 				'channel1SourceMode': 'current',
 				'channel2SourceMode': 'voltage'
-			}
+			},
 		},
 		'powerSupplySMU':{
 			'uniqueID': 'USB0::0x0957::0x8C18::MY51142879::INSTR',
@@ -93,58 +93,62 @@ smu_system_configurations = {
 			'settings': {
 				'channel1SourceMode': 'voltage',
 				'channel2SourceMode': 'voltage'
-			}
+			},
 		}
 	},
 	'Arduino':{
-		
+		'MCU': {
+			'uniqueID': '',
+			'type': 'Arduino_System',
+			'settings': {},
+		}
 	},
 	'Emulator':{
 		'SMU': {
 			'uniqueID': '',
 			'type': 'Emulator_System',
-			'settings': {}
+			'settings': {},
 		},
 		'logicSignalSMU':{
 			'uniqueID': '',
 			'type': 'Emulator_System',
-			'settings': {}
+			'settings': {},
 		},
 		'powerSupplySMU':{
 			'uniqueID': '',
 			'type': 'Emulator_System',
-			'settings': {}
+			'settings': {},
 		},
 		'deviceSMU':{
 			'uniqueID': '',
 			'type': 'Emulator_System',
-			'settings': {}
+			'settings': {},
 		},
 		'secondarySMU':{
 			'uniqueID': '',
 			'type': 'Emulator_System',
-			'settings': {}
+			'settings': {},
 		}
 	},
 	'slowSMU1': {
 		'SMU': {
 			'uniqueID': 'USB0::0x0957::0x8C18::MY51142879::INSTR',
 			'type': 'B2912A',
-			'settings': {}
+			'settings': {},
 		}
 	},
 	'fastSMU1': {
 		'SMU': {
 			'uniqueID': 'USB0::0x0957::0x8E18::MY51141244::INSTR',
 			'type': 'B2912A',
-			'settings': {}
+			'settings': {},
 		}
 	},
 	'fastSMU2': {
 		'SMU': {
 			'uniqueID': 'USB0::0x0957::0x8E18::MY51141241::INSTR',
 			'type': 'B2912A',
-			'settings': {}
+			'settings': {},
 		}
 	},
 }
@@ -159,23 +163,28 @@ def getSystemConfiguration(systemType):
 def getConnectionToVisaResource(uniqueIdentifier='', system_settings=None, defaultComplianceCurrent=100e-6, smuTimeout=60000):
 	import visa
 	
+	# Try forming connection over National Instruments backend (or Python backend if that fails)
 	try:
 		rm = visa.ResourceManager()
 		if(uniqueIdentifier == ''):
 			uniqueIdentifier = rm.list_resources()[0]
-		instance = rm.open_resource(uniqueIdentifier)
-		print(instance.query('*IDN?'))
+		visa_system = rm.open_resource(uniqueIdentifier)
 		print('Opened VISA connection through NI-VISA backend.')
 	except:
 		rm = visa.ResourceManager('@py')
 		if(uniqueIdentifier == ''):
 			uniqueIdentifier = rm.list_resources()[0]
-		instance = rm.open_resource(uniqueIdentifier)
-		print(instance.query('*IDN?'))
+		visa_system = rm.open_resource(uniqueIdentifier)
 		print('Opened VISA connection through PyVISA-py backend.')
-		
-	instance.timeout = smuTimeout
-	return B2912A(instance, uniqueIdentifier, defaultComplianceCurrent, system_settings)
+	
+	# Query Visa ID and set timeout
+	print(visa_system.query('*IDN?'))
+	visa_system.timeout = smuTimeout
+	
+	# Print connection beginning message
+	print('Beginning connection to visa resource: ' + str(uniqueIdentifier)) 
+	
+	return B2912A(visa_system, uniqueIdentifier, defaultComplianceCurrent, system_settings)
 
 def getConnectionToPCB(pcb_port='', system_settings=None):
 	# Iterate over possible USB connections
@@ -189,6 +198,9 @@ def getConnectionToPCB(pcb_port='', system_settings=None):
 	# Connect to PCB over pyserial
 	baud = 115200
 	ser = pySerial.Serial(pcb_port, baud)
+	
+	# Print connection beginning message
+	print('Beginning connection to PCB on serial port: ' + str(pcb_port))
 		
 	return PCB_System(ser, pcb_port, system_settings)
 

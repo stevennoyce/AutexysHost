@@ -25,10 +25,10 @@ def getConnection(baud):
 		print("No Arduino connected.")
 		return NullArduinoSerial()			
 	
-	# Return Arduino reference
-	arduino_instance = ArduinoSerial(ser)
-	print("Connected to Arduino on port: " + str(port))
-	return arduino_instance
+	# Print connection beginning message
+	print("Beginning connection to Arduino on serial port: " + str(port))
+	
+	return ArduinoSerial(ser)
 
 
 
