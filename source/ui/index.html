@@ -238,6 +238,8 @@
 										<v-toolbar-title>
 											Browser
 										</v-toolbar-title>
+										<v-spacer></v-spacer>
+										<v-icon>list</v-icon>
 									</v-toolbar>
 								</v-flex>
 								
@@ -246,6 +248,8 @@
 										<v-toolbar-title>
 											Schedule Creator
 										</v-toolbar-title>
+										<v-spacer></v-spacer>
+										<v-icon>schedule</v-icon>
 									</v-toolbar>	
 								</v-flex>
 								
@@ -254,6 +258,8 @@
 										<v-toolbar-title>
 											Experiment Runner
 										</v-toolbar-title>
+										<v-spacer></v-spacer>
+										<v-icon>play_circle_outline</v-icon>
 									</v-toolbar>
 								</v-flex>
 							</v-layout>
@@ -314,7 +320,7 @@
 					<!-- Start of browser -->
 					
 					<v-stepper v-if="topLevelPage === 'stepper'" v-model="stepperPage" style="background-color:rgba(255,255,255,0);height:100%;">
-						<v-stepper-header style="background-color:rgba(255,255,255,1);">
+						<v-stepper-header>
 							<v-stepper-step step="1" :complete="stepperPage > 1" :editable="stepperPage > 1" edit-icon="folder" 
 											color="color_browser darken-1">Projects</v-stepper-step>
 							<v-divider></v-divider>
@@ -327,7 +333,7 @@
 							<v-stepper-step step="4" :complete="stepperPage > 4" :editable="stepperPage > 4" edit-icon="memory"
 											color="color_browser darken-1">Devices</v-stepper-step>
 							<v-divider></v-divider>
-							<v-stepper-step step="5" :complete="stepperPage > 5" :editable="stepperPage > 5"
+							<v-stepper-step step="5" :complete="stepperPage > 5" :editable="stepperPage > 5" edit-icon="assignment"
 											color="color_browser darken-1">Experiments</v-stepper-step>
 							<v-divider></v-divider>
 							<v-stepper-step step="6" :complete="stepperPage > 6" :editable="stepperPage > 6" 
@@ -817,7 +823,7 @@
 						</v-card>
 						
 						<v-layout row wrap>
-							<v-flex xs6 sm6 md6 lg6 class="pr-1">
+							<v-flex xs6 sm6 md6 lg6>
 								<v-card class="mt-3" v-if="nonTrivialScheduleObjects()">
 									<v-toolbar dark dense class="color_creator">
 										<v-toolbar-title>
@@ -884,8 +890,8 @@
 					<!-- Start of experiment runner -->
 					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'experimentRunner'">
-						<v-card class="mb-3">
-							<v-toolbar dark dense class="color_runner ">
+						<v-card>
+							<v-toolbar dark dense class="color_runner">
 								<v-toolbar-title>
 									Experiment Runner
 								</v-toolbar-title>
@@ -894,123 +900,123 @@
 							</v-toolbar>
 							
 							<v-container>
-								<v-form class="ma-2">
+								<v-layout class="mt-2 ml-2 mr-2">
 									<v-flex xs12 sm6 md4 lg3>
 										<v-select box class="ma-1" label="Experiment Type" v-model="runnerChoice" :items="['Schedule File'].concat(standardScheduleNames)"></v-select>
 									</v-flex>
-								</v-form>
+								</v-layout>
 							
 								<template v-if="runnerChoice === 'Schedule File'">
-									<v-form class="ma-2">
-										<v-layout row wrap>
-											<v-flex xs12 sm6 md4 lg3 outline class="ma-2">
-												<v-autocomplete clearable v-model="runnerUser" label="User" :items="Object.keys(userDefinedScheduleNames)"></v-autocomplete>
-											</v-flex>
-											<v-flex xs12 sm6 md4 lg3 solo class="ma-2">
-												<v-autocomplete clearable v-model="runnerProject" label="Project" :items="_.keys(_.get(userDefinedScheduleNames, [runnerUser], {}))"></v-autocomplete>
-											</v-flex>
-											<v-flex xs12 sm6 md4 lg3 solo class="ma-2">
-												<v-autocomplete clearable v-model="runnerFileName" label="File Name" :items="_.get(userDefinedScheduleNames, [runnerUser, runnerProject], [])"></v-autocomplete>
-											</v-flex>
-										</v-layout>
-									<v-form>
+									<v-layout row wrap class="ma-2">
+										<v-flex xs12 sm6 md4 lg3 outline class="ml-2 mr-2">
+											<v-autocomplete clearable v-model="runnerUser" label="User" :items="Object.keys(userDefinedScheduleNames)"></v-autocomplete>
+										</v-flex>
+										<v-flex xs12 sm6 md4 lg3 solo class="ml-2 mr-2">
+											<v-autocomplete clearable v-model="runnerProject" label="Project" :items="_.keys(_.get(userDefinedScheduleNames, [runnerUser], {}))"></v-autocomplete>
+										</v-flex>
+										<v-flex xs12 sm6 md4 lg3 solo class="ml-2 mr-2">
+											<v-autocomplete clearable v-model="runnerFileName" label="File Name" :items="_.get(userDefinedScheduleNames, [runnerUser, runnerProject], [])"></v-autocomplete>
+										</v-flex>
+									</v-layout>
 								</template>
 							
 								<template v-if="(runnerChoice !== '') && (runnerUser && runnerProject && runnerFileName) && (runnerScheduleObjects.length === 1) && (runnerVerboseScheduleObjects.length === 1)">
-									<v-expansion-panel class="mt-1 mb-2">
-										<v-expansion-panel-content class="grey lighten-4">
-											
-											<div slot="header">
-												<v-layout row wrap>
-													<div style="font-weight: bold;">
-														Options
-													</div>
-													<v-spacer></v-spacer>
-												</v-layout>
-											</div>
-											
-											<v-container grid-list-md>
-												<v-layout row wrap>
-													
-													<v-flex xs3 s3 md3 lg3>
-														<v-list class="roundedcorners">
-															<v-list-tile>
-																<v-list-tile-content><v-list-tile-title style="font-weight: bold">
-																	Identifiers
-																</v-list-tile-title></v-list-tile-content>
-															</v-list-tile>
-															<template v-if="!runnerToggleAdvancedSettings && Object.keys(runnerScheduleObjects[0]).includes('Identifiers')">
-																<a-item-edit-group :settings.sync="runnerScheduleObjects[0]['Identifiers']"></a-item-edit-group>
-															</template>
-															<template v-if="runnerToggleAdvancedSettings || !Object.keys(runnerScheduleObjects[0]).includes('Identifiers')">
-																<a-item-edit-group :settings.sync="runnerVerboseScheduleObjects[0]['Identifiers']"></a-item-edit-group>
-															</template>
-														</v-list>
+									<v-layout class="ma-2">
+										<v-expansion-panel>
+											<v-expansion-panel-content class="grey lighten-4">
+												
+												<div slot="header">
+													<v-layout row wrap>
+														<div style="font-weight: bold;">
+															Options
+														</div>
+														<v-spacer></v-spacer>
+													</v-layout>
+												</div>
+												
+												<v-container grid-list-md>
+													<v-layout row wrap>
 														
-														<template v-if="runnerToggleAdvancedSettings">
-															<v-list class="mt-3 roundedcorners">
+														<v-flex xs3 s3 md3 lg3>
+															<v-list class="roundedcorners">
 																<v-list-tile>
 																	<v-list-tile-content><v-list-tile-title style="font-weight: bold">
-																		Measurement System
+																		Identifiers
 																	</v-list-tile-title></v-list-tile-content>
 																</v-list-tile>
-																<a-item-edit-group :settings.sync="runnerVerboseScheduleObjects[0]['MeasurementSystem']"></a-item-edit-group>
+																<template v-if="!runnerToggleAdvancedSettings && Object.keys(runnerScheduleObjects[0]).includes('Identifiers')">
+																	<a-item-edit-group :settings.sync="runnerScheduleObjects[0]['Identifiers']"></a-item-edit-group>
+																</template>
+																<template v-if="runnerToggleAdvancedSettings || !Object.keys(runnerScheduleObjects[0]).includes('Identifiers')">
+																	<a-item-edit-group :settings.sync="runnerVerboseScheduleObjects[0]['Identifiers']"></a-item-edit-group>
+																</template>
 															</v-list>
-														</template>
+															
+															<template v-if="runnerToggleAdvancedSettings">
+																<v-list class="mt-3 roundedcorners">
+																	<v-list-tile>
+																		<v-list-tile-content><v-list-tile-title style="font-weight: bold">
+																			Measurement System
+																		</v-list-tile-title></v-list-tile-content>
+																	</v-list-tile>
+																	<a-item-edit-group :settings.sync="runnerVerboseScheduleObjects[0]['MeasurementSystem']"></a-item-edit-group>
+																</v-list>
+															</template>
+															
+															<template v-if="runnerToggleAdvancedSettings && (!standardScheduleNames.includes(runnerChoice))">
+																<v-list class="mt-3 roundedcorners">
+																	<v-select box class="ma-3" label="Run Type" v-model="runnerVerboseScheduleObjects[0]['runType']['default']" :items="Object.keys(JSON.parse(JSON.stringify(runnerVerboseScheduleObjects[0]['runConfigs'] || {})))"></v-select>
+																</v-list>
+															</template>
+														</v-flex>
 														
-														<template v-if="runnerToggleAdvancedSettings && (!standardScheduleNames.includes(runnerChoice))">
-															<v-list class="mt-3 roundedcorners">
-																<v-select box class="ma-3" label="Run Type" v-model="runnerVerboseScheduleObjects[0]['runType']['default']" :items="Object.keys(JSON.parse(JSON.stringify(runnerVerboseScheduleObjects[0]['runConfigs'] || {})))"></v-select>
+														<v-flex xs3 s3 md3 lg3 v-if="runnerVerboseScheduleObjects[0]['MeasurementSystem']['deviceCycling']['default']">
+															<v-list class="roundedcorners">
+																<v-list-tile>
+																	<v-list-tile-content><v-list-tile-title style="font-weight: bold">
+																		Device Cycling
+																	</v-list-tile-title></v-list-tile-content>
+																</v-list-tile>
+																<template v-if="!runnerToggleAdvancedSettings && Object.keys(runnerScheduleObjects[0]).includes('DeviceCycling')">
+																	<a-item-edit-group :settings.sync="runnerScheduleObjects[0]['DeviceCycling']"></a-item-edit-group>
+																</template>
+																<template v-if="runnerToggleAdvancedSettings">
+																	<a-item-edit-group :settings.sync="runnerVerboseScheduleObjects[0]['DeviceCycling']"></a-item-edit-group>
+																</template>
 															</v-list>
-														</template>
-													</v-flex>
+														</v-flex>
 													
-													<v-flex xs3 s3 md3 lg3 v-if="runnerVerboseScheduleObjects[0]['MeasurementSystem']['deviceCycling']['default']">
-														<v-list class="roundedcorners">
-															<v-list-tile>
-																<v-list-tile-content><v-list-tile-title style="font-weight: bold">
-																	Device Cycling
-																</v-list-tile-title></v-list-tile-content>
-															</v-list-tile>
-															<template v-if="!runnerToggleAdvancedSettings && Object.keys(runnerScheduleObjects[0]).includes('DeviceCycling')">
-																<a-item-edit-group :settings.sync="runnerScheduleObjects[0]['DeviceCycling']"></a-item-edit-group>
-															</template>
-															<template v-if="runnerToggleAdvancedSettings">
-																<a-item-edit-group :settings.sync="runnerVerboseScheduleObjects[0]['DeviceCycling']"></a-item-edit-group>
-															</template>
-														</v-list>
-													</v-flex>
-												
-													<v-flex xs3 s3 md3 lg3 v-for="runConfig,runType in runnerScheduleObjects[0]['runConfigs']" :key="runType">
-														<v-list class="roundedcorners">
-															<v-list-tile>
-																<v-list-tile-content><v-list-tile-title style="font-weight: bold">
-																	{{ runType }}
-																</v-list-tile-title></v-list-tile-content>
-															</v-list-tile>
-															<template v-if="!runnerToggleAdvancedSettings">
-																<a-item-edit-group :settings.sync="runnerScheduleObjects[0]['runConfigs'][runType]"></a-item-edit-group>
-															</template>
-															<template v-if="runnerToggleAdvancedSettings">
-																<a-item-edit-group :settings.sync="runnerVerboseScheduleObjects[0]['runConfigs'][runType]"></a-item-edit-group>
-															</template>
-														</v-list>
-													</v-flex>
-													
+														<v-flex xs3 s3 md3 lg3 v-for="runConfig,runType in runnerScheduleObjects[0]['runConfigs']" :key="runType">
+															<v-list class="roundedcorners">
+																<v-list-tile>
+																	<v-list-tile-content><v-list-tile-title style="font-weight: bold">
+																		{{ runType }}
+																	</v-list-tile-title></v-list-tile-content>
+																</v-list-tile>
+																<template v-if="!runnerToggleAdvancedSettings">
+																	<a-item-edit-group :settings.sync="runnerScheduleObjects[0]['runConfigs'][runType]"></a-item-edit-group>
+																</template>
+																<template v-if="runnerToggleAdvancedSettings">
+																	<a-item-edit-group :settings.sync="runnerVerboseScheduleObjects[0]['runConfigs'][runType]"></a-item-edit-group>
+																</template>
+															</v-list>
+														</v-flex>
+														
+													</v-layout>
+													<v-alert :value="(['single', 'B2900A (double)'].includes(runnerVerboseScheduleObjects[0]['MeasurementSystem']['systemType']['default'])) && (runnerVerboseScheduleObjects[0]['MeasurementSystem']['deviceCycling']['default'])" icon="warning "color="warning">
+														<b>Advanced:</b> Device Cycling has been enabled, but the chosen Measurement System cannot dynamically select devices.
+													</v-alert>
+												</v-container>
+								
+												<v-layout row wrap>
+													<v-switch class="ml-3" label="Advanced" v-model="runnerToggleAdvancedSettings"></v-switch>
+													<v-spacer></v-spacer>
+													<v-btn class="mr-3" small @click="runnerSaveScheduleFile()" :disabled="!isNecessaryToSaveRunnerScheduleFile()">Save</v-btn>
 												</v-layout>
-												<v-alert :value="(['single', 'B2900A (double)'].includes(runnerVerboseScheduleObjects[0]['MeasurementSystem']['systemType']['default'])) && (runnerVerboseScheduleObjects[0]['MeasurementSystem']['deviceCycling']['default'])" icon="warning "color="warning">
-													<b>Advanced:</b> Device Cycling has been enabled, but the chosen Measurement System cannot dynamically select devices.
-												</v-alert>
-											</v-container>
-							
-											<v-layout row wrap>
-												<v-switch class="ml-3" label="Advanced" v-model="runnerToggleAdvancedSettings"></v-switch>
-												<v-spacer></v-spacer>
-												<v-btn class="mr-3" small @click="runnerSaveScheduleFile()" :disabled="!isNecessaryToSaveRunnerScheduleFile()">Save</v-btn>
-											</v-layout>
-											
-										</v-expansion-panel-content>
-									</v-expansion-panel>
+												
+											</v-expansion-panel-content>
+										</v-expansion-panel>
+									</v-layout>
 								</template>
 								<template v-else>
 									<v-list>
@@ -1044,8 +1050,8 @@
 							</v-container>
 						</v-card>
 						
-						<v-card class="mb-3" v-if="showProgress">
-							<v-toolbar dark dense class="color_runner ">
+						<v-card class="mt-3" v-if="showProgress">
+							<v-toolbar dark dense class="color_runner">
 								<v-toolbar-title>
 									Progress
 								</v-toolbar-title>
@@ -1102,8 +1108,8 @@
 							</v-list>
 						</v-card>
 						
-						<v-card v-if="showProgress">
-							<v-toolbar dark dense class="color_runner ">
+						<v-card class="mt-3" v-if="showProgress">
+							<v-toolbar dark dense class="color_runner">
 								<v-toolbar-title>
 									Live Plots
 								</v-toolbar-title>
@@ -1133,7 +1139,7 @@
 									<v-layout row wrap>
 										<v-flex xs12 sm12 md6 lg6 xl4 v-for="[plotID, plot] of Object.entries(livePlots[jobSelectChoice][deviceSelectChoice])" :key="plotID">
 											<v-card class="ma-1">
-												<v-toolbar dark dense class="color_runner ">
+												<v-toolbar dark dense class="color_runner darken-1">
 													<v-toolbar-title>
 														{{ plotID }} 
 													</v-toolbar-title>
@@ -1145,18 +1151,10 @@
 															<v-btn slot="activator" icon @click="toggleLivePlotYAxisLog(plot)"><v-icon>timeline</v-icon></v-btn>
 															<span>Toggle Log Scale</span>
 														</v-tooltip>
-													</v-toolbar-items>
-													
-													<v-toolbar-items>
-														<v-menu bottom left offset-y>
-															<v-btn slot="activator" icon><v-icon>settings</v-icon></v-btn>
-															<v-list light>																
-																<v-list-tile @click="clearLivePlot(plot); delete livePlots[jobSelectChoice][deviceSelectChoice][plotID];">
-																	<v-list-tile-avatar><v-icon>clear</v-icon></v-list-tile-avatar>
-																	<v-list-tile-content><v-list-tile-title>Clear Plot</v-list-tile-title></v-list-tile-content>
-																</v-list-tile>
-															</v-list>
-														</v-menu>
+														<v-tooltip top>
+															<v-btn slot="activator" icon @click="clearLivePlot(plot); delete livePlots[jobSelectChoice][deviceSelectChoice][plotID];"><v-icon>clear</v-icon></v-btn>
+															<span>Clear</span>
+														</v-tooltip>
 													</v-toolbar-items>
 												</v-toolbar>
 												
@@ -1167,9 +1165,9 @@
 										</v-flex>
 									</v-layout>
 								</template>
-								
 							</v-container>
 						</v-card>
+						
 					</v-flex>
 					
 					<!-- End of experiment runner -->
@@ -1298,7 +1296,7 @@
 												<v-spacer></v-spacer>
 											</v-toolbar>
 											
-											<v-tabs dark centered grow value="tab-T" color="color_performance" slider-color="orange darken-2">
+											<v-tabs dark grow value="tab-T" color="color_performance" slider-color="orange darken-2">
 												<v-tab href="#tab-S">Subthreshold Curve</v-tab>
 												<v-tab href="#tab-T">Transfer Curve</v-tab>
 												<v-tab href="#tab-O">Output Curve</v-tab>
@@ -1425,7 +1423,7 @@
 												<v-spacer></v-spacer>
 											</v-toolbar>
 											
-											<v-tabs dark centered grow value="tab-T" color="color_ptsensor" slider-color="blue ">
+											<v-tabs dark grow value="tab-T" color="color_ptsensor" slider-color="color_ptsensor darken-4">
 												<v-tab href="#tab-I">Impedance</v-tab>
 												<v-tab-item value="tab-I">
 													<v-card flat>
@@ -1585,8 +1583,6 @@
 								<v-btn href="https://stevennoyce.github.io/AutexysHost/build/html/" target="_blank">View Documentation</v-btn>
 							</v-container>
 						</v-card>
-
-						<v-spacer></v-spacer>
 
 						<v-card class="mt-3">
 							<v-toolbar dark dense class="color_documentation">
