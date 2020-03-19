@@ -21,6 +21,8 @@
 			display: none;
 		}
 
+		/* === Page Loading Animation === */
+		
 		.fade-leave-active, .fade-enter-active {
 			transition: 0.7s ease;
 		}
@@ -66,6 +68,7 @@
 			-webkit-animation-delay: -1.0s;
 			animation-delay: -1.0s;
 		}
+		
 		@-webkit-keyframes sk-rotate { 100% { -webkit-transform: rotate(360deg) }}
 		@keyframes sk-rotate { 100% { transform: rotate(360deg); -webkit-transform: rotate(360deg) }}
 		@-webkit-keyframes sk-bounce {
@@ -82,6 +85,8 @@
 			}
 		}
 		
+		/* === Images === */
+		
 		img {
 			width: auto;
 			height: auto;
@@ -89,12 +94,11 @@
 			margin-left: auto;
 			margin-right: auto;
 		}
-		
-		.sZoomableImage:hover {
+		.zoomableImage:hover {
 			opacity: 0.7;
 			transition: opacity 0.5s;
 		}
-		.sZoomedImage {
+		.zoomedImage {
 			position: fixed;
 			z-index: 500;
 			background-color: rgb(255,255,255);
@@ -104,11 +108,17 @@
 			right: 50vw;
 			transform: translate(50%, -50%);
 		}
-		.roundedcorners {
-			border-radius: 7px
-		}
+		
+		/* === Progress Bars === */
+		
 		.v-progress-linear__bar, .v-progress-linear__bar__determinate {
   			transition: none;
+		}
+		
+		/* === Layout === */
+		
+		.roundedcorners {
+			border-radius: 7px
 		}
 		
 	</style>
@@ -130,7 +140,7 @@
 				
 				<!-- Start of app sidebar/toolbar -->
 				
-				<v-navigation-drawer clipped fixed v-model="drawer" class="color1" dark app>
+				<v-navigation-drawer clipped fixed v-model="drawer" class="color_base" dark app>
 					<v-list dense>
 						<v-list-tile @click="setTopLevelPage('dashboard')">
 							<v-list-tile-action><v-icon>dashboard</v-icon></v-list-tile-action>
@@ -177,7 +187,7 @@
 					</v-list>
 				</v-navigation-drawer>
 				
-				<v-toolbar app fixed clipped-left dark color="color1 darken-1">
+				<v-toolbar app fixed clipped-left dark color="color_base darken-1">
 					<v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
 					<v-toolbar-title>Autexys User Interface</v-toolbar-title>
 					<v-spacer></v-spacer>
@@ -205,7 +215,7 @@
 							<v-card style="max-height:85vh">
 								<v-list light>
 									<v-list-tile v-for="u in users" :key="u" @click="goToUser(u)">
-										<v-list-tile-avatar color="color1"><v-icon dark>account_circle</v-icon></v-list-tile-avatar>
+										<v-list-tile-avatar color="color_base"><v-icon dark>account_circle</v-icon></v-list-tile-avatar>
 										<v-list-tile-content><v-list-tile-title>{{ u }}</v-list-tile-title></v-list-tile-content>
 									</v-list-tile>
 								</v-list>
@@ -249,58 +259,55 @@
 							</v-layout>
 						</v-container>
 						
-						<v-container>
-							<v-card class="ma-1">
-								<v-toolbar dark dense class="color_dashboard">
-									<v-toolbar-title>
-										Recent Activity
-									</v-toolbar-title>
-									
-									<v-spacer></v-spacer>
-									
-									<v-toolbar-items class="pt-2">
-										<v-chip small light color="white" @click="setRecentActivityCategory('project')" :selected="recentActivityIncludesCategory(['project', 'wafer', 'chip', 'device'])" >Projects</v-chip>
-										<v-chip small light color="white" @click="setRecentActivityCategory('wafer')" :selected="recentActivityIncludesCategory(['wafer', 'chip', 'device'])" >Wafers</v-chip>
-										<v-chip small light color="white" @click="setRecentActivityCategory('chip')" :selected="recentActivityIncludesCategory(['chip', 'device'])">Chips</v-chip>
-										<v-chip small light color="white" @click="setRecentActivityCategory('device')" :selected="recentActivityIncludesCategory(['device'])">Devices</v-chip>
-									</v-toolbar-items>
-									
-									<v-spacer></v-spacer>
-									
-									<v-toolbar-items>
-										<v-menu bottom left offset-y :close-on-content-click="false">
-											<v-btn slot="activator" flat>Filter</v-btn>
-											<v-card light>
-												<v-list>
-													<v-list-tile>
-														<v-autocomplete clearable label="Project" v-model="recentActivityProject" :items="_.keys(_.get(userDefinedScheduleNames, [user], {}))"></v-autocomplete>
-													</v-list-tile>
-													<v-list-tile>
-														<v-autocomplete clearable label="Wafer" v-model="recentActivityWafer" :items="[]"></v-autocomplete>
-													</v-list-tile>
-												</v-list>
-											</v-card>
-										</v-menu>
-										<v-btn icon @click="resetDashboard(); getAll();"><v-icon>refresh</v-icon></v-btn>
-									</v-toolbar-items>
-								</v-toolbar>
+						<v-card class="ma-4">
+							<v-toolbar dark dense class="color_base darken-1">
+								<v-toolbar-title>
+									Recent Activity
+								</v-toolbar-title>
 								
-								<v-data-table must-sort :items="recentActivity" :headers="dynamicRecentActivityTableHeaders" 
-									:rows-per-page-items="[10,50,{'text':'$vuetify.dataIterator.rowsPerPageAll','value':-1}]"
-									:pagination.sync="recentActivityPagination" :hide-headers="false" :hide-actions="false">
-									<template slot="items" slot-scope="props">
-										<tr @click="setTopLevelPage('stepper'); goToDirectly(props.item.project, props.item.wafer, props.item.chip, props.item.device);">
-											<td v-if="recentActivityHeaders.find(h => h.value ==='user').visible">{{ props.item.user }}</td>
-											<td v-if="recentActivityHeaders.find(h => h.value ==='project').visible">{{ props.item.project }}</td>
-											<td v-if="recentActivityHeaders.find(h => h.value ==='wafer').visible">{{ props.item.wafer }}</td>
-											<td v-if="recentActivityHeaders.find(h => h.value ==='chip').visible">{{ props.item.chip }}</td>
-											<td v-if="recentActivityHeaders.find(h => h.value ==='device').visible">{{ props.item.device }}</td>
-											<td v-if="recentActivityHeaders.find(h => h.value ==='modified').visible">{{ new Date(props.item.modified*1000).toLocaleDateString() }}</td>
-										</tr>
-									</template>
-								</v-data-table>
-							</v-card>
-						</v-container>
+								<v-spacer></v-spacer>
+								
+								<v-toolbar-items class="pt-2">
+									<v-chip small light color="white" @click="setRecentActivityCategory('project')" :selected="recentActivityIncludesCategory(['project', 'wafer', 'chip', 'device'])" >Projects</v-chip>
+									<v-chip small light color="white" @click="setRecentActivityCategory('wafer')" :selected="recentActivityIncludesCategory(['wafer', 'chip', 'device'])" >Wafers</v-chip>
+									<v-chip small light color="white" @click="setRecentActivityCategory('chip')" :selected="recentActivityIncludesCategory(['chip', 'device'])">Chips</v-chip>
+									<v-chip small light color="white" @click="setRecentActivityCategory('device')" :selected="recentActivityIncludesCategory(['device'])">Devices</v-chip>
+								</v-toolbar-items>
+								
+								<v-spacer></v-spacer>
+
+								<v-menu bottom left offset-y :close-on-content-click="false">
+									<v-btn slot="activator" flat>Filter</v-btn>
+									<v-card light>
+										<v-list>
+											<v-list-tile>
+												<v-autocomplete clearable label="Project" v-model="recentActivityProject" :items="_.keys(_.get(userDefinedScheduleNames, [user], {}))"></v-autocomplete>
+											</v-list-tile>
+											<v-list-tile>
+												<v-autocomplete clearable label="Wafer" v-model="recentActivityWafer" :items="[]"></v-autocomplete>
+											</v-list-tile>
+										</v-list>
+									</v-card>
+								</v-menu>
+								
+								<v-btn icon @click="resetDashboard(); getAll();"><v-icon>refresh</v-icon></v-btn>
+							</v-toolbar>
+							
+							<v-data-table must-sort :items="recentActivity" :headers="dynamicRecentActivityTableHeaders" 
+								:rows-per-page-items="[10,50,{'text':'$vuetify.dataIterator.rowsPerPageAll','value':-1}]"
+								:pagination.sync="recentActivityPagination" :hide-headers="false" :hide-actions="false">
+								<template slot="items" slot-scope="props">
+									<tr @click="setTopLevelPage('stepper'); goToDirectly(props.item.project, props.item.wafer, props.item.chip, props.item.device);">
+										<td v-if="recentActivityHeaders.find(h => h.value ==='user').visible">{{ props.item.user }}</td>
+										<td v-if="recentActivityHeaders.find(h => h.value ==='project').visible">{{ props.item.project }}</td>
+										<td v-if="recentActivityHeaders.find(h => h.value ==='wafer').visible">{{ props.item.wafer }}</td>
+										<td v-if="recentActivityHeaders.find(h => h.value ==='chip').visible">{{ props.item.chip }}</td>
+										<td v-if="recentActivityHeaders.find(h => h.value ==='device').visible">{{ props.item.device }}</td>
+										<td v-if="recentActivityHeaders.find(h => h.value ==='modified').visible">{{ new Date(props.item.modified*1000).toLocaleDateString() }}</td>
+									</tr>
+								</template>
+							</v-data-table>
+						</v-card>
 					</v-flex>
 					
 					<!-- End of dashboard -->
@@ -308,17 +315,23 @@
 					
 					<v-stepper v-if="topLevelPage === 'stepper'" v-model="stepperPage" style="background-color:rgba(255,255,255,0);height:100%;">
 						<v-stepper-header style="background-color:rgba(255,255,255,1);">
-							<v-stepper-step step="1" :complete="stepperPage > 1" :editable="stepperPage > 1" edit-icon="folder">Projects</v-stepper-step>
+							<v-stepper-step step="1" :complete="stepperPage > 1" :editable="stepperPage > 1" edit-icon="folder" 
+											color="color_browser darken-1">Projects</v-stepper-step>
 							<v-divider></v-divider>
-							<v-stepper-step step="2" :complete="stepperPage > 2" :editable="stepperPage > 2" edit-icon="bubble_chart">Wafers</v-stepper-step>
+							<v-stepper-step step="2" :complete="stepperPage > 2" :editable="stepperPage > 2" edit-icon="bubble_chart"
+											color="color_browser darken-1">Wafers</v-stepper-step>
 							<v-divider></v-divider>
-							<v-stepper-step step="3" :complete="stepperPage > 3" :editable="stepperPage > 3" edit-icon="apps">Chips</v-stepper-step>
+							<v-stepper-step step="3" :complete="stepperPage > 3" :editable="stepperPage > 3" edit-icon="apps"
+											color="color_browser darken-1">Chips</v-stepper-step>
 							<v-divider></v-divider>
-							<v-stepper-step step="4" :complete="stepperPage > 4" :editable="stepperPage > 4" edit-icon="memory">Devices</v-stepper-step>
+							<v-stepper-step step="4" :complete="stepperPage > 4" :editable="stepperPage > 4" edit-icon="memory"
+											color="color_browser darken-1">Devices</v-stepper-step>
 							<v-divider></v-divider>
-							<v-stepper-step step="5" :complete="stepperPage > 5" :editable="stepperPage > 5">Experiments</v-stepper-step>
+							<v-stepper-step step="5" :complete="stepperPage > 5" :editable="stepperPage > 5"
+											color="color_browser darken-1">Experiments</v-stepper-step>
 							<v-divider></v-divider>
-							<v-stepper-step step="6" :complete="stepperPage > 6" :editable="stepperPage > 6">Experiment</v-stepper-step>
+							<v-stepper-step step="6" :complete="stepperPage > 6" :editable="stepperPage > 6" 
+											color="color_browser darken-1">Experiment</v-stepper-step>
 						</v-stepper-header>
 						
 						<v-stepper-items>
@@ -435,7 +448,7 @@
 								</v-card>
 
 								<v-card v-if="stepperPage == 4 ">
-									<v-toolbar dark class="color_browser">
+									<v-toolbar dark class="color_browser darken-1">
 										<v-toolbar-title>
 											"{{ wafer }}{{ chip }}" Chip Summary Plots
 										</v-toolbar-title>
@@ -468,7 +481,7 @@
 										<v-layout row wrap v-if="enableChipSummaryPlots">
 											<v-flex xs12 sm6 md4 lg3 xl2 v-for="possiblePlot in possibleChipPlots" :key="possiblePlot">
 												<v-card class="ma-1" height="100%">
-													<v-toolbar dark dense class="color_plot">
+													<v-toolbar dark dense class="color_base">
 														<v-toolbar-title>
 															 {{ possiblePlot }}
 														</v-toolbar-title>
@@ -511,7 +524,7 @@
 								</v-card>
 								
 								<v-card v-if="stepperPage == 5">
-									<v-toolbar dark class="color_browser">
+									<v-toolbar dark class="color_browser darken-1">
 										<v-toolbar-title>
 											"{{ wafer }}{{ chip }} {{ device }}" Device Summary Plots
 										</v-toolbar-title>
@@ -525,7 +538,7 @@
 										<v-layout row wrap v-if="enableDeviceSummaryPlots">
 											<v-flex xs12 sm6 md4 lg3 xl2 v-for="possiblePlot in possibleDevicePlots" :key="possiblePlot">
 												<v-card class="ma-1" height="100%">
-													<v-toolbar dark dense class="color_plot">
+													<v-toolbar dark dense class="color_base">
 														<v-toolbar-title>
 															 {{ possiblePlot }}
 														</v-toolbar-title>
@@ -559,7 +572,7 @@
 											
 											<v-flex xs12 sm6 md4 lg3 xl2 v-for="possiblePlot in experiment.possiblePlots" :key="possiblePlot">
 												<v-card class="ma-1" height="100%">
-													<v-toolbar dark dense class="color_plot ">
+													<v-toolbar dark dense class="color_base">
 														<v-toolbar-title>
 															{{ possiblePlot }}
 														</v-toolbar-title>
@@ -568,7 +581,7 @@
 														
 														<v-menu bottom left offset-y>
 															<v-btn slot="activator" icon :loading="false"><v-icon>settings</v-icon></v-btn>
-															<!-- !this.$parent.getElementsByClassName('sZoomableImage')[0].complete -->
+															<!-- !this.$parent.getElementsByClassName('zoomableImage')[0].complete -->
 															<v-list light>
 																<v-list-tile @click="copyHTMLImageToClip('/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings)))">
 																	<v-list-tile-avatar><v-icon>photo</v-icon></v-list-tile-avatar>
@@ -684,7 +697,7 @@
 					<!-- Start of sched creator -->
 					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'scheduleCreator'">
-						<v-card class="mb-3 pb-1">
+						<v-card class="pb-1">
 							<v-toolbar dark dense class="color_creator ">
 								<v-toolbar-title>
 									Schedule Creator
@@ -694,7 +707,7 @@
 								
 								<v-menu bottom left offset-y :close-on-content-click="false">
 									<v-btn slot="activator" icon><v-icon>folder</v-icon></v-btn>
-									<v-toolbar dark dense class="color_creator">
+									<v-toolbar dark dense class="color_creator lighten-1">
 										<v-toolbar-title>
 											Load Schedule File
 										</v-toolbar-title>
@@ -805,8 +818,8 @@
 						
 						<v-layout row wrap>
 							<v-flex xs6 sm6 md6 lg6 class="pr-1">
-								<v-card class="mb-3" v-if="nonTrivialScheduleObjects()">
-									<v-toolbar dark dense class="color_creator ">
+								<v-card class="mt-3" v-if="nonTrivialScheduleObjects()">
+									<v-toolbar dark dense class="color_creator">
 										<v-toolbar-title>
 											Save Schedule File
 										</v-toolbar-title>
@@ -864,88 +877,10 @@
 									</v-card-actions>
 								</v-card>
 							</v-flex>
-								
 						</v-layout>
 					</v-flex>
 					
 					<!-- End of sched creator -->
-					<!-- Start of documentation -->
-					
-					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'documentation'">
-						<v-card class="mb-3">
-							<v-toolbar dark dense class="color_documentation ">
-								<v-toolbar-title>
-									Developer Documentation
-								</v-toolbar-title>
-							</v-toolbar>
-							<v-container> 
-								This documentation is intended for developers adding to the Python code. It is built using Sphinx.
-							</v-container>
-							<v-container>
-								<v-btn href="https://stevennoyce.github.io/AutexysHost/build/html/" target="_blank">View Documentation</v-btn>
-							</v-container>
-						</v-card>
-
-						<v-spacer></v-spacer>
-
-						<v-card class="mb-3">
-							<v-toolbar dark dense class="color_documentation ">
-								<v-toolbar-title>
-									User Documentation
-								</v-toolbar-title>
-							</v-toolbar>
-							<v-container>
-								This documentation is intended for anyone using Autexys.
-							</v-container>
-							<v-container>
-								<v-expansion-panel expand class="mt-1 mb-2" v-for="(documentationItemText, index) in documentationText" :key="index" :prepend-icon="$vuetify.icons.expand">
-									<v-expansion-panel-content class="grey lighten-4" v-for="(panel, i) in 1" :key="i">
-										<span slot="header">
-											<div style="display:inline; height: 50px; line-height: 50px;">
-												{{ index + 1 }}. {{ documentationTitle[index] }}
-											</div>
-											<div style="display:inline; float:right;">
-												<v-tooltip top>
-													<v-btn icon @click.stop="moveDocumentationEntryUp(index)" slot="activator" :disabled="index == 0"><v-icon>arrow_upward</v-icon></v-btn>
-													<span>Move entry up</span>
-												</v-tooltip>
-												<v-tooltip top>
-													<v-btn icon @click.stop="moveDocumentationEntryDown(index)" slot="activator" :disabled="index >= documentationText.length - 1"><v-icon>arrow_downward</v-icon></v-btn>
-													<span>Move entry down</span>
-												</v-tooltip>
-												<v-tooltip top>
-													<v-btn icon @click.stop="addDocumentationEntry(index)" slot="activator"><v-icon>add_circle</v-icon></v-btn>
-													<span>Add new entry after</span>
-												</v-tooltip>
-												<v-tooltip top>
-													<v-btn icon @click.stop="documentationDeleteDialogVisible = true; documentationDeleteIndex=index;" slot="activator" :disabled="documentationText.length == 1"><v-icon>cancel</v-icon></v-btn>
-													<span>Delete entry</span>
-												</v-tooltip>
-												<v-snackbar v-model="documentationDeleteDialogVisible" :top="true" :timeout="0" :multi-line="true" color="red lighten-2">
-													Once this entry is deleted, it will be permanently removed from Autexys. Are you sure you want to continue?
-													<v-btn color="red" text @click="documentationDeleteDialogVisible = false">Cancel</v-btn>
-													<v-btn color="red" text @click="documentationDeleteDialogVisible = false; removeDocumentationEntry(documentationDeleteIndex);">Continue</v-btn>
-												</v-snackbar>
-											</div>
-										</span>
-										<v-container> 
-											<p v-if="!documentationEditMode[index]">
-												{{ documentationText[index] }}
-											</p>
-											<v-text-field solo v-if="documentationEditMode[index]" label="Enter documentation title" v-model="documentationProposedTitle[index]" auto-grow></v-text-field>
-											<v-textarea solo v-if="documentationEditMode[index]" label="Enter documentation text" v-model="documentationProposedText[index]" auto-grow>
-											</v-textarea>
-											<v-btn v-if="!documentationEditMode[index]" class="mb-3 mt-3" @click="documentationEdit(index)">Edit</v-btn>
-											<v-btn v-if="documentationEditMode[index]" class="mb-3 mt-3" @click="documentationSave(index)">Save</v-btn>
-											<v-btn v-if="documentationEditMode[index]" class="mb-3 mt-3" @click="documentationCancel(index)">Cancel</v-btn>
-										</v-container>
-									</v-expansion-panel-content>
-								</v-expansion-panel>
-							</v-container>
-						</v-card>
-					</v-flex>
-
-					<!-- End of documentation -->
 					<!-- Start of experiment runner -->
 					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'experimentRunner'">
@@ -1531,7 +1466,7 @@
 					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'settings'">
 						<v-card>
-							<v-toolbar dark dense class="color_settings ">
+							<v-toolbar dark dense class="info darken-2">
 								<v-toolbar-title>
 									Settings
 								</v-toolbar-title>
@@ -1544,7 +1479,7 @@
 								<v-layout row wrap>
 									<v-flex xs3 sm3 md3 lg3 xl3>
 										<v-card class="ma-1">
-											<v-toolbar dark dense class="color1 ">
+											<v-toolbar dark dense class="color_base">
 												<v-toolbar-title>
 													Data
 												</v-toolbar-title>
@@ -1557,7 +1492,7 @@
 									
 									<v-flex xs3 sm3 md3 lg3 xl3>
 										<v-card class="ma-1">
-											<v-toolbar dark dense class="color1 ">
+											<v-toolbar dark dense class="color_base">
 												<v-toolbar-title>
 													Plot Options
 												</v-toolbar-title>
@@ -1570,7 +1505,7 @@
 									
 									<v-flex xs3 sm3 md3 lg3 xl3>
 										<v-card class="ma-1">
-											<v-toolbar dark dense class="color1 ">
+											<v-toolbar dark dense class="color_base">
 												<v-toolbar-title>
 													Chip Summary
 												</v-toolbar-title>
@@ -1583,7 +1518,7 @@
 									
 									<v-flex xs3 sm3 md3 lg3 xl3>
 										<v-card class="ma-1">
-											<v-toolbar dark dense class="color1 ">
+											<v-toolbar dark dense class="color_base">
 												<v-toolbar-title>
 													Device Summary
 												</v-toolbar-title>
@@ -1603,10 +1538,12 @@
 					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'about'">
 						<v-card>
-							<v-toolbar dark dense class="color_documentation ">
+							<v-toolbar dark dense class="color_documentation">
 								<v-toolbar-title>
 									README for Autexys - the Automated Experimentation System
 								</v-toolbar-title>
+								<v-spacer></v-spacer>
+								<v-btn icon><v-icon>info_outline</v-icon></v-btn>
 							</v-toolbar>
 							<v-container>
 								<div v-html="ReadMeHTML"></div>
@@ -1614,7 +1551,7 @@
 						</v-card>
 						
 						<v-card>
-							<v-toolbar dark dense class="color_documentation ">
+							<v-toolbar dark dense class="color_documentation">
 								<v-toolbar-title>
 									About
 								</v-toolbar-title>
@@ -1630,6 +1567,85 @@
 					</v-flex>
 					
 					<!-- End of about -->
+					<!-- Start of documentation -->
+					
+					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'documentation'">
+						<v-card>
+							<v-toolbar dark dense class="color_documentation">
+								<v-toolbar-title>
+									Developer Documentation
+								</v-toolbar-title>
+								<v-spacer></v-spacer>
+								<v-btn icon><v-icon>info_outline</v-icon></v-btn>
+							</v-toolbar>
+							<v-container> 
+								This documentation is intended for developers adding to the Python code. It is built using Sphinx.
+							</v-container>
+							<v-container>
+								<v-btn href="https://stevennoyce.github.io/AutexysHost/build/html/" target="_blank">View Documentation</v-btn>
+							</v-container>
+						</v-card>
+
+						<v-spacer></v-spacer>
+
+						<v-card class="mt-3">
+							<v-toolbar dark dense class="color_documentation">
+								<v-toolbar-title>
+									User Documentation
+								</v-toolbar-title>
+							</v-toolbar>
+							<v-container>
+								This documentation is intended for anyone using Autexys.
+							</v-container>
+							<v-container>
+								<v-expansion-panel expand class="mt-1 mb-2" v-for="(documentationItemText, index) in documentationText" :key="index" :prepend-icon="$vuetify.icons.expand">
+									<v-expansion-panel-content class="grey lighten-4" v-for="(panel, i) in 1" :key="i">
+										<span slot="header">
+											<div style="display:inline; height: 50px; line-height: 50px;">
+												{{ index + 1 }}. {{ documentationTitle[index] }}
+											</div>
+											<div style="display:inline; float:right;">
+												<v-tooltip top>
+													<v-btn icon @click.stop="moveDocumentationEntryUp(index)" slot="activator" :disabled="index == 0"><v-icon>arrow_upward</v-icon></v-btn>
+													<span>Move entry up</span>
+												</v-tooltip>
+												<v-tooltip top>
+													<v-btn icon @click.stop="moveDocumentationEntryDown(index)" slot="activator" :disabled="index >= documentationText.length - 1"><v-icon>arrow_downward</v-icon></v-btn>
+													<span>Move entry down</span>
+												</v-tooltip>
+												<v-tooltip top>
+													<v-btn icon @click.stop="addDocumentationEntry(index)" slot="activator"><v-icon>add_circle</v-icon></v-btn>
+													<span>Add new entry after</span>
+												</v-tooltip>
+												<v-tooltip top>
+													<v-btn icon @click.stop="documentationDeleteDialogVisible = true; documentationDeleteIndex=index;" slot="activator" :disabled="documentationText.length == 1"><v-icon>cancel</v-icon></v-btn>
+													<span>Delete entry</span>
+												</v-tooltip>
+												<v-snackbar v-model="documentationDeleteDialogVisible" :top="true" :timeout="0" :multi-line="true" color="red lighten-2">
+													Once this entry is deleted, it will be permanently removed from Autexys. Are you sure you want to continue?
+													<v-btn color="red" text @click="documentationDeleteDialogVisible = false">Cancel</v-btn>
+													<v-btn color="red" text @click="documentationDeleteDialogVisible = false; removeDocumentationEntry(documentationDeleteIndex);">Continue</v-btn>
+												</v-snackbar>
+											</div>
+										</span>
+										<v-container> 
+											<p v-if="!documentationEditMode[index]">
+												{{ documentationText[index] }}
+											</p>
+											<v-text-field solo v-if="documentationEditMode[index]" label="Enter documentation title" v-model="documentationProposedTitle[index]" auto-grow></v-text-field>
+											<v-textarea solo v-if="documentationEditMode[index]" label="Enter documentation text" v-model="documentationProposedText[index]" auto-grow>
+											</v-textarea>
+											<v-btn v-if="!documentationEditMode[index]" class="mb-3 mt-3" @click="documentationEdit(index)">Edit</v-btn>
+											<v-btn v-if="documentationEditMode[index]" class="mb-3 mt-3" @click="documentationSave(index)">Save</v-btn>
+											<v-btn v-if="documentationEditMode[index]" class="mb-3 mt-3" @click="documentationCancel(index)">Cancel</v-btn>
+										</v-container>
+									</v-expansion-panel-content>
+								</v-expansion-panel>
+							</v-container>
+						</v-card>
+					</v-flex>
+
+					<!-- End of documentation -->
 
 				</v-content>
 				<v-footer inset>
@@ -1745,22 +1761,22 @@
 			if (imageRequestsLoading > 0) return;
 			if (imageRequestsLoading < 0) imageRequestsLoading = 0;
 			
-			let sZoomableImages = document.getElementsByClassName("sZoomableImage");
+			let zoomableImages = document.getElementsByClassName("zoomableImage");
 			
-			for (var i = 0; i < sZoomableImages.length; i++) {
-				if (sZoomableImages[i].getAttribute('data-src') != sZoomableImages[i].getAttribute('src')) {
-					sZoomableImages[i].setAttribute('src', sZoomableImages[i].getAttribute('data-src'));
+			for (var i = 0; i < zoomableImages.length; i++) {
+				if (zoomableImages[i].getAttribute('data-src') != zoomableImages[i].getAttribute('src')) {
+					zoomableImages[i].setAttribute('src', zoomableImages[i].getAttribute('data-src'));
 					
 					imageRequestsLoading++;
 					
-					sZoomableImages[i].onload = function() {
+					zoomableImages[i].onload = function() {
 						imageRequestsLoading--;
 					}
-					sZoomableImages[i].onerror = function() {
+					zoomableImages[i].onerror = function() {
 						imageRequestsLoading--;
 					}
 				}
-				if (!sZoomableImages[i].complete) {
+				if (!zoomableImages[i].complete) {
 					return;
 				}
 			}
@@ -3567,8 +3583,8 @@
 		// Dark Business Theme
 		app.$data.colors = ['#5981a6', '#509593', '#595ea6', '#3973ac', '#457da1'];
 		
-		// Final Theme
-		app.$data.colors = ['#5981a6', '#509593', '#595ea6', '#3973ac', '#3f688c', '#6f7d88', '#303F9F'];
+		// Final Theme 	   [grey-blue,   green  ,  purple  ,   blue   , blue-purp, red-purp ,   gold   , ]
+		app.$data.colors = ['#5981A6', '#008888', '#595EA6', '#3973AC', '#3F51B5', '#880E7F', '#C18C00', ];
 		
 		// --- Apply Theme --- 
 		
@@ -3586,17 +3602,15 @@
 		
 		// --- Custom Color Keywords ---
 		
-		app.$vuetify.theme['color_plot'] = app.$vuetify.theme.color1;
+		app.$vuetify.theme['color_base'] = app.$vuetify.theme.color1;
 		app.$vuetify.theme['color_creator'] = app.$vuetify.theme.color2;
 		app.$vuetify.theme['color_runner'] = app.$vuetify.theme.color3;
 		app.$vuetify.theme['color_browser'] = app.$vuetify.theme.color4;
-		app.$vuetify.theme['color_dashboard'] = app.$vuetify.theme.color5;
-		app.$vuetify.theme['color_settings'] = app.$vuetify.theme.color6;
+			
+		app.$vuetify.theme['color_performance'] = app.$vuetify.theme.color5;
+		app.$vuetify.theme['color_ptsensor'] = app.$vuetify.theme.color5;
 		
-		app.$vuetify.theme['color_performance'] = app.$vuetify.theme.color7;
-		app.$vuetify.theme['color_ptsensor'] = app.$vuetify.theme.color7;
-		
-		app.$vuetify.theme['color_documentation'] = app.$vuetify.theme.color1;
+		app.$vuetify.theme['color_documentation'] = app.$vuetify.theme.color7;
 		
 		// colors = {
 		// 	'dark': {

@@ -1,7 +1,7 @@
 
 
 <script type="text/html" id="a-zoomable-image">
-	<img :src="src" v-bind:class="{ sZoomedImage: zoomActive, sZoomableImage: !zoomActive }" @click="zoomActive = !zoomActive">
+	<img :src="src" v-bind:class="{ zoomedImage: zoomActive, zoomableImage: !zoomActive }" @click="zoomActive = !zoomActive">
 </script>
 
 <script type="text/javascript">
