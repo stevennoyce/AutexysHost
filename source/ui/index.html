@@ -224,7 +224,7 @@
 						<v-container>
 							<v-layout row wrap>
 								<v-flex xs4 sm4 md4 lg4 xl4 class="pa-1">
-									<v-toolbar dark class="color4 roundedcorners" style="cursor: pointer;" @click="setTopLevelPage('stepper')">
+									<v-toolbar dark class="color_browser roundedcorners" style="cursor: pointer;" @click="setTopLevelPage('stepper')">
 										<v-toolbar-title>
 											Browser
 										</v-toolbar-title>
@@ -232,7 +232,7 @@
 								</v-flex>
 								
 								<v-flex xs4 sm4 md4 lg4 xl4 class="pa-1">
-									<v-toolbar dark class="color2 roundedcorners" style="cursor: pointer;" @click="setTopLevelPage('scheduleCreator')">
+									<v-toolbar dark class="color_creator roundedcorners" style="cursor: pointer;" @click="setTopLevelPage('scheduleCreator')">
 										<v-toolbar-title>
 											Schedule Creator
 										</v-toolbar-title>
@@ -240,7 +240,7 @@
 								</v-flex>
 								
 								<v-flex xs4 sm4 md4 lg4 xl4 class="pa-1">
-									<v-toolbar dark class="color3 roundedcorners" style="cursor: pointer;" @click="setTopLevelPage('experimentRunner')">
+									<v-toolbar dark class="color_runner roundedcorners" style="cursor: pointer;" @click="setTopLevelPage('experimentRunner')">
 										<v-toolbar-title>
 											Experiment Runner
 										</v-toolbar-title>
@@ -251,7 +251,7 @@
 						
 						<v-container>
 							<v-card class="ma-1">
-								<v-toolbar dark dense class="color1 darken-1">
+								<v-toolbar dark dense class="color_dashboard">
 									<v-toolbar-title>
 										Recent Activity
 									</v-toolbar-title>
@@ -325,7 +325,7 @@
 							
 							<v-stepper-content step="1">
 								<v-card v-if="stepperPage > 0">
-									<v-toolbar dark class="color4">
+									<v-toolbar dark class="color_browser">
 										<v-toolbar-title>
 											Projects
 										</v-toolbar-title>
@@ -348,7 +348,7 @@
 							
 							<v-stepper-content step="2">
 								<v-card v-if="stepperPage > 1">
-									<v-toolbar dark class="color4">
+									<v-toolbar dark class="color_browser">
 										<v-btn icon @click="goBack(); getProjects()"><v-icon>arrow_back</v-icon></v-btn>
 										<v-toolbar-title>
 											Wafers
@@ -378,7 +378,7 @@
 							
 							<v-stepper-content step="3">
 								<v-card v-if="stepperPage > 2">
-									<v-toolbar dark class="color4">
+									<v-toolbar dark class="color_browser">
 										<v-btn icon @click="goBack(); getWafers()"><v-icon>arrow_back</v-icon></v-btn>
 										<v-toolbar-title>
 											"{{ wafer }}" Chips
@@ -408,7 +408,7 @@
 							
 							<v-stepper-content step="4">
 								<v-card v-if="stepperPage > 3">
-									<v-toolbar dark class="color4">
+									<v-toolbar dark class="color_browser">
 										<v-btn icon @click="goBack(); getChips();"><v-icon>arrow_back</v-icon></v-btn>
 										<v-toolbar-title>
 											"{{ wafer }}{{ chip }}" Devices
@@ -435,7 +435,7 @@
 								</v-card>
 
 								<v-card v-if="stepperPage == 4 ">
-									<v-toolbar dark class="color4">
+									<v-toolbar dark class="color_browser">
 										<v-toolbar-title>
 											"{{ wafer }}{{ chip }}" Chip Summary Plots
 										</v-toolbar-title>
@@ -468,7 +468,7 @@
 										<v-layout row wrap v-if="enableChipSummaryPlots">
 											<v-flex xs12 sm6 md4 lg3 xl2 v-for="possiblePlot in possibleChipPlots" :key="possiblePlot">
 												<v-card class="ma-1" height="100%">
-													<v-toolbar dark dense class="color1">
+													<v-toolbar dark dense class="color_plot">
 														<v-toolbar-title>
 															 {{ possiblePlot }}
 														</v-toolbar-title>
@@ -485,7 +485,7 @@
 
 							<v-stepper-content step="5">
 								<v-card v-if="stepperPage > 4">
-									<v-toolbar dark class="color4">
+									<v-toolbar dark class="color_browser">
 										<v-btn icon @click="goBack(); getDevices();"><v-icon>arrow_back</v-icon></v-btn>
 										<v-toolbar-title>
 											"{{ wafer }}{{ chip }} {{ device }}" Experiments
@@ -511,7 +511,7 @@
 								</v-card>
 								
 								<v-card v-if="stepperPage == 5">
-									<v-toolbar dark class="color4">
+									<v-toolbar dark class="color_browser">
 										<v-toolbar-title>
 											"{{ wafer }}{{ chip }} {{ device }}" Device Summary Plots
 										</v-toolbar-title>
@@ -525,7 +525,7 @@
 										<v-layout row wrap v-if="enableDeviceSummaryPlots">
 											<v-flex xs12 sm6 md4 lg3 xl2 v-for="possiblePlot in possibleDevicePlots" :key="possiblePlot">
 												<v-card class="ma-1" height="100%">
-													<v-toolbar dark dense class="color1">
+													<v-toolbar dark dense class="color_plot">
 														<v-toolbar-title>
 															 {{ possiblePlot }}
 														</v-toolbar-title>
@@ -543,7 +543,7 @@
 							
 							<v-stepper-content step="6">
 								<v-card v-if="stepperPage > 5 && experiments.length > experimentIndex">
-									<v-toolbar dark class="color4 ">
+									<v-toolbar dark class="color_browser ">
 										<v-btn icon @click="goBack(); getExperiments();"><v-icon>arrow_back</v-icon></v-btn>
 										<v-toolbar-title>
 											"{{ wafer }}{{ chip }} {{ device }}" Experiment #{{ experiment.startIndexes.experimentNumber }}
@@ -559,7 +559,7 @@
 											
 											<v-flex xs12 sm6 md4 lg3 xl2 v-for="possiblePlot in experiment.possiblePlots" :key="possiblePlot">
 												<v-card class="ma-1" height="100%">
-													<v-toolbar dark dense class="color1 ">
+													<v-toolbar dark dense class="color_plot ">
 														<v-toolbar-title>
 															{{ possiblePlot }}
 														</v-toolbar-title>
@@ -627,7 +627,7 @@
 									
 									<v-card class="ma-1 mt-2 mb-2">
 										<v-expansion-panel dark expand>
-											<v-expansion-panel-content ripple class="color2 " v-for="section in _.keys(experiment)" :key="section" v-if="typeof experiment[section] == 'object'">
+											<v-expansion-panel-content ripple class="color_creator " v-for="section in _.keys(experiment)" :key="section" v-if="typeof experiment[section] == 'object'">
 												<div slot="header">{{ section }}</div>
 												<v-data-table :items="_.toPairs(experiment[section])" :headers="[{'text':'Property'},{'text':'Value'}]" hide-actions hide-headers light>
 													<template slot="items" slot-scope="props">
@@ -640,7 +640,7 @@
 									</v-card>
 									
 									<v-card class="ma-1">
-										<v-toolbar dark dense class="color4 ">
+										<v-toolbar dark dense class="color_browser ">
 											<v-toolbar-title>
 												Data Export
 											</v-toolbar-title>
@@ -660,7 +660,7 @@
 												<span>{{ experiment['dataFolderSpecificAbs'] }}</span>
 											</v-tooltip>
 											
-											<v-chip dark class="color4" v-for="file in experiment['dataFiles']" :key="file">
+											<v-chip dark class="color_browser" v-for="file in experiment['dataFiles']" :key="file">
 												{{file}}
 											</v-chip>
 										</v-layout>
@@ -685,7 +685,7 @@
 					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'scheduleCreator'">
 						<v-card class="mb-3 pb-1">
-							<v-toolbar dark dense class="color2 ">
+							<v-toolbar dark dense class="color_creator ">
 								<v-toolbar-title>
 									Schedule Creator
 								</v-toolbar-title>
@@ -694,7 +694,7 @@
 								
 								<v-menu bottom left offset-y :close-on-content-click="false">
 									<v-btn slot="activator" icon><v-icon>folder</v-icon></v-btn>
-									<v-toolbar dark dense class="color2">
+									<v-toolbar dark dense class="color_creator">
 										<v-toolbar-title>
 											Load Schedule File
 										</v-toolbar-title>
@@ -806,7 +806,7 @@
 						<v-layout row wrap>
 							<v-flex xs6 sm6 md6 lg6 class="pr-1">
 								<v-card class="mb-3" v-if="nonTrivialScheduleObjects()">
-									<v-toolbar dark dense class="color2 ">
+									<v-toolbar dark dense class="color_creator ">
 										<v-toolbar-title>
 											Save Schedule File
 										</v-toolbar-title>
@@ -873,7 +873,7 @@
 					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'documentation'">
 						<v-card class="mb-3">
-							<v-toolbar dark dense class="color1 ">
+							<v-toolbar dark dense class="color_documentation ">
 								<v-toolbar-title>
 									Developer Documentation
 								</v-toolbar-title>
@@ -889,7 +889,7 @@
 						<v-spacer></v-spacer>
 
 						<v-card class="mb-3">
-							<v-toolbar dark dense class="color1 ">
+							<v-toolbar dark dense class="color_documentation ">
 								<v-toolbar-title>
 									User Documentation
 								</v-toolbar-title>
@@ -950,7 +950,7 @@
 					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'experimentRunner'">
 						<v-card class="mb-3">
-							<v-toolbar dark dense class="color3 ">
+							<v-toolbar dark dense class="color_runner ">
 								<v-toolbar-title>
 									Experiment Runner
 								</v-toolbar-title>
@@ -1110,7 +1110,7 @@
 						</v-card>
 						
 						<v-card class="mb-3" v-if="showProgress">
-							<v-toolbar dark dense class="color3 ">
+							<v-toolbar dark dense class="color_runner ">
 								<v-toolbar-title>
 									Progress
 								</v-toolbar-title>
@@ -1168,7 +1168,7 @@
 						</v-card>
 						
 						<v-card v-if="showProgress">
-							<v-toolbar dark dense class="color3 ">
+							<v-toolbar dark dense class="color_runner ">
 								<v-toolbar-title>
 									Live Plots
 								</v-toolbar-title>
@@ -1198,7 +1198,7 @@
 									<v-layout row wrap>
 										<v-flex xs12 sm12 md6 lg6 xl4 v-for="[plotID, plot] of Object.entries(livePlots[jobSelectChoice][deviceSelectChoice])" :key="plotID">
 											<v-card class="ma-1">
-												<v-toolbar dark dense class="color3 ">
+												<v-toolbar dark dense class="color_runner ">
 													<v-toolbar-title>
 														{{ plotID }} 
 													</v-toolbar-title>
@@ -1242,7 +1242,7 @@
 					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'performance'">
 						<v-card>
-							<v-toolbar dark dense class="color1 darken-1">
+							<v-toolbar dark dense class="color_performance">
 								<v-toolbar-title>
 									Performance
 								</v-toolbar-title>
@@ -1347,23 +1347,23 @@
 								<v-layout row wrap>
 									<v-flex xs10 sm10 md10 lg10>
 										<v-card flat class="mt-3">
-											<v-toolbar dark flat color="color1 darken-1" class="pb-1">
+											<v-toolbar dark flat color="color_performance" class="pb-1">
 												<v-spacer></v-spacer>
 												<v-toolbar-items>
-													<v-btn color="color1 darken-2 roundedcorners" @click="performanceSave(); performanceEnablePlots(); performanceStart();" :disabled="performanceRunning"><v-icon>play_arrow</v-icon></v-btn>
+													<v-btn color="color_performance darken-1 roundedcorners" @click="performanceSave(); performanceEnablePlots(); performanceStart();" :disabled="performanceRunning"><v-icon>play_arrow</v-icon></v-btn>
 												</v-toolbar-items>
 												<v-spacer></v-spacer>
 												<v-toolbar-items>
-													<v-btn color="color1 darken-2 roundedcorners" @click="performanceStop()" :disabled="!performanceRunning"><v-icon>pause</v-icon></v-btn>
+													<v-btn color="color_performance darken-1 roundedcorners" @click="performanceStop()" :disabled="!performanceRunning"><v-icon>pause</v-icon></v-btn>
 												</v-toolbar-items>
 												<v-spacer></v-spacer>
 												<v-toolbar-items>
-													<v-btn color="color1 darken-2 roundedcorners" @click="performanceClear()" :disabled="false"><v-icon>refresh</v-icon></v-btn>
+													<v-btn color="color_performance darken-1 roundedcorners" @click="performanceClear()" :disabled="false"><v-icon>refresh</v-icon></v-btn>
 												</v-toolbar-items>
 												<v-spacer></v-spacer>
 											</v-toolbar>
 											
-											<v-tabs dark centered grow value="tab-T" color="color1 darken-1" slider-color="orange darken-2">
+											<v-tabs dark centered grow value="tab-T" color="color_performance" slider-color="orange darken-2">
 												<v-tab href="#tab-S">Subthreshold Curve</v-tab>
 												<v-tab href="#tab-T">Transfer Curve</v-tab>
 												<v-tab href="#tab-O">Output Curve</v-tab>
@@ -1388,7 +1388,7 @@
 									
 									<v-flex xs2>
 										<v-card flat class="mt-3 ml-2">
-											<v-toolbar dark flat color="color1 darken-1" class="pb-1">
+											<v-toolbar dark flat color="color_performance" class="pb-1">
 												<v-spacer></v-spacer>
 												<v-toolbar-items><v-icon large>speed</v-icon></v-toolbar-items>
 												<v-toolbar-title v-if="liveDataCounter">
@@ -1396,7 +1396,7 @@
 												</v-toolbar-title>
 												<v-spacer></v-spacer>													
 											</v-toolbar>
-											<v-toolbar dark flat color="color1 darken-1" dense>
+											<v-toolbar dark flat color="color_performance" dense>
 												<v-spacer></v-spacer>
 												<v-toolbar-items><v-switch class="ml-2" color="white" label="" v-model="performanceMetrics.visible"></v-switch></v-toolbar-items>
 												<v-spacer></v-spacer>
@@ -1421,7 +1421,7 @@
 					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'ptSensor'">
 						<v-card>
-							<v-toolbar dark dense class="color1 darken-1">
+							<v-toolbar dark dense class="color_ptsensor">
 								<v-toolbar-title>
 									PT Sensor
 								</v-toolbar-title>
@@ -1474,23 +1474,23 @@
 								<v-layout row wrap>
 									<v-flex xs10 sm10 md10 lg10>
 										<v-card flat class="mt-3">
-											<v-toolbar dark flat color="color1 darken-1" class="pb-1">
+											<v-toolbar dark flat color="color_ptsensor" class="pb-1">
 												<v-spacer></v-spacer>
 												<v-toolbar-items>
-													<v-btn color="color1 darken-2 roundedcorners" @click="ptSensorSave(); ptSensorEnablePlots(); ptSensorStart();" :disabled="ptSensorRunning"><v-icon>play_arrow</v-icon></v-btn>
+													<v-btn color="color_ptsensor darken-1 roundedcorners" @click="ptSensorSave(); ptSensorEnablePlots(); ptSensorStart();" :disabled="ptSensorRunning"><v-icon>play_arrow</v-icon></v-btn>
 												</v-toolbar-items>
 												<v-spacer></v-spacer>
 												<v-toolbar-items>
-													<v-btn color="color1 darken-2 roundedcorners" @click="ptSensorStop()" :disabled="!ptSensorRunning"><v-icon>pause</v-icon></v-btn>
+													<v-btn color="color_ptsensor darken-1 roundedcorners" @click="ptSensorStop()" :disabled="!ptSensorRunning"><v-icon>pause</v-icon></v-btn>
 												</v-toolbar-items>
 												<v-spacer></v-spacer>
 												<v-toolbar-items>
-													<v-btn color="color1 darken-2 roundedcorners" @click="ptSensorClear()" :disabled="false"><v-icon>refresh</v-icon></v-btn>
+													<v-btn color="color_ptsensor darken-1 roundedcorners" @click="ptSensorClear()" :disabled="false"><v-icon>refresh</v-icon></v-btn>
 												</v-toolbar-items>
 												<v-spacer></v-spacer>
 											</v-toolbar>
 											
-											<v-tabs dark centered grow value="tab-T" color="color1 darken-1" slider-color="blue ">
+											<v-tabs dark centered grow value="tab-T" color="color_ptsensor" slider-color="blue ">
 												<v-tab href="#tab-I">Impedance</v-tab>
 												<v-tab-item value="tab-I">
 													<v-card flat>
@@ -1503,12 +1503,12 @@
 									
 									<v-flex xs2>
 										<v-card flat class="mt-3 ml-2">
-											<v-toolbar dark flat color="color1 darken-1" class="pb-1">
+											<v-toolbar dark flat color="color_ptsensor" class="pb-1">
 												<v-spacer></v-spacer>
 												<v-toolbar-items><v-icon large>opacity</v-icon></v-toolbar-items>
 												<v-spacer></v-spacer>													
 											</v-toolbar>
-											<v-toolbar dark flat color="color1 darken-1" dense></v-toolbar>
+											<v-toolbar dark flat color="color_ptsensor" dense></v-toolbar>
 											<v-data-table hide-actions hide-headers light 
 												:items="[{'label': 'Max', 'value': ptSensorMaxImpedance,      'decimals': 0, 'units': ' Ohms'}, 
 														 {'label': 'PT', 'value': ptSensorTimeOfMaxImpedance, 'decimals': 2, 'units': ' sec'}]">
@@ -1531,7 +1531,7 @@
 					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'settings'">
 						<v-card>
-							<v-toolbar dark dense class="color4 ">
+							<v-toolbar dark dense class="color_settings ">
 								<v-toolbar-title>
 									Settings
 								</v-toolbar-title>
@@ -1603,7 +1603,7 @@
 					
 					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'about'">
 						<v-card>
-							<v-toolbar dark dense class="color1 ">
+							<v-toolbar dark dense class="color_documentation ">
 								<v-toolbar-title>
 									README for Autexys - the Automated Experimentation System
 								</v-toolbar-title>
@@ -1614,7 +1614,7 @@
 						</v-card>
 						
 						<v-card>
-							<v-toolbar dark dense class="color1 ">
+							<v-toolbar dark dense class="color_documentation ">
 								<v-toolbar-title>
 									About
 								</v-toolbar-title>
@@ -3520,15 +3520,19 @@
 		// colors: ['#F4FFFD', '#E3E4DB', '#EDF4ED', '#CCDAD1', '#9CAEA9', '#8C9A9E', '#788585', '#656565', '#4C5760', '#2B3D41', '#1E3231'],
 		// colors: ['#F0F7F4', '#9EC1A3', '#70A9A1', '#679289', '#40798C', '#B3BFB8', '#7E8D85', '#9AA0A8', '#465362', '#011936', '#673C4F'],
 		
+		// === Define Color Scheme ===
+		
+		// --- THEMES ---
+		
 		// Old theme
 		app.$vuetify.theme.primary = '#557A95';
 		app.$vuetify.theme.secondary = '#938E94';
 		app.$vuetify.theme.tertiary = '#0074E1';
 		app.$vuetify.theme.accent = '#7395AE';
-		app.$vuetify.theme.error = '#BF360C';
-		app.$vuetify.theme.success = '#00897B';
-		app.$vuetify.theme.info = '#A3B2BD';
-		app.$vuetify.theme.warning = '#FFB300';
+		app.$vuetify.theme.error = '#e83b2b';
+		app.$vuetify.theme.success = '#43a446';
+		app.$vuetify.theme.info = '#00b1c6';
+		app.$vuetify.theme.warning = '#fe9100';
 		
 		// Mint theme
 		app.$data.colors = ['#05386B', '#379683', '#5CDB95', '#8EE4AF', '#EDF5E1'];
@@ -3563,8 +3567,10 @@
 		// Dark Business Theme
 		app.$data.colors = ['#5981a6', '#509593', '#595ea6', '#3973ac', '#457da1'];
 		
-		// Decent sucess, info, warning, error colors
-		// app.$data.colors = ['#43a446', '#00b1c6', '#fe9100', '#e83b2b']
+		// Final Theme
+		app.$data.colors = ['#5981a6', '#509593', '#595ea6', '#3973ac', '#3f688c', '#6f7d88', '#303F9F'];
+		
+		// --- Apply Theme --- 
 		
 		for (var i = 0; i < app.$data.colors.length; i++) {
 			app.$vuetify.theme['color' + (i + 1)] = app.$data.colors[i];
@@ -3573,6 +3579,24 @@
 		app.$vuetify.theme.secondary = app.$vuetify.theme.color2;
 		app.$vuetify.theme.accent = app.$vuetify.theme.color3;
 		app.$vuetify.theme.tertiary = app.$vuetify.theme.color4;
+		app.$vuetify.theme.error = '#BF360C';
+		app.$vuetify.theme.success = '#00897B';
+		app.$vuetify.theme.info = '#A3B2BD';
+		app.$vuetify.theme.warning = '#FFB300';
+		
+		// --- Custom Color Keywords ---
+		
+		app.$vuetify.theme['color_plot'] = app.$vuetify.theme.color1;
+		app.$vuetify.theme['color_creator'] = app.$vuetify.theme.color2;
+		app.$vuetify.theme['color_runner'] = app.$vuetify.theme.color3;
+		app.$vuetify.theme['color_browser'] = app.$vuetify.theme.color4;
+		app.$vuetify.theme['color_dashboard'] = app.$vuetify.theme.color5;
+		app.$vuetify.theme['color_settings'] = app.$vuetify.theme.color6;
+		
+		app.$vuetify.theme['color_performance'] = app.$vuetify.theme.color7;
+		app.$vuetify.theme['color_ptsensor'] = app.$vuetify.theme.color7;
+		
+		app.$vuetify.theme['color_documentation'] = app.$vuetify.theme.color1;
 		
 		// colors = {
 		// 	'dark': {
