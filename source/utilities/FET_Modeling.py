@@ -271,7 +271,7 @@ def _max_transconductance(V_GS_data, I_D_data, region_length_override=None):
 	startIndex, endIndex = _find_steepest_region(V_GS_data, np.abs(I_D_data), region_length)
 	V_GS_steepest_region = V_GS_data[startIndex:endIndex+1]
 	I_D_steepest_region = I_D_data[startIndex:endIndex+1]
-	fit = _linearFit(V_GS_steepest_region, I_D_steepest_region)
+	fit = _linearFit(V_GS_steepest_region, I_D_steepest_region, includedFittedData=True)
 	fitted_steepest_region = fit['fitted_data']
 	V_T_approx = fit['x_intercept']
 	g_m_max = abs( fit['slope'] )  
@@ -283,7 +283,7 @@ def _find_steepest_region(V_GS_data, I_D_data, region_length):
 	maxSlope = 0
 	index = 0
 	for i in range(len(I_D_data) + 1 - numberOfPoints):
-		slope = abs(_linearFit(V_GS_data[i:i+numberOfPoints], I_D_data[i:i+numberOfPoints], slopeInterceptOnly=True)['slope'])
+		slope = abs(_linearFit(V_GS_data[i:i+numberOfPoints], I_D_data[i:i+numberOfPoints])['slope'])
 		if(slope > maxSlope):
 			maxSlope = slope
 			index = i
@@ -300,7 +300,7 @@ def _getXValueAtYValue(x_data, y_data, y_value, index_guess=0):
 		raise NotImplementedError('Drain current value was too close to edge of data for VT extraction.')
 		
 	# Perform a local linear fit to increase effective measurement resolution at the point of interest, then solve for x_value analytically
-	fit = _linearFit(x_data[index-1:index+2], y_data[index-1:index+2], slopeInterceptOnly=True)
+	fit = _linearFit(x_data[index-1:index+2], y_data[index-1:index+2])
 	x_value = (y_value - fit['y_intercept'])/fit['slope']
 	
 	return x_value
@@ -351,14 +351,14 @@ def _indexOfValue(y, value, guess=0):
 			break
 	return index
 
-def _linearFit(x, y, slopeInterceptOnly=False):
+def _linearFit(x, y, includedFittedData=False):
 	slope, intercept = np.polyfit(x, y, 1)
-	return {'fitted_data': (None) if(slopeInterceptOnly) else [slope*x[i] + intercept for i in range(len(x))], 'slope':slope, 'y_intercept':intercept, 'x_intercept':-intercept/slope}
+	return {'slope':slope, 'y_intercept':intercept, 'x_intercept':-intercept/slope, 'fitted_data': [slope*x[i] + intercept for i in range(len(x))] if(includedFittedData) else None}
 
 def _semilogFit(x, y):
-	fit_results = _linearFit(x, np.log10(np.abs(y)))
+	fit_results = _linearFit(x, np.log10(np.abs(y)), includedFittedData=True)
 	fitted_data = [10**(fit_results['fitted_data'][i]) for i in range(len(fit_results['fitted_data']))]
-	return {'fitted_data': fitted_data, 'slope':fit_results['slope'], 'y_intercept':fit_results['y_intercept'], 'x_intercept':fit_results['x_intercept']}
+	return {'slope':fit_results['slope'], 'y_intercept':fit_results['y_intercept'], 'x_intercept':fit_results['x_intercept'], 'fitted_data': fitted_data}
 
 
 

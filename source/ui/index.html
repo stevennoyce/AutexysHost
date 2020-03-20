@@ -1349,16 +1349,16 @@
 											</v-toolbar>
 											<v-toolbar dark flat color="color_performance" dense>
 												<v-spacer></v-spacer>
-												<v-toolbar-items><v-switch class="ml-2" color="white" label="" v-model="performanceMetrics.visible"></v-switch></v-toolbar-items>
+												<v-toolbar-items><v-switch class="ml-2" color="white" label="" v-model="performanceMetricsExtract"></v-switch></v-toolbar-items>
 												<v-spacer></v-spacer>
 											</v-toolbar>
-											<v-data-table v-if="performanceMetrics.visible" hide-actions hide-headers light 
-												:items="[{'label':'gm', 'value':performanceMetrics['gm'], 'decimals':2, 'units':' uS'}, 
+											<v-data-table v-if="performanceMetricsExtract" hide-actions hide-headers light 
+												:items="[{'label':'gm', 'value':performanceMetrics['gm'], 'decimals':3, 'units':' S'}, 
 														 {'label':'SS', 'value':performanceMetrics['SS'], 'decimals':0, 'units':' mV/dec'},
 														 {'label':'VT', 'value':performanceMetrics['VT'], 'decimals':2, 'units':' V'}]">
 												<template slot="items" slot-scope="props">
 													<td> {{ props.item['label'] }}</td>
-													<td> {{ props.item['value'] | decimalPlaces(props.item['decimals']) 
+													<td> {{ props.item['value'] | scientificPrecision(props.item['decimals']) 
 																				| withUnits(props.item['units']) }}</td>
 												</template>
 											</v-data-table>
@@ -1465,7 +1465,7 @@
 														 {'label': 'PT', 'value': ptSensorTimeOfMaxImpedance, 'decimals': 2, 'units': ' sec'}]">
 												<template slot="items" slot-scope="props">
 													<td> {{ props.item['label'] }}</td>
-													<td> {{ props.item['value'] | decimalPlaces(props.item['decimals']) 
+													<td> {{ props.item['value'] | decimalPrecision(props.item['decimals']) 
 																				| withUnits(props.item['units']) }}</td>
 												</template>
 											</v-data-table>
@@ -2084,19 +2084,13 @@
 				// === Performance App ===
 				
 				performanceRunning: false,
+				performanceMetricsExtract: true,
 				
 				performanceShowOptions: undefined,
 				performanceShowAdvanced: undefined,
 				
 				performanceScheduleObject: {},
 				
-				performanceMetrics: {
-					'visible': true,
-					'gm':undefined,
-					'SS':undefined,
-					'VT':undefined,
-				},
-								
 				performancePlots: {
 					'Transfer Curve':{
 						'xAxisTitle':'Gate Voltage (V)',
@@ -2629,6 +2623,11 @@
 				
 				// === Browser ===
 				
+				getRunTypeColor: function(runType) {
+					if(Object.keys(this.runTypeThemeColors).includes(runType)) return this.runTypeThemeColors[runType];
+					return undefined;
+				},
+				
 				customVDataTableFilter: function(items, search, filter, headers) {
 					search = search.toString().toLowerCase();
 					if (search.trim() === '') return items;
@@ -2638,11 +2637,6 @@
 					// const props = headers.filter(h => h.searchable === true).map(h => h.value); // include searchable:true
 					
 					return items.filter(item => props.some(prop => filter(_.get(item, prop), search)));
-				},
-				
-				getRunTypeColor: function(runType) {
-					if(Object.keys(this.runTypeThemeColors).includes(runType)) return this.runTypeThemeColors[runType];
-					return null;
 				},
 				
 				copyHTMLStringToClip: function (str) {
@@ -2663,6 +2657,15 @@
 				
 				removeValueFromArray: function(value, array) {
 					while(array.includes(value)) { array.splice( array.indexOf(value), 1 ); }
+				},
+				
+				addToNote: function(experiment) {
+					var url = '/addToNote';
+					
+					$.post(url, JSON.stringify(experiment), response => {
+						this.addToNoteSuccessCode = response;
+						this.experiment.noteAddition = '';
+					}).fail(() => {console.log("Error adding to note")});
 				},
 				
 				// === Schedule Creator ===
@@ -3388,19 +3391,36 @@
 					$.getJSON(path).fail(() => {console.log("Error moving documentation entry down")});
 				},
 				
-				addToNote: function(experiment) {
-					var url = '/addToNote';
+				// === Math ===
+				linearFit: function(x, y, includedFittedData=false) {
+					var fit_results = {}
 					
-					$.post(url, JSON.stringify(experiment), response => {
-						this.addToNoteSuccessCode = response;
-						this.experiment.noteAddition = '';
-					}).fail(() => {console.log("Error adding to note")});
+					var n = (x.length < y.length)? x.length : y.length;
+					var sum_x = 0;
+					var sum_y = 0;
+					var sum_xx = 0;
+					var sum_xy = 0;
+					
+					for(var i = 0; i < n; i++) {
+						sum_x += x[i];
+						sum_y += y[i];
+						sum_xx += (x[i]*x[i]);
+						sum_xy += (x[i]*y[i]);
+					}
+					
+					var mean_x = sum_x/n;
+					var mean_y = sum_y/n;
+					var ss_xx = sum_xx - n*mean_x*mean_x;
+					var ss_xy = sum_xy - n*mean_x*mean_y;
+					
+					fit_results['slope']       = ss_xy/ss_xx;
+					fit_results['y_intercept'] = mean_y - fit_results['slope']*mean_x;
+					fit_results['x_intercept'] = -(fit_results['y_intercept']/fit_results['slope']);
+					if(includedFittedData) fit_results['fitted_data'] = x.map(xval => (fit_results['slope']*xval + fit_results['y_intercept']));
+					
+					return fit_results;
 				},
 				
-				toTitle: function(camelCaseString) {
-					var result = camelCaseString.replace(/([A-Z])/g, " $1");
-					return result.charAt(0).toUpperCase() + result.slice(1);
-				},
 			},
 			watch: {
 				// Keep "localStorage" up to date
@@ -3461,8 +3481,22 @@
 					return this.recentActivityHeaders.filter(h => h.visible);
 				},
 				
+				performanceMetrics: function() {
+					if(!this.performanceMetricsExtract) return {};
+					var transferTraces = Object.entries(this.performancePlots['Transfer Curve']['traces']).map(([key, value]) => value);
+					if(!transferTraces.length) return {};
+					
+					var N = transferTraces.length
+					var transferLinearFits = transferTraces.map(trace => this.linearFit(trace.xData, trace.yData));
+							
+					var gm = transferLinearFits.map( fit => fit['slope'] ).reduce((sum, elem) => sum+elem) / N; 	  //Average Trace gm
+					var VT = transferLinearFits.map( fit => fit['x_intercept'] ).reduce((sum, elem) => sum+elem) / N; //Average Trace VT
+					var SS = undefined;
+					return {'gm':gm, 'SS':SS, 'VT':VT};
+				},
+				
 				ptSensorMaxImpedance: function() {
-					impedanceTraces = Object.entries(this.ptSensorPlots['Impedance']['traces']).map(([key, value]) => value);
+					var impedanceTraces = Object.entries(this.ptSensorPlots['Impedance']['traces']).map(([key, value]) => value);
 					if(!impedanceTraces.length) return;
 					return Math.max( ...(impedanceTraces.map(trace => Math.max( ...(trace.yData) ))) );	
 				},
@@ -3475,10 +3509,10 @@
 					    return maxIndex;
 					}
 					
-					impedanceTraces = Object.entries(this.ptSensorPlots['Impedance']['traces']).map(([key, value]) => value);
+					var impedanceTraces = Object.entries(this.ptSensorPlots['Impedance']['traces']).map(([key, value]) => value);
 					if(!impedanceTraces.length) return;
 					
-					maxTrace = impedanceTraces.filter(trace => Math.max(...(trace.yData)) === this.ptSensorMaxImpedance)[0]
+					var maxTrace = impedanceTraces.filter(trace => Math.max(...(trace.yData)) === this.ptSensorMaxImpedance)[0]
 					return maxTrace.xData[indexOfMax(maxTrace.yData)];
 				},
 			},
@@ -3495,9 +3529,38 @@
 					if(!value) return '';
 					return value
 				},
-				decimalPlaces: function(value, places) {
+				decimalPrecision: function(value, places) {
 					if(!value) return '';
 					return parseFloat(value).toFixed(places)
+				},
+				scientificPrecision: function(value, sig_figs) {
+					if(!value) return '';
+					
+					// Explicitly handle value === 0 separately (does not work well with the following)
+					if(value === 0) return '';
+					
+					// Compute exponent
+					exponent = 0;
+					if(Math.abs(value) < 1e-3 || Math.abs(value) > 1e3) {
+						while(Math.abs(value) < 1) {
+							value *= 1e3;
+							exponent -= 3;
+						}
+						while(Math.abs(value) > 1e3) {
+							value /= 1e3;
+							exponent += 3;
+						}
+					}
+					
+					// Convert from sig-figs to decimal places
+					places = sig_figs; 
+					if(Math.abs(value) > 1) places -= 1;
+					if(Math.abs(value) > 10) places -= 1;
+					if(Math.abs(value) > 100) places -= 1;
+					places = Math.max(places, 0);
+					
+					if(exponent === 0) return parseFloat(value).toFixed(places);
+					return parseFloat(value).toFixed(places) + 'e' + exponent;
 				},
 				withUnits: function(value, units) {
 					if(!value) return '';
