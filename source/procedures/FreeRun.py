@@ -86,7 +86,7 @@ def runFree(smu_instance, pointLimit, gateVoltageMinimum, gateVoltageMaximum, dr
 
 		# Send a data message
 		pipes.livePlotUpdate(share, plots=
-		[livePlotter.createDataSeries(plotID='Transfer Curve', 
+		[livePlotter.createLiveDataPoint(plotID='Transfer Curve', 
 										labels=['Drain Current'],
 										xValues=[measurement['V_gs']], 
 										yValues=[measurement['I_d']], 
@@ -96,7 +96,7 @@ def runFree(smu_instance, pointLimit, gateVoltageMinimum, gateVoltageMaximum, dr
 										plotMode='markers',
 										enumerateLegend=False,
 										timeseries=False),
-		 livePlotter.createDataSeries(plotID='Subthreshold Curve', 
+		 livePlotter.createLiveDataPoint(plotID='Subthreshold Curve', 
 		 								labels=['Drain Current'],
 										xValues=[measurement['V_gs']], 
 										yValues=[measurement['I_d']], 
@@ -106,7 +106,7 @@ def runFree(smu_instance, pointLimit, gateVoltageMinimum, gateVoltageMaximum, dr
 										plotMode='markers',
 										enumerateLegend=False,
 										timeseries=False),
-		 livePlotter.createDataSeries(plotID='Output Curve', 
+		 livePlotter.createLiveDataPoint(plotID='Output Curve', 
 		 								labels=['Drain Current'],
 										xValues=[measurement['V_ds']], 
 										yValues=[measurement['I_d']], 

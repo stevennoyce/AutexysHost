@@ -74,8 +74,8 @@ def runPTSensor(arduino_reference, totalSensingTime, delayBetweenMeasurements, s
 
 		# Send a data message
 		pipes.livePlotUpdate(share, plots=
-		[livePlotter.createDataSeries(plotID='Impedance', 
-										labels=['Drain Current'],
+		[livePlotter.createLiveDataPoint(plotID='Impedance', 
+										labels=['Impedance'],
 										xValues=[timestamp], 
 										yValues=[measurement['impedance']], 
 										xAxisTitle='Time (s)', 

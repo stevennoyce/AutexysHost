@@ -1,4 +1,3 @@
-from pandas._libs import json
 import time
 
 # === Static Variables ===
@@ -19,8 +18,12 @@ startTime.timestamp = None
 
 
 
-# === Factory Functions ===
-def createDataSeries(plotID, labels=[], xValues=[], yValues=[], xAxisTitle='', yAxisTitle='', yscale='log', plotMode='lines', enumerateLegend=False, timeseries=False):
+# === External API (Factory Function) ===
+def createLiveDataPoint(plotID, labels=[], xValues=[], yValues=[], colors=[], xAxisTitle='', yAxisTitle='', yscale='log', plotMode='lines', enumerateLegend=False, timeseries=False):
+    """ This function should be called by external classes to build a Live_Plot_Figure with the appropriate properties.
+    NOTE: 'labels', 'xValues', 'yValues', and 'colors' are all arrays where each element represents a DIFFERENT trace, not
+    mulitple points on the same trace. """
+    
     # Add numbers to series labels based on the current number of active plots
     if(enumerateLegend):
         for i in range(len(labels)):
@@ -34,13 +37,10 @@ def createDataSeries(plotID, labels=[], xValues=[], yValues=[], xAxisTitle='', y
     # Create a Live_Plot_Trace for each index of the labels/xValues/yValues arrays
     traces = {}
     for i in range(min(len(labels), len(xValues), len(yValues))):
-        traces[labels[i]] = Live_Plot_Trace(labels[i], xValues[i], yValues[i])
+        traces[labels[i]] = Live_Plot_Trace(labels[i], xValues[i], yValues[i], colors[i] if(i < len(colors)) else None) 
     
     return Live_Plot_Figure(plotID, xAxisTitle, yAxisTitle, yscale, plotMode, traces)
  
-def createDataPoint(plotID, label, xValue, yValue, xAxisTitle='', yAxisTitle='', yscale='log', enumerateLegend=False, timeseries=False):
-    return createDataSeries(plotID, labels=[label], xValues=[xValue], yValues=[yValue], xAxisTitle=xAxisTitle, yAxisTitle=yAxisTitle, yscale=yscale, enumerateLegend=enumerateLegend, timeseries=timeseries)
-
 
 
 # === Classes ===
@@ -55,7 +55,7 @@ class Live_Plot_Figure:
         self.yAxisTitle = yAxisTitle
         self.yScale = yScale
         self.plotMode = plotMode
-        self.traces = traces # list of Live_Plot_Traces
+        self.traces = traces # dictionary of Live_Plot_Traces
 
     def toDict(self):
         '''
@@ -86,16 +86,18 @@ class Live_Plot_Trace:
     Data collected in a single iteration of a procedure, but just for
      a single series, formatted so it can be sent to the web frontend.
     '''
-    def __init__(self, traceID, xData, yData):
+    def __init__(self, traceID, xData, yData, color=None):
         self.traceID = traceID
         self.xData = xData
         self.yData = yData
+        self.color = color
 
     def toDict(self):
         result = {
             'traceID': self.traceID,
             'xData': self.xData,
-            'yData': self.yData
+            'yData': self.yData,
+            'color': self.color if(self.color is not None) else 0,
         }
 
         for (k, v) in result.items():

@@ -980,6 +980,9 @@ class Emulator(SourceMeasureUnit):
 	def __init__(self):
 		pass
 
+	def setTimeout(self, timeout_ms=60000):
+		pass
+
 	# --- Communication ---
 	def setParameter(self, parameter):
 		pass

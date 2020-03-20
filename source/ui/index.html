@@ -3180,8 +3180,8 @@
 							x: trace.xData,
 							y: trace.yData,
 							mode: plot.plotMode,
-							line:   {width: 3, dash: 'solid'},
-							marker: {size: 9, symbol:'circle'},
+							line:   {width: 3, dash: 'solid',  color: (trace.color)? trace.color : undefined},
+							marker: {size: 9, symbol:'circle', color: (trace.color)? trace.color : undefined},
 							//showlegend: true,
 						});
 					}

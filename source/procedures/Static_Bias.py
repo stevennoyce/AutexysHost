@@ -191,7 +191,7 @@ def runStaticBias(smu_instance, totalBiasTime, measurementTime, share=None):
 
 		# Send a data message
 		pipes.livePlotUpdate(share,plots=
-		[livePlotter.createDataSeries(plotID='Response vs. Time',
+		[livePlotter.createLiveDataPoint(plotID='Response vs. Time',
 										labels=['Drain Current', 'Gate Current'],
 										xValues=[timestamp, timestamp], 
 										yValues=[id_data_median, ig_data_median], 

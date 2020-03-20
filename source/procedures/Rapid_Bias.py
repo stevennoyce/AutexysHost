@@ -138,16 +138,16 @@ def runRapidBias(smu_instance, waveform, drainVoltageSetPoints, gateVoltageSetPo
 			
 			# Send a data message
 			pipes.livePlotUpdate(share,plots=
-			[livePlotter.createDataSeries(plotID='Current vs. Time', 
-													labels=['Drain Current', 'Gate Current'],
-													xValues=[timestamps[-1], timestamps[-1]], 
-													yValues=[id_data[-1], ig_data[-1]], 
-													xAxisTitle='Time (s)', 
-													yAxisTitle='Current (A)', 
-													yscale='log', 
-													plotMode='lines',
-													enumerateLegend=False,
-													timeseries=True),
+			[livePlotter.createLiveDataPoint(plotID='Current vs. Time', 
+												labels=['Drain Current', 'Gate Current'],
+												xValues=[timestamps[-1], timestamps[-1]], 
+												yValues=[id_data[-1], ig_data[-1]], 
+												xAxisTitle='Time (s)', 
+												yAxisTitle='Current (A)', 
+												yscale='log', 
+												plotMode='lines',
+												enumerateLegend=False,
+												timeseries=True),
 			])
 		
 	return {

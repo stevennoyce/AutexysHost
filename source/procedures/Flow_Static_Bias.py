@@ -3,8 +3,7 @@ import time
 import numpy as np
 
 import pipes
-from Live_Plot_Data_Point import Live_Plot_Figure
-from Live_Plot_Data_Point import Live_Plot_Trace
+import Live_Plot_Data_Point as livePlotter
 from utilities import DataLoggerUtility as dlu
 
 
@@ -319,7 +318,7 @@ def runFlowStaticBias(smu_instance, drainVoltageSetPoint, gateVoltageSetPoint, m
 
 		# Send a data message
 		pipes.livePlotUpdate(share,plots=
-		[livePlotter.createDataSeries(plotID='Current vs. Time',
+		[livePlotter.createLiveDataPoint(plotID='Current vs. Time',
 										labels=['Flow Static Bias Drain Current [A]', 'Flow Static Bias Gate Current [A]'],
 										xValues=[timestamp, timestamp], 
 										yValues=[id_data_median, ig_data_median], 
