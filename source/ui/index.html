@@ -274,10 +274,14 @@
 								<v-spacer></v-spacer>
 								
 								<v-toolbar-items class="pt-2">
-									<v-chip small light color="white" @click="setRecentActivityCategory('project')" :selected="recentActivityIncludesCategory(['project', 'wafer', 'chip', 'device'])" >Projects</v-chip>
-									<v-chip small light color="white" @click="setRecentActivityCategory('wafer')" :selected="recentActivityIncludesCategory(['wafer', 'chip', 'device'])" >Wafers</v-chip>
-									<v-chip small light color="white" @click="setRecentActivityCategory('chip')" :selected="recentActivityIncludesCategory(['chip', 'device'])">Chips</v-chip>
-									<v-chip small light color="white" @click="setRecentActivityCategory('device')" :selected="recentActivityIncludesCategory(['device'])">Devices</v-chip>
+									<v-chip small light color="white" @click="setRecentActivityCategory('project')" 
+									:selected="['project', 'wafer', 'chip', 'device'].includes(recentActivityCategory)">Projects</v-chip>
+									<v-chip small light color="white" @click="setRecentActivityCategory('wafer')" 
+									:selected="['wafer', 'chip', 'device'].includes(recentActivityCategory)">Wafers</v-chip>
+									<v-chip small light color="white" @click="setRecentActivityCategory('chip')" 
+									:selected="['chip', 'device'].includes(recentActivityCategory)">Chips</v-chip>
+									<v-chip small light color="white" @click="setRecentActivityCategory('device')" 
+									:selected="['device'].includes(recentActivityCategory)">Devices</v-chip>
 								</v-toolbar-items>
 								
 								<v-spacer></v-spacer>
@@ -287,10 +291,24 @@
 									<v-card light>
 										<v-list>
 											<v-list-tile>
-												<v-autocomplete clearable label="Project" v-model="recentActivityProject" :items="_.keys(_.get(userDefinedScheduleNames, [user], {}))"></v-autocomplete>
+												<v-autocomplete clearable label="Project" v-model="recentActivityProject" 
+												:items="recentActivity.map( entry => entry['project'] )"
+												:disabled="false"></v-autocomplete>
 											</v-list-tile>
 											<v-list-tile>
-												<v-autocomplete clearable label="Wafer" v-model="recentActivityWafer" :items="[]"></v-autocomplete>
+												<v-autocomplete clearable label="Wafer" v-model="recentActivityWafer" 
+												:items="recentActivity.map( entry => entry['wafer'] ).filter( entry => entry !== undefined )"
+												:disabled="!recentActivityIncludesCategory(['wafer', 'chip', 'device'])"></v-autocomplete>
+											</v-list-tile>
+											<v-list-tile>
+												<v-autocomplete clearable label="Chip" v-model="recentActivityChip" 
+												:items="recentActivity.map( entry => entry['chip'] ).filter( entry => entry !== undefined )"
+												:disabled="!recentActivityIncludesCategory(['chip', 'device'])"></v-autocomplete>
+											</v-list-tile>
+											<v-list-tile>
+												<v-autocomplete clearable label="Device" v-model="recentActivityDevice" 
+												:items="recentActivity.map( entry => entry['device'] ).filter( entry => entry !== undefined )"
+												:disabled="!recentActivityIncludesCategory(['device'])"></v-autocomplete>
 											</v-list-tile>
 										</v-list>
 									</v-card>
@@ -646,7 +664,7 @@
 									
 									<v-card class="ma-1 mt-2 mb-2">
 										<v-expansion-panel dark expand>
-											<v-expansion-panel-content ripple class="color_creator " v-for="section in _.keys(experiment)" :key="section" v-if="typeof experiment[section] == 'object'">
+											<v-expansion-panel-content ripple class="color_creator " v-for="section in Object.keys(experiment)" :key="section" v-if="typeof experiment[section] == 'object'">
 												<div slot="header">{{ section }}</div>
 												<v-data-table :items="_.toPairs(experiment[section])" :headers="[{'text':'Property'},{'text':'Value'}]" hide-actions hide-headers light>
 													<template slot="items" slot-scope="props">
@@ -728,7 +746,7 @@
 												<v-autocomplete clearable v-model="creatorLoadUser" label="User" :items="Object.keys(userDefinedScheduleNames)"></v-autocomplete>
 											</v-list-tile>
 											<v-list-tile>
-												<v-autocomplete clearable v-model="creatorLoadProject" label="Project" :items="_.keys(_.get(userDefinedScheduleNames, [creatorLoadUser], {}))"></v-autocomplete>
+												<v-autocomplete clearable v-model="creatorLoadProject" label="Project" :items="Object.keys(_.get(userDefinedScheduleNames, [creatorLoadUser], {}))"></v-autocomplete>
 											</v-list-tile>
 											<v-list-tile>
 												<v-autocomplete clearable v-model="creatorLoadFileName" label="File Name" :items="_.get(userDefinedScheduleNames, [creatorLoadUser, creatorLoadProject], [])"></v-autocomplete>
@@ -848,7 +866,7 @@
 													</v-combobox>
 												</v-flex>
 												<v-flex xs4 sm4 md4 lg4 solo>
-													<v-combobox clearable v-model="creatorSaveProject" label="Project" :items="_.keys(_.get(userDefinedScheduleNames, [creatorSaveUser], {}))">
+													<v-combobox clearable v-model="creatorSaveProject" label="Project" :items="Object.keys(_.get(userDefinedScheduleNames, [creatorSaveUser], {}))">
 														<template slot="no-data">
 															<v-list-tile><v-list-tile-content><v-list-tile-title>
 																No results. Continuing will create a new project.
@@ -912,7 +930,7 @@
 											<v-autocomplete clearable v-model="runnerUser" label="User" :items="Object.keys(userDefinedScheduleNames)"></v-autocomplete>
 										</v-flex>
 										<v-flex xs12 sm6 md4 lg3 solo class="ml-2 mr-2">
-											<v-autocomplete clearable v-model="runnerProject" label="Project" :items="_.keys(_.get(userDefinedScheduleNames, [runnerUser], {}))"></v-autocomplete>
+											<v-autocomplete clearable v-model="runnerProject" label="Project" :items="Object.keys(_.get(userDefinedScheduleNames, [runnerUser], {}))"></v-autocomplete>
 										</v-flex>
 										<v-flex xs12 sm6 md4 lg3 solo class="ml-2 mr-2">
 											<v-autocomplete clearable v-model="runnerFileName" label="File Name" :items="_.get(userDefinedScheduleNames, [runnerUser, runnerProject], [])"></v-autocomplete>
@@ -1875,6 +1893,8 @@
 				
 				recentActivityProject: undefined,
 				recentActivityWafer:   undefined,
+				recentActivityChip:    undefined,
+				recentActivityDevice:  undefined,
 				
 				recentActivity: [],
 				recentActivityHeaders: [
@@ -2244,7 +2264,7 @@
 					}
 				},
 				getRecentActivity: function() {
-					var path = '/' + this.user + '/' + this.recentActivityProject + '/' + this.recentActivityWafer + '/' + this.recentActivityCategory + '/recentActivity.json' + this.cacheBust;
+					var path = '/' + this.user + '/' + this.recentActivityProject + '/' + this.recentActivityWafer + '/' + this.recentActivityChip + '/' + this.recentActivityDevice + '/' + this.recentActivityCategory + '/recentActivity.json' + this.cacheBust;
 					if (path) {
 						$.getJSON(path, response => {app.$data.recentActivity = response})
 						.fail(() => {console.log("Error getting recent activity")});
@@ -2431,9 +2451,11 @@
 				resetRecentActivityFilter: function() {
 					this.recentActivityProject = undefined;	
 					this.recentActivityWafer   = undefined;
+					this.recentActivityChip    = undefined;
+					this.recentActivityDevice  = undefined;
 				},
 				hasModifiedRecentActivityFilter : function() {
-					return (this.recentActivityProject || this.recentActivityWafer);
+					return (this.recentActivityProject || this.recentActivityWafer || this.recentActivityChip || this.recentActivityDevice);
 				},
 				setRecentActivityCategory: function(category) {
 					this.recentActivityCategory = category;
@@ -3395,6 +3417,8 @@
 				// Dashboard user input
 				recentActivityProject: function(val) { this.getRecentActivity(); },
 				recentActivityWafer:   function(val) { this.getRecentActivity(); },
+				recentActivityChip:    function(val) { this.getRecentActivity(); },
+				recentActivityDevice:  function(val) { this.getRecentActivity(); },
 				
 				experimentIndex: function(val) { this.getAssociatedAFMs(); },
 			},
