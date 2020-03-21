@@ -1044,9 +1044,9 @@ class Emulator(SourceMeasureUnit):
 		vgs = self.vgs
 		i_d = self.canonical_model(100e-6, 0.5, vgs, vds)
 		
-		#vds = 1*random.randint(0,1)
-		#vgs = 3.3*random.randint(0,1)
-		#i_d = 0.001*random.randint(0,1)
+		vds = 1*random.randint(0,1)
+		vgs = 3.3*random.randint(0,1)
+		i_d = 0.001*random.randint(0,1)
 
 		return {
 			'V_ds': vds,
