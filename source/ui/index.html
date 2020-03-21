@@ -1357,9 +1357,9 @@
 														 {'label':'SS', 'value':performanceMetrics['SS'], 'decimals':0, 'units':' mV/dec'},
 														 {'label':'VT', 'value':performanceMetrics['VT'], 'decimals':2, 'units':' V'}]">
 												<template slot="items" slot-scope="props">
-													<td> {{ props.item['label'] }}</td>
-													<td> {{ props.item['value'] | scientificPrecision(props.item['decimals']) 
-																				| withUnits(props.item['units']) }}</td>
+													<td><div style="width:0px">{{ props.item['label'] }}</div></td>
+													<td>{{ props.item['value'] | scientificPrecision(props.item['decimals']) 
+																			   | withUnits(props.item['units']) }}</td>
 												</template>
 											</v-data-table>
 											<v-checkbox v-if="performanceMetricsExtract" class="ml-1" label="Show on Plot" 
@@ -3466,17 +3466,27 @@
 					var fit = this.linearFit(vgs_steepest_region, id_steepest_region, includedFittedData);
 					
 					var gmTrace = 'gm';
-					if(this.performanceMetricsShowOnPlot) {
+					var vtTrace = 'VT';
+					if(this.performanceMetricsShowOnPlot && fit['slope'] !== NaN) {
 						if(!Object.keys(this.performancePlots['Transfer Curve']['traces']).includes(gmTrace)) { 
 							this.performancePlots['Transfer Curve']['traces'][gmTrace] = {
 								'traceID':gmTrace,'xData':[],'yData':[],'color':'black','mode':'lines','fitIgnore':true,
 							}; 
 						}
+						if(!Object.keys(this.performancePlots['Transfer Curve']['traces']).includes(vtTrace)) { 
+							this.performancePlots['Transfer Curve']['traces'][vtTrace] = {
+								'traceID':vtTrace,'xData':[],'yData':[],'color':'black','mode':'markers','fitIgnore':true,
+							}; 
+						}
 						this.performancePlots['Transfer Curve']['traces'][gmTrace].xData = vgs_steepest_region;
 						this.performancePlots['Transfer Curve']['traces'][gmTrace].yData = fit['fitted_data'];
+						this.performancePlots['Transfer Curve']['traces'][vtTrace].xData = [fit['x_intercept']];
+						this.performancePlots['Transfer Curve']['traces'][vtTrace].yData = [0];
 					} else if(Object.keys(this.performancePlots['Transfer Curve']['traces']).includes(gmTrace)) {
 						this.performancePlots['Transfer Curve']['traces'][gmTrace].xData = [];
 						this.performancePlots['Transfer Curve']['traces'][gmTrace].yData = [];
+						this.performancePlots['Transfer Curve']['traces'][vtTrace].xData = [];
+						this.performancePlots['Transfer Curve']['traces'][vtTrace].yData = [];
 					}
 					
 					return {'gm':Math.abs(fit['slope']), 'VT':fit['x_intercept'], 
@@ -3600,16 +3610,16 @@
 					if(!value) return '';
 					
 					// Explicitly handle value === 0 separately (does not work well with the following)
-					if(value === 0) return '';
+					if(value === 0) return 0;
 					
 					// Compute exponent
 					exponent = 0;
 					if(Math.abs(value) < 1e-3 || Math.abs(value) > 1e3) {
-						while(Math.abs(value) < 1) {
+						while((Math.abs(value) < 1) && (exponent > -15)) {
 							value *= 1e3;
 							exponent -= 3;
 						}
-						while(Math.abs(value) > 1e3) {
+						while((Math.abs(value) > 1e3) && (exponent < 15)) {
 							value /= 1e3;
 							exponent += 3;
 						}
