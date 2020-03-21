@@ -99,7 +99,7 @@ def FET_Metrics_Multiple(V_GS_data_list, I_D_data_list, gm_region_length_overrid
 def FET_Metrics(V_GS_data, I_D_data, gm_region_length_override=None, ss_region_length_override=None, extraction_mode_VT=None):
 	# Find steepest region metrics
 	SS_mV_dec_steepest_region, log_steepest_region = _max_subthreshold_swing(V_GS_data, I_D_data, ss_region_length_override)
-	g_m_steepest_region, V_T_steepest_region, linear_steepest_region = _max_transconductance(V_GS_data, I_D_data, gm_region_length_override)
+	g_m_steepest_region, V_T_steepest_region, linear_steepest_region = _max_transconductance(V_GS_data, I_D_data, gm_region_length_override, includedFittedData=False)
 	if(isinstance(extraction_mode_VT, list) and (extraction_mode_VT[0] == 'byDrainCurrent')):
 		drainCurrentValue = extraction_mode_VT[1] if((len(extraction_mode_VT) > 1) and (extraction_mode_VT[1] is not None)) else (I_D_data[int((_find_steepest_region(V_GS_data, I_D_data, None)[0] + _find_steepest_region(V_GS_data, I_D_data, None)[1])/2)])
 		V_T_by_drain_current = _getXValueAtYValue(V_GS_data, I_D_data, y_value=drainCurrentValue)
@@ -177,7 +177,7 @@ def FET_Fit(V_GS_data, I_D_data, V_DS, I_OFF_guess=100e-12, gm_region_length_ove
 def NMOSFET_Fit(V_GS_data, I_D_data, V_DS, V_TN_guess=0, V_TN_min=-100, V_TN_max=100, I_OFF_guess=100e-12, I_OFF_min=100e-15, I_OFF_max=1e-6, gm_region_length_override=None, ss_region_length_override=None):
 	# Find steepest region - on a linear and log scale - to estimate K_N and SS respectively
 	SS_mV_dec_steepest_region, log_steepest_region = _max_subthreshold_swing(V_GS_data, I_D_data, ss_region_length_override)
-	g_m_steepest_region, V_TN_steepest_region, linear_steepest_region = _max_transconductance(V_GS_data, I_D_data, gm_region_length_override)
+	g_m_steepest_region, V_TN_steepest_region, linear_steepest_region = _max_transconductance(V_GS_data, I_D_data, gm_region_length_override, includedFittedData=True)
 	K_N_steepest_region = abs(g_m_steepest_region/V_DS)
 			
 	# Set initial guess for the model parameters and choose some bounds on min/max values
@@ -207,7 +207,7 @@ def NMOSFET_Fit(V_GS_data, I_D_data, V_DS, V_TN_guess=0, V_TN_min=-100, V_TN_max
 def PMOSFET_Fit(V_GS_data, I_D_data, V_DS, V_TP_guess=0, V_TP_min=-100, V_TP_max=100, I_OFF_guess=100e-12, I_OFF_min=100e-15, I_OFF_max=1e-6, gm_region_length_override=None, ss_region_length_override=None):
 	# Find steepest region - on a linear and log scale - to estimate K_N and SS respectively
 	SS_mV_dec_steepest_region, log_steepest_region = _max_subthreshold_swing(V_GS_data, I_D_data, ss_region_length_override)
-	g_m_steepest_region, V_TP_steepest_region, linear_steepest_region = _max_transconductance(V_GS_data, I_D_data, gm_region_length_override)
+	g_m_steepest_region, V_TP_steepest_region, linear_steepest_region = _max_transconductance(V_GS_data, I_D_data, gm_region_length_override, includedFittedData=True)
 	K_P_steepest_region = abs(g_m_steepest_region/V_DS)
 		
 	# Set initial guess for the model parameters and choose some bounds on min/max values
@@ -265,13 +265,13 @@ def _max_subthreshold_swing(V_GS_data, I_D_data, region_length_override=None):
 	SS_mV_dec = (abs( (V_GS_steepest_region[0] - V_GS_steepest_region[-1]) / (np.log10(np.abs(fitted_steepest_region[0])) - np.log10(np.abs(fitted_steepest_region[-1]))) ) * 1000)
 	return SS_mV_dec, (V_GS_steepest_region, fitted_steepest_region)
 
-def _max_transconductance(V_GS_data, I_D_data, region_length_override=None):
+def _max_transconductance(V_GS_data, I_D_data, region_length_override=None, includedFittedData=True):
 	region_length = int(3 + 2*int(len(I_D_data)/20)) if(region_length_override is None) else (region_length_override)
 	#print('gm region length: ' + str(region_length))
 	startIndex, endIndex = _find_steepest_region(V_GS_data, np.abs(I_D_data), region_length)
 	V_GS_steepest_region = V_GS_data[startIndex:endIndex+1]
 	I_D_steepest_region = I_D_data[startIndex:endIndex+1]
-	fit = _linearFit(V_GS_steepest_region, I_D_steepest_region, includedFittedData=True)
+	fit = _linearFit(V_GS_steepest_region, I_D_steepest_region, includedFittedData=includedFittedData)
 	fitted_steepest_region = fit['fitted_data']
 	V_T_approx = fit['x_intercept']
 	g_m_max = abs( fit['slope'] )  
