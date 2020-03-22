@@ -3426,6 +3426,8 @@
 					return fit_results;
 				},
 				steepestRegionFit: function(x, y, region_length) {
+					// Assumes x is sorted in ascending order
+					
 					var numberOfPoints = region_length;
 					if(numberOfPoints === undefined) numberOfPoints = parseInt(3 + 2*parseInt(y.length/20));
 					numberOfPoints = Math.max(2, numberOfPoints);
@@ -3437,33 +3439,56 @@
 						if(slope > maxSlope) { maxSlope = slope; index = i; }
 					}
 					
-					return {'region_start':index, 'region_end':index + numberOfPoints-1};
+					var startIndex = index;
+					var endIndex   = index + numberOfPoints - 1;
+					
+					return {'x_region':x.slice(startIndex, endIndex+1), 'y_region':y.slice(startIndex, endIndex+1)};
 				},
-				transconductanceFit: function(vgs_data, id_data, includedFittedData=false, region_length_override=undefined) {
-					function sortByX(x, y) {
-						x_sorted = [];
-						y_sorted = [];
-						x.map((xval, i) => ({'x':xval, 'y':y[i]}))
-							.sort((a, b) => ((a.x < b.x)? -1 : (a.x === b.x)? 0 : 1))
-							.forEach(function (pair, i) {x_sorted.push(pair.x); y_sorted.push(pair.y);});
-						return {'x_sorted':x_sorted, 'y_sorted':y_sorted};
+				largestValuesFit: function(x, y, minimumFloor=1e-12, maximumFloor=1e-10) {
+					// Assumes y is sorted in ascending order
+					
+					var percentile = parseInt(y.length/50);
+					var y_abs_min = Math.max(Math.abs(y[percentile])               , minimumFloor);
+					var y_abs_max = Math.max(Math.abs(y[y.length - 1 - percentile]), maximumFloor);
+					var max_min_ratio = y_abs_max/y_abs_min;
+					
+					var threshold = Math.pow(max_min_ratio, 0.9) * y_abs_min;
+					
+					var startIndex = -1;
+					var endIndex   = -1;
+					for(var i = 0; i < y.length; i++) {
+						if(Math.abs(y[i]) > threshold) {
+							if(startIndex === -1) startIndex = i;
+							endIndex = i;
+						}
+					}
+										
+					if(startIndex === -1) return {'x_region':[], 'y_region':[]}
+					
+					return {'x_region':x.slice(startIndex, endIndex+1), 'y_region':y.slice(startIndex, endIndex+1)};
+				},
+				transconductanceFit: function(vgs_data, id_data, includedFittedData=false) {
+					function sortByA(a, b) {
+						a_sorted = [];
+						b_sorted = [];
+						a.map((val, i) => ({'a':val, 'b':b[i]}))
+							.sort((p1, p2) => ((p1.a < p2.a)? -1 : (p1.a === p2.a)? 0 : 1))
+							.forEach(function (pair, i) {a_sorted.push(pair.a); b_sorted.push(pair.b);});
+						return {'a_sorted':a_sorted, 'b_sorted':b_sorted};
 					}
 					
-					var region_length = region_length_override;
-					if(region_length === undefined) region_length = parseInt(3 + 2*parseInt(id_data.length/20));
-					if(region_length > id_data.length) return {};
+					//var region_length = region_length_override;
+					//if(region_length === undefined) region_length = parseInt(3 + 2*parseInt(id_data.length/20));
+					if(id_data.length < 3) return {};
 					
-					var sortedData = sortByX(vgs_data, id_data);
-					var vgs_sorted = sortedData['x_sorted'];
-					var id_sorted = sortedData['y_sorted'];
+					var sortedData = sortByA(id_data, vgs_data);
+					var vgs_sorted = sortedData['b_sorted'];
+					var id_sorted = sortedData['a_sorted'];
 					
-					var steepestRegion = this.steepestRegionFit(vgs_sorted, id_sorted, region_length);
-					var startIndex = steepestRegion['region_start'];
-					var endIndex = steepestRegion['region_end'];
-					
-					var vgs_steepest_region = vgs_sorted.slice(startIndex, endIndex+1);
-					var id_steepest_region  = id_sorted.slice(startIndex, endIndex+1);
-					var fit = this.linearFit(vgs_steepest_region, id_steepest_region, includedFittedData);
+					var fitRegion = this.largestValuesFit(vgs_sorted, id_sorted);
+					var vgs_fit_region = fitRegion['x_region'];
+					var id_fit_region  = fitRegion['y_region'];
+					var fit = this.linearFit(vgs_fit_region, id_fit_region, includedFittedData);
 					
 					var gmTrace = 'gm';
 					var vtTrace = 'VT';
@@ -3478,7 +3503,7 @@
 								'traceID':vtTrace,'xData':[],'yData':[],'color':'black','mode':'markers','fitIgnore':true,
 							}; 
 						}
-						this.performancePlots['Transfer Curve']['traces'][gmTrace].xData = vgs_steepest_region;
+						this.performancePlots['Transfer Curve']['traces'][gmTrace].xData = vgs_fit_region;
 						this.performancePlots['Transfer Curve']['traces'][gmTrace].yData = fit['fitted_data'];
 						this.performancePlots['Transfer Curve']['traces'][vtTrace].xData = [fit['x_intercept']];
 						this.performancePlots['Transfer Curve']['traces'][vtTrace].yData = [0];
@@ -3490,7 +3515,7 @@
 					}
 					
 					return {'gm':Math.abs(fit['slope']), 'VT':fit['x_intercept'], 
-							'fitted_id_data':fit['fitted_data'], 'fitted_vgs_data':vgs_steepest_region}
+							'fitted_id_data':fit['fitted_data'], 'fitted_vgs_data':vgs_fit_region}
 				},
 				
 			},
