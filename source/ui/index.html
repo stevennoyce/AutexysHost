@@ -3452,7 +3452,8 @@
 					var y_abs_max = Math.max(Math.abs(y[y.length - 1 - percentile]), maximumFloor);
 					var max_min_ratio = y_abs_max/y_abs_min;
 					
-					var threshold = Math.pow(max_min_ratio, 0.9) * y_abs_min;
+					//var threshold = Math.pow(max_min_ratio, 0.5) * y_abs_min;
+					var threshold = 0.25 * y_abs_max;
 					
 					var startIndex = -1;
 					var endIndex   = -1;
