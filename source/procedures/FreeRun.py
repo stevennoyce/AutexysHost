@@ -99,7 +99,7 @@ def runFree(smu_instance, pointLimit, gateVoltageMinimum, gateVoltageMaximum, dr
 		 livePlotter.createLiveDataPoint(plotID='Subthreshold Curve', 
 		 								labels=['Drain Current'],
 										xValues=[measurement['V_gs']], 
-										yValues=[measurement['I_d']], 
+										yValues=[abs(measurement['I_d'])], 
 										xAxisTitle='Gate Voltage (V)', 
 										yAxisTitle='Drain Current (A)', 
 										yscale='log', 

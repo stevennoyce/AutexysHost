@@ -3414,8 +3414,8 @@
 					$.getJSON(path).fail(() => {console.log("Error moving documentation entry down")});
 				},
 				
-				// === Math ===
-				linearFit: function(x, y, includedFittedData=false) {
+				// === Linear Regression & Metric Extraction ===
+				linearFit: function(x, y, includedFittedData=false) {					
 					var fit_results = {}
 					
 					var n = (x.length < y.length)? x.length : y.length;
@@ -3443,8 +3443,32 @@
 					
 					return fit_results;
 				},
-				steepestRegionFit: function(x, y, region_length) {
-					// Assumes x is sorted in ascending order
+				semilogFit: function(x, y, includedFittedData=false) {
+					var y_log = y.map(val => Math.log10(val));
+					
+					fit_results = this.linearFit(x, y_log, includedFittedData=includedFittedData);
+					if(includedFittedData) fit_results['fitted_data'] = fit_results['fitted_data'].map(val => (Math.pow(10, val)));
+
+					return fit_results;
+				},
+				sortByA: function(a, b) {					
+					a_sorted = [];
+					b_sorted = [];
+					a.map((val, i) => ({'a':val, 'b':b[i]}))
+						.sort((p1, p2) => ((p1.a < p2.a)? -1 : (p1.a === p2.a)? 0 : 1))
+						.forEach(function (pair, i) {a_sorted.push(pair.a); b_sorted.push(pair.b);});
+					return {'a_sorted':a_sorted, 'b_sorted':b_sorted};
+				},
+				sortByAbsoluteA: function(a, b) {					
+					a_sorted = [];
+					b_sorted = [];
+					a.map((val, i) => ({'a':val, 'b':b[i]}))
+						.sort((p1, p2) => ((Math.abs(p1.a) < Math.abs(p2.a))? -1 : (Math.abs(p1.a) === Math.abs(p2.a))? 0 : 1))
+						.forEach(function (pair, i) {a_sorted.push(pair.a); b_sorted.push(pair.b);});
+					return {'a_sorted':a_sorted, 'b_sorted':b_sorted};
+				},
+				steepestRegionFind: function(x, y, region_length) {
+					// Assumes x is sorted in ascending order, then return the steepest region of the data
 					
 					var numberOfPoints = region_length;
 					if(numberOfPoints === undefined) numberOfPoints = parseInt(3 + 2*parseInt(y.length/20));
@@ -3462,21 +3486,14 @@
 					
 					return {'x_region':x.slice(startIndex, endIndex+1), 'y_region':y.slice(startIndex, endIndex+1)};
 				},
-				largestValuesFit: function(x, y, minimumFloor=1e-12, maximumFloor=1e-10) {
-					// Assumes y is sorted in ascending order
-					
-					var percentile = parseInt(y.length/50);
-					var y_abs_min = Math.max(Math.abs(y[percentile])               , minimumFloor);
-					var y_abs_max = Math.max(Math.abs(y[y.length - 1 - percentile]), maximumFloor);
-					var max_min_ratio = y_abs_max/y_abs_min;
-					
-					//var threshold = Math.pow(max_min_ratio, 0.5) * y_abs_min;
-					var threshold = 0.25 * y_abs_max;
+				extremeValuesFind: function(x, y, threshold, condition) {
+					// [Private method]: return the region of x/y that meets the given threshold/condition combination
 					
 					var startIndex = -1;
 					var endIndex   = -1;
 					for(var i = 0; i < y.length; i++) {
-						if(Math.abs(y[i]) > threshold) {
+						y_value = Math.abs(y[i]);
+						if(condition(y_value, threshold)) {
 							if(startIndex === -1) startIndex = i;
 							endIndex = i;
 						}
@@ -3486,56 +3503,102 @@
 					
 					return {'x_region':x.slice(startIndex, endIndex+1), 'y_region':y.slice(startIndex, endIndex+1)};
 				},
-				transconductanceFit: function(vgs_data, id_data, includedFittedData=false) {
-					function sortByA(a, b) {
-						a_sorted = [];
-						b_sorted = [];
-						a.map((val, i) => ({'a':val, 'b':b[i]}))
-							.sort((p1, p2) => ((p1.a < p2.a)? -1 : (p1.a === p2.a)? 0 : 1))
-							.forEach(function (pair, i) {a_sorted.push(pair.a); b_sorted.push(pair.b);});
-						return {'a_sorted':a_sorted, 'b_sorted':b_sorted};
-					}
+				largestValuesFind: function(x, y, minimumFloor=1e-12, maximumFloor=1e-11) {
+					// Assumes y is sorted in ascending order, then return the region of x/y that is "large" (>25% of max)
 					
-					//var region_length = region_length_override;
+					var percentile = parseInt(y.length/50);
+					var y_abs_min = Math.max(Math.abs(y[percentile])               , minimumFloor);
+					var y_abs_max = Math.max(Math.abs(y[y.length - 1 - percentile]), maximumFloor);
+					var max_min_ratio = y_abs_max/y_abs_min;
+					
+					//var threshold = Math.pow(max_min_ratio, 0.5) * y_abs_min;
+					var threshold = 0.25 * y_abs_max;
+				
+					return this.extremeValuesFind(x, y, threshold, (val, thresh) => (val > thresh));
+				
+				},
+				smallestValuesFind: function(x, y, minimumFloor=1e-12, maximumFloor=1e-11) {
+					// Assumes y is sorted in ascending order, then return the region of x/y that is "small" (<90% of max on log scale)
+					
+					var percentile = parseInt(y.length/50);
+					var y_abs_min = Math.max(Math.abs(y[percentile])               , minimumFloor);
+					var y_abs_max = Math.max(Math.abs(y[y.length - 1 - percentile]), maximumFloor);
+					var max_min_ratio = y_abs_max/y_abs_min;
+					
+					var threshold = Math.pow(max_min_ratio, 0.9) * y_abs_min;
+					//var threshold = 10 * y_abs_min;
+					
+					return this.extremeValuesFind(x, y, threshold, (val, thresh) => ((val > minimumFloor) && (val < thresh)));
+				},
+				transferCurveFit: function(vgs_data, id_data, includedFittedData=false) {
+					// Perform fit and metric extraction for gm, VT, SS from a transistor transfer curve
+					
 					//if(region_length === undefined) region_length = parseInt(3 + 2*parseInt(id_data.length/20));
 					if(id_data.length < 3) return {};
 					
-					var sortedData = sortByA(id_data, vgs_data);
-					var vgs_sorted = sortedData['b_sorted'];
-					var id_sorted = sortedData['a_sorted'];
+					// Sort data by drain current
+					var sorted_data = this.sortByAbsoluteA(id_data, vgs_data);
+					var vgs_sorted = sorted_data['b_sorted'];
+					var id_sorted = sorted_data['a_sorted'];
 					
-					var fitRegion = this.largestValuesFit(vgs_sorted, id_sorted);
-					var vgs_fit_region = fitRegion['x_region'];
-					var id_fit_region  = fitRegion['y_region'];
-					var fit = this.linearFit(vgs_fit_region, id_fit_region, includedFittedData);
+					// Find the largest drain currents
+					var largest_region = this.largestValuesFind(vgs_sorted, id_sorted);
+					var vgs_linear_region = largest_region['x_region'];
+					var id_linear_region  = largest_region['y_region'];
 					
+					// Find the smallest drain currents
+					var smallest_region = this.smallestValuesFind(vgs_sorted, id_sorted);
+					var vgs_subthreshold_region = smallest_region['x_region'];
+					var id_subthreshold_region  = smallest_region['y_region'];
+					
+					// Fit linear and subthreshold regions
+					var linear_region_fit = this.linearFit(vgs_linear_region, id_linear_region, includedFittedData);
+					var subthreshold_fit = this.semilogFit(vgs_subthreshold_region, id_subthreshold_region, includedFittedData);
+					
+					// Add fit results to relevant plots
 					var gmTrace = 'gm';
 					var vtTrace = 'VT';
-					if(this.performanceMetricsShowOnPlot && fit['slope'] !== NaN) {
+					var ssTrace = 'SS';
+					if(this.performanceMetricsShowOnPlot) {
 						if(!Object.keys(this.performancePlots['Transfer Curve']['traces']).includes(gmTrace)) { 
 							this.performancePlots['Transfer Curve']['traces'][gmTrace] = {
 								'traceID':gmTrace,'xData':[],'yData':[],'color':'black','mode':'lines','fitIgnore':true,
 							}; 
-						}
-						if(!Object.keys(this.performancePlots['Transfer Curve']['traces']).includes(vtTrace)) { 
 							this.performancePlots['Transfer Curve']['traces'][vtTrace] = {
 								'traceID':vtTrace,'xData':[],'yData':[],'color':'black','mode':'markers','fitIgnore':true,
 							}; 
+							this.performancePlots['Subthreshold Curve']['traces'][ssTrace] = {
+								'traceID':ssTrace,'xData':[],'yData':[],'color':'black','mode':'lines','fitIgnore':true,
+							}; 
 						}
-						this.performancePlots['Transfer Curve']['traces'][gmTrace].xData = vgs_fit_region;
-						this.performancePlots['Transfer Curve']['traces'][gmTrace].yData = fit['fitted_data'];
-						this.performancePlots['Transfer Curve']['traces'][vtTrace].xData = [fit['x_intercept']];
+						this.performancePlots['Transfer Curve']['traces'][gmTrace].xData = vgs_linear_region;
+						this.performancePlots['Transfer Curve']['traces'][gmTrace].yData = linear_region_fit['fitted_data'];
+						this.performancePlots['Transfer Curve']['traces'][vtTrace].xData = [linear_region_fit['x_intercept']];
 						this.performancePlots['Transfer Curve']['traces'][vtTrace].yData = [0];
+						this.performancePlots['Subthreshold Curve']['traces'][ssTrace].xData = vgs_subthreshold_region;
+						this.performancePlots['Subthreshold Curve']['traces'][ssTrace].yData = subthreshold_fit['fitted_data'];
 					} else if(Object.keys(this.performancePlots['Transfer Curve']['traces']).includes(gmTrace)) {
 						this.performancePlots['Transfer Curve']['traces'][gmTrace].xData = [];
 						this.performancePlots['Transfer Curve']['traces'][gmTrace].yData = [];
 						this.performancePlots['Transfer Curve']['traces'][vtTrace].xData = [];
 						this.performancePlots['Transfer Curve']['traces'][vtTrace].yData = [];
+						this.performancePlots['Subthreshold Curve']['traces'][ssTrace].xData = [];
+						this.performancePlots['Subthreshold Curve']['traces'][ssTrace].yData = [];
 					}
 					
-					return {'gm':Math.abs(fit['slope']), 'VT':fit['x_intercept'], 
-							'fitted_id_data':fit['fitted_data'], 'fitted_vgs_data':vgs_fit_region}
+					// Return metrics and fitted regions
+					return {
+						'gm':Math.abs(linear_region_fit['slope']), 
+						'VT':linear_region_fit['x_intercept'], 
+						'SS':1000 / Math.abs(subthreshold_fit['slope']),
+						
+						'linear_fitted_id_data':linear_region_fit['fitted_data'], 
+						'linear_fitted_vgs_data':vgs_linear_region,
+						'subthreshold_fitted_id_data':subthreshold_fit['fitted_data'], 
+						'subthreshold_fitted_vgs_data':vgs_subthreshold_region,
+					};
 				},
+				
 				
 			},
 			watch: {
@@ -3604,11 +3667,12 @@
 					if(!transferTraces.length) return {};
 					
 					var N = transferTraces.length
-					var transferFits = transferTraces.map(trace => this.transconductanceFit(trace.xData, trace.yData, true));
+					var transferFits = transferTraces.map(trace => 
+											this.transferCurveFit(trace.xData, trace.yData, this.performanceMetricsShowOnPlot));
 							
 					var gm = transferFits.map( fit => fit['gm'] ).reduce((sum, elem) => sum+elem) / N; //Average Trace gm
 					var VT = transferFits.map( fit => fit['VT'] ).reduce((sum, elem) => sum+elem) / N; //Average Trace VT
-					var SS = undefined;
+					var SS = transferFits.map( fit => fit['SS'] ).reduce((sum, elem) => sum+elem) / N; //Average Trace SS
 					return {'gm':gm, 'SS':SS, 'VT':VT};
 				},
 				
