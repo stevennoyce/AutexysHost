@@ -19,7 +19,7 @@ startTime.timestamp = None
 
 
 # === External API (Factory Function) ===
-def createLiveDataPoint(plotID, labels=[], xValues=[], yValues=[], colors=[], xAxisTitle='', yAxisTitle='', yscale='log', plotMode='lines', enumerateLegend=False, timeseries=False):
+def createLiveDataPoint(plotID, labels=[], xValues=[], yValues=[], colors=[], xAxisTitle='', yAxisTitle='', yscale='linear', plotMode='lines', enumerateLegend=False, timeseries=False):
     """ This function should be called by external classes to build a Live_Plot_Figure with the appropriate properties.
     NOTE: 'labels', 'xValues', 'yValues', and 'colors' are all arrays where each element represents a DIFFERENT trace, not
     mulitple points on the same trace. """
@@ -37,7 +37,7 @@ def createLiveDataPoint(plotID, labels=[], xValues=[], yValues=[], colors=[], xA
     # Create a Live_Plot_Trace for each index of the labels/xValues/yValues arrays
     traces = {}
     for i in range(min(len(labels), len(xValues), len(yValues))):
-        traces[labels[i]] = Live_Plot_Trace(labels[i], xValues[i], yValues[i], colors[i] if(i < len(colors)) else None) 
+        traces[labels[i]] = Live_Plot_Trace(labels[i], xValues[i], yValues[i], colors[i] if(i < len(colors)) else '') 
     
     return Live_Plot_Figure(plotID, xAxisTitle, yAxisTitle, yscale, plotMode, traces)
  
@@ -49,12 +49,13 @@ class Live_Plot_Figure:
     Data collected in a single iteration of a procedure, formatted so it can be sent to the web frontend.
     Represents a single live plot.
     '''
-    def __init__(self, plotID, xAxisTitle, yAxisTitle, yScale, plotMode, traces):
+    def __init__(self, plotID, xAxisTitle='', yAxisTitle='', yScale='linear', plotMode='lines', traces={}):
         self.plotID = plotID
         self.xAxisTitle = xAxisTitle
         self.yAxisTitle = yAxisTitle
         self.yScale = yScale
         self.plotMode = plotMode
+        self.color = ''
         self.traces = traces # dictionary of Live_Plot_Traces
 
     def toDict(self):
@@ -68,7 +69,7 @@ class Live_Plot_Figure:
             'yAxisTitle': self.yAxisTitle,
             'yScale': self.yScale,
             'plotMode': self.plotMode,
-            'color': '',
+            'color': self.color,
             'traces': {},
         }
         
@@ -87,19 +88,20 @@ class Live_Plot_Trace:
     Data collected in a single iteration of a procedure, but just for
      a single series, formatted so it can be sent to the web frontend.
     '''
-    def __init__(self, traceID, xData, yData, color=None):
+    def __init__(self, traceID, xData, yData, color='', mode=''):
         self.traceID = traceID
         self.xData = xData
         self.yData = yData
         self.color = color
+        self.mode = mode
 
     def toDict(self):
         result = {
             'traceID': self.traceID,
             'xData': self.xData,
             'yData': self.yData,
-            'mode': '',
-            'color': self.color if(self.color is not None) else 0,
+            'color': self.color,
+            'mode': self.mode,
         }
 
         for (k, v) in result.items():

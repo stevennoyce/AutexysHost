@@ -1173,7 +1173,11 @@
 															</v-list-tile>
 															<v-list-tile>
 																<v-list-tile-avatar><v-icon>color_lens</v-icon></v-list-tile-avatar>
-																<v-list-tile-content><v-select clearable single-line label="Color" v-model="plot['color']" :items="['red', 'green', 'blue']"></v-select></v-list-tile-content>
+																<v-list-tile-content><v-text-field clearable single-line label="Color" v-model="plot['color']"></v-text-field></v-list-tile-content>
+															</v-list-tile>
+															<v-list-tile>
+																<v-list-tile-avatar><v-icon>linear_scale</v-icon></v-list-tile-avatar>
+																<v-list-tile-content><v-select clearable single-line label="Style" v-model="plot['plotMode']" :items="['lines', 'markers', 'lines+markers']"></v-text-field></v-list-tile-content>
 															</v-list-tile>
 														</v-list>
 													</v-menu>
@@ -3649,8 +3653,9 @@
 				scientificPrecision: function(value, sig_figs) {
 					if(!value) return '';
 					
-					// Explicitly handle value === 0 separately (does not work well with the following)
+					// Explicitly handle value === 0 or Infinity separately (does not work well with the following)
 					if(value === 0) return 0;
+					if(value === Infinity || value === -Infinity) return '';
 					
 					// Compute exponent
 					exponent = 0;
