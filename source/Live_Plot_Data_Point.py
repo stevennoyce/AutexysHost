@@ -68,6 +68,7 @@ class Live_Plot_Figure:
             'yAxisTitle': self.yAxisTitle,
             'yScale': self.yScale,
             'plotMode': self.plotMode,
+            'color': '',
             'traces': {},
         }
         
@@ -97,6 +98,7 @@ class Live_Plot_Trace:
             'traceID': self.traceID,
             'xData': self.xData,
             'yData': self.yData,
+            'mode': '',
             'color': self.color if(self.color is not None) else 0,
         }
 

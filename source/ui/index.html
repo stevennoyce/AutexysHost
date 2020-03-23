@@ -1164,16 +1164,24 @@
 												
 													<v-spacer></v-spacer>
 													
-													<v-toolbar-items>
-														<v-tooltip top>
-															<v-btn slot="activator" icon @click="toggleLivePlotYAxisLog(plot)"><v-icon>timeline</v-icon></v-btn>
-															<span>Toggle Log Scale</span>
-														</v-tooltip>
-														<v-tooltip top>
-															<v-btn slot="activator" icon @click="clearLivePlot(plot); delete livePlots[jobSelectChoice][deviceSelectChoice][plotID];"><v-icon>clear</v-icon></v-btn>
-															<span>Clear</span>
-														</v-tooltip>
-													</v-toolbar-items>
+													<v-menu bottom left offset-y :close-on-content-click="false" :max-width="250">
+														<v-btn slot="activator" icon><v-icon>settings</v-icon></v-btn>
+														<v-list>
+															<v-list-tile @click="toggleLivePlotYAxisLog(plot)">
+																<v-list-tile-avatar><v-icon>timeline</v-icon></v-list-tile-avatar>
+																<v-list-tile-content><v-list-tile-title>Toggle Log Scale</v-list-tile-title></v-list-tile-content>
+															</v-list-tile>
+															<v-list-tile>
+																<v-list-tile-avatar><v-icon>color_lens</v-icon></v-list-tile-avatar>
+																<v-list-tile-content><v-select clearable single-line label="Color" v-model="plot['color']" :items="['red', 'green', 'blue']"></v-select></v-list-tile-content>
+															</v-list-tile>
+														</v-list>
+													</v-menu>
+													
+													<v-tooltip top>
+														<v-btn slot="activator" icon @click="clearLivePlot(plot); delete livePlots[jobSelectChoice][deviceSelectChoice][plotID];"><v-icon>clear</v-icon></v-btn>
+														<span>Clear</span>
+													</v-tooltip>
 												</v-toolbar>
 												
 												<div class="text-xs-center">
@@ -2097,24 +2105,30 @@
 				
 				performancePlots: {
 					'Transfer Curve':{
+						'plotID': 'Transfer Curve',
 						'xAxisTitle':'Gate Voltage (V)',
 						'yAxisTitle':'Drain Current (A)',
 						'yScale':'linear',
 						'plotMode':'markers',
+						'color': '',
 						'traces':{},
 					},
 					'Subthreshold Curve':{
+						'plotID': 'Subthreshold Curve',
 						'xAxisTitle':'Gate Voltage (V)',
 						'yAxisTitle':'Drain Current (A)',
 						'yScale':'log',
 						'plotMode':'markers',
+						'color': '',
 						'traces':{},
 					},
 					'Output Curve':{
+						'plotID': 'Output Curve',
 						'xAxisTitle':'Drain Voltage (V)',
 						'yAxisTitle':'Drain Current (A)',
 						'yScale':'linear',
 						'plotMode':'markers',
+						'color': '',
 						'traces':{},
 					},
 				},
@@ -3210,8 +3224,8 @@
 							x: trace.xData,
 							y: trace.yData,
 							mode: (trace.mode)? trace.mode : plot.plotMode,
-							line:   {width: 3, dash: 'solid',  color: (trace.color)? trace.color : undefined},
-							marker: {size: 9, symbol:'circle', color: (trace.color)? trace.color : undefined},
+							line:   {width: 3, dash: 'solid',  color: (trace.color)? trace.color : plot.color},
+							marker: {size: 9, symbol:'circle', color: (trace.color)? trace.color : plot.color},
 							//showlegend: true,
 						});
 					}

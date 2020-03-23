@@ -21,7 +21,7 @@
 		},
 		methods: {
 			Plot() {
-				return Plotly.newPlot(this.$el, this.data, this.layout, {responsive: true});
+				return Plotly.newPlot(this.$el, this.data, this.layout, {responsive: true, modeBarButtonsToRemove:['select2d', 'lasso2d', 'toggleSpikelines', 'hoverClosestCartesian', 'hoverCompareCartesian'], displaylogo:false});
 			}
 		}
 	});
