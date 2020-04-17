@@ -25,7 +25,8 @@
 	</v-select>
 	
 	<a-json-field v-else-if="setting.type == 'array'"
-		:label="(hide_label)? '' : setting.title" :suffix="setting.units" v-model="setting.default">
+		:label="(hide_label)? '' : setting.title" :suffix="setting.units" v-model="setting.default"
+		:placeholder="(placeholder)? placeholder : ' '">
 	</a-json-field>
 	
 </script>

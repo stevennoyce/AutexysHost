@@ -1,29 +1,35 @@
 
 
 <script type="text/html" id="a-json-field">
-	<v-text-field v-model="stringRepresentation" :label="label" :suffix="suffix" @blur="makeInputValidJSON"></v-text-field>
+	<v-text-field v-model="stringRepresentation" :label="label" :suffix="suffix" :placeholder="placeholder" @blur="makeInputValidJSON"></v-text-field>
 </script>
 
 <script type="text/javascript">
 	Vue.component('a-json-field', {
 		template: '#a-json-field',
-		props: ['value', 'label', 'suffix'],
+		props: ['value', 'label', 'suffix', 'placeholder'],
 		data: function() {
 			return {
-				stringRepresentation: JSON.stringify(this.value)
+				stringRepresentation: (this.value === undefined)? '' : JSON.stringify(this.value)
 			};
 		},
 		methods: {
 			makeInputValidJSON: function() {
 				try {
 					let val = this.stringRepresentation;
-					if (val.indexOf('[') == -1) {
+					
+					// Add brackets to the input (if they aren't already there)
+					if (val.indexOf('[') === -1) {
 						val = '[' + val;
 					}
-					if (val.indexOf(']') == -1) {
+					if (val.indexOf(']') === -1) {
 						val = val + ']';
 					}
+					
+					// Convert from "stringRepresentation" to an actual array. All entries are converted to numbers or strings.
 		 			var objectRepresentation = jsyaml.safeLoad(val);
+		 			
+		 			// Set "v-model" (and "this.value") to the object representation of "stringRepresentation"
 		 			this.$emit('input', objectRepresentation);
 		 		} catch (e) {
 		 			console.log('Invalid JSON input to <a-json-field> component');
@@ -45,7 +51,8 @@
 		 		// }
 			},
 			value(val) {
-				this.stringRepresentation = JSON.stringify(val);
+				// Triggers to update what's actually displayed in the text field whenever we make changes to "this.value" (such as by calling this.makeInputValidJSON or also when "this.value" is changed by like a reset button for example)
+				this.stringRepresentation = (val === undefined)? '' : JSON.stringify(val);
 			}
 		}
 	});
