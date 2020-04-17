@@ -367,7 +367,7 @@
 											Projects
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
-										<v-text-field v-model="projectTableSearch" append-icon="search" label="Search" single-line hide-details></v-text-field>
+										<v-text-field v-model="projectTableSearch" append-icon="search" label="Search" class="pb-2" single-line hide-details></v-text-field>
 										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
 									<v-data-table :items="projects" :headers="projectTableHeaders" :search="projectTableSearch" must-sort
@@ -391,7 +391,7 @@
 											Wafers
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
-										<v-text-field v-model="waferTableSearch" append-icon="search" label="Search" single-line hide-details></v-text-field>
+										<v-text-field v-model="waferTableSearch" append-icon="search" label="Search" class="pb-2" single-line hide-details></v-text-field>
 										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
 									<v-data-table :items="wafers" :headers="waferTableHeaders" :search="waferTableSearch" must-sort
@@ -421,7 +421,7 @@
 											"{{ wafer }}" Chips
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
-										<v-text-field v-model="chipTableSearch" append-icon="search" label="Search" single-line hide-details></v-text-field>
+										<v-text-field v-model="chipTableSearch" append-icon="search" label="Search" class="pb-2" single-line hide-details></v-text-field>
 										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
 									<v-data-table :items="chips" :headers="chipTableHeaders" :search="chipTableSearch" must-sort
@@ -451,7 +451,7 @@
 											"{{ wafer }}{{ chip }}" Devices
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
-										<v-text-field v-model="deviceTableSearch" append-icon="search" label="Search" single-line hide-details></v-text-field>
+										<v-text-field v-model="deviceTableSearch" append-icon="search" label="Search" class="pb-2" single-line hide-details></v-text-field>
 										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
 									<v-data-table :items="devices" :headers="deviceTableHeaders" :search="deviceTableSearch" must-sort
@@ -497,7 +497,10 @@
 											</v-menu>
 										</v-toolbar-items>
 										<v-toolbar-items class="pt-3 ml-4">
-											<v-switch color="white" label="" v-model="enableChipSummaryPlots"></v-switch>
+											<v-tooltip top>
+												<v-switch slot="activator" color="white" label="" v-model="enableChipSummaryPlots"></v-switch>
+												<span>Show</span>
+											</v-tooltip>
 										</v-toolbar-items>
 									</v-toolbar>
 									
@@ -528,7 +531,7 @@
 											"{{ wafer }}{{ chip }} {{ device }}" Experiments
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
-										<v-text-field v-model="experimentTableSearch" append-icon="search" label="Search" single-line hide-details></v-text-field>
+										<v-text-field v-model="experimentTableSearch" append-icon="search" label="Search" class="pb-2" single-line hide-details></v-text-field>
 										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
 									<v-data-table :items="experimentsWithIndexes" :headers="experimentTableHeaders" :search="experimentTableSearch" must-sort
@@ -554,7 +557,10 @@
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
 										<v-toolbar-items class="pt-3 ml-4">
-											<v-switch color="white" label="" v-model="enableDeviceSummaryPlots"></v-switch>
+											<v-tooltip top>
+												<v-switch slot="activator" color="white" label="" v-model="enableDeviceSummaryPlots"></v-switch>
+												<span>Show</span>
+											</v-tooltip>
 										</v-toolbar-items>
 									</v-toolbar>
 									
@@ -643,6 +649,8 @@
 											<v-toolbar-title>
 												Notes
 											</v-toolbar-title>
+											<v-spacer></v-spacer>
+											<v-icon>note_add</v-icon>
 										</v-toolbar>
 										<v-text-field v-model="experiment.noteAddition"></v-text-field>
 										<v-btn @click="addToNote(experiment)">Save</v-btn>
@@ -1132,15 +1140,7 @@
 									Live Plots
 								</v-toolbar-title>
 								<v-spacer></v-spacer>
-								<v-menu bottom left offset-y>
-									<v-btn slot="activator" icon><v-icon>settings</v-icon></v-btn>
-									<v-list light>
-										<v-list-tile @click="clearLivePlots()">
-											<v-list-tile-avatar><v-icon>clear</v-icon></v-list-tile-avatar>
-											<v-list-tile-content><v-list-tile-title>Clear All Plots</v-list-tile-title></v-list-tile-content>
-										</v-list-tile>
-									</v-list>
-								</v-menu>
+								<v-icon>view_carousel</v-icon>
 							</v-toolbar>
 							
 							<v-container fluid grid-list-sm>

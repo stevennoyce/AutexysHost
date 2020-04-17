@@ -24,10 +24,10 @@
 		:items="setting.choices">
 	</v-select>
 	
-	<a-json-field v-else-if="setting.type == 'array'"
+	<a-text-array-field v-else-if="setting.type == 'array'"
 		:label="(hide_label)? '' : setting.title" :suffix="setting.units" v-model="setting.default"
 		:placeholder="(placeholder)? placeholder : ' '">
-	</a-json-field>
+	</a-text-array-field>
 	
 </script>
 <script type="text/javascript">

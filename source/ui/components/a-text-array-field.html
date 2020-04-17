@@ -1,12 +1,12 @@
 
 
-<script type="text/html" id="a-json-field">
+<script type="text/html" id="a-text-array-field">
 	<v-text-field v-model="stringRepresentation" :label="label" :suffix="suffix" :placeholder="placeholder" @blur="makeInputValidJSON"></v-text-field>
 </script>
 
 <script type="text/javascript">
-	Vue.component('a-json-field', {
-		template: '#a-json-field',
+	Vue.component('a-text-array-field', {
+		template: '#a-text-array-field',
 		props: ['value', 'label', 'suffix', 'placeholder'],
 		data: function() {
 			return {
@@ -32,7 +32,7 @@
 		 			// Set "v-model" (and "this.value") to the object representation of "stringRepresentation"
 		 			this.$emit('input', objectRepresentation);
 		 		} catch (e) {
-		 			console.log('Invalid JSON input to <a-json-field> component');
+		 			console.log('Invalid JSON input to <a-text-array-field> component');
 		 			console.log(e);
 		 		}
 			},
@@ -47,7 +47,7 @@
 		 		// 	// }
 		 		// 	this.$emit('input', objectRepresentation);
 		 		// } catch (e) {
-		 		// 	console.log('Invalid JSON input to <a-json-field> component');
+		 		// 	console.log('Invalid JSON input to <a-text-array-field> component');
 		 		// }
 			},
 			value(val) {
