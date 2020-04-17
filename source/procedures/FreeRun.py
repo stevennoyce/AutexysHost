@@ -60,10 +60,18 @@ def runFree(smu_instance, pointLimit, gateVoltageMinimum, gateVoltageMaximum, dr
 	nextGateVoltage = distributions[gateVoltageDistribution]
 	nextDrainVoltage = distributions[drainVoltageDistribution]
 	
+	# Decide if this Free Run should be limited or unlimited
+	try:
+		int(pointLimit)
+		unlimited = False
+	except:
+		unlimited = True
+	print('Running in unlimited mode.') if(unlimited) else print('Running with point limit: ' + str(pointLimit))
+	
 	# Begin continuously applying randomly selected voltages from their distributions and taking measurements (until an interrupt is triggers by pipes, or a limit is reached)
-	while((pointLimit is None) or (index < pointLimit)):
+	while(unlimited or (index < pointLimit)):
 		# Send a progress message
-		pipes.progressUpdate(share, 'Free Run Point', start=0, current=index, end=(pointLimit if(pointLimit is not None) else index), enableAbort=True)
+		pipes.progressUpdate(share, 'Free Run Point', start=0, current=index, end=(index if(unlimited) else pointLimit), enableAbort=True)
 
 		# Get drain and gate voltage from random distributions
 		gateVoltage  = nextGateVoltage(gateVoltageMinimum, gateVoltageMaximum, index, gateVoltageDistributionParameter)
@@ -120,6 +128,9 @@ def runFree(smu_instance, pointLimit, gateVoltageMinimum, gateVoltageMaximum, dr
 		
 		# Increment loop index
 		index += 1
+	
+	# Send a final progress update if the loop is ever exited (for example, if not running in unlimited mode)
+	pipes.progressUpdate(share, 'Free Run Point', start=0, current=index, end=(index if(unlimited) else pointLimit), enableAbort=True)
 					
 	return {
 		

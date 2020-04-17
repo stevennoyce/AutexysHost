@@ -6,17 +6,17 @@
 	
 	<v-text-field v-else-if="setting.type == 'float'"
 		:label="(hide_label)? '' : setting.title" :suffix="setting.units" v-model.number="setting.default"
-		placeholder=" " type="number" step="any" :rules="[rules.float]">
+		:placeholder="(placeholder)? placeholder : ' '" type="number" step="any" :rules="[rules.float]">
 	</v-text-field>
 	
 	<v-text-field v-else-if="setting.type == 'int'"
 		:label="(hide_label)? '' : setting.title" :suffix="setting.units" v-model.number="setting.default"
-		placeholder=" " type="number" :rules="[rules.integer]">
+		:placeholder="(placeholder)? placeholder : ' '" type="number" :rules="[rules.integer]">
 	</v-text-field>
 	
 	<v-text-field v-else-if="setting.type == 'string'"
 		:label="(hide_label)? '' : setting.title" :suffix="setting.units" v-model="setting.default"
-		placeholder=" ">
+		:placeholder="(placeholder)? placeholder : ' '">
 	</v-text-field>
 	
 	<v-select v-else-if="setting.type == 'choice'"
@@ -32,7 +32,7 @@
 <script type="text/javascript">
 	Vue.component('a-item-edit', {
 		template: '#a-item-edit',
-		props: ['setting', 'hide_label'],
+		props: ['setting', 'hide_label', 'placeholder'],
 		data: function() {
 			return {
 				rules: {
