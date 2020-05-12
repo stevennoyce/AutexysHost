@@ -1,0 +1,3922 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>User Interface</title>
+	<link rel="shortcut icon" type="image/png" href="/ui/icons/icon.png"/>
+	<link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons' rel="stylesheet">
+	<link href="/ui/libs/vuetify.css" rel="stylesheet">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+	
+	<meta http-equiv="cache-control" content="no-cache, must-revalidate, post-check=0, pre-check=0" />
+	<meta http-equiv="cache-control" content="max-age=0" />
+	<meta http-equiv="expires" content="0" />
+	<meta http-equiv="pragma" content="no-cache" />
+	
+	<style media="screen" type="text/css">
+		html {
+			overscroll-behavior: none;
+		}
+		
+		[v-cloak] > * {
+			display: none;
+		}
+
+		/* === Page Loading Animation === */
+		
+		.fade-leave-active, .fade-enter-active {
+			transition: 0.7s ease;
+		}
+		.fade-leave-to {
+			opacity: 1;
+		}
+		.fade-enter, .fade-leave {
+			opacity: 0;
+		}
+		
+		.loaderfadeaway-enter-active .loaderfadeaway-leave-active {
+			transition: opacity .5s;
+		}
+		.loaderfadeaway-enter, .loaderfadeaway-leave-to {
+			opacity: 0;
+		}
+		
+		.spinner {
+			margin: 100px auto;
+			width: 40px;
+			height: 40px;
+			position: relative;
+			text-align: center;
+			
+			-webkit-animation: sk-rotate 2.0s infinite linear;
+			animation: sk-rotate 2.0s infinite linear;
+		}
+		.dot1, .dot2 {
+			width: 60%;
+			height: 60%;
+			display: inline-block;
+			position: absolute;
+			top: 0;
+			background-color: #333;
+			border-radius: 100%;
+			
+			-webkit-animation: sk-bounce 2.0s infinite ease-in-out;
+			animation: sk-bounce 2.0s infinite ease-in-out;
+		}
+		.dot2 {
+			top: auto;
+			bottom: 0;
+			-webkit-animation-delay: -1.0s;
+			animation-delay: -1.0s;
+		}
+		
+		@-webkit-keyframes sk-rotate { 100% { -webkit-transform: rotate(360deg) }}
+		@keyframes sk-rotate { 100% { transform: rotate(360deg); -webkit-transform: rotate(360deg) }}
+		@-webkit-keyframes sk-bounce {
+			0%, 100% { -webkit-transform: scale(0.0) }
+			50% { -webkit-transform: scale(1.0) }
+		}
+		@keyframes sk-bounce {
+			0%, 100% { 
+				transform: scale(0.0);
+				-webkit-transform: scale(0.0);
+			} 50% { 
+				transform: scale(1.0);
+				-webkit-transform: scale(1.0);
+			}
+		}
+		
+		/* === Images === */
+		
+		img {
+			width: auto;
+			height: auto;
+			max-width: 100%;
+			margin-left: auto;
+			margin-right: auto;
+		}
+		.zoomableImage:hover {
+			opacity: 0.7;
+			transition: opacity 0.5s;
+		}
+		.zoomedImage {
+			position: fixed;
+			z-index: 500;
+			background-color: rgb(255,255,255);
+			max-width: 80vw;
+			max-height: 90vh;
+			top: 50vh;
+			right: 50vw;
+			transform: translate(50%, -50%);
+		}
+		
+		/* === Progress Bars === */
+		
+		.v-progress-linear__bar, .v-progress-linear__bar__determinate {
+  			transition: none;
+		}
+		
+		/* === Layout === */
+		
+		.roundedcorners {
+			border-radius: 7px
+		}
+		
+	</style>
+</head>
+<body>
+	<div id="app">
+		
+		<transition name="loaderfadeaway">
+			<div style="height:100%; width: 100%; z-index: 1000; position: absolute; background-color: rgb(255,255,255);" v-if="pageLoading">
+				<div class="spinner">
+					<div class="dot1"></div>
+					<div class="dot2"></div>
+				</div>
+			</div>
+		</transition>
+		
+		<transition name="fade" mode="out-in" appear>
+			<v-app v-cloak>
+				
+				<!-- Start of app sidebar/toolbar -->
+				
+				<v-navigation-drawer clipped fixed v-model="drawer" class="color_base" dark app>
+					<v-list dense>
+						<v-list-tile @click="setTopLevelPage('dashboard')">
+							<v-list-tile-action><v-icon>dashboard</v-icon></v-list-tile-action>
+							<v-list-tile-content><v-list-tile-title>Dashboard</v-list-tile-title></v-list-tile-content>
+						</v-list-tile>
+						<v-list-tile @click="setTopLevelPage('stepper')">
+							<v-list-tile-action><v-icon class="color_browser roundedcorners">list</v-icon></v-list-tile-action>
+							<v-list-tile-content><v-list-tile-title>Browser</v-list-tile-title></v-list-tile-content>
+						</v-list-tile>
+						<v-list-tile @click="setTopLevelPage('scheduleCreator')">
+							<v-list-tile-action><v-icon class="color_creator roundedcorners">schedule</v-icon></v-list-tile-action>
+							<v-list-tile-content><v-list-tile-title>Schedule Creator</v-list-tile-title></v-list-tile-content>
+						</v-list-tile>
+						<v-list-tile @click="setTopLevelPage('experimentRunner')">
+							<v-list-tile-action><v-icon class="color_runner roundedcorners">play_circle_outline</v-icon></v-list-tile-action>
+							<v-list-tile-content><v-list-tile-title>Experiment Runner</v-list-tile-title></v-list-tile-content>
+						</v-list-tile>
+						<v-list-group>
+							<v-list-tile slot="activator">
+								<v-list-tile-action><v-icon>cloud</v-icon></v-list-tile-action>
+								<v-list-tile-content><v-list-tile-title>Applications</v-list-tile-title></v-list-tile-content>
+							</v-list-tile>
+							<v-list-tile @click="setTopLevelPage('performance')">
+								<v-list-tile-action><v-icon>speed</v-icon></v-list-tile-action>
+								<v-list-tile-content><v-list-tile-title>Performance</v-list-tile-title></v-list-tile-content>
+							</v-list-tile>
+							<v-list-tile @click="setTopLevelPage('ptSensor')">
+								<v-list-tile-action><v-icon>opacity</v-icon></v-list-tile-action>
+								<v-list-tile-content><v-list-tile-title>PT Sensor</v-list-tile-title></v-list-tile-content>
+							</v-list-tile>
+						</v-list-group>
+						<v-list-tile @click="setTopLevelPage('settings')">
+							<v-list-tile-action><v-icon>settings</v-icon></v-list-tile-action>
+							<v-list-tile-content><v-list-tile-title>Settings</v-list-tile-title></v-list-tile-content>
+						</v-list-tile>
+						<v-list-tile @click="setTopLevelPage('about')">
+							<v-list-tile-action><v-icon>info_outline</v-icon></v-list-tile-action>
+							<v-list-tile-content><v-list-tile-title>About (and README)</v-list-tile-title></v-list-tile-content>
+						</v-list-tile>
+						<v-list-tile @click="setTopLevelPage('documentation')">
+							<v-list-tile-action><v-icon>info_outline</v-icon></v-list-tile-action>
+							<v-list-tile-content><v-list-tile-title>Documentation</v-list-tile-title></v-list-tile-content>
+						</v-list-tile>
+					</v-list>
+				</v-navigation-drawer>
+				
+				<v-toolbar app fixed clipped-left dark color="color_base darken-1">
+					<v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
+					<v-toolbar-title>Autexys User Interface</v-toolbar-title>
+					<v-spacer></v-spacer>
+					<v-toolbar-items>
+						<v-menu bottom left offset-y :close-on-content-click="false" :nudge-width="200">
+							<v-btn slot="activator" flat><v-icon>art_track</v-icon></v-btn>
+							<v-card light style="overflow-y: scroll; max-height:65vh">
+								<v-list>
+									<a-item-edit-group :settings.sync="primaryPlotSettings"></a-item-edit-group>
+									<a-item-edit-group :settings.sync="modePlotSettings"></a-item-edit-group>
+								</v-list>
+							</v-card>
+							<v-card light>
+								<v-list>
+									<v-list-tile>
+										<v-btn @click="resetPlotSettings(); updatePlotSettings();" :disabled="!hasModifiedPlotSettings()">Reset</v-btn>
+										<v-spacer></v-spacer>
+										<v-btn @click="updatePlotSettings()">Save</v-btn>
+									</v-list-tile>
+								</v-list>
+							</v-card>
+						</v-menu>
+						<v-menu bottom left offset-y>
+							<v-btn slot="activator" flat>{{ user }}<v-icon right>people</v-icon></v-btn>
+							<v-card style="max-height:85vh">
+								<v-list light>
+									<v-list-tile v-for="u in users" :key="u" @click="goToUser(u)">
+										<v-list-tile-avatar color="color_base"><v-icon dark>account_circle</v-icon></v-list-tile-avatar>
+										<v-list-tile-content><v-list-tile-title>{{ u }}</v-list-tile-title></v-list-tile-content>
+									</v-list-tile>
+								</v-list>
+							</v-card>
+						</v-menu>
+					</v-toolbar-items>
+				</v-toolbar>
+				
+				<!-- End of app sidebar/toolbar -->
+				
+				<v-content>
+					
+					<!-- Start of dashboard -->
+					
+					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'dashboard'">
+						<v-container>
+							<v-layout row wrap>
+								<v-flex xs4 sm4 md4 lg4 xl4 class="pa-1">
+									<v-toolbar dark class="color_browser roundedcorners" style="cursor: pointer;" @click="setTopLevelPage('stepper')">
+										<v-toolbar-title>
+											Browser
+										</v-toolbar-title>
+										<v-spacer></v-spacer>
+										<v-icon>list</v-icon>
+									</v-toolbar>
+								</v-flex>
+								
+								<v-flex xs4 sm4 md4 lg4 xl4 class="pa-1">
+									<v-toolbar dark class="color_creator roundedcorners" style="cursor: pointer;" @click="setTopLevelPage('scheduleCreator')">
+										<v-toolbar-title>
+											Schedule Creator
+										</v-toolbar-title>
+										<v-spacer></v-spacer>
+										<v-icon>schedule</v-icon>
+									</v-toolbar>	
+								</v-flex>
+								
+								<v-flex xs4 sm4 md4 lg4 xl4 class="pa-1">
+									<v-toolbar dark class="color_runner roundedcorners" style="cursor: pointer;" @click="setTopLevelPage('experimentRunner')">
+										<v-toolbar-title>
+											Experiment Runner
+										</v-toolbar-title>
+										<v-spacer></v-spacer>
+										<v-icon>play_circle_outline</v-icon>
+									</v-toolbar>
+								</v-flex>
+							</v-layout>
+						</v-container>
+						
+						<v-card class="ma-4">
+							<v-toolbar dark dense class="color_base darken-1">
+								<v-toolbar-title>
+									Recent Activity
+								</v-toolbar-title>
+								
+								<v-spacer></v-spacer>
+								
+								<v-toolbar-items class="pt-2">
+									<v-chip small light color="white" @click="setRecentActivityCategory('project')" 
+									:selected="['project', 'wafer', 'chip', 'device'].includes(recentActivityCategory)">Projects</v-chip>
+									<v-chip small light color="white" @click="setRecentActivityCategory('wafer')" 
+									:selected="['wafer', 'chip', 'device'].includes(recentActivityCategory)">Wafers</v-chip>
+									<v-chip small light color="white" @click="setRecentActivityCategory('chip')" 
+									:selected="['chip', 'device'].includes(recentActivityCategory)">Chips</v-chip>
+									<v-chip small light color="white" @click="setRecentActivityCategory('device')" 
+									:selected="['device'].includes(recentActivityCategory)">Devices</v-chip>
+								</v-toolbar-items>
+								
+								<v-spacer></v-spacer>
+
+								<v-menu bottom left offset-y :close-on-content-click="false">
+									<v-btn slot="activator" flat>Filter</v-btn>
+									<v-card light>
+										<v-list>
+											<v-list-tile>
+												<v-autocomplete clearable label="Project" v-model="recentActivityProject" 
+												:items="recentActivity.map( entry => entry['project'] )"
+												:disabled="false"></v-autocomplete>
+											</v-list-tile>
+											<v-list-tile>
+												<v-autocomplete clearable label="Wafer" v-model="recentActivityWafer" 
+												:items="recentActivity.map( entry => entry['wafer'] ).filter( entry => entry !== undefined )"
+												:disabled="!recentActivityIncludesCategory(['wafer', 'chip', 'device'])"></v-autocomplete>
+											</v-list-tile>
+											<v-list-tile>
+												<v-autocomplete clearable label="Chip" v-model="recentActivityChip" 
+												:items="recentActivity.map( entry => entry['chip'] ).filter( entry => entry !== undefined )"
+												:disabled="!recentActivityIncludesCategory(['chip', 'device'])"></v-autocomplete>
+											</v-list-tile>
+											<v-list-tile>
+												<v-autocomplete clearable label="Device" v-model="recentActivityDevice" 
+												:items="recentActivity.map( entry => entry['device'] ).filter( entry => entry !== undefined )"
+												:disabled="!recentActivityIncludesCategory(['device'])"></v-autocomplete>
+											</v-list-tile>
+										</v-list>
+									</v-card>
+								</v-menu>
+								
+								<v-btn icon @click="resetDashboard(); getAll();"><v-icon>refresh</v-icon></v-btn>
+							</v-toolbar>
+							
+							<v-data-table must-sort :items="recentActivity" :headers="dynamicRecentActivityTableHeaders" 
+								:rows-per-page-items="[10,50,{'text':'$vuetify.dataIterator.rowsPerPageAll','value':-1}]"
+								:pagination.sync="recentActivityPagination" :hide-headers="false" :hide-actions="false">
+								<template slot="items" slot-scope="props">
+									<tr @click="setTopLevelPage('stepper'); goToDirectly(props.item.project, props.item.wafer, props.item.chip, props.item.device);">
+										<td v-if="recentActivityHeaders.find(h => h.value ==='user').visible">{{ props.item.user }}</td>
+										<td v-if="recentActivityHeaders.find(h => h.value ==='project').visible">{{ props.item.project }}</td>
+										<td v-if="recentActivityHeaders.find(h => h.value ==='wafer').visible">{{ props.item.wafer }}</td>
+										<td v-if="recentActivityHeaders.find(h => h.value ==='chip').visible">{{ props.item.chip }}</td>
+										<td v-if="recentActivityHeaders.find(h => h.value ==='device').visible">{{ props.item.device }}</td>
+										<td v-if="recentActivityHeaders.find(h => h.value ==='modified').visible">{{ new Date(props.item.modified*1000).toLocaleDateString() }}</td>
+									</tr>
+								</template>
+							</v-data-table>
+						</v-card>
+					</v-flex>
+					
+					<!-- End of dashboard -->
+					<!-- Start of browser -->
+					
+					<v-stepper v-if="topLevelPage === 'stepper'" v-model="stepperPage" style="background-color:rgba(255,255,255,0);height:100%;">
+						<v-stepper-header>
+							<v-stepper-step step="1" :complete="stepperPage > 1" :editable="stepperPage > 1" edit-icon="folder" 
+											color="color_browser darken-1">Projects</v-stepper-step>
+							<v-divider></v-divider>
+							<v-stepper-step step="2" :complete="stepperPage > 2" :editable="stepperPage > 2" edit-icon="bubble_chart"
+											color="color_browser darken-1">Wafers</v-stepper-step>
+							<v-divider></v-divider>
+							<v-stepper-step step="3" :complete="stepperPage > 3" :editable="stepperPage > 3" edit-icon="apps"
+											color="color_browser darken-1">Chips</v-stepper-step>
+							<v-divider></v-divider>
+							<v-stepper-step step="4" :complete="stepperPage > 4" :editable="stepperPage > 4" edit-icon="memory"
+											color="color_browser darken-1">Devices</v-stepper-step>
+							<v-divider></v-divider>
+							<v-stepper-step step="5" :complete="stepperPage > 5" :editable="stepperPage > 5" edit-icon="assignment"
+											color="color_browser darken-1">Experiments</v-stepper-step>
+							<v-divider></v-divider>
+							<v-stepper-step step="6" :complete="stepperPage > 6" :editable="stepperPage > 6" 
+											color="color_browser darken-1">Experiment</v-stepper-step>
+						</v-stepper-header>
+						
+						<v-stepper-items>
+							
+							<v-stepper-content step="1">
+								<v-card v-if="stepperPage > 0">
+									<v-toolbar dark class="color_browser">
+										<v-toolbar-title>
+											Projects
+										</v-toolbar-title>
+										<v-spacer></v-spacer>
+										<v-text-field v-model="projectTableSearch" append-icon="search" label="Search" single-line hide-details solo light background-color="info lighten-1"></v-text-field>
+										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
+									</v-toolbar>
+									<v-data-table :items="projects" :headers="projectTableHeaders" :search="projectTableSearch" must-sort
+										:rows-per-page-items="[10,50,{'text':'$vuetify.dataIterator.rowsPerPageAll','value':-1}]"
+										no-results-text="Your search did not return any results."
+										:custom-filter="customVDataTableFilter">
+										<template slot="items" slot-scope="props">
+											<tr @click="goToProject(props.item.name)">
+												<td>{{ props.item.name }}</td>
+											</tr>
+										</template>
+									</v-data-table>
+								</v-card>
+							</v-stepper-content>
+							
+							<v-stepper-content step="2">
+								<v-card v-if="stepperPage > 1">
+									<v-toolbar dark class="color_browser">
+										<v-btn icon @click="goBack(); getProjects()"><v-icon>arrow_back</v-icon></v-btn>
+										<v-toolbar-title>
+											Wafers
+										</v-toolbar-title>
+										<v-spacer></v-spacer>
+										<v-text-field v-model="waferTableSearch" append-icon="search" label="Search" single-line hide-details solo light background-color="info lighten-1"></v-text-field>
+										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
+									</v-toolbar>
+									<v-data-table :items="wafers" :headers="waferTableHeaders" :search="waferTableSearch" must-sort
+										:rows-per-page-items="[10,50,{'text':'$vuetify.dataIterator.rowsPerPageAll','value':-1}]"
+										no-results-text="Your search did not return any results."
+										:custom-filter="customVDataTableFilter">
+										<template slot="items" slot-scope="props">
+											<tr @click="goToWafer(props.item.name)">
+												<td>{{ props.item.name }}</td>
+												<td>{{ props.item.path }}</td>
+												<td>{{ new Date(props.item.modificationTime*1000).toLocaleString() }}</td>
+												<td>{{ props.item.size }}</td>
+												<td><v-chip light>{{ props.item.chipCount }}</v-chip></td>
+												<td>{{ props.item.indexCount }}</td>
+												<td>{{ props.item.experimentCount }}</td>
+											</tr>
+										</template>
+									</v-data-table>
+								</v-card>
+							</v-stepper-content>
+							
+							<v-stepper-content step="3">
+								<v-card v-if="stepperPage > 2">
+									<v-toolbar dark class="color_browser">
+										<v-btn icon @click="goBack(); getWafers()"><v-icon>arrow_back</v-icon></v-btn>
+										<v-toolbar-title>
+											"{{ wafer }}" Chips
+										</v-toolbar-title>
+										<v-spacer></v-spacer>
+										<v-text-field v-model="chipTableSearch" append-icon="search" label="Search" single-line hide-details solo light background-color="info lighten-1"></v-text-field>
+										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
+									</v-toolbar>
+									<v-data-table :items="chips" :headers="chipTableHeaders" :search="chipTableSearch" must-sort
+										:rows-per-page-items="[10,50,{'text':'$vuetify.dataIterator.rowsPerPageAll','value':-1}]"
+										no-results-text="Your search did not return any results."
+										:custom-filter="customVDataTableFilter">
+										<template slot="items" slot-scope="props">
+											<tr @click="goToChip(props.item.name)">
+												<td>{{ props.item.name }}</td>
+												<td>{{ props.item.path }}</td>
+												<td>{{ new Date(props.item.modificationTime*1000).toLocaleString() }}</td>
+												<td>{{ props.item.size }}</td>
+												<td><v-chip light>{{ props.item.deviceCount }}</v-chip></td>
+												<td>{{ props.item.indexCount }}</td>
+												<td>{{ props.item.experimentCount }}</td>
+											</tr>
+										</template>
+									</v-data-table>
+								</v-card>
+							</v-stepper-content>
+							
+							<v-stepper-content step="4">
+								<v-card v-if="stepperPage > 3">
+									<v-toolbar dark class="color_browser">
+										<v-btn icon @click="goBack(); getChips();"><v-icon>arrow_back</v-icon></v-btn>
+										<v-toolbar-title>
+											"{{ wafer }}{{ chip }}" Devices
+										</v-toolbar-title>
+										<v-spacer></v-spacer>
+										<v-text-field v-model="deviceTableSearch" append-icon="search" label="Search" single-line hide-details solo light background-color="info lighten-1"></v-text-field>
+										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
+									</v-toolbar>
+									<v-data-table :items="devices" :headers="deviceTableHeaders" :search="deviceTableSearch" must-sort
+										:rows-per-page-items="[10,50,{'text':'$vuetify.dataIterator.rowsPerPageAll','value':-1}]"
+										no-results-text="Your search did not return any results."
+										:custom-filter="customVDataTableFilter">
+										<template slot="items" slot-scope="props">
+											<tr @click="goToDevice(props.item.name)">
+												<td>{{ props.item.name }}</td>
+												<td>{{ props.item.path }}</td>
+												<td>{{ new Date(props.item.modificationTime*1000).toLocaleString() }}</td>
+												<td>{{ props.item.size }}</td>
+												<td>{{ props.item.indexCount }}</td>
+												<td><v-chip light>{{ props.item.experimentCount }}</v-chip></td>
+											</tr>
+										</template>
+									</v-data-table>
+								</v-card>
+
+								<v-card v-if="stepperPage == 4 ">
+									<v-toolbar dark class="color_browser darken-1">
+										<v-toolbar-title>
+											"{{ wafer }}{{ chip }}" Chip Summary Plots
+										</v-toolbar-title>
+										<v-spacer></v-spacer>
+										<v-toolbar-items>
+											<v-menu bottom left offset-y :close-on-content-click="false" :nudge-width="200">
+												<v-btn slot="activator" flat><v-icon>art_track</v-icon></v-btn>
+												<v-card light style="overflow-y: scroll; max-height:65vh">
+													<v-list>
+														<a-item-edit-group :settings.sync="chipSummarySettings"></a-item-edit-group>
+													</v-list>
+												</v-card>
+												<v-card light>
+													<v-list>
+														<v-list-tile>
+															<v-btn @click="resetChipSummarySettings(); updatePlotSettings();" :disabled="!hasModifiedPlotSettings()">Reset</v-btn>
+															<v-spacer></v-spacer>
+															<v-btn @click="updatePlotSettings()">Save</v-btn>
+														</v-list-tile>
+													</v-list>
+												</v-card>
+											</v-menu>
+										</v-toolbar-items>
+										<v-toolbar-items class="pt-3 ml-4">
+											<v-tooltip top>
+												<v-switch slot="activator" color="white" label="" v-model="enableChipSummaryPlots"></v-switch>
+												<span>Show</span>
+											</v-tooltip>
+										</v-toolbar-items>
+									</v-toolbar>
+									
+									<v-container fluid grid-list-sm>
+										<v-layout row wrap v-if="enableChipSummaryPlots">
+											<v-flex xs12 sm6 md4 lg3 xl2 v-for="possiblePlot in possibleChipPlots" :key="possiblePlot">
+												<v-card class="ma-1" height="100%">
+													<v-toolbar dark dense class="color_base">
+														<v-toolbar-title>
+															 {{ possiblePlot }}
+														</v-toolbar-title>
+													</v-toolbar>
+													<div class="text-xs-center">
+														<a-zoomable-image src="" :data-src="'/chipPlots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></a-zoomable-image>
+													</div>
+												</v-card>
+											</v-flex>
+										</v-layout>
+									</v-container>
+								</v-card>
+							</v-stepper-content>
+
+							<v-stepper-content step="5">
+								<v-card v-if="stepperPage > 4">
+									<v-toolbar dark class="color_browser">
+										<v-btn icon @click="goBack(); getDevices();"><v-icon>arrow_back</v-icon></v-btn>
+										<v-toolbar-title>
+											"{{ wafer }}{{ chip }} {{ device }}" Experiments
+										</v-toolbar-title>
+										<v-spacer></v-spacer>
+										<v-text-field v-model="experimentTableSearch" append-icon="search" label="Search" single-line hide-details solo light background-color="info lighten-1"></v-text-field>
+										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
+									</v-toolbar>
+									<v-data-table :items="experimentsWithIndexes" :headers="experimentTableHeaders" :search="experimentTableSearch" must-sort
+										:rows-per-page-items="[10,50,{'text':'$vuetify.dataIterator.rowsPerPageAll','value':-1}]"
+										no-results-text="Your search did not return any results."
+										:custom-filter="customVDataTableFilter"
+										:pagination.sync="experimentTablePagination">
+										<template slot="items" slot-scope="props">
+											<tr @click="goToExperiment(props.item.i)">
+												<td>{{ props.item.startIndexes.experimentNumber }}</td>
+												<td><v-chip light :color="getRunTypeColor(props.item.runType)">{{ props.item.runType }}<template v-if="props.item.parametersHistoryGenerated && props.item.experimentNumber == experiments[experiments.length-1].experimentNumber"> - Running</template></v-chip></td>
+												<td>{{ props.item.MeasurementSystem.systemType }}</td>
+												<td>{{ props.item.uiComputed.indexCount }}</td>
+											</tr>
+										</template>
+									</v-data-table>
+								</v-card>
+								
+								<v-card v-if="stepperPage == 5">
+									<v-toolbar dark class="color_browser darken-1">
+										<v-toolbar-title>
+											"{{ wafer }}{{ chip }} {{ device }}" Device Summary Plots
+										</v-toolbar-title>
+										<v-spacer></v-spacer>
+										<v-toolbar-items class="pt-3 ml-4">
+											<v-tooltip top>
+												<v-switch slot="activator" color="white" label="" v-model="enableDeviceSummaryPlots"></v-switch>
+												<span>Show</span>
+											</v-tooltip>
+										</v-toolbar-items>
+									</v-toolbar>
+									
+									<v-container fluid grid-list-sm>
+										<v-layout row wrap v-if="enableDeviceSummaryPlots">
+											<v-flex xs12 sm6 md4 lg3 xl2 v-for="possiblePlot in possibleDevicePlots" :key="possiblePlot">
+												<v-card class="ma-1" height="100%">
+													<v-toolbar dark dense class="color_base">
+														<v-toolbar-title>
+															 {{ possiblePlot }}
+														</v-toolbar-title>
+													</v-toolbar> 
+													<div class="text-xs-center">
+														<a-zoomable-image src="" :data-src="'/devicePlots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></a-zoomable-image>
+													</div>
+												</v-card>
+											</v-flex>
+										</v-layout>
+									</v-container>
+								</v-card>
+								
+							</v-stepper-content>
+							
+							<v-stepper-content step="6">
+								<v-card v-if="stepperPage > 5 && experiments.length > experimentIndex">
+									<v-toolbar dark class="color_browser ">
+										<v-btn icon @click="goBack(); getExperiments();"><v-icon>arrow_back</v-icon></v-btn>
+										<v-toolbar-title>
+											"{{ wafer }}{{ chip }} {{ device }}" Experiment #{{ experiment.startIndexes.experimentNumber }}
+										</v-toolbar-title>
+										<v-btn icon @click="experimentIndex--" :disabled="experimentIndex <= 0" class="ml-4"><v-icon>arrow_back_ios</v-icon></v-btn>
+										<v-btn icon @click="experimentIndex++" :disabled="experimentIndex >= experiments.length - 1"><v-icon>arrow_forward_ios</v-icon></v-btn>
+										<v-spacer></v-spacer>
+										<v-btn icon @click="getAll(); newCacheBust();"><v-icon>refresh</v-icon></v-btn>
+									</v-toolbar>
+									
+									<v-container fluid grid-list-sm>
+										<v-layout row wrap>
+											
+											<v-flex xs12 sm6 md4 lg3 xl2 v-for="possiblePlot in experiment.possiblePlots" :key="possiblePlot">
+												<v-card class="ma-1" height="100%">
+													<v-toolbar dark dense class="color_base">
+														<v-toolbar-title>
+															{{ possiblePlot }}
+														</v-toolbar-title>
+														
+														<v-spacer></v-spacer>
+														
+														<v-menu bottom left offset-y>
+															<v-btn slot="activator" icon :loading="false"><v-icon>settings</v-icon></v-btn>
+															<!-- !this.$parent.getElementsByClassName('zoomableImage')[0].complete -->
+															<v-list light>
+																<v-list-tile @click="copyHTMLImageToClip('/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings)))">
+																	<v-list-tile-avatar><v-icon>photo</v-icon></v-list-tile-avatar>
+																	<v-list-tile-content><v-list-tile-title>
+																		Copy
+																	</v-list-tile-title></v-list-tile-content>
+																</v-list-tile>
+																<v-list-tile @click="disabledPlots.push(possiblePlot)">
+																	<v-list-tile-avatar><v-icon>photo</v-icon></v-list-tile-avatar>
+																	<v-list-tile-content><v-list-tile-title>
+																		Disable
+																	</v-list-tile-title></v-list-tile-content>
+																</v-list-tile>
+																<v-list-tile @click="removeValueFromArray(possiblePlot, disabledPlots)">
+																	<v-list-tile-avatar><v-icon>photo</v-icon></v-list-tile-avatar>
+																	<v-list-tile-content><v-list-tile-title>
+																		Enable
+																	</v-list-tile-title></v-list-tile-content>
+																</v-list-tile>
+															</v-list>
+														</v-menu>
+													</v-toolbar>
+													
+													<div class="text-xs-center" v-if="!disabledPlots.includes(possiblePlot)">
+														<a-zoomable-image src="" :data-src="'/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></a-zoomable-image>
+													</div>
+												</v-card>
+											</v-flex>
+											
+										</v-layout>
+									</v-container>
+									
+									<v-card class="ma-1">
+										<v-toolbar dark dense class="info">
+											<v-toolbar-title>
+												Notes
+											</v-toolbar-title>
+											<v-spacer></v-spacer>
+											<v-icon>note_add</v-icon>
+										</v-toolbar>
+										<v-text-field v-model="experiment.noteAddition"></v-text-field>
+										<v-btn @click="addToNote(experiment)">Save</v-btn>
+									</v-card>
+									
+									<v-card class="ma-1" v-if="experiment.runType.includes('AFM') || experiment.runType.includes('SGM')">
+										<v-toolbar dark dense class="color1 ">
+											<v-toolbar-title>
+												Corresponding AFM Images
+											</v-toolbar-title>
+										</v-toolbar>
+										<div>
+											V<sub>GS</sub> = {{_.get(experiment, 'runConfigs.' + experiment['runType'] + '.gateVoltageSetPoint', '')}} V</br>
+											V<sub>DS</sub> = {{_.get(experiment, 'runConfigs.' + experiment['runType'] + '.drainVoltageSetPoint', '')}} V</br>
+											V<sub>tip</sub> = {{_.get(experiment, 'associatedAFMs.bestMatch.NapTipVoltage', '')}} V</br>
+											d<sub>tip</sub> = {{1e9*_.get(experiment, 'associatedAFMs.bestMatch.NapHeight', '')}} nm</br>
+										</div>
+									</v-card>
+									
+									<v-card class="ma-1 mt-2 mb-2">
+										<v-expansion-panel dark expand>
+											<v-expansion-panel-content ripple class="color_creator " v-for="section in Object.keys(experiment)" :key="section" v-if="typeof experiment[section] == 'object'">
+												<div slot="header">{{ section }}</div>
+												<v-data-table :items="_.toPairs(experiment[section])" :headers="[{'text':'Property'},{'text':'Value'}]" hide-actions hide-headers light>
+													<template slot="items" slot-scope="props">
+														<td> {{ props.item[0] }}</td>
+														<td> {{ props.item[1] }}</td>
+													</template>
+												</v-data-table>
+											</v-expansion-panel-content>
+										</v-expansion-panel>
+									</v-card>
+									
+									<v-card class="ma-1">
+										<v-toolbar dark dense class="color_browser ">
+											<v-toolbar-title>
+												Data Export
+											</v-toolbar-title>
+										</v-toolbar>
+										
+										<v-card-actions class="ma-1">
+											<v-btn :href="'/saveCSV/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/data.csv' + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))">Save CSV</v-btn>
+											<v-spacer></v-spacer>
+											<v-btn @click="updateAFMRegistry()">Update AFM Registry</v-btn>
+										</v-card-actions>
+										
+										<v-layout class="ma-1">
+											<v-tooltip top>
+												<v-btn slot="activator" @click="copyHTMLStringToClip(experiment['dataFolderSpecificAbs'])">
+													Copy Folder Path
+												</v-btn>
+												<span>{{ experiment['dataFolderSpecificAbs'] }}</span>
+											</v-tooltip>
+											
+											<v-chip dark class="color_browser" v-for="file in experiment['dataFiles']" :key="file">
+												{{file}}
+											</v-chip>
+										</v-layout>
+										
+										<v-container>
+											<v-card>
+												<p><tt>from utilities import DataLoggerUtility as dlu</tt></p>
+												<p><tt>
+													dlu.loadSpecificDeviceHistory('{{ experiment['dataFolderSpecific'] }}', '{{ experiment['dataFiles'][0] }}', minIndex=0, maxIndex=float('inf'), minExperiment={{ experiment.startIndexes.experimentNumber }}, maxExperiment={{ experiment.startIndexes.experimentNumber }}, minRelativeIndex=0, maxRelativeIndex=float('inf'))
+												</tt></p>
+											</v-card>
+										</v-container>
+									</v-card>
+									
+								</v-card>
+							</v-stepper-content>
+						</v-stepper-items>
+					</v-stepper>
+					
+					<!-- End of browser -->
+					<!-- Start of sched creator -->
+					
+					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'scheduleCreator'">
+						<v-card class="pb-1">
+							<v-toolbar dark dense class="color_creator ">
+								<v-toolbar-title>
+									Schedule Creator
+								</v-toolbar-title>
+								
+								<v-spacer></v-spacer>
+								
+								<v-menu bottom left offset-y :close-on-content-click="false">
+									<v-btn slot="activator" icon><v-icon>folder</v-icon></v-btn>
+									<v-toolbar dark dense class="color_creator lighten-1">
+										<v-toolbar-title>
+											Load Schedule File
+										</v-toolbar-title>
+										<v-spacer></v-spacer>
+										<v-btn icon @click="resetScheduleLoadPath()" :disabled="!isValidScheduleLoadPath()">
+											<v-icon>settings_backup_restore</v-icon>
+										</v-btn>
+									</v-toolbar>
+									<v-card light>
+										<v-list>
+											<v-list-tile>
+												<v-autocomplete clearable v-model="creatorLoadUser" label="User" :items="Object.keys(userDefinedScheduleNames)"></v-autocomplete>
+											</v-list-tile>
+											<v-list-tile>
+												<v-autocomplete clearable v-model="creatorLoadProject" label="Project" :items="Object.keys(_.get(userDefinedScheduleNames, [creatorLoadUser], {}))"></v-autocomplete>
+											</v-list-tile>
+											<v-list-tile>
+												<v-autocomplete clearable v-model="creatorLoadFileName" label="File Name" :items="_.get(userDefinedScheduleNames, [creatorLoadUser, creatorLoadProject], [])"></v-autocomplete>
+											</v-list-tile>
+										</v-list>
+									<v-card light>
+										<v-list>
+											<v-list-tile>
+												<v-spacer></v-spacer>
+												<v-tooltip top :disabled="!isValidScheduleLoadPath()">
+													<v-btn slot="activator" @click="loadSchedule()" :disabled="!isValidScheduleLoadPath()">Load Schedule File</v-btn>
+													<span>AutexysData/{{ creatorLoadUser }}/{{ creatorLoadProject }}/schedules/{{ creatorLoadFileName }}.json</span>
+												</v-tooltip>
+												<v-spacer></v-spacer>
+											</v-list-tile>
+										</v-list>
+									</v-card>
+								</v-menu>
+								
+								<v-btn icon @click="resetScheduleCreator()" :disabled="!hasModifiedScheduleObjects()"><v-icon>settings_backup_restore</v-icon></v-btn>
+							</v-toolbar>
+							
+							<v-list expand>
+								<v-list-group v-for="scheduleObject, scheduleObjectIndex in scheduleObjects" :key="scheduleObjectIndex" :prepend-icon="$vuetify.icons.expand">
+									<v-list-tile slot="activator">
+										<v-list-tile-content>
+											<v-list-tile-title>
+												Job {{ scheduleObjectIndex + 1 }}: {{ _.get(scheduleObjects[scheduleObjectIndex], 'runType.default') }}
+											</v-list-tile-title>
+										</v-list-tile-content>
+										<v-list-tile-action>
+											<v-tooltip top>
+												<v-btn icon @click.stop="moveScheduleJobUp(scheduleObjectIndex)" slot="activator" :disabled="scheduleObjectIndex == 0"><v-icon>arrow_upward</v-icon></v-btn>
+												<span>Move job up</span>
+											</v-tooltip>
+										</v-list-tile-action>
+										<v-list-tile-action>
+											<v-tooltip top>
+												<v-btn icon @click.stop="moveScheduleJobDown(scheduleObjectIndex)" slot="activator" :disabled="scheduleObjectIndex >= scheduleObjects.length - 1"><v-icon>arrow_downward</v-icon></v-btn>
+												<span>Move job down</span>
+											</v-tooltip>
+										</v-list-tile-action>
+										<v-list-tile-action>
+											<v-tooltip top>
+												<v-btn icon @click.stop="copyScheduleObject(scheduleObjectIndex)" slot="activator"><v-icon>file_copy</v-icon></v-btn>
+												<span>Copy job</span>
+											</v-tooltip>
+										</v-list-tile-action>
+										<v-list-tile-action>
+											<v-tooltip top>
+												<v-btn icon @click.stop="pasteScheduleObject(scheduleObjectIndex)" slot="activator"><v-icon>save_alt</v-icon></v-btn>
+												<span>Paste job</span>
+											</v-tooltip>
+										</v-list-tile-action>
+										<v-list-tile-action>
+											<v-tooltip top>
+												<v-btn icon @click.stop="addScheduleJob(scheduleObjectIndex)" slot="activator"><v-icon>add_circle</v-icon></v-btn>
+												<span>Add new job after</span>
+											</v-tooltip>
+										</v-list-tile-action>
+										<!--<v-list-tile-action>
+											<v-tooltip top>
+												<v-btn icon @click.stop="resetScheduleJob(scheduleObjectIndex)" slot="activator"><v-icon>settings_backup_restore</v-icon></v-btn>
+												<span>Restore job settings to defaults</span>
+											</v-tooltip>
+										</v-list-tile-action>-->
+										<v-list-tile-action>
+											<v-tooltip top>
+												<v-btn icon @click.stop="removeScheduleJob(scheduleObjectIndex)" slot="activator"><v-icon>cancel</v-icon></v-btn>
+												<span>Delete job</span>
+											</v-tooltip>
+										</v-list-tile-action>
+									</v-list-tile>
+
+									<a-schedule-job-edit :job.sync="scheduleObjects[scheduleObjectIndex]" :job-default="scheduleObjectDefault"></a-schedule-job-edit>
+								</v-list-group>
+							</v-list>
+							
+							<v-card class="ma-3" v-if="showScheduleCreatorPreview && nonTrivialScheduleObjects()">
+								<v-toolbar dark dense class="info">
+									<v-toolbar-title>
+										Preview Schedule File
+									</v-toolbar-title>
+								</v-toolbar>
+								<v-card-text class="text-no-wrap" style="overflow-x: scroll">
+									<template v-for="schedLine in scheduleLines">
+										{{ schedLine }} <br>
+									</template>
+								</v-card-text>
+							</v-card>
+							<!-- <v-btn fab small dark bottom right absolute @click="addScheduleJob(0)"><v-icon>add</v-icon></v-btn> -->
+						</v-card>
+						
+						<v-layout row wrap>
+							<v-flex xs6 sm6 md6 lg6>
+								<v-card class="mt-3" v-if="nonTrivialScheduleObjects()">
+									<v-toolbar dark dense class="color_creator">
+										<v-toolbar-title>
+											Save Schedule File
+										</v-toolbar-title>
+										<v-spacer></v-spacer>
+										<v-btn icon @click="resetScheduleSavePath()" :disabled="!isValidScheduleSavePath()">
+											<v-icon>settings_backup_restore</v-icon>
+										</v-btn>
+									</v-toolbar>
+									
+									<v-form>
+										<v-container>
+											<v-layout row wrap>
+												<v-flex xs4 sm4 md4 lg4 outline>
+													<v-combobox clearable v-model="creatorSaveUser" label="User" :items="Object.keys(userDefinedScheduleNames)">
+														<template slot="no-data">
+															<v-list-tile><v-list-tile-content><v-list-tile-title>
+																No results. Continuing will create a new user.
+															</v-list-tile-title></v-list-tile-content></v-list-tile>
+														</template>
+													</v-combobox>
+												</v-flex>
+												<v-flex xs4 sm4 md4 lg4 solo>
+													<v-combobox clearable v-model="creatorSaveProject" label="Project" :items="Object.keys(_.get(userDefinedScheduleNames, [creatorSaveUser], {}))">
+														<template slot="no-data">
+															<v-list-tile><v-list-tile-content><v-list-tile-title>
+																No results. Continuing will create a new project.
+															</v-list-tile-title></v-list-tile-content></v-list-tile>
+														</template>
+													</v-combobox>
+												</v-flex>
+												<v-flex xs4 sm4 md4 lg4 solo>
+													<v-combobox clearable v-model="creatorSaveFileName" label="File Name" :items="_.get(userDefinedScheduleNames, [creatorSaveUser, creatorSaveProject], [])">
+														<template slot="no-data">
+															<v-list-tile><v-list-tile-content><v-list-tile-title>
+																No results. Continuing will create a new file.
+															</v-list-tile-title></v-list-tile-content></v-list-tile>
+														</template>
+													</v-combobox>
+												</v-flex>
+											</v-layout>
+										</v-container>
+									</v-form>
+									
+									<v-card-actions>
+										<v-switch class="ml-1" label="Preview" v-model="showScheduleCreatorPreview"></v-switch>
+										<v-spacer></v-spacer>
+										<v-tooltip top v-if="isValidScheduleSavePath()">
+											<v-btn slot="activator" icon @click='copyHTMLStringToClip("cd \"" + paths["sourceAbsPath"] + "\" \n" + "python dispatcher.py \"" + "../../AutexysData/" + creatorSaveUser + "/" + creatorSaveProject + "/schedules/" + creatorSaveFileName + ".json\"")' :disabled="!isValidScheduleSavePath()"><v-icon>settings_ethernet</v-icon></v-btn>
+											<span>Copy launch commands for Terminal</span>
+										</v-tooltip>
+										<v-tooltip top :disabled="!isValidScheduleSavePath()" class="ml-2">
+											<v-btn slot="activator" @click="saveSchedule()" :disabled="!isValidScheduleSavePath()">Save Schedule File</v-btn>
+											<span>AutexysData/{{ creatorSaveUser }}/{{ creatorSaveProject }}/schedules/{{ creatorSaveFileName }}.json</span>
+										</v-tooltip>
+									</v-card-actions>
+								</v-card>
+							</v-flex>
+						</v-layout>
+					</v-flex>
+					
+					<!-- End of sched creator -->
+					<!-- Start of experiment runner -->
+					
+					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'experimentRunner'">
+						<v-card>
+							<v-toolbar dark dense class="color_runner">
+								<v-toolbar-title>
+									Experiment Runner
+								</v-toolbar-title>
+								<v-spacer></v-spacer>
+								<v-btn icon @click="runnerReset()" :disabled="(runnerChoice === '') && (!showProgress)"><v-icon>settings_backup_restore</v-icon></v-btn>
+							</v-toolbar>
+							
+							<v-container>
+								<v-layout class="mt-2 ml-2 mr-2">
+									<v-flex xs12 sm6 md4 lg3>
+										<v-select box class="ma-1" label="Experiment Type" v-model="runnerChoice" :items="['Schedule File'].concat(standardScheduleNames)"></v-select>
+									</v-flex>
+								</v-layout>
+							
+								<template v-if="runnerChoice === 'Schedule File'">
+									<v-layout row wrap class="ma-2">
+										<v-flex xs12 sm6 md4 lg3 outline class="ml-2 mr-2">
+											<v-autocomplete clearable v-model="runnerUser" label="User" :items="Object.keys(userDefinedScheduleNames)"></v-autocomplete>
+										</v-flex>
+										<v-flex xs12 sm6 md4 lg3 solo class="ml-2 mr-2">
+											<v-autocomplete clearable v-model="runnerProject" label="Project" :items="Object.keys(_.get(userDefinedScheduleNames, [runnerUser], {}))"></v-autocomplete>
+										</v-flex>
+										<v-flex xs12 sm6 md4 lg3 solo class="ml-2 mr-2">
+											<v-autocomplete clearable v-model="runnerFileName" label="File Name" :items="_.get(userDefinedScheduleNames, [runnerUser, runnerProject], [])"></v-autocomplete>
+										</v-flex>
+									</v-layout>
+								</template>
+							
+								<template v-if="(runnerChoice !== '') && (runnerUser && runnerProject && runnerFileName) && (runnerScheduleObjects.length === 1) && (runnerVerboseScheduleObjects.length === 1)">
+									<v-layout class="ma-2">
+										<v-expansion-panel>
+											<v-expansion-panel-content class="grey lighten-4">
+												
+												<div slot="header">
+													<v-layout row wrap>
+														<div style="font-weight: bold;">
+															Options
+														</div>
+														<v-spacer></v-spacer>
+													</v-layout>
+												</div>
+												
+												<v-container grid-list-md>
+													<v-layout row wrap>
+														
+														<v-flex xs3 s3 md3 lg3>
+															<v-list class="roundedcorners">
+																<v-list-tile>
+																	<v-list-tile-content><v-list-tile-title style="font-weight: bold">
+																		Identifiers
+																	</v-list-tile-title></v-list-tile-content>
+																</v-list-tile>
+																<template v-if="!runnerToggleAdvancedSettings && Object.keys(runnerScheduleObjects[0]).includes('Identifiers')">
+																	<a-item-edit-group :settings.sync="runnerScheduleObjects[0]['Identifiers']"></a-item-edit-group>
+																</template>
+																<template v-if="runnerToggleAdvancedSettings || !Object.keys(runnerScheduleObjects[0]).includes('Identifiers')">
+																	<a-item-edit-group :settings.sync="runnerVerboseScheduleObjects[0]['Identifiers']"></a-item-edit-group>
+																</template>
+															</v-list>
+															
+															<template v-if="runnerToggleAdvancedSettings">
+																<v-list class="mt-3 roundedcorners">
+																	<v-list-tile>
+																		<v-list-tile-content><v-list-tile-title style="font-weight: bold">
+																			Measurement System
+																		</v-list-tile-title></v-list-tile-content>
+																	</v-list-tile>
+																	<a-item-edit-group :settings.sync="runnerVerboseScheduleObjects[0]['MeasurementSystem']"></a-item-edit-group>
+																</v-list>
+															</template>
+															
+															<template v-if="runnerToggleAdvancedSettings && (!standardScheduleNames.includes(runnerChoice))">
+																<v-list class="mt-3 roundedcorners">
+																	<v-select box class="ma-3" label="Run Type" v-model="runnerVerboseScheduleObjects[0]['runType']['default']" :items="Object.keys(JSON.parse(JSON.stringify(runnerVerboseScheduleObjects[0]['runConfigs'] || {})))"></v-select>
+																</v-list>
+															</template>
+														</v-flex>
+														
+														<v-flex xs3 s3 md3 lg3 v-if="runnerVerboseScheduleObjects[0]['MeasurementSystem']['deviceCycling']['default']">
+															<v-list class="roundedcorners">
+																<v-list-tile>
+																	<v-list-tile-content><v-list-tile-title style="font-weight: bold">
+																		Device Cycling
+																	</v-list-tile-title></v-list-tile-content>
+																</v-list-tile>
+																<template v-if="!runnerToggleAdvancedSettings && Object.keys(runnerScheduleObjects[0]).includes('DeviceCycling')">
+																	<a-item-edit-group :settings.sync="runnerScheduleObjects[0]['DeviceCycling']"></a-item-edit-group>
+																</template>
+																<template v-if="runnerToggleAdvancedSettings">
+																	<a-item-edit-group :settings.sync="runnerVerboseScheduleObjects[0]['DeviceCycling']"></a-item-edit-group>
+																</template>
+															</v-list>
+														</v-flex>
+													
+														<v-flex xs3 s3 md3 lg3 v-for="runConfig,runType in runnerScheduleObjects[0]['runConfigs']" :key="runType">
+															<v-list class="roundedcorners">
+																<v-list-tile>
+																	<v-list-tile-content><v-list-tile-title style="font-weight: bold">
+																		{{ runType }}
+																	</v-list-tile-title></v-list-tile-content>
+																</v-list-tile>
+																<template v-if="!runnerToggleAdvancedSettings">
+																	<a-item-edit-group :settings.sync="runnerScheduleObjects[0]['runConfigs'][runType]"></a-item-edit-group>
+																</template>
+																<template v-if="runnerToggleAdvancedSettings">
+																	<a-item-edit-group :settings.sync="runnerVerboseScheduleObjects[0]['runConfigs'][runType]"></a-item-edit-group>
+																</template>
+															</v-list>
+														</v-flex>
+														
+													</v-layout>
+													<v-alert :value="(['single', 'B2900A (double)'].includes(runnerVerboseScheduleObjects[0]['MeasurementSystem']['systemType']['default'])) && (runnerVerboseScheduleObjects[0]['MeasurementSystem']['deviceCycling']['default'])" icon="warning "color="warning">
+														<b>Advanced:</b> Device Cycling has been enabled, but the chosen Measurement System cannot dynamically select devices.
+													</v-alert>
+												</v-container>
+								
+												<v-layout row wrap>
+													<v-switch class="ml-3" label="Advanced" v-model="runnerToggleAdvancedSettings"></v-switch>
+													<v-spacer></v-spacer>
+													<v-btn class="mr-3" small @click="runnerSaveScheduleFile()" :disabled="!isNecessaryToSaveRunnerScheduleFile()">Save</v-btn>
+												</v-layout>
+												
+											</v-expansion-panel-content>
+										</v-expansion-panel>
+									</v-layout>
+								</template>
+								<template v-else>
+									<v-list>
+										<v-list-tile>
+										</v-list-tile>
+									</v-list>
+								</template>
+							
+								<template v-if="runnerChoice !== ''">
+									<v-card flat>
+										<v-card-actions>
+											<template v-if="runnerChoice === 'Schedule File' && (runnerUser && runnerProject && runnerFileName)">
+												<form class="ml-1 mr-3" style="overflow-x: scroll">
+													<p>
+														Schedule file: AutexysData/{{ runnerUser }}/{{ runnerProject }}/schedules/{{ runnerFileName }}.json
+													</p>
+												</form>
+											</template>
+											<v-spacer></v-spacer>
+											<template v-if="runnerChoice === 'Schedule File'">
+												<v-btn class="mb-3 mt-3" @click="runnerClear(); runnerSaveScheduleFile(); runnerDispatch();" :disabled="!(runnerUser && runnerProject && runnerFileName)">Launch Schedule File.</v-btn>
+											</template>
+											<template v-if="runnerChoice !== 'Schedule File'">
+												<v-btn class="mb-3 mt-3" @click="runnerClear(); runnerSaveScheduleFile(); runnerDispatch();" :disabled="!isPossibleToSaveRunnerScheduleFile()">Launch {{ runnerChoice }}</v-btn>
+											</template>
+											<v-btn class="mb-3 mt-3" @click="runnerStop()" :disabled="!dispatcherRunning">Stop</v-btn>
+										</v-card-actions>	
+									</v-card>
+								</template>
+								
+							</v-container>
+						</v-card>
+						
+						<v-card class="mt-3" v-if="showProgress">
+							<v-toolbar dark dense class="color_runner">
+								<v-toolbar-title>
+									Progress
+								</v-toolbar-title>
+								<v-spacer></v-spacer>
+								<v-toolbar-title>
+									{{experimentProgressTimer.current - experimentProgressTimer.start | formatTimestamp}}
+									<v-icon>schedule</v-icon>
+								</v-toolbar-title>
+							</v-toolbar>
+							
+							<v-list>
+								<a-progress-bar-timed v-for="barID in ['Dispatcher', 'Group1', 'Group2', 'Sweep']" :key="barID" 
+								:visible="experimentProgressModel[barID].visible" 
+								:title="experimentProgressModel[barID].title + experimentProgressModel[barID].name" 
+								:valuestart="experimentProgressModel[barID].start" 
+								:valuecurrent="experimentProgressModel[barID].current" 
+								:valuemaximum="experimentProgressModel[barID].end"></a-progress-bar-timed>
+								
+								<a-progress-bar-timed 
+								:visible="experimentProgressModel['Procedure'].visible" 
+								:title="experimentProgressModel['Procedure'].title + experimentProgressModel['Procedure'].name" 
+								:valuestart="experimentProgressModel['Procedure'].start" 
+								:valuecurrent="experimentProgressModel['Procedure'].current" 
+								:valuemaximum="experimentProgressModel['Procedure'].end" 
+								:time="experimentProgressModel['Procedure'].time_current - experimentProgressModel['Procedure'].time_start"></a-progress-bar-timed>
+								
+								<!--
+								<v-list-tile v-if="experimentProgressModel['Dispatcher'].visible">
+									<v-list-tile-content style="flex-direction:row;align-items:center;" class="mr-3">
+										<v-list-tile-title>Dispatcher: {{experimentProgressModel['Dispatcher'].name}} {{experimentProgressModel['Dispatcher'].current}} of {{experimentProgressModel['Dispatcher'].end}} </v-list-tile-title>
+										<v-progress-linear class="roundedcorners" height="10" color="success" v-model="experimentProgressModel['Dispatcher'].percent"></v-progress-linear>
+									</v-list-tile-content>
+									<v-list-tile-action style="text-align:right;">	
+										<v-list-tile-sub-title>{{experimentProgressTimer.current - experimentProgressTimer.start | twoDecimalPoints}}</v-list-tile-sub-title>
+									</v-list-tile-action>
+								</v-list-tile>
+								<v-list-tile v-if="experimentProgressModel['Sweep'].visible">
+									<v-list-tile-title>Sweep: {{experimentProgressModel['Sweep'].name}} {{experimentProgressModel['Sweep'].current}} of {{experimentProgressModel['Sweep'].end}} </v-list-tile-title>
+									<v-progress-linear v-model="experimentProgressModel['Sweep'].percent"></v-progress-linear>
+								</v-list-tile>
+								<v-list-tile v-if="experimentProgressModel['Group1'].visible">
+									<v-list-tile-title>{{experimentProgressModel['Group1'].name}} {{experimentProgressModel['Group1'].current}} of {{experimentProgressModel['Group1'].end}} </v-list-tile-title>
+									<v-progress-linear v-model="experimentProgressModel['Group1'].percent"></v-progress-linear>
+								</v-list-tile>
+								<v-list-tile v-if="experimentProgressModel['Group2'].visible">
+									<v-list-tile-title>{{experimentProgressModel['Group2'].name}} {{experimentProgressModel['Group2'].current}} of {{experimentProgressModel['Group2'].end}} </v-list-tile-title>
+									<v-progress-linear v-model="experimentProgressModel['Group2'].percent"></v-progress-linear>
+								</v-list-tile>
+								<v-list-tile v-if="experimentProgressModel['Procedure'].visible">
+									<v-list-tile-title>Procedure: {{experimentProgressModel['Procedure'].name}} {{experimentProgressModel['Procedure'].current}} of {{experimentProgressModel['Procedure'].end}} </v-list-tile-title>
+									<v-progress-linear v-model="experimentProgressModel['Procedure'].percent"></v-progress-linear>
+								</v-list-tile>
+								-->
+							</v-list>
+						</v-card>
+						
+						<v-card class="mt-3" v-if="showProgress">
+							<v-toolbar dark dense class="color_runner">
+								<v-toolbar-title>
+									Live Plots
+								</v-toolbar-title>
+								<v-spacer></v-spacer>
+								<v-icon>view_carousel</v-icon>
+							</v-toolbar>
+							
+							<v-container fluid grid-list-sm>
+								<v-layout row wrap>
+									<v-flex xs12 sm6 md4 lg3>
+										<v-select box class="ma-1" label="Job Number" v-model="jobSelectChoice" :items="jobSelectItems"></v-select>
+									</v-flex>
+									<v-flex xs12 sm6 md4 lg3>
+										<v-select box class="ma-1" label="Device Number" v-model="deviceSelectChoice" :items="deviceSelectItems"></v-select>
+									</v-flex>
+								</v-layout>
+								
+								<template v-if="(jobSelectChoice !== '') && (deviceSelectChoice !== '') && (livePlots[jobSelectChoice]) && (livePlots[jobSelectChoice][deviceSelectChoice])">
+									<v-layout row wrap>
+										<v-flex xs12 sm12 md6 lg6 xl4 v-for="[plotID, plot] of Object.entries(livePlots[jobSelectChoice][deviceSelectChoice])" :key="plotID">
+											<v-card class="ma-1">
+												<v-toolbar dark dense class="color_runner darken-1">
+													<v-toolbar-title>
+														{{ plotID }} 
+													</v-toolbar-title>
+												
+													<v-spacer></v-spacer>
+													
+													<v-menu bottom left offset-y :close-on-content-click="false" :max-width="250">
+														<v-btn slot="activator" icon><v-icon>settings</v-icon></v-btn>
+														<v-list>
+															<v-list-tile @click="toggleLivePlotYAxisLog(plot)">
+																<v-list-tile-avatar><v-icon>timeline</v-icon></v-list-tile-avatar>
+																<v-list-tile-content><v-list-tile-title>Toggle Log Scale</v-list-tile-title></v-list-tile-content>
+															</v-list-tile>
+															<v-list-tile>
+																<v-list-tile-avatar><v-icon>color_lens</v-icon></v-list-tile-avatar>
+																<v-list-tile-content><v-text-field clearable single-line label="Color" v-model="plot['color']"></v-text-field></v-list-tile-content>
+															</v-list-tile>
+															<v-list-tile>
+																<v-list-tile-avatar><v-icon>linear_scale</v-icon></v-list-tile-avatar>
+																<v-list-tile-content><v-select clearable single-line label="Style" v-model="plot['plotMode']" :items="['lines', 'markers', 'lines+markers']"></v-text-field></v-list-tile-content>
+															</v-list-tile>
+														</v-list>
+													</v-menu>
+													
+													<v-tooltip top>
+														<v-btn slot="activator" icon @click="clearLivePlot(plot); delete livePlots[jobSelectChoice][deviceSelectChoice][plotID];"><v-icon>clear</v-icon></v-btn>
+														<span>Clear</span>
+													</v-tooltip>
+												</v-toolbar>
+												
+												<div class="text-xs-center">
+													<a-plotly v-bind:data="extractPlotlyData(plot)" :layout="extractPlotlyLayout(plot)"></a-plotly>
+												</div>
+											</v-card>
+										</v-flex>
+									</v-layout>
+								</template>
+							</v-container>
+						</v-card>
+						
+					</v-flex>
+					
+					<!-- End of experiment runner -->
+					<!-- Start of applications -->
+					
+					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'performance'">
+						<v-card>
+							<v-toolbar dark dense class="color_performance">
+								<v-toolbar-title>
+									Performance
+								</v-toolbar-title>
+								<v-spacer></v-spacer>
+								<v-btn icon @click="performanceReset()" :disabled="false"><v-icon>settings_backup_restore</v-icon></v-btn>
+							</v-toolbar>
+							
+							<v-container>
+															
+								<v-card class="mb-1 grey lighten-4 roundedcorners" v-if="Object.keys(performanceScheduleObject).length > 0">
+									<v-container>
+										<v-layout row wrap>
+											<v-flex xs3 s3 md3 lg3>
+												<v-list class="roundedcorners ma-1">
+													<v-list-tile class="pb-1">
+														<v-list-tile-content><v-list-tile-title style="font-weight: bold">
+															Device ID
+														</v-list-tile-title></v-list-tile-content>
+													</v-list-tile>
+													<v-list-tile>
+														<a-item-edit :setting.sync="performanceScheduleObject['Identifiers']['device']"></a-item-edit>
+													</v-list-tile>
+												</v-list>
+												<v-list class="roundedcorners ma-1 mt-2">
+													<v-list-tile class="pb-1">
+														<v-list-tile-content><v-list-tile-title style="font-weight: bold">
+															Measurement System
+														</v-list-tile-title></v-list-tile-content>
+													</v-list-tile>
+													<v-list-tile>
+														<a-item-edit :setting.sync="performanceScheduleObject['MeasurementSystem']['systemType']"></a-item-edit>
+													</v-list-tile>
+												</v-list>
+											</v-flex>
+											<v-flex xs3 s3 md3 lg3>
+												<v-list class="roundedcorners ma-1">
+													<v-list-tile class="pb-1">
+														<v-list-tile-content><v-list-tile-title style="font-weight: bold">
+															Voltages
+														</v-list-tile-title></v-list-tile-content>
+													</v-list-tile>
+													<v-list-tile>
+														<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['gateVoltageMinimum']"></a-item-edit>
+													</v-list-tile>
+													<v-list-tile>
+														<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['gateVoltageMaximum']"></a-item-edit>
+													</v-list-tile>
+													<v-list-tile>
+														<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['drainVoltageMinimum']"></a-item-edit>
+													</v-list-tile>
+													<v-list-tile>
+														<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['drainVoltageMaximum']"></a-item-edit>
+													</v-list-tile>
+												</v-list>
+											</v-flex>
+											<v-flex xs3 s3 md3 lg3>
+												<v-expansion-panel v-model="performanceShowOptions" class="roundedcorners ma-1 pr-1 elevation-0">
+													<v-expansion-panel-content class="roundedcorners">
+														<div slot="header" style="font-weight:bold;font-size:12pt">Options</div>
+														<v-list class="roundedcorners ">
+															<v-list-tile>
+																<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['pointLimit']" placeholder="unlimited"></a-item-edit>
+															</v-list-tile>
+															<v-list-tile>
+																<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['delayBetweenMeasurements']"></a-item-edit>
+															</v-list-tile>
+														</v-list>
+													</v-expansion-panel-content>
+												</v-expansion-panel>
+											</v-flex>
+											<v-flex xs3 s3 md3 lg3>
+												<v-expansion-panel v-model="performanceShowAdvanced" class="roundedcorners ma-1 pl-1 elevation-0">
+													<v-expansion-panel-content class="roundedcorners">
+														<div slot="header" style="font-weight:bold;font-size:12pt">Advanced</div>
+														<v-list class="roundedcorners">
+															<v-list-tile>
+																<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['stepsBetweenMeasurements']"></a-item-edit>
+															</v-list-tile>
+															<v-list-tile>
+																<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['complianceCurrent']"></a-item-edit>
+															</v-list-tile>
+															<v-list-tile>
+																<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['gateVoltageDistribution']"></a-item-edit>
+																<v-flex xs4 class="ml-1" v-if="performanceScheduleObject['runConfigs']['FreeRun']['gateVoltageDistribution']['default'] !== 'random'"> 
+																	<a-item-edit hide_label="true" :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['gateVoltageDistributionParameter']"></a-item-edit>
+																</v-flex>
+															</v-list-tile>
+															<v-list-tile>
+																<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['drainVoltageDistribution']"></a-item-edit>
+																<v-flex xs4 class="ml-1" v-if="performanceScheduleObject['runConfigs']['FreeRun']['drainVoltageDistribution']['default'] !== 'random'">
+																	<a-item-edit hide_label="true" :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['drainVoltageDistributionParameter']"></a-item-edit>
+																</v-flex>
+															</v-list-tile>
+														</v-list>
+													</v-expansion-panel-content>
+												</v-expansion-panel>
+											</v-flex>
+										</v-layout>
+									</v-container>
+								</v-card>
+								
+								<v-layout row wrap>
+									<v-flex xs10 sm10 md10 lg10>
+										<v-card flat class="mt-3">
+											<v-toolbar dark flat color="color_performance" class="pb-1">
+												<v-spacer></v-spacer>
+												<v-toolbar-items>
+													<v-btn color="color_performance darken-1 roundedcorners" @click="performanceSave(); performanceEnablePlots(); performanceStart();" :disabled="performanceRunning"><v-icon>play_arrow</v-icon></v-btn>
+												</v-toolbar-items>
+												<v-spacer></v-spacer>
+												<v-toolbar-items>
+													<v-btn color="color_performance darken-1 roundedcorners" @click="performanceStop()" :disabled="!performanceRunning"><v-icon>pause</v-icon></v-btn>
+												</v-toolbar-items>
+												<v-spacer></v-spacer>
+												<v-toolbar-items>
+													<v-btn color="color_performance darken-1 roundedcorners" @click="performanceClear()" :disabled="false"><v-icon>refresh</v-icon></v-btn>
+												</v-toolbar-items>
+												<v-spacer></v-spacer>
+											</v-toolbar>
+											
+											<v-tabs dark grow value="tab-T" color="color_performance" slider-color="orange darken-2">
+												<v-tab href="#tab-S">Subthreshold Curve</v-tab>
+												<v-tab href="#tab-T">Transfer Curve</v-tab>
+												<v-tab href="#tab-O">Output Curve</v-tab>
+												<v-tab-item value="tab-S">
+													<v-card flat>
+														<a-plotly v-bind:data="extractPlotlyData(performancePlots['Subthreshold Curve'])" :layout="extractPlotlyLayout(performancePlots['Subthreshold Curve'])"></a-plotly>
+													</v-card>
+												</v-tab-item>
+												<v-tab-item value="tab-T">
+													<v-card flat>
+														<a-plotly v-bind:data="extractPlotlyData(performancePlots['Transfer Curve'])" :layout="extractPlotlyLayout(performancePlots['Transfer Curve'])"></a-plotly>
+													</v-card>
+												</v-tab-item>
+												<v-tab-item value="tab-O">
+													<v-card flat>
+														<a-plotly v-bind:data="extractPlotlyData(performancePlots['Output Curve'])" :layout="extractPlotlyLayout(performancePlots['Output Curve'])"></a-plotly>
+													</v-card>
+												</v-tab-item>
+											</v-tabs>
+										</v-card>
+									</v-flex>
+									
+									<v-flex xs2>
+										<v-card flat class="mt-3 ml-2">
+											<v-toolbar dark flat color="color_performance" class="pb-1">
+												<v-spacer></v-spacer>
+												<v-toolbar-items><v-icon large>speed</v-icon></v-toolbar-items>
+												<v-toolbar-title v-if="liveDataCounter">
+													{{ liveDataCounter | formatCounter }}
+												</v-toolbar-title>
+												<v-spacer></v-spacer>													
+											</v-toolbar>
+											<v-toolbar dark flat color="color_performance" dense>
+												<v-spacer></v-spacer>
+												<v-toolbar-items><v-switch class="ml-2" color="white" label="" v-model="performanceMetricsExtract"></v-switch></v-toolbar-items>
+												<v-spacer></v-spacer>
+											</v-toolbar>
+											<v-data-table v-if="performanceMetricsExtract" hide-actions hide-headers light 
+												:items="[{'label':'gm', 'value':performanceMetrics['gm'], 'decimals':3, 'units':' S'}, 
+														 {'label':'SS', 'value':performanceMetrics['SS'], 'decimals':0, 'units':' mV/dec'},
+														 {'label':'VT', 'value':performanceMetrics['VT'], 'decimals':2, 'units':' V'}]">
+												<template slot="items" slot-scope="props">
+													<td><div style="width:0px">{{ props.item['label'] }}</div></td>
+													<td>{{ props.item['value'] | scientificPrecision(props.item['decimals']) 
+																			   | withUnits(props.item['units']) }}</td>
+												</template>
+											</v-data-table>
+											<v-checkbox v-if="performanceMetricsExtract" class="ml-1" label="Show on Plot" 
+											v-model="performanceMetricsShowOnPlot"></v-checkbox>
+										</v-card>
+									</v-flex>
+								</v-layout>
+								
+							</v-container>
+						</v-card>
+					</v-flex>
+					
+					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'ptSensor'">
+						<v-card>
+							<v-toolbar dark dense class="color_ptsensor">
+								<v-toolbar-title>
+									PT Sensor
+								</v-toolbar-title>
+								<v-spacer></v-spacer>
+								<v-btn icon @click="ptSensorReset()" :disabled="false"><v-icon>settings_backup_restore</v-icon></v-btn>
+							</v-toolbar>
+							
+							<v-container>
+								
+								<v-card class="mb-1 grey lighten-4 roundedcorners" v-if="Object.keys(ptSensorScheduleObject).length > 0">
+									<v-container>
+										<v-layout row wrap>
+											<v-flex xs3 s3 md3 lg3>
+												<v-list class="roundedcorners ma-1">
+													<v-list-tile class="pb-1">
+														<v-list-tile-content><v-list-tile-title style="font-weight: bold">
+															Device ID
+														</v-list-tile-title></v-list-tile-content>
+													</v-list-tile>
+													<v-list-tile>
+														<a-item-edit :setting.sync="ptSensorScheduleObject['Identifiers']['device']"></a-item-edit>
+													</v-list-tile>
+												</v-list>
+											</v-flex>
+											<v-flex xs3 s3 md3 lg3>
+												<v-list class="roundedcorners ma-1">
+													<v-list-tile class="pb-1">
+														<v-list-tile-content><v-list-tile-title style="font-weight: bold">
+															Timing
+														</v-list-tile-title></v-list-tile-content>
+													</v-list-tile>
+													<v-list-tile>
+														<a-item-edit :setting.sync="ptSensorScheduleObject['runConfigs']['PTSensor']['totalSensingTime']"></a-item-edit>
+													</v-list-tile>
+													<v-list-tile>
+														<a-item-edit :setting.sync="ptSensorScheduleObject['runConfigs']['PTSensor']['delayBetweenMeasurements']"></a-item-edit>
+													</v-list-tile>
+												</v-list>
+											</v-flex>
+											<v-flex xs3 s3 md3 lg3>
+												
+											</v-flex>
+											<v-flex xs3 s3 md3 lg3>
+												
+											</v-flex>
+										</v-layout>
+									</v-container>
+								</v-card>
+								
+								<v-layout row wrap>
+									<v-flex xs10 sm10 md10 lg10>
+										<v-card flat class="mt-3">
+											<v-toolbar dark flat color="color_ptsensor" class="pb-1">
+												<v-spacer></v-spacer>
+												<v-toolbar-items>
+													<v-btn color="color_ptsensor darken-1 roundedcorners" @click="ptSensorSave(); ptSensorEnablePlots(); ptSensorStart();" :disabled="ptSensorRunning"><v-icon>play_arrow</v-icon></v-btn>
+												</v-toolbar-items>
+												<v-spacer></v-spacer>
+												<v-toolbar-items>
+													<v-btn color="color_ptsensor darken-1 roundedcorners" @click="ptSensorStop()" :disabled="!ptSensorRunning"><v-icon>pause</v-icon></v-btn>
+												</v-toolbar-items>
+												<v-spacer></v-spacer>
+												<v-toolbar-items>
+													<v-btn color="color_ptsensor darken-1 roundedcorners" @click="ptSensorClear()" :disabled="false"><v-icon>refresh</v-icon></v-btn>
+												</v-toolbar-items>
+												<v-spacer></v-spacer>
+											</v-toolbar>
+											
+											<v-tabs dark grow value="tab-T" color="color_ptsensor" slider-color="color_ptsensor darken-4">
+												<v-tab href="#tab-I">Impedance</v-tab>
+												<v-tab-item value="tab-I">
+													<v-card flat>
+														<a-plotly v-bind:data="extractPlotlyData(ptSensorPlots['Impedance'])" :layout="extractPlotlyLayout(ptSensorPlots['Impedance'])"></a-plotly>
+													</v-card>
+												</v-tab-item>
+											</v-tabs>
+										</v-card>
+									</v-flex>
+									
+									<v-flex xs2>
+										<v-card flat class="mt-3 ml-2">
+											<v-toolbar dark flat color="color_ptsensor" class="pb-1">
+												<v-spacer></v-spacer>
+												<v-toolbar-items><v-icon large>opacity</v-icon></v-toolbar-items>
+												<v-spacer></v-spacer>													
+											</v-toolbar>
+											<v-toolbar dark flat color="color_ptsensor" dense></v-toolbar>
+											<v-data-table hide-actions hide-headers light 
+												:items="[{'label': 'Max', 'value': ptSensorMaxImpedance,      'decimals': 0, 'units': ' Ohms'}, 
+														 {'label': 'PT', 'value': ptSensorTimeOfMaxImpedance, 'decimals': 2, 'units': ' sec'}]">
+												<template slot="items" slot-scope="props">
+													<td> {{ props.item['label'] }}</td>
+													<td> {{ props.item['value'] | decimalPrecision(props.item['decimals']) 
+																				| withUnits(props.item['units']) }}</td>
+												</template>
+											</v-data-table>
+										</v-card>
+									</v-flex>
+								</v-layout>
+								
+							</v-container>
+						</v-card>
+					</v-flex>
+					
+					<!-- End of applications -->
+					<!-- Start of settings -->
+					
+					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'settings'">
+						<v-card>
+							<v-toolbar dark dense class="info darken-2">
+								<v-toolbar-title>
+									Settings
+								</v-toolbar-title>
+								<v-spacer></v-spacer>
+								<v-btn light small @click="updatePlotSettings()">Save</v-btn>
+								<v-btn icon @click="resetAllPlotSettings(); updatePlotSettings();" :disabled="!hasModifiedPlotSettings()"><v-icon>settings_backup_restore</v-icon></v-btn>
+							</v-toolbar>
+							
+							<v-container>
+								<v-layout row wrap>
+									<v-flex xs3 sm3 md3 lg3 xl3>
+										<v-card class="ma-1">
+											<v-toolbar dark dense class="color_base">
+												<v-toolbar-title>
+													Data
+												</v-toolbar-title>
+											</v-toolbar>
+											<v-list class="pt-3">
+												<a-item-edit-group :settings.sync="primaryPlotSettings"></a-item-edit-group>
+											</v-list>
+										</v-card>
+									</v-flex>
+									
+									<v-flex xs3 sm3 md3 lg3 xl3>
+										<v-card class="ma-1">
+											<v-toolbar dark dense class="color_base">
+												<v-toolbar-title>
+													Plot Options
+												</v-toolbar-title>
+											</v-toolbar>
+											<v-list class="pt-3">
+												<a-item-edit-group :settings.sync="modePlotSettings"></a-item-edit-group>
+											</v-list>
+										</v-card>
+									</v-flex>
+									
+									<v-flex xs3 sm3 md3 lg3 xl3>
+										<v-card class="ma-1">
+											<v-toolbar dark dense class="color_base">
+												<v-toolbar-title>
+													Chip Summary
+												</v-toolbar-title>
+											</v-toolbar>
+											<v-list class="pt-3">
+												<a-item-edit-group :settings.sync="chipSummarySettings"></a-item-edit-group>
+											</v-list>
+										</v-card>
+									</v-flex>
+									
+									<v-flex xs3 sm3 md3 lg3 xl3>
+										<v-card class="ma-1">
+											<v-toolbar dark dense class="color_base">
+												<v-toolbar-title>
+													Device Summary
+												</v-toolbar-title>
+											</v-toolbar>
+											<v-list class="pt-3">
+												<a-item-edit-group :settings.sync="deviceSummarySettings"></a-item-edit-group>
+											</v-list>
+										</v-card>
+									</v-flex>
+								</v-layout>
+							</v-container>
+						</v-card>
+					</v-flex>
+					
+					<!-- End of settings -->
+					<!-- Start of about -->
+					
+					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'about'">
+						<v-card>
+							<v-toolbar dark dense class="color_documentation">
+								<v-toolbar-title>
+									README for Autexys - the Automated Experimentation System
+								</v-toolbar-title>
+								<v-spacer></v-spacer>
+								<v-btn icon><v-icon>info_outline</v-icon></v-btn>
+							</v-toolbar>
+							<v-container>
+								<div v-html="ReadMeHTML"></div>
+							</v-container>
+						</v-card>
+						
+						<v-card>
+							<v-toolbar dark dense class="color_documentation">
+								<v-toolbar-title>
+									About
+								</v-toolbar-title>
+							</v-toolbar>
+							<v-container>								
+								<v-toolbar dark dense v-for="colorValue, colorName in $vuetify.theme" :key="colorName" :color="colorValue">
+									<v-toolbar-title>
+										{{ colorName }}
+									</v-toolbar-title>
+								</v-toolbar>
+							</v-container>
+						</v-card>
+					</v-flex>
+					
+					<!-- End of about -->
+					<!-- Start of documentation -->
+					
+					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'documentation'">
+						<v-card>
+							<v-toolbar dark dense class="color_documentation">
+								<v-toolbar-title>
+									Developer Documentation
+								</v-toolbar-title>
+								<v-spacer></v-spacer>
+								<v-btn icon><v-icon>info_outline</v-icon></v-btn>
+							</v-toolbar>
+							<v-container> 
+								This documentation is intended for developers adding to the Python code. It is built using Sphinx.
+							</v-container>
+							<v-container>
+								<v-btn href="https://stevennoyce.github.io/AutexysHost/build/html/" target="_blank">View Documentation</v-btn>
+							</v-container>
+						</v-card>
+
+						<v-card class="mt-3">
+							<v-toolbar dark dense class="color_documentation">
+								<v-toolbar-title>
+									User Documentation
+								</v-toolbar-title>
+							</v-toolbar>
+							<v-container>
+								This documentation is intended for anyone using Autexys.
+							</v-container>
+							<v-container>
+								<v-expansion-panel expand class="mt-1 mb-2" v-for="(documentationItemText, index) in documentationText" :key="index" :prepend-icon="$vuetify.icons.expand">
+									<v-expansion-panel-content class="grey lighten-4" v-for="(panel, i) in 1" :key="i">
+										<span slot="header">
+											<div style="display:inline; height: 50px; line-height: 50px;">
+												{{ index + 1 }}. {{ documentationTitle[index] }}
+											</div>
+											<div style="display:inline; float:right;">
+												<v-tooltip top>
+													<v-btn icon @click.stop="moveDocumentationEntryUp(index)" slot="activator" :disabled="index == 0"><v-icon>arrow_upward</v-icon></v-btn>
+													<span>Move entry up</span>
+												</v-tooltip>
+												<v-tooltip top>
+													<v-btn icon @click.stop="moveDocumentationEntryDown(index)" slot="activator" :disabled="index >= documentationText.length - 1"><v-icon>arrow_downward</v-icon></v-btn>
+													<span>Move entry down</span>
+												</v-tooltip>
+												<v-tooltip top>
+													<v-btn icon @click.stop="addDocumentationEntry(index)" slot="activator"><v-icon>add_circle</v-icon></v-btn>
+													<span>Add new entry after</span>
+												</v-tooltip>
+												<v-tooltip top>
+													<v-btn icon @click.stop="documentationDeleteDialogVisible = true; documentationDeleteIndex=index;" slot="activator" :disabled="documentationText.length == 1"><v-icon>cancel</v-icon></v-btn>
+													<span>Delete entry</span>
+												</v-tooltip>
+												<v-snackbar v-model="documentationDeleteDialogVisible" :top="true" :timeout="0" :multi-line="true" color="red lighten-2">
+													Once this entry is deleted, it will be permanently removed from Autexys. Are you sure you want to continue?
+													<v-btn color="red" text @click="documentationDeleteDialogVisible = false">Cancel</v-btn>
+													<v-btn color="red" text @click="documentationDeleteDialogVisible = false; removeDocumentationEntry(documentationDeleteIndex);">Continue</v-btn>
+												</v-snackbar>
+											</div>
+										</span>
+										<v-container> 
+											<p v-if="!documentationEditMode[index]">
+												{{ documentationText[index] }}
+											</p>
+											<v-text-field solo v-if="documentationEditMode[index]" label="Enter documentation title" v-model="documentationProposedTitle[index]" auto-grow></v-text-field>
+											<v-textarea solo v-if="documentationEditMode[index]" label="Enter documentation text" v-model="documentationProposedText[index]" auto-grow>
+											</v-textarea>
+											<v-btn v-if="!documentationEditMode[index]" class="mb-3 mt-3" @click="documentationEdit(index)">Edit</v-btn>
+											<v-btn v-if="documentationEditMode[index]" class="mb-3 mt-3" @click="documentationSave(index)">Save</v-btn>
+											<v-btn v-if="documentationEditMode[index]" class="mb-3 mt-3" @click="documentationCancel(index)">Cancel</v-btn>
+										</v-container>
+									</v-expansion-panel-content>
+								</v-expansion-panel>
+							</v-container>
+						</v-card>
+					</v-flex>
+
+					<!-- End of documentation -->
+
+				</v-content>
+				<v-footer inset>
+					<v-spacer></v-spacer><span class="pr-3">Created by Steven Noyce. Updated June 2019.</span>
+				</v-footer>
+			</v-app>
+		</transition>
+	</div>
+	
+	
+	<script src="/ui/libs/jquery.js"></script>
+	<script src="/ui/libs/lodash.js"></script>
+	<script src="/ui/libs/vue.js"></script>
+	<script src="/ui/libs/vuetify.js"></script>
+	<script src="/ui/libs/showdown.js"></script>
+	<script src="/ui/libs/socketio.js"></script>
+	<script src="/ui/libs/plotly-v1_52_2.js"></script>
+	<script src="/ui/libs/yaml.js"></script>
+	
+	<!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script> -->
+	<!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.0/showdown.min.js"></script> -->
+	<script type="text/javascript">
+		
+		var socket = io.connect('http://' + document.domain + ':' + location.port);
+		socket.on('connect', function(s) {
+			console.log('Emiting my event');
+			socket.emit('my event', {data: 'Client is connected'});
+		});
+		
+		socket.on('Server Message', function(message) {
+			app.handleServerMessage(message);
+		});
+		
+		function groupBy(elements, groupKey) {
+			return elements.reduce(function(rv, x) {
+				(rv[x[groupKey]] = rv[x[groupKey]] || []).push(x);
+				return rv;
+			}, {});
+		}
+		
+		// should identifiers span jobs? Give option?
+		// What about other things, like device range?
+		// click on stepper header causes refresh of section
+		
+		const get = path => object => path.reduce((xs, x) => (xs && xs[x]) ? xs[x] : null, object);
+		
+		function objectDeepDiff(object, base) {
+			function changes(object, base) {
+				return _.transform(object, function(result, value, key) {
+					if (!_.isEqual(value, base[key])) {
+						result[key] = (_.isObject(value) && _.isObject(base[key])) ? changes(value, base[key]) : value;
+					}
+				});
+			}
+			return changes(object, base);
+		}
+		
+		function objectDeepMerge(object, additions) {
+			function merge(base, added) {
+				Object.keys(added).forEach(function(key) {
+					if(!Object.keys(base).includes(key)) {
+						base[key] = added[key];
+					} else if(_.isPlainObject(base[key]) && _.isPlainObject(added[key])) {
+						merge(base[key], added[key]);
+					} else if(!_.isEqual(added[key], base[key])) {
+						base[key] = added[key];
+					}
+				});
+				return base;
+			}
+			
+			var objectCopy = JSON.parse(JSON.stringify(object));
+						
+			return merge(objectCopy, additions)		
+		}
+		
+		function objectDeepInclude(object, additions) {
+			function include(base, added) {
+				Object.keys(added).forEach(function(key) {
+					if(!Object.keys(base).includes(key)) {
+						base[key] = added[key];
+					} else if(_.isPlainObject(base[key]) && _.isPlainObject(added[key])) {
+						include(base[key], added[key]);
+					} 
+				});
+				return base;
+			}
+			
+			var objectCopy = JSON.parse(JSON.stringify(object));
+						
+			return include(objectCopy, additions)		
+		}
+		
+		function extractDefaults(obj) {
+			var d = JSON.parse(JSON.stringify(obj));
+			
+			if (!_.isPlainObject(d)) {
+				return d;
+			}
+			if (Object.keys(d).includes('default')) {
+				return d['default'];
+			}
+			if (_.isPlainObject(d) && Object.keys(d).length > 0) {
+				return Object.assign(...Object.entries(d)
+					.filter(([k, v]) => (!Object.keys(v).includes('ignore')))
+					.map(([k, v]) => ({[k]: extractDefaults(v)})));
+			}
+			return d;
+		}
+		
+		var imageRequestsLoading = 0;
+		var imageLoaderTimer = setInterval(function() {
+			if (imageRequestsLoading > 0) return;
+			if (imageRequestsLoading < 0) imageRequestsLoading = 0;
+			
+			let zoomableImages = document.getElementsByClassName("zoomableImage");
+			
+			for (var i = 0; i < zoomableImages.length; i++) {
+				if (zoomableImages[i].getAttribute('data-src') != zoomableImages[i].getAttribute('src')) {
+					zoomableImages[i].setAttribute('src', zoomableImages[i].getAttribute('data-src'));
+					
+					imageRequestsLoading++;
+					
+					zoomableImages[i].onload = function() {
+						imageRequestsLoading--;
+					}
+					zoomableImages[i].onerror = function() {
+						imageRequestsLoading--;
+					}
+				}
+				if (!zoomableImages[i].complete) {
+					return;
+				}
+			}
+		}, 100);
+		
+	</script>
+	
+	
+	<% for component in components %>
+		<% include component %>
+	<% endfor %>
+	
+	
+	<script type="text/javascript">		
+		console.log('Building Vuetify app...');
+		
+		var app = new Vue({
+			el: '#app',
+			data: {
+				pageLoading: true,
+				drawer: null,
+				colors: [],
+				currentPage: window.location.hash.substr(1) || "",
+				online: navigator.onLine,
+				stepperPage: localStorage.stepperPage ? JSON.parse(localStorage.stepperPage) : 1,
+				topLevelPage: localStorage.topLevelPage ? JSON.parse(localStorage.topLevelPage) : 'stepper',
+				cacheBust: '',
+				
+				// === System Parameters ===
+				
+				defaultParameters: {},
+				defaultParametersDescription: {},
+				paths: {},
+				
+				standardScheduleNames: [],
+				userDefinedScheduleNames: {},
+				
+				saveScheduleSuccessCode: {},
+				addToNoteSuccessCode: {},
+				
+				// === Plot Settings ===
+								
+				plotSettings: {'primary':{}, 'mode_parameters':{}, 'chip':{}, 'device':{}},
+				
+				primaryPlotSettings: {
+					'minExperiment':      {'type': 'int',   'default':undefined, 'title':'Min Experiment',   'description':'Show mult on plot.'},
+					'maxExperiment':      {'type': 'int',   'default':undefined, 'title':'Max Experiment',   'description':'Show mult on plot.'},
+					'minRelativeIndex':   {'type': 'int',   'default':0,         'title':'Min Rel. Index',   'description':'Within experiment.'},
+					'maxRelativeIndex':   {'type': 'int',   'default':1e10,      'title':'Max Rel. Index',   'description':'Within experiment.'},
+				},
+				primaryPlotSettingDefaults: undefined,
+				
+				modePlotSettings: {
+					'sweepDirection':     {'type': 'choice','default':'both',    'title':'Sweep Direction',  'description':'', 'choices': ['both', 'forward', 'reverse']},
+					'plotInRealTime':     {'type': 'bool',  'default':true,      'title':'Show Real Time',   'description':'Show gaps in time.'},
+					'timescale':          {'type': 'choice','default':'',        'title':'Time Scale',       'description':'X-axis time scale.', 'choices': ['','seconds','min','hr','days','weeks','months']},
+					'boxPlotBarChart':    {'type': 'bool',  'default':true,      'title':'Bar Charts',       'description':'Bar vs. Box plot.'},
+					'boxPlotShowPoints':  {'type': 'bool',  'default':true,      'title':'Show Points on Bar Charts','description':''},
+					
+					'enableLegend':       {'type': 'bool',  'default':true,      'title':'Enable Legend',    'description':'Show/Hide Legend.'},
+					'enableErrorBars':    {'type': 'bool',  'default':false,     'title':'Enable Error Bars','description':'Show/Hide.'},
+					'enableColorBar':     {'type': 'bool',  'default':true,      'title':'Enable Color Bar', 'description':'Show/Hide.'},
+					'enableGradient':     {'type': 'bool',  'default':false,     'title':'Enable Gradient',  'description':'Color gradient.'},
+					
+					'xlim':               {'type': 'array', 'default':undefined, 'title':'X Limits','description':'X-axis limits [low,high].'},
+					'ylim':               {'type': 'array', 'default':undefined, 'title':'Y Limits','description':'Y-axis limits [low,high].'},
+					'xscale':             {'type': 'float', 'default':undefined, 'title':'X Scale', 'description':'X-axis set manual scale.'},
+					'yscale':             {'type': 'float', 'default':undefined, 'title':'Y Scale', 'description':'Y-axis set manual scale.'},
+					'xticks':             {'type': 'array', 'default':undefined, 'title':'X Ticks', 'description':'X-axis tick mark locations.'},
+					'yticks':             {'type': 'array', 'default':undefined, 'title':'Y Ticks', 'description':'Y-axis tick mark locations.'},
+					
+					'publication_mode':   {'type': 'bool',  'default':false,     'title':'Publication Mode', 'description':'Hide identifiers.'},
+					'default_png_dpi':    {'type': 'int',   'default':300,       'title':'Default PNG DPI',  'description':'Image resolution.'},
+					'figureSizeOverride': {'type': 'array', 'default':undefined, 'title':'Figure Size',      'description':'[W,H] in inches.'},
+					'colorsOverride':     {'type': 'array', 'default':[],        'title':'Colors Override',  'description':'One per line.'},
+					'legendLoc':          {'type': 'choice','default':'best',    'title':'Legend Location',  'description':'', 'choices': ['best', 'lower left', 'lower center', 'lower right', 'upper left', 'upper center', 'upper right', 'center left', 'center', 'center right']},
+					'legendLabels':       {'type': 'array', 'default':[],        'title':'Legend Labels',    'description':'Legend entries.'},
+					'legendTitleOverride':{'type': 'string','default':'',        'title':'Legend Title',     'description':'Legend heading.'},
+				},
+				modePlotSettingDefaults: undefined,
+				
+				chipSummarySettings: {
+					'specificDeviceList':       {'type': 'array', 'default':[],         'title':'Specific Devices',     'description':''},
+					'numberOfRecentIndexes':    {'type': 'int',   'default':1,          'title':'Data Sets per Device', 'description':''},
+					'minOnCurrent':             {'type': 'float', 'default':undefined,  'title':'Min On-Current',       'description':'Filter.'},
+					'maxOnCurrent':             {'type': 'float', 'default':undefined,  'title':'Max On-Current',       'description':'Filter.'},
+					'maxOffCurrent':            {'type': 'float', 'default':undefined,  'title':'Max Off-Current',      'description':'Filter.'},
+					'maxGateCurrent':           {'type': 'float', 'default':undefined,  'title':'Max Gate Current',     'description':'Filter.'},
+				},
+				chipSummarySettingDefaults: undefined,
+				
+				deviceSummarySettings: {
+					'numberOfRecentExperiments': {'type': 'int',   'default':1,     'title':'Recent Experiments to Show', 'description':''},
+				},
+				deviceSummarySettingDefaults: undefined,
+				
+				// === Dashboard ===
+				
+				recentActivityCategory: 'chip',
+				
+				recentActivityProject: undefined,
+				recentActivityWafer:   undefined,
+				recentActivityChip:    undefined,
+				recentActivityDevice:  undefined,
+				
+				recentActivity: [],
+				recentActivityHeaders: [
+					{'text':'User',    'value':'user',     'visible':true},
+					{'text':'Project', 'value':'project',  'visible':true},
+					{'text':'Wafer',   'value':'wafer',    'visible':true},
+					{'text':'Chip',    'value':'chip',     'visible':true},
+					{'text':'Device',  'value':'device',   'visible':true},
+					{'text':'Modified','value':'modified', 'visible':true},
+				],
+				recentActivityPagination: {'sortBy':'modified', 'descending': true},
+								
+				// === Browser ===
+				
+				runTypeThemeColors: {
+					'GateSweep':'blue accent-1',
+					'DrainSweep':'pink accent-1',
+					'StaticBias':'deep-purple accent-1',
+					'AutoGateSweep':'blue accent-1',
+					'AutoDrainSweep':'pink accent-1',
+					'AutoStaticBias':'deep-purple accent-1',
+				},
+				
+				users: [],
+				user: localStorage.user ? JSON.parse(localStorage.user) : '',
+				
+				projects: [],
+				project: localStorage.project ? JSON.parse(localStorage.project) : '',
+				projectTableHeaders: [
+					{'text':'Name', 'value':'name'}],
+				projectTableSearch: '',
+				
+				wafers: [],
+				wafer: localStorage.wafer ? JSON.parse(localStorage.wafer) : '',
+				waferTableHeaders: [
+					{'text':'Name', 'value':'name'},
+					{'text':'Path', 'value':'path', 'searchable':false},
+					{'text':'Date Modified', 'value':'modificationTime', 'searchable':false},
+					{'text':'Size', 'value':'size', 'searchable':false},
+					{'text':'Chips', 'value':'chipCount', 'searchable':false},
+					{'text':'Indexes', 'value':'indexCount', 'searchable':false},
+					{'text':'Experiments', 'value':'experimentCount', 'searchable':false}],
+				waferTableSearch: '',
+				
+				chips: [],
+				chip: localStorage.chip ? JSON.parse(localStorage.chip) : '',
+				chipTableHeaders: [
+					{'text':'Name', 'value':'name'},
+					{'text':'Path', 'value':'path', 'searchable':false},
+					{'text':'Date Modified', 'value':'modificationTime', 'searchable':false},
+					{'text':'Size', 'value':'size', 'searchable':false},
+					{'text':'Devices', 'value':'deviceCount', 'searchable':false},
+					{'text':'Indexes', 'value':'indexCount', 'searchable':false},
+					{'text':'Experiments', 'value':'experimentCount', 'searchable':false}],
+				chipTableSearch: '',
+				
+				devices: [],
+				device: localStorage.device ? JSON.parse(localStorage.device) : '',
+				deviceTableHeaders: [
+					{'text':'Name', 'value':'displayName'},
+					{'text':'Path', 'value':'path', 'searchable':false},
+					{'text':'Date Modified', 'value':'modificationTime', 'searchable':false},
+					{'text':'Size', 'value':'size', 'searchable':false},
+					{'text':'Indexes', 'value':'indexCount', 'searchable':false},
+					{'text':'Experiments', 'value':'experimentCount', 'searchable':false}],
+				deviceTableSearch: '',
+				
+				experiments: [],
+				experimentIndex: localStorage.experimentIndex ? JSON.parse(localStorage.experimentIndex) : 0,
+				experimentTableHeaders: [
+					{'text':'Experiment Number', 'value':'startIndexes.experimentNumber'},
+					{'text':'Run Type', 'value':'runType'},
+					{'text':'Measurement System', 'value':'MeasurementSystem.systemType'},
+					{'text':'Indexes', 'value':'uiComputed.indexCount'}],
+				experimentTableSearch: '',
+				experimentTablePagination: {'sortBy': 'startIndexes.experimentNumber', 'descending': true},
+				
+				indexes: [],
+				
+				enableChipSummaryPlots: false,
+				enableDeviceSummaryPlots: false,
+				possibleChipPlots: [],
+				possibleDevicePlots: [],
+				
+				disabledPlots: localStorage.disabledPlots ? JSON.parse(localStorage.disabledPlots) : [],
+				
+				// === Schedule Creator ===
+								
+				scheduleObjects: localStorage.scheduleObjects ? JSON.parse(localStorage.scheduleObjects) : {},
+				scheduleObjectDefault: {},
+				scheduleObjectClipboard: localStorage.scheduleObjectClipboard ? JSON.parse(localStorage.scheduleObjectClipboard) : {},
+				
+				essentialScheduleParameters: {},
+				
+				showScheduleCreatorPreview: false,
+				
+				creatorSaveUser: '',
+				creatorSaveProject: '',
+				creatorSaveFileName: '',
+				creatorLoadUser: '',
+				creatorLoadProject: '',
+				creatorLoadFileName: '',
+				
+				// === Experiment Runner ===
+				
+				dispatcherRunning: false,
+				runnerLoadingFromDefaults: false, 
+				
+				runnerChoice: '',
+				
+				runnerUser: '',
+				runnerProject: '',
+				runnerFileName: '',
+				
+				runnerScheduleObjects: [],
+				runnerScheduleObjectDefaults: [],
+				runnerVerboseScheduleObjects: [],
+				runnerVerboseScheduleObjectDefaults: [],
+				
+				runnerToggleAdvancedSettings: false,
+				runnerScheduleObjectsHasBeenModified: false,
+				
+				// === Progress Bars ===
+				
+				showProgress: false,
+				
+				experimentProgressTimer: {
+					start: 0,
+					current: 0
+				},
+				
+				experimentProgressModel: {
+					'Dispatcher': {
+						title: 'Dispatcher: ',
+						visible: false,
+						name: '',
+						start: 0,
+						current: 0,
+						end: 0,
+					},
+					'Sweep': {
+						title: 'Sweep: ',
+						visible: false,
+						name: '',
+						start: 0,
+						current: 0,
+						end: 0,
+					},
+					'Group1': {
+						title: '',
+						visible: false,
+						name: '',
+						start: 0,
+						current: 0,
+						end: 0,
+					},
+					'Group2': {
+						title: '',
+						visible: false,
+						name: '',
+						start: 0,
+						current: 0,
+						end: 0,
+					},
+					'Procedure': {
+						title: 'Procedure: ',
+						visible: false,
+						name: '',
+						start: 0,
+						current: 0,
+						end: 0,
+						time_start: 0,
+						time_current: 0
+					}
+				},
+
+				// === Live Plots ===
+				
+				livePlots: {'exampleJob':{'exampleDevice':{'examplePlotID':{traces:{'exampleTraceID':{xData:[],yData:[]}}}}}},   
+				liveDataCounter: 0,   
+				
+				jobSelectChoice: '',
+				jobSelectActive: '',
+				jobSelectItems: [],
+				
+				deviceSelectChoice: '',
+				deviceSelectActive: '',
+				deviceSelectItems: [],
+
+				// === Performance App ===
+				
+				performanceRunning: false,
+				
+				performanceShowOptions: undefined,
+				performanceShowAdvanced: undefined,
+				
+				performanceMetricsExtract: true,
+				performanceMetricsShowOnPlot: true,
+				
+				performanceScheduleObject: {},
+				
+				performancePlots: {
+					'Transfer Curve':{
+						'plotID': 'Transfer Curve',
+						'xAxisTitle':'Gate Voltage (V)',
+						'yAxisTitle':'Drain Current (A)',
+						'yScale':'linear',
+						'plotMode':'markers',
+						'color': '',
+						'traces':{},
+					},
+					'Subthreshold Curve':{
+						'plotID': 'Subthreshold Curve',
+						'xAxisTitle':'Gate Voltage (V)',
+						'yAxisTitle':'Drain Current (A)',
+						'yScale':'log',
+						'plotMode':'markers',
+						'color': '',
+						'traces':{},
+					},
+					'Output Curve':{
+						'plotID': 'Output Curve',
+						'xAxisTitle':'Drain Voltage (V)',
+						'yAxisTitle':'Drain Current (A)',
+						'yScale':'linear',
+						'plotMode':'markers',
+						'color': '',
+						'traces':{},
+					},
+				},
+				
+				// === PT Sensor App ===
+				
+				ptSensorRunning: false,
+				ptSensorScheduleObject: {},
+				ptSensorPlots: {
+					'Impedance': {
+						'xAxisTitle':'Time (s)',
+						'yAxisTitle':'Impedance (Ohms)',
+						'yScale':'linear',
+						'plotMode':'lines',
+						'traces':{},
+					},
+				},
+				
+				// === About ===
+				
+				ReadMeHTML: '',
+				
+				// === Documentation ===
+
+				documentationEditMode: [],
+				documentationText: [],
+				documentationProposedText: [],
+				documentationTitle: [],
+				documentationProposedTitle: [],
+				documentationDeleteDialogVisible: false,
+				documentationDeleteIndex: -1
+			},
+			methods: {
+				// === Initialization ===
+				
+				initialize: function() {
+					// Call this method once on start-up to get everything ready
+					
+					this.getAll();
+					this.initializePlotSettingDefaults();
+					this.initializeDocumentation();
+				},
+				
+				// === Refresh ===
+				
+				getAll: function() {
+					this.getUsers();
+					this.getProjects();
+					this.getWafers();
+					this.getChips();
+					this.getDevices();
+					this.getExperiments();
+					this.getRecentActivity();
+					
+					this.getPossibleChipPlots();
+					this.getPossibleDevicePlots();
+					this.getDefaultParameters();
+					this.getScheduleNames();
+					this.getPaths();
+					
+					this.pageLoading = false;
+					this.getReadMe();
+					this.getAssociatedAFMs();
+					
+					this.newCacheBust();
+				},
+				
+				getUsers: function() {
+					var path = "/users.json" + this.cacheBust;
+					if (path) {
+						$.getJSON(path, response => {this.users = response})
+						.fail(() => {console.log("Error getting users")});
+					}
+				},
+				getProjects: function() {
+					var path = '/' + this.user + '/projects.json' + this.cacheBust;
+					if (path) {
+						$.getJSON(path, response => {app.$data.projects = response})
+						.fail(() => {console.log("Error getting projects")});
+					}
+				},
+				getWafers: function() {
+					var path = '/' + this.user + '/' + this.project + '/wafers.json' + this.cacheBust;
+					if (path) {
+						$.getJSON(path, response => {app.$data.wafers = response})
+						.fail(() => {console.log("Error getting wafers")});
+					}
+					
+					this.getIndexes();
+				},
+				getChips: function() {
+					var path = '/' + this.user + '/' + this.project + '/' + this.wafer + '/chips.json' + this.cacheBust;
+					if (path) {
+						$.getJSON(path, response => {app.$data.chips = response})
+						.fail(() => {console.log("Error getting chips")});
+					}
+				},
+				getDevices: function() {
+					var path = '/' + this.user + '/' + this.project + '/' + this.wafer + '/' + this.chip + '/devices.json' + this.cacheBust;
+					if (path) {
+						$.getJSON(path, response => {
+							response.map(function(device) {
+								var contacts = device.name.match(/\d+/g)
+								if(contacts != null) {
+									contacts = contacts.map(num => num.padStart(2, '0'));
+									device.displayName = contacts.join('-');
+								} else {
+									device.displayName = device.name;
+								}
+								return device;
+							});
+							app.$data.devices = response;
+						})
+						.fail(() => {console.log("Error getting devices")});
+					}
+				},
+				getExperiments: function() {
+					var path = '/' + this.user + '/' + this.project + '/' + this.wafer + '/' + this.chip + '/' + this.device + '/experiments.json' + this.cacheBust;
+					if (path) {
+						$.getJSON(path, response => {
+							console.log("Loading experiments.");
+							for (var i = 0; i < response.length; i++) {
+								response[i]['uiComputed'] = {};
+								response[i]['uiComputed']['indexCount'] = response[i]['endIndexes']['index'] - response[i]['startIndexes']['index'];
+							}
+							app.$data.experiments = response;
+							
+							// let lastExperiment = this.experiments[this.experiments.length - 1];
+							// let lastFinishedIndex = lastExperiment['endIndexes']['index'];
+							// let lastIndexObject = this.indexes[this.wafer][this.chip][this.device];
+							// let lastIndex = lastIndexObject['index'];
+							
+							// if (lastIndex > lastFinishedIndex) {
+							// 	let currentExperiment = JSON.parse(JSON.stringify(lastExperiment));
+							// 	currentExperiment['startIndexes'] = JSON.parse(JSON.stringify(lastExperiment['startIndexes']));
+							// 	currentExperiment['startIndexes']['experimentNumber']++;
+							// 	currentExperiment['endIndexes'] = JSON.parse(JSON.stringify(lastIndexObject));
+							// 	currentExperiment['runType'] = 'Running';
+							// 	this.experiments.push(currentExperiment);
+							// }
+						})
+						.fail(function(jqXHR, textStatus, errorThrown) { console.log('getJSON request failed! ' + textStatus + ' ' + errorThrown); });
+						//.fail(() => {console.log("Error getting experiments");});
+					}
+				},
+				getRecentActivity: function() {
+					var path = '/' + this.user + '/' + this.recentActivityProject + '/' + this.recentActivityWafer + '/' + this.recentActivityChip + '/' + this.recentActivityDevice + '/' + this.recentActivityCategory + '/recentActivity.json' + this.cacheBust;
+					if (path) {
+						$.getJSON(path, response => {app.$data.recentActivity = response})
+						.fail(() => {console.log("Error getting recent activity")});
+					}
+				},
+				getIndexes: function() {
+					var path = '/' + this.user + '/' + this.project + '/indexes.json' + this.cacheBust;
+					if (path) {
+						$.getJSON(path, response => {app.$data.indexes = response})
+						.fail(() => {console.log("Error getting indexes")});
+					}
+				},
+				
+				getPossibleChipPlots: function() {
+					var path = '/' + this.user + '/' + this.project + '/' + this.wafer + '/' + this.chip + '/availableChipPlots.json' + this.cacheBust;
+					if (path) {
+						$.getJSON(path, response => {app.$data.possibleChipPlots = response})
+						.fail(() => {console.log("Error getting possible chip plots")});
+					}
+				},
+				getPossibleDevicePlots: function() {
+					var path = '/' + this.user + '/' + this.project + '/' + this.wafer + '/' + this.chip + '/' + this.device + '/availableDevicePlots.json' + this.cacheBust;
+					if (path) {
+						$.getJSON(path, response => {app.$data.possibleDevicePlots = response})
+						.fail(() => {console.log("Error getting possible device plots")});
+					}
+				},
+				getDefaultParameters() {
+					$.getJSON("/defaultParameters.json" + this.$data.cacheBust, response => {
+						this.$data.defaultParameters = response;
+					}).fail(() => {console.log("Error getting default parameters")});
+					
+					$.getJSON("/defaultParametersDescription.json" + this.$data.cacheBust, response => {
+						this.$data.defaultParametersDescription = response;
+						this.$data.scheduleObjectDefault     = JSON.parse(JSON.stringify(response));
+						this.$data.scheduleObjects          = [JSON.parse(JSON.stringify(response))];
+						this.$data.performanceScheduleObject = JSON.parse(JSON.stringify(response));
+						this.$data.ptSensorScheduleObject = JSON.parse(JSON.stringify(response));
+					}).fail(() => {console.log("Error getting default parameters description")});
+					
+					$.getJSON("/defaultEssentialParameters.json" + this.$data.cacheBust, response => {
+						this.$data.essentialScheduleParameters = response;
+					}).fail(() => {console.log("Error getting essential default parameters")});
+				},
+				getScheduleNames: function() {
+					var path1 = '/userDefinedScheduleNames.json' + this.cacheBust;
+					if (path1) {
+						$.getJSON(path1, response => {app.$data.userDefinedScheduleNames = response})
+						.fail(() => {console.log("Error getting all user-defined schedule names.")});
+					}
+					var path2 = '/standardScheduleNames.json' + this.cacheBust;
+					if (path2) {
+						$.getJSON(path2, response => {app.$data.standardScheduleNames = response})
+						.fail(() => {console.log("Error getting standard schedule names.")});
+					}
+				},
+				getPaths: function() {
+					var path = '/paths.json' + this.cacheBust;
+					if (path) {
+						$.getJSON(path, response => {app.$data.paths = response})
+						.fail(() => {console.log("Error getting paths")});
+					}
+				},
+				getReadMe: function() {
+					fetch('/readme.md').then(response => response.text()).then(text => {
+						var converter = new showdown.Converter();
+						this.ReadMeHTML = converter.makeHtml(text);
+					});
+				},
+				getAssociatedAFMs: function() {
+					var experiment = this.experiments[this.experimentIndex];
+					
+					if (!experiment) return;
+					
+					if (!(experiment.runType.includes('AFM') || experiment.runType.includes('SGM'))) {
+						experiment.associatedAFMs = {};
+						return;
+					}
+					
+					startTime = experiment.startIndexes.timestamp;
+					endTime = experiment.endIndexes.timestamp;
+					var path = '/AFMFilesInTimestampRange/' + startTime + '/' + endTime + '/associatedAFMs.json' + this.cacheBust;
+					if (path) {
+						$.getJSON(path, response => {Vue.set(experiment, 'associatedAFMs', response)})
+						.fail((xhr, status, error) => {console.log("Error getting associated AFMs"); console.log(error)});
+					}
+				},
+				
+				newCacheBust: function() {
+					var cacheBust = '?cb=' + new Date().getTime();
+					this.cacheBust = cacheBust;
+					return cacheBust;
+				},
+				
+				// === Navigate ===
+				
+				setTopLevelPage: function(name) {
+					this.topLevelPage = name;
+					localStorage.topLevelPage = JSON.stringify(name);
+				},
+				
+				goToBeginning: function() {
+					this.stepperPage = 1;
+				},
+				goBack: function() {
+					this.stepperPage--;
+				},
+				goToDirectly: function(projectName, waferName, chipName, deviceName) {
+					this.goToBeginning();
+					if(projectName) { this.goToProject(projectName); } else { return; }
+					if(waferName)   { this.goToWafer(waferName);     } else { return; }
+					if(chipName)    { this.goToChip(chipName);       } else { return; }
+					if(deviceName)  { this.goToDevice(deviceName);   } else { return; }
+				},
+				goToUser: function(userName) {
+					this.user = userName;
+					localStorage.user = JSON.stringify(userName);
+					this.getAll();
+					this.goToBeginning();
+				},
+				goToProject: function(projectName) {
+					this.project = projectName;
+					localStorage.project = JSON.stringify(projectName);
+					this.getWafers();
+					this.stepperPage++;
+				},
+				goToWafer: function(waferName) {
+					this.wafer = waferName;
+					localStorage.wafer = JSON.stringify(waferName);
+					this.getChips();
+					this.stepperPage++;
+				},
+				goToChip: function(chipName) {
+					this.chip = chipName;
+					localStorage.chip = JSON.stringify(chipName);
+					this.getDevices();
+					this.getPossibleChipPlots()
+					this.stepperPage++;
+				},
+				goToDevice: function(deviceName) {
+					this.device = deviceName;
+					localStorage.device = JSON.stringify(deviceName);
+					this.getExperiments();
+					this.getPossibleDevicePlots()
+					this.stepperPage++;
+				},
+				goToExperiment: function(experimentIndex) {
+					this.experimentIndex = experimentIndex;
+					localStorage.experimentIndex = JSON.stringify(experimentIndex);
+					this.stepperPage++;
+				},
+				
+				// === Schedule File (Loading/Saving/Launching) ===
+				
+				scheduleFilePath: function(user, project, fileName) {
+					return user + '/' + project + '/' + fileName + '.json';
+				},
+				
+				loadSchedulePath: function(user, project, fileName, requestFromDefaults=false) {
+					if(requestFromDefaults) return '/loadStandardSchedule/' + fileName + '.json' + this.cacheBust;
+					return '/loadSchedule/'      + this.scheduleFilePath(user, project, fileName) + this.cacheBust;
+				},
+				loadBriefSchedulePath: function(user, project, fileName, requestFromDefaults=false) {
+					if(requestFromDefaults) return '/loadBriefStandardSchedule/' + fileName + '.json' + this.cacheBust;
+					return '/loadBriefSchedule/' + this.scheduleFilePath(user, project, fileName) + this.cacheBust;
+				},
+				saveSchedulePath: function(user, project, fileName) {
+					return '/saveSchedule/'      + this.scheduleFilePath(user, project, fileName) + this.cacheBust;
+				},
+			
+				launchDispatcherPath: function(user, project, fileName) {
+					return '/dispatchSchedule/'  + this.scheduleFilePath(user, project, fileName) + this.cacheBust;
+				},
+				stopDispatcherPath: function() {
+					return '/stopDispatcher' + this.cacheBust;
+				},
+				
+				// === Dashboard ===
+				
+				resetDashboard: function() {
+					this.resetRecentActivityFilter();
+					this.recentActivityCategory = 'chip';
+				},
+				resetRecentActivityFilter: function() {
+					this.recentActivityProject = undefined;	
+					this.recentActivityWafer   = undefined;
+					this.recentActivityChip    = undefined;
+					this.recentActivityDevice  = undefined;
+				},
+				hasModifiedRecentActivityFilter : function() {
+					return (this.recentActivityProject || this.recentActivityWafer || this.recentActivityChip || this.recentActivityDevice);
+				},
+				setRecentActivityCategory: function(category) {
+					this.recentActivityCategory = category;
+					this.getRecentActivity();
+				},
+				recentActivityIncludesCategory: function(category_list) {
+					return (category_list.includes(this.recentActivityCategory));
+				},
+				
+				// === Experiment Runner ===
+				
+				runnerReset: function() {
+					this.runnerChoice = '';
+					this.showProgress = false;
+				},
+				runnerClear: function() {
+					this.clearProgressBars();
+					this.clearLivePlots();
+				},
+				runnerUpdateChoice: function() {									
+					if((this.runnerChoice === 'Schedule File') || (this.runnerChoice === '')) { 
+						this.runnerLoadingFromDefaults = false;
+						this.runnerScheduleObjectsHasBeenModified = false;
+						this.runnerUser = '';
+						this.runnerProject = '';
+						this.runnerFileName = '';
+						return; 
+					}
+					
+					this.runnerLoadingFromDefaults = true;
+					this.runnerScheduleObjectsHasBeenModified = true;
+					this.runnerUser = 'admin';
+					this.runnerProject = 'standards';
+					this.runnerFileName = this.runnerChoice;
+				},
+				
+				runnerDispatch: function() {					
+					var path = this.launchDispatcherPath(this.runnerUser, this.runnerProject, this.runnerFileName);
+					if (path) {
+						$.getJSON(path, response => {app.$data.dispatcherRunning = true})
+						.fail(() => {console.log("Error dispatching schedule file")});
+					}
+				},
+				runnerStop: function() {
+					var path = this.stopDispatcherPath();
+					if (path) {
+						$.getJSON(path, response => {app.$data.dispatcherRunning = false})
+						.fail(() => {console.log("Error stopping dispatcher")});
+					}
+				},
+				
+				runnerLoadScheduleFile: function() {
+					if(this.runnerUser && this.runnerProject && this.runnerFileName) {
+						var path = this.loadBriefSchedulePath(this.runnerUser, this.runnerProject, this.runnerFileName, this.runnerLoadingFromDefaults);
+						
+						if (path) {
+							$.getJSON(path, response => {app.$data.runnerScheduleObjects = response})
+							.fail(() => {console.log("Error loading schedule file (experiment runner).")});
+							$.getJSON(path, response => {app.$data.runnerScheduleObjectDefaults = response})
+							.fail(() => {console.log("Error loading schedule file (experiment runner).")});
+						}
+						
+						var path = this.loadSchedulePath(this.runnerUser, this.runnerProject, this.runnerFileName, this.runnerLoadingFromDefaults);
+
+						if (path) {
+							$.getJSON(path, response => {app.$data.runnerVerboseScheduleObjects = response})
+							.fail(() => {console.log("Error loading schedule file (experiment runner).")});
+							$.getJSON(path, response => {app.$data.runnerVerboseScheduleObjectDefaults = response})
+							.fail(() => {console.log("Error loading schedule file (experiment runner).")});
+						}
+						
+						console.log("Loaded the active experiment runner schedule file: " + path);
+					}
+				},
+				runnerSaveScheduleFile: function() {
+					if(this.isNecessaryToSaveRunnerScheduleFile()) {
+						// Sync basic and advanced options panels
+						this.addAdvancedChangesToRunnerScheduleFile();
+						
+						// If we are running a default file that we don't have permission to modify, must change save location
+						if(this.runnerLoadingFromDefaults) {
+							var activeUser = '';
+							var activeProject = '';
+							try {
+								activeUser = this.runnerScheduleObjects[0]['Identifiers']['user']['default'];
+								activeProject = this.runnerScheduleObjects[0]['Identifiers']['project']['default'];
+							} catch(err) {}
+							if(activeUser === '') { activeUser = 'guest'; }
+							if(activeProject === '') { activeProject = 'Project'; }
+							this.runnerUser = activeUser;
+							this.runnerProject = activeProject;
+						} 
+						
+						// Save current file
+						var path = this.saveSchedulePath(this.runnerUser, this.runnerProject, this.runnerFileName);
+
+						if (path) {
+							$.post(path, JSON.stringify(this.runnerScheduleLines), response => {
+								// After post completes and the data is saved, run the following:
+								console.log("Saved experiment runner schedule file: " + path);
+								this.runnerLoadingFromDefaults = false;
+								this.runnerScheduleObjectsHasBeenModified = false;
+								// Force re-load of schedule file to make sure everything is refreshed to its original state
+								this.runnerLoadScheduleFile();
+							})
+							.fail(() => {console.log("Error saving schedule file from the experiment runner.")});
+						}		
+					}
+				},
+				isPossibleToSaveRunnerScheduleFile: function() {
+					return (this.runnerUser && this.runnerProject && this.runnerFileName && 
+						(this.runnerScheduleObjects.length === 1) && (this.runnerScheduleObjectDefaults.length === 1) && 
+						(this.runnerVerboseScheduleObjects.length === 1) && ((this.runnerVerboseScheduleObjectDefaults.length === 1)));
+				}, 
+				isNecessaryToSaveRunnerScheduleFile: function() {
+					if(this.isPossibleToSaveRunnerScheduleFile()) {
+						 return this.runnerScheduleObjectsHasBeenModified || 
+						 (this.hasModifiedRunnerSchedule()) || 
+						 (this.hasModifiedRunnerScheduleAdvanced());
+					}
+					return false;
+				},
+				addAdvancedChangesToRunnerScheduleFile: function() {
+					if(this.runnerVerboseScheduleObjects.length === 1 && this.runnerScheduleObjects.length === 1) {
+						// Update the advanced options to match any changes made to the non-advanced options
+						if(this.hasModifiedRunnerSchedule()) {
+							var basicChanges = objectDeepDiff(this.runnerScheduleObjects[0], this.runnerScheduleObjectDefaults[0]);
+							this.runnerVerboseScheduleObjects = [objectDeepMerge(this.runnerVerboseScheduleObjects[0], basicChanges)]
+							
+							this.runnerScheduleObjectDefaults[0]        = JSON.parse(JSON.stringify(this.runnerScheduleObjects[0]));
+							this.runnerVerboseScheduleObjectDefaults[0] = JSON.parse(JSON.stringify(this.runnerVerboseScheduleObjects[0]));
+							
+							console.log("Refreshed advanced settings.");
+							this.runnerScheduleObjectsHasBeenModified = true;
+						}
+						
+						// Apply changes to advanced options
+						if(this.hasModifiedRunnerScheduleAdvanced()) {
+							var advancedChanges = objectDeepDiff(this.runnerVerboseScheduleObjects[0], this.runnerVerboseScheduleObjectDefaults[0]);
+							this.runnerScheduleObjects = [objectDeepMerge(this.runnerScheduleObjects[0], advancedChanges)];
+							
+							this.runnerScheduleObjectDefaults[0]        = JSON.parse(JSON.stringify(this.runnerScheduleObjects[0]));
+							this.runnerVerboseScheduleObjectDefaults[0] = JSON.parse(JSON.stringify(this.runnerVerboseScheduleObjects[0]));
+							
+							console.log("Added advanced settings to experiment runner schedule file.");
+							this.runnerScheduleObjectsHasBeenModified = true;
+						}
+					}
+				},
+				hasModifiedRunnerSchedule: function() {
+					var basicChanges = objectDeepDiff(this.runnerScheduleObjects[0], this.runnerScheduleObjectDefaults[0]);
+					return (Object.keys(basicChanges).length > 0);
+				},
+				hasModifiedRunnerScheduleAdvanced: function() {
+					var advancedChanges = objectDeepDiff(this.runnerVerboseScheduleObjects[0], this.runnerVerboseScheduleObjectDefaults[0]);
+					return (Object.keys(advancedChanges).length > 0);
+				},
+				
+				// === AFM Registry ===
+				
+				updateAFMRegistry: function() {
+					var path = '/updateAFMRegistry' + this.cacheBust;
+					if (path) {
+						$.getJSON(path, response => {
+							if (response['success']) {
+								app.$data.updateAFMRegistryTime = new Date();
+							}
+						}).fail(() => {console.log("Error updaing AFM registry")});
+					}
+				},
+				
+				// === Browser ===
+				
+				getRunTypeColor: function(runType) {
+					if(Object.keys(this.runTypeThemeColors).includes(runType)) return this.runTypeThemeColors[runType];
+					return undefined;
+				},
+				
+				customVDataTableFilter: function(items, search, filter, headers) {
+					search = search.toString().toLowerCase();
+					if (search.trim() === '') return items;
+					
+					// const props = headers.map(h => h.value); // default
+					const props = headers.filter(h => !('searchable' in h) || h.searchable === true).map(h => h.value); // exclude searchable:false
+					// const props = headers.filter(h => h.searchable === true).map(h => h.value); // include searchable:true
+					
+					return items.filter(item => props.some(prop => filter(_.get(item, prop), search)));
+				},
+				
+				copyHTMLStringToClip: function (str) {
+					function listener(e) {
+						e.clipboardData.setData("text/html", str);
+						e.clipboardData.setData("text/plain", str);
+						e.preventDefault();
+					}
+					document.addEventListener("copy", listener);
+					document.execCommand("copy");
+					document.removeEventListener("copy", listener);
+				},
+				
+				copyHTMLImageToClip: function (path) {
+					path = window.location.origin + path;
+					this.copyHTMLStringToClip('<img src="' + path + '" width="200">');
+				},
+				
+				removeValueFromArray: function(value, array) {
+					while(array.includes(value)) { array.splice( array.indexOf(value), 1 ); }
+				},
+				
+				addToNote: function(experiment) {
+					var url = '/addToNote';
+					
+					$.post(url, JSON.stringify(experiment), response => {
+						this.addToNoteSuccessCode = response;
+						this.experiment.noteAddition = '';
+					}).fail(() => {console.log("Error adding to note")});
+				},
+				
+				// === Schedule Creator ===
+				
+				resetScheduleCreator: function() {
+					this.scheduleObjects = [JSON.parse(JSON.stringify(this.scheduleObjectDefault))];
+				},
+				
+				addScheduleJob: function(index) {
+					this.scheduleObjects.splice(index, 0, JSON.parse(JSON.stringify(this.scheduleObjects[index])));
+					// this.scheduleObjects.push(JSON.parse(JSON.stringify(this.scheduleObjects.slice(-1)[0])));
+				},
+				removeScheduleJob: function(index) {
+					this.scheduleObjects.splice(index, 1);
+				},
+				resetScheduleJob: function(index) {
+					this.scheduleObjects.splice(index, 1, JSON.parse(JSON.stringify(this.scheduleObjectDefault)));
+				},
+				moveScheduleJobUp: function(index) {
+					var job = this.scheduleObjects[index];
+					this.scheduleObjects.splice(index, 1);
+					this.scheduleObjects.splice(index-1, 0, job);
+				},
+				moveScheduleJobDown: function(index) {
+					var job = this.scheduleObjects[index];
+					this.scheduleObjects.splice(index, 1);
+					this.scheduleObjects.splice(index+1, 0, job);
+				},
+				copyScheduleObject: function(index) {
+					this.scheduleObjectClipboard = JSON.parse(JSON.stringify(this.scheduleObjects[index]));
+				},
+				pasteScheduleObject: function(index) {
+					this.scheduleObjects.splice(index, 1, JSON.parse(JSON.stringify(this.scheduleObjectClipboard)))
+				},
+				scheduleObjectDiffFromPrevTwin: function(index) {
+					var job = this.scheduleObjects[index];
+					// var twin = 
+				},
+				
+				hasModifiedScheduleObjects: function() {
+					if(this.scheduleObjects.length !== 1) return true;
+					var changes = objectDeepDiff(this.scheduleObjects[0], this.scheduleObjectDefault);
+					return (Object.keys(changes).length > 0);
+				},
+				nonTrivialScheduleObjects: function() {
+					return !((this.scheduleLines.length === 0) || _.isEqual(this.scheduleLines, [{}]));
+				},
+				
+				resetScheduleSavePath: function() {
+					this.creatorSaveUser = '';	
+					this.creatorSaveProject = '';	
+					this.creatorSaveFileName = '';	
+				},
+				resetScheduleLoadPath: function() {
+					this.creatorLoadUser = '';	
+					this.creatorLoadProject = '';	
+					this.creatorLoadFileName = '';	
+				},
+				
+				isValidScheduleSavePath: function() {
+					return (this.creatorSaveUser != null) && (this.creatorSaveProject != null) && (this.creatorSaveFileName != null) &&
+						   (this.creatorSaveUser !== '') && (this.creatorSaveProject !== '') && (this.creatorSaveFileName !== '');	
+				},
+				isValidScheduleLoadPath: function() {
+					return (this.creatorLoadUser != null) && (this.creatorLoadProject != null) && (this.creatorLoadFileName != null) &&
+						   (this.creatorLoadUser !== '') && (this.creatorLoadProject !== '') && (this.creatorLoadFileName !== '');	
+				},
+				
+				saveSchedule: function() {
+					var path = this.saveSchedulePath(this.creatorSaveUser, this.creatorSaveProject, this.creatorSaveFileName);
+										
+					console.log('saving path = ' + path);
+					if(path) {
+						$.post(path, JSON.stringify(this.scheduleLines), response => {app.$data.saveScheduleSuccessCode = response;})
+						.fail(() => {console.log("Error saving schedule file.")});
+					}
+					
+					if (this.runnerUser === '') this.runnerUser = this.creatorSaveUser;
+					if (this.runnerProject === '') this.runnerProject = this.creatorSaveProject;
+					if (this.runnerFileName === '') this.runnerFileName = this.creatorSaveFileName;
+					
+					this.getScheduleNames();
+				},
+				loadSchedule: function() {
+					var path = this.loadSchedulePath(this.creatorLoadUser, this.creatorLoadProject, this.creatorLoadFileName);
+					
+					console.log('loading path = ' + path);
+					if (path) {
+						$.getJSON(path, response => {app.$data.scheduleObjects = response})
+						.fail(() => {console.log("Error loading schedule file.")});
+					}
+					
+					if (this.creatorSaveUser === '') this.creatorSaveUser = this.creatorLoadUser;
+					if (this.creatorSaveProject === '') this.creatorSaveProject = this.creatorLoadProject;
+					if (this.creatorSaveFileName === '') this.creatorSaveFileName = this.creatorLoadFileName;
+				},
+				
+				// === Settings ===
+				
+				plotSettingsModifications: function() {
+					var primary_modifications = _.omitBy(this.primaryPlotSettings, (v,k) => {
+						return _.isEqual(v['default'], this.primaryPlotSettingDefaults[k]['default']);
+					});
+					var mode_modifications = _.omitBy(this.modePlotSettings, (v,k) => {
+						return _.isEqual(v['default'], this.modePlotSettingDefaults[k]['default']);
+					});
+					var chip_modifications = _.omitBy(this.chipSummarySettings, (v,k) => {
+						return _.isEqual(v['default'], this.chipSummarySettingDefaults[k]['default']);
+					});
+					var device_modifications = _.omitBy(this.deviceSummarySettings, (v,k) => {
+						return _.isEqual(v['default'], this.deviceSummarySettingDefaults[k]['default']);
+					});
+					
+					Object.keys(primary_modifications).forEach(function(key) {
+						primary_modifications[key] = primary_modifications[key]['default'];
+					});
+					Object.keys(mode_modifications).forEach(function(key) {
+						mode_modifications[key] = mode_modifications[key]['default'];
+					});
+					Object.keys(chip_modifications).forEach(function(key) {
+						chip_modifications[key] = chip_modifications[key]['default'];
+					});
+					Object.keys(device_modifications).forEach(function(key) {
+						device_modifications[key] = device_modifications[key]['default'];
+					});
+					
+					var all_modifications = {
+						'primary':primary_modifications, 
+						'mode_parameters':mode_modifications, 
+						'chip':chip_modifications, 
+						'device':device_modifications,
+					};
+					
+					return all_modifications;
+				},
+				updatePlotSettings: function() {
+					var all_modifications = this.plotSettingsModifications();
+					
+					this.plotSettings = all_modifications;
+					
+					console.log("Updated plot settings: " + JSON.stringify(all_modifications));
+				},
+				hasModifiedPlotSettings: function() {	
+					if( this.primaryPlotSettingDefaults === undefined || this.modePlotSettingDefaults === undefined || 
+						this.chipSummarySettingDefaults === undefined || this.deviceSummarySettingDefaults === undefined) { return false; }
+					
+					var all_modifications = this.plotSettingsModifications();
+					
+					var is_modified = false;
+					Object.keys(all_modifications).forEach(function(key) {
+						if(JSON.stringify(all_modifications[key]) !== "{}") {
+							is_modified = true;
+						}
+					});
+										
+					return is_modified;	
+				},
+				
+				initializePlotSettingDefaults: function() {
+					this.primaryPlotSettingDefaults   = JSON.parse(JSON.stringify(this.primaryPlotSettings));	
+					this.modePlotSettingDefaults      = JSON.parse(JSON.stringify(this.modePlotSettings));	
+					this.chipSummarySettingDefaults   = JSON.parse(JSON.stringify(this.chipSummarySettings));	
+					this.deviceSummarySettingDefaults = JSON.parse(JSON.stringify(this.deviceSummarySettings));	
+				},
+				
+				resetPlotSettings: function() {
+					this.primaryPlotSettings = JSON.parse(JSON.stringify(this.primaryPlotSettingDefaults));	
+					this.modePlotSettings    = JSON.parse(JSON.stringify(this.modePlotSettingDefaults));	
+				},
+				resetChipSummarySettings: function() {
+					this.chipSummarySettings = JSON.parse(JSON.stringify(this.chipSummarySettingDefaults));	
+				},
+				resetDeviceSummarySettings: function() {
+					this.deviceSummarySettings = JSON.parse(JSON.stringify(this.deviceSummarySettingDefaults));	
+				},
+				resetAllPlotSettings: function() {
+					this.resetPlotSettings();
+					this.resetChipSummarySettings();
+					this.resetDeviceSummarySettings();
+				},
+				
+				// === Performance App ===
+				
+				performanceReset: function() {
+					this.performanceShowOptions = undefined;
+					this.performanceShowAdvanced = undefined;	
+					this.performanceMetricsExtract = true;
+					this.performanceMetricsShowOnPlot = true;
+					this.getDefaultParameters();
+					this.performanceClear();
+				},
+				performanceClear: function() {
+					Object.entries(this.performancePlots).forEach(([plotID, plot]) => {
+						plot['traces'] = {};
+					});
+					this.liveDataCounter = 0;
+				},
+				performanceSave: function() {
+					this.performanceScheduleObject['runType']['default'] = 'FreeRun';
+					
+					var path = this.saveSchedulePath('guest', 'Project', 'PerformanceApp');
+					if (path) {
+						$.post(path, JSON.stringify([extractDefaults(this.performanceScheduleObject)]), response => {
+							console.log("Saved performance app schedule file: " + path);
+						}).fail(() => {console.log("Error saving performance app schedule file.")});
+					}
+				},
+				performanceEnablePlots: function() {
+					var deviceID = this.performanceScheduleObject['Identifiers']['device']['default'];
+					if(!deviceID) deviceID = 'Device';
+					this.livePlots[0] = {};
+					this.livePlots[0][deviceID] = {};
+					this.livePlots[0][deviceID]['Transfer Curve'] = this.performancePlots['Transfer Curve'];
+					this.livePlots[0][deviceID]['Subthreshold Curve'] = this.performancePlots['Subthreshold Curve'];
+					this.livePlots[0][deviceID]['Output Curve'] = this.performancePlots['Output Curve'];
+				},
+				performanceStart: function() {
+					var path = this.launchDispatcherPath('guest', 'Project', 'PerformanceApp');
+					if (path) {
+						$.getJSON(path, response => {app.$data.performanceRunning = true})
+						.fail(() => {console.log("Error starting performance app.")});
+					}
+				},
+				performanceStop: function() {
+					var path = this.stopDispatcherPath();
+					if (path) {
+						$.getJSON(path, response => {app.$data.performanceRunning = false})
+						.fail(() => {console.log("Error stopping performance app.")});
+					}
+				},
+				
+				// === PT Sensor App ===
+				
+				ptSensorReset: function() {	
+					this.getDefaultParameters();
+				},
+				ptSensorClear: function() {
+					Object.entries(this.ptSensorPlots).forEach(([plotID, plot]) => {
+						plot['traces'] = {};
+					});
+				},
+				ptSensorSave: function() {
+					this.ptSensorScheduleObject['runType']['default'] = 'PTSensor';
+					this.ptSensorScheduleObject['MeasurementSystem']['systemType']['default'] = 'Arduino'
+					
+					var path = this.saveSchedulePath('guest', 'Project', 'PTSensorApp');
+					if (path) {
+						$.post(path, JSON.stringify([extractDefaults(this.ptSensorScheduleObject)]), response => {
+							console.log("Saved PT sensor app schedule file: " + path);
+						}).fail(() => {console.log("Error saving PT sensor app schedule file.")});
+					}
+				},
+				ptSensorEnablePlots: function() {
+					var deviceID = this.ptSensorScheduleObject['Identifiers']['device']['default'];
+					if(!deviceID) deviceID = 'Device';
+					this.livePlots[0] = {};
+					this.livePlots[0][deviceID] = {};
+					this.livePlots[0][deviceID]['Impedance'] = this.ptSensorPlots['Impedance'];
+				},
+				ptSensorStart: function() {
+					var path = this.launchDispatcherPath('guest', 'Project', 'PTSensorApp');
+					if (path) {
+						$.getJSON(path, response => {app.$data.ptSensorRunning = true})
+						.fail(() => {console.log("Error starting PT sensor app.")});
+					}
+				},
+				ptSensorStop: function() {
+					var path = this.stopDispatcherPath();
+					if (path) {
+						$.getJSON(path, response => {app.$data.ptSensorRunning = false})
+						.fail(() => {console.log("Error stopping PT sensor app.")});
+					}
+				},
+				
+				// === Server Update ===
+				
+				handleServerMessage: function(message) {
+					if (message.type === 'JobNumberUpdate') {
+						if(!Object.keys(this.livePlots).includes("" + message.number)){
+							Vue.set(this.livePlots, message.number, {}); 
+							//this.livePlots[message.number] = {};
+							console.log('New live job number added: ' + message.number);
+						}
+						this.jobSelectItems.push(message.number);
+						this.jobSelectActive = message.number;
+						this.jobSelectChoice = message.number;
+					}
+
+					if (message.type === 'DeviceNumberUpdate') {
+						if(!Object.keys(this.livePlots[this.jobSelectActive]).includes(message.number)){
+							Vue.set(this.livePlots[this.jobSelectActive], message.number, {}); 
+							//this.livePlots[this.jobSelectActive][message.number] = {};
+							console.log('New live device number added: ' + message.number)
+						}
+						this.deviceSelectItems.push(message.number);
+						this.deviceSelectActive = message.number;
+						this.deviceSelectChoice = message.number;
+					}
+
+					if (message.type === 'Progress') {
+						// Enable progress bar display
+						this.showProgress = true;
+						
+						// Update progress bar global timer
+						this.experimentProgressTimer.current = message.progress.timestamp;
+						if(this.experimentProgressTimer.start === 0) {
+							this.experimentProgressTimer.start = message.progress.timestamp;
+						}
+						
+						// Update individual progress bars
+						if(Object.keys(this.experimentProgressModel).includes(message.progress.barType)){
+							var progressBarModel = this.experimentProgressModel[message.progress.barType];
+							
+							progressBarModel.visible = true;
+							progressBarModel.name = message.progress.name;
+							progressBarModel.start = message.progress.start;
+							progressBarModel.current = message.progress.current;
+							progressBarModel.end = message.progress.end;
+						}
+						
+						// Update "Procedure" bar's individual timer display
+						if(message.progress.barType === "Procedure"){
+							this.experimentProgressModel['Procedure'].time_start = this.checkStartTime(this.experimentProgressModel['Procedure'].time_start, this.experimentProgressModel['Procedure'].current, message.progress.timestamp, message.progress.current);
+							this.experimentProgressModel['Procedure'].time_current = message.progress.timestamp;
+						}
+					}
+					
+					if (message.type === 'Data') {
+						this.showProgress = true;
+						
+						this.liveDataCounter += 1;
+						
+						// Add any new live plots that are not currently being displayed
+						this.addNewLivePlots(this.livePlots[this.jobSelectActive][this.deviceSelectActive], message.plots);
+												
+						// Add any new traces on live plots that are not currently being displayed
+						this.addNewLiveTraces(this.livePlots[this.jobSelectActive][this.deviceSelectActive], message.plots);
+						
+						// Append data from this message to all relevant Live Plots
+						this.addNewLiveData(this.livePlots[this.jobSelectActive][this.deviceSelectActive], message.plots);
+					}
+				},
+
+				// === Progress Bars ===
+				
+				clearProgressBars: function(){
+					this.experimentProgressTimer.start = 0;
+					this.experimentProgressTimer.current = 0;
+					
+					Object.entries(this.experimentProgressModel).forEach(([barID, barModel]) => {
+						barModel.visible = false;
+						barModel.name = '';
+						barModel.start = 0;
+						barModel.current = 0;
+						barModel.end = 0;
+					});
+					
+					this.experimentProgressModel['Procedure'].time_start = 0;
+					this.experimentProgressModel['Procedure'].time_current = 0;
+				},
+				computeProgressPercent: function(start, current, end) {
+					start = parseFloat(start);
+					current = parseFloat(current);
+					end = parseFloat(end);
+					var result = (current - start)/(end - start);
+					return result*100;
+				},
+				checkStartTime: function(prev_time, prev_value, current_time, current_value) {
+					if((prev_time === 0) || (current_value < prev_value)){
+						return current_time;
+					}
+					return prev_time;
+				},
+				
+				// === Live Plots ===
+			    
+			    addNewLivePlots: function(livePlots, newPlotsData) {
+			    	// Filter for any "newPlots" that are not found in Live Plots
+			    	var missingPlots = newPlotsData.filter( p => !(Object.keys(livePlots).includes(p.plotID)) );
+			    	if(missingPlots.length < 1) return;
+			    	
+			    	// Get a reference to a non-live copy of all current Live Plots
+			    	var staticPlots = JSON.parse(JSON.stringify(livePlots));
+			    	
+			    	for(newPlot of missingPlots) {
+			    		// Make a copy of newPlot to avoid corrupting it with modifications
+				    	var plot = JSON.parse(JSON.stringify(newPlot));
+				    	
+				    	// Initialize all traces to have empty data arrays
+				    	Object.entries(plot['traces']).forEach(([traceID, trace]) => {
+				    		trace.xData = [];
+				    		trace.yData = [];
+				    	});
+				    	
+				    	// Put the new plot into place (in the non-live copy of Live Plots)
+				    	staticPlots[plot.plotID] = plot;
+				    	
+				    	// Put the new plot into place (possible option if you don't want to use staticPlots)
+				    	//livePlots[plot.plotID] = plot;
+			    	}
+			    	
+			    	// Copy all changes over to Live Plots
+			    	this.safeParseToVueVariable(staticPlots, livePlots);
+			    },
+			    addNewLiveTraces: function(livePlots, newPlotsData) {
+			    	for(newPlot of newPlotsData) {
+			    		var plotID = newPlot.plotID
+
+			    		// Filter for any traces that are not found in this plot in Live Plots
+			    		var missingTraceIDs = Object.keys(newPlot.traces).filter( traceID => !(Object.keys(livePlots[plotID].traces).includes(traceID)) );
+			    		var missingTraces = missingTraceIDs.map( traceID => newPlot['traces'][traceID] );
+			    		if(missingTraces.length < 1) continue;
+			    		
+			    		// Get a reference to a non-live copy of all current Live Plots
+			    		var staticPlots = JSON.parse(JSON.stringify(livePlots));
+			    		
+			    		for(newTrace of missingTraces) {
+			    			// Make a copy of newTrace to avoid corrupting it with modifications
+			    			var trace = JSON.parse(JSON.stringify(newTrace));
+			    			
+			    			// Initialize new trace to have empty data arrays
+			    			trace.xData = [];
+			    			trace.yData = [];
+			    			
+			    			// Put the new trace into place (in the non-live copy of Live Plots)
+				    		staticPlots[plotID]['traces'][trace.traceID] = trace;
+			    			
+			    			// Put the new trace into place (possible option if you don't want to use staticPlots)
+				    		//livePlots[plotID]['traces'][trace.traceID] = trace;
+			    		}
+			    		
+			    		// Copy all changes over to Live Plots
+			    		this.safeParseToVueVariable(staticPlots, livePlots);
+			    	}	
+			    },
+			    addNewLiveData: function(livePlots, newPlotsData) {
+			    	for(newPlot of newPlotsData) {
+			    		var plotID = newPlot.plotID;
+			    		
+			    		for(traceID of Object.keys(newPlot.traces)) {
+			    			var newTrace = newPlot.traces[traceID];
+			    			
+			    			livePlots[plotID].traces[traceID].xData.push(newTrace.xData);
+			    			livePlots[plotID].traces[traceID].yData.push(newTrace.yData);
+			    		}
+			    	}
+			    },
+			    
+			    //Base case: originalVar is a primitive, empty array/object
+			    //originalVar must be an Array or plain object, with nested fields that
+			    //are arrays, plain objects, or strings.
+			    safeParseToVueVariable: function(originalVar, vueVar){
+			      	//console.log("Starting safeParseToVueVariable() with originialVar as:");
+			        //console.log(originalVar);
+			        //console.log("--------");
+			      	if(typeof(originalVar) == "string" || typeof(originialVar) == "number"){
+			        	//Will only be here if the top-level object is a simple string. Will never be
+			          //here through recursion because the string case in parseIterableObject() never
+			          //calls safeParseToVueVariable()
+			          //Do nothing.
+			        }
+			        else if(typeof(originalVar) == "object" && originalVar != null){
+			        	if(Array.isArray(originalVar)){
+			          	  this.parseIterableObject(originalVar.keys(), originalVar, vueVar);
+			          }
+			          else{
+			          		this.parseIterableObject(Object.keys(originalVar), originalVar, vueVar);
+			          }
+			        }
+			        else{
+			        	console.log("Error in safeParseToVueVariable() -- attempted to convert unsupported data type.");
+			        }
+			      },
+			      
+			    parseIterableObject: function(indicesOrKeys, originalVar, vueVar){
+			      		//fieldName may be index or key name
+			           for(var fieldName of indicesOrKeys){
+			            	if(typeof(originalVar[fieldName]) == "string" || typeof(originalVar[fieldName]) == "number"){
+			                if(!vueVar.hasOwnProperty(fieldName)){
+			                  Vue.set(vueVar, fieldName, originalVar[fieldName]);
+			                }
+			              }
+			              else if(typeof(originalVar[fieldName]) == "object" && originalVar != null){
+			              	if(Array.isArray(originalVar[fieldName])){
+			                  if(!vueVar.hasOwnProperty(fieldName)){
+			                  	Vue.set(vueVar, fieldName, []);
+			                   }
+			                  this.safeParseToVueVariable(originalVar[fieldName], vueVar[fieldName]);
+			                }
+			                else{
+			                  if(!vueVar.hasOwnProperty(fieldName)){
+			                  	Vue.set(vueVar, fieldName, {});
+			                  }
+			                	this.safeParseToVueVariable(originalVar[fieldName], vueVar[fieldName]);
+			                }
+			              }
+			              else{
+			              	console.log("Error in parseIterableObject() -- attempted to convert unsupported data type.");
+			          		return;
+			              }
+			      		}
+			      
+			    },
+
+				clearLivePlot: function(plot) {
+					plot['traces'] = {};
+				},
+				clearLivePlots: function() {
+					this.clearJobSelect();
+					this.clearDeviceSelect();
+					this.livePlots = {};
+				},
+				clearJobSelect: function() {
+					this.jobSelectChoice = '';
+					this.jobSelectActive = ''
+					this.jobSelectItems = [];
+				},
+				clearDeviceSelect: function() {
+					this.deviceSelectChoice = '';
+					this.deviceSelectActive = '';
+					this.deviceSelectItems = [];
+				},
+
+				toggleLivePlotYAxisLog: function(plot){
+					if(plot.yScale === "linear"){
+						plot.yScale = "log";
+					}
+					else if(plot.yScale === "log"){
+						plot.yScale = "linear";
+					}
+				},
+
+				extractPlotlyData: function(plot) {
+					var dataTraces = [];
+					for([traceID, trace] of Object.entries(plot.traces)){
+						dataTraces.push({
+							type: 'scatter',
+							name: trace.traceID,
+							x: trace.xData,
+							y: trace.yData,
+							mode: (trace.mode)? trace.mode : plot.plotMode,
+							line:   {width: 3, dash: 'solid',  color: (trace.color)? trace.color : plot.color},
+							marker: {size: 9, symbol:'circle', color: (trace.color)? trace.color : plot.color},
+							//showlegend: true,
+						});
+					}
+					return dataTraces;
+				},
+				extractPlotlyLayout: function(plot) {
+					 return {
+						xaxis: { 
+							autorange: true,
+							title: plot.xAxisTitle,
+							
+							zeroline: false,
+							zerolinewidth: 1,
+							showgrid: true,
+							gridwidth: 1,
+							showline: true,
+							linewidth: 2,
+							linecolor: 'rgb(200,200,200)',
+							showticklabels: true,
+							ticks:'outside',
+							tickwidth: 2,
+							ticklen: 5,
+							tickcolor: 'rgb(200,200,200)',
+						}, 
+						yaxis: {
+							type: plot.yScale, 
+							autorange: true,
+							title: plot.yAxisTitle, 
+							
+							zeroline: false,
+							zerolinewidth: 1,
+							showgrid: true,
+							gridwidth: 1,
+							showline: true,
+							linewidth: 2,
+							linecolor: 'rgb(200,200,200)',
+							showticklabels: true,
+							ticks:'outside',
+							tickwidth: 2,
+							ticklen: 5,
+							tickcolor: 'rgb(200,200,200)',
+						}, 
+						legend: {
+							y: 1.0,
+							orientation: 'v', 
+							font:{
+								family: 'Arial',
+								size: 12,
+							},
+						}, 
+						margin: {l: 75, r: 20, b: 75, t: 20, pad: 1}, 
+						automargin: true, 
+						autosize: true, 
+						font:{
+							family: 'Arial',
+							size: 12,
+						},
+						exponentformat:'SI',
+					};
+				},
+
+				// === Documentation ===
+
+				initializeDocumentation: function() {
+					var path = "/loadAllDocumentation" + this.cacheBust;
+						$.getJSON(path, response => {
+							//Response is a list of dictionaries
+							if(response.length == 0){
+								Vue.set(this.documentationText, 0, "");
+								Vue.set(this.documentationEditMode, 0, false);
+								Vue.set(this.documentationProposedText, 0, "");
+								Vue.set(this.documentationTitle, 0, "");
+								Vue.set(this.documentationProposedTitle, 0, "")
+							}
+							for(var i = 0; i < response.length; i++){
+								Vue.set(this.documentationText, i, response[i]["text"]);
+								Vue.set(this.documentationEditMode, i, false);
+								Vue.set(this.documentationProposedText, i, "");
+								Vue.set(this.documentationTitle, i, response[i]["title"])
+								Vue.set(this.documentationProposedTitle, i, "");
+							}
+						})
+						.fail(() => {console.log("Error loading documentation")});
+				},
+
+				documentationEdit: function(index) {
+					Vue.set(this.documentationEditMode, index, true);
+					this.documentationProposedText[index] = this.documentationText[index];
+					this.documentationProposedTitle[index] = this.documentationTitle[index];
+				},
+
+				documentationSave: function(index) {
+					Vue.set(this.documentationEditMode, index, false);
+					this.documentationText[index] = this.documentationProposedText[index];
+					this.documentationTitle[index] = this.documentationProposedTitle[index];
+
+					var path = "/saveDocumentation/" + index + this.cacheBust;
+					$.post(path, JSON.stringify({"title": this.documentationTitle[index], "text": this.documentationText[index]}), response => {
+						this.saveDocumentationSuccessCode = response;
+					}).fail(() => {console.log("Error saving documentation")});
+				},
+
+				documentationCancel: function(index) {
+					Vue.set(this.documentationEditMode, index, false);
+				},
+
+				addDocumentationEntry: function(index) {
+					var indexToAdd = index + 1;
+					this.documentationText.splice(indexToAdd, 0, "");
+					this.documentationProposedText.splice(indexToAdd, 0, "");
+					this.documentationEditMode.splice(indexToAdd, 0, false);
+					this.documentationTitle.splice(indexToAdd, 0, "");
+					this.documentationProposedTitle.splice(indexToAdd, 0, "");
+
+					var path = "/addDocumentation/" + indexToAdd + this.cacheBust;
+						$.getJSON(path).fail(() => {console.log("Error adding documentation entry")});
+					this.documentationSave(indexToAdd);
+				},
+				
+				removeDocumentationEntry: function(index) {
+					if(index != -1){
+						this.documentationText.splice(index, 1);
+						this.documentationProposedText.splice(index, 1);
+						this.documentationEditMode.splice(index, 1);
+						this.documentationTitle.splice(index, 1);
+						this.documentationProposedText.splice(index, 1);
+
+						var path = "/removeDocumentation/" + index + this.cacheBust;
+						$.getJSON(path).fail(() => {console.log("Error removing documentation entry")});
+					}
+				},
+
+				moveDocumentationEntryUp: function(index) {
+					var text = this.documentationText[index];
+					this.documentationText.splice(index, 1);
+					this.documentationText.splice(index-1, 0, text);
+
+					var proposedText = this.documentationProposedText[index];
+					this.documentationProposedText.splice(index, 1);
+					this.documentationProposedText.splice(index-1, 0, proposedText);
+
+					var editMode = this.documentationEditMode[index];
+					this.documentationEditMode.splice(index, 1);
+					this.documentationEditMode.splice(index-1, 0, editMode);
+
+					var title = this.documentationTitle[index];
+					this.documentationTitle.splice(index, 1);
+					this.documentationTitle.splice(index-1, 0, title);
+
+					var proposedTitle = this.documentationProposedTitle[index];
+					this.documentationProposedTitle.splice(index, 1);
+					this.documentationProposedTitle.splice(index-1, 0, proposedTitle);
+
+					var indexMinusOne = index-1;
+					var path = "/swapDocumentationFilenames/" + indexMinusOne + "/" + index + this.cacheBust;
+					$.getJSON(path).fail(() => {console.log("Error moving documentation entry up")});
+				},
+				
+				moveDocumentationEntryDown: function(index) {
+					var text = this.documentationText[index];
+					this.documentationText.splice(index, 1);
+					this.documentationText.splice(index+1, 0, text);
+
+					var proposedText = this.documentationProposedText[index];
+					this.documentationProposedText.splice(index, 1);
+					this.documentationProposedText.splice(index+1, 0, proposedText);
+
+					var editMode = this.documentationEditMode[index];
+					this.documentationEditMode.splice(index, 1);
+					this.documentationEditMode.splice(index+1, 0, editMode);
+
+					var title = this.documentationTitle[index];
+					this.documentationTitle.splice(index, 1);
+					this.documentationTitle.splice(index+1, 0, title);
+
+					var proposedTitle = this.documentationProposedTitle[index];
+					this.documentationProposedTitle.splice(index, 1);
+					this.documentationProposedTitle.splice(index+1, 0, proposedTitle);
+
+					var indexPlusOne = index + 1;
+					var path = "/swapDocumentationFilenames/" + index + "/" + indexPlusOne + this.cacheBust;
+					$.getJSON(path).fail(() => {console.log("Error moving documentation entry down")});
+				},
+				
+				// === Linear Regression & Metric Extraction ===
+				linearFit: function(x, y, includedFittedData=false) {					
+					var fit_results = {}
+					
+					var n = (x.length < y.length)? x.length : y.length;
+					var sum_x = 0;
+					var sum_y = 0;
+					var sum_xx = 0;
+					var sum_xy = 0;
+					
+					for(var i = 0; i < n; i++) {
+						sum_x += x[i];
+						sum_y += y[i];
+						sum_xx += (x[i]*x[i]);
+						sum_xy += (x[i]*y[i]);
+					}
+					
+					var mean_x = sum_x/n;
+					var mean_y = sum_y/n;
+					var ss_xx = sum_xx - n*mean_x*mean_x;
+					var ss_xy = sum_xy - n*mean_x*mean_y;
+					
+					fit_results['slope']       = ss_xy/ss_xx;
+					fit_results['y_intercept'] = mean_y - fit_results['slope']*mean_x;
+					fit_results['x_intercept'] = -(fit_results['y_intercept']/fit_results['slope']);
+					if(includedFittedData) fit_results['fitted_data'] = x.map(xval => (fit_results['slope']*xval + fit_results['y_intercept']));
+					
+					return fit_results;
+				},
+				semilogFit: function(x, y, includedFittedData=false) {
+					var y_log = y.map(val => Math.log10(val));
+					
+					fit_results = this.linearFit(x, y_log, includedFittedData=includedFittedData);
+					if(includedFittedData) fit_results['fitted_data'] = fit_results['fitted_data'].map(val => (Math.pow(10, val)));
+
+					return fit_results;
+				},
+				sortByA: function(a, b) {					
+					a_sorted = [];
+					b_sorted = [];
+					a.map((val, i) => ({'a':val, 'b':b[i]}))
+						.sort((p1, p2) => ((p1.a < p2.a)? -1 : (p1.a === p2.a)? 0 : 1))
+						.forEach(function (pair, i) {a_sorted.push(pair.a); b_sorted.push(pair.b);});
+					return {'a_sorted':a_sorted, 'b_sorted':b_sorted};
+				},
+				sortByAbsoluteA: function(a, b) {					
+					a_sorted = [];
+					b_sorted = [];
+					a.map((val, i) => ({'a':val, 'b':b[i]}))
+						.sort((p1, p2) => ((Math.abs(p1.a) < Math.abs(p2.a))? -1 : (Math.abs(p1.a) === Math.abs(p2.a))? 0 : 1))
+						.forEach(function (pair, i) {a_sorted.push(pair.a); b_sorted.push(pair.b);});
+					return {'a_sorted':a_sorted, 'b_sorted':b_sorted};
+				},
+				steepestRegionFind: function(x, y, region_length) {
+					// Assumes x is sorted in ascending order, then return the steepest region of the data
+					
+					var numberOfPoints = region_length;
+					if(numberOfPoints === undefined) numberOfPoints = parseInt(3 + 2*parseInt(y.length/20));
+					numberOfPoints = Math.max(2, numberOfPoints);
+					
+					var maxSlope = 0;
+					var index = 0;
+					for(var i = 0; i < y.length + 1 - numberOfPoints; i++) {
+						slope = Math.abs((y[i+numberOfPoints] - y[i]) / (x[i+numberOfPoints] - x[i]));
+						if(slope > maxSlope) { maxSlope = slope; index = i; }
+					}
+					
+					var startIndex = index;
+					var endIndex   = index + numberOfPoints - 1;
+					
+					return {'x_region':x.slice(startIndex, endIndex+1), 'y_region':y.slice(startIndex, endIndex+1)};
+				},
+				extremeValuesFind: function(x, y, threshold, condition) {
+					// [Private method]: return the region of x/y that meets the given threshold/condition combination
+					
+					var startIndex = -1;
+					var endIndex   = -1;
+					for(var i = 0; i < y.length; i++) {
+						y_value = Math.abs(y[i]);
+						if(condition(y_value, threshold)) {
+							if(startIndex === -1) startIndex = i;
+							endIndex = i;
+						}
+					}
+										
+					if(startIndex === -1) return {'x_region':[], 'y_region':[]}
+					
+					return {'x_region':x.slice(startIndex, endIndex+1), 'y_region':y.slice(startIndex, endIndex+1)};
+				},
+				largestValuesFind: function(x, y, minimumFloor=1e-12, maximumFloor=1e-11) {
+					// Assumes y is sorted in ascending order, then return the region of x/y that is "large" (>25% of max)
+					
+					var percentile = parseInt(y.length/50);
+					var y_abs_min = Math.max(Math.abs(y[percentile])               , minimumFloor);
+					var y_abs_max = Math.max(Math.abs(y[y.length - 1 - percentile]), maximumFloor);
+					var max_min_ratio = y_abs_max/y_abs_min;
+					
+					//var threshold = Math.pow(max_min_ratio, 0.5) * y_abs_min;
+					var threshold = 0.25 * y_abs_max;
+				
+					return this.extremeValuesFind(x, y, threshold, (val, thresh) => (val > thresh));
+				
+				},
+				smallestValuesFind: function(x, y, minimumFloor=1e-12, maximumFloor=1e-11) {
+					// Assumes y is sorted in ascending order, then return the region of x/y that is "small" (<90% of max on log scale)
+					
+					var percentile = parseInt(y.length/50);
+					var y_abs_min = Math.max(Math.abs(y[percentile])               , minimumFloor);
+					var y_abs_max = Math.max(Math.abs(y[y.length - 1 - percentile]), maximumFloor);
+					var max_min_ratio = y_abs_max/y_abs_min;
+					
+					var threshold = Math.pow(max_min_ratio, 0.9) * y_abs_min;
+					//var threshold = 10 * y_abs_min;
+					
+					return this.extremeValuesFind(x, y, threshold, (val, thresh) => ((val > minimumFloor) && (val < thresh)));
+				},
+				transferCurveFit: function(vgs_data, id_data, includedFittedData=false) {
+					// Perform fit and metric extraction for gm, VT, SS from a transistor transfer curve
+					
+					//if(region_length === undefined) region_length = parseInt(3 + 2*parseInt(id_data.length/20));
+					if(id_data.length < 3) return {};
+					
+					// Sort data by drain current
+					var sorted_data = this.sortByAbsoluteA(id_data, vgs_data);
+					var vgs_sorted = sorted_data['b_sorted'];
+					var id_sorted = sorted_data['a_sorted'];
+					
+					// Find the largest drain currents
+					var largest_region = this.largestValuesFind(vgs_sorted, id_sorted);
+					var vgs_linear_region = largest_region['x_region'];
+					var id_linear_region  = largest_region['y_region'];
+					
+					// Find the smallest drain currents
+					var smallest_region = this.smallestValuesFind(vgs_sorted, id_sorted);
+					var vgs_subthreshold_region = smallest_region['x_region'];
+					var id_subthreshold_region  = smallest_region['y_region'];
+					
+					// Fit linear and subthreshold regions
+					var linear_region_fit = this.linearFit(vgs_linear_region, id_linear_region, includedFittedData);
+					var subthreshold_fit = this.semilogFit(vgs_subthreshold_region, id_subthreshold_region, includedFittedData);
+					
+					// Add fit results to relevant plots
+					var gmTrace = 'gm';
+					var vtTrace = 'VT';
+					var ssTrace = 'SS';
+					if(this.performanceMetricsShowOnPlot) {
+						if(!Object.keys(this.performancePlots['Transfer Curve']['traces']).includes(gmTrace)) { 
+							this.performancePlots['Transfer Curve']['traces'][gmTrace] = {
+								'traceID':gmTrace,'xData':[],'yData':[],'color':'black','mode':'lines','fitIgnore':true,
+							}; 
+							this.performancePlots['Transfer Curve']['traces'][vtTrace] = {
+								'traceID':vtTrace,'xData':[],'yData':[],'color':'black','mode':'markers','fitIgnore':true,
+							}; 
+							this.performancePlots['Subthreshold Curve']['traces'][ssTrace] = {
+								'traceID':ssTrace,'xData':[],'yData':[],'color':'black','mode':'lines','fitIgnore':true,
+							}; 
+						}
+						this.performancePlots['Transfer Curve']['traces'][gmTrace].xData = vgs_linear_region;
+						this.performancePlots['Transfer Curve']['traces'][gmTrace].yData = linear_region_fit['fitted_data'];
+						this.performancePlots['Transfer Curve']['traces'][vtTrace].xData = [linear_region_fit['x_intercept']];
+						this.performancePlots['Transfer Curve']['traces'][vtTrace].yData = [0];
+						this.performancePlots['Subthreshold Curve']['traces'][ssTrace].xData = vgs_subthreshold_region;
+						this.performancePlots['Subthreshold Curve']['traces'][ssTrace].yData = subthreshold_fit['fitted_data'];
+					} else if(Object.keys(this.performancePlots['Transfer Curve']['traces']).includes(gmTrace)) {
+						this.performancePlots['Transfer Curve']['traces'][gmTrace].xData = [];
+						this.performancePlots['Transfer Curve']['traces'][gmTrace].yData = [];
+						this.performancePlots['Transfer Curve']['traces'][vtTrace].xData = [];
+						this.performancePlots['Transfer Curve']['traces'][vtTrace].yData = [];
+						this.performancePlots['Subthreshold Curve']['traces'][ssTrace].xData = [];
+						this.performancePlots['Subthreshold Curve']['traces'][ssTrace].yData = [];
+					}
+					
+					// Return metrics and fitted regions
+					return {
+						'gm':Math.abs(linear_region_fit['slope']), 
+						'VT':linear_region_fit['x_intercept'], 
+						'SS':1000 / Math.abs(subthreshold_fit['slope']),
+						
+						'linear_fitted_id_data':linear_region_fit['fitted_data'], 
+						'linear_fitted_vgs_data':vgs_linear_region,
+						'subthreshold_fitted_id_data':subthreshold_fit['fitted_data'], 
+						'subthreshold_fitted_vgs_data':vgs_subthreshold_region,
+					};
+				},
+				
+				
+			},
+			watch: {
+				// Keep "localStorage" up to date
+				stepperPage:             function(val) { localStorage.stepperPage = JSON.stringify(val); },
+				scheduleObjects:         function(val) { localStorage.scheduleObjects = JSON.stringify(val); },
+				scheduleObjectClipboard: function(val) { localStorage.scheduleObjectClipboard = JSON.stringify(val); },
+				disabledPlots:           function(val) { localStorage.disabledPlots = JSON.stringify(val); },
+				
+				// Experiment Runner user input
+				runnerChoice:                 function(val) { this.runnerUpdateChoice(); },
+				runnerFileName:               function(val) { this.runnerLoadScheduleFile(); },
+				runnerToggleAdvancedSettings: function(val) { this.addAdvancedChangesToRunnerScheduleFile(); },
+				
+				// Dashboard user input
+				recentActivityProject: function(val) { this.getRecentActivity(); },
+				recentActivityWafer:   function(val) { this.getRecentActivity(); },
+				recentActivityChip:    function(val) { this.getRecentActivity(); },
+				recentActivityDevice:  function(val) { this.getRecentActivity(); },
+				
+				experimentIndex: function(val) { this.getAssociatedAFMs(); },
+			},
+			computed: {
+				experiment: function() {
+					if (this.experimentIndex > this.experiments.length) {
+						this.experimentIndex = 0;
+					}
+					return this.experiments[this.experimentIndex];
+				},
+				experimentsWithIndexes: function() {
+					return this.experiments.map((x, i) => { return {...x, i} });
+				},
+				scheduleLines: function() {
+					var modifications = this.scheduleObjects.map(obj => objectDeepDiff(obj, this.scheduleObjectDefault));
+					
+					// --- Force the schedule file to include the parameters marked as "essential" in defaults.py ---
+					var modifications_with_essentials = modifications.map(obj => {
+						var essentialsToInclude = {};
+						if(Object.keys(obj).includes('runType') && Object.keys(this.essentialScheduleParameters).includes('runConfigs') && Object.keys(this.essentialScheduleParameters['runConfigs']).includes(obj['runType']['default'])) {
+							essentialsToInclude['runConfigs'] = {};
+							essentialsToInclude['runConfigs'][obj['runType']['default']] = this.essentialScheduleParameters['runConfigs'][obj['runType']['default']]
+							this.scheduleObjectDefault['runConfigs'][obj['runType']['default']]['dependencies']['value'].forEach(function(dependency) {
+								if(Object.keys(app.$data.essentialScheduleParameters['runConfigs']).includes(dependency)) {
+									essentialsToInclude['runConfigs'][dependency] = app.$data.essentialScheduleParameters['runConfigs'][dependency]
+								}
+							});
+						}
+						return objectDeepInclude(obj, essentialsToInclude);
+					});
+					
+					var scheduleFileEntries = modifications_with_essentials.map(obj => extractDefaults(obj));
+					return scheduleFileEntries
+				},
+				runnerScheduleLines: function() {
+					return this.runnerScheduleObjects.map(obj => extractDefaults(obj));
+				},
+				
+				dynamicRecentActivityTableHeaders: function() {
+					return this.recentActivityHeaders.filter(h => h.visible);
+				},
+				
+				performanceMetrics: function() {
+					if(!this.performanceMetricsExtract) return {};
+					var transferTraces = Object.entries(this.performancePlots['Transfer Curve']['traces'])
+											   .filter(([key, value]) => !value.fitIgnore).map(([key, value]) => value);
+					if(!transferTraces.length) return {};
+					
+					var N = transferTraces.length
+					var transferFits = transferTraces.map(trace => 
+											this.transferCurveFit(trace.xData, trace.yData, this.performanceMetricsShowOnPlot));
+							
+					var gm = transferFits.map( fit => fit['gm'] ).reduce((sum, elem) => sum+elem) / N; //Average Trace gm
+					var VT = transferFits.map( fit => fit['VT'] ).reduce((sum, elem) => sum+elem) / N; //Average Trace VT
+					var SS = transferFits.map( fit => fit['SS'] ).reduce((sum, elem) => sum+elem) / N; //Average Trace SS
+					return {'gm':gm, 'SS':SS, 'VT':VT};
+				},
+				
+				ptSensorMaxImpedance: function() {
+					var impedanceTraces = Object.entries(this.ptSensorPlots['Impedance']['traces']).map(([key, value]) => value);
+					if(!impedanceTraces.length) return;
+					return Math.max( ...(impedanceTraces.map(trace => Math.max( ...(trace.yData) ))) );	
+				},
+				ptSensorTimeOfMaxImpedance: function() {
+					function indexOfMax(arr) {
+				    	var maxIndex = 0; var max = arr[0];
+					    for (var i = 1; i < arr.length; i++) {
+					        if (arr[i] > max) { maxIndex = i; max = arr[i]; }
+					    }
+					    return maxIndex;
+					}
+					
+					var impedanceTraces = Object.entries(this.ptSensorPlots['Impedance']['traces']).map(([key, value]) => value);
+					if(!impedanceTraces.length) return;
+					
+					var maxTrace = impedanceTraces.filter(trace => Math.max(...(trace.yData)) === this.ptSensorMaxImpedance)[0]
+					return maxTrace.xData[indexOfMax(maxTrace.yData)];
+				},
+			},
+			filters:{
+				// === Generic Text Filters ===
+				capitalize: function(value) {
+					if(!value) return '';
+					value = value.toString();
+					return value.charAt(0).toUpperCase() + value.slice(1);	
+				},
+				
+				// === Numerical Text Filters ===
+				hideNull: function(value) {
+					if(!value) return '';
+					return value
+				},
+				decimalPrecision: function(value, places) {
+					if(!value) return '';
+					return parseFloat(value).toFixed(places)
+				},
+				scientificPrecision: function(value, sig_figs) {
+					if(!value) return '';
+					
+					// Explicitly handle value === 0 or Infinity separately (does not work well with the following)
+					if(value === 0) return 0;
+					if(value === Infinity || value === -Infinity) return '';
+					
+					// Compute exponent
+					exponent = 0;
+					if(Math.abs(value) < 1e-3 || Math.abs(value) > 1e3) {
+						while((Math.abs(value) < 1) && (exponent > -15)) {
+							value *= 1e3;
+							exponent -= 3;
+						}
+						while((Math.abs(value) > 1e3) && (exponent < 15)) {
+							value /= 1e3;
+							exponent += 3;
+						}
+					}
+					
+					// Convert from sig-figs to decimal places
+					places = sig_figs; 
+					if(Math.abs(value) > 1) places -= 1;
+					if(Math.abs(value) > 10) places -= 1;
+					if(Math.abs(value) > 100) places -= 1;
+					places = Math.max(places, 0);
+					
+					if(exponent === 0) return parseFloat(value).toFixed(places);
+					return parseFloat(value).toFixed(places) + 'e' + exponent;
+				},
+				withUnits: function(value, units) {
+					if(!value) return '';
+					return value + units;
+				},
+				
+				// === Specialized GUI Object Text Filters ===
+				formatTimestamp: function(value) {
+					if(!value) return '';
+					value = parseFloat(value)
+					hours = Math.floor(value/3600)
+					value %= 3600
+					minutes = Math.floor(value/60)
+					value %= 60
+					seconds = value
+					return hours + ':' + ('0' + minutes).slice(-2) + ':' + ('0' + seconds.toFixed(2)).slice(-5);
+				},
+				formatCounter: function(value) {
+					if(!value) return '';
+					if(value > 200) value = 10*(Math.floor(value/10));
+					return value;
+				},
+				
+				// === Dynamic Units ===
+				formatVoltage: function(value) {
+					if(value == undefined) return '';
+					var units = " V";
+					if(value < 0.9) {
+						value *= 1e3;
+						units = " mV";
+					}
+					return value + units;	
+				},
+				formatConductance: function(value) {
+					if(value == undefined) return '';
+					var units = "";
+					if(value < 1) {
+						value *= 1e3;
+						units = " mS";
+					}
+					if(value < 1) {
+						value *= 1e3;
+						units = " uS";
+					}
+					if(value < 1) {
+						value *= 1e3;
+						units = " nS";
+					}
+					return value + units;	
+				},
+			}
+		});
+		
+		console.log('Vuetify app built.');
+		
+		// colors: ['#F4FFFD', '#E3E4DB', '#EDF4ED', '#CCDAD1', '#9CAEA9', '#8C9A9E', '#788585', '#656565', '#4C5760', '#2B3D41', '#1E3231'],
+		// colors: ['#F0F7F4', '#9EC1A3', '#70A9A1', '#679289', '#40798C', '#B3BFB8', '#7E8D85', '#9AA0A8', '#465362', '#011936', '#673C4F'],
+		
+		// === Define Color Scheme ===
+		
+		// --- THEMES ---
+		
+		// Old theme
+		app.$vuetify.theme.primary = '#557A95';
+		app.$vuetify.theme.secondary = '#938E94';
+		app.$vuetify.theme.tertiary = '#0074E1';
+		app.$vuetify.theme.accent = '#7395AE';
+		app.$vuetify.theme.error = '#e83b2b';
+		app.$vuetify.theme.success = '#43a446';
+		app.$vuetify.theme.info = '#00b1c6';
+		app.$vuetify.theme.warning = '#fe9100';
+		
+		// Mint theme
+		app.$data.colors = ['#05386B', '#379683', '#5CDB95', '#8EE4AF', '#EDF5E1'];
+		
+		// Teals theme
+		app.$data.colors = ['#10E7DC', '#0074E1', '#1B9CE5', '#6CDAEE', '#F79E02'];
+		
+		// Blue Red Theme
+		app.$data.colors = ['#314455', '#644E5B', '#9E5A63', '#C96567', '#97AABD'];
+		
+		// Diverse pastels theme
+		app.$data.colors = ['#E27D60','#85CDCB','#E8A87C','#C38D9E','#41B3A3']
+		
+		// Diverse pastels theme 2
+		app.$data.colors = ['#A3D9FF','#96E6B3','#7E6B8F','#DA3E52','#F2E94E']
+		
+		// Diverse strongs theme
+		app.$data.colors = ['#08415C','#436436','#CC5803','#4E0250','#721121','#403F4C']
+		
+		// Diverse strongs theme 2
+		app.$data.colors = ['#235789','#A82919','#96437F','#DB7C00','#368254']
+		
+		// Diverse strongs theme 2 adjusted to 45% brightness
+		app.$data.colors = ['#2f75b6','#c8321e','#9e4786','#e68200','#44a269']
+		
+		// Diverse pastels theme 2 adjusted to roughly 40% brightness
+		app.$data.colors = ['#0077cc','#27a555','#9755ce','#b42236','#d19a10']
+		
+		// Mint theme adjusted
+		app.$data.colors = ['#05386B', '#379683', '#5CDB95', '#8EE4AF', '#EDF5E1'];
+		
+		// Dark Business Theme
+		app.$data.colors = ['#5981a6', '#509593', '#595ea6', '#3973ac', '#457da1'];
+		
+		// Final Theme 	   [grey-blue,   green  ,  purple  ,   blue   , blue-purp, red-purp ,   gold   , ]
+		app.$data.colors = ['#5981A6', '#008888', '#595EA6', '#3973AC', '#3F51B5', '#880E7F', '#C18C00', ];
+		
+		// --- Apply Theme --- 
+		
+		for (var i = 0; i < app.$data.colors.length; i++) {
+			app.$vuetify.theme['color' + (i + 1)] = app.$data.colors[i];
+		}
+		app.$vuetify.theme.primary = app.$vuetify.theme.color1;
+		app.$vuetify.theme.secondary = app.$vuetify.theme.color2;
+		app.$vuetify.theme.accent = app.$vuetify.theme.color3;
+		app.$vuetify.theme.tertiary = app.$vuetify.theme.color4;
+		app.$vuetify.theme.error = '#BF360C';
+		app.$vuetify.theme.success = '#00897B';
+		app.$vuetify.theme.info = '#A3B2BD';
+		app.$vuetify.theme.warning = '#FFB300';
+		
+		// --- Custom Color Keywords ---
+		
+		app.$vuetify.theme['color_base'] = app.$vuetify.theme.color1;
+		app.$vuetify.theme['color_creator'] = app.$vuetify.theme.color2;
+		app.$vuetify.theme['color_runner'] = app.$vuetify.theme.color3;
+		app.$vuetify.theme['color_browser'] = app.$vuetify.theme.color4;
+			
+		app.$vuetify.theme['color_performance'] = app.$vuetify.theme.color5;
+		app.$vuetify.theme['color_ptsensor'] = app.$vuetify.theme.color5;
+		
+		app.$vuetify.theme['color_documentation'] = app.$vuetify.theme.color7;
+		
+		// colors = {
+		// 	'dark': {
+		// 		'japanese indigo': '2B3D41',
+		// 		'deep space sparkle': '4C5F6B',
+		// 		'weldon blue': '83A0A0',
+		// 		'spanish grey': '969696',
+		// 		'dim grey': '67697C',
+		// 		'dark medium grey': 'AAAAAA',
+		// 	}
+		// 	'light': {
+		// 		'platinum': 'DFE0E2',
+		// 	}
+		// };
+		// colors2 = ['EDF4ED', 'E3E4DB', 'CCDAD1', '9CAEA9', '8C9A9E', '788585', '656565', '4C5760', '2A2B2A', '323031', '1E3231', '2B3D41', '1D1E18'];
+		
+		// '93B7BE', 'D4F5F5', '2B3D41', '8C9A9E', '747578', '041B15', '586A6A', '757780', '303633', '627264', '788475', '28536B', '817F82', 'B4B8AB', '9CAEA9', '788585'
+		// 'F7F7F2', 'FCF7F8', 'C4DACF', 'F4F9E9', 'BBCBCB', 'FFFFFC', 'CCDAD1'
+		// 'FFFACC', 'B5D6B2', 
+		// 'D0D1AC', 'DDE0BD'
+		
+		function updateConnectionStatus() {
+			app.$set(app, 'online', navigator.onLine);
+		}
+
+		window.addEventListener('online', updateConnectionStatus);
+		window.addEventListener('offline', updateConnectionStatus);
+		window.onhashchange = function() { app.$data.currentPage = location.hash; };
+		
+		if (typeof(Storage) !== 'undefined') {
+			localStorage.exists = JSON.stringify('True');
+		}
+		
+		// Finish getting everything ready to go
+		app.initialize();
+		
+	</script>
+</body>
+</html>
+
+
