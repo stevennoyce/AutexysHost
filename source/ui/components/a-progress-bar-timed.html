@@ -1,17 +1,20 @@
 <script type="text/html" id="a-progress-bar-timed">
 	
-	<v-list-tile v-if="visible">
+	<v-list-item v-if="visible">
 		
-		<v-list-tile-content style="flex-direction:row;align-items:center;" class="mr-3">
-			<v-list-tile-title>{{title}} {{valuecurrent}} of {{valuemaximum}} </v-list-tile-title>
-			<v-progress-linear class="roundedcorners" height="10" color="success" v-model="progressPercent"></v-progress-linear>
-		</v-list-tile-content>
+		<v-flex xs6>
+			<v-list-item-title>{{title}} {{valuecurrent}} of {{valuemaximum}} </v-list-item-title>
+		</v-flex>
 		
-		<v-list-tile-action style="text-align:right;">	
-			<v-list-tile-sub-title>{{time | formatTimestamp}}</v-list-tile-sub-title>
-		</v-list-tile-action>
+		<v-flex xs5>
+			<v-progress-linear style="transition: none;" class="roundedcorners" height="10" color="success" v-model="progressPercent"></v-progress-linear>
+		</v-flex>
+		
+		<v-list-item-action style="text-align:right;">	
+			{{time | formatTimestamp}}
+		</v-list-item-action>
 	
-	</v-list-tile>
+	</v-list-item>
 	
 </script>
 

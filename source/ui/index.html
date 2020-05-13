@@ -109,10 +109,10 @@
 			transform: translate(50%, -50%);
 		}
 		
-		/* === Progress Bars === */
+		/* === Expansion Panels === */
 		
-		.v-progress-linear__bar, .v-progress-linear__bar__determinate {
-  			transition: none;
+		.padlessexpansionpanel .v-expansion-panel-content__wrap {
+			padding: 0px;
 		}
 		
 		/* === Layout === */
@@ -120,7 +120,7 @@
 		.roundedcorners {
 			border-radius: 7px
 		}
-		
+
 	</style>
 </head>
 <body>
@@ -142,87 +142,94 @@
 				
 				<v-navigation-drawer clipped fixed v-model="drawer" class="color_base" dark app>
 					<v-list dense>
-						<v-list-tile @click="setTopLevelPage('dashboard')">
-							<v-list-tile-action><v-icon>dashboard</v-icon></v-list-tile-action>
-							<v-list-tile-content><v-list-tile-title>Dashboard</v-list-tile-title></v-list-tile-content>
-						</v-list-tile>
-						<v-list-tile @click="setTopLevelPage('stepper')">
-							<v-list-tile-action><v-icon class="color_browser roundedcorners">list</v-icon></v-list-tile-action>
-							<v-list-tile-content><v-list-tile-title>Browser</v-list-tile-title></v-list-tile-content>
-						</v-list-tile>
-						<v-list-tile @click="setTopLevelPage('scheduleCreator')">
-							<v-list-tile-action><v-icon class="color_creator roundedcorners">schedule</v-icon></v-list-tile-action>
-							<v-list-tile-content><v-list-tile-title>Schedule Creator</v-list-tile-title></v-list-tile-content>
-						</v-list-tile>
-						<v-list-tile @click="setTopLevelPage('experimentRunner')">
-							<v-list-tile-action><v-icon class="color_runner roundedcorners">play_circle_outline</v-icon></v-list-tile-action>
-							<v-list-tile-content><v-list-tile-title>Experiment Runner</v-list-tile-title></v-list-tile-content>
-						</v-list-tile>
-						<v-list-group>
-							<v-list-tile slot="activator">
-								<v-list-tile-action><v-icon>cloud</v-icon></v-list-tile-action>
-								<v-list-tile-content><v-list-tile-title>Applications</v-list-tile-title></v-list-tile-content>
-							</v-list-tile>
-							<v-list-tile @click="setTopLevelPage('performance')">
-								<v-list-tile-action><v-icon>speed</v-icon></v-list-tile-action>
-								<v-list-tile-content><v-list-tile-title>Performance</v-list-tile-title></v-list-tile-content>
-							</v-list-tile>
-							<v-list-tile @click="setTopLevelPage('ptSensor')">
-								<v-list-tile-action><v-icon>opacity</v-icon></v-list-tile-action>
-								<v-list-tile-content><v-list-tile-title>PT Sensor</v-list-tile-title></v-list-tile-content>
-							</v-list-tile>
+						<v-list-item @click="setTopLevelPage('dashboard')">
+							<v-list-item-action><v-icon>dashboard</v-icon></v-list-item-action>
+							<v-list-item-content><v-list-item-title>Dashboard</v-list-item-title></v-list-item-content>
+						</v-list-item>
+						<v-list-item @click="setTopLevelPage('stepper')">
+							<v-list-item-action><v-icon class="color_browser roundedcorners">list</v-icon></v-list-item-action>
+							<v-list-item-content><v-list-item-title>Browser</v-list-item-title></v-list-item-content>
+						</v-list-item>
+						<v-list-item @click="setTopLevelPage('scheduleCreator')">
+							<v-list-item-action><v-icon class="color_creator roundedcorners">schedule</v-icon></v-list-item-action>
+							<v-list-item-content><v-list-item-title>Schedule Creator</v-list-item-title></v-list-item-content>
+						</v-list-item>
+						<v-list-item @click="setTopLevelPage('experimentRunner')">
+							<v-list-item-action><v-icon class="color_runner roundedcorners">play_circle_outline</v-icon></v-list-item-action>
+							<v-list-item-content><v-list-item-title>Experiment Runner</v-list-item-title></v-list-item-content>
+						</v-list-item>
+						<v-divider></v-divider>
+						<v-list-group prepend-icon="cloud" color="white">
+							<template v-slot:activator>
+								<v-list-item-content>
+									<v-list-item-title>Applications</v-list-item-title>
+								</v-list-item-content>
+							</template>
+							<v-list-item @click="setTopLevelPage('performance')">
+								<v-list-item-action><v-icon>speed</v-icon></v-list-item-action>
+								<v-list-item-content><v-list-item-title>Performance</v-list-item-title></v-list-item-content>
+							</v-list-item>
+							<v-list-item @click="setTopLevelPage('ptSensor')">
+								<v-list-item-action><v-icon>opacity</v-icon></v-list-item-action>
+								<v-list-item-content><v-list-item-title>PT Sensor</v-list-item-title></v-list-item-content>
+							</v-list-item>
 						</v-list-group>
-						<v-list-tile @click="setTopLevelPage('settings')">
-							<v-list-tile-action><v-icon>settings</v-icon></v-list-tile-action>
-							<v-list-tile-content><v-list-tile-title>Settings</v-list-tile-title></v-list-tile-content>
-						</v-list-tile>
-						<v-list-tile @click="setTopLevelPage('about')">
-							<v-list-tile-action><v-icon>info_outline</v-icon></v-list-tile-action>
-							<v-list-tile-content><v-list-tile-title>About (and README)</v-list-tile-title></v-list-tile-content>
-						</v-list-tile>
-						<v-list-tile @click="setTopLevelPage('documentation')">
-							<v-list-tile-action><v-icon>info_outline</v-icon></v-list-tile-action>
-							<v-list-tile-content><v-list-tile-title>Documentation</v-list-tile-title></v-list-tile-content>
-						</v-list-tile>
+						<v-divider></v-divider>
+						<v-list-item @click="setTopLevelPage('settings')">
+							<v-list-item-action><v-icon>settings</v-icon></v-list-item-action>
+							<v-list-item-content><v-list-item-title>Settings</v-list-item-title></v-list-item-content>
+						</v-list-item>
+						<v-list-item @click="setTopLevelPage('about')">
+							<v-list-item-action><v-icon>info_outline</v-icon></v-list-item-action>
+							<v-list-item-content><v-list-item-title>About (and README)</v-list-item-title></v-list-item-content>
+						</v-list-item>
+						<v-list-item @click="setTopLevelPage('documentation')">
+							<v-list-item-action><v-icon>info_outline</v-icon></v-list-item-action>
+							<v-list-item-content><v-list-item-title>Documentation</v-list-item-title></v-list-item-content>
+						</v-list-item>
 					</v-list>
 				</v-navigation-drawer>
 				
-				<v-toolbar app fixed clipped-left dark color="color_base darken-1">
-					<v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
+				<v-app-bar app dark clipped-left fixed color="color_base darken-1">
+					<v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
 					<v-toolbar-title>Autexys User Interface</v-toolbar-title>
 					<v-spacer></v-spacer>
 					<v-toolbar-items>
-						<v-menu bottom left offset-y :close-on-content-click="false" :nudge-width="200">
-							<v-btn slot="activator" flat><v-icon>art_track</v-icon></v-btn>
-							<v-card light style="overflow-y: scroll; max-height:65vh">
-								<v-list>
+						<v-menu bottom left offset-y :close-on-content-click="false">
+							<template v-slot:activator="{ on }">
+								<v-btn v-on="on" text><v-icon>art_track</v-icon></v-btn>
+							</template>
+							<v-card light tile style="overflow-y: scroll; max-height:65vh">
+								<v-list class="pt-4">
 									<a-item-edit-group :settings.sync="primaryPlotSettings"></a-item-edit-group>
 									<a-item-edit-group :settings.sync="modePlotSettings"></a-item-edit-group>
 								</v-list>
 							</v-card>
-							<v-card light>
+							<v-card light tile>
 								<v-list>
-									<v-list-tile>
+									<v-list-item>
 										<v-btn @click="resetPlotSettings(); updatePlotSettings();" :disabled="!hasModifiedPlotSettings()">Reset</v-btn>
 										<v-spacer></v-spacer>
 										<v-btn @click="updatePlotSettings()">Save</v-btn>
-									</v-list-tile>
+									</v-list-item>
 								</v-list>
 							</v-card>
 						</v-menu>
 						<v-menu bottom left offset-y>
-							<v-btn slot="activator" flat>{{ user }}<v-icon right>people</v-icon></v-btn>
+							<template v-slot:activator="{ on }">
+								<v-btn v-on="on" text>{{ user }}<v-icon right>people</v-icon></v-btn>
+							</template>
 							<v-card style="max-height:85vh">
 								<v-list light>
-									<v-list-tile v-for="u in users" :key="u" @click="goToUser(u)">
-										<v-list-tile-avatar color="color_base"><v-icon dark>account_circle</v-icon></v-list-tile-avatar>
-										<v-list-tile-content><v-list-tile-title>{{ u }}</v-list-tile-title></v-list-tile-content>
-									</v-list-tile>
+									<v-list-item v-for="u in users" :key="u" @click="goToUser(u)">
+										<v-list-item-avatar color="color_base"><v-icon dark>account_circle</v-icon></v-list-item-avatar>
+										<v-list-item-content><v-list-item-title>{{ u }}</v-list-item-title></v-list-item-content>
+									</v-list-item>
 								</v-list>
 							</v-card>
 						</v-menu>
 					</v-toolbar-items>
-				</v-toolbar>
+				</v-app-bar>
 				
 				<!-- End of app sidebar/toolbar -->
 				
@@ -230,9 +237,9 @@
 					
 					<!-- Start of dashboard -->
 					
-					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'dashboard'">
+					<v-flex xs12 class="ma-4" v-if="topLevelPage === 'dashboard'">
 						<v-container>
-							<v-layout row wrap>
+							<v-layout row wrap class="pa-3">
 								<v-flex xs4 sm4 md4 lg4 xl4 class="pa-1">
 									<v-toolbar dark class="color_browser roundedcorners" style="cursor: pointer;" @click="setTopLevelPage('stepper')">
 										<v-toolbar-title>
@@ -274,42 +281,44 @@
 								<v-spacer></v-spacer>
 								
 								<v-toolbar-items class="pt-2">
-									<v-chip small light color="white" @click="setRecentActivityCategory('project')" 
-									:selected="['project', 'wafer', 'chip', 'device'].includes(recentActivityCategory)">Projects</v-chip>
-									<v-chip small light color="white" @click="setRecentActivityCategory('wafer')" 
-									:selected="['wafer', 'chip', 'device'].includes(recentActivityCategory)">Wafers</v-chip>
-									<v-chip small light color="white" @click="setRecentActivityCategory('chip')" 
-									:selected="['chip', 'device'].includes(recentActivityCategory)">Chips</v-chip>
-									<v-chip small light color="white" @click="setRecentActivityCategory('device')" 
-									:selected="['device'].includes(recentActivityCategory)">Devices</v-chip>
+									<v-chip light small class="ma-1" color="white" @click="setRecentActivityCategory('project')" 
+									v-model="['project', 'wafer', 'chip', 'device'].includes(recentActivityCategory)">Projects</v-chip>
+									<v-chip light small class="ma-1" color="white" @click="setRecentActivityCategory('wafer')" 
+									v-model="['wafer', 'chip', 'device'].includes(recentActivityCategory)">Wafers</v-chip>
+									<v-chip light small class="ma-1" color="white" @click="setRecentActivityCategory('chip')" 
+									v-model="['chip', 'device'].includes(recentActivityCategory)">Chips</v-chip>
+									<v-chip light small class="ma-1" color="white" @click="setRecentActivityCategory('device')" 
+									v-model="['device'].includes(recentActivityCategory)">Devices</v-chip>
 								</v-toolbar-items>
 								
 								<v-spacer></v-spacer>
 
 								<v-menu bottom left offset-y :close-on-content-click="false">
-									<v-btn slot="activator" flat>Filter</v-btn>
+									<template v-slot:activator="{ on }">
+										<v-btn v-on="on" text>Filter</v-btn>
+									</template>
 									<v-card light>
-										<v-list>
-											<v-list-tile>
-												<v-autocomplete clearable label="Project" v-model="recentActivityProject" 
+										<v-list class="pt-4">
+											<v-list-item>
+												<v-autocomplete dense clearable label="Project" v-model="recentActivityProject" 
 												:items="recentActivity.map( entry => entry['project'] )"
 												:disabled="false"></v-autocomplete>
-											</v-list-tile>
-											<v-list-tile>
-												<v-autocomplete clearable label="Wafer" v-model="recentActivityWafer" 
+											</v-list-item>
+											<v-list-item>
+												<v-autocomplete dense clearable label="Wafer" v-model="recentActivityWafer" 
 												:items="recentActivity.map( entry => entry['wafer'] ).filter( entry => entry !== undefined )"
 												:disabled="!recentActivityIncludesCategory(['wafer', 'chip', 'device'])"></v-autocomplete>
-											</v-list-tile>
-											<v-list-tile>
-												<v-autocomplete clearable label="Chip" v-model="recentActivityChip" 
+											</v-list-item>
+											<v-list-item>
+												<v-autocomplete dense clearable label="Chip" v-model="recentActivityChip" 
 												:items="recentActivity.map( entry => entry['chip'] ).filter( entry => entry !== undefined )"
 												:disabled="!recentActivityIncludesCategory(['chip', 'device'])"></v-autocomplete>
-											</v-list-tile>
-											<v-list-tile>
-												<v-autocomplete clearable label="Device" v-model="recentActivityDevice" 
+											</v-list-item>
+											<v-list-item>
+												<v-autocomplete dense clearable label="Device" v-model="recentActivityDevice" 
 												:items="recentActivity.map( entry => entry['device'] ).filter( entry => entry !== undefined )"
 												:disabled="!recentActivityIncludesCategory(['device'])"></v-autocomplete>
-											</v-list-tile>
+											</v-list-item>
 										</v-list>
 									</v-card>
 								</v-menu>
@@ -318,17 +327,21 @@
 							</v-toolbar>
 							
 							<v-data-table must-sort :items="recentActivity" :headers="dynamicRecentActivityTableHeaders" 
-								:rows-per-page-items="[10,50,{'text':'$vuetify.dataIterator.rowsPerPageAll','value':-1}]"
-								:pagination.sync="recentActivityPagination" :hide-headers="false" :hide-actions="false">
-								<template slot="items" slot-scope="props">
-									<tr @click="setTopLevelPage('stepper'); goToDirectly(props.item.project, props.item.wafer, props.item.chip, props.item.device);">
-										<td v-if="recentActivityHeaders.find(h => h.value ==='user').visible">{{ props.item.user }}</td>
-										<td v-if="recentActivityHeaders.find(h => h.value ==='project').visible">{{ props.item.project }}</td>
-										<td v-if="recentActivityHeaders.find(h => h.value ==='wafer').visible">{{ props.item.wafer }}</td>
-										<td v-if="recentActivityHeaders.find(h => h.value ==='chip').visible">{{ props.item.chip }}</td>
-										<td v-if="recentActivityHeaders.find(h => h.value ==='device').visible">{{ props.item.device }}</td>
-										<td v-if="recentActivityHeaders.find(h => h.value ==='modified').visible">{{ new Date(props.item.modified*1000).toLocaleDateString() }}</td>
-									</tr>
+								:sort-by="'modified'" :sort-desc="true"
+								:footer-props="{
+									itemsPerPageOptions: [10,50,-1],
+								}">
+								<template v-slot:body="{ items }">
+									<tbody>
+										<tr v-for="item in items" :key="item.user + item.project + item.wafer + item.chip + item.device" @click="setTopLevelPage('stepper'); goToDirectly(item.project, item.wafer, item.chip, item.device);">
+											<td v-if="recentActivityHeaders.find(h => h.value ==='user').visible">{{ item.user }}</td>
+											<td v-if="recentActivityHeaders.find(h => h.value ==='project').visible">{{ item.project }}</td>
+											<td v-if="recentActivityHeaders.find(h => h.value ==='wafer').visible">{{ item.wafer }}</td>
+											<td v-if="recentActivityHeaders.find(h => h.value ==='chip').visible">{{ item.chip }}</td>
+											<td v-if="recentActivityHeaders.find(h => h.value ==='device').visible">{{ item.device }}</td>
+											<td v-if="recentActivityHeaders.find(h => h.value ==='modified').visible">{{ new Date(item.modified*1000).toLocaleDateString() }}</td>
+										</tr>
+									</tbody>
 								</template>
 							</v-data-table>
 						</v-card>
@@ -367,17 +380,21 @@
 											Projects
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
-										<v-text-field v-model="projectTableSearch" append-icon="search" label="Search" single-line hide-details solo light background-color="info lighten-1"></v-text-field>
+										<v-text-field v-model="projectTableSearch" append-icon="search" label="Search" single-line hide-details solo rounded light background-color="info lighten-1"></v-text-field>
 										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
-									<v-data-table :items="projects" :headers="projectTableHeaders" :search="projectTableSearch" must-sort
-										:rows-per-page-items="[10,50,{'text':'$vuetify.dataIterator.rowsPerPageAll','value':-1}]"
-										no-results-text="Your search did not return any results."
-										:custom-filter="customVDataTableFilter">
-										<template slot="items" slot-scope="props">
-											<tr @click="goToProject(props.item.name)">
-												<td>{{ props.item.name }}</td>
-											</tr>
+									<v-data-table must-sort :items="projects" :headers="projectTableHeaders" 
+										:search="projectTableSearch" no-results-text="Your search did not return any results."
+										:custom-filter="customVDataTableFilter"
+										:footer-props="{
+											itemsPerPageOptions: [10,50,-1],
+										}">
+										<template v-slot:body="{ items }">
+											<tbody>
+												<tr v-for="item in items" :key="item.name" @click="goToProject(item.name)">
+													<td>{{ item.name }}</td>
+												</tr>
+											</tbody>
 										</template>
 									</v-data-table>
 								</v-card>
@@ -391,23 +408,27 @@
 											Wafers
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
-										<v-text-field v-model="waferTableSearch" append-icon="search" label="Search" single-line hide-details solo light background-color="info lighten-1"></v-text-field>
+										<v-text-field v-model="waferTableSearch" append-icon="search" label="Search" single-line hide-details solo rounded light background-color="info lighten-1"></v-text-field>
 										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
-									<v-data-table :items="wafers" :headers="waferTableHeaders" :search="waferTableSearch" must-sort
-										:rows-per-page-items="[10,50,{'text':'$vuetify.dataIterator.rowsPerPageAll','value':-1}]"
-										no-results-text="Your search did not return any results."
-										:custom-filter="customVDataTableFilter">
-										<template slot="items" slot-scope="props">
-											<tr @click="goToWafer(props.item.name)">
-												<td>{{ props.item.name }}</td>
-												<td>{{ props.item.path }}</td>
-												<td>{{ new Date(props.item.modificationTime*1000).toLocaleString() }}</td>
-												<td>{{ props.item.size }}</td>
-												<td><v-chip light>{{ props.item.chipCount }}</v-chip></td>
-												<td>{{ props.item.indexCount }}</td>
-												<td>{{ props.item.experimentCount }}</td>
-											</tr>
+									<v-data-table must-sort :items="wafers" :headers="waferTableHeaders" 
+										:search="waferTableSearch" no-results-text="Your search did not return any results."
+										:custom-filter="customVDataTableFilter"
+										:footer-props="{
+											itemsPerPageOptions: [10,50,-1],
+										}">
+										<template v-slot:body="{ items }">
+											<tbody>
+												<tr v-for="item in items" :key="item.name" @click="goToWafer(item.name)">
+													<td>{{ item.name }}</td>
+													<td>{{ item.path }}</td>
+													<td>{{ new Date(item.modificationTime*1000).toLocaleString() }}</td>
+													<td>{{ item.size }}</td>
+													<td><v-chip light>{{ item.chipCount }}</v-chip></td>
+													<td>{{ item.indexCount }}</td>
+													<td>{{ item.experimentCount }}</td>
+												</tr>
+											</tbody>
 										</template>
 									</v-data-table>
 								</v-card>
@@ -421,23 +442,27 @@
 											"{{ wafer }}" Chips
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
-										<v-text-field v-model="chipTableSearch" append-icon="search" label="Search" single-line hide-details solo light background-color="info lighten-1"></v-text-field>
+										<v-text-field v-model="chipTableSearch" append-icon="search" label="Search" single-line hide-details solo rounded light background-color="info lighten-1"></v-text-field>
 										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
-									<v-data-table :items="chips" :headers="chipTableHeaders" :search="chipTableSearch" must-sort
-										:rows-per-page-items="[10,50,{'text':'$vuetify.dataIterator.rowsPerPageAll','value':-1}]"
-										no-results-text="Your search did not return any results."
-										:custom-filter="customVDataTableFilter">
-										<template slot="items" slot-scope="props">
-											<tr @click="goToChip(props.item.name)">
-												<td>{{ props.item.name }}</td>
-												<td>{{ props.item.path }}</td>
-												<td>{{ new Date(props.item.modificationTime*1000).toLocaleString() }}</td>
-												<td>{{ props.item.size }}</td>
-												<td><v-chip light>{{ props.item.deviceCount }}</v-chip></td>
-												<td>{{ props.item.indexCount }}</td>
-												<td>{{ props.item.experimentCount }}</td>
-											</tr>
+									<v-data-table must-sort :items="chips" :headers="chipTableHeaders" 
+										:search="chipTableSearch" no-results-text="Your search did not return any results."
+										:custom-filter="customVDataTableFilter"
+										:footer-props="{
+											itemsPerPageOptions: [10,50,-1],
+										}">
+										<template v-slot:body="{ items }">
+											<tbody>
+												<tr v-for="item in items" :key="item.name" @click="goToChip(item.name)">
+													<td>{{ item.name }}</td>
+													<td>{{ item.path }}</td>
+													<td>{{ new Date(item.modificationTime*1000).toLocaleString() }}</td>
+													<td>{{ item.size }}</td>
+													<td><v-chip light>{{ item.deviceCount }}</v-chip></td>
+													<td>{{ item.indexCount }}</td>
+													<td>{{ item.experimentCount }}</td>
+												</tr>
+											</tbody>
 										</template>
 									</v-data-table>
 								</v-card>
@@ -451,22 +476,26 @@
 											"{{ wafer }}{{ chip }}" Devices
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
-										<v-text-field v-model="deviceTableSearch" append-icon="search" label="Search" single-line hide-details solo light background-color="info lighten-1"></v-text-field>
+										<v-text-field v-model="deviceTableSearch" append-icon="search" label="Search" single-line hide-details solo rounded light background-color="info lighten-1"></v-text-field>
 										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
-									<v-data-table :items="devices" :headers="deviceTableHeaders" :search="deviceTableSearch" must-sort
-										:rows-per-page-items="[10,50,{'text':'$vuetify.dataIterator.rowsPerPageAll','value':-1}]"
-										no-results-text="Your search did not return any results."
-										:custom-filter="customVDataTableFilter">
-										<template slot="items" slot-scope="props">
-											<tr @click="goToDevice(props.item.name)">
-												<td>{{ props.item.name }}</td>
-												<td>{{ props.item.path }}</td>
-												<td>{{ new Date(props.item.modificationTime*1000).toLocaleString() }}</td>
-												<td>{{ props.item.size }}</td>
-												<td>{{ props.item.indexCount }}</td>
-												<td><v-chip light>{{ props.item.experimentCount }}</v-chip></td>
-											</tr>
+									<v-data-table must-sort :items="devices" :headers="deviceTableHeaders" 
+										:search="deviceTableSearch" no-results-text="Your search did not return any results."
+										:custom-filter="customVDataTableFilter"
+										:footer-props="{
+											itemsPerPageOptions: [10,50,-1],
+										}">
+										<template v-slot:body="{ items }">
+											<tbody>
+												<tr v-for="item in items" :key="item.name" @click="goToDevice(item.name)">
+													<td>{{ item.name }}</td>
+													<td>{{ item.path }}</td>
+													<td>{{ new Date(item.modificationTime*1000).toLocaleString() }}</td>
+													<td>{{ item.size }}</td>
+													<td>{{ item.indexCount }}</td>
+													<td><v-chip light>{{ item.experimentCount }}</v-chip></td>
+												</tr>
+											</tbody>
 										</template>
 									</v-data-table>
 								</v-card>
@@ -479,26 +508,30 @@
 										<v-spacer></v-spacer>
 										<v-toolbar-items>
 											<v-menu bottom left offset-y :close-on-content-click="false" :nudge-width="200">
-												<v-btn slot="activator" flat><v-icon>art_track</v-icon></v-btn>
-												<v-card light style="overflow-y: scroll; max-height:65vh">
-													<v-list>
+												<template v-slot:activator="{ on }">
+													<v-btn v-on="on" text><v-icon>art_track</v-icon></v-btn>
+												</template>
+												<v-card light tile style="overflow-y: scroll; max-height:65vh">
+													<v-list class="pt-4">
 														<a-item-edit-group :settings.sync="chipSummarySettings"></a-item-edit-group>
 													</v-list>
 												</v-card>
-												<v-card light>
+												<v-card light tile>
 													<v-list>
-														<v-list-tile>
+														<v-list-item>
 															<v-btn @click="resetChipSummarySettings(); updatePlotSettings();" :disabled="!hasModifiedPlotSettings()">Reset</v-btn>
 															<v-spacer></v-spacer>
 															<v-btn @click="updatePlotSettings()">Save</v-btn>
-														</v-list-tile>
+														</v-list-item>
 													</v-list>
 												</v-card>
 											</v-menu>
 										</v-toolbar-items>
-										<v-toolbar-items class="pt-3 ml-4">
+										<v-toolbar-items class="pt-4 ml-6">
 											<v-tooltip top>
-												<v-switch slot="activator" color="white" label="" v-model="enableChipSummaryPlots"></v-switch>
+												<template v-slot:activator="{ on }">
+													<v-switch v-on="on" color="white" label="" v-model="enableChipSummaryPlots"></v-switch>
+												</template>
 												<span>Show</span>
 											</v-tooltip>
 										</v-toolbar-items>
@@ -513,7 +546,7 @@
 															 {{ possiblePlot }}
 														</v-toolbar-title>
 													</v-toolbar>
-													<div class="text-xs-center">
+													<div class="text-center">
 														<a-zoomable-image src="" :data-src="'/chipPlots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></a-zoomable-image>
 													</div>
 												</v-card>
@@ -531,21 +564,25 @@
 											"{{ wafer }}{{ chip }} {{ device }}" Experiments
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
-										<v-text-field v-model="experimentTableSearch" append-icon="search" label="Search" single-line hide-details solo light background-color="info lighten-1"></v-text-field>
+										<v-text-field v-model="experimentTableSearch" append-icon="search" label="Search" single-line hide-details solo rounded light background-color="info lighten-1"></v-text-field>
 										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
-									<v-data-table :items="experimentsWithIndexes" :headers="experimentTableHeaders" :search="experimentTableSearch" must-sort
-										:rows-per-page-items="[10,50,{'text':'$vuetify.dataIterator.rowsPerPageAll','value':-1}]"
-										no-results-text="Your search did not return any results."
+									<v-data-table must-sort :items="experimentsWithIndexes" :headers="experimentTableHeaders" 
+										:search="experimentTableSearch" no-results-text="Your search did not return any results."
 										:custom-filter="customVDataTableFilter"
-										:pagination.sync="experimentTablePagination">
-										<template slot="items" slot-scope="props">
-											<tr @click="goToExperiment(props.item.i)">
-												<td>{{ props.item.startIndexes.experimentNumber }}</td>
-												<td><v-chip light :color="getRunTypeColor(props.item.runType)">{{ props.item.runType }}<template v-if="props.item.parametersHistoryGenerated && props.item.experimentNumber == experiments[experiments.length-1].experimentNumber"> - Running</template></v-chip></td>
-												<td>{{ props.item.MeasurementSystem.systemType }}</td>
-												<td>{{ props.item.uiComputed.indexCount }}</td>
-											</tr>
+										:sort-by="'startIndexes.experimentNumber'" :sort-desc="true"
+										:footer-props="{
+											itemsPerPageOptions: [10,50,-1],
+										}">
+										<template v-slot:body="{ items }">
+											<tbody>
+												<tr v-for="item in items" :key="item.name" @click="goToExperiment(item.i)">
+													<td>{{ item.startIndexes.experimentNumber }}</td>
+													<td><v-chip light :color="getRunTypeColor(item.runType)">{{ item.runType }}<template v-if="item.parametersHistoryGenerated && item.experimentNumber == experiments[experiments.length-1].experimentNumber"> - Running</template></v-chip></td>
+													<td>{{ item.MeasurementSystem.systemType }}</td>
+													<td>{{ item.uiComputed.indexCount }}</td>
+												</tr>
+											</tbody>
 										</template>
 									</v-data-table>
 								</v-card>
@@ -556,9 +593,11 @@
 											"{{ wafer }}{{ chip }} {{ device }}" Device Summary Plots
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
-										<v-toolbar-items class="pt-3 ml-4">
+										<v-toolbar-items class="pt-4 ml-6">
 											<v-tooltip top>
-												<v-switch slot="activator" color="white" label="" v-model="enableDeviceSummaryPlots"></v-switch>
+												<template v-slot:activator="{ on }">
+													<v-switch v-on="on" color="white" label="" v-model="enableDeviceSummaryPlots"></v-switch>
+												</template>
 												<span>Show</span>
 											</v-tooltip>
 										</v-toolbar-items>
@@ -573,7 +612,7 @@
 															 {{ possiblePlot }}
 														</v-toolbar-title>
 													</v-toolbar> 
-													<div class="text-xs-center">
+													<div class="text-center">
 														<a-zoomable-image src="" :data-src="'/devicePlots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></a-zoomable-image>
 													</div>
 												</v-card>
@@ -610,32 +649,34 @@
 														<v-spacer></v-spacer>
 														
 														<v-menu bottom left offset-y>
-															<v-btn slot="activator" icon :loading="false"><v-icon>settings</v-icon></v-btn>
+															<template v-slot:activator="{ on }">
+																<v-btn v-on="on" icon :loading="false"><v-icon>settings</v-icon></v-btn>
+															</template>
 															<!-- !this.$parent.getElementsByClassName('zoomableImage')[0].complete -->
 															<v-list light>
-																<v-list-tile @click="copyHTMLImageToClip('/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings)))">
-																	<v-list-tile-avatar><v-icon>photo</v-icon></v-list-tile-avatar>
-																	<v-list-tile-content><v-list-tile-title>
+																<v-list-item @click="copyHTMLImageToClip('/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings)))">
+																	<v-list-item-avatar><v-icon>photo</v-icon></v-list-item-avatar>
+																	<v-list-item-content><v-list-item-title>
 																		Copy
-																	</v-list-tile-title></v-list-tile-content>
-																</v-list-tile>
-																<v-list-tile @click="disabledPlots.push(possiblePlot)">
-																	<v-list-tile-avatar><v-icon>photo</v-icon></v-list-tile-avatar>
-																	<v-list-tile-content><v-list-tile-title>
+																	</v-list-item-title></v-list-item-content>
+																</v-list-item>
+																<v-list-item @click="disabledPlots.push(possiblePlot)">
+																	<v-list-item-avatar><v-icon>photo</v-icon></v-list-item-avatar>
+																	<v-list-item-content><v-list-item-title>
 																		Disable
-																	</v-list-tile-title></v-list-tile-content>
-																</v-list-tile>
-																<v-list-tile @click="removeValueFromArray(possiblePlot, disabledPlots)">
-																	<v-list-tile-avatar><v-icon>photo</v-icon></v-list-tile-avatar>
-																	<v-list-tile-content><v-list-tile-title>
+																	</v-list-item-title></v-list-item-content>
+																</v-list-item>
+																<v-list-item @click="removeValueFromArray(possiblePlot, disabledPlots)">
+																	<v-list-item-avatar><v-icon>photo</v-icon></v-list-item-avatar>
+																	<v-list-item-content><v-list-item-title>
 																		Enable
-																	</v-list-tile-title></v-list-tile-content>
-																</v-list-tile>
+																	</v-list-item-title></v-list-item-content>
+																</v-list-item>
 															</v-list>
 														</v-menu>
 													</v-toolbar>
 													
-													<div class="text-xs-center" v-if="!disabledPlots.includes(possiblePlot)">
+													<div class="text-center" v-if="!disabledPlots.includes(possiblePlot)">
 														<a-zoomable-image src="" :data-src="'/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></a-zoomable-image>
 													</div>
 												</v-card>
@@ -671,17 +712,24 @@
 									</v-card>
 									
 									<v-card class="ma-1 mt-2 mb-2">
-										<v-expansion-panel dark expand>
-											<v-expansion-panel-content ripple class="color_creator " v-for="section in Object.keys(experiment)" :key="section" v-if="typeof experiment[section] == 'object'">
-												<div slot="header">{{ section }}</div>
-												<v-data-table :items="_.toPairs(experiment[section])" :headers="[{'text':'Property'},{'text':'Value'}]" hide-actions hide-headers light>
-													<template slot="items" slot-scope="props">
-														<td> {{ props.item[0] }}</td>
-														<td> {{ props.item[1] }}</td>
-													</template>
-												</v-data-table>
-											</v-expansion-panel-content>
-										</v-expansion-panel>
+										<v-expansion-panels dark hover accordion>
+											<v-expansion-panel class="color_creator " v-for="section in Object.keys(experiment)" :key="section" v-if="typeof experiment[section] == 'object'">
+												<v-expansion-panel-header>{{ section }}</v-expansion-panel-header>
+												<v-expansion-panel-content>
+													<v-data-table light hide-default-header hide-default-footer 
+														:items="_.toPairs(experiment[section])" :headers="[{'text':'Property'},{'text':'Value'}]">
+														<template v-slot:body="{ items }">
+															<tbody>
+																<tr v-for="item in items" :key="item[0]">
+																	<td> {{ item[0] }}</td>
+																	<td> {{ item[1] }}</td>
+																</tr>
+															</tbody>
+														</template>
+													</v-data-table>
+												</v-expansion-panel-content>
+											</v-expansion-panel>
+										</v-expansion-panels>
 									</v-card>
 									
 									<v-card class="ma-1">
@@ -697,18 +745,20 @@
 											<v-btn @click="updateAFMRegistry()">Update AFM Registry</v-btn>
 										</v-card-actions>
 										
-										<v-layout class="ma-1">
+										<v-card-actions class="ma-1">
 											<v-tooltip top>
-												<v-btn slot="activator" @click="copyHTMLStringToClip(experiment['dataFolderSpecificAbs'])">
-													Copy Folder Path
-												</v-btn>
+												<template v-slot:activator="{ on }">
+													<v-btn v-on="on" @click="copyHTMLStringToClip(experiment['dataFolderSpecificAbs'])">
+														Copy Folder Path
+													</v-btn>
+												</template>
 												<span>{{ experiment['dataFolderSpecificAbs'] }}</span>
 											</v-tooltip>
 											
-											<v-chip dark class="color_browser" v-for="file in experiment['dataFiles']" :key="file">
+											<v-chip dark class="color_browser ma-2" v-for="file in experiment['dataFiles']" :key="file">
 												{{file}}
 											</v-chip>
-										</v-layout>
+										</v-card-actions>
 										
 										<v-container>
 											<v-card>
@@ -728,7 +778,7 @@
 					<!-- End of browser -->
 					<!-- Start of sched creator -->
 					
-					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'scheduleCreator'">
+					<v-flex xs12 class="ma-4" v-if="topLevelPage === 'scheduleCreator'">
 						<v-card class="pb-1">
 							<v-toolbar dark dense class="color_creator ">
 								<v-toolbar-title>
@@ -738,7 +788,9 @@
 								<v-spacer></v-spacer>
 								
 								<v-menu bottom left offset-y :close-on-content-click="false">
-									<v-btn slot="activator" icon><v-icon>folder</v-icon></v-btn>
+									<template v-slot:activator="{ on }">
+										<v-btn v-on="on" icon><v-icon>folder</v-icon></v-btn>
+									</template>
 									<v-toolbar dark dense class="color_creator lighten-1">
 										<v-toolbar-title>
 											Load Schedule File
@@ -749,27 +801,29 @@
 										</v-btn>
 									</v-toolbar>
 									<v-card light>
-										<v-list>
-											<v-list-tile>
-												<v-autocomplete clearable v-model="creatorLoadUser" label="User" :items="Object.keys(userDefinedScheduleNames)"></v-autocomplete>
-											</v-list-tile>
-											<v-list-tile>
-												<v-autocomplete clearable v-model="creatorLoadProject" label="Project" :items="Object.keys(_.get(userDefinedScheduleNames, [creatorLoadUser], {}))"></v-autocomplete>
-											</v-list-tile>
-											<v-list-tile>
-												<v-autocomplete clearable v-model="creatorLoadFileName" label="File Name" :items="_.get(userDefinedScheduleNames, [creatorLoadUser, creatorLoadProject], [])"></v-autocomplete>
-											</v-list-tile>
+										<v-list class="pt-4">
+											<v-list-item>
+												<v-autocomplete dense clearable v-model="creatorLoadUser" label="User" :items="Object.keys(userDefinedScheduleNames)"></v-autocomplete>
+											</v-list-item>
+											<v-list-item>
+												<v-autocomplete dense clearable v-model="creatorLoadProject" label="Project" :items="Object.keys(_.get(userDefinedScheduleNames, [creatorLoadUser], {}))"></v-autocomplete>
+											</v-list-item>
+											<v-list-item>
+												<v-autocomplete dense clearable v-model="creatorLoadFileName" label="File Name" :items="_.get(userDefinedScheduleNames, [creatorLoadUser, creatorLoadProject], [])"></v-autocomplete>
+											</v-list-item>
 										</v-list>
 									<v-card light>
 										<v-list>
-											<v-list-tile>
+											<v-list-item>
 												<v-spacer></v-spacer>
 												<v-tooltip top :disabled="!isValidScheduleLoadPath()">
-													<v-btn slot="activator" @click="loadSchedule()" :disabled="!isValidScheduleLoadPath()">Load Schedule File</v-btn>
+													<template v-slot:activator="{ on }">
+														<v-btn v-on="on" @click="loadSchedule()" :disabled="!isValidScheduleLoadPath()">Load Schedule File</v-btn>
+													</template>
 													<span>AutexysData/{{ creatorLoadUser }}/{{ creatorLoadProject }}/schedules/{{ creatorLoadFileName }}.json</span>
 												</v-tooltip>
 												<v-spacer></v-spacer>
-											</v-list-tile>
+											</v-list-item>
 										</v-list>
 									</v-card>
 								</v-menu>
@@ -777,63 +831,79 @@
 								<v-btn icon @click="resetScheduleCreator()" :disabled="!hasModifiedScheduleObjects()"><v-icon>settings_backup_restore</v-icon></v-btn>
 							</v-toolbar>
 							
-							<v-list expand>
-								<v-list-group v-for="scheduleObject, scheduleObjectIndex in scheduleObjects" :key="scheduleObjectIndex" :prepend-icon="$vuetify.icons.expand">
-									<v-list-tile slot="activator">
-										<v-list-tile-content>
-											<v-list-tile-title>
+							<v-list>
+								<v-list-group v-for="scheduleObject, scheduleObjectIndex in scheduleObjects" :key="scheduleObjectIndex" prepend-icon="expand_more">
+									<template v-slot:activator>
+										<v-list-item-content>
+											<v-list-item-title>
 												Job {{ scheduleObjectIndex + 1 }}: {{ _.get(scheduleObjects[scheduleObjectIndex], 'runType.default') }}
-											</v-list-tile-title>
-										</v-list-tile-content>
-										<v-list-tile-action>
+											</v-list-item-title>
+										</v-list-item-content>
+										<v-list-item-action>
 											<v-tooltip top>
-												<v-btn icon @click.stop="moveScheduleJobUp(scheduleObjectIndex)" slot="activator" :disabled="scheduleObjectIndex == 0"><v-icon>arrow_upward</v-icon></v-btn>
+												<template v-slot:activator="{ on: tooltip }">
+													<v-btn icon @click.stop="moveScheduleJobUp(scheduleObjectIndex)" v-on="{ ...tooltip }" :disabled="scheduleObjectIndex == 0"><v-icon>arrow_upward</v-icon></v-btn>
+												</template>
 												<span>Move job up</span>
 											</v-tooltip>
-										</v-list-tile-action>
-										<v-list-tile-action>
+										</v-list-item-action>
+										<v-list-item-action>
 											<v-tooltip top>
-												<v-btn icon @click.stop="moveScheduleJobDown(scheduleObjectIndex)" slot="activator" :disabled="scheduleObjectIndex >= scheduleObjects.length - 1"><v-icon>arrow_downward</v-icon></v-btn>
+												<template v-slot:activator="{ on: tooltip }">
+													<v-btn icon @click.stop="moveScheduleJobDown(scheduleObjectIndex)" v-on="{ ...tooltip }"  :disabled="scheduleObjectIndex >= scheduleObjects.length - 1"><v-icon>arrow_downward</v-icon></v-btn>
+												</template>
 												<span>Move job down</span>
 											</v-tooltip>
-										</v-list-tile-action>
-										<v-list-tile-action>
+										</v-list-item-action>
+										<v-list-item-action>
 											<v-tooltip top>
-												<v-btn icon @click.stop="copyScheduleObject(scheduleObjectIndex)" slot="activator"><v-icon>file_copy</v-icon></v-btn>
+												<template v-slot:activator="{ on: tooltip }">
+													<v-btn icon @click.stop="copyScheduleObject(scheduleObjectIndex)" v-on="{ ...tooltip }"><v-icon>file_copy</v-icon></v-btn>
+												</template>
 												<span>Copy job</span>
 											</v-tooltip>
-										</v-list-tile-action>
-										<v-list-tile-action>
+										</v-list-item-action>
+										<v-list-item-action>
 											<v-tooltip top>
-												<v-btn icon @click.stop="pasteScheduleObject(scheduleObjectIndex)" slot="activator"><v-icon>save_alt</v-icon></v-btn>
+												<template v-slot:activator="{ on: tooltip }">
+													<v-btn icon @click.stop="pasteScheduleObject(scheduleObjectIndex)" v-on="{ ...tooltip }"><v-icon>save_alt</v-icon></v-btn>
+												</template>
 												<span>Paste job</span>
 											</v-tooltip>
-										</v-list-tile-action>
-										<v-list-tile-action>
+										</v-list-item-action>
+										<v-list-item-action>
 											<v-tooltip top>
-												<v-btn icon @click.stop="addScheduleJob(scheduleObjectIndex)" slot="activator"><v-icon>add_circle</v-icon></v-btn>
+												<template v-slot:activator="{ on: tooltip }">
+													<v-btn icon @click.stop="addScheduleJob(scheduleObjectIndex)" v-on="{ ...tooltip }"><v-icon>add_circle</v-icon></v-btn>
+												</template>
 												<span>Add new job after</span>
 											</v-tooltip>
-										</v-list-tile-action>
-										<!--<v-list-tile-action>
+										</v-list-item-action>
+										<!--<v-list-item-action>
 											<v-tooltip top>
-												<v-btn icon @click.stop="resetScheduleJob(scheduleObjectIndex)" slot="activator"><v-icon>settings_backup_restore</v-icon></v-btn>
+												<template v-slot:activator="{ on: tooltip }">
+													<v-btn icon @click.stop="resetScheduleJob(scheduleObjectIndex)" v-on="{ ...tooltip }"><v-icon>settings_backup_restore</v-icon></v-btn>
+												</template>
 												<span>Restore job settings to defaults</span>
 											</v-tooltip>
-										</v-list-tile-action>-->
-										<v-list-tile-action>
+										</v-list-item-action>-->
+										<v-list-item-action>
 											<v-tooltip top>
-												<v-btn icon @click.stop="removeScheduleJob(scheduleObjectIndex)" slot="activator"><v-icon>cancel</v-icon></v-btn>
+												<template v-slot:activator="{ on: tooltip }">
+													<v-btn icon @click.stop="removeScheduleJob(scheduleObjectIndex)" v-on="{ ...tooltip }"><v-icon>cancel</v-icon></v-btn>
+												</template>
 												<span>Delete job</span>
 											</v-tooltip>
-										</v-list-tile-action>
-									</v-list-tile>
-
-									<a-schedule-job-edit :job.sync="scheduleObjects[scheduleObjectIndex]" :job-default="scheduleObjectDefault"></a-schedule-job-edit>
+										</v-list-item-action>
+									</template>
+									
+									<v-list-item>
+										<a-schedule-job-edit :job.sync="scheduleObjects[scheduleObjectIndex]" :job-default="scheduleObjectDefault"></a-schedule-job-edit>
+									</v-list-item>
 								</v-list-group>
 							</v-list>
 							
-							<v-card class="ma-3" v-if="showScheduleCreatorPreview && nonTrivialScheduleObjects()">
+							<v-card class="ma-4" v-if="showScheduleCreatorPreview && nonTrivialScheduleObjects()">
 								<v-toolbar dark dense class="info">
 									<v-toolbar-title>
 										Preview Schedule File
@@ -850,7 +920,7 @@
 						
 						<v-layout row wrap>
 							<v-flex xs6 sm6 md6 lg6>
-								<v-card class="mt-3" v-if="nonTrivialScheduleObjects()">
+								<v-card class="mt-3 ml-3" v-if="nonTrivialScheduleObjects()">
 									<v-toolbar dark dense class="color_creator">
 										<v-toolbar-title>
 											Save Schedule File
@@ -864,30 +934,30 @@
 									<v-form>
 										<v-container>
 											<v-layout row wrap>
-												<v-flex xs4 sm4 md4 lg4 outline>
+												<v-flex xs4 sm4 md4 lg4 class="pa-2">
 													<v-combobox clearable v-model="creatorSaveUser" label="User" :items="Object.keys(userDefinedScheduleNames)">
 														<template slot="no-data">
-															<v-list-tile><v-list-tile-content><v-list-tile-title>
+															<v-list-item><v-list-item-content><v-list-item-title>
 																No results. Continuing will create a new user.
-															</v-list-tile-title></v-list-tile-content></v-list-tile>
+															</v-list-item-title></v-list-item-content></v-list-item>
 														</template>
 													</v-combobox>
 												</v-flex>
-												<v-flex xs4 sm4 md4 lg4 solo>
+												<v-flex xs4 sm4 md4 lg4 class="pt-2 pb-2">
 													<v-combobox clearable v-model="creatorSaveProject" label="Project" :items="Object.keys(_.get(userDefinedScheduleNames, [creatorSaveUser], {}))">
 														<template slot="no-data">
-															<v-list-tile><v-list-tile-content><v-list-tile-title>
+															<v-list-item><v-list-item-content><v-list-item-title>
 																No results. Continuing will create a new project.
-															</v-list-tile-title></v-list-tile-content></v-list-tile>
+															</v-list-item-title></v-list-item-content></v-list-item>
 														</template>
 													</v-combobox>
 												</v-flex>
-												<v-flex xs4 sm4 md4 lg4 solo>
+												<v-flex xs4 sm4 md4 lg4 class="pa-2"> 
 													<v-combobox clearable v-model="creatorSaveFileName" label="File Name" :items="_.get(userDefinedScheduleNames, [creatorSaveUser, creatorSaveProject], [])">
 														<template slot="no-data">
-															<v-list-tile><v-list-tile-content><v-list-tile-title>
+															<v-list-item><v-list-item-content><v-list-item-title>
 																No results. Continuing will create a new file.
-															</v-list-tile-title></v-list-tile-content></v-list-tile>
+															</v-list-item-title></v-list-item-content></v-list-item>
 														</template>
 													</v-combobox>
 												</v-flex>
@@ -899,11 +969,15 @@
 										<v-switch class="ml-1" label="Preview" v-model="showScheduleCreatorPreview"></v-switch>
 										<v-spacer></v-spacer>
 										<v-tooltip top v-if="isValidScheduleSavePath()">
-											<v-btn slot="activator" icon @click='copyHTMLStringToClip("cd \"" + paths["sourceAbsPath"] + "\" \n" + "python dispatcher.py \"" + "../../AutexysData/" + creatorSaveUser + "/" + creatorSaveProject + "/schedules/" + creatorSaveFileName + ".json\"")' :disabled="!isValidScheduleSavePath()"><v-icon>settings_ethernet</v-icon></v-btn>
+											<template v-slot:activator="{ on }">
+												<v-btn v-on="on" icon @click='copyHTMLStringToClip("cd \"" + paths["sourceAbsPath"] + "\" \n" + "python dispatcher.py \"" + "../../AutexysData/" + creatorSaveUser + "/" + creatorSaveProject + "/schedules/" + creatorSaveFileName + ".json\"")' :disabled="!isValidScheduleSavePath()"><v-icon>settings_ethernet</v-icon></v-btn>
+											</template>
 											<span>Copy launch commands for Terminal</span>
 										</v-tooltip>
 										<v-tooltip top :disabled="!isValidScheduleSavePath()" class="ml-2">
-											<v-btn slot="activator" @click="saveSchedule()" :disabled="!isValidScheduleSavePath()">Save Schedule File</v-btn>
+											<template v-slot:activator="{ on }">
+												<v-btn v-on="on" @click="saveSchedule()" :disabled="!isValidScheduleSavePath()">Save Schedule File</v-btn>
+											</template>
 											<span>AutexysData/{{ creatorSaveUser }}/{{ creatorSaveProject }}/schedules/{{ creatorSaveFileName }}.json</span>
 										</v-tooltip>
 									</v-card-actions>
@@ -915,7 +989,7 @@
 					<!-- End of sched creator -->
 					<!-- Start of experiment runner -->
 					
-					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'experimentRunner'">
+					<v-flex xs12 class="ma-4" v-if="topLevelPage === 'experimentRunner'">
 						<v-card>
 							<v-toolbar dark dense class="color_runner">
 								<v-toolbar-title>
@@ -928,7 +1002,7 @@
 							<v-container>
 								<v-layout class="mt-2 ml-2 mr-2">
 									<v-flex xs12 sm6 md4 lg3>
-										<v-select box class="ma-1" label="Experiment Type" v-model="runnerChoice" :items="['Schedule File'].concat(standardScheduleNames)"></v-select>
+										<v-select filled class="ma-1" label="Experiment Type" v-model="runnerChoice" :items="['Schedule File'].concat(standardScheduleNames)"></v-select>
 									</v-flex>
 								</v-layout>
 							
@@ -947,107 +1021,103 @@
 								</template>
 							
 								<template v-if="(runnerChoice !== '') && (runnerUser && runnerProject && runnerFileName) && (runnerScheduleObjects.length === 1) && (runnerVerboseScheduleObjects.length === 1)">
-									<v-layout class="ma-2">
-										<v-expansion-panel>
-											<v-expansion-panel-content class="grey lighten-4">
+									<v-layout class="ma-3">
+										<v-expansion-panels>
+											<v-expansion-panel class="grey lighten-4">
+												<v-expansion-panel-header>
+													<div style="font-weight: bold;">Options</div>
+												</v-expansion-panel-header>
 												
-												<div slot="header">
-													<v-layout row wrap>
-														<div style="font-weight: bold;">
-															Options
-														</div>
-														<v-spacer></v-spacer>
-													</v-layout>
-												</div>
-												
-												<v-container grid-list-md>
-													<v-layout row wrap>
-														
-														<v-flex xs3 s3 md3 lg3>
-															<v-list class="roundedcorners">
-																<v-list-tile>
-																	<v-list-tile-content><v-list-tile-title style="font-weight: bold">
-																		Identifiers
-																	</v-list-tile-title></v-list-tile-content>
-																</v-list-tile>
-																<template v-if="!runnerToggleAdvancedSettings && Object.keys(runnerScheduleObjects[0]).includes('Identifiers')">
-																	<a-item-edit-group :settings.sync="runnerScheduleObjects[0]['Identifiers']"></a-item-edit-group>
-																</template>
-																<template v-if="runnerToggleAdvancedSettings || !Object.keys(runnerScheduleObjects[0]).includes('Identifiers')">
-																	<a-item-edit-group :settings.sync="runnerVerboseScheduleObjects[0]['Identifiers']"></a-item-edit-group>
-																</template>
-															</v-list>
+												<v-expansion-panel-content>
+													<v-container grid-list-md>
+														<v-layout row wrap>
 															
-															<template v-if="runnerToggleAdvancedSettings">
-																<v-list class="mt-3 roundedcorners">
-																	<v-list-tile>
-																		<v-list-tile-content><v-list-tile-title style="font-weight: bold">
-																			Measurement System
-																		</v-list-tile-title></v-list-tile-content>
-																	</v-list-tile>
-																	<a-item-edit-group :settings.sync="runnerVerboseScheduleObjects[0]['MeasurementSystem']"></a-item-edit-group>
+															<v-flex xs3 s3 md3 lg3>
+																<v-list class="roundedcorners">
+																	<v-list-item>
+																		<v-list-item-content><v-list-item-title style="font-weight: bold">
+																			Identifiers
+																		</v-list-item-title></v-list-item-content>
+																	</v-list-item>
+																	<template v-if="!runnerToggleAdvancedSettings && Object.keys(runnerScheduleObjects[0]).includes('Identifiers')">
+																		<a-item-edit-group :settings.sync="runnerScheduleObjects[0]['Identifiers']"></a-item-edit-group>
+																	</template>
+																	<template v-if="runnerToggleAdvancedSettings || !Object.keys(runnerScheduleObjects[0]).includes('Identifiers')">
+																		<a-item-edit-group :settings.sync="runnerVerboseScheduleObjects[0]['Identifiers']"></a-item-edit-group>
+																	</template>
 																</v-list>
-															</template>
-															
-															<template v-if="runnerToggleAdvancedSettings && (!standardScheduleNames.includes(runnerChoice))">
-																<v-list class="mt-3 roundedcorners">
-																	<v-select box class="ma-3" label="Run Type" v-model="runnerVerboseScheduleObjects[0]['runType']['default']" :items="Object.keys(JSON.parse(JSON.stringify(runnerVerboseScheduleObjects[0]['runConfigs'] || {})))"></v-select>
-																</v-list>
-															</template>
-														</v-flex>
-														
-														<v-flex xs3 s3 md3 lg3 v-if="runnerVerboseScheduleObjects[0]['MeasurementSystem']['deviceCycling']['default']">
-															<v-list class="roundedcorners">
-																<v-list-tile>
-																	<v-list-tile-content><v-list-tile-title style="font-weight: bold">
-																		Device Cycling
-																	</v-list-tile-title></v-list-tile-content>
-																</v-list-tile>
-																<template v-if="!runnerToggleAdvancedSettings && Object.keys(runnerScheduleObjects[0]).includes('DeviceCycling')">
-																	<a-item-edit-group :settings.sync="runnerScheduleObjects[0]['DeviceCycling']"></a-item-edit-group>
-																</template>
+																
 																<template v-if="runnerToggleAdvancedSettings">
-																	<a-item-edit-group :settings.sync="runnerVerboseScheduleObjects[0]['DeviceCycling']"></a-item-edit-group>
+																	<v-list class="mt-3 roundedcorners">
+																		<v-list-item>
+																			<v-list-item-content><v-list-item-title style="font-weight: bold">
+																				Measurement System
+																			</v-list-item-title></v-list-item-content>
+																		</v-list-item>
+																		<a-item-edit-group :settings.sync="runnerVerboseScheduleObjects[0]['MeasurementSystem']"></a-item-edit-group>
+																	</v-list>
 																</template>
-															</v-list>
-														</v-flex>
+																
+																<template v-if="runnerToggleAdvancedSettings && (!standardScheduleNames.includes(runnerChoice))">
+																	<v-list class="mt-3 roundedcorners">
+																		<v-select filled class="ma-4" label="Run Type" v-model="runnerVerboseScheduleObjects[0]['runType']['default']" :items="Object.keys(JSON.parse(JSON.stringify(runnerVerboseScheduleObjects[0]['runConfigs'] || {})))"></v-select>
+																	</v-list>
+																</template>
+															</v-flex>
+															
+															<v-flex xs3 s3 md3 lg3 v-if="runnerVerboseScheduleObjects[0]['MeasurementSystem']['deviceCycling']['default']">
+																<v-list class="roundedcorners">
+																	<v-list-item>
+																		<v-list-item-content><v-list-item-title style="font-weight: bold">
+																			Device Cycling
+																		</v-list-item-title></v-list-item-content>
+																	</v-list-item>
+																	<template v-if="!runnerToggleAdvancedSettings && Object.keys(runnerScheduleObjects[0]).includes('DeviceCycling')">
+																		<a-item-edit-group :settings.sync="runnerScheduleObjects[0]['DeviceCycling']"></a-item-edit-group>
+																	</template>
+																	<template v-if="runnerToggleAdvancedSettings">
+																		<a-item-edit-group :settings.sync="runnerVerboseScheduleObjects[0]['DeviceCycling']"></a-item-edit-group>
+																	</template>
+																</v-list>
+															</v-flex>
+														
+															<v-flex xs3 s3 md3 lg3 v-for="runConfig,runType in runnerScheduleObjects[0]['runConfigs']" :key="runType">
+																<v-list class="roundedcorners">
+																	<v-list-item>
+																		<v-list-item-content><v-list-item-title style="font-weight: bold">
+																			{{ runType }}
+																		</v-list-item-title></v-list-item-content>
+																	</v-list-item>
+																	<template v-if="!runnerToggleAdvancedSettings">
+																		<a-item-edit-group :settings.sync="runnerScheduleObjects[0]['runConfigs'][runType]"></a-item-edit-group>
+																	</template>
+																	<template v-if="runnerToggleAdvancedSettings">
+																		<a-item-edit-group :settings.sync="runnerVerboseScheduleObjects[0]['runConfigs'][runType]"></a-item-edit-group>
+																	</template>
+																</v-list>
+															</v-flex>
+															
+														</v-layout>
+														<v-alert :value="(['single', 'B2900A (double)'].includes(runnerVerboseScheduleObjects[0]['MeasurementSystem']['systemType']['default'])) && (runnerVerboseScheduleObjects[0]['MeasurementSystem']['deviceCycling']['default'])" icon="warning "color="warning">
+															<b>Advanced:</b> Device Cycling has been enabled, but the chosen Measurement System cannot dynamically select devices.
+														</v-alert>
+													</v-container>
 													
-														<v-flex xs3 s3 md3 lg3 v-for="runConfig,runType in runnerScheduleObjects[0]['runConfigs']" :key="runType">
-															<v-list class="roundedcorners">
-																<v-list-tile>
-																	<v-list-tile-content><v-list-tile-title style="font-weight: bold">
-																		{{ runType }}
-																	</v-list-tile-title></v-list-tile-content>
-																</v-list-tile>
-																<template v-if="!runnerToggleAdvancedSettings">
-																	<a-item-edit-group :settings.sync="runnerScheduleObjects[0]['runConfigs'][runType]"></a-item-edit-group>
-																</template>
-																<template v-if="runnerToggleAdvancedSettings">
-																	<a-item-edit-group :settings.sync="runnerVerboseScheduleObjects[0]['runConfigs'][runType]"></a-item-edit-group>
-																</template>
-															</v-list>
-														</v-flex>
-														
+													<v-layout row wrap>
+														<v-switch class="ml-6 mt-0" label="Advanced" v-model="runnerToggleAdvancedSettings"></v-switch>
+														<v-spacer></v-spacer>
+														<v-btn class="mr-3" small @click="runnerSaveScheduleFile()" :disabled="!isNecessaryToSaveRunnerScheduleFile()">Save</v-btn>
 													</v-layout>
-													<v-alert :value="(['single', 'B2900A (double)'].includes(runnerVerboseScheduleObjects[0]['MeasurementSystem']['systemType']['default'])) && (runnerVerboseScheduleObjects[0]['MeasurementSystem']['deviceCycling']['default'])" icon="warning "color="warning">
-														<b>Advanced:</b> Device Cycling has been enabled, but the chosen Measurement System cannot dynamically select devices.
-													</v-alert>
-												</v-container>
-								
-												<v-layout row wrap>
-													<v-switch class="ml-3" label="Advanced" v-model="runnerToggleAdvancedSettings"></v-switch>
-													<v-spacer></v-spacer>
-													<v-btn class="mr-3" small @click="runnerSaveScheduleFile()" :disabled="!isNecessaryToSaveRunnerScheduleFile()">Save</v-btn>
-												</v-layout>
+												</v-expansion-panel-content>
 												
-											</v-expansion-panel-content>
-										</v-expansion-panel>
+											</v-expansion-panel>
+										</v-expansion-panels>
 									</v-layout>
 								</template>
 								<template v-else>
 									<v-list>
-										<v-list-tile>
-										</v-list-tile>
+										<v-list-item>
+										</v-list-item>
 									</v-list>
 								</template>
 							
@@ -1105,31 +1175,31 @@
 								:time="experimentProgressModel['Procedure'].time_current - experimentProgressModel['Procedure'].time_start"></a-progress-bar-timed>
 								
 								<!--
-								<v-list-tile v-if="experimentProgressModel['Dispatcher'].visible">
-									<v-list-tile-content style="flex-direction:row;align-items:center;" class="mr-3">
-										<v-list-tile-title>Dispatcher: {{experimentProgressModel['Dispatcher'].name}} {{experimentProgressModel['Dispatcher'].current}} of {{experimentProgressModel['Dispatcher'].end}} </v-list-tile-title>
+								<v-list-item v-if="experimentProgressModel['Dispatcher'].visible">
+									<v-list-item-content style="flex-direction:row;align-items:center;" class="mr-3">
+										<v-list-item-title>Dispatcher: {{experimentProgressModel['Dispatcher'].name}} {{experimentProgressModel['Dispatcher'].current}} of {{experimentProgressModel['Dispatcher'].end}} </v-list-item-title>
 										<v-progress-linear class="roundedcorners" height="10" color="success" v-model="experimentProgressModel['Dispatcher'].percent"></v-progress-linear>
-									</v-list-tile-content>
-									<v-list-tile-action style="text-align:right;">	
-										<v-list-tile-sub-title>{{experimentProgressTimer.current - experimentProgressTimer.start | twoDecimalPoints}}</v-list-tile-sub-title>
-									</v-list-tile-action>
-								</v-list-tile>
-								<v-list-tile v-if="experimentProgressModel['Sweep'].visible">
-									<v-list-tile-title>Sweep: {{experimentProgressModel['Sweep'].name}} {{experimentProgressModel['Sweep'].current}} of {{experimentProgressModel['Sweep'].end}} </v-list-tile-title>
+									</v-list-item-content>
+									<v-list-item-action style="text-align:right;">	
+										<v-list-item-sub-title>{{experimentProgressTimer.current - experimentProgressTimer.start | twoDecimalPoints}}</v-list-item-sub-title>
+									</v-list-item-action>
+								</v-list-item>
+								<v-list-item v-if="experimentProgressModel['Sweep'].visible">
+									<v-list-item-title>Sweep: {{experimentProgressModel['Sweep'].name}} {{experimentProgressModel['Sweep'].current}} of {{experimentProgressModel['Sweep'].end}} </v-list-item-title>
 									<v-progress-linear v-model="experimentProgressModel['Sweep'].percent"></v-progress-linear>
-								</v-list-tile>
-								<v-list-tile v-if="experimentProgressModel['Group1'].visible">
-									<v-list-tile-title>{{experimentProgressModel['Group1'].name}} {{experimentProgressModel['Group1'].current}} of {{experimentProgressModel['Group1'].end}} </v-list-tile-title>
+								</v-list-item>
+								<v-list-item v-if="experimentProgressModel['Group1'].visible">
+									<v-list-item-title>{{experimentProgressModel['Group1'].name}} {{experimentProgressModel['Group1'].current}} of {{experimentProgressModel['Group1'].end}} </v-list-item-title>
 									<v-progress-linear v-model="experimentProgressModel['Group1'].percent"></v-progress-linear>
-								</v-list-tile>
-								<v-list-tile v-if="experimentProgressModel['Group2'].visible">
-									<v-list-tile-title>{{experimentProgressModel['Group2'].name}} {{experimentProgressModel['Group2'].current}} of {{experimentProgressModel['Group2'].end}} </v-list-tile-title>
+								</v-list-item>
+								<v-list-item v-if="experimentProgressModel['Group2'].visible">
+									<v-list-item-title>{{experimentProgressModel['Group2'].name}} {{experimentProgressModel['Group2'].current}} of {{experimentProgressModel['Group2'].end}} </v-list-item-title>
 									<v-progress-linear v-model="experimentProgressModel['Group2'].percent"></v-progress-linear>
-								</v-list-tile>
-								<v-list-tile v-if="experimentProgressModel['Procedure'].visible">
-									<v-list-tile-title>Procedure: {{experimentProgressModel['Procedure'].name}} {{experimentProgressModel['Procedure'].current}} of {{experimentProgressModel['Procedure'].end}} </v-list-tile-title>
+								</v-list-item>
+								<v-list-item v-if="experimentProgressModel['Procedure'].visible">
+									<v-list-item-title>Procedure: {{experimentProgressModel['Procedure'].name}} {{experimentProgressModel['Procedure'].current}} of {{experimentProgressModel['Procedure'].end}} </v-list-item-title>
 									<v-progress-linear v-model="experimentProgressModel['Procedure'].percent"></v-progress-linear>
-								</v-list-tile>
+								</v-list-item>
 								-->
 							</v-list>
 						</v-card>
@@ -1146,10 +1216,10 @@
 							<v-container fluid grid-list-sm>
 								<v-layout row wrap>
 									<v-flex xs12 sm6 md4 lg3>
-										<v-select box class="ma-1" label="Job Number" v-model="jobSelectChoice" :items="jobSelectItems"></v-select>
+										<v-select filled class="ma-1" label="Job Number" v-model="jobSelectChoice" :items="jobSelectItems"></v-select>
 									</v-flex>
 									<v-flex xs12 sm6 md4 lg3>
-										<v-select box class="ma-1" label="Device Number" v-model="deviceSelectChoice" :items="deviceSelectItems"></v-select>
+										<v-select filled class="ma-1" label="Device Number" v-model="deviceSelectChoice" :items="deviceSelectItems"></v-select>
 									</v-flex>
 								</v-layout>
 								
@@ -1165,30 +1235,34 @@
 													<v-spacer></v-spacer>
 													
 													<v-menu bottom left offset-y :close-on-content-click="false" :max-width="250">
-														<v-btn slot="activator" icon><v-icon>settings</v-icon></v-btn>
+														<template v-slot:activator="{ on }">
+															<v-btn v-on="on" icon><v-icon>settings</v-icon></v-btn>
+														</template>
 														<v-list>
-															<v-list-tile @click="toggleLivePlotYAxisLog(plot)">
-																<v-list-tile-avatar><v-icon>timeline</v-icon></v-list-tile-avatar>
-																<v-list-tile-content><v-list-tile-title>Toggle Log Scale</v-list-tile-title></v-list-tile-content>
-															</v-list-tile>
-															<v-list-tile>
-																<v-list-tile-avatar><v-icon>color_lens</v-icon></v-list-tile-avatar>
-																<v-list-tile-content><v-text-field clearable single-line label="Color" v-model="plot['color']"></v-text-field></v-list-tile-content>
-															</v-list-tile>
-															<v-list-tile>
-																<v-list-tile-avatar><v-icon>linear_scale</v-icon></v-list-tile-avatar>
-																<v-list-tile-content><v-select clearable single-line label="Style" v-model="plot['plotMode']" :items="['lines', 'markers', 'lines+markers']"></v-text-field></v-list-tile-content>
-															</v-list-tile>
+															<v-list-item @click="toggleLivePlotYAxisLog(plot)">
+																<v-list-item-avatar><v-icon>timeline</v-icon></v-list-item-avatar>
+																<v-list-item-content><v-list-item-title>Toggle Log Scale</v-list-item-title></v-list-item-content>
+															</v-list-item>
+															<v-list-item>
+																<v-list-item-avatar><v-icon>color_lens</v-icon></v-list-item-avatar>
+																<v-list-item-content><v-text-field clearable single-line label="Color" v-model="plot['color']"></v-text-field></v-list-item-content>
+															</v-list-item>
+															<v-list-item>
+																<v-list-item-avatar><v-icon>linear_scale</v-icon></v-list-item-avatar>
+																<v-list-item-content><v-select clearable single-line label="Style" v-model="plot['plotMode']" :items="['lines', 'markers', 'lines+markers']"></v-text-field></v-list-item-content>
+															</v-list-item>
 														</v-list>
 													</v-menu>
 													
 													<v-tooltip top>
-														<v-btn slot="activator" icon @click="clearLivePlot(plot); delete livePlots[jobSelectChoice][deviceSelectChoice][plotID];"><v-icon>clear</v-icon></v-btn>
+														<template v-slot:activator="{ on }">
+															<v-btn v-on="on" icon @click="clearLivePlot(plot); delete livePlots[jobSelectChoice][deviceSelectChoice][plotID];"><v-icon>clear</v-icon></v-btn>
+														</template>
 														<span>Clear</span>
 													</v-tooltip>
 												</v-toolbar>
 												
-												<div class="text-xs-center">
+												<div class="text-center">
 													<a-plotly v-bind:data="extractPlotlyData(plot)" :layout="extractPlotlyLayout(plot)"></a-plotly>
 												</div>
 											</v-card>
@@ -1203,7 +1277,7 @@
 					<!-- End of experiment runner -->
 					<!-- Start of applications -->
 					
-					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'performance'">
+					<v-flex xs12 class="ma-4" v-if="topLevelPage === 'performance'">
 						<v-card>
 							<v-toolbar dark dense class="color_performance">
 								<v-toolbar-title>
@@ -1215,93 +1289,104 @@
 							
 							<v-container>
 															
-								<v-card class="mb-1 grey lighten-4 roundedcorners" v-if="Object.keys(performanceScheduleObject).length > 0">
+								<v-card class="mb-1 pa-1 grey lighten-4 roundedcorners" v-if="Object.keys(performanceScheduleObject).length > 0">
 									<v-container>
 										<v-layout row wrap>
-											<v-flex xs3 s3 md3 lg3>
-												<v-list class="roundedcorners ma-1">
-													<v-list-tile class="pb-1">
-														<v-list-tile-content><v-list-tile-title style="font-weight: bold">
+											<v-flex xs3 s3 md3 lg3 class="pa-1">
+												<v-list class="roundedcorners">
+													<v-list-item class="pb-1">
+														<v-list-item-content><v-list-item-title style="font-weight: bold">
 															Device ID
-														</v-list-tile-title></v-list-tile-content>
-													</v-list-tile>
-													<v-list-tile>
+														</v-list-item-title></v-list-item-content>
+													</v-list-item>
+													<v-list-item>
 														<a-item-edit :setting.sync="performanceScheduleObject['Identifiers']['device']"></a-item-edit>
-													</v-list-tile>
+													</v-list-item>
 												</v-list>
-												<v-list class="roundedcorners ma-1 mt-2">
-													<v-list-tile class="pb-1">
-														<v-list-tile-content><v-list-tile-title style="font-weight: bold">
+												<v-list class="roundedcorners mt-2">
+													<v-list-item class="pb-1">
+														<v-list-item-content><v-list-item-title style="font-weight: bold">
 															Measurement System
-														</v-list-tile-title></v-list-tile-content>
-													</v-list-tile>
-													<v-list-tile>
+														</v-list-item-title></v-list-item-content>
+													</v-list-item>
+													<v-list-item>
 														<a-item-edit :setting.sync="performanceScheduleObject['MeasurementSystem']['systemType']"></a-item-edit>
-													</v-list-tile>
+													</v-list-item>
 												</v-list>
 											</v-flex>
-											<v-flex xs3 s3 md3 lg3>
-												<v-list class="roundedcorners ma-1">
-													<v-list-tile class="pb-1">
-														<v-list-tile-content><v-list-tile-title style="font-weight: bold">
+											
+											<v-flex xs3 s3 md3 lg3 class="pa-1">
+												<v-list class="roundedcorners">
+													<v-list-item class="pb-1">
+														<v-list-item-content><v-list-item-title style="font-weight: bold">
 															Voltages
-														</v-list-tile-title></v-list-tile-content>
-													</v-list-tile>
-													<v-list-tile>
+														</v-list-item-title></v-list-item-content>
+													</v-list-item>
+													<v-list-item>
 														<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['gateVoltageMinimum']"></a-item-edit>
-													</v-list-tile>
-													<v-list-tile>
+													</v-list-item>
+													<v-list-item>
 														<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['gateVoltageMaximum']"></a-item-edit>
-													</v-list-tile>
-													<v-list-tile>
+													</v-list-item>
+													<v-list-item>
 														<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['drainVoltageMinimum']"></a-item-edit>
-													</v-list-tile>
-													<v-list-tile>
+													</v-list-item>
+													<v-list-item>
 														<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['drainVoltageMaximum']"></a-item-edit>
-													</v-list-tile>
+													</v-list-item>
 												</v-list>
 											</v-flex>
-											<v-flex xs3 s3 md3 lg3>
-												<v-expansion-panel v-model="performanceShowOptions" class="roundedcorners ma-1 pr-1 elevation-0">
-													<v-expansion-panel-content class="roundedcorners">
-														<div slot="header" style="font-weight:bold;font-size:12pt">Options</div>
-														<v-list class="roundedcorners ">
-															<v-list-tile>
-																<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['pointLimit']" placeholder="unlimited"></a-item-edit>
-															</v-list-tile>
-															<v-list-tile>
-																<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['delayBetweenMeasurements']"></a-item-edit>
-															</v-list-tile>
-														</v-list>
-													</v-expansion-panel-content>
-												</v-expansion-panel>
+											
+											<v-flex xs3 s3 md3 lg3 class="pa-1">
+												<v-expansion-panels flat v-model="performanceShowOptions" class="roundedcorners">
+													<v-expansion-panel class="roundedcorners">
+														<v-expansion-panel-header>
+															<div style="font-weight:bold;font-size:12pt">Options</div>
+														</v-expansion-panel-header>
+														<v-expansion-panel-content class="padlessexpansionpanel">
+															<v-list class="roundedcorners">
+																<v-list-item>
+																	<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['pointLimit']" placeholder="unlimited"></a-item-edit>
+																</v-list-item>
+																<v-list-item>
+																	<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['delayBetweenMeasurements']"></a-item-edit>
+																</v-list-item>
+															</v-list>
+														</v-expansion-panel-content>
+													</v-expansion-panel>
+												</v-expansion-panels>
 											</v-flex>
-											<v-flex xs3 s3 md3 lg3>
-												<v-expansion-panel v-model="performanceShowAdvanced" class="roundedcorners ma-1 pl-1 elevation-0">
-													<v-expansion-panel-content class="roundedcorners">
-														<div slot="header" style="font-weight:bold;font-size:12pt">Advanced</div>
-														<v-list class="roundedcorners">
-															<v-list-tile>
-																<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['stepsBetweenMeasurements']"></a-item-edit>
-															</v-list-tile>
-															<v-list-tile>
-																<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['complianceCurrent']"></a-item-edit>
-															</v-list-tile>
-															<v-list-tile>
-																<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['gateVoltageDistribution']"></a-item-edit>
-																<v-flex xs4 class="ml-1" v-if="performanceScheduleObject['runConfigs']['FreeRun']['gateVoltageDistribution']['default'] !== 'random'"> 
-																	<a-item-edit hide_label="true" :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['gateVoltageDistributionParameter']"></a-item-edit>
-																</v-flex>
-															</v-list-tile>
-															<v-list-tile>
-																<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['drainVoltageDistribution']"></a-item-edit>
-																<v-flex xs4 class="ml-1" v-if="performanceScheduleObject['runConfigs']['FreeRun']['drainVoltageDistribution']['default'] !== 'random'">
-																	<a-item-edit hide_label="true" :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['drainVoltageDistributionParameter']"></a-item-edit>
-																</v-flex>
-															</v-list-tile>
-														</v-list>
-													</v-expansion-panel-content>
-												</v-expansion-panel>
+											
+											<v-flex xs3 s3 md3 lg3 class="pa-1">
+												<v-expansion-panels flat v-model="performanceShowAdvanced" class="roundedcorners">
+													<v-expansion-panel class="roundedcorners">
+														<v-expansion-panel-header>
+															<div  style="font-weight:bold;font-size:12pt">Advanced</div>
+														</v-expansion-panel-header>
+														<v-expansion-panel-content class="padlessexpansionpanel">
+															<v-list class="roundedcorners">
+																<v-list-item>
+																	<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['stepsBetweenMeasurements']"></a-item-edit>
+																</v-list-item>
+																<v-list-item>
+																	<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['complianceCurrent']"></a-item-edit>
+																</v-list-item>
+																<v-list-item>
+																	<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['gateVoltageDistribution']"></a-item-edit>
+																	<v-flex xs4 class="ml-1" v-if="performanceScheduleObject['runConfigs']['FreeRun']['gateVoltageDistribution']['default'] !== 'random'"> 
+																		<a-item-edit hide_label="true" :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['gateVoltageDistributionParameter']"></a-item-edit>
+																	</v-flex>
+																</v-list-item>
+																<v-list-item>
+																	<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['drainVoltageDistribution']"></a-item-edit>
+																	<v-flex xs4 class="ml-1" v-if="performanceScheduleObject['runConfigs']['FreeRun']['drainVoltageDistribution']['default'] !== 'random'">
+																		<a-item-edit hide_label="true" :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['drainVoltageDistributionParameter']"></a-item-edit>
+																	</v-flex>
+																</v-list-item>
+															</v-list>
+														</v-expansion-panel-content>
+													</v-expansion-panel>
+												</v-expansion-panels>
 											</v-flex>
 										</v-layout>
 									</v-container>
@@ -1326,10 +1411,11 @@
 												<v-spacer></v-spacer>
 											</v-toolbar>
 											
-											<v-tabs dark grow value="tab-T" color="color_performance" slider-color="orange darken-2">
+											<v-tabs dark grow value="tab-T" background-color="color_performance" slider-color="orange darken-2">
+												<v-tabs-slider></v-tabs-slider>
 												<v-tab href="#tab-S">Subthreshold Curve</v-tab>
 												<v-tab href="#tab-T">Transfer Curve</v-tab>
-												<v-tab href="#tab-O">Output Curve</v-tab>
+												<v-tab  href="#tab-O">Output Curve</v-tab>
 												<v-tab-item value="tab-S">
 													<v-card flat>
 														<a-plotly v-bind:data="extractPlotlyData(performancePlots['Subthreshold Curve'])" :layout="extractPlotlyLayout(performancePlots['Subthreshold Curve'])"></a-plotly>
@@ -1364,14 +1450,18 @@
 												<v-toolbar-items><v-switch class="ml-2" color="white" label="" v-model="performanceMetricsExtract"></v-switch></v-toolbar-items>
 												<v-spacer></v-spacer>
 											</v-toolbar>
-											<v-data-table v-if="performanceMetricsExtract" hide-actions hide-headers light 
+											<v-data-table v-if="performanceMetricsExtract" light hide-default-header hide-default-footer 
 												:items="[{'label':'gm', 'value':performanceMetrics['gm'], 'decimals':3, 'units':' S'}, 
 														 {'label':'SS', 'value':performanceMetrics['SS'], 'decimals':0, 'units':' mV/dec'},
 														 {'label':'VT', 'value':performanceMetrics['VT'], 'decimals':2, 'units':' V'}]">
-												<template slot="items" slot-scope="props">
-													<td><div style="width:0px">{{ props.item['label'] }}</div></td>
-													<td>{{ props.item['value'] | scientificPrecision(props.item['decimals']) 
-																			   | withUnits(props.item['units']) }}</td>
+												<template v-slot:body="{ items }">		
+													<tbody>
+														<tr v-for="item in items" :key="item.label">
+															<td><div style="width:21">{{ item.label }}</div></td>
+															<td>{{ item['value'] | scientificPrecision(item.decimals) 
+																			   | withUnits(item.units) }}</td>
+														</tr>
+													</tbody>
 												</template>
 											</v-data-table>
 											<v-checkbox v-if="performanceMetricsExtract" class="ml-1" label="Show on Plot" 
@@ -1384,7 +1474,7 @@
 						</v-card>
 					</v-flex>
 					
-					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'ptSensor'">
+					<v-flex xs12 class="ma-4" v-if="topLevelPage === 'ptSensor'">
 						<v-card>
 							<v-toolbar dark dense class="color_ptsensor">
 								<v-toolbar-title>
@@ -1396,34 +1486,34 @@
 							
 							<v-container>
 								
-								<v-card class="mb-1 grey lighten-4 roundedcorners" v-if="Object.keys(ptSensorScheduleObject).length > 0">
+								<v-card class="mb-1 pa-1 grey lighten-4 roundedcorners" v-if="Object.keys(ptSensorScheduleObject).length > 0">
 									<v-container>
 										<v-layout row wrap>
 											<v-flex xs3 s3 md3 lg3>
 												<v-list class="roundedcorners ma-1">
-													<v-list-tile class="pb-1">
-														<v-list-tile-content><v-list-tile-title style="font-weight: bold">
+													<v-list-item class="pb-1">
+														<v-list-item-content><v-list-item-title style="font-weight: bold">
 															Device ID
-														</v-list-tile-title></v-list-tile-content>
-													</v-list-tile>
-													<v-list-tile>
+														</v-list-item-title></v-list-item-content>
+													</v-list-item>
+													<v-list-item>
 														<a-item-edit :setting.sync="ptSensorScheduleObject['Identifiers']['device']"></a-item-edit>
-													</v-list-tile>
+													</v-list-item>
 												</v-list>
 											</v-flex>
 											<v-flex xs3 s3 md3 lg3>
 												<v-list class="roundedcorners ma-1">
-													<v-list-tile class="pb-1">
-														<v-list-tile-content><v-list-tile-title style="font-weight: bold">
+													<v-list-item class="pb-1">
+														<v-list-item-content><v-list-item-title style="font-weight: bold">
 															Timing
-														</v-list-tile-title></v-list-tile-content>
-													</v-list-tile>
-													<v-list-tile>
+														</v-list-item-title></v-list-item-content>
+													</v-list-item>
+													<v-list-item>
 														<a-item-edit :setting.sync="ptSensorScheduleObject['runConfigs']['PTSensor']['totalSensingTime']"></a-item-edit>
-													</v-list-tile>
-													<v-list-tile>
+													</v-list-item>
+													<v-list-item>
 														<a-item-edit :setting.sync="ptSensorScheduleObject['runConfigs']['PTSensor']['delayBetweenMeasurements']"></a-item-edit>
-													</v-list-tile>
+													</v-list-item>
 												</v-list>
 											</v-flex>
 											<v-flex xs3 s3 md3 lg3>
@@ -1455,7 +1545,7 @@
 												<v-spacer></v-spacer>
 											</v-toolbar>
 											
-											<v-tabs dark grow value="tab-T" color="color_ptsensor" slider-color="color_ptsensor darken-4">
+											<v-tabs dark grow value="tab-T" background-color="color_ptsensor" slider-color="color_ptsensor darken-4">
 												<v-tab href="#tab-I">Impedance</v-tab>
 												<v-tab-item value="tab-I">
 													<v-card flat>
@@ -1474,13 +1564,19 @@
 												<v-spacer></v-spacer>													
 											</v-toolbar>
 											<v-toolbar dark flat color="color_ptsensor" dense></v-toolbar>
-											<v-data-table hide-actions hide-headers light 
+											<v-data-table light hide-default-header hide-default-footer 
 												:items="[{'label': 'Max', 'value': ptSensorMaxImpedance,      'decimals': 0, 'units': ' Ohms'}, 
 														 {'label': 'PT', 'value': ptSensorTimeOfMaxImpedance, 'decimals': 2, 'units': ' sec'}]">
-												<template slot="items" slot-scope="props">
-													<td> {{ props.item['label'] }}</td>
-													<td> {{ props.item['value'] | decimalPrecision(props.item['decimals']) 
-																				| withUnits(props.item['units']) }}</td>
+												<template v-slot:body="{ items }">		
+													<tbody>
+														<tr v-for="item in items" :key="item.label">
+															<td> {{ item.label }}</td>
+															<td> {{ item.value | decimalPrecision(item.decimals) 
+																			   | withUnits(item.units) }}</td>
+														</tr>		
+													</tbody>
+												</template>
+													
 												</template>
 											</v-data-table>
 										</v-card>
@@ -1494,7 +1590,7 @@
 					<!-- End of applications -->
 					<!-- Start of settings -->
 					
-					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'settings'">
+					<v-flex xs12 class="ma-4" v-if="topLevelPage === 'settings'">
 						<v-card>
 							<v-toolbar dark dense class="info darken-2">
 								<v-toolbar-title>
@@ -1514,7 +1610,7 @@
 													Data
 												</v-toolbar-title>
 											</v-toolbar>
-											<v-list class="pt-3">
+											<v-list class="pt-4">
 												<a-item-edit-group :settings.sync="primaryPlotSettings"></a-item-edit-group>
 											</v-list>
 										</v-card>
@@ -1527,7 +1623,7 @@
 													Plot Options
 												</v-toolbar-title>
 											</v-toolbar>
-											<v-list class="pt-3">
+											<v-list class="pt-4">
 												<a-item-edit-group :settings.sync="modePlotSettings"></a-item-edit-group>
 											</v-list>
 										</v-card>
@@ -1540,7 +1636,7 @@
 													Chip Summary
 												</v-toolbar-title>
 											</v-toolbar>
-											<v-list class="pt-3">
+											<v-list class="pt-4">
 												<a-item-edit-group :settings.sync="chipSummarySettings"></a-item-edit-group>
 											</v-list>
 										</v-card>
@@ -1553,7 +1649,7 @@
 													Device Summary
 												</v-toolbar-title>
 											</v-toolbar>
-											<v-list class="pt-3">
+											<v-list class="pt-4">
 												<a-item-edit-group :settings.sync="deviceSummarySettings"></a-item-edit-group>
 											</v-list>
 										</v-card>
@@ -1566,7 +1662,7 @@
 					<!-- End of settings -->
 					<!-- Start of about -->
 					
-					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'about'">
+					<v-flex xs12 class="ma-4" v-if="topLevelPage === 'about'">
 						<v-card>
 							<v-toolbar dark dense class="color_documentation">
 								<v-toolbar-title>
@@ -1587,7 +1683,7 @@
 								</v-toolbar-title>
 							</v-toolbar>
 							<v-container>								
-								<v-toolbar dark dense v-for="colorValue, colorName in $vuetify.theme" :key="colorName" :color="colorValue">
+								<v-toolbar dark dense v-for="colorValue, colorName in $vuetify.theme.themes.light" :key="colorName" :color="colorValue">
 									<v-toolbar-title>
 										{{ colorName }}
 									</v-toolbar-title>
@@ -1599,7 +1695,7 @@
 					<!-- End of about -->
 					<!-- Start of documentation -->
 					
-					<v-flex xs12 class="ma-3" v-if="topLevelPage === 'documentation'">
+					<v-flex xs12 class="ma-4" v-if="topLevelPage === 'documentation'">
 						<v-card>
 							<v-toolbar dark dense class="color_documentation">
 								<v-toolbar-title>
@@ -1608,9 +1704,11 @@
 								<v-spacer></v-spacer>
 								<v-btn icon><v-icon>info_outline</v-icon></v-btn>
 							</v-toolbar>
+							
 							<v-container> 
 								This documentation is intended for developers adding to the Python code. It is built using Sphinx.
 							</v-container>
+							
 							<v-container>
 								<v-btn href="https://stevennoyce.github.io/AutexysHost/build/html/" target="_blank">View Documentation</v-btn>
 							</v-container>
@@ -1622,31 +1720,41 @@
 									User Documentation
 								</v-toolbar-title>
 							</v-toolbar>
+							
 							<v-container>
 								This documentation is intended for anyone using Autexys.
 							</v-container>
+							
 							<v-container>
-								<v-expansion-panel expand class="mt-1 mb-2" v-for="(documentationItemText, index) in documentationText" :key="index" :prepend-icon="$vuetify.icons.expand">
-									<v-expansion-panel-content class="grey lighten-4" v-for="(panel, i) in 1" :key="i">
-										<span slot="header">
+								<v-expansion-panels multiple class="mt-1 mb-2" v-for="(documentationItemText, index) in documentationText" :key="index" :prepend-icon="$vuetify.icons.expand">
+									<v-expansion-panel class="grey lighten-4" v-for="(panel, i) in 1" :key="i">
+										<v-expansion-panel-header>
 											<div style="display:inline; height: 50px; line-height: 50px;">
 												{{ index + 1 }}. {{ documentationTitle[index] }}
 											</div>
 											<div style="display:inline; float:right;">
 												<v-tooltip top>
-													<v-btn icon @click.stop="moveDocumentationEntryUp(index)" slot="activator" :disabled="index == 0"><v-icon>arrow_upward</v-icon></v-btn>
+													<template v-slot:activator="{ on }">
+														<v-btn icon @click.stop="moveDocumentationEntryUp(index)" v-on="on" :disabled="index == 0"><v-icon>arrow_upward</v-icon></v-btn>
+													</template>
 													<span>Move entry up</span>
 												</v-tooltip>
 												<v-tooltip top>
-													<v-btn icon @click.stop="moveDocumentationEntryDown(index)" slot="activator" :disabled="index >= documentationText.length - 1"><v-icon>arrow_downward</v-icon></v-btn>
+													<template v-slot:activator="{ on }">
+														<v-btn icon @click.stop="moveDocumentationEntryDown(index)" v-on="on" :disabled="index >= documentationText.length - 1"><v-icon>arrow_downward</v-icon></v-btn>
+													</template>
 													<span>Move entry down</span>
 												</v-tooltip>
 												<v-tooltip top>
-													<v-btn icon @click.stop="addDocumentationEntry(index)" slot="activator"><v-icon>add_circle</v-icon></v-btn>
+													<template v-slot:activator="{ on }">
+														<v-btn icon @click.stop="addDocumentationEntry(index)" v-on="on"><v-icon>add_circle</v-icon></v-btn>
+													</template>
 													<span>Add new entry after</span>
 												</v-tooltip>
 												<v-tooltip top>
-													<v-btn icon @click.stop="documentationDeleteDialogVisible = true; documentationDeleteIndex=index;" slot="activator" :disabled="documentationText.length == 1"><v-icon>cancel</v-icon></v-btn>
+													<template v-slot:activator="{ on }">
+														<v-btn icon @click.stop="documentationDeleteDialogVisible = true; documentationDeleteIndex=index;" v-on="on" :disabled="documentationText.length == 1"><v-icon>cancel</v-icon></v-btn>
+													</template>
 													<span>Delete entry</span>
 												</v-tooltip>
 												<v-snackbar v-model="documentationDeleteDialogVisible" :top="true" :timeout="0" :multi-line="true" color="red lighten-2">
@@ -1655,20 +1763,23 @@
 													<v-btn color="red" text @click="documentationDeleteDialogVisible = false; removeDocumentationEntry(documentationDeleteIndex);">Continue</v-btn>
 												</v-snackbar>
 											</div>
-										</span>
-										<v-container> 
-											<p v-if="!documentationEditMode[index]">
-												{{ documentationText[index] }}
-											</p>
-											<v-text-field solo v-if="documentationEditMode[index]" label="Enter documentation title" v-model="documentationProposedTitle[index]" auto-grow></v-text-field>
-											<v-textarea solo v-if="documentationEditMode[index]" label="Enter documentation text" v-model="documentationProposedText[index]" auto-grow>
-											</v-textarea>
-											<v-btn v-if="!documentationEditMode[index]" class="mb-3 mt-3" @click="documentationEdit(index)">Edit</v-btn>
-											<v-btn v-if="documentationEditMode[index]" class="mb-3 mt-3" @click="documentationSave(index)">Save</v-btn>
-											<v-btn v-if="documentationEditMode[index]" class="mb-3 mt-3" @click="documentationCancel(index)">Cancel</v-btn>
-										</v-container>
-									</v-expansion-panel-content>
-								</v-expansion-panel>
+										</v-expansion-panel-header>
+										
+										<v-expansion-panel-content>
+											<v-container> 
+												<p v-if="!documentationEditMode[index]">
+													{{ documentationText[index] }}
+												</p>
+												<v-text-field solo v-if="documentationEditMode[index]" label="Enter documentation title" v-model="documentationProposedTitle[index]" auto-grow></v-text-field>
+												<v-textarea solo v-if="documentationEditMode[index]" label="Enter documentation text" v-model="documentationProposedText[index]" auto-grow>
+												</v-textarea>
+												<v-btn v-if="!documentationEditMode[index]" class="mb-3 mt-3" @click="documentationEdit(index)">Edit</v-btn>
+												<v-btn v-if="documentationEditMode[index]" class="mb-3 mt-3" @click="documentationSave(index)">Save</v-btn>
+												<v-btn v-if="documentationEditMode[index]" class="mb-3 mt-3" @click="documentationCancel(index)">Cancel</v-btn>
+											</v-container>
+										</v-expansion-panel-content>
+									</v-expansion-panel>
+								</v-expansion-panels>
 							</v-container>
 						</v-card>
 					</v-flex>
@@ -1677,7 +1788,7 @@
 
 				</v-content>
 				<v-footer inset>
-					<v-spacer></v-spacer><span class="pr-3">Created by Steven Noyce. Updated June 2019.</span>
+					<v-spacer></v-spacer><span class="pr-4">Created by Steven Noyce. Updated June 2019.</span>
 				</v-footer>
 			</v-app>
 		</transition>
@@ -1822,6 +1933,7 @@
 		console.log('Building Vuetify app...');
 		
 		var app = new Vue({
+			vuetify: new Vuetify({icons:{iconfont:'md'}}), // new syntax for vuetify v2.0.x (not previously required in v1.5.x)
 			el: '#app',
 			data: {
 				pageLoading: true,
@@ -1919,7 +2031,6 @@
 					{'text':'Device',  'value':'device',   'visible':true},
 					{'text':'Modified','value':'modified', 'visible':true},
 				],
-				recentActivityPagination: {'sortBy':'modified', 'descending': true},
 								
 				// === Browser ===
 				
@@ -1984,7 +2095,6 @@
 					{'text':'Measurement System', 'value':'MeasurementSystem.systemType'},
 					{'text':'Indexes', 'value':'uiComputed.indexCount'}],
 				experimentTableSearch: '',
-				experimentTablePagination: {'sortBy': 'startIndexes.experimentNumber', 'descending': true},
 				
 				indexes: [],
 				
@@ -3809,14 +3919,14 @@
 		// --- THEMES ---
 		
 		// Old theme
-		app.$vuetify.theme.primary = '#557A95';
-		app.$vuetify.theme.secondary = '#938E94';
-		app.$vuetify.theme.tertiary = '#0074E1';
-		app.$vuetify.theme.accent = '#7395AE';
-		app.$vuetify.theme.error = '#e83b2b';
-		app.$vuetify.theme.success = '#43a446';
-		app.$vuetify.theme.info = '#00b1c6';
-		app.$vuetify.theme.warning = '#fe9100';
+		app.$vuetify.theme.themes.light.primary = '#557A95';
+		app.$vuetify.theme.themes.light.secondary = '#938E94';
+		app.$vuetify.theme.themes.light.tertiary = '#0074E1';
+		app.$vuetify.theme.themes.light.accent = '#7395AE';
+		app.$vuetify.theme.themes.light.error = '#e83b2b';
+		app.$vuetify.theme.themes.light.success = '#43a446';
+		app.$vuetify.theme.themes.light.info = '#00b1c6';
+		app.$vuetify.theme.themes.light.warning = '#fe9100';
 		
 		// Mint theme
 		app.$data.colors = ['#05386B', '#379683', '#5CDB95', '#8EE4AF', '#EDF5E1'];
@@ -3857,28 +3967,28 @@
 		// --- Apply Theme --- 
 		
 		for (var i = 0; i < app.$data.colors.length; i++) {
-			app.$vuetify.theme['color' + (i + 1)] = app.$data.colors[i];
+			app.$vuetify.theme.themes.light['color' + (i + 1)] = app.$data.colors[i];
 		}
-		app.$vuetify.theme.primary = app.$vuetify.theme.color1;
-		app.$vuetify.theme.secondary = app.$vuetify.theme.color2;
-		app.$vuetify.theme.accent = app.$vuetify.theme.color3;
-		app.$vuetify.theme.tertiary = app.$vuetify.theme.color4;
-		app.$vuetify.theme.error = '#BF360C';
-		app.$vuetify.theme.success = '#00897B';
-		app.$vuetify.theme.info = '#A3B2BD';
-		app.$vuetify.theme.warning = '#FFB300';
+		app.$vuetify.theme.themes.light.primary = app.$vuetify.theme.themes.light.color1;
+		app.$vuetify.theme.themes.light.secondary = app.$vuetify.theme.themes.light.color2;
+		app.$vuetify.theme.themes.light.accent = app.$vuetify.theme.themes.light.color3;
+		app.$vuetify.theme.themes.light.tertiary = app.$vuetify.theme.themes.light.color4;
+		app.$vuetify.theme.themes.light.error = '#BF360C';
+		app.$vuetify.theme.themes.light.success = '#00897B';
+		app.$vuetify.theme.themes.light.info = '#A3B2BD';
+		app.$vuetify.theme.themes.light.warning = '#FFB300';
 		
 		// --- Custom Color Keywords ---
 		
-		app.$vuetify.theme['color_base'] = app.$vuetify.theme.color1;
-		app.$vuetify.theme['color_creator'] = app.$vuetify.theme.color2;
-		app.$vuetify.theme['color_runner'] = app.$vuetify.theme.color3;
-		app.$vuetify.theme['color_browser'] = app.$vuetify.theme.color4;
+		app.$vuetify.theme.themes.light['color_base'] = app.$vuetify.theme.themes.light.color1;
+		app.$vuetify.theme.themes.light['color_creator'] = app.$vuetify.theme.themes.light.color2;
+		app.$vuetify.theme.themes.light['color_runner'] = app.$vuetify.theme.themes.light.color3;
+		app.$vuetify.theme.themes.light['color_browser'] = app.$vuetify.theme.themes.light.color4;
 			
-		app.$vuetify.theme['color_performance'] = app.$vuetify.theme.color5;
-		app.$vuetify.theme['color_ptsensor'] = app.$vuetify.theme.color5;
+		app.$vuetify.theme.themes.light['color_performance'] = app.$vuetify.theme.themes.light.color5;
+		app.$vuetify.theme.themes.light['color_ptsensor'] = app.$vuetify.theme.themes.light.color5;
 		
-		app.$vuetify.theme['color_documentation'] = app.$vuetify.theme.color7;
+		app.$vuetify.theme.themes.light['color_documentation'] = app.$vuetify.theme.themes.light.color7;
 		
 		// colors = {
 		// 	'dark': {

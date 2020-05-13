@@ -7,7 +7,7 @@
 		
 		<!-- Column (runType, Identifiers, MeasurementSystem) -->
 		<v-flex xs12 sm6 md4 lg3 xl2>
-			<v-card ma-1  height="100%">
+			<v-card ma-1>
 				<v-toolbar dark dense class="color2">
 					<v-toolbar-title>
 						Parameters
@@ -15,23 +15,26 @@
 				</v-toolbar>
 				
 				<v-list>
-					<v-select box class="ma-3" label="Run Type" v-model="job['runType']['default']" :items="Object.keys(jobDefault['runConfigs'] || {})"></v-select>
+					<v-select filled class="ma-3" label="Run Type" v-model="job['runType']['default']" :items="Object.keys(jobDefault['runConfigs'] || {})"></v-select>
 					
-					<v-subheader class="grey lighten-3">Identifiers</v-subheader>
+					<v-list-item class="grey lighten-3"><v-list-item-content><v-list-item-title style="font-weight: bold">
+						Identifiers
+					</v-list-item-title></v-list-item-content></v-list-item>
 					
 					<a-item-edit-group class="grey lighten-3" :settings.sync="job['Identifiers']"></a-item-edit-group>
 					
-					<v-subheader>Measurement System</v-subheader>
-					
+					<v-list-item><v-list-item-content><v-list-item-title style="font-weight: bold">
+						Measurement System
+					</v-list-item-title></v-list-item-content></v-list-item>
+				
 					<a-item-edit-group :settings.sync="job['MeasurementSystem']"></a-item-edit-group>
-					
 				</v-list>
 			</v-card>
 		</v-flex>
 		
 		<!-- Column (DeviceCycling) -->
 		<v-flex xs12 sm6 md4 lg3 xl2 v-if="job['MeasurementSystem']['deviceCycling']['default']">
-			<v-card ma-1  height="100%">
+			<v-card ma-1>
 				<v-toolbar dark dense class="color2">
 					<v-toolbar-title>
 						Device Cycling
@@ -42,7 +45,7 @@
 					</v-btn>
 				</v-toolbar>
 				
-				<v-list class="pt-3">
+				<v-list class="pt-4">
 					<a-item-edit-group :settings.sync="job['DeviceCycling']"></a-item-edit-group>
 				</v-list>
 			</v-card>
@@ -50,7 +53,7 @@
 		
 		<!-- Column (runType parameters) -->
 		<v-flex xs12 sm6 md4 lg3 xl2 v-if="job['runType']['default'] != ''">
-			<v-card ma-1 height="100%">
+			<v-card ma-1>
 				<v-toolbar dark dense class="color2 ">
 					<v-toolbar-title>
 						{{ job['runType']['default'] }}
@@ -61,15 +64,15 @@
 					</v-btn>
 				</v-toolbar>
 				
-				<v-list class="pt-3">
+				<v-list class="pt-4">
 					<a-item-edit-group :settings.sync="job['runConfigs'][job['runType']['default']]"></a-item-edit-group>
 				</v-list>
 			</v-card>
 		</v-flex>
 		
 		<!-- Column (runType dependency parameters) -->
-		<v-flex xs12 sm6 md4 lg3 xl2 v-for="dependency in _.get(jobDefault, ['runConfigs', job['runType']['default'], 'dependencies', 'value'])">
-			<v-card ma-1 height="100%">
+		<v-flex xs12 sm6 md4 lg3 xl2 v-for="dependency in _.get(jobDefault, ['runConfigs', job['runType']['default'], 'dependencies', 'value'])" :key="dependency">
+			<v-card ma-1>
 				<v-toolbar dark dense class="color2">
 					<v-toolbar-title>
 						{{ dependency }}
@@ -80,7 +83,7 @@
 					</v-btn>
 				</v-toolbar>
 				
-				<v-list class="pt-3">
+				<v-list class="pt-4">
 					<a-item-edit-group :settings.sync="job['runConfigs'][dependency]"></a-item-edit-group>
 				</v-list>
 			</v-card>

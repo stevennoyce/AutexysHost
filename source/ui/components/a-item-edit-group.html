@@ -1,14 +1,16 @@
 <script type="text/html" id="a-item-edit-group">
 	<div>
-		<template v-for="(setting, settingName) in settings" v-if="['bool','float','int','string','choice','array'].includes(setting.type)">
-			<v-tooltip top>
-				<v-list-tile slot="activator">
-					<a-item-edit :setting.sync="settings[settingName]"></a-item-edit>
-				</v-list-tile>
-				<span v-if="setting.units"><b>{{ setting.title }}</b></br>Type: <{{ setting.type }}>, Units: [{{ setting.units }}]</br>{{ setting.description }}</span>
-				<span v-if="!setting.units"><b>{{ setting.title }}</b></br>Type: <{{ setting.type }}></br>{{ setting.description }}</span>
-			</v-tooltip>
-		</template>
+		<v-tooltip top v-for="(setting, settingName) in settings" v-if="['bool','float','int','string','choice','array'].includes(setting.type)" :key="settingName">
+			<template v-slot:activator="{ on: tooltip }">
+				<v-list-item dense v-on="{ ...tooltip }">
+					<v-flex>
+						<a-item-edit :setting.sync="settings[settingName]"></a-item-edit>
+					</v-flex>
+				</v-list-item>
+			</template>
+			<span v-if="setting.units"><b>{{ setting.title }}</b></br>Type: <{{ setting.type }}>, Units: [{{ setting.units }}]</br>{{ setting.description }}</span>
+			<span v-if="!setting.units"><b>{{ setting.title }}</b></br>Type: <{{ setting.type }}></br>{{ setting.description }}</span>
+		</v-tooltip>
 	</div>
 </script>
 
