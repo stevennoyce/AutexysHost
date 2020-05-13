@@ -380,12 +380,12 @@
 											Projects
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
-										<v-text-field v-model="projectTableSearch" append-icon="search" label="Search" single-line hide-details solo rounded light background-color="info lighten-1"></v-text-field>
+										<v-text-field v-model="projectTableSearch" light solo rounded background-color="info lighten-1" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
 										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
 									<v-data-table must-sort :items="projects" :headers="projectTableHeaders" 
 										:search="projectTableSearch" no-results-text="Your search did not return any results."
-										:custom-filter="customVDataTableFilter"
+										:custom-filter="caseInsensitiveDataTableFilter"
 										:footer-props="{
 											itemsPerPageOptions: [10,50,-1],
 										}">
@@ -408,12 +408,12 @@
 											Wafers
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
-										<v-text-field v-model="waferTableSearch" append-icon="search" label="Search" single-line hide-details solo rounded light background-color="info lighten-1"></v-text-field>
+										<v-text-field v-model="waferTableSearch" light solo rounded background-color="info lighten-1" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
 										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
 									<v-data-table must-sort :items="wafers" :headers="waferTableHeaders" 
 										:search="waferTableSearch" no-results-text="Your search did not return any results."
-										:custom-filter="customVDataTableFilter"
+										:custom-filter="caseInsensitiveDataTableFilter"
 										:footer-props="{
 											itemsPerPageOptions: [10,50,-1],
 										}">
@@ -442,12 +442,12 @@
 											"{{ wafer }}" Chips
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
-										<v-text-field v-model="chipTableSearch" append-icon="search" label="Search" single-line hide-details solo rounded light background-color="info lighten-1"></v-text-field>
+										<v-text-field v-model="chipTableSearch" light solo rounded background-color="info lighten-1" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
 										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
 									<v-data-table must-sort :items="chips" :headers="chipTableHeaders" 
 										:search="chipTableSearch" no-results-text="Your search did not return any results."
-										:custom-filter="customVDataTableFilter"
+										:custom-filter="caseInsensitiveDataTableFilter"
 										:footer-props="{
 											itemsPerPageOptions: [10,50,-1],
 										}">
@@ -476,12 +476,18 @@
 											"{{ wafer }}{{ chip }}" Devices
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
-										<v-text-field v-model="deviceTableSearch" append-icon="search" label="Search" single-line hide-details solo rounded light background-color="info lighten-1"></v-text-field>
+										<v-tooltip left>
+											<template v-slot:activator="{ on: tooltip }">
+												<v-btn fab small class="ma-2" color="info lighten-1" @click="copyHTMLStringToClip(devices.map(d => d.name))" v-on="{ ...tooltip }"><v-icon color="color_browser">file_copy</v-icon></v-btn>
+											</template>
+											<span>Copy device list</span>
+										</v-tooltip>
+										<v-text-field v-model="deviceTableSearch" light solo rounded background-color="info lighten-1" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
 										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
 									<v-data-table must-sort :items="devices" :headers="deviceTableHeaders" 
 										:search="deviceTableSearch" no-results-text="Your search did not return any results."
-										:custom-filter="customVDataTableFilter"
+										:custom-filter="caseInsensitiveDataTableFilter"
 										:footer-props="{
 											itemsPerPageOptions: [10,50,-1],
 										}">
@@ -564,12 +570,12 @@
 											"{{ wafer }}{{ chip }} {{ device }}" Experiments
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
-										<v-text-field v-model="experimentTableSearch" append-icon="search" label="Search" single-line hide-details solo rounded light background-color="info lighten-1"></v-text-field>
+										<v-text-field v-model="experimentTableSearch" light solo rounded background-color="info lighten-1" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
 										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
 									<v-data-table must-sort :items="experimentsWithIndexes" :headers="experimentTableHeaders" 
 										:search="experimentTableSearch" no-results-text="Your search did not return any results."
-										:custom-filter="customVDataTableFilter"
+										:custom-filter="caseInsensitiveDataTableFilter"
 										:sort-by="'startIndexes.experimentNumber'" :sort-desc="true"
 										:footer-props="{
 											itemsPerPageOptions: [10,50,-1],
@@ -2056,35 +2062,35 @@
 				wafer: localStorage.wafer ? JSON.parse(localStorage.wafer) : '',
 				waferTableHeaders: [
 					{'text':'Name', 'value':'name'},
-					{'text':'Path', 'value':'path', 'searchable':false},
-					{'text':'Date Modified', 'value':'modificationTime', 'searchable':false},
-					{'text':'Size', 'value':'size', 'searchable':false},
-					{'text':'Chips', 'value':'chipCount', 'searchable':false},
-					{'text':'Indexes', 'value':'indexCount', 'searchable':false},
-					{'text':'Experiments', 'value':'experimentCount', 'searchable':false}],
+					{'text':'Path', 'value':'path', 'filterable':false},
+					{'text':'Date Modified', 'value':'modificationTime', 'filterable':false},
+					{'text':'Size', 'value':'size', 'filterable':false},
+					{'text':'Chips', 'value':'chipCount', 'filterable':false},
+					{'text':'Indexes', 'value':'indexCount', 'filterable':false},
+					{'text':'Experiments', 'value':'experimentCount', 'filterable':false}],
 				waferTableSearch: '',
 				
 				chips: [],
 				chip: localStorage.chip ? JSON.parse(localStorage.chip) : '',
 				chipTableHeaders: [
 					{'text':'Name', 'value':'name'},
-					{'text':'Path', 'value':'path', 'searchable':false},
-					{'text':'Date Modified', 'value':'modificationTime', 'searchable':false},
-					{'text':'Size', 'value':'size', 'searchable':false},
-					{'text':'Devices', 'value':'deviceCount', 'searchable':false},
-					{'text':'Indexes', 'value':'indexCount', 'searchable':false},
-					{'text':'Experiments', 'value':'experimentCount', 'searchable':false}],
+					{'text':'Path', 'value':'path', 'filterable':false},
+					{'text':'Date Modified', 'value':'modificationTime', 'filterable':false},
+					{'text':'Size', 'value':'size', 'filterable':false},
+					{'text':'Devices', 'value':'deviceCount', 'filterable':false},
+					{'text':'Indexes', 'value':'indexCount', 'filterable':false},
+					{'text':'Experiments', 'value':'experimentCount', 'filterable':false}],
 				chipTableSearch: '',
 				
 				devices: [],
 				device: localStorage.device ? JSON.parse(localStorage.device) : '',
 				deviceTableHeaders: [
 					{'text':'Name', 'value':'displayName'},
-					{'text':'Path', 'value':'path', 'searchable':false},
-					{'text':'Date Modified', 'value':'modificationTime', 'searchable':false},
-					{'text':'Size', 'value':'size', 'searchable':false},
-					{'text':'Indexes', 'value':'indexCount', 'searchable':false},
-					{'text':'Experiments', 'value':'experimentCount', 'searchable':false}],
+					{'text':'Path', 'value':'path', 'filterable':false},
+					{'text':'Date Modified', 'value':'modificationTime', 'filterable':false},
+					{'text':'Size', 'value':'size', 'filterable':false},
+					{'text':'Indexes', 'value':'indexCount', 'filterable':false},
+					{'text':'Experiments', 'value':'experimentCount', 'filterable':false}],
 				deviceTableSearch: '',
 				
 				experiments: [],
@@ -2762,15 +2768,13 @@
 					return undefined;
 				},
 				
-				customVDataTableFilter: function(items, search, filter, headers) {
+				caseInsensitiveDataTableFilter: function(value, search, item) {
+					if(search == undefined) return true;
+					
 					search = search.toString().toLowerCase();
-					if (search.trim() === '') return items;
-					
-					// const props = headers.map(h => h.value); // default
-					const props = headers.filter(h => !('searchable' in h) || h.searchable === true).map(h => h.value); // exclude searchable:false
-					// const props = headers.filter(h => h.searchable === true).map(h => h.value); // include searchable:true
-					
-					return items.filter(item => props.some(prop => filter(_.get(item, prop), search)));
+					if (search.trim() === '') return true;
+										
+					return value.toString().toLowerCase().indexOf(search) !== -1;
 				},
 				
 				copyHTMLStringToClip: function (str) {
