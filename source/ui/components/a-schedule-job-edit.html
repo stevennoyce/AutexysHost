@@ -2,39 +2,39 @@
 <!-- <a-schedule-job-edit v-model="job" :schedule-object-default="scheduleObjectDefault"></a-schedule-job-edit> -->
 
 <script type="text/html" id="a-schedule-job-edit">
-<v-container fluid grid-list-md v-if="job != undefined && jobDefault != undefined">
-	<v-layout row wrap>
+<v-container v-if="job != undefined && jobDefault != undefined">
+	<v-row dense>
 		
 		<!-- Column (runType, Identifiers, MeasurementSystem) -->
-		<v-flex xs12 sm6 md4 lg3 xl2>
-			<v-card ma-1>
+		<v-col xs="12" sm="6" md="4" lg="3" xl="2">
+			<v-card>
 				<v-toolbar dark dense class="color2">
 					<v-toolbar-title>
 						Parameters
 					</v-toolbar-title>
 				</v-toolbar>
 				
-				<v-list>
-					<v-select filled class="ma-3" label="Run Type" v-model="job['runType']['default']" :items="Object.keys(jobDefault['runConfigs'] || {})"></v-select>
-					
-					<v-list-item class="grey lighten-3"><v-list-item-content><v-list-item-title style="font-weight: bold">
-						Identifiers
-					</v-list-item-title></v-list-item-content></v-list-item>
-					
-					<a-item-edit-group class="grey lighten-3" :settings.sync="job['Identifiers']"></a-item-edit-group>
-					
-					<v-list-item><v-list-item-content><v-list-item-title style="font-weight: bold">
-						Measurement System
-					</v-list-item-title></v-list-item-content></v-list-item>
+				<v-select filled class="ma-3" label="Run Type" v-model="job['runType']['default']" :items="Object.keys(jobDefault['runConfigs'] || {})"></v-select>
 				
+				<v-list class="ma-0 pa-0">
+					<v-list-item class="grey lighten-3">
+						<v-list-item-title style="font-weight: bold">Identifiers</v-list-item-title>
+					</v-list-item>
+					<a-item-edit-group class="grey lighten-3" :settings.sync="job['Identifiers']"></a-item-edit-group>
+				</v-list>
+				
+				<v-list class="ma-0 pa-0">
+					<v-list-item>
+						<v-list-item-title style="font-weight: bold">Measurement System</v-list-item-title>
+					</v-list-item>
 					<a-item-edit-group :settings.sync="job['MeasurementSystem']"></a-item-edit-group>
 				</v-list>
 			</v-card>
-		</v-flex>
+		</v-col>
 		
 		<!-- Column (DeviceCycling) -->
-		<v-flex xs12 sm6 md4 lg3 xl2 v-if="job['MeasurementSystem']['deviceCycling']['default']">
-			<v-card ma-1>
+		<v-col xs="12" sm="6" md="4" lg="3" xl="2" v-if="job['MeasurementSystem']['deviceCycling']['default']">
+			<v-card>
 				<v-toolbar dark dense class="color2">
 					<v-toolbar-title>
 						Device Cycling
@@ -49,12 +49,12 @@
 					<a-item-edit-group :settings.sync="job['DeviceCycling']"></a-item-edit-group>
 				</v-list>
 			</v-card>
-		</v-flex>
+		</v-col>
 		
 		<!-- Column (runType parameters) -->
-		<v-flex xs12 sm6 md4 lg3 xl2 v-if="job['runType']['default'] != ''">
-			<v-card ma-1>
-				<v-toolbar dark dense class="color2 ">
+		<v-col xs="12" sm="6" md="4" lg="3" xl="2" v-if="job['runType']['default'] != ''">
+			<v-card>
+				<v-toolbar dark dense class="color2">
 					<v-toolbar-title>
 						{{ job['runType']['default'] }}
 					</v-toolbar-title>
@@ -68,11 +68,11 @@
 					<a-item-edit-group :settings.sync="job['runConfigs'][job['runType']['default']]"></a-item-edit-group>
 				</v-list>
 			</v-card>
-		</v-flex>
+		</v-col>
 		
 		<!-- Column (runType dependency parameters) -->
-		<v-flex xs12 sm6 md4 lg3 xl2 v-for="dependency in _.get(jobDefault, ['runConfigs', job['runType']['default'], 'dependencies', 'value'])" :key="dependency">
-			<v-card ma-1>
+		<v-col xs="12" sm="6" md="4" lg="3" xl="2" v-for="dependency in _.get(jobDefault, ['runConfigs', job['runType']['default'], 'dependencies', 'value'])" :key="dependency">
+			<v-card>
 				<v-toolbar dark dense class="color2">
 					<v-toolbar-title>
 						{{ dependency }}
@@ -87,9 +87,9 @@
 					<a-item-edit-group :settings.sync="job['runConfigs'][dependency]"></a-item-edit-group>
 				</v-list>
 			</v-card>
-		</v-flex>
+		</v-col>
 		
-	</v-layout>
+	</v-row>
 </v-container>
 </script>
 

@@ -785,7 +785,7 @@
 					<!-- Start of sched creator -->
 					
 					<v-flex xs12 class="ma-4" v-if="topLevelPage === 'scheduleCreator'">
-						<v-card class="pb-1">
+						<v-card>
 							<v-toolbar dark dense class="color_creator ">
 								<v-toolbar-title>
 									Schedule Creator
@@ -797,16 +797,17 @@
 									<template v-slot:activator="{ on }">
 										<v-btn v-on="on" icon><v-icon>folder</v-icon></v-btn>
 									</template>
-									<v-toolbar dark dense class="color_creator lighten-1">
-										<v-toolbar-title>
-											Load Schedule File
-										</v-toolbar-title>
-										<v-spacer></v-spacer>
-										<v-btn icon @click="resetScheduleLoadPath()" :disabled="!isValidScheduleLoadPath()">
-											<v-icon>settings_backup_restore</v-icon>
-										</v-btn>
-									</v-toolbar>
 									<v-card light>
+										<v-toolbar dark dense class="color_creator lighten-1">
+											<v-toolbar-title>
+												Load Schedule File
+											</v-toolbar-title>
+											<v-spacer></v-spacer>
+											<v-btn icon @click="resetScheduleLoadPath()" :disabled="!isValidScheduleLoadPath()">
+												<v-icon>settings_backup_restore</v-icon>
+											</v-btn>
+										</v-toolbar>
+										
 										<v-list class="pt-4">
 											<v-list-item>
 												<v-autocomplete dense clearable v-model="creatorLoadUser" label="User" :items="Object.keys(userDefinedScheduleNames)"></v-autocomplete>
@@ -818,96 +819,83 @@
 												<v-autocomplete dense clearable v-model="creatorLoadFileName" label="File Name" :items="_.get(userDefinedScheduleNames, [creatorLoadUser, creatorLoadProject], [])"></v-autocomplete>
 											</v-list-item>
 										</v-list>
-									<v-card light>
-										<v-list>
-											<v-list-item>
-												<v-spacer></v-spacer>
-												<v-tooltip top :disabled="!isValidScheduleLoadPath()">
-													<template v-slot:activator="{ on }">
-														<v-btn v-on="on" @click="loadSchedule()" :disabled="!isValidScheduleLoadPath()">Load Schedule File</v-btn>
-													</template>
-													<span>AutexysData/{{ creatorLoadUser }}/{{ creatorLoadProject }}/schedules/{{ creatorLoadFileName }}.json</span>
-												</v-tooltip>
-												<v-spacer></v-spacer>
-											</v-list-item>
-										</v-list>
+										
+										<v-card light>
+											<v-list>
+												<v-list-item>
+													<v-spacer></v-spacer>
+													<v-tooltip top :disabled="!isValidScheduleLoadPath()">
+														<template v-slot:activator="{ on }">
+															<v-btn v-on="on" @click="loadSchedule()" :disabled="!isValidScheduleLoadPath()">Load Schedule File</v-btn>
+														</template>
+														<span>AutexysData/{{ creatorLoadUser }}/{{ creatorLoadProject }}/schedules/{{ creatorLoadFileName }}.json</span>
+													</v-tooltip>
+													<v-spacer></v-spacer>
+												</v-list-item>
+											</v-list>
+										</v-card>
 									</v-card>
 								</v-menu>
 								
 								<v-btn icon @click="resetScheduleCreator()" :disabled="!hasModifiedScheduleObjects()"><v-icon>settings_backup_restore</v-icon></v-btn>
 							</v-toolbar>
 							
-							<v-list>
-								<v-list-group v-for="scheduleObject, scheduleObjectIndex in scheduleObjects" :key="scheduleObjectIndex" prepend-icon="expand_more">
-									<template v-slot:activator>
-										<v-list-item-content>
-											<v-list-item-title>
+							<v-expansion-panels hover accordion>
+								<v-expansion-panel v-for="scheduleObject, scheduleObjectIndex in scheduleObjects" :key="scheduleObjectIndex" prepend-icon="expand_more">
+									<v-expansion-panel-header>
+										<v-row align="center">
+											<v-col class="mt-0 mb-0 pt-0 pb-0">
 												Job {{ scheduleObjectIndex + 1 }}: {{ _.get(scheduleObjects[scheduleObjectIndex], 'runType.default') }}
-											</v-list-item-title>
-										</v-list-item-content>
-										<v-list-item-action>
-											<v-tooltip top>
-												<template v-slot:activator="{ on: tooltip }">
-													<v-btn icon @click.stop="moveScheduleJobUp(scheduleObjectIndex)" v-on="{ ...tooltip }" :disabled="scheduleObjectIndex == 0"><v-icon>arrow_upward</v-icon></v-btn>
-												</template>
-												<span>Move job up</span>
-											</v-tooltip>
-										</v-list-item-action>
-										<v-list-item-action>
-											<v-tooltip top>
-												<template v-slot:activator="{ on: tooltip }">
-													<v-btn icon @click.stop="moveScheduleJobDown(scheduleObjectIndex)" v-on="{ ...tooltip }"  :disabled="scheduleObjectIndex >= scheduleObjects.length - 1"><v-icon>arrow_downward</v-icon></v-btn>
-												</template>
-												<span>Move job down</span>
-											</v-tooltip>
-										</v-list-item-action>
-										<v-list-item-action>
-											<v-tooltip top>
-												<template v-slot:activator="{ on: tooltip }">
-													<v-btn icon @click.stop="copyScheduleObject(scheduleObjectIndex)" v-on="{ ...tooltip }"><v-icon>file_copy</v-icon></v-btn>
-												</template>
-												<span>Copy job</span>
-											</v-tooltip>
-										</v-list-item-action>
-										<v-list-item-action>
-											<v-tooltip top>
-												<template v-slot:activator="{ on: tooltip }">
-													<v-btn icon @click.stop="pasteScheduleObject(scheduleObjectIndex)" v-on="{ ...tooltip }"><v-icon>save_alt</v-icon></v-btn>
-												</template>
-												<span>Paste job</span>
-											</v-tooltip>
-										</v-list-item-action>
-										<v-list-item-action>
-											<v-tooltip top>
-												<template v-slot:activator="{ on: tooltip }">
-													<v-btn icon @click.stop="addScheduleJob(scheduleObjectIndex)" v-on="{ ...tooltip }"><v-icon>add_circle</v-icon></v-btn>
-												</template>
-												<span>Add new job after</span>
-											</v-tooltip>
-										</v-list-item-action>
-										<!--<v-list-item-action>
-											<v-tooltip top>
-												<template v-slot:activator="{ on: tooltip }">
-													<v-btn icon @click.stop="resetScheduleJob(scheduleObjectIndex)" v-on="{ ...tooltip }"><v-icon>settings_backup_restore</v-icon></v-btn>
-												</template>
-												<span>Restore job settings to defaults</span>
-											</v-tooltip>
-										</v-list-item-action>-->
-										<v-list-item-action>
-											<v-tooltip top>
-												<template v-slot:activator="{ on: tooltip }">
-													<v-btn icon @click.stop="removeScheduleJob(scheduleObjectIndex)" v-on="{ ...tooltip }"><v-icon>cancel</v-icon></v-btn>
-												</template>
-												<span>Delete job</span>
-											</v-tooltip>
-										</v-list-item-action>
-									</template>
+											</v-col>
+										
+											<v-spacer></v-spacer>
+										
+											<v-col class="mt-0 mb-0 pt-0 pb-0">
+												<v-tooltip top>
+													<template v-slot:activator="{ on: tooltip }">
+														<v-btn icon @click.stop="moveScheduleJobUp(scheduleObjectIndex)" v-on="{ ...tooltip }" :disabled="scheduleObjectIndex == 0"><v-icon>arrow_upward</v-icon></v-btn>
+													</template>
+													<span>Move job up</span>
+												</v-tooltip>
+												<v-tooltip top>
+													<template v-slot:activator="{ on: tooltip }">
+														<v-btn icon @click.stop="moveScheduleJobDown(scheduleObjectIndex)" v-on="{ ...tooltip }"  :disabled="scheduleObjectIndex >= scheduleObjects.length - 1"><v-icon>arrow_downward</v-icon></v-btn>
+													</template>
+													<span>Move job down</span>
+												</v-tooltip>
+												<v-tooltip top>
+													<template v-slot:activator="{ on: tooltip }">
+														<v-btn icon @click.stop="copyScheduleObject(scheduleObjectIndex)" v-on="{ ...tooltip }"><v-icon>file_copy</v-icon></v-btn>
+													</template>
+													<span>Copy job</span>
+												</v-tooltip>
+												<v-tooltip top>
+													<template v-slot:activator="{ on: tooltip }">
+														<v-btn icon @click.stop="pasteScheduleObject(scheduleObjectIndex)" v-on="{ ...tooltip }"><v-icon>save_alt</v-icon></v-btn>
+													</template>
+													<span>Paste job</span>
+												</v-tooltip>
+												<v-tooltip top>
+													<template v-slot:activator="{ on: tooltip }">
+														<v-btn icon @click.stop="addScheduleJob(scheduleObjectIndex)" v-on="{ ...tooltip }"><v-icon>add_circle</v-icon></v-btn>
+													</template>
+													<span>Add new job after</span>
+												</v-tooltip>
+												<v-tooltip top>
+													<template v-slot:activator="{ on: tooltip }">
+														<v-btn icon @click.stop="removeScheduleJob(scheduleObjectIndex)" v-on="{ ...tooltip }"><v-icon>cancel</v-icon></v-btn>
+													</template>
+													<span>Delete job</span>
+												</v-tooltip>
+											</v-col>
+										</v-row>
+									</v-expansion-panel-header>
 									
-									<v-list-item>
+									<v-expansion-panel-content>
 										<a-schedule-job-edit :job.sync="scheduleObjects[scheduleObjectIndex]" :job-default="scheduleObjectDefault"></a-schedule-job-edit>
-									</v-list-item>
-								</v-list-group>
-							</v-list>
+									</v-expansion-panel-content>
+								</v-expansion-panel>
+							</v-expansion-panels>
 							
 							<v-card class="ma-4" v-if="showScheduleCreatorPreview && nonTrivialScheduleObjects()">
 								<v-toolbar dark dense class="info">
@@ -940,7 +928,7 @@
 									<v-form>
 										<v-container>
 											<v-layout row wrap>
-												<v-flex xs4 sm4 md4 lg4 class="pa-2">
+												<v-flex xs4 sm4 md4 lg4 class="pl-3 pr-3">
 													<v-combobox clearable v-model="creatorSaveUser" label="User" :items="Object.keys(userDefinedScheduleNames)">
 														<template slot="no-data">
 															<v-list-item><v-list-item-content><v-list-item-title>
@@ -949,7 +937,7 @@
 														</template>
 													</v-combobox>
 												</v-flex>
-												<v-flex xs4 sm4 md4 lg4 class="pt-2 pb-2">
+												<v-flex xs4 sm4 md4 lg4>
 													<v-combobox clearable v-model="creatorSaveProject" label="Project" :items="Object.keys(_.get(userDefinedScheduleNames, [creatorSaveUser], {}))">
 														<template slot="no-data">
 															<v-list-item><v-list-item-content><v-list-item-title>
@@ -958,7 +946,7 @@
 														</template>
 													</v-combobox>
 												</v-flex>
-												<v-flex xs4 sm4 md4 lg4 class="pa-2"> 
+												<v-flex xs4 sm4 md4 lg4 class="pl-3 pr-3"> 
 													<v-combobox clearable v-model="creatorSaveFileName" label="File Name" :items="_.get(userDefinedScheduleNames, [creatorSaveUser, creatorSaveProject], [])">
 														<template slot="no-data">
 															<v-list-item><v-list-item-content><v-list-item-title>
@@ -1608,7 +1596,7 @@
 							</v-toolbar>
 							
 							<v-container>
-								<v-layout row wrap>
+								<v-layout row wrap class="pl-1 pr-1">
 									<v-flex xs3 sm3 md3 lg3 xl3>
 										<v-card class="ma-1">
 											<v-toolbar dark dense class="color_base">
@@ -1732,7 +1720,7 @@
 							</v-container>
 							
 							<v-container>
-								<v-expansion-panels multiple class="mt-1 mb-2" v-for="(documentationItemText, index) in documentationText" :key="index" :prepend-icon="$vuetify.icons.expand">
+								<v-expansion-panels multiple class="mt-1 mb-2" v-for="(documentationItemText, index) in documentationText" :key="index">
 									<v-expansion-panel class="grey lighten-4" v-for="(panel, i) in 1" :key="i">
 										<v-expansion-panel-header>
 											<div style="display:inline; height: 50px; line-height: 50px;">
@@ -3973,9 +3961,9 @@
 		for (var i = 0; i < app.$data.colors.length; i++) {
 			app.$vuetify.theme.themes.light['color' + (i + 1)] = app.$data.colors[i];
 		}
-		app.$vuetify.theme.themes.light.primary = app.$vuetify.theme.themes.light.color1;
+		app.$vuetify.theme.themes.light.primary = app.$vuetify.theme.themes.light.color3;
 		app.$vuetify.theme.themes.light.secondary = app.$vuetify.theme.themes.light.color2;
-		app.$vuetify.theme.themes.light.accent = app.$vuetify.theme.themes.light.color3;
+		app.$vuetify.theme.themes.light.accent = app.$vuetify.theme.themes.light.color1;
 		app.$vuetify.theme.themes.light.tertiary = app.$vuetify.theme.themes.light.color4;
 		app.$vuetify.theme.themes.light.error = '#BF360C';
 		app.$vuetify.theme.themes.light.success = '#00897B';
