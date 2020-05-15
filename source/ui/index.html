@@ -239,8 +239,8 @@
 					
 					<v-flex xs12 class="ma-4" v-if="topLevelPage === 'dashboard'">
 						<v-container>
-							<v-layout row wrap class="pa-3">
-								<v-flex xs4 sm4 md4 lg4 xl4 class="pa-1">
+							<v-row class="pa-3">
+								<v-col cols="4" class="pa-1">
 									<v-toolbar dark class="color_browser roundedcorners" style="cursor: pointer;" @click="setTopLevelPage('stepper')">
 										<v-toolbar-title>
 											Browser
@@ -248,9 +248,9 @@
 										<v-spacer></v-spacer>
 										<v-icon>list</v-icon>
 									</v-toolbar>
-								</v-flex>
+								</v-col>
 								
-								<v-flex xs4 sm4 md4 lg4 xl4 class="pa-1">
+								<v-col cols="4" class="pa-1">
 									<v-toolbar dark class="color_creator roundedcorners" style="cursor: pointer;" @click="setTopLevelPage('scheduleCreator')">
 										<v-toolbar-title>
 											Schedule Creator
@@ -258,9 +258,9 @@
 										<v-spacer></v-spacer>
 										<v-icon>schedule</v-icon>
 									</v-toolbar>	
-								</v-flex>
+								</v-col>
 								
-								<v-flex xs4 sm4 md4 lg4 xl4 class="pa-1">
+								<v-col cols="4" class="pa-1">
 									<v-toolbar dark class="color_runner roundedcorners" style="cursor: pointer;" @click="setTopLevelPage('experimentRunner')">
 										<v-toolbar-title>
 											Experiment Runner
@@ -268,8 +268,8 @@
 										<v-spacer></v-spacer>
 										<v-icon>play_circle_outline</v-icon>
 									</v-toolbar>
-								</v-flex>
-							</v-layout>
+								</v-col>
+							</v-row>
 						</v-container>
 						
 						<v-card class="ma-4">
@@ -422,7 +422,7 @@
 												<tr v-for="item in items" :key="item.name" @click="goToWafer(item.name)">
 													<td>{{ item.name }}</td>
 													<td>{{ item.path }}</td>
-													<td>{{ new Date(item.modificationTime*1000).toLocaleString() }}</td>
+													<td>{{ new Date(item.modificationTime*1000).toLocaleDateString() }}</td>
 													<td>{{ item.size | formatFileSize }}</td>
 													<td><v-chip light>{{ item.chipCount }}</v-chip></td>
 													<td>{{ item.indexCount }}</td>
@@ -456,7 +456,7 @@
 												<tr v-for="item in items" :key="item.name" @click="goToChip(item.name)">
 													<td>{{ item.name }}</td>
 													<td>{{ item.path }}</td>
-													<td>{{ new Date(item.modificationTime*1000).toLocaleString() }}</td>
+													<td>{{ new Date(item.modificationTime*1000).toLocaleDateString() }}</td>
 													<td>{{ item.size | formatFileSize }}</td>
 													<td><v-chip light>{{ item.deviceCount }}</v-chip></td>
 													<td>{{ item.indexCount }}</td>
@@ -533,7 +533,7 @@
 												</v-card>
 											</v-menu>
 										</v-toolbar-items>
-										<v-toolbar-items class="pt-4 ml-6">
+										<v-toolbar-items class="pt-5 pb-5 ml-6">
 											<v-tooltip top>
 												<template v-slot:activator="{ on }">
 													<v-switch v-on="on" color="white" label="" v-model="enableChipSummaryPlots"></v-switch>
@@ -543,10 +543,10 @@
 										</v-toolbar-items>
 									</v-toolbar>
 									
-									<v-container fluid grid-list-sm>
-										<v-layout row wrap v-if="enableChipSummaryPlots">
-											<v-flex xs12 sm6 md4 lg3 xl2 v-for="possiblePlot in possibleChipPlots" :key="possiblePlot">
-												<v-card class="ma-1" height="100%">
+									<v-container>
+										<v-row dense v-if="enableChipSummaryPlots">
+											<v-col xs="12" sm="6" md="4" lg="3" xl="2" v-for="possiblePlot in possibleChipPlots" :key="possiblePlot">
+												<v-card>
 													<v-toolbar dark dense class="color_base">
 														<v-toolbar-title>
 															 {{ possiblePlot }}
@@ -556,8 +556,8 @@
 														<a-zoomable-image src="" :data-src="'/chipPlots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></a-zoomable-image>
 													</div>
 												</v-card>
-											</v-flex>
-										</v-layout>
+											</v-col>
+										</v-row>
 									</v-container>
 								</v-card>
 							</v-stepper-content>
@@ -599,7 +599,7 @@
 											"{{ wafer }}{{ chip }} {{ device }}" Device Summary Plots
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
-										<v-toolbar-items class="pt-4 ml-6">
+										<v-toolbar-items class="pt-5 pb-5 ml-6">
 											<v-tooltip top>
 												<template v-slot:activator="{ on }">
 													<v-switch v-on="on" color="white" label="" v-model="enableDeviceSummaryPlots"></v-switch>
@@ -609,10 +609,10 @@
 										</v-toolbar-items>
 									</v-toolbar>
 									
-									<v-container fluid grid-list-sm>
-										<v-layout row wrap v-if="enableDeviceSummaryPlots">
-											<v-flex xs12 sm6 md4 lg3 xl2 v-for="possiblePlot in possibleDevicePlots" :key="possiblePlot">
-												<v-card class="ma-1" height="100%">
+									<v-container>
+										<v-row dense v-if="enableDeviceSummaryPlots">
+											<v-col xs="12" sm="6" md="4" lg="3" xl="2" v-for="possiblePlot in possibleDevicePlots" :key="possiblePlot">
+												<v-card>
 													<v-toolbar dark dense class="color_base">
 														<v-toolbar-title>
 															 {{ possiblePlot }}
@@ -622,8 +622,8 @@
 														<a-zoomable-image src="" :data-src="'/devicePlots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></a-zoomable-image>
 													</div>
 												</v-card>
-											</v-flex>
-										</v-layout>
+											</v-col>
+										</v-row>
 									</v-container>
 								</v-card>
 								
@@ -648,11 +648,10 @@
 										<v-btn icon @click="getAll(); newCacheBust();"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
 									
-									<v-container fluid grid-list-sm>
-										<v-layout row wrap>
-											
-											<v-flex xs12 sm6 md4 lg3 xl2 v-for="possiblePlot in experiment.possiblePlots" :key="possiblePlot">
-												<v-card class="ma-1" height="100%">
+									<v-container>
+										<v-row dense>
+											<v-col xs="12" sm="6" md="4" lg="3" xl="2" v-for="possiblePlot in experiment.possiblePlots" :key="possiblePlot">
+												<v-card>
 													<v-toolbar dark dense class="color_base">
 														<v-toolbar-title>
 															{{ possiblePlot }}
@@ -662,27 +661,21 @@
 														
 														<v-menu bottom left offset-y>
 															<template v-slot:activator="{ on }">
-																<v-btn v-on="on" icon :loading="false"><v-icon>settings</v-icon></v-btn>
+																<v-btn v-on="on" icon><v-icon>settings</v-icon></v-btn>
 															</template>
 															<!-- !this.$parent.getElementsByClassName('zoomableImage')[0].complete -->
-															<v-list light>
+															<v-list dense light>
 																<v-list-item @click="copyHTMLImageToClip('/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings)))">
-																	<v-list-item-avatar><v-icon>photo</v-icon></v-list-item-avatar>
-																	<v-list-item-content><v-list-item-title>
-																		Copy
-																	</v-list-item-title></v-list-item-content>
+																	<v-list-item-action><v-icon dense>photo</v-icon></v-list-item-action>
+																	<v-list-item-title>Copy</v-list-item-title>
 																</v-list-item>
 																<v-list-item @click="disabledPlots.push(possiblePlot)">
-																	<v-list-item-avatar><v-icon>photo</v-icon></v-list-item-avatar>
-																	<v-list-item-content><v-list-item-title>
-																		Disable
-																	</v-list-item-title></v-list-item-content>
+																	<v-list-item-action><v-icon dense>photo</v-icon></v-list-item-action>
+																	<v-list-item-title>Disable</v-list-item-title>
 																</v-list-item>
 																<v-list-item @click="removeValueFromArray(possiblePlot, disabledPlots)">
-																	<v-list-item-avatar><v-icon>photo</v-icon></v-list-item-avatar>
-																	<v-list-item-content><v-list-item-title>
-																		Enable
-																	</v-list-item-title></v-list-item-content>
+																	<v-list-item-action><v-icon dense>photo</v-icon></v-list-item-action>
+																	<v-list-item-title>Enable</v-list-item-content>
 																</v-list-item>
 															</v-list>
 														</v-menu>
@@ -692,9 +685,8 @@
 														<a-zoomable-image src="" :data-src="'/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></a-zoomable-image>
 													</div>
 												</v-card>
-											</v-flex>
-											
-										</v-layout>
+											</v-col>
+										</v-row>
 									</v-container>
 									
 									<v-card class="ma-1">
@@ -913,9 +905,9 @@
 							<!-- <v-btn fab small dark bottom right absolute @click="addScheduleJob(0)"><v-icon>add</v-icon></v-btn> -->
 						</v-card>
 						
-						<v-layout row wrap>
-							<v-flex xs6 sm6 md6 lg6>
-								<v-card class="mt-3 ml-3" v-if="nonTrivialScheduleObjects()">
+						<v-row no-gutters>
+							<v-col cols="6">
+								<v-card class="mt-3" v-if="nonTrivialScheduleObjects()">
 									<v-toolbar dark dense class="color_creator">
 										<v-toolbar-title>
 											Save Schedule File
@@ -928,8 +920,8 @@
 									
 									<v-form>
 										<v-container>
-											<v-layout row wrap>
-												<v-flex xs4 sm4 md4 lg4 class="pl-3 pr-3">
+											<v-row dense>
+												<v-col cols="4" class="pt-0 pb-0">
 													<v-combobox clearable v-model="creatorSaveUser" label="User" :items="Object.keys(userDefinedScheduleNames)">
 														<template slot="no-data">
 															<v-list-item><v-list-item-content><v-list-item-title>
@@ -937,8 +929,8 @@
 															</v-list-item-title></v-list-item-content></v-list-item>
 														</template>
 													</v-combobox>
-												</v-flex>
-												<v-flex xs4 sm4 md4 lg4>
+												</v-col>
+												<v-col cols="4" class="pt-0 pb-0">
 													<v-combobox clearable v-model="creatorSaveProject" label="Project" :items="Object.keys(_.get(userDefinedScheduleNames, [creatorSaveUser], {}))">
 														<template slot="no-data">
 															<v-list-item><v-list-item-content><v-list-item-title>
@@ -946,8 +938,8 @@
 															</v-list-item-title></v-list-item-content></v-list-item>
 														</template>
 													</v-combobox>
-												</v-flex>
-												<v-flex xs4 sm4 md4 lg4 class="pl-3 pr-3"> 
+												</v-col>
+												<v-col cols="4" class="pt-0 pb-0"> 
 													<v-combobox clearable v-model="creatorSaveFileName" label="File Name" :items="_.get(userDefinedScheduleNames, [creatorSaveUser, creatorSaveProject], [])">
 														<template slot="no-data">
 															<v-list-item><v-list-item-content><v-list-item-title>
@@ -955,8 +947,8 @@
 															</v-list-item-title></v-list-item-content></v-list-item>
 														</template>
 													</v-combobox>
-												</v-flex>
-											</v-layout>
+												</v-col>
+											</v-row>
 										</v-container>
 									</v-form>
 									
@@ -977,8 +969,8 @@
 										</v-tooltip>
 									</v-card-actions>
 								</v-card>
-							</v-flex>
-						</v-layout>
+							</v-col>
+						</v-row>
 					</v-flex>
 					
 					<!-- End of sched creator -->
@@ -994,148 +986,139 @@
 								<v-btn icon @click="runnerReset()" :disabled="(runnerChoice === '') && (!showProgress)"><v-icon>settings_backup_restore</v-icon></v-btn>
 							</v-toolbar>
 							
-							<v-container>
-								<v-layout class="mt-2 ml-2 mr-2">
-									<v-flex xs12 sm6 md4 lg3>
-										<v-select filled class="ma-1" label="Experiment Type" v-model="runnerChoice" :items="['Schedule File'].concat(standardScheduleNames)"></v-select>
-									</v-flex>
-								</v-layout>
-							
-								<template v-if="runnerChoice === 'Schedule File'">
-									<v-layout row wrap class="ma-2">
-										<v-flex xs12 sm6 md4 lg3 outline class="ml-2 mr-2">
-											<v-autocomplete clearable v-model="runnerUser" label="User" :items="Object.keys(userDefinedScheduleNames)"></v-autocomplete>
-										</v-flex>
-										<v-flex xs12 sm6 md4 lg3 solo class="ml-2 mr-2">
-											<v-autocomplete clearable v-model="runnerProject" label="Project" :items="Object.keys(_.get(userDefinedScheduleNames, [runnerUser], {}))"></v-autocomplete>
-										</v-flex>
-										<v-flex xs12 sm6 md4 lg3 solo class="ml-2 mr-2">
-											<v-autocomplete clearable v-model="runnerFileName" label="File Name" :items="_.get(userDefinedScheduleNames, [runnerUser, runnerProject], [])"></v-autocomplete>
-										</v-flex>
-									</v-layout>
-								</template>
+							<v-container class="pa-5">
+								<v-row dense>
+									<v-col sm="6" md="3" lg="3">
+										<v-select filled label="Experiment Type" v-model="runnerChoice" :items="['Schedule File'].concat(standardScheduleNames)"></v-select>
+									</v-col>
+									
+									<template v-if="runnerChoice === 'Schedule File'">
+										<v-col sm="6" md="3" lg="3">
+											<v-autocomplete outlined clearable v-model="runnerUser" label="User" :items="Object.keys(userDefinedScheduleNames)"></v-autocomplete>
+										</v-col>
+										<v-col sm="6" md="3" lg="3">
+											<v-autocomplete outlined clearable v-model="runnerProject" label="Project" :items="Object.keys(_.get(userDefinedScheduleNames, [runnerUser], {}))"></v-autocomplete>
+										</v-col>
+										<v-col sm="6" md="3" lg="3">
+											<v-autocomplete outlined clearable v-model="runnerFileName" label="File Name" :items="_.get(userDefinedScheduleNames, [runnerUser, runnerProject], [])"></v-autocomplete>
+										</v-col>
+									</template>
+								</v-row>
 							
 								<template v-if="(runnerChoice !== '') && (runnerUser && runnerProject && runnerFileName) && (runnerScheduleObjects.length === 1) && (runnerVerboseScheduleObjects.length === 1)">
-									<v-layout class="ma-3">
-										<v-expansion-panels>
-											<v-expansion-panel class="grey lighten-4">
-												<v-expansion-panel-header>
-													<div style="font-weight: bold;">Options</div>
-												</v-expansion-panel-header>
-												
-												<v-expansion-panel-content>
-													<v-container grid-list-md>
-														<v-layout row wrap>
-															
-															<v-flex xs3 s3 md3 lg3>
-																<v-list class="roundedcorners">
-																	<v-list-item>
-																		<v-list-item-content><v-list-item-title style="font-weight: bold">
-																			Identifiers
-																		</v-list-item-title></v-list-item-content>
-																	</v-list-item>
-																	<template v-if="!runnerToggleAdvancedSettings && Object.keys(runnerScheduleObjects[0]).includes('Identifiers')">
-																		<a-item-edit-group :settings.sync="runnerScheduleObjects[0]['Identifiers']"></a-item-edit-group>
-																	</template>
-																	<template v-if="runnerToggleAdvancedSettings || !Object.keys(runnerScheduleObjects[0]).includes('Identifiers')">
-																		<a-item-edit-group :settings.sync="runnerVerboseScheduleObjects[0]['Identifiers']"></a-item-edit-group>
-																	</template>
-																</v-list>
-																
-																<template v-if="runnerToggleAdvancedSettings">
-																	<v-list class="mt-3 roundedcorners">
-																		<v-list-item>
-																			<v-list-item-content><v-list-item-title style="font-weight: bold">
-																				Measurement System
-																			</v-list-item-title></v-list-item-content>
-																		</v-list-item>
-																		<a-item-edit-group :settings.sync="runnerVerboseScheduleObjects[0]['MeasurementSystem']"></a-item-edit-group>
-																	</v-list>
-																</template>
-																
-																<template v-if="runnerToggleAdvancedSettings && (!standardScheduleNames.includes(runnerChoice))">
-																	<v-list class="mt-3 roundedcorners">
-																		<v-select filled class="ma-4" label="Run Type" v-model="runnerVerboseScheduleObjects[0]['runType']['default']" :items="Object.keys(JSON.parse(JSON.stringify(runnerVerboseScheduleObjects[0]['runConfigs'] || {})))"></v-select>
-																	</v-list>
-																</template>
-															</v-flex>
-															
-															<v-flex xs3 s3 md3 lg3 v-if="runnerVerboseScheduleObjects[0]['MeasurementSystem']['deviceCycling']['default']">
-																<v-list class="roundedcorners">
-																	<v-list-item>
-																		<v-list-item-content><v-list-item-title style="font-weight: bold">
-																			Device Cycling
-																		</v-list-item-title></v-list-item-content>
-																	</v-list-item>
-																	<template v-if="!runnerToggleAdvancedSettings && Object.keys(runnerScheduleObjects[0]).includes('DeviceCycling')">
-																		<a-item-edit-group :settings.sync="runnerScheduleObjects[0]['DeviceCycling']"></a-item-edit-group>
-																	</template>
-																	<template v-if="runnerToggleAdvancedSettings">
-																		<a-item-edit-group :settings.sync="runnerVerboseScheduleObjects[0]['DeviceCycling']"></a-item-edit-group>
-																	</template>
-																</v-list>
-															</v-flex>
+									<v-expansion-panels>
+										<v-expansion-panel class="grey lighten-4">
+											<v-expansion-panel-header><div style="font-weight: bold;">Options</div></v-expansion-panel-header>
+											
+											<v-expansion-panel-content>
+												<v-container>
+													<v-row dense>
 														
-															<v-flex xs3 s3 md3 lg3 v-for="runConfig,runType in runnerScheduleObjects[0]['runConfigs']" :key="runType">
-																<v-list class="roundedcorners">
+														<v-col cols="3">
+															<v-list class="roundedcorners">
+																<v-list-item>
+																	<v-list-item-content><v-list-item-title style="font-weight: bold">
+																		Identifiers
+																	</v-list-item-title></v-list-item-content>
+																</v-list-item>
+																<template v-if="!runnerToggleAdvancedSettings && Object.keys(runnerScheduleObjects[0]).includes('Identifiers')">
+																	<a-item-edit-group :settings.sync="runnerScheduleObjects[0]['Identifiers']"></a-item-edit-group>
+																</template>
+																<template v-if="runnerToggleAdvancedSettings || !Object.keys(runnerScheduleObjects[0]).includes('Identifiers')">
+																	<a-item-edit-group :settings.sync="runnerVerboseScheduleObjects[0]['Identifiers']"></a-item-edit-group>
+																</template>
+															</v-list>
+															
+															<template v-if="runnerToggleAdvancedSettings">
+																<v-list class="mt-3 roundedcorners">
 																	<v-list-item>
 																		<v-list-item-content><v-list-item-title style="font-weight: bold">
-																			{{ runType }}
+																			Measurement System
 																		</v-list-item-title></v-list-item-content>
 																	</v-list-item>
-																	<template v-if="!runnerToggleAdvancedSettings">
-																		<a-item-edit-group :settings.sync="runnerScheduleObjects[0]['runConfigs'][runType]"></a-item-edit-group>
-																	</template>
-																	<template v-if="runnerToggleAdvancedSettings">
-																		<a-item-edit-group :settings.sync="runnerVerboseScheduleObjects[0]['runConfigs'][runType]"></a-item-edit-group>
-																	</template>
+																	<a-item-edit-group :settings.sync="runnerVerboseScheduleObjects[0]['MeasurementSystem']"></a-item-edit-group>
 																</v-list>
-															</v-flex>
+															</template>
 															
-														</v-layout>
-														<v-alert :value="(['single', 'B2900A (double)'].includes(runnerVerboseScheduleObjects[0]['MeasurementSystem']['systemType']['default'])) && (runnerVerboseScheduleObjects[0]['MeasurementSystem']['deviceCycling']['default'])" icon="warning "color="warning">
-															<b>Advanced:</b> Device Cycling has been enabled, but the chosen Measurement System cannot dynamically select devices.
-														</v-alert>
-													</v-container>
+															<template v-if="runnerToggleAdvancedSettings && (!standardScheduleNames.includes(runnerChoice))">
+																<v-list class="mt-3 roundedcorners">
+																	<v-select filled class="ma-4" label="Run Type" v-model="runnerVerboseScheduleObjects[0]['runType']['default']" :items="Object.keys(JSON.parse(JSON.stringify(runnerVerboseScheduleObjects[0]['runConfigs'] || {})))"></v-select>
+																</v-list>
+															</template>
+														</v-col>
+														
+														<v-col cols="3" v-if="runnerVerboseScheduleObjects[0]['MeasurementSystem']['deviceCycling']['default']">
+															<v-list class="roundedcorners">
+																<v-list-item>
+																	<v-list-item-content><v-list-item-title style="font-weight: bold">
+																		Device Cycling
+																	</v-list-item-title></v-list-item-content>
+																</v-list-item>
+																<template v-if="!runnerToggleAdvancedSettings && Object.keys(runnerScheduleObjects[0]).includes('DeviceCycling')">
+																	<a-item-edit-group :settings.sync="runnerScheduleObjects[0]['DeviceCycling']"></a-item-edit-group>
+																</template>
+																<template v-if="runnerToggleAdvancedSettings">
+																	<a-item-edit-group :settings.sync="runnerVerboseScheduleObjects[0]['DeviceCycling']"></a-item-edit-group>
+																</template>
+															</v-list>
+														</v-col>
 													
-													<v-layout row wrap>
-														<v-switch class="ml-6 mt-0" label="Advanced" v-model="runnerToggleAdvancedSettings"></v-switch>
-														<v-spacer></v-spacer>
-														<v-btn class="mr-3" small @click="runnerSaveScheduleFile()" :disabled="!isNecessaryToSaveRunnerScheduleFile()">Save</v-btn>
-													</v-layout>
-												</v-expansion-panel-content>
+														<v-col cols="3" v-for="runConfig,runType in runnerScheduleObjects[0]['runConfigs']" :key="runType">
+															<v-list class="roundedcorners">
+																<v-list-item>
+																	<v-list-item-content><v-list-item-title style="font-weight: bold">
+																		{{ runType }}
+																	</v-list-item-title></v-list-item-content>
+																</v-list-item>
+																<template v-if="!runnerToggleAdvancedSettings">
+																	<a-item-edit-group :settings.sync="runnerScheduleObjects[0]['runConfigs'][runType]"></a-item-edit-group>
+																</template>
+																<template v-if="runnerToggleAdvancedSettings">
+																	<a-item-edit-group :settings.sync="runnerVerboseScheduleObjects[0]['runConfigs'][runType]"></a-item-edit-group>
+																</template>
+															</v-list>
+														</v-col>
+
+													</v-row>
+													<v-alert :value="(['single', 'B2900A (double)'].includes(runnerVerboseScheduleObjects[0]['MeasurementSystem']['systemType']['default'])) && (runnerVerboseScheduleObjects[0]['MeasurementSystem']['deviceCycling']['default'])" icon="warning "color="warning">
+														<b>Advanced:</b> Device Cycling has been enabled, but the chosen Measurement System cannot dynamically select devices.
+													</v-alert>
+												</v-container>
 												
-											</v-expansion-panel>
-										</v-expansion-panels>
-									</v-layout>
+												<v-row>
+													<v-switch class="ml-6 mt-0" label="Advanced" v-model="runnerToggleAdvancedSettings"></v-switch>
+													<v-spacer></v-spacer>
+													<v-btn class="mr-6" small @click="runnerSaveScheduleFile()" :disabled="!isNecessaryToSaveRunnerScheduleFile()">Save</v-btn>
+												</v-row>
+											</v-expansion-panel-content>
+											
+										</v-expansion-panel>
+									</v-expansion-panels>
 								</template>
 								<template v-else>
-									<v-list>
+									<v-list class="pa-0">
 										<v-list-item>
 										</v-list-item>
 									</v-list>
 								</template>
 							
 								<template v-if="runnerChoice !== ''">
-									<v-card flat>
-										<v-card-actions>
-											<template v-if="runnerChoice === 'Schedule File' && (runnerUser && runnerProject && runnerFileName)">
-												<form class="ml-1 mr-3" style="overflow-x: scroll">
-													<p>
-														Schedule file: AutexysData/{{ runnerUser }}/{{ runnerProject }}/schedules/{{ runnerFileName }}.json
-													</p>
-												</form>
-											</template>
-											<v-spacer></v-spacer>
-											<template v-if="runnerChoice === 'Schedule File'">
-												<v-btn class="mb-3 mt-3" @click="runnerClear(); runnerSaveScheduleFile(); runnerDispatch();" :disabled="!(runnerUser && runnerProject && runnerFileName)">Launch Schedule File.</v-btn>
-											</template>
-											<template v-if="runnerChoice !== 'Schedule File'">
-												<v-btn class="mb-3 mt-3" @click="runnerClear(); runnerSaveScheduleFile(); runnerDispatch();" :disabled="!isPossibleToSaveRunnerScheduleFile()">Launch {{ runnerChoice }}</v-btn>
-											</template>
-											<v-btn class="mb-3 mt-3" @click="runnerStop()" :disabled="!dispatcherRunning">Stop</v-btn>
-										</v-card-actions>	
-									</v-card>
+									<v-list class="mt-2">
+										<v-list-item class="pa-0">
+											<v-row no-gutters align="center" justify="end">
+												<v-list-item-content v-if="runnerChoice === 'Schedule File' && (runnerUser && runnerProject && runnerFileName)" style="overflow-x: scroll">
+													Schedule file: AutexysData/{{ runnerUser }}/{{ runnerProject }}/schedules/{{ runnerFileName }}.json
+												</v-list-item-content>
+												<template v-if="runnerChoice === 'Schedule File'">
+													<v-btn class="ml-3" @click="runnerClear(); runnerSaveScheduleFile(); runnerDispatch();" :disabled="!(runnerUser && runnerProject && runnerFileName)">Launch Schedule File.</v-btn>
+												</template>
+												<template v-if="runnerChoice !== 'Schedule File'">
+													<v-btn class="ml-3" @click="runnerClear(); runnerSaveScheduleFile(); runnerDispatch();" :disabled="!isPossibleToSaveRunnerScheduleFile()">Launch {{ runnerChoice }}</v-btn>
+												</template>
+												<v-btn class="ml-3" @click="runnerStop()" :disabled="!dispatcherRunning">Stop</v-btn>
+											</v-row>
+										</v-list-item>
+									</v-list>
 								</template>
 								
 							</v-container>
