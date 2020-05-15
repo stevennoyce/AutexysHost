@@ -207,7 +207,7 @@ def wafers(user, project):
 	paths = glob.glob(os.path.join(default_data_path, user, project, '*/'))
 	names = [os.path.basename(os.path.dirname(p)) for p in paths]
 	modificationTimes = [os.path.getmtime(p) for p in paths]
-	sizes = [os.path.getsize(p) for p in paths]
+	sizes = [recursiveFileSize(p) for p in paths]
 	chipCounts = [len(glob.glob(p + '/*/')) for p in paths]
 	
 	indexFileLists = [glob.glob(p + '/**/index.json', recursive=True) for p in paths]
@@ -224,7 +224,7 @@ def chips(user, project, wafer):
 	paths = glob.glob(os.path.join(default_data_path, user, project, wafer, '*/'))
 	names = [os.path.basename(os.path.dirname(p)) for p in paths]
 	modificationTimes = [os.path.getmtime(p) for p in paths]
-	sizes = [os.path.getsize(p) for p in paths]
+	sizes = [recursiveFileSize(p) for p in paths]
 	
 	subPathsList = [glob.glob(p + '/*/') for p in paths]
 	deviceCounts = [len(subPaths) for subPaths in subPathsList]
@@ -242,7 +242,7 @@ def devices(user, project, wafer, chip):
 	paths = glob.glob(os.path.join(default_data_path, user, project, wafer, chip, '*/'))
 	names = [os.path.basename(os.path.dirname(p)) for p in paths]
 	modificationTimes = [os.path.getmtime(p+'ParametersHistory.json') if os.path.exists(p+'ParametersHistory.json') else os.path.getmtime(p) for p in paths]
-	sizes = [os.path.getsize(p+'ParametersHistory.json') if os.path.exists(p+'ParametersHistory.json') else os.path.getsize(p) for p in paths]
+	sizes = [recursiveFileSize(p) for p in paths]
 	
 	indexObjects = [dlu.loadJSONIndex(p) for p in paths]
 	indexCounts = [i['index'] for i in indexObjects]
@@ -359,6 +359,17 @@ def indexes(user, project):
 				indexObject[waferName][chipName][deviceName] = dlu.loadJSONIndex(os.path.dirname(devicePath))
 	
 	return jsonvalid(indexObject)
+
+def recursiveFileSize(directory):
+	total_size = os.path.getsize(directory)
+	for folder in os.listdir(directory):
+		subpath = os.path.join(directory, folder)
+		if(os.path.isfile(subpath)):
+			total_size += os.path.getsize(subpath)
+		else:
+			total_size += recursiveFileSize(subpath)
+	return total_size
+
 
 
 # === Plots ===

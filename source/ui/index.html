@@ -380,7 +380,7 @@
 											Projects
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
-										<v-text-field v-model="projectTableSearch" light solo rounded background-color="info lighten-1" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
+										<v-text-field v-model="projectTableSearch" class="ma-2" light solo rounded background-color="info lighten-1" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
 										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
 									<v-data-table must-sort :items="projects" :headers="projectTableHeaders" 
@@ -408,7 +408,7 @@
 											Wafers
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
-										<v-text-field v-model="waferTableSearch" light solo rounded background-color="info lighten-1" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
+										<v-text-field v-model="waferTableSearch" class="ma-2" light solo rounded background-color="info lighten-1" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
 										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
 									<v-data-table must-sort :items="wafers" :headers="waferTableHeaders" 
@@ -423,7 +423,7 @@
 													<td>{{ item.name }}</td>
 													<td>{{ item.path }}</td>
 													<td>{{ new Date(item.modificationTime*1000).toLocaleString() }}</td>
-													<td>{{ item.size }}</td>
+													<td>{{ item.size | formatFileSize }}</td>
 													<td><v-chip light>{{ item.chipCount }}</v-chip></td>
 													<td>{{ item.indexCount }}</td>
 													<td>{{ item.experimentCount }}</td>
@@ -442,7 +442,7 @@
 											"{{ wafer }}" Chips
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
-										<v-text-field v-model="chipTableSearch" light solo rounded background-color="info lighten-1" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
+										<v-text-field v-model="chipTableSearch" class="ma-2" light solo rounded background-color="info lighten-1" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
 										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
 									<v-data-table must-sort :items="chips" :headers="chipTableHeaders" 
@@ -457,7 +457,7 @@
 													<td>{{ item.name }}</td>
 													<td>{{ item.path }}</td>
 													<td>{{ new Date(item.modificationTime*1000).toLocaleString() }}</td>
-													<td>{{ item.size }}</td>
+													<td>{{ item.size | formatFileSize }}</td>
 													<td><v-chip light>{{ item.deviceCount }}</v-chip></td>
 													<td>{{ item.indexCount }}</td>
 													<td>{{ item.experimentCount }}</td>
@@ -478,11 +478,11 @@
 										<v-spacer></v-spacer>
 										<v-tooltip left>
 											<template v-slot:activator="{ on: tooltip }">
-												<v-btn fab small class="ma-2" color="info lighten-1" @click="copyHTMLStringToClip(devices.map(d => d.name))" v-on="{ ...tooltip }"><v-icon color="color_browser">file_copy</v-icon></v-btn>
+												<v-btn fab small color="info lighten-1" @click="copyHTMLStringToClip(devices.map(d => d.name))" v-on="{ ...tooltip }"><v-icon color="color_browser">file_copy</v-icon></v-btn>
 											</template>
 											<span>Copy device list</span>
 										</v-tooltip>
-										<v-text-field v-model="deviceTableSearch" light solo rounded background-color="info lighten-1" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
+										<v-text-field v-model="deviceTableSearch" class="ma-2" light solo rounded background-color="info lighten-1" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
 										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
 									<v-data-table must-sort :items="devices" :headers="deviceTableHeaders" 
@@ -497,7 +497,7 @@
 													<td>{{ item.name }}</td>
 													<td>{{ item.path }}</td>
 													<td>{{ new Date(item.modificationTime*1000).toLocaleString() }}</td>
-													<td>{{ item.size }}</td>
+													<td>{{ item.size | formatFileSize }}</td>
 													<td>{{ item.indexCount }}</td>
 													<td><v-chip light>{{ item.experimentCount }}</v-chip></td>
 												</tr>
@@ -570,7 +570,7 @@
 											"{{ wafer }}{{ chip }} {{ device }}" Experiments
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
-										<v-text-field v-model="experimentTableSearch" light solo rounded background-color="info lighten-1" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
+										<v-text-field v-model="experimentTableSearch" class="ma-2" light solo rounded background-color="info lighten-1" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
 										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
 									<v-data-table must-sort :items="experimentsWithIndexes" :headers="experimentTableHeaders" 
@@ -639,6 +639,12 @@
 										<v-btn icon @click="experimentIndex--" :disabled="experimentIndex <= 0" class="ml-4"><v-icon>arrow_back_ios</v-icon></v-btn>
 										<v-btn icon @click="experimentIndex++" :disabled="experimentIndex >= experiments.length - 1"><v-icon>arrow_forward_ios</v-icon></v-btn>
 										<v-spacer></v-spacer>
+										<v-tooltip left>
+											<template v-slot:activator="{ on: tooltip }">
+												<v-btn fab small class="ma-2" color="info lighten-1" v-on="{ ...tooltip }" :href="'/saveCSV/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/data.csv' + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"><v-icon color="color_browser">save_alt</v-icon></v-btn>
+											</template>
+											<span>Download CSV</span>
+										</v-tooltip>
 										<v-btn icon @click="getAll(); newCacheBust();"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
 									
@@ -761,19 +767,14 @@
 												<span>{{ experiment['dataFolderSpecificAbs'] }}</span>
 											</v-tooltip>
 											
-											<v-chip dark class="color_browser ma-2" v-for="file in experiment['dataFiles']" :key="file">
+											<v-chip dark class="ma-2" :color="getRunTypeColor(experiment['runType'])" v-for="file in experiment['dataFiles']" :key="file">
 												{{file}}
 											</v-chip>
 										</v-card-actions>
 										
-										<v-container>
-											<v-card>
-												<p><tt>from utilities import DataLoggerUtility as dlu</tt></p>
-												<p><tt>
-													dlu.loadSpecificDeviceHistory('{{ experiment['dataFolderSpecific'] }}', '{{ experiment['dataFiles'][0] }}', minIndex=0, maxIndex=float('inf'), minExperiment={{ experiment.startIndexes.experimentNumber }}, maxExperiment={{ experiment.startIndexes.experimentNumber }}, minRelativeIndex=0, maxRelativeIndex=float('inf'))
-												</tt></p>
-											</v-card>
-										</v-container>
+										<v-card-actions class="ma-1">
+											<v-btn @click="copyHTMLStringToClip('from utilities import DataLoggerUtility as dlu' + '\n\n' + 'dlu.loadSpecificDeviceHistory(\'' + experiment['dataFolderSpecific'] + '\', \'' + experiment['dataFiles'][0] + '\', minIndex=0, maxIndex=float(\'inf\'), minExperiment=' + experiment.startIndexes.experimentNumber + ', maxExperiment=' + experiment.startIndexes.experimentNumber + ', minRelativeIndex=0, maxRelativeIndex=float(\'inf\'))')">Copy Python</v-btn>
+										</v-card-actions>
 									</v-card>
 									
 								</v-card>
@@ -3883,7 +3884,7 @@
 				},
 				formatConductance: function(value) {
 					if(value == undefined) return '';
-					var units = "";
+					var units = " S";
 					if(value < 1) {
 						value *= 1e3;
 						units = " mS";
@@ -3897,6 +3898,23 @@
 						units = " nS";
 					}
 					return value + units;	
+				},
+				formatFileSize: function(value) {
+					if(value == undefined) return '';
+					var units = " bytes"
+					if(value > 1e3) {
+						value /= 1e3
+						units = " KB"
+					}
+					if(value > 1e3) {
+						value /= 1e3
+						units = " MB"
+					}
+					if(value > 1e3) {
+						value /= 1e3
+						units = " GB"
+					}
+					return value.toFixed(0) + units
 				},
 			}
 		});
