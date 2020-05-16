@@ -237,7 +237,7 @@
 					
 					<!-- Start of dashboard -->
 					
-					<v-flex xs12 class="ma-4" v-if="topLevelPage === 'dashboard'">
+					<v-card flat class="ma-4" v-if="topLevelPage === 'dashboard'">
 						<v-container>
 							<v-row class="pa-3">
 								<v-col cols="4" class="pa-1">
@@ -345,7 +345,7 @@
 								</template>
 							</v-data-table>
 						</v-card>
-					</v-flex>
+					</v-card>
 					
 					<!-- End of dashboard -->
 					<!-- Start of browser -->
@@ -777,7 +777,7 @@
 					<!-- End of browser -->
 					<!-- Start of sched creator -->
 					
-					<v-flex xs12 class="ma-4" v-if="topLevelPage === 'scheduleCreator'">
+					<v-card flat class="ma-4" v-if="topLevelPage === 'scheduleCreator'">
 						<v-card>
 							<v-toolbar dark dense class="color_creator ">
 								<v-toolbar-title>
@@ -971,12 +971,12 @@
 								</v-card>
 							</v-col>
 						</v-row>
-					</v-flex>
+					</v-card>
 					
 					<!-- End of sched creator -->
 					<!-- Start of experiment runner -->
 					
-					<v-flex xs12 class="ma-4" v-if="topLevelPage === 'experimentRunner'">
+					<v-card flat class="ma-4" v-if="topLevelPage === 'experimentRunner'">
 						<v-card>
 							<v-toolbar dark dense class="color_runner">
 								<v-toolbar-title>
@@ -1191,20 +1191,20 @@
 								<v-icon>view_carousel</v-icon>
 							</v-toolbar>
 							
-							<v-container fluid grid-list-sm>
-								<v-layout row wrap>
-									<v-flex xs12 sm6 md4 lg3>
-										<v-select filled class="ma-1" label="Job Number" v-model="jobSelectChoice" :items="jobSelectItems"></v-select>
-									</v-flex>
-									<v-flex xs12 sm6 md4 lg3>
-										<v-select filled class="ma-1" label="Device Number" v-model="deviceSelectChoice" :items="deviceSelectItems"></v-select>
-									</v-flex>
-								</v-layout>
+							<v-container>
+								<v-row dense>
+									<v-col sm="6" md="3" lg="3">
+										<v-select filled label="Job Number" v-model="jobSelectChoice" :items="jobSelectItems"></v-select>
+									</v-col>
+									<v-col sm="6" md="3" lg="3">
+										<v-select filled label="Device Number" v-model="deviceSelectChoice" :items="deviceSelectItems"></v-select>
+									</v-col>
+								</v-row>
 								
 								<template v-if="(jobSelectChoice !== '') && (deviceSelectChoice !== '') && (livePlots[jobSelectChoice]) && (livePlots[jobSelectChoice][deviceSelectChoice])">
-									<v-layout row wrap>
-										<v-flex xs12 sm12 md6 lg6 xl4 v-for="[plotID, plot] of Object.entries(livePlots[jobSelectChoice][deviceSelectChoice])" :key="plotID">
-											<v-card class="ma-1">
+									<v-row dense>
+										<v-col sm="12" md="6" lg="6" xl="4" v-for="[plotID, plot] of Object.entries(livePlots[jobSelectChoice][deviceSelectChoice])" :key="plotID">
+											<v-card>
 												<v-toolbar dark dense class="color_runner darken-1">
 													<v-toolbar-title>
 														{{ plotID }} 
@@ -1244,18 +1244,18 @@
 													<a-plotly v-bind:data="extractPlotlyData(plot)" :layout="extractPlotlyLayout(plot)"></a-plotly>
 												</div>
 											</v-card>
-										</v-flex>
-									</v-layout>
+										</v-col>
+									</v-row>
 								</template>
 							</v-container>
 						</v-card>
 						
-					</v-flex>
+					</v-card>
 					
 					<!-- End of experiment runner -->
 					<!-- Start of applications -->
 					
-					<v-flex xs12 class="ma-4" v-if="topLevelPage === 'performance'">
+					<v-card flat class="ma-4" v-if="topLevelPage === 'performance'">
 						<v-card>
 							<v-toolbar dark dense class="color_performance">
 								<v-toolbar-title>
@@ -1265,12 +1265,11 @@
 								<v-btn icon @click="performanceReset()" :disabled="false"><v-icon>settings_backup_restore</v-icon></v-btn>
 							</v-toolbar>
 							
-							<v-container>
-															
+							<v-container>							
 								<v-card class="mb-1 pa-1 grey lighten-4 roundedcorners" v-if="Object.keys(performanceScheduleObject).length > 0">
 									<v-container>
-										<v-layout row wrap>
-											<v-flex xs3 s3 md3 lg3 class="pa-1">
+										<v-row dense>
+											<v-col cols="3">
 												<v-list class="roundedcorners">
 													<v-list-item class="pb-1">
 														<v-list-item-content><v-list-item-title style="font-weight: bold">
@@ -1291,9 +1290,9 @@
 														<a-item-edit :setting.sync="performanceScheduleObject['MeasurementSystem']['systemType']"></a-item-edit>
 													</v-list-item>
 												</v-list>
-											</v-flex>
+											</v-col>
 											
-											<v-flex xs3 s3 md3 lg3 class="pa-1">
+											<v-col cols="3">
 												<v-list class="roundedcorners">
 													<v-list-item class="pb-1">
 														<v-list-item-content><v-list-item-title style="font-weight: bold">
@@ -1313,9 +1312,9 @@
 														<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['drainVoltageMaximum']"></a-item-edit>
 													</v-list-item>
 												</v-list>
-											</v-flex>
+											</v-col>
 											
-											<v-flex xs3 s3 md3 lg3 class="pa-1">
+											<v-col cols="3">
 												<v-expansion-panels flat v-model="performanceShowOptions" class="roundedcorners">
 													<v-expansion-panel class="roundedcorners">
 														<v-expansion-panel-header>
@@ -1333,9 +1332,9 @@
 														</v-expansion-panel-content>
 													</v-expansion-panel>
 												</v-expansion-panels>
-											</v-flex>
+											</v-col>
 											
-											<v-flex xs3 s3 md3 lg3 class="pa-1">
+											<v-col cols="3">
 												<v-expansion-panels flat v-model="performanceShowAdvanced" class="roundedcorners">
 													<v-expansion-panel class="roundedcorners">
 														<v-expansion-panel-header>
@@ -1351,28 +1350,30 @@
 																</v-list-item>
 																<v-list-item>
 																	<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['gateVoltageDistribution']"></a-item-edit>
-																	<v-flex xs4 class="ml-1" v-if="performanceScheduleObject['runConfigs']['FreeRun']['gateVoltageDistribution']['default'] !== 'random'"> 
+																	<v-col cols="2" class="pa-0 ml-1" v-if="performanceScheduleObject['runConfigs']['FreeRun']['gateVoltageDistribution']['default'] !== 'random'"> 
 																		<a-item-edit hide_label="true" :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['gateVoltageDistributionParameter']"></a-item-edit>
-																	</v-flex>
+																	</v-col>
 																</v-list-item>
 																<v-list-item>
 																	<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['drainVoltageDistribution']"></a-item-edit>
-																	<v-flex xs4 class="ml-1" v-if="performanceScheduleObject['runConfigs']['FreeRun']['drainVoltageDistribution']['default'] !== 'random'">
+																	<v-col cols="2" class="pa-0 ml-1" v-if="performanceScheduleObject['runConfigs']['FreeRun']['drainVoltageDistribution']['default'] !== 'random'">
 																		<a-item-edit hide_label="true" :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['drainVoltageDistributionParameter']"></a-item-edit>
-																	</v-flex>
+																	</v-col>
 																</v-list-item>
 															</v-list>
 														</v-expansion-panel-content>
 													</v-expansion-panel>
 												</v-expansion-panels>
-											</v-flex>
-										</v-layout>
+											</v-col>
+										</v-row>
 									</v-container>
 								</v-card>
+							</v-container>
 								
-								<v-layout row wrap>
-									<v-flex xs10 sm10 md10 lg10>
-										<v-card flat class="mt-3">
+							<v-container class="pa-0">
+								<v-row no-gutters>
+									<v-col cols="10">
+										<v-card flat>
 											<v-toolbar dark flat color="color_performance" class="pb-1">
 												<v-spacer></v-spacer>
 												<v-toolbar-items>
@@ -1411,10 +1412,10 @@
 												</v-tab-item>
 											</v-tabs>
 										</v-card>
-									</v-flex>
+									</v-col>
 									
-									<v-flex xs2>
-										<v-card flat class="mt-3 ml-2">
+									<v-col cols="2">
+										<v-card flat class="ml-2">
 											<v-toolbar dark flat color="color_performance" class="pb-1">
 												<v-spacer></v-spacer>
 												<v-toolbar-items><v-icon large>speed</v-icon></v-toolbar-items>
@@ -1445,14 +1446,13 @@
 											<v-checkbox v-if="performanceMetricsExtract" class="ml-1" label="Show on Plot" 
 											v-model="performanceMetricsShowOnPlot"></v-checkbox>
 										</v-card>
-									</v-flex>
-								</v-layout>
-								
+									</v-col>
+								</v-row>
 							</v-container>
 						</v-card>
-					</v-flex>
+					</v-card>
 					
-					<v-flex xs12 class="ma-4" v-if="topLevelPage === 'ptSensor'">
+					<v-card flat class="ma-4" v-if="topLevelPage === 'ptSensor'">
 						<v-card>
 							<v-toolbar dark dense class="color_ptsensor">
 								<v-toolbar-title>
@@ -1463,12 +1463,11 @@
 							</v-toolbar>
 							
 							<v-container>
-								
 								<v-card class="mb-1 pa-1 grey lighten-4 roundedcorners" v-if="Object.keys(ptSensorScheduleObject).length > 0">
 									<v-container>
-										<v-layout row wrap>
-											<v-flex xs3 s3 md3 lg3>
-												<v-list class="roundedcorners ma-1">
+										<v-row dense>
+											<v-col cols="3">
+												<v-list class="roundedcorners">
 													<v-list-item class="pb-1">
 														<v-list-item-content><v-list-item-title style="font-weight: bold">
 															Device ID
@@ -1478,9 +1477,9 @@
 														<a-item-edit :setting.sync="ptSensorScheduleObject['Identifiers']['device']"></a-item-edit>
 													</v-list-item>
 												</v-list>
-											</v-flex>
-											<v-flex xs3 s3 md3 lg3>
-												<v-list class="roundedcorners ma-1">
+											</v-col>
+											<v-col cols="3">
+												<v-list class="roundedcorners">
 													<v-list-item class="pb-1">
 														<v-list-item-content><v-list-item-title style="font-weight: bold">
 															Timing
@@ -1493,20 +1492,17 @@
 														<a-item-edit :setting.sync="ptSensorScheduleObject['runConfigs']['PTSensor']['delayBetweenMeasurements']"></a-item-edit>
 													</v-list-item>
 												</v-list>
-											</v-flex>
-											<v-flex xs3 s3 md3 lg3>
-												
-											</v-flex>
-											<v-flex xs3 s3 md3 lg3>
-												
-											</v-flex>
-										</v-layout>
+											</v-col>
+											<v-spacer></v-spacer>
+										</v-row>
 									</v-container>
 								</v-card>
+							</v-container>
 								
-								<v-layout row wrap>
-									<v-flex xs10 sm10 md10 lg10>
-										<v-card flat class="mt-3">
+							<v-container class="pa-0">
+								<v-row no-gutters>
+									<v-col cols="10">
+										<v-card flat>
 											<v-toolbar dark flat color="color_ptsensor" class="pb-1">
 												<v-spacer></v-spacer>
 												<v-toolbar-items>
@@ -1532,10 +1528,10 @@
 												</v-tab-item>
 											</v-tabs>
 										</v-card>
-									</v-flex>
+									</v-col>
 									
-									<v-flex xs2>
-										<v-card flat class="mt-3 ml-2">
+									<v-col cols="2">
+										<v-card flat class="ml-2">
 											<v-toolbar dark flat color="color_ptsensor" class="pb-1">
 												<v-spacer></v-spacer>
 												<v-toolbar-items><v-icon large>opacity</v-icon></v-toolbar-items>
@@ -1558,17 +1554,16 @@
 												</template>
 											</v-data-table>
 										</v-card>
-									</v-flex>
-								</v-layout>
-								
+									</v-col>
+								</v-row>
 							</v-container>
 						</v-card>
-					</v-flex>
+					</v-card>
 					
 					<!-- End of applications -->
 					<!-- Start of settings -->
 					
-					<v-flex xs12 class="ma-4" v-if="topLevelPage === 'settings'">
+					<v-card flat class="ma-4" v-if="topLevelPage === 'settings'">
 						<v-card>
 							<v-toolbar dark dense class="info darken-2">
 								<v-toolbar-title>
@@ -1580,9 +1575,9 @@
 							</v-toolbar>
 							
 							<v-container>
-								<v-layout row wrap class="pl-1 pr-1">
-									<v-flex xs3 sm3 md3 lg3 xl3>
-										<v-card class="ma-1">
+								<v-row dense>
+									<v-col cols="3">
+										<v-card>
 											<v-toolbar dark dense class="color_base">
 												<v-toolbar-title>
 													Data
@@ -1592,10 +1587,10 @@
 												<a-item-edit-group :settings.sync="primaryPlotSettings"></a-item-edit-group>
 											</v-list>
 										</v-card>
-									</v-flex>
+									</v-col>
 									
-									<v-flex xs3 sm3 md3 lg3 xl3>
-										<v-card class="ma-1">
+									<v-col cols="3">
+										<v-card>
 											<v-toolbar dark dense class="color_base">
 												<v-toolbar-title>
 													Plot Options
@@ -1605,10 +1600,10 @@
 												<a-item-edit-group :settings.sync="modePlotSettings"></a-item-edit-group>
 											</v-list>
 										</v-card>
-									</v-flex>
+									</v-col>
 									
-									<v-flex xs3 sm3 md3 lg3 xl3>
-										<v-card class="ma-1">
+									<v-col cols="3">
+										<v-card>
 											<v-toolbar dark dense class="color_base">
 												<v-toolbar-title>
 													Chip Summary
@@ -1618,10 +1613,10 @@
 												<a-item-edit-group :settings.sync="chipSummarySettings"></a-item-edit-group>
 											</v-list>
 										</v-card>
-									</v-flex>
+									</v-col>
 									
-									<v-flex xs3 sm3 md3 lg3 xl3>
-										<v-card class="ma-1">
+									<v-col cols="3">
+										<v-card>
 											<v-toolbar dark dense class="color_base">
 												<v-toolbar-title>
 													Device Summary
@@ -1631,16 +1626,16 @@
 												<a-item-edit-group :settings.sync="deviceSummarySettings"></a-item-edit-group>
 											</v-list>
 										</v-card>
-									</v-flex>
-								</v-layout>
+									</v-col>
+								</v-row>
 							</v-container>
 						</v-card>
-					</v-flex>
+					</v-card>
 					
 					<!-- End of settings -->
 					<!-- Start of about -->
 					
-					<v-flex xs12 class="ma-4" v-if="topLevelPage === 'about'">
+					<v-card flat class="ma-4" v-if="topLevelPage === 'about'">
 						<v-card>
 							<v-toolbar dark dense class="color_documentation">
 								<v-toolbar-title>
@@ -1668,12 +1663,12 @@
 								</v-toolbar>
 							</v-container>
 						</v-card>
-					</v-flex>
+					</v-card>
 					
 					<!-- End of about -->
 					<!-- Start of documentation -->
 					
-					<v-flex xs12 class="ma-4" v-if="topLevelPage === 'documentation'">
+					<v-card flat class="ma-4" v-if="topLevelPage === 'documentation'">
 						<v-card>
 							<v-toolbar dark dense class="color_documentation">
 								<v-toolbar-title>
@@ -1760,7 +1755,7 @@
 								</v-expansion-panels>
 							</v-container>
 						</v-card>
-					</v-flex>
+					</v-card>
 
 					<!-- End of documentation -->
 
