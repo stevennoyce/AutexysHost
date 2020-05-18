@@ -350,7 +350,7 @@
 					<!-- End of dashboard -->
 					<!-- Start of browser -->
 					
-					<v-stepper v-if="topLevelPage === 'stepper'" v-model="stepperPage" style="background-color:rgba(255,255,255,0);height:100%;">
+					<v-stepper v-if="topLevelPage === 'stepper'" v-model="stepperPage" style="height:100%;">
 						<v-stepper-header>
 							<v-stepper-step step="1" :complete="stepperPage > 1" :editable="stepperPage > 1" edit-icon="folder" 
 											color="color_browser darken-1">Projects</v-stepper-step>
@@ -374,13 +374,13 @@
 						<v-stepper-items>
 							
 							<v-stepper-content step="1">
-								<v-card v-if="stepperPage > 0">
+								<v-card v-if="stepperPage > 0" flat>
 									<v-toolbar dark class="color_browser">
 										<v-toolbar-title>
 											Projects
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
-										<v-text-field v-model="projectTableSearch" class="ma-2" light solo rounded background-color="info lighten-1" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
+										<v-text-field v-model="projectTableSearch" class="ma-2" light solo rounded color="color_browser" background-color="info lighten-1" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
 										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
 									<v-data-table must-sort :items="projects" :headers="projectTableHeaders" 
@@ -401,14 +401,14 @@
 							</v-stepper-content>
 							
 							<v-stepper-content step="2">
-								<v-card v-if="stepperPage > 1">
+								<v-card v-if="stepperPage > 1" flat>
 									<v-toolbar dark class="color_browser">
 										<v-btn icon @click="goBack(); getProjects()"><v-icon>arrow_back</v-icon></v-btn>
 										<v-toolbar-title>
 											Wafers
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
-										<v-text-field v-model="waferTableSearch" class="ma-2" light solo rounded background-color="info lighten-1" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
+										<v-text-field v-model="waferTableSearch" class="ma-2" light solo rounded color="color_browser" background-color="info lighten-1" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
 										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
 									<v-data-table must-sort :items="wafers" :headers="waferTableHeaders" 
@@ -435,14 +435,14 @@
 							</v-stepper-content>
 							
 							<v-stepper-content step="3">
-								<v-card v-if="stepperPage > 2">
+								<v-card v-if="stepperPage > 2" flat>
 									<v-toolbar dark class="color_browser">
 										<v-btn icon @click="goBack(); getWafers()"><v-icon>arrow_back</v-icon></v-btn>
 										<v-toolbar-title>
 											"{{ wafer }}" Chips
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
-										<v-text-field v-model="chipTableSearch" class="ma-2" light solo rounded background-color="info lighten-1" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
+										<v-text-field v-model="chipTableSearch" class="ma-2" light solo rounded color="color_browser" background-color="info lighten-1" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
 										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
 									<v-data-table must-sort :items="chips" :headers="chipTableHeaders" 
@@ -469,7 +469,7 @@
 							</v-stepper-content>
 							
 							<v-stepper-content step="4">
-								<v-card v-if="stepperPage > 3">
+								<v-card v-if="stepperPage > 3" flat>
 									<v-toolbar dark class="color_browser">
 										<v-btn icon @click="goBack(); getChips();"><v-icon>arrow_back</v-icon></v-btn>
 										<v-toolbar-title>
@@ -478,11 +478,11 @@
 										<v-spacer></v-spacer>
 										<v-tooltip left>
 											<template v-slot:activator="{ on: tooltip }">
-												<v-btn fab small color="info lighten-1" @click="copyHTMLStringToClip(devices.map(d => d.name))" v-on="{ ...tooltip }"><v-icon color="color_browser">file_copy</v-icon></v-btn>
+												<v-btn fab small color="info lighten-1" @click="copyHTMLStringToClip(devices.map(d => d.name))" v-on="{ ...tooltip }"><v-icon color="color_browser">format_list_bulleted</v-icon></v-btn>
 											</template>
 											<span>Copy device list</span>
 										</v-tooltip>
-										<v-text-field v-model="deviceTableSearch" class="ma-2" light solo rounded background-color="info lighten-1" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
+										<v-text-field v-model="deviceTableSearch" class="ma-2" light solo rounded color="color_browser" background-color="info lighten-1" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
 										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
 									<v-data-table must-sort :items="devices" :headers="deviceTableHeaders" 
@@ -506,7 +506,7 @@
 									</v-data-table>
 								</v-card>
 
-								<v-card v-if="stepperPage == 4 ">
+								<v-card v-if="stepperPage == 4 " flat>
 									<v-toolbar dark class="color_browser darken-1">
 										<v-toolbar-title>
 											"{{ wafer }}{{ chip }}" Chip Summary Plots
@@ -563,14 +563,14 @@
 							</v-stepper-content>
 
 							<v-stepper-content step="5">
-								<v-card v-if="stepperPage > 4">
+								<v-card v-if="stepperPage > 4" flat>
 									<v-toolbar dark class="color_browser">
 										<v-btn icon @click="goBack(); getDevices();"><v-icon>arrow_back</v-icon></v-btn>
 										<v-toolbar-title>
 											"{{ wafer }}{{ chip }} {{ device }}" Experiments
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
-										<v-text-field v-model="experimentTableSearch" class="ma-2" light solo rounded background-color="info lighten-1" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
+										<v-text-field v-model="experimentTableSearch" class="ma-2" light solo rounded color="color_browser" background-color="info lighten-1" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
 										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
 									<v-data-table must-sort :items="experimentsWithIndexes" :headers="experimentTableHeaders" 
@@ -593,7 +593,7 @@
 									</v-data-table>
 								</v-card>
 								
-								<v-card v-if="stepperPage == 5">
+								<v-card v-if="stepperPage == 5" flat>
 									<v-toolbar dark class="color_browser darken-1">
 										<v-toolbar-title>
 											"{{ wafer }}{{ chip }} {{ device }}" Device Summary Plots
@@ -630,7 +630,7 @@
 							</v-stepper-content>
 							
 							<v-stepper-content step="6">
-								<v-card v-if="stepperPage > 5 && experiments.length > experimentIndex">
+								<v-card v-if="stepperPage > 5 && experiments.length > experimentIndex" flat>
 									<v-toolbar dark class="color_browser ">
 										<v-btn icon @click="goBack(); getExperiments();"><v-icon>arrow_back</v-icon></v-btn>
 										<v-toolbar-title>
@@ -1761,7 +1761,7 @@
 
 				</v-content>
 				<v-footer inset>
-					<v-spacer></v-spacer><span class="pr-4">Created by Steven Noyce. Updated June 2019.</span>
+					<v-spacer></v-spacer><span class="pr-4">Created by Steven Noyce. Updated May 2020.</span>
 				</v-footer>
 			</v-app>
 		</transition>
@@ -3949,8 +3949,8 @@
 		// Dark Business Theme
 		app.$data.colors = ['#5981a6', '#509593', '#595ea6', '#3973ac', '#457da1'];
 		
-		// Final Theme 	   [grey-blue,   green  ,  purple  ,   blue   , blue-purp, red-purp ,   gold   , ]
-		app.$data.colors = ['#5981A6', '#008888', '#595EA6', '#3973AC', '#3F51B5', '#880E7F', '#C18C00', ];
+		// Final Theme 	   [grey-blue,   green  ,  purple  ,   blue   , blue-purp, red-purp ,   gold   ,   light  , ]
+		app.$data.colors = ['#5981A6', '#008888', '#595EA6', '#3973AC', '#3F51B5', '#880E7F', '#C18C00', '#F5F5F5', ];
 		
 		// --- Apply Theme --- 
 		
@@ -3975,8 +3975,9 @@
 			
 		app.$vuetify.theme.themes.light['color_performance'] = app.$vuetify.theme.themes.light.color5;
 		app.$vuetify.theme.themes.light['color_ptsensor'] = app.$vuetify.theme.themes.light.color5;
-		
 		app.$vuetify.theme.themes.light['color_documentation'] = app.$vuetify.theme.themes.light.color7;
+		
+		app.$vuetify.theme.themes.light['color_soft_background'] = app.$vuetify.theme.themes.light.color8;
 		
 		// colors = {
 		// 	'dark': {
