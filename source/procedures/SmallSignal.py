@@ -23,7 +23,6 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 	smu_instance.setComplianceCurrent(ss_parameters['complianceCurrent'])
 
 	# === START ===
-	# === START ===
 	# Apply bias voltages (or change channels to high-resistance mode)
 	print('Applying bias voltages.')
 	if(ss_parameters['supplyDrainVoltage']):
@@ -39,6 +38,9 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 	else:
 		smu_instance.setChannel2SourceMode(mode='current')
 		smu_instance.setIg(0)	
+
+	# Delay to allow start-up transients to settle to the DC operating point
+	time.sleep(0.1)
 
 	print('Beginning to measure sinusoidal small-signal response.')
 	results = runSmallSignal( smu_instance,
@@ -92,7 +94,7 @@ def runSmallSignal(smu_instance, gateVoltageSetPoint, drainVoltageSetPoint, gate
 
 			gateVoltage = gateVoltages[frequencyIndex][voltageIndex]
 			drainVoltage = drainVoltages[frequencyIndex][voltageIndex]
-			delayBetweenMeasurements = (1/frequencies[frequencyIndex]) * (1/stepsPerPeriod)
+			delayBetweenMeasurements = max(0, (1/(frequencies[frequencyIndex]*stepsPerPeriod)) - (1/smu_instance.measurementsPerSecond))
 
 			# Apply V_GS and V_DS (only issue commands that affect the voltage)
 			if(supplyGateVoltage and ((voltageIndex == 0) or (gateVoltage != gateVoltages[frequencyIndex][voltageIndex-1]))):
