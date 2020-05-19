@@ -3,9 +3,19 @@
 import numpy as np
 import math
 
+# === Math Functions ===
+
 # Generates a sequence of constant values.
 def constValues(value, points):
 	return (int(points)*[value])
+
+# Generates a sequence of sinusoidal values.
+def sineValues(offset, amplitude, periods, points):
+	return [offset + amplitude*math.sin((x/(points-1)) * 2*math.pi * periods) for x in range(points)]
+
+
+
+# === Ramp Functions (from "start" to "end", and possibly back again) ===
 
 # Generages a sequence that linearly ramps from start to end.
 def rampValues(start, end, points):
@@ -29,9 +39,9 @@ def stepValues(start, end, increments, pointsPerRamp, pointsPerHold):
 	return data
 
 # Generates a sequence that transitions sinusoidally from start to end. 
-def sineValues(start, end, points):
+def sineRampValues(start, end, points):
 	amplitude = (end - start)/2
-	sequence = [start + amplitude*(1 - math.cos(x * math.pi / (points-1))) for x in range(points)]
+	sequence = [start + amplitude*(1 - math.cos((x/(points-1)) * math.pi)) for x in range(points)]
 	return sequence
 
 # Generates a sequence that alternates every other point between a linear ramp from 0 to maximum and a linear ramp from 0 to -maximum.
@@ -79,6 +89,10 @@ def alternatingSweepValuesWithDuplicates(maximum, points, duplicates):
 		data[d::duplicates] = duplicated_lists[d]
 	return [data[:int(len(data)/2)], data[int(len(data)/2):]]
 
+
+
+# === Arbitrary Waveforms ===
+
 # Generate a sequence shaped like a waveform where values is a list of values to reach and points is a list of transition lengths between values.
 # The sequence will add more points in the transitions so that the difference between two points <= maxStep.
 def waveformValues(waveform, values, points, maxStep):
@@ -87,7 +101,7 @@ def waveformValues(waveform, values, points, maxStep):
 	elif(waveform == 'triangle'):
 		return triangleWaveValues(values, points, maxStep)
 	elif(waveform == 'sine'):
-		return sineWaveValues(values, points, maxStep)
+		return sinusoidalTriangleWaveValues(values, points, maxStep)
 	else:
 		raise NotImplementedError('Unknown waveform: "' + str(waveform) + '"')
 
@@ -107,6 +121,10 @@ def squareWaveValues(values, points, maxStep):
 # Generate a sequence shaped like a triangle wave, where values is a list of peak heights and points is a list of ramp lengths.
 # The sequence will add more points in the transitions between peaks so that the difference between two points <= maxStep.
 def triangleWaveValues(values, points, maxStep):
+	# Separately hand the case where values only has 1 entry
+	if((len(values) == 1) and (len(points) > 0)):
+		return [values[0]]*points[0]
+	
 	sequence = []
 	for i in range(min(len(values) - 1, len(points))):
 		segment = rampValues(values[i], values[i+1], max(2, points[i]))
@@ -119,17 +137,21 @@ def triangleWaveValues(values, points, maxStep):
 			sequence.extend(segment)
 	return sequence
 		
-# Generate a sequence shaped like a sine wave, where values is a list of peak heights and points is a list of curve lengths.
+# Similar to triangle wave (except transitions from one peak to the next is shaped "sinusoidally"), where values is a list of peak heights and points is a list of curve lengths.
 # The sequence will add more points in the transitions between peaks so that the difference between two points <= maxStep.				
-def sineWaveValues(values, points, maxStep):
+def sinusoidalTriangleWaveValues(values, points, maxStep):
+	# Separately hand the case where values only has 1 entry
+	if((len(values) == 1) and (len(points) > 0)):
+		return [values[0]]*points[0]
+	
 	sequence = []
 	for i in range(min(len(values) - 1, len(points))):
-		segment = sineValues(values[i], values[i+1], max(2, points[i]))
+		segment = sineRampValues(values[i], values[i+1], max(2, points[i]))
 		max_difference = max([abs(segment[i] - segment[i+1]) for i in range(len(segment) - 1)])
 		while(max_difference > maxStep):
 			# This scheme was chosen to try to converge quickly on a number of points that works without being excessive
 			points[i] = math.ceil((points[i]+1)*max_difference/maxStep)
-			segment = sineValues(values[i], values[i+1], max(2, points[i]))
+			segment = sineRampValues(values[i], values[i+1], max(2, points[i]))
 			max_difference = max([abs(segment[i] - segment[i+1]) for i in range(len(segment) - 1)])
 		sequence.extend(segment)
 	return sequence
