@@ -4,7 +4,7 @@ from utilities.MatplotlibUtility import *
 
 plotDescription = {
 	'plotCategory': 'device',
-	'priority': 440,
+	'priority': 430,
 	'dataFileDependencies': ['SmallSignal.json'],
 	'plotDefaults': {
 		'figsize':(2,2.5),
