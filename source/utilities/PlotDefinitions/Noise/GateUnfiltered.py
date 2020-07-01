@@ -88,7 +88,7 @@ def filter60HzAndHarmonics(Id, timestamps):
 	
 	IdFiltered = np.fft.irfft(Xs)
 	
-	print('FNyquist is', FNyquist)
+	# print('FNyquist is', FNyquist)
 	
 	b, a = scipy.signal.butter(1, min(60, FNyquist/2)/FNyquist, btype='highpass', analog=False) #, fs=Fsamp
 	IdFiltered = np.mean(IdFiltered) + scipy.signal.filtfilt(b, a, IdFiltered)
