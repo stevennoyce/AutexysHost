@@ -9,7 +9,6 @@ import copy
 import time
 import numpy as np
 import webbrowser
-import threading
 import flask_socketio
 import socket
 from collections import Mapping, Sequence
@@ -101,9 +100,9 @@ def connect():
 	if(managerMessageForwarderthread is None):
 		managerMessageForwarderthread = socketio.start_background_task(target=managerMessageForwarder)
 
-@socketio.on('my event')
-def handle_my_custom_event(json):
-	print('in my event, received json: ' + str(json))
+@socketio.on('Client Notification')
+def custom_connection_notification(json):
+	print('Received socketio notification: ' + str(json))
 
 
 
@@ -756,23 +755,23 @@ def launchBrowser(url):
 
 
 # === Main ===
-def start(share={}, debug=True, use_reloader=True):
+def start(share={}, debug=True, use_reloader=True, launch_browser=True, specific_port=None):
 	makeShareGlobal(share)
 	
 	if('AutexysUIRunning' in os.environ):
 		print('Reload detected. Not opening browser.')
 		print('Still running on port {}'.format(os.environ['AutexysUIPort']))
 	else:
-		port = findFirstOpenPort(startPort=5000)
+		port = specific_port if(specific_port is not None) else findFirstOpenPort(startPort=5000)
 		print('Using port {}'.format(port))
-		
-		url = 'http://127.0.0.1:{}/ui/index.html'.format(port)
-		
+	
 		os.environ['AutexysUIRunning'] = 'True'
 		os.environ['AutexysUIPort'] = str(port)
 		
-		print('Opening browser...')
-		socketio.start_background_task(launchBrowser, url)
+		if(launch_browser):
+			print('Opening browser...')
+			url = 'http://127.0.0.1:{}/ui/index.html'.format(port)
+			socketio.start_background_task(launchBrowser, url)
 	
 	# app.run(debug=True, threaded=False, port=int(os.environ['AutexysUIPort']))
 	socketio.run(app, debug=debug, port=int(os.environ['AutexysUIPort']), use_reloader=use_reloader)
@@ -784,7 +783,7 @@ def makeShareGlobal(localShare):
 
 
 if __name__ == '__main__':
-	start(debug=False, use_reloader=True)
+	start(debug=False, use_reloader=True, launch_browser=True, specific_port=None)
 
 
 

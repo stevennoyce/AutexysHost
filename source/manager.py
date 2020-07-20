@@ -85,7 +85,7 @@ def changePriorityOfProcessAndChildren(pid, priority):
 
 
 # === UI ===
-def startUI(share, priority=0):
+def startUI(specific_port, share, priority=0):
 	"""Start a Process running ui.start() and obtain a two-way Pipe for communication."""
 	pipeToUI, pipeForUI = mp.Pipe()
 	share['p'] = pipeForUI
@@ -93,15 +93,15 @@ def startUI(share, priority=0):
 	# Clear the UI message queue of old messages before starting a new instance
 	pipes.clear(share, 'QueueToUI')
 	
-	uiProcess = mp.Process(target=runUI, args=(share,))
+	uiProcess = mp.Process(target=runUI, args=(specific_port, share))
 	uiProcess.start()
 	# changePriorityOfProcessAndChildren(uiProcess.pid, priority)
 	return {'process':uiProcess, 'pipe':pipeToUI}
 
-def runUI(share):
+def runUI(specific_port, share):
 	"""A target method for running the UI that also imports the UI so the parent process does not have that dependency."""
 	import ui
-	ui.start(share=share, debug=False, use_reloader=False)
+	ui.start(share=share, debug=False, use_reloader=False, launch_browser=True, specific_port=specific_port)
 
 
 
@@ -130,7 +130,7 @@ def runDispatcher(scheduleFilePath, share):
 
 
 # === Main ===
-def manage(on_startup_schedule_file=None):
+def manage(on_startup_schedule_file=None, on_startup_port=None):
 	"""Initialize a UI process and enter an event loop to handle communication with that UI. Manage the creation of dispatcher
 	processes to execute schedule files and facilitate communication between the UI and the currently running dispatcher."""
 		
@@ -138,7 +138,7 @@ def manage(on_startup_schedule_file=None):
 	share = defaultShare()
 	
 	# Spin out the UI sub-process
-	ui = startUI(share, priority=0)	
+	ui = startUI(on_startup_port, share, priority=0)	
 	dispatcher = None
 	
 	# Spin out the optional "on-startup" Dispatcher sub-process
