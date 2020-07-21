@@ -1784,11 +1784,8 @@
 		
 		// === Setup Server Connection ===
 		
-		var server_domain = (document.domain) ? document.domain : '127.0.0.1';
-		var server_port = (location.port) ? location.port : '5001';
-		
 		// Open a socketio connection on the URL of this document, then notify the server when successful
-		var url = 'http://' + server_domain + ':' + server_port;
+		var url = 'http://' + document.domain + ':' + location.port;
 		var socket = io.connect(url);
 		socket.on('connect', function(s) {
 			console.log('Notifying Server that this Client has connected on ' + url);
@@ -1916,8 +1913,8 @@
 							
 				// === Server Status ===
 				
-				serverDomain: server_domain,
-				serverPort: server_port,
+				serverDomain: document.domain,
+				serverPort: location.port,
 				
 				// === Navigation ===
 				
@@ -2265,8 +2262,8 @@
 			methods: {
 				// === Server Requests ===
 				serverAddress: function() {
-					return 'http://' + this.serverDomain + ':' + this.serverPort;
-					//return '';
+					return '';
+					//return 'http://' + this.serverDomain + ':' + this.serverPort;
 				},
 				getJSON: function(path, callback, errorMessage) {
 					if (path) {
