@@ -2252,6 +2252,18 @@
 				documentationDeleteIndex: -1
 			},
 			methods: {
+				// === Server Requests ===
+				getJSON: function(path, callback, errorMessage) {
+					if (path) {
+						$.getJSON(path, callback).fail(() => {console.log(errorMessage)});
+					}
+				},
+				postJSON: function(path, data, callback, errorMessage) {
+					if(path) {
+						$.post(path, data, callback).fail(() => {console.log(errorMessage)});
+					}
+				},
+				
 				// === Initialization ===
 				
 				initialize: function() {
@@ -2288,146 +2300,106 @@
 				
 				getUsers: function() {
 					var path = "/users.json" + this.cacheBust;
-					if (path) {
-						$.getJSON(path, response => {this.users = response})
-						.fail(() => {console.log("Error getting users")});
-					}
+					this.getJSON(path, (response => {this.users = response}), "Error getting users");
 				},
 				getProjects: function() {
 					var path = '/' + this.user + '/projects.json' + this.cacheBust;
-					if (path) {
-						$.getJSON(path, response => {app.$data.projects = response})
-						.fail(() => {console.log("Error getting projects")});
-					}
+					this.getJSON(path, (response => {app.$data.projects = response}), "Error getting projects");
 				},
 				getWafers: function() {
 					var path = '/' + this.user + '/' + this.project + '/wafers.json' + this.cacheBust;
-					if (path) {
-						$.getJSON(path, response => {app.$data.wafers = response})
-						.fail(() => {console.log("Error getting wafers")});
-					}
+					this.getJSON(path, (response => {app.$data.wafers = response}), "Error getting wafers");
 					
 					this.getIndexes();
 				},
 				getChips: function() {
 					var path = '/' + this.user + '/' + this.project + '/' + this.wafer + '/chips.json' + this.cacheBust;
-					if (path) {
-						$.getJSON(path, response => {app.$data.chips = response})
-						.fail(() => {console.log("Error getting chips")});
-					}
+					this.getJSON(path, (response => {app.$data.chips = response}), "Error getting chips");
 				},
 				getDevices: function() {
 					var path = '/' + this.user + '/' + this.project + '/' + this.wafer + '/' + this.chip + '/devices.json' + this.cacheBust;
-					if (path) {
-						$.getJSON(path, response => {
-							response.map(function(device) {
-								var contacts = device.name.match(/\d+/g)
-								if(contacts != null) {
-									contacts = contacts.map(num => num.padStart(2, '0'));
-									device.displayName = contacts.join('-');
-								} else {
-									device.displayName = device.name;
-								}
-								return device;
-							});
-							app.$data.devices = response;
-						})
-						.fail(() => {console.log("Error getting devices")});
-					}
+					this.getJSON(path, (response => {
+						response.map(function(device) {
+							var contacts = device.name.match(/\d+/g)
+							if(contacts != null) {
+								contacts = contacts.map(num => num.padStart(2, '0'));
+								device.displayName = contacts.join('-');
+							} else {
+								device.displayName = device.name;
+							}
+							return device;
+						});
+						app.$data.devices = response;
+					}), "Error getting devices");
 				},
 				getExperiments: function() {
 					var path = '/' + this.user + '/' + this.project + '/' + this.wafer + '/' + this.chip + '/' + this.device + '/experiments.json' + this.cacheBust;
-					if (path) {
-						$.getJSON(path, response => {
-							console.log("Loading experiments.");
-							for (var i = 0; i < response.length; i++) {
-								response[i]['uiComputed'] = {};
-								response[i]['uiComputed']['indexCount'] = response[i]['endIndexes']['index'] - response[i]['startIndexes']['index'];
-							}
-							app.$data.experiments = response;
-							
-							// let lastExperiment = this.experiments[this.experiments.length - 1];
-							// let lastFinishedIndex = lastExperiment['endIndexes']['index'];
-							// let lastIndexObject = this.indexes[this.wafer][this.chip][this.device];
-							// let lastIndex = lastIndexObject['index'];
-							
-							// if (lastIndex > lastFinishedIndex) {
-							// 	let currentExperiment = JSON.parse(JSON.stringify(lastExperiment));
-							// 	currentExperiment['startIndexes'] = JSON.parse(JSON.stringify(lastExperiment['startIndexes']));
-							// 	currentExperiment['startIndexes']['experimentNumber']++;
-							// 	currentExperiment['endIndexes'] = JSON.parse(JSON.stringify(lastIndexObject));
-							// 	currentExperiment['runType'] = 'Running';
-							// 	this.experiments.push(currentExperiment);
-							// }
-						})
-						.fail(function(jqXHR, textStatus, errorThrown) { console.log('getJSON request failed! ' + textStatus + ' ' + errorThrown); });
-						//.fail(() => {console.log("Error getting experiments");});
-					}
+					this.getJSON(path, (response => {
+						console.log("Loading experiments.");
+						for (var i = 0; i < response.length; i++) {
+							response[i]['uiComputed'] = {};
+							response[i]['uiComputed']['indexCount'] = response[i]['endIndexes']['index'] - response[i]['startIndexes']['index'];
+						}
+						app.$data.experiments = response;
+						
+						// let lastExperiment = this.experiments[this.experiments.length - 1];
+						// let lastFinishedIndex = lastExperiment['endIndexes']['index'];
+						// let lastIndexObject = this.indexes[this.wafer][this.chip][this.device];
+						// let lastIndex = lastIndexObject['index'];
+						
+						// if (lastIndex > lastFinishedIndex) {
+						// 	let currentExperiment = JSON.parse(JSON.stringify(lastExperiment));
+						// 	currentExperiment['startIndexes'] = JSON.parse(JSON.stringify(lastExperiment['startIndexes']));
+						// 	currentExperiment['startIndexes']['experimentNumber']++;
+						// 	currentExperiment['endIndexes'] = JSON.parse(JSON.stringify(lastIndexObject));
+						// 	currentExperiment['runType'] = 'Running';
+						// 	this.experiments.push(currentExperiment);
+						// }
+					}), "Error getting experiments");
 				},
 				getRecentActivity: function() {
 					var path = '/' + this.user + '/' + this.recentActivityProject + '/' + this.recentActivityWafer + '/' + this.recentActivityChip + '/' + this.recentActivityDevice + '/' + this.recentActivityCategory + '/recentActivity.json' + this.cacheBust;
-					if (path) {
-						$.getJSON(path, response => {app.$data.recentActivity = response})
-						.fail(() => {console.log("Error getting recent activity")});
-					}
+					this.getJSON(path, (response => {app.$data.recentActivity = response}), "Error getting recent activity");
 				},
 				getIndexes: function() {
 					var path = '/' + this.user + '/' + this.project + '/indexes.json' + this.cacheBust;
-					if (path) {
-						$.getJSON(path, response => {app.$data.indexes = response})
-						.fail(() => {console.log("Error getting indexes")});
-					}
+					this.getJSON(path, (response => {app.$data.indexes = response}), "Error getting indexes");
 				},
 				
 				getPossibleChipPlots: function() {
 					var path = '/' + this.user + '/' + this.project + '/' + this.wafer + '/' + this.chip + '/availableChipPlots.json' + this.cacheBust;
-					if (path) {
-						$.getJSON(path, response => {app.$data.possibleChipPlots = response})
-						.fail(() => {console.log("Error getting possible chip plots")});
-					}
+					this.getJSON(path, (response => {app.$data.possibleChipPlots = response}), "Error getting possible chip plots");
 				},
 				getPossibleDevicePlots: function() {
 					var path = '/' + this.user + '/' + this.project + '/' + this.wafer + '/' + this.chip + '/' + this.device + '/availableDevicePlots.json' + this.cacheBust;
-					if (path) {
-						$.getJSON(path, response => {app.$data.possibleDevicePlots = response})
-						.fail(() => {console.log("Error getting possible device plots")});
-					}
+					this.getJSON(path, (response => {app.$data.possibleDevicePlots = response}), "Error getting possible device plots");
 				},
 				getDefaultParameters() {
-					$.getJSON("/defaultParameters.json" + this.$data.cacheBust, response => {
-						this.$data.defaultParameters = response;
-					}).fail(() => {console.log("Error getting default parameters")});
+					var path1 = "/defaultParameters.json" + this.$data.cacheBust;
+					this.getJSON(path1, (response => {this.$data.defaultParameters = response;}), "Error getting default parameters");
 					
-					$.getJSON("/defaultParametersDescription.json" + this.$data.cacheBust, response => {
+					var path2 = "/defaultParametersDescription.json" + this.$data.cacheBust;
+					this.getJSON(path2, (response => {
 						this.$data.defaultParametersDescription = response;
 						this.$data.scheduleObjectDefault     = JSON.parse(JSON.stringify(response));
 						this.$data.scheduleObjects          = [JSON.parse(JSON.stringify(response))];
 						this.$data.performanceScheduleObject = JSON.parse(JSON.stringify(response));
 						this.$data.ptSensorScheduleObject = JSON.parse(JSON.stringify(response));
-					}).fail(() => {console.log("Error getting default parameters description")});
+					}), "Error getting default parameters description");
 					
-					$.getJSON("/defaultEssentialParameters.json" + this.$data.cacheBust, response => {
-						this.$data.essentialScheduleParameters = response;
-					}).fail(() => {console.log("Error getting essential default parameters")});
+					var path3 = "/defaultEssentialParameters.json" + this.$data.cacheBust;
+					this.getJSON(path3, (response => {this.$data.essentialScheduleParameters = response;}), "Error getting essential defaults");
 				},
 				getScheduleNames: function() {
 					var path1 = '/userDefinedScheduleNames.json' + this.cacheBust;
-					if (path1) {
-						$.getJSON(path1, response => {app.$data.userDefinedScheduleNames = response})
-						.fail(() => {console.log("Error getting all user-defined schedule names.")});
-					}
+					this.getJSON(path1, (response => {app.$data.userDefinedScheduleNames = response}), "Error getting all user-defined schedule names");
+					
 					var path2 = '/standardScheduleNames.json' + this.cacheBust;
-					if (path2) {
-						$.getJSON(path2, response => {app.$data.standardScheduleNames = response})
-						.fail(() => {console.log("Error getting standard schedule names.")});
-					}
+					this.getJSON(path2, (response => {app.$data.standardScheduleNames = response}), "Error getting standard schedule names");
 				},
 				getPaths: function() {
 					var path = '/paths.json' + this.cacheBust;
-					if (path) {
-						$.getJSON(path, response => {app.$data.paths = response})
-						.fail(() => {console.log("Error getting paths")});
-					}
+					this.getJSON(path, (response => {app.$data.paths = response}), "Error getting paths");
 				},
 				getReadMe: function() {
 					fetch('/readme.md').then(response => response.text()).then(text => {
@@ -2448,10 +2420,7 @@
 					startTime = experiment.startIndexes.timestamp;
 					endTime = experiment.endIndexes.timestamp;
 					var path = '/AFMFilesInTimestampRange/' + startTime + '/' + endTime + '/associatedAFMs.json' + this.cacheBust;
-					if (path) {
-						$.getJSON(path, response => {Vue.set(experiment, 'associatedAFMs', response)})
-						.fail((xhr, status, error) => {console.log("Error getting associated AFMs"); console.log(error)});
-					}
+					this.getJSON(path, (response => {Vue.set(experiment, 'associatedAFMs', response)}), "Error getting associated AFMs");
 				},
 				
 				newCacheBust: function() {
@@ -2595,38 +2564,24 @@
 				
 				runnerDispatch: function() {					
 					var path = this.launchDispatcherPath(this.runnerUser, this.runnerProject, this.runnerFileName);
-					if (path) {
-						$.getJSON(path, response => {app.$data.dispatcherRunning = true})
-						.fail(() => {console.log("Error dispatching schedule file")});
-					}
+					this.getJSON(path, (response => {app.$data.dispatcherRunning = true}), "Error dispatching schedule file");
 				},
 				runnerStop: function() {
 					var path = this.stopDispatcherPath();
-					if (path) {
-						$.getJSON(path, response => {app.$data.dispatcherRunning = false})
-						.fail(() => {console.log("Error stopping dispatcher")});
-					}
+					this.getJSON(path, (response => {app.$data.dispatcherRunning = false}), "Error stopping dispatcher");
 				},
 				
 				runnerLoadScheduleFile: function() {
 					if(this.runnerUser && this.runnerProject && this.runnerFileName) {
 						var path = this.loadBriefSchedulePath(this.runnerUser, this.runnerProject, this.runnerFileName, this.runnerLoadingFromDefaults);
 						
-						if (path) {
-							$.getJSON(path, response => {app.$data.runnerScheduleObjects = response})
-							.fail(() => {console.log("Error loading schedule file (experiment runner).")});
-							$.getJSON(path, response => {app.$data.runnerScheduleObjectDefaults = response})
-							.fail(() => {console.log("Error loading schedule file (experiment runner).")});
-						}
+						this.getJSON(path, (response => {app.$data.runnerScheduleObjects = response}), "Error loading schedule file (experiment runner).");
+						this.getJSON(path, (response => {app.$data.runnerScheduleObjectDefaults = response}), "Error loading schedule file (experiment runner).");
 						
 						var path = this.loadSchedulePath(this.runnerUser, this.runnerProject, this.runnerFileName, this.runnerLoadingFromDefaults);
 
-						if (path) {
-							$.getJSON(path, response => {app.$data.runnerVerboseScheduleObjects = response})
-							.fail(() => {console.log("Error loading schedule file (experiment runner).")});
-							$.getJSON(path, response => {app.$data.runnerVerboseScheduleObjectDefaults = response})
-							.fail(() => {console.log("Error loading schedule file (experiment runner).")});
-						}
+						this.getJSON(path, (response => {app.$data.runnerVerboseScheduleObjects = response}), "Error loading schedule file (experiment runner).");
+						this.getJSON(path, (response => {app.$data.runnerVerboseScheduleObjectDefaults = response}), "Error loading schedule file (experiment runner).");
 						
 						console.log("Loaded the active experiment runner schedule file: " + path);
 					}
@@ -2652,18 +2607,14 @@
 						
 						// Save current file
 						var path = this.saveSchedulePath(this.runnerUser, this.runnerProject, this.runnerFileName);
-
-						if (path) {
-							$.post(path, JSON.stringify(this.runnerScheduleLines), response => {
-								// After post completes and the data is saved, run the following:
-								console.log("Saved experiment runner schedule file: " + path);
-								this.runnerLoadingFromDefaults = false;
-								this.runnerScheduleObjectsHasBeenModified = false;
-								// Force re-load of schedule file to make sure everything is refreshed to its original state
-								this.runnerLoadScheduleFile();
-							})
-							.fail(() => {console.log("Error saving schedule file from the experiment runner.")});
-						}		
+						this.postJSON(path, JSON.stringify(this.runnerScheduleLines), (response => {
+							// After post completes and the data is saved, run the following:
+							console.log("Saved experiment runner schedule file: " + path);
+							this.runnerLoadingFromDefaults = false;
+							this.runnerScheduleObjectsHasBeenModified = false;
+							// Force re-load of schedule file to make sure everything is refreshed to its original state
+							this.runnerLoadScheduleFile();
+						}), "Error saving schedule file from the experiment runner.");
 					}
 				},
 				isPossibleToSaveRunnerScheduleFile: function() {
@@ -2719,13 +2670,11 @@
 				
 				updateAFMRegistry: function() {
 					var path = '/updateAFMRegistry' + this.cacheBust;
-					if (path) {
-						$.getJSON(path, response => {
-							if (response['success']) {
-								app.$data.updateAFMRegistryTime = new Date();
-							}
-						}).fail(() => {console.log("Error updaing AFM registry")});
-					}
+					this.getJSON(path, (response => {
+						if (response['success']) {
+							app.$data.updateAFMRegistryTime = new Date();
+						}
+					}), "Error updaing AFM registry");
 				},
 				
 				// === Browser ===
@@ -2765,12 +2714,12 @@
 				},
 				
 				addToNote: function(experiment) {
-					var url = '/addToNote';
+					var path = '/addToNote';
 					
-					$.post(url, JSON.stringify(experiment), response => {
+					this.postJSON(path, JSON.stringify(experiment), (response => {
 						this.addToNoteSuccessCode = response;
 						this.experiment.noteAddition = '';
-					}).fail(() => {console.log("Error adding to note")});
+					}), "Error adding to note");
 				},
 				
 				// === Schedule Creator ===
@@ -2843,10 +2792,7 @@
 					var path = this.saveSchedulePath(this.creatorSaveUser, this.creatorSaveProject, this.creatorSaveFileName);
 										
 					console.log('saving path = ' + path);
-					if(path) {
-						$.post(path, JSON.stringify(this.scheduleLines), response => {app.$data.saveScheduleSuccessCode = response;})
-						.fail(() => {console.log("Error saving schedule file.")});
-					}
+					this.postJSON(path, JSON.stringify(this.scheduleLines), (response => {app.$data.saveScheduleSuccessCode = response}), "Error saving schedule file.");
 					
 					if (this.runnerUser === '') this.runnerUser = this.creatorSaveUser;
 					if (this.runnerProject === '') this.runnerProject = this.creatorSaveProject;
@@ -2858,10 +2804,7 @@
 					var path = this.loadSchedulePath(this.creatorLoadUser, this.creatorLoadProject, this.creatorLoadFileName);
 					
 					console.log('loading path = ' + path);
-					if (path) {
-						$.getJSON(path, response => {app.$data.scheduleObjects = response})
-						.fail(() => {console.log("Error loading schedule file.")});
-					}
+					this.getJSON(path, (response => {app.$data.scheduleObjects = response}), "Error loading schedule file");
 					
 					if (this.creatorSaveUser === '') this.creatorSaveUser = this.creatorLoadUser;
 					if (this.creatorSaveProject === '') this.creatorSaveProject = this.creatorLoadProject;
@@ -2972,11 +2915,9 @@
 					this.performanceScheduleObject['runType']['default'] = 'FreeRun';
 					
 					var path = this.saveSchedulePath('guest', 'Project', 'PerformanceApp');
-					if (path) {
-						$.post(path, JSON.stringify([extractDefaults(this.performanceScheduleObject)]), response => {
-							console.log("Saved performance app schedule file: " + path);
-						}).fail(() => {console.log("Error saving performance app schedule file.")});
-					}
+					this.postJSON(path, JSON.stringify([extractDefaults(this.performanceScheduleObject)]), (response => {
+						console.log("Saved performance app schedule file: " + path);
+					}), "Error saving performance app schedule file.");
 				},
 				performanceEnablePlots: function() {
 					var deviceID = this.performanceScheduleObject['Identifiers']['device']['default'];
@@ -2989,17 +2930,11 @@
 				},
 				performanceStart: function() {
 					var path = this.launchDispatcherPath('guest', 'Project', 'PerformanceApp');
-					if (path) {
-						$.getJSON(path, response => {app.$data.performanceRunning = true})
-						.fail(() => {console.log("Error starting performance app.")});
-					}
+					this.getJSON(path, (response => {app.$data.performanceRunning = true}), "Error starting performance app");
 				},
 				performanceStop: function() {
 					var path = this.stopDispatcherPath();
-					if (path) {
-						$.getJSON(path, response => {app.$data.performanceRunning = false})
-						.fail(() => {console.log("Error stopping performance app.")});
-					}
+					this.getJSON(path, (response => {app.$data.performanceRunning = false}), "Error stopping performance app");
 				},
 				
 				// === PT Sensor App ===
@@ -3017,11 +2952,9 @@
 					this.ptSensorScheduleObject['MeasurementSystem']['systemType']['default'] = 'Arduino'
 					
 					var path = this.saveSchedulePath('guest', 'Project', 'PTSensorApp');
-					if (path) {
-						$.post(path, JSON.stringify([extractDefaults(this.ptSensorScheduleObject)]), response => {
-							console.log("Saved PT sensor app schedule file: " + path);
-						}).fail(() => {console.log("Error saving PT sensor app schedule file.")});
-					}
+					this.postJSON(path, JSON.stringify([extractDefaults(this.ptSensorScheduleObject)]), (response => {
+						console.log("Saved PT sensor app schedule file: " + path);
+					}), "Error saving PT sensor app schedule file.");
 				},
 				ptSensorEnablePlots: function() {
 					var deviceID = this.ptSensorScheduleObject['Identifiers']['device']['default'];
@@ -3032,17 +2965,11 @@
 				},
 				ptSensorStart: function() {
 					var path = this.launchDispatcherPath('guest', 'Project', 'PTSensorApp');
-					if (path) {
-						$.getJSON(path, response => {app.$data.ptSensorRunning = true})
-						.fail(() => {console.log("Error starting PT sensor app.")});
-					}
+					this.getJSON(path, (response => {app.$data.ptSensorRunning = true}), "Error starting PT sensor app");
 				},
 				ptSensorStop: function() {
 					var path = this.stopDispatcherPath();
-					if (path) {
-						$.getJSON(path, response => {app.$data.ptSensorRunning = false})
-						.fail(() => {console.log("Error stopping PT sensor app.")});
-					}
+					this.getJSON(path, (response => {app.$data.ptSensorRunning = false}), "Error stopping PT sensor app");
 				},
 				
 				// === Server Update ===
@@ -3379,24 +3306,23 @@
 
 				initializeDocumentation: function() {
 					var path = "/loadAllDocumentation" + this.cacheBust;
-						$.getJSON(path, response => {
-							//Response is a list of dictionaries
-							if(response.length == 0){
-								Vue.set(this.documentationText, 0, "");
-								Vue.set(this.documentationEditMode, 0, false);
-								Vue.set(this.documentationProposedText, 0, "");
-								Vue.set(this.documentationTitle, 0, "");
-								Vue.set(this.documentationProposedTitle, 0, "")
-							}
-							for(var i = 0; i < response.length; i++){
-								Vue.set(this.documentationText, i, response[i]["text"]);
-								Vue.set(this.documentationEditMode, i, false);
-								Vue.set(this.documentationProposedText, i, "");
-								Vue.set(this.documentationTitle, i, response[i]["title"])
-								Vue.set(this.documentationProposedTitle, i, "");
-							}
-						})
-						.fail(() => {console.log("Error loading documentation")});
+					this.getJSON(path, (response => {
+						//Response is a list of dictionaries
+						if(response.length == 0){
+							Vue.set(this.documentationText, 0, "");
+							Vue.set(this.documentationEditMode, 0, false);
+							Vue.set(this.documentationProposedText, 0, "");
+							Vue.set(this.documentationTitle, 0, "");
+							Vue.set(this.documentationProposedTitle, 0, "")
+						}
+						for(var i = 0; i < response.length; i++){
+							Vue.set(this.documentationText, i, response[i]["text"]);
+							Vue.set(this.documentationEditMode, i, false);
+							Vue.set(this.documentationProposedText, i, "");
+							Vue.set(this.documentationTitle, i, response[i]["title"])
+							Vue.set(this.documentationProposedTitle, i, "");
+						}
+					}), "Error loading documentation");
 				},
 
 				documentationEdit: function(index) {
@@ -3411,9 +3337,7 @@
 					this.documentationTitle[index] = this.documentationProposedTitle[index];
 
 					var path = "/saveDocumentation/" + index + this.cacheBust;
-					$.post(path, JSON.stringify({"title": this.documentationTitle[index], "text": this.documentationText[index]}), response => {
-						this.saveDocumentationSuccessCode = response;
-					}).fail(() => {console.log("Error saving documentation")});
+					this.postJSON(path, JSON.stringify({"title": this.documentationTitle[index], "text": this.documentationText[index]}), (response => {this.saveDocumentationSuccessCode = response;}), "Error saving documentation");
 				},
 
 				documentationCancel: function(index) {
@@ -3429,7 +3353,7 @@
 					this.documentationProposedTitle.splice(indexToAdd, 0, "");
 
 					var path = "/addDocumentation/" + indexToAdd + this.cacheBust;
-						$.getJSON(path).fail(() => {console.log("Error adding documentation entry")});
+					this.getJSON(path, (response => {}), "Error adding documentation entry");
 					this.documentationSave(indexToAdd);
 				},
 				
@@ -3442,7 +3366,7 @@
 						this.documentationProposedText.splice(index, 1);
 
 						var path = "/removeDocumentation/" + index + this.cacheBust;
-						$.getJSON(path).fail(() => {console.log("Error removing documentation entry")});
+						this.getJSON(path, (response => {}), "Error removing documentation entry");
 					}
 				},
 
@@ -3469,7 +3393,7 @@
 
 					var indexMinusOne = index-1;
 					var path = "/swapDocumentationFilenames/" + indexMinusOne + "/" + index + this.cacheBust;
-					$.getJSON(path).fail(() => {console.log("Error moving documentation entry up")});
+					this.getJSON(path, (response => {}), "Error moving documentation entry up");
 				},
 				
 				moveDocumentationEntryDown: function(index) {
@@ -3495,7 +3419,7 @@
 
 					var indexPlusOne = index + 1;
 					var path = "/swapDocumentationFilenames/" + index + "/" + indexPlusOne + this.cacheBust;
-					$.getJSON(path).fail(() => {console.log("Error moving documentation entry down")});
+					this.getJSON(path, (response => {}), "Error moving documentation entry down");
 				},
 				
 				// === Linear Regression & Metric Extraction ===
