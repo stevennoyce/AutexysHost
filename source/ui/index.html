@@ -1782,12 +1782,13 @@
 	
 	<script type="text/javascript">
 		
-		// === Setup Socketio ===
+		// === Setup Server Connection ===
+		
+		var server_domain = (document.domain) ? document.domain : '127.0.0.1';
+		var server_port = (location.port) ? location.port : '5001';
 		
 		// Open a socketio connection on the URL of this document, then notify the server when successful
-		var socket_domain = (document.domain) ? document.domain : '127.0.0.1';
-		var socket_port = (location.port) ? location.port : '5001';
-		var url = 'http://' + socket_domain + ':' + socket_port;
+		var url = 'http://' + server_domain + ':' + server_port;
 		var socket = io.connect(url);
 		socket.on('connect', function(s) {
 			console.log('Notifying Server that this Client has connected on ' + url);
@@ -1909,20 +1910,30 @@
 			vuetify: new Vuetify({icons:{iconfont:'md'}}), // new syntax for vuetify v2.0.x (not previously required in v1.5.x)
 			el: '#app',
 			data: {
+				// === Web Browser Status ===
+				
+				online: navigator.onLine,  // true when the browser detects an internet connection
+							
+				// === Server Status ===
+				
+				serverDomain: server_domain,
+				serverPort: server_port,
+				
+				// === Navigation ===
+				
+				colors: [],
 				pageLoading: true,
 				drawer: null,
-				colors: [],
 				currentPage: window.location.hash.substr(1) || "",
-				online: navigator.onLine,
 				stepperPage: localStorage.stepperPage ? JSON.parse(localStorage.stepperPage) : 1,
 				topLevelPage: localStorage.topLevelPage ? JSON.parse(localStorage.topLevelPage) : 'stepper',
-				cacheBust: '',
 				
 				// === System Parameters ===
 				
 				defaultParameters: {},
 				defaultParametersDescription: {},
 				paths: {},
+				cacheBust: '',
 				
 				standardScheduleNames: [],
 				userDefinedScheduleNames: {},
@@ -2253,14 +2264,28 @@
 			},
 			methods: {
 				// === Server Requests ===
+				serverAddress: function() {
+					return 'http://' + this.serverDomain + ':' + this.serverPort;
+					//return '';
+				},
 				getJSON: function(path, callback, errorMessage) {
 					if (path) {
-						$.getJSON(path, callback).fail(() => {console.log(errorMessage)});
+						$.getJSON(this.serverAddress() + path, callback).fail(() => {console.log(errorMessage)});
 					}
 				},
 				postJSON: function(path, data, callback, errorMessage) {
 					if(path) {
-						$.post(path, data, callback).fail(() => {console.log(errorMessage)});
+						$.post(this.serverAddress() + path, data, callback).fail(() => {console.log(errorMessage)});
+					}
+				},
+				fetchJSON: function(path, callback) {
+					if(path) {
+						fetch(this.serverAddress() + path).then(response => response.json()).then(callback);
+					}
+				},
+				fetchText: function(path, callback) {
+					if(path) {
+						fetch(this.serverAddress() + path).then(response => response.text()).then(callback);
 					}
 				},
 				
@@ -2402,10 +2427,11 @@
 					this.getJSON(path, (response => {app.$data.paths = response}), "Error getting paths");
 				},
 				getReadMe: function() {
-					fetch('/readme.md').then(response => response.text()).then(text => {
+					var path = '/readme.md';
+					this.fetchText(path, (text => {
 						var converter = new showdown.Converter();
 						this.ReadMeHTML = converter.makeHtml(text);
-					});
+					}));
 				},
 				getAssociatedAFMs: function() {
 					var experiment = this.experiments[this.experimentIndex];

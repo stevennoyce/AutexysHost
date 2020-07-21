@@ -33,6 +33,7 @@ if __name__ == '__main__':
 		os.chdir(os.path.join(os.path.abspath(os.sep), *pathParents[0:pathParents.index('AutexysHost')+1], 'source'))
 
 # === Constants ===
+SOCKETIO_DEFAULT_IP_ADDRESS = '127.0.0.1'
 UI_REFRESH_DELAY_SECONDS = 0.01
 
 # === Globals ===
@@ -741,7 +742,7 @@ def findFirstOpenPort(startPort=1, blacklist=[5000,5002]):
 			with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
 				try:
 					print('Trying port {}'.format(port))
-					sock.bind(('127.0.0.1', port))
+					sock.bind((SOCKETIO_DEFAULT_IP_ADDRESS, port))
 					sock.close()
 					return port
 				except Exception as e:
@@ -770,7 +771,7 @@ def start(share={}, debug=True, use_reloader=True, launch_browser=True, specific
 		
 		if(launch_browser):
 			print('Opening browser...')
-			url = 'http://127.0.0.1:{}/ui/index.html'.format(port)
+			url = 'http://'+ SOCKETIO_DEFAULT_IP_ADDRESS +':{:}/ui/index.html'.format(port)
 			socketio.start_background_task(launchBrowser, url)
 	
 	# app.run(debug=True, threaded=False, port=int(os.environ['AutexysUIPort']))
