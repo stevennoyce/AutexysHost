@@ -64,27 +64,35 @@ def runPTSensor(arduino_reference, totalSensingTime, delayBetweenMeasurements, s
 		if(delayBetweenMeasurements > 0):
 			time.sleep(delayBetweenMeasurements)
 
-		# Take Measurement and save it
+		# Take Measurement and timestamp it
 		measurement = arduino_reference.takeMeasurement()
-
 		timestamp = time.time()
+		
+		# Ensure measurement is in array format
+		measurement_points = []
+		if(isinstance(measurement['impedance'], list)):
+			measurement_points = measurement['impedance']
+		else:
+			measurement_points = [measurement['impedance']]
 
-		impedance_data.append(measurement['impedance'])
+		# Save measurement
+		impedance_data.append(measurement_points)
 		timestamps.append(timestamp)
 
-		# Send a data message
-		pipes.livePlotUpdate(share, plots=
-		[livePlotter.createLiveDataPoint(plotID='Impedance', 
-										labels=['Impedance'],
-										xValues=[timestamp], 
-										yValues=[measurement['impedance']], 
-										xAxisTitle='Time (s)', 
-										yAxisTitle='Impedance (Ohms)', 
-										yscale='linear', 
-										plotMode='lines',
-										enumerateLegend=False,
-										timeseries=True),
-		])
+		# Send a data message (for each point the the 'impedance' array)
+		for i, value in enumerate(measurement_points):
+			pipes.livePlotUpdate(share, plots=
+			[livePlotter.createLiveDataPoint(plotID='Impedance', 
+											labels=['Impedance ' + str(i+1)],
+											xValues=[timestamp], 
+											yValues=[value], 
+											xAxisTitle='Time (s)', 
+											yAxisTitle='Impedance (Ohms)', 
+											yscale='linear', 
+											plotMode='lines',
+											enumerateLegend=False,
+											timeseries=True),
+			])
 			
 	return {
 		'Raw':{
