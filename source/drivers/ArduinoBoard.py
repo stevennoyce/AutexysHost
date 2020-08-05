@@ -16,7 +16,7 @@ def getConnection(port='', baud=9600, system_settings=None):
 	# Iterate over possible USB connections, with looser restrictions if port == 'any'
 	active_ports = []
 	if(port == ''):
-		limited_ports = [serial_port for serial_port in pySerialPorts.comports() if(serial_port.device in ['/dev/cu.wchusbserial1410', '/dev/cu.wchusbserial1420'])]
+		limited_ports = [serial_port for serial_port in pySerialPorts.comports() if(serial_port.device in ['/dev/cu.wchusbserial1410', '/dev/cu.wchusbserial1420', '/dev/cu.wchusbserial14101'])]
 		if(len(limited_ports) > 0):
 			port = limited_ports[0].device
 	elif(port == 'any'):
