@@ -65,8 +65,9 @@ class ArduinoSerial:
 
 	def takeMeasurement(self):
 		self.writeSerial("MEAS!")
-		sensor_data = json.loads(self.getResponse(startsWith='{'))
-		print(sensor_data)
+		response = self.getResponse(startsWith='{')
+		print(response.rstrip())
+		sensor_data = json.loads(response)
 		return sensor_data
 
 

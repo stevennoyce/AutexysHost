@@ -57,7 +57,7 @@ def runPTSensor(arduino_reference, totalSensingTime, delayBetweenMeasurements, s
 	
 	while((time.time() - startTime) < totalSensingTime):
 		# Send a progress message
-		pipes.progressUpdate(share, 'Impedance Point', start=0, current=index, end=index * totalSensingTime / (time.time() - startTime), enableAbort=True)
+		pipes.progressUpdate(share, 'Impedance Point', start=0, current=index, end=int(index * totalSensingTime / (time.time() - startTime)), enableAbort=True)
 		index += 1
 
 		# If delayBetweenMeasurements is non-zero, wait before taking the measurement
