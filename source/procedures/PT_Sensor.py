@@ -75,8 +75,13 @@ def runPTSensor(arduino_reference, totalSensingTime, delayBetweenMeasurements, s
 		else:
 			measurement_points = [measurement['impedance']]
 
+		# Ensure save location is in array format
+		if(len(impedance_data) == 0):
+			impedance_data = [[] for i in range(len(measurement_points))]
+		
 		# Save measurement
-		impedance_data.append(measurement_points)
+		for i in range(len(measurement_points)):
+			impedance_data[i].append(measurement_points[i])
 		timestamps.append(timestamp)
 
 		# Send a data message (for each point the the 'impedance' array)
@@ -93,12 +98,13 @@ def runPTSensor(arduino_reference, totalSensingTime, delayBetweenMeasurements, s
 											enumerateLegend=False,
 											timeseries=True),
 			])
+	
+	raw_results = {'timestamps':timestamps}
+	for i in range(len(impedance_data)):
+		raw_results['impedance_data'+str(i)] = impedance_data[i]
 			
 	return {
-		'Raw':{
-			'impedance_data':impedance_data,
-			'timestamps':timestamps,
-		},
+		'Raw':raw_results,
 		'Computed':{
 			'maxImpedance': extractMaximum(impedance_data),
 			'maxImpedanceTime': 0,
