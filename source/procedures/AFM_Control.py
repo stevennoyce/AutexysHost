@@ -115,7 +115,7 @@ def getSegmentsOfTriangle(times, values, minSegmentLength=0, maxSegmentLength=fl
 	return segments
 
 def extractTraces(deviceHistory):
-	if deviceHistory[0]['runConfigs']['SGMControl']['tracesToMeasure'] == 1:
+	if deviceHistory[0]['runConfigs'].get('SGMControl', {}).get('tracesToMeasure') == 1:
 		return {
 			'Vx': [[np.array(dh['Results']['smu2_v2_data']) for dh in deviceHistory]],
 			'Vy': [[np.array(dh['Results']['smu2_v1_data']) for dh in deviceHistory]],
@@ -197,7 +197,7 @@ def extractTraces(deviceHistory):
 	}
 
 def extractTraces(deviceHistory):
-	if deviceHistory[0]['runConfigs']['SGMControl']['tracesToMeasure'] == 1:
+	if deviceHistory[0]['runConfigs'].get('SGMControl', {}).get('tracesToMeasure') == 1:
 		return {
 			'Vx': [[np.array(dh['Results']['smu2_v2_data']) for dh in deviceHistory]],
 			'Vy': [[np.array(dh['Results']['smu2_v1_data']) for dh in deviceHistory]],
@@ -242,8 +242,8 @@ def extractTraces(deviceHistory):
 	
 	result['segs'] = segs
 	
-	Fsamp = deviceHistory[0]['runConfigs']['SGMControl']['deviceMeasurementSpeed']
-	b, a = scipy.signal.bessel(1, [50/(Fsamp/2), 70/(Fsamp/2)], btype='bandstop')
+	Fsamp = deviceHistory[0]['runConfigs'].get('SGMControl', {}).get('deviceMeasurementSpeed', 60)
+	b, a = scipy.signal.bessel(1, [min([50/(Fsamp/2), 0.999]), min([70/(Fsamp/2), 0.999])], btype='bandstop')
 	
 	for i in range(len(deviceHistory)):
 		Id = np.array(deviceHistory[i]['Results']['id_data'])
