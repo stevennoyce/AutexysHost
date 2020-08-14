@@ -132,6 +132,8 @@ def plot(deviceHistory, identifiers, mode_parameters=None,
 		if imageHeight == 0:
 			imageHeight = dataHeight
 		
+		afm_data = (afm_data.T - np.median(afm_data.T, axis=0)).T
+		
 		img = ax.imshow(afm_data*1e9, cmap=colorMap, extent=(0, imageWidth*1e6, 0, imageHeight*1e6), interpolation='spline36', aspect=aspectRatio, vmin=None, vmax=None)
 		
 		cbar = fig.colorbar(img, pad=0.015, aspect=50)
