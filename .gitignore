@@ -8,7 +8,6 @@
 !Makefile
 
 #ignore data files
-*.json
 data/
 AutexysData/
 
