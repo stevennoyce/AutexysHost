@@ -4,12 +4,11 @@ import matplotlib
 import os
 import sys
 
-pathParents = os.getcwd().split('/')
 if('ipykernel_launcher' in sys.argv[0]):
 	pass
-elif('AutexysHost' in pathParents):
+else:
 	matplotlib.use('agg')
-	
+
 from matplotlib import pyplot as plt
 from matplotlib import colors as pltc
 from matplotlib import cm

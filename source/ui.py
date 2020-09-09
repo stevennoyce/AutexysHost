@@ -72,7 +72,8 @@ class CustomFlask(flask.Flask):
 		comment_end_string='#>',
 	))
 
-app = CustomFlask(__name__, static_url_path='', template_folder='ui')
+index_html_directory = 'ui'
+app = CustomFlask(__name__, static_url_path='', template_folder=index_html_directory if(not getattr(sys, 'frozen', False)) else (os.path.join(sys._MEIPASS, index_html_directory)))
 
 # Disable caching of static files
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
@@ -736,7 +737,7 @@ def add_header(response):
 
 
 # === Webbrowser ===
-def findFirstOpenPort(startPort=1, blacklist=[5000,5002]):
+def findFirstOpenPort(startPort=1, blacklist=[5000]):
 	for port in range(startPort, 8081):
 		if(port not in blacklist):
 			with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
@@ -756,7 +757,7 @@ def launchBrowser(url):
 
 
 # === Main ===
-def start(share={}, debug=True, use_reloader=True, launch_browser=True, specific_port=None):
+def start(share={}, debug=True, use_reloader=True, specific_port=None):
 	makeShareGlobal(share)
 	
 	if('AutexysUIRunning' in os.environ):
@@ -769,6 +770,7 @@ def start(share={}, debug=True, use_reloader=True, launch_browser=True, specific
 		os.environ['AutexysUIRunning'] = 'True'
 		os.environ['AutexysUIPort'] = str(port)
 		
+		launch_browser = (specific_port is None)
 		if(launch_browser):
 			print('Opening browser...')
 			url = 'http://'+ SOCKETIO_DEFAULT_IP_ADDRESS +':{:}/ui/index.html'.format(port)
@@ -784,7 +786,7 @@ def makeShareGlobal(localShare):
 
 
 if __name__ == '__main__':
-	start(debug=False, use_reloader=True, launch_browser=True, specific_port=None)
+	start(debug=False, use_reloader=True, specific_port=None)
 
 
 

@@ -11,12 +11,12 @@ import os
 import pipes
 
 # === Make this script runnable ===
-if __name__ == '__main__':
-	os.chdir(sys.path[0])
-	
-	pathParents = os.getcwd().split('/')
-	if 'AutexysHost' in pathParents:
-		os.chdir(os.path.join(os.path.abspath(os.sep), *pathParents[0:pathParents.index('AutexysHost')+1], 'source'))
+#if __name__ == '__main__':
+#	os.chdir(sys.path[0])
+#	
+#	pathParents = os.getcwd().split('/')
+#	if 'AutexysHost' in pathParents:
+#		os.chdir(os.path.join(os.path.abspath(os.sep), *pathParents[0:pathParents.index('AutexysHost')+1], 'source'))
 
 # === Defaults ===
 # Factory method that returns the default shared memory object that is passed throughout the UI and all Procedures.
@@ -101,7 +101,7 @@ def startUI(specific_port, share, priority=0):
 def runUI(specific_port, share):
 	"""A target method for running the UI that also imports the UI so the parent process does not have that dependency."""
 	import ui
-	ui.start(share=share, debug=False, use_reloader=False, launch_browser=True, specific_port=specific_port)
+	ui.start(share=share, debug=False, use_reloader=False, specific_port=specific_port)
 
 
 
@@ -130,7 +130,7 @@ def runDispatcher(scheduleFilePath, share):
 
 
 # === Main ===
-def manage(on_startup_schedule_file=None, on_startup_port=None):
+def manage(on_startup_port=None, on_startup_schedule_file=None):
 	"""Initialize a UI process and enter an event loop to handle communication with that UI. Manage the creation of dispatcher
 	processes to execute schedule files and facilitate communication between the UI and the currently running dispatcher."""
 		
@@ -194,6 +194,7 @@ def manage(on_startup_schedule_file=None, on_startup_port=None):
 		
 if __name__ == '__main__':
 	if len(sys.argv) > 1:
-		manage(sys.argv[1])
+		on_startup_port = sys.argv[1]
+		manage(on_startup_port)
 	else:
 		manage()

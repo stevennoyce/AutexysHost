@@ -34,7 +34,7 @@ function start() {
   // === Port Selection ===
   
   var selected_port = null;
-  var port_blacklist = [5000, 5002];
+  var port_blacklist = [5000];
 
   function recursive_port_search(port) {
     var callback = (error, status) => {
