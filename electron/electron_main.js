@@ -105,13 +105,14 @@ function start() {
 
     // and load the index.html of the app.
     //mainWindow.loadFile(path.join(__dirname, 'source/ui/index.html'));
-
-    var url = 'http://127.0.0.1:'+selected_port+'/ui/index.html';
-    mainWindow.loadURL(url);
-    console.log('Opening Electron browser at: ' + url);
-    
-    // Open the DevTools.
-    mainWindow.webContents.openDevTools();
+    setTimeout(function() {
+      var url = 'http://127.0.0.1:'+selected_port+'/ui/index.html';
+      mainWindow.loadURL(url);
+      console.log('Opening Electron browser at: ' + url);
+      
+      // Open the DevTools.
+      mainWindow.webContents.openDevTools();
+    },20000);
   };
   
   app.on('activate', () => {
