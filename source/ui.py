@@ -54,9 +54,12 @@ default_makePlot_parameters = {
 	'plot_mode_parameters': None
 }
 
+# === Paths ===
 default_data_path = '../../AutexysData/'
 default_documentation_path = '../../AutexysData/documentation'
 
+index_html_directory_path = 'ui' if(not getattr(sys, 'frozen', False)) else (os.path.join(sys._MEIPASS, 'ui'))
+readme_path = './README.md'      if(not getattr(sys, 'frozen', False)) else (os.path.join(sys._MEIPASS, './README.md'))
 
 
 # === Flask ===
@@ -72,8 +75,7 @@ class CustomFlask(flask.Flask):
 		comment_end_string='#>',
 	))
 
-index_html_directory = 'ui'
-app = CustomFlask(__name__, static_url_path='', template_folder=index_html_directory if(not getattr(sys, 'frozen', False)) else (os.path.join(sys._MEIPASS, index_html_directory)))
+app = CustomFlask(__name__, static_url_path='', template_folder=index_html_directory_path)
 
 # Disable caching of static files
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
@@ -486,7 +488,7 @@ def availableChipPlots(user, project, wafer, chip):
 # === README ===
 @app.route('/readme.md')
 def getReadMe():
-	with open('../README.md', 'r') as f:
+	with open(readme_path, 'r') as f:
 		return f.read()
 
 
@@ -742,12 +744,12 @@ def findFirstOpenPort(startPort=1, blacklist=[5000]):
 		if(port not in blacklist):
 			with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
 				try:
-					print('Trying port {}'.format(port))
 					sock.bind((SOCKETIO_DEFAULT_IP_ADDRESS, port))
 					sock.close()
+					print('Port {} is available.'.format(port))
 					return port
 				except Exception as e:
-					print('Port {} is not available'.format(port))
+					print('Port {} is not available.'.format(port))
 				
 def launchBrowser(url):
 	socketio.sleep(2)

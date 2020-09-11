@@ -3,6 +3,7 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const portscanner = require('portscanner');
+var server_process = undefined;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
@@ -28,6 +29,12 @@ app.on('window-all-closed', () => {
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
 
+app.on('quit', () => {
+  if(server_process) {
+    server_process.kill();
+  }
+});
+
 // === Main ===
 
 function start() {
@@ -42,6 +49,7 @@ function start() {
       if(!port_blacklist.includes(port) && status === 'closed') {
         console.log('Openning connection on port: ' + port);
         selected_port = port;
+        startPython();
         createWindow();
       } else if(!selected_port && port < 5100) {
         recursive_port_search(port + 1);
@@ -51,6 +59,40 @@ function start() {
   }
 
   recursive_port_search(5000);
+  
+  // === Launch Python Server ===
+  
+  const startPython = () => {
+    const PY_DIST_FOLDER = 'dist';
+    const PY_MODULE = 'AutexysPyinstalled';
+    
+    const executablePath = () => {
+      if(process.platform === 'win32') {
+        return path.join(__dirname, PY_DIST_FOLDER, PY_MODULE + '.exe');
+      }
+      return path.join(__dirname, PY_DIST_FOLDER, PY_MODULE);
+    }
+    
+    var executable = executablePath();
+    
+    console.log('Launching python server at: ' + executable);
+    
+    server_process = require('child_process').execFile(executable, [selected_port], (error, stdout, stderr) => {
+      console.log('Python executable has ended.');
+      if(error) {
+        console.log(error);
+      } 
+      console.log(stdout);
+    });
+    
+    server_process.stdout.on('data', (data) => {
+      console.log('[PYTHON]: ' + data);
+    });
+    server_process.stderr.on('data', (data) => {
+      console.log('[PYTHON]: ' + data);
+    });
+    
+  }
   
   // === Launch Window ===
   
