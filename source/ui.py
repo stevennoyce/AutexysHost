@@ -58,7 +58,7 @@ default_makePlot_parameters = {
 default_data_path = '../../AutexysData/'
 default_documentation_path = '../../AutexysData/documentation'
 
-index_html_directory_path = 'ui' if(not getattr(sys, 'frozen', False)) else (os.path.join(sys._MEIPASS, 'ui'))
+index_html_directory_path = 'ui/' if(not getattr(sys, 'frozen', False)) else (os.path.join(sys._MEIPASS, 'ui/'))
 readme_path = './README.md'      if(not getattr(sys, 'frozen', False)) else (os.path.join(sys._MEIPASS, './README.md'))
 
 
@@ -146,10 +146,10 @@ def jsonvalid(obj):
 @app.route('/ui/index.html')
 def index():
 	# Obtain a list of components within the components folder and sub-folders
-	components = glob.glob('ui/components/**/*.html', recursive=True)
+	components = glob.glob(index_html_directory_path + '/components/**/*.html', recursive=True)
 	
 	# Get rid of the initial 'ui/' since paths should be relative from template folder
-	components = [c[len('ui/'):] for c in components]
+	components = [c[len(index_html_directory_path):] for c in components]
 	
 	# Make sure we use forward slashes no matter what system we are on
 	components = [c.replace('\\', '/') for c in components]
