@@ -47,15 +47,29 @@ function start() {
     var callback = (error, status) => {
       console.log('Port ' + port + ' current activity: ' + status);
       if(!port_blacklist.includes(port) && status === 'closed') {
-        console.log('Openning connection on port: ' + port);
+        console.log('Launching local server on port: ' + port);
         selected_port = port;
         startPython();
-        createWindow();
+        looping_wait_on_port(selected_port);
       } else if(!selected_port && port < 5100) {
         recursive_port_search(port + 1);
       }
     }
     portscanner.checkPortStatus(port, callback);
+  }
+  
+  function looping_wait_on_port(port) {
+  	var callback = (error, status) => {
+  	  console.log('Any activity on port ' + port + ' yet? ' + (status==='open'? 'yes':'no'));
+  	  if(status === 'open'){
+  	  	createWindow();
+  	  } else {
+  	  	setTimeout(() => {
+  	  		looping_wait_on_port(port);
+  	  	}, 1000);
+  	  }
+  	}
+  	portscanner.checkPortStatus(port, callback);
   }
 
   recursive_port_search(5000);
@@ -92,6 +106,7 @@ function start() {
       console.log('[PYTHON]: ' + data);
     });
     
+    
   }
   
   // === Launch Window ===
@@ -101,18 +116,21 @@ function start() {
     const mainWindow = new BrowserWindow({
       width: 1100,
       height: 600,
+      title: '',
+      titleBarStyle:'hiddenInset',
     });
 
-    // and load the index.html of the app.
-    //mainWindow.loadFile(path.join(__dirname, 'source/ui/index.html'));
-    setTimeout(function() {
-      var url = 'http://127.0.0.1:'+selected_port+'/ui/index.html';
-      mainWindow.loadURL(url);
-      console.log('Opening Electron browser at: ' + url);
-      
-      // Open the DevTools.
-      mainWindow.webContents.openDevTools();
-    },20000);
+    // Give it the URL that is being served up by our Python server (already running in the background)
+  	var url = 'http://127.0.0.1:'+selected_port+'/ui/index.html';
+  	mainWindow.loadURL(url);
+    console.log('Opening Electron browser at: ' + url);
+  
+  	mainWindow.webContents.on('did-finish-load', () => {
+		mainWindow.webContents.insertCSS('.v-app-bar {-webkit-user-select: none;-webkit-app-region: drag;}');
+    });
+  
+  	// Open the DevTools.
+  	//mainWindow.webContents.openDevTools();
   };
   
   app.on('activate', () => {
