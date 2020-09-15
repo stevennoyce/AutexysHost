@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>User Interface</title>
+	<title>Autexys</title>
 	<link rel="shortcut icon" type="image/png" href="./icons/Icon.ico"/>
 	<link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons' rel="stylesheet">
 	<link href="./libs/vuetify.css" rel="stylesheet">
@@ -124,13 +124,13 @@
 	</style>
 </head>
 <body>
-	<div id="app">
+	<div id="app" style="background-color: #3f688c;">
 		
 		<transition name="loaderfadeaway">
-			<div style="height:100%; width: 100%; z-index: 1000; position: absolute; background-color: rgb(255,255,255);" v-if="pageLoading">
+			<div style="height:100%; width: 100%; z-index: 1000; position: absolute; background-color: #3f688c;" v-if="pageLoading">
 				<div class="spinner">
-					<div class="dot1"></div>
-					<div class="dot2"></div>
+					<div class="dot1" style="background-color: #ffffff;"></div>
+					<div class="dot2" style="background-color: #ffffff;"></div>
 				</div>
 			</div>
 		</transition>
@@ -140,7 +140,9 @@
 				
 				<!-- Start of app sidebar/toolbar -->
 				
-				<v-navigation-drawer clipped fixed v-model="drawer" class="color_base" dark app>
+				<v-system-bar app color="color_base darken-1"></v-system-bar>
+				
+				<v-navigation-drawer app dark clipped fixed v-model="drawer" class="color_base pt-4">
 					<v-list dense>
 						<v-list-item @click="setTopLevelPage('dashboard')">
 							<v-list-item-action><v-icon>dashboard</v-icon></v-list-item-action>
@@ -190,9 +192,9 @@
 					</v-list>
 				</v-navigation-drawer>
 				
-				<v-app-bar app dark clipped-left fixed color="color_base darken-1" class="pl-12">
+				<v-app-bar app dark dense clipped-left fixed color="color_base darken-1">
 					<v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-					<v-toolbar-title>Autexys User Interface</v-toolbar-title>
+					<v-toolbar-title>Autexys</v-toolbar-title>
 					<v-spacer></v-spacer>
 					<v-toolbar-items>
 						<v-menu bottom left offset-y :close-on-content-click="false">
@@ -1695,7 +1697,7 @@
 							</v-toolbar>
 							
 							<v-container>
-								This documentation is intended for anyone using Autexys.
+								This documentation is intended to answer common user questions.
 							</v-container>
 							
 							<v-container>
@@ -1731,7 +1733,7 @@
 													<span>Delete entry</span>
 												</v-tooltip>
 												<v-snackbar v-model="documentationDeleteDialogVisible" :top="true" :timeout="0" :multi-line="true" color="red lighten-2">
-													Once this entry is deleted, it will be permanently removed from Autexys. Are you sure you want to continue?
+													Once this entry is deleted, it will be permanently removed. Are you sure you want to continue?
 													<v-btn color="red" text @click="documentationDeleteDialogVisible = false">Cancel</v-btn>
 													<v-btn color="red" text @click="documentationDeleteDialogVisible = false; removeDocumentationEntry(documentationDeleteIndex);">Continue</v-btn>
 												</v-snackbar>

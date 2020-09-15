@@ -3,14 +3,22 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const portscanner = require('portscanner');
+
+
+
+// === Globals ===
+
 var server_process = undefined;
+var mainWindow = undefined;
+
+
+
+// === Setup ===
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
   app.quit();
 }
-
-// === Setup ===
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -35,9 +43,23 @@ app.on('quit', () => {
   }
 });
 
+
+
+
+
 // === Main ===
 
 function start() {
+  // === More Setup ===
+  
+  app.on('activate', () => {
+    // On OS X it's common to re-create a window in the app when the
+    // dock icon is clicked and there are no other windows open.
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow();
+    }
+  });
+  
   // === Port Selection ===
   
   var selected_port = null;
@@ -49,6 +71,7 @@ function start() {
       if(!port_blacklist.includes(port) && status === 'closed') {
         console.log('Launching local server on port: ' + port);
         selected_port = port;
+        createWindow();
         startPython();
         looping_wait_on_port(selected_port);
       } else if(!selected_port && port < 5100) {
@@ -62,7 +85,7 @@ function start() {
   	var callback = (error, status) => {
   	  console.log('Any activity on port ' + port + ' yet? ' + (status==='open'? 'yes':'no'));
   	  if(status === 'open'){
-  	  	createWindow();
+  	  	showMainWindow();
   	  } else {
   	  	setTimeout(() => {
   	  		looping_wait_on_port(port);
@@ -71,8 +94,6 @@ function start() {
   	}
   	portscanner.checkPortStatus(port, callback);
   }
-
-  recursive_port_search(5000);
   
   // === Launch Python Server ===
   
@@ -99,45 +120,45 @@ function start() {
       console.log(stdout);
     });
     
-    server_process.stdout.on('data', (data) => {
-      console.log('[PYTHON]: ' + data);
-    });
-    server_process.stderr.on('data', (data) => {
-      console.log('[PYTHON]: ' + data);
-    });
-    
-    
   }
   
-  // === Launch Window ===
+  // === Manage Application Windows ===
   
   const createWindow = () => {
-    // Create the browser window.
-    const mainWindow = new BrowserWindow({
+    mainWindow = new BrowserWindow({
       width: 1100,
       height: 600,
       title: '',
-      titleBarStyle:'hiddenInset',
+      titleBarStyle: 'hidden', //'hiddenInset',
     });
-
+    
+    mainWindow.loadFile(path.join(__dirname, 'splash_screen/splash_screen.html'));
+    
+    // Open the DevTools.
+    //mainWindow.webContents.openDevTools();
+  };
+  
+  const showMainWindow = () => {
+   
     // Give it the URL that is being served up by our Python server (already running in the background)
   	var url = 'http://127.0.0.1:'+selected_port+'/ui/index.html';
   	mainWindow.loadURL(url);
     console.log('Opening Electron browser at: ' + url);
   
+    // Enable window dragging on app's system bar
   	mainWindow.webContents.on('did-finish-load', () => {
-		mainWindow.webContents.insertCSS('.v-app-bar {-webkit-user-select: none;-webkit-app-region: drag;}');
+		  mainWindow.webContents.insertCSS('.v-system-bar {-webkit-user-select: none;-webkit-app-region: drag;}');
     });
-  
+        
   	// Open the DevTools.
   	//mainWindow.webContents.openDevTools();
   };
   
-  app.on('activate', () => {
-    // On OS X it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
-    }
-  });
+  
+  
+  // === Ready to Begin ===
+  
+  // This starts off the chain reaction that will launch the app
+  recursive_port_search(5000);
+  
 }

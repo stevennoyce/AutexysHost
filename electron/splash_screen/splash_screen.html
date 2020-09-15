@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Welcome</title>
+	<link href="./libs/vuetify.css" rel="stylesheet">
+
+	<style media="screen" type="text/css">
+		html {
+			overscroll-behavior: none;
+		}
+		
+		[v-cloak] > * {
+			display: none;
+		}
+		
+		.roundedcorners {
+			border-radius: 7px
+		}
+		
+		.draggable {
+			-webkit-user-select: none;
+			-webkit-app-region: drag;
+		}
+		
+	</style>
+</head>
+<body>
+	<div id="app">
+		
+		<v-app v-cloak style="background-color: #3f688c;">	
+			<v-system-bar app color="color_base darken-1" class="draggable"></v-system-bar>
+			
+			<v-content>
+				
+				<!-- Start of dashboard -->
+				
+				<v-card flat color="color_base darken-1">
+					<v-container>
+						<v-row class="pa-3">
+							<v-spacer></v-spacer>
+							
+							<v-col cols="4" class="pa-1">
+								<v-toolbar dark class="color_creator roundedcorners">
+									<v-toolbar-title>
+										Waiting for Autexys...
+									</v-toolbar-title>
+								</v-toolbar>	
+							</v-col>
+							
+							<v-spacer></v-spacer>
+						</v-row>
+					</v-container>
+					
+					<v-container>
+						<v-row class="pa-3">
+							<v-spacer></v-spacer>
+							
+							<v-col cols="4" class="pa-1">
+								<v-progress-linear class="roundedcorners" height="10" color="white" v-model="progressTimer.percent"></v-progress-linear>
+							</v-col>
+							
+							<v-spacer></v-spacer>
+						</v-row>
+					</v-container>
+				</v-card>
+				
+				<!-- End of dashboard -->
+				
+			</v-content>
+		</v-app>
+		
+	</div>
+	
+	<script src="./libs/vue.js"></script>
+	<script src="./libs/vuetify.js"></script>
+	
+	<script type="text/javascript">
+			
+		// === Build Vue/Vuetify App ===
+	
+		console.log('Building splash screen Vuetify app...');
+		
+		var app = new Vue({
+			vuetify: new Vuetify({icons:{iconfont:'md'}}), // new syntax for vuetify v2.0.x (not previously required in v1.5.x)
+			el: '#app',
+			data: {
+				
+				// === Progress Bars ===
+				
+				progressTimer: {
+					typical_load_time_seconds: 15,
+					current: 0,
+					end: 0,
+					percent:0,
+				},
+				
+			},
+			methods: {
+				// === Initialization ===
+				
+				initialize: function() {
+					// Call this method once on start-up to get everything ready
+					this.progressTimer.end = this.progressTimer.typical_load_time_seconds;
+					this.incrementProgressTimer();
+				},
+				
+				incrementProgressTimer: function() {
+					setTimeout(() => {
+						if(this.progressTimer.current < this.progressTimer.end){
+							this.progressTimer.current += 1;
+							this.progressTimer.percent = 100 * (this.progressTimer.current/this.progressTimer.end);
+							this.incrementProgressTimer();
+						}
+					}, 1000);
+				},
+			},
+			watch: {
+				// Keep "localStorage" up to date
+				// stepperPage:             function(val) { localStorage.stepperPage = JSON.stringify(val); },
+			},
+			computed: {
+				
+			},
+			filters:{
+				
+			}
+		});
+		
+		console.log('Vuetify app built.');
+		
+		// === Define Color Scheme ===
+		
+		// Final Theme 	   [grey-blue,   green  ,  purple  ,   blue   , blue-purp, red-purp ,   gold   ,   light  , ]
+		var colors = ['#5981A6', '#008888', '#595EA6', '#3973AC', '#3F51B5', '#880E7F', '#C18C00', '#F5F5F5', ];
+		
+		// --- Apply Theme --- 
+		
+		for (var i = 0; i < colors.length; i++) {
+			app.$vuetify.theme.themes.light['color' + (i + 1)] = colors[i];
+		}
+		app.$vuetify.theme.themes.light.primary = app.$vuetify.theme.themes.light.color3;
+		app.$vuetify.theme.themes.light.secondary = app.$vuetify.theme.themes.light.color2;
+		app.$vuetify.theme.themes.light.accent = app.$vuetify.theme.themes.light.color1;
+		app.$vuetify.theme.themes.light.tertiary = app.$vuetify.theme.themes.light.color4;
+		app.$vuetify.theme.themes.light.error = '#BF360C';
+		app.$vuetify.theme.themes.light.success = '#00897B';
+		app.$vuetify.theme.themes.light.info = '#A3B2BD';
+		app.$vuetify.theme.themes.light.warning = '#FFB300';
+		
+		// --- Custom Color Keywords ---
+		
+		app.$vuetify.theme.themes.light['color_base'] = app.$vuetify.theme.themes.light.color1;
+		app.$vuetify.theme.themes.light['color_creator'] = app.$vuetify.theme.themes.light.color2;
+		app.$vuetify.theme.themes.light['color_runner'] = app.$vuetify.theme.themes.light.color3;
+		app.$vuetify.theme.themes.light['color_browser'] = app.$vuetify.theme.themes.light.color4;
+			
+		app.$vuetify.theme.themes.light['color_performance'] = app.$vuetify.theme.themes.light.color5;
+		app.$vuetify.theme.themes.light['color_ptsensor'] = app.$vuetify.theme.themes.light.color5;
+		app.$vuetify.theme.themes.light['color_documentation'] = app.$vuetify.theme.themes.light.color7;
+		
+		app.$vuetify.theme.themes.light['color_soft_background'] = app.$vuetify.theme.themes.light.color8;
+		
+		// Setup localStorage
+		if (typeof(Storage) !== 'undefined') {
+			localStorage.exists = JSON.stringify('True');
+		}
+		
+		// Finish getting everything ready to go
+		app.initialize();
+	</script>
+</body>
+</html>
+
+
