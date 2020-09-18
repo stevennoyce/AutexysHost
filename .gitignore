@@ -148,6 +148,10 @@ typings/
 # Electron-Forge
 out/
 
+
+# added by Jay to ignore large generated "dist" folder
+dist/
+
 # ====== End Electron App Files ======
 
 

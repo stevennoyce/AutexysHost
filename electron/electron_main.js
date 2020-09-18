@@ -103,9 +103,9 @@ function start() {
     
     const executablePath = () => {
       if(process.platform === 'win32') {
-        return path.join(__dirname, PY_DIST_FOLDER, PY_MODULE + '.exe');
+        return path.join(__dirname, PY_DIST_FOLDER, PY_MODULE, PY_MODULE + '.exe');
       }
-      return path.join(__dirname, PY_DIST_FOLDER, PY_MODULE);
+      return path.join(__dirname, PY_DIST_FOLDER, PY_MODULE, PY_MODULE);
     }
     
     var executable = executablePath();
@@ -130,6 +130,9 @@ function start() {
       height: 600,
       title: '',
       titleBarStyle: 'hidden', //'hiddenInset',
+      webPreferences: {
+        preload: path.join(__dirname, 'electron_preload.js'),
+      },
     });
     
     mainWindow.loadFile(path.join(__dirname, 'splash_screen/splash_screen.html'));
@@ -145,13 +148,28 @@ function start() {
   	mainWindow.loadURL(url);
     console.log('Opening Electron browser at: ' + url);
   
-    // Enable window dragging on app's system bar
+    
   	mainWindow.webContents.on('did-finish-load', () => {
+      // Inject CSS (makes the window draggable by the system bar)
 		  mainWindow.webContents.insertCSS('.v-system-bar {-webkit-user-select: none;-webkit-app-region: drag;}');
+      
+      // Inject Javascript (call addEventListener on every document element of the class '.onClickFolderBrowser' and call a function defined)
+      mainWindow.webContents.executeJavaScript(`
+        document.querySelectorAll('.onClickFolderBrowser').forEach((elem) => {
+          console.log('Injecting an Electron folder dialog event listener.');
+          elem.addEventListener('click', (event) => {
+            window.openFolderDialog().then((result) => {
+              if(!result.canceled){
+                elem.setAttribute("value", result.filePaths[0]);
+              }
+            });
+          });
+        });
+      `);
     });
-        
+  
   	// Open the DevTools.
-  	//mainWindow.webContents.openDevTools();
+  	mainWindow.webContents.openDevTools();
   };
   
   

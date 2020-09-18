@@ -217,9 +217,10 @@
 								</v-list>
 							</v-card>
 						</v-menu>
+						<v-btn depressed small color="color_base darken-1" class="onClickFolderBrowser" v-model="dataFolderPath"><v-icon left>folder</v-icon>{{ dataFolderPath | formatFolderBaseName }}</v-btn>
 						<v-menu bottom left offset-y>
 							<template v-slot:activator="{ on }">
-								<v-btn v-on="on" text>{{ user }}<v-icon right>people</v-icon></v-btn>
+								<v-btn v-on="on" text><v-icon left>people</v-icon>{{ user }}</v-btn>
 							</template>
 							<v-card style="max-height:85vh">
 								<v-list light>
@@ -237,44 +238,82 @@
 				
 				<v-content>
 					
+					<!-- Start of gettingstarted --> 
+					
+					<v-card flat class="ma-4" v-if="topLevelPage === 'gettingstarted'">
+						<v-container>
+							<v-row dense>
+								<v-col cols="1">
+								<v-col sm="10" md="6" lg="6">
+									<v-text-field light filled rounded readonly label="Workspace Folder" append-icon="folder" v-model="dataFolderPath"></v-text-field>
+									<v-btn color="color_base darken-1" class="onClickFolderBrowser" v-model="dataFolderPath"><v-icon left>folder</v-icon>Choose</v-btn>
+								</v-col>
+								<v-spacer></v-spacer>
+							</v-row>
+							<v-row dense>
+								<v-col cols="1">
+								<v-col sm="6" md="3" lg="3">
+									<v-text-field light outlined rounded clearable label="User" append-icon="account_circle" v-model="user"></v-text-field>
+								</v-col>				
+								<v-spacer></v-spacer>
+							</v-row>
+						</v-container>
+					</v-card>
+					
+					<!-- End of gettingstarted -->
 					<!-- Start of dashboard -->
 					
 					<v-card flat class="ma-4" v-if="topLevelPage === 'dashboard'">
 						<v-container>
 							<v-row class="pa-3">
 								<v-col cols="4" class="pa-1">
-									<v-toolbar dark class="color_browser roundedcorners" style="cursor: pointer;" @click="setTopLevelPage('stepper')">
-										<v-toolbar-title>
-											Browser
-										</v-toolbar-title>
-										<v-spacer></v-spacer>
-										<v-icon>list</v-icon>
-									</v-toolbar>
+									<v-tooltip bottom nudge-top="4" color="color_runner">
+										<template v-slot:activator="{ on: tooltip }">
+											<v-toolbar dark class="color_runner roundedcorners" v-on="{ ...tooltip }" style="cursor: pointer;" @click="setTopLevelPage('experimentRunner')" >
+												<v-toolbar-title>
+													Experiment Runner
+												</v-toolbar-title>
+												<v-spacer></v-spacer>
+												<v-icon>play_circle_outline</v-icon>
+											</v-toolbar>
+										</template>
+										<span>Get started collecting data</span>
+									</v-tooltip>
 								</v-col>
 								
 								<v-col cols="4" class="pa-1">
-									<v-toolbar dark class="color_creator roundedcorners" style="cursor: pointer;" @click="setTopLevelPage('scheduleCreator')">
-										<v-toolbar-title>
-											Schedule Creator
-										</v-toolbar-title>
-										<v-spacer></v-spacer>
-										<v-icon>schedule</v-icon>
-									</v-toolbar>	
+									<v-tooltip bottom nudge-top="4" color="color_creator">
+										<template v-slot:activator="{ on: tooltip }">
+											<v-toolbar dark class="color_creator roundedcorners" v-on="{ ...tooltip }" style="cursor: pointer;" @click="setTopLevelPage('scheduleCreator')">
+												<v-toolbar-title>
+													Schedule Creator
+												</v-toolbar-title>
+												<v-spacer></v-spacer>
+												<v-icon>schedule</v-icon>
+											</v-toolbar>	
+										</template>
+										<span>Design and refine your custom experiments</span>
+									</v-tooltip>
 								</v-col>
 								
 								<v-col cols="4" class="pa-1">
-									<v-toolbar dark class="color_runner roundedcorners" style="cursor: pointer;" @click="setTopLevelPage('experimentRunner')">
-										<v-toolbar-title>
-											Experiment Runner
-										</v-toolbar-title>
-										<v-spacer></v-spacer>
-										<v-icon>play_circle_outline</v-icon>
-									</v-toolbar>
+									<v-tooltip bottom nudge-top="4" color="color_browser">
+										<template v-slot:activator="{ on: tooltip }">
+											<v-toolbar dark class="color_browser roundedcorners" v-on="{ ...tooltip }" style="cursor: pointer;" @click="setTopLevelPage('stepper')">
+												<v-toolbar-title>
+													Browser
+												</v-toolbar-title>
+												<v-spacer></v-spacer>
+												<v-icon>list</v-icon>
+											</v-toolbar>
+										</template>
+										<span>View and analyze the results</span>
+									</v-tooltip>
 								</v-col>
 							</v-row>
 						</v-container>
 						
-						<v-card class="ma-4">
+						<v-card class="ma-4" v-if="recentActivity.length">
 							<v-toolbar dark dense class="color_base darken-1">
 								<v-toolbar-title>
 									Recent Activity
@@ -1928,6 +1967,8 @@
 				topLevelPage: localStorage.topLevelPage ? JSON.parse(localStorage.topLevelPage) : 'stepper',
 				
 				// === System Parameters ===
+				
+				dataFolderPath: '',
 				
 				defaultParameters: {},
 				defaultParametersDescription: {},
@@ -3796,6 +3837,10 @@
 				formatCounter: function(value) {
 					if(!value) return '';
 					if(value > 200) value = 10*(Math.floor(value/10));
+					return value;
+				},
+				formatFolderBaseName: function(value) {
+					if(!value) return 'Data Folder';
 					return value;
 				},
 				
