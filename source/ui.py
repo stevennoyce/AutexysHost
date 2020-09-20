@@ -177,6 +177,11 @@ def setWorkspaceDataFolderPath():
 	
 	return jsonvalid({'success': True})
 
+@app.route('/<user>/addUser.json')
+def addUser(user):
+	dlu.makeFolder(os.path.join(workspace_data_path, user))
+	return jsonvalid({'success': True})
+
 @app.route('/paths.json')
 def paths():
 	sourceAbsPath = os.path.abspath(os.path.dirname(__file__))

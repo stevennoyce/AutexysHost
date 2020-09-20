@@ -199,7 +199,7 @@
 					<v-toolbar-items>
 						<v-menu bottom left offset-y :close-on-content-click="false">
 							<template v-slot:activator="{ on }">
-								<v-btn v-on="on" text><v-icon>art_track</v-icon></v-btn>
+								<v-btn v-on="on" text><v-icon left>art_track</v-icon>Settings</v-btn>
 							</template>
 							<v-card light tile style="overflow-y: scroll; max-height:65vh">
 								<v-list class="pt-4">
@@ -217,7 +217,12 @@
 								</v-list>
 							</v-card>
 						</v-menu>
-						<v-btn depressed small color="color_base darken-1" class="onClickFolderBrowser"><v-icon left>folder</v-icon>{{ workspaceDataFolderPath | formatFolderBaseName }}</v-btn>
+						<v-tooltip bottom nudge-top="4" :disabled="!workspaceDataFolderPath">
+							<template v-slot:activator="{ on: tooltip }">
+								<v-btn depressed small color="color_base darken-1" class="onClickFolderBrowser" v-on="{ ...tooltip }"><v-icon left>folder</v-icon>{{ workspaceDataFolderPath | formatFolderBaseName }}</v-btn>
+							</template>
+							<span>Workspace: {{ workspaceDataFolderPath }}</span>
+						</v-tooltip>
 						<v-menu bottom left offset-y>
 							<template v-slot:activator="{ on }">
 								<v-btn v-on="on" text><v-icon left>people</v-icon>{{ user }}</v-btn>
@@ -241,20 +246,45 @@
 					<!-- Start of gettingstarted --> 
 					
 					<v-card flat class="ma-4" v-if="topLevelPage === 'gettingstarted'">
-						<v-container>
-							<v-row dense>
-								<v-col cols="1">
-								<v-col sm="10" md="6" lg="6">
-									<v-text-field light filled rounded readonly label="Workspace Folder" append-icon="folder" v-model="workspaceDataFolderPath"></v-text-field>
-									<v-btn color="color_base darken-1" class="onClickFolderBrowser"><v-icon left>folder</v-icon>Choose</v-btn>
+						<v-container class="pt-10">
+							<v-row dense class="pb-6">
+								<v-col cols="2"></v-col>
+								<v-tooltip bottom nudge-top="30">
+									<template v-slot:activator="{ on: tooltip }">
+										<v-col cols="8" v-on="{ ...tooltip }">
+											<v-text-field light filled rounded readonly :disabled="true" label="Workspace Folder" prepend-icon="folder" v-model="workspaceDataFolderPath"></v-text-field>
+										</v-col>
+									</template>
+									<span>This is where all user and data files will be saved.</span>
+								</v-tooltip>
+								<v-col cols="2">
+									<v-btn dark color="color_base" class="onClickFolderBrowser ma-2"><v-icon left>folder</v-icon>Choose</v-btn>
 								</v-col>
 								<v-spacer></v-spacer>
 							</v-row>
+							<v-row dense class="pb-6">
+								<v-col cols="2"></v-col>
+								<v-tooltip bottom nudge-top="30">
+									<template v-slot:activator="{ on: tooltip }">
+										<v-col cols="8" v-on="{ ...tooltip }">
+											<v-text-field light outlined rounded clearable label="User" prepend-icon="account_circle" v-model="user"></v-text-field>
+										</v-col>		
+									</template>	
+									<span>This sets up an initial user folder within your workspace.</span>
+								</v-tooltip>	
+								<v-spacer></v-spacer>
+							</v-row>
 							<v-row dense>
-								<v-col cols="1">
-								<v-col sm="6" md="3" lg="3">
-									<v-text-field light outlined rounded clearable label="User" append-icon="account_circle" v-model="user"></v-text-field>
-								</v-col>				
+								<v-spacer></v-spacer>
+								<v-tooltip bottom :color="(workspaceDataFolderPath && user) ? 'success' : 'info'">
+									<template v-slot:activator="{ on: tooltip }">
+										<v-col cols="4" v-on="{ ...tooltip }">
+											<v-btn large block rounded color="success" class="white--text" :disabled="!workspaceDataFolderPath || !user" @click="addUser(user); setTopLevelPage('dashboard');">Get Started</v-btn>
+										</v-col>	
+									</template>
+									<span v-if="!workspaceDataFolderPath || !user">Setup a workspace and username above to get started.</span>
+									<span v-if="workspaceDataFolderPath && user">Go to dashboard!</span>
+								</v-tooltip>			
 								<v-spacer></v-spacer>
 							</v-row>
 						</v-container>
@@ -1964,11 +1994,11 @@
 				drawer: null,
 				currentPage: window.location.hash.substr(1) || "",
 				stepperPage: localStorage.stepperPage ? JSON.parse(localStorage.stepperPage) : 1,
-				topLevelPage: localStorage.topLevelPage ? JSON.parse(localStorage.topLevelPage) : 'stepper',
+				topLevelPage: localStorage.user ? 'dashboard' : 'gettingstarted',
 				
 				// === System Parameters ===
 				
-				workspaceDataFolderPath: '',
+				workspaceDataFolderPath: localStorage.workspaceDataFolderPath ? JSON.parse(localStorage.workspaceDataFolderPath) : '',
 				
 				defaultParameters: {},
 				defaultParametersDescription: {},
@@ -2337,6 +2367,8 @@
 						this.postJSON(path, JSON.stringify(newWorkspaceDataFolderPath), (response => {
 							console.log("Set workspace data folder to: " + newWorkspaceDataFolderPath);
 						}), "Error setting workspace data folder.");
+						
+						localStorage.workspaceDataFolderPath = JSON.stringify(newWorkspaceDataFolderPath);
 					}
 				},
 				
@@ -2353,6 +2385,7 @@
 				// === Refresh ===
 				
 				getAll: function() {
+					this.getWorkspace();
 					this.getUsers();
 					this.getProjects();
 					this.getWafers();
@@ -2374,6 +2407,9 @@
 					this.newCacheBust();
 				},
 				
+				getWorkspace: function() {
+					this.setWorkspaceDataFolder(this.workspaceDataFolderPath);
+				},
 				getUsers: function() {
 					var path = "/users.json" + this.cacheBust;
 					this.getJSON(path, (response => {this.users = response}), "Error getting users");
@@ -2511,6 +2547,14 @@
 				setTopLevelPage: function(name) {
 					this.topLevelPage = name;
 					localStorage.topLevelPage = JSON.stringify(name);
+				},
+				addUser: function(userName) {
+					var path = '/' + userName + '/addUser.json' + this.cacheBust;
+					this.getJSON(path, (response => {
+						console.log('Successfully created new user: ' + userName);
+					}), "Error creating new user");
+					
+					this.goToUser(userName);
 				},
 				
 				goToBeginning: function() {
