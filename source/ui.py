@@ -53,13 +53,14 @@ default_makePlot_parameters = {
 	'showFigures': True,
 	'plot_mode_parameters': None
 }
-
-# === Paths ===
 default_data_path = '../../AutexysData/'
 default_documentation_path = '../../AutexysData/documentation'
 
+# === Paths ===
+workspace_data_path = default_data_path
+
 index_html_directory_path = 'ui/' if(not getattr(sys, 'frozen', False)) else (os.path.join(sys._MEIPASS, 'ui/'))
-readme_path = './README.md'      if(not getattr(sys, 'frozen', False)) else (os.path.join(sys._MEIPASS, './README.md'))
+readme_path = './README.md'       if(not getattr(sys, 'frozen', False)) else (os.path.join(sys._MEIPASS, './README.md'))
 
 
 # === Flask ===
@@ -167,6 +168,15 @@ def sendStatic(path):
 
 
 # === System Info ===
+@app.route('/setWorkspaceDataFolderPath', methods=['POST'])
+def setWorkspaceDataFolderPath():
+	path = flask.request.get_json(force=True)
+	
+	global workspace_data_path
+	workspace_data_path = path
+	
+	return jsonvalid({'success': True})
+
 @app.route('/paths.json')
 def paths():
 	sourceAbsPath = os.path.abspath(os.path.dirname(__file__))
@@ -192,13 +202,13 @@ def defaultEssentialParameters():
 # === Browser ===
 @app.route('/users.json')
 def users():
-	paths = glob.glob(os.path.join(default_data_path, '*/'))
+	paths = glob.glob(os.path.join(workspace_data_path, '*/'))
 	names = [os.path.basename(os.path.dirname(p)) for p in paths]
 	return jsonvalid(names)
 
 @app.route('/<user>/projects.json')
 def projects(user):
-	paths = glob.glob(os.path.join(default_data_path, user, '*/'))
+	paths = glob.glob(os.path.join(workspace_data_path, user, '*/'))
 	names = [os.path.basename(os.path.dirname(p)) for p in paths]
 	
 	projects = [{'name': n} for n in names]
@@ -207,7 +217,7 @@ def projects(user):
 
 @app.route('/<user>/<project>/wafers.json')
 def wafers(user, project):
-	paths = glob.glob(os.path.join(default_data_path, user, project, '*/'))
+	paths = glob.glob(os.path.join(workspace_data_path, user, project, '*/'))
 	names = [os.path.basename(os.path.dirname(p)) for p in paths]
 	modificationTimes = [os.path.getmtime(p) for p in paths]
 	sizes = [recursiveFileSize(p) for p in paths]
@@ -224,7 +234,7 @@ def wafers(user, project):
 
 @app.route('/<user>/<project>/<wafer>/chips.json')
 def chips(user, project, wafer):
-	paths = glob.glob(os.path.join(default_data_path, user, project, wafer, '*/'))
+	paths = glob.glob(os.path.join(workspace_data_path, user, project, wafer, '*/'))
 	names = [os.path.basename(os.path.dirname(p)) for p in paths]
 	modificationTimes = [os.path.getmtime(p) for p in paths]
 	sizes = [recursiveFileSize(p) for p in paths]
@@ -242,7 +252,7 @@ def chips(user, project, wafer):
 
 @app.route('/<user>/<project>/<wafer>/<chip>/devices.json')
 def devices(user, project, wafer, chip):
-	paths = glob.glob(os.path.join(default_data_path, user, project, wafer, chip, '*/'))
+	paths = glob.glob(os.path.join(workspace_data_path, user, project, wafer, chip, '*/'))
 	names = [os.path.basename(os.path.dirname(p)) for p in paths]
 	modificationTimes = [os.path.getmtime(p+'ParametersHistory.json') if os.path.exists(p+'ParametersHistory.json') else os.path.getmtime(p) for p in paths]
 	sizes = [recursiveFileSize(p) for p in paths]
@@ -257,7 +267,7 @@ def devices(user, project, wafer, chip):
 
 @app.route('/<user>/<project>/<wafer>/<chip>/<device>/experiments.json')
 def experiments(user, project, wafer, chip, device):	
-	folder = os.path.join(default_data_path, user, project, wafer, chip, device)
+	folder = os.path.join(workspace_data_path, user, project, wafer, chip, device)
 	
 	paths = glob.glob(os.path.join(folder, '*/'))
 	names = [os.path.basename(os.path.dirname(p)) for p in paths]
@@ -297,7 +307,7 @@ def experiments(user, project, wafer, chip, device):
 			experimentDictionary[experimentNumber] = lastDataEntryParameters
 		
 		# Get the possible plots for this experiment and save that with the parameters 
-		parameter_identifiers = {'dataFolder':default_data_path, 'Identifiers':{'user':user,'project':project,'wafer':wafer,'chip':chip,'device':device}}
+		parameter_identifiers = {'dataFolder':workspace_data_path, 'Identifiers':{'user':user,'project':project,'wafer':wafer,'chip':chip,'device':device}}
 		experimentDictionary[experimentNumber]['possiblePlots'] = DH.plotsForExperiments(parameter_identifiers, minExperiment=experimentNumber, maxExperiment=experimentNumber)
 		
 		experimentDictionary[experimentNumber]['dataFolderSpecific'] = experimentFolder
@@ -320,10 +330,10 @@ def recentActivity(user, projectFilter, waferFilter, chipFilter, deviceFilter, c
 	devices_included  = '*/' if(deviceFilter  is None or deviceFilter  == 'undefined') else ('{:}/'.format(deviceFilter))
 				
 	# Get list of all projects, wafers, chips, devices for this user. Each element in the list is a dictionary containing the relevant identifiers, plus its modification time.
-	projects  =                         [{'modified':os.path.getmtime(p), 'project': basename(p)}                                                                       for p in glob.glob(os.path.join(default_data_path, user, projects_included))]
-	wafers    = [(elem) for sublist in [[{'modified':os.path.getmtime(w), 'project': item['project'], 'wafer':basename(w)}                                              for w in glob.glob(os.path.join(default_data_path, user, item['project'], wafers_included))]                               for item in projects] for elem in sublist] if(category not in ['project']) else None
-	chips     = [(elem) for sublist in [[{'modified':os.path.getmtime(c), 'project': item['project'], 'wafer':item['wafer'], 'chip':basename(c)}                        for c in glob.glob(os.path.join(default_data_path, user, item['project'], item['wafer'], chips_included))]                 for item in wafers]   for elem in sublist] if(category not in ['project', 'wafer']) else None
-	devices   = [(elem) for sublist in [[{'modified':os.path.getmtime(d), 'project': item['project'], 'wafer':item['wafer'], 'chip':item['chip'], 'device':basename(d)} for d in glob.glob(os.path.join(default_data_path, user, item['project'], item['wafer'], item['chip'], devices_included))] for item in chips]    for elem in sublist] if(category not in ['project', 'wafer', 'chip']) else None
+	projects  =                         [{'modified':os.path.getmtime(p), 'project': basename(p)}                                                                       for p in glob.glob(os.path.join(workspace_data_path, user, projects_included))]
+	wafers    = [(elem) for sublist in [[{'modified':os.path.getmtime(w), 'project': item['project'], 'wafer':basename(w)}                                              for w in glob.glob(os.path.join(workspace_data_path, user, item['project'], wafers_included))]                               for item in projects] for elem in sublist] if(category not in ['project']) else None
+	chips     = [(elem) for sublist in [[{'modified':os.path.getmtime(c), 'project': item['project'], 'wafer':item['wafer'], 'chip':basename(c)}                        for c in glob.glob(os.path.join(workspace_data_path, user, item['project'], item['wafer'], chips_included))]                 for item in wafers]   for elem in sublist] if(category not in ['project', 'wafer']) else None
+	devices   = [(elem) for sublist in [[{'modified':os.path.getmtime(d), 'project': item['project'], 'wafer':item['wafer'], 'chip':item['chip'], 'device':basename(d)} for d in glob.glob(os.path.join(workspace_data_path, user, item['project'], item['wafer'], item['chip'], devices_included))] for item in chips]    for elem in sublist] if(category not in ['project', 'wafer', 'chip']) else None
 	
 	# Choose which list to report as the recent activity list
 	if(wafers is None):	
@@ -345,7 +355,7 @@ def recentActivity(user, projectFilter, waferFilter, chipFilter, deviceFilter, c
 def indexes(user, project):
 	indexObject = {}
 	
-	waferPaths = glob.glob(os.path.join(default_data_path, user, project, '*/'))
+	waferPaths = glob.glob(os.path.join(workspace_data_path, user, project, '*/'))
 	waferNames = [os.path.basename(os.path.dirname(p)) for p in waferPaths]
 	
 	for waferPath, waferName in zip(waferPaths, waferNames):
@@ -406,7 +416,7 @@ def getPlotSettings(plotType, filebuf, minExperiment, maxExperiment, includeChip
 	if plotSettings['maxExperiment'] == None:
 		plotSettings['maxExperiment'] = maxExperiment
 	plotSettings['plotSaveName'] = filebuf
-	plotSettings['dataFolder'] = None
+	plotSettings['dataFolder'] = workspace_data_path
 	plotSettings['saveFolder'] = None
 	plotSettings['saveFigures'] = True
 	plotSettings['showFigures'] = False
@@ -473,13 +483,13 @@ def sendChipPlot(user, project, wafer, chip, plotType):
 
 @app.route('/<user>/<project>/<wafer>/<chip>/<device>/availableDevicePlots.json')
 def availableDevicePlots(user, project, wafer, chip, device):
-	parameter_identifiers = {'dataFolder':default_data_path, 'Identifiers':{'user':user,'project':project,'wafer':wafer,'chip':chip,'device':device}}
+	parameter_identifiers = {'dataFolder':workspace_data_path, 'Identifiers':{'user':user,'project':project,'wafer':wafer,'chip':chip,'device':device}}
 	plots = DH.plotsForExperiments(parameter_identifiers, maxPriority=999, linkingFile=None)
 	return jsonvalid(plots)
 	
 @app.route('/<user>/<project>/<wafer>/<chip>/availableChipPlots.json')
 def availableChipPlots(user, project, wafer, chip):
-	parameter_identifiers = {'dataFolder':default_data_path, 'Identifiers':{'user':user,'project':project,'wafer':wafer,'chip':chip}}
+	parameter_identifiers = {'dataFolder':workspace_data_path, 'Identifiers':{'user':user,'project':project,'wafer':wafer,'chip':chip}}
 	plots = CH.plotsForExperiments(parameter_identifiers)
 	return jsonvalid(plots)
 
@@ -507,7 +517,7 @@ def addToNote():
 
 @app.route('/addToCorrection', methods=['POST'])
 def addToCorrection():	
-	folder = os.path.join(default_data_path, user, project, wafer, chip, device, 'Ex' + experimentNumber)
+	folder = os.path.join(workspace_data_path, user, project, wafer, chip, device, 'Ex' + experimentNumber)
 	correction = flask.request.get_json(force=True)
 
 
@@ -592,18 +602,18 @@ def saveSchedule(user, project, fileName):
 	# receivedJobs = json.loads(flask.request.args.get('jobs'))
 	receivedJobs = flask.request.get_json(force=True)
 	
-	# with open(os.path.join(default_data_path, user, project, 'schedules/', fileName + '.json'), 'w') as f:
+	# with open(os.path.join(workspace_data_path, user, project, 'schedules/', fileName + '.json'), 'w') as f:
 	# 	f.write(json.dumps(receivedJobs))
 	
-	dlu.emptyFile(os.path.join(default_data_path, user, project, 'schedules/'), fileName)
+	dlu.emptyFile(os.path.join(workspace_data_path, user, project, 'schedules/'), fileName)
 	for job in receivedJobs:
-		dlu.saveJSON(os.path.join(default_data_path, user, project, 'schedules/'), fileName, defaults.extractDefaults(job), incrementIndex=False)
+		dlu.saveJSON(os.path.join(workspace_data_path, user, project, 'schedules/'), fileName, defaults.extractDefaults(job), incrementIndex=False)
 	
 	return jsonvalid({'success':True})
 
 @app.route('/loadSchedule/<user>/<project>/<fileName>.json')
 def loadSchedule(user, project, fileName):
-	scheduleData = dlu.loadJSON(os.path.join(default_data_path, user, project, 'schedules/'), fileName + '.json')
+	scheduleData = dlu.loadJSON(os.path.join(workspace_data_path, user, project, 'schedules/'), fileName + '.json')
 	
 	expandedScheduleData = []
 	for job in scheduleData:
@@ -613,7 +623,7 @@ def loadSchedule(user, project, fileName):
 
 @app.route('/loadBriefSchedule/<user>/<project>/<fileName>.json')
 def loadBriefSchedule(user, project, fileName):
-	scheduleData = dlu.loadJSON(os.path.join(default_data_path, user, project, 'schedules/'), fileName + '.json')
+	scheduleData = dlu.loadJSON(os.path.join(workspace_data_path, user, project, 'schedules/'), fileName + '.json')
 	
 	expandedScheduleData = []
 	for job in scheduleData:
@@ -633,7 +643,7 @@ def loadBriefStandardSchedule(fileName):
 
 @app.route('/dispatchSchedule/<user>/<project>/<fileName>.json')
 def dispatchSchedule(user, project, fileName):
-	scheduleFilePath = os.path.join(default_data_path, user, project, 'schedules', fileName + '.json')
+	scheduleFilePath = os.path.join(workspace_data_path, user, project, 'schedules', fileName + '.json')
 	eprint('UI Sending RUN:')
 	pipes.send(share, 'QueueToManager', {'type':'Dispatch', 'scheduleFilePath': scheduleFilePath})
 	eprint('UI Sent RUN:')
@@ -655,10 +665,10 @@ def loadUserDefinedScheduleNames():
 	
 	scheduleNames = {}
 	
-	for userName in getSubDirectories(default_data_path):
+	for userName in getSubDirectories(workspace_data_path):
 		scheduleNames[userName] = {}
-		for projectName in getSubDirectories(os.path.join(default_data_path, userName)):
-			schedulePaths = glob.glob(os.path.join(default_data_path, userName, projectName, 'schedules/*.json'))
+		for projectName in getSubDirectories(os.path.join(workspace_data_path, userName)):
+			schedulePaths = glob.glob(os.path.join(workspace_data_path, userName, projectName, 'schedules/*.json'))
 			scheduleNames[userName][projectName] = [os.path.basename(schedule).split('.')[0] for schedule in schedulePaths]
 	
 	return jsonvalid(scheduleNames)
@@ -675,7 +685,7 @@ def AFMFilesInTimestampRange(startTime, endTime):
 	
 	avg_timestamp = startTime + (endTime - startTime)/2
 	
-	image_path = AFMReader.bestMatchAFMRegistry(default_data_path, targetTimestamp=avg_timestamp)
+	image_path = AFMReader.bestMatchAFMRegistry(workspace_data_path, targetTimestamp=avg_timestamp)
 	
 	if (image_path is not None):
 		metaData = AFMReader.getAFMMetaData(image_path)
@@ -688,7 +698,7 @@ def AFMFilesInTimestampRange(startTime, endTime):
 def updateAFMRegistry():
 	from utilities import AFMReader
 	
-	AFMReader.updateAFMRegistry(default_data_path)
+	AFMReader.updateAFMRegistry(workspace_data_path)
 	
 	return jsonvalid({'success':True})
 
@@ -698,7 +708,7 @@ def updateAFMRegistry():
 @app.route('/saveCSV/<user>/<project>/<wafer>/<chip>/<device>/<experiment>/data.csv')
 def saveCSV(user, project, wafer, chip, device, experiment):
 	# Find all '.json' files saved for this experiment
-	path = os.path.join(default_data_path, user, project, wafer, chip, device, 'Ex' + experiment)
+	path = os.path.join(workspace_data_path, user, project, wafer, chip, device, 'Ex' + experiment)
 	fileNames = [os.path.basename(p) for p in glob.glob(os.path.join(path, '*.json'))]
 	
 	# Load data from all '.json' files
@@ -720,7 +730,7 @@ def saveCSV(user, project, wafer, chip, device, experiment):
 
 @app.route('/getJSONData/<user>/<project>/<wafer>/<chip>/<device>/<experiment>/data.json')
 def getJSONData(user, project, wafer, chip, device, experiment):
-	path = os.path.join(default_data_path, user, project, wafer, chip, device, 'Ex' + experiment)
+	path = os.path.join(workspace_data_path, user, project, wafer, chip, device, 'Ex' + experiment)
 	deviceHistory = dlu.loadJSON(path, 'GateSweep.json')
 	return jsonvalid(deviceHistory)
 

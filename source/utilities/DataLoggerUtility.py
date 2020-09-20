@@ -580,7 +580,3 @@ def filterFileLinesLessThan(fileLines, property, value, looseFiltering=False):
 	return filteredFileLines
 
 
-if(__name__ == '__main__'):
-	#loadSpecificDeviceHistory('../../../AutexysData/jay/MoS2FET/JM3/B/53-54', 'GateSweep.json', minExperiment=0, maxExperiment=20)
-	deviceHistory = loadJSON('/Users/jaydoherty/Documents/myWorkspaces/Research/Autexys/AutexysData/joey/CNT_TFT/190108/unknown/34-35/Ex3/', 'GateSweep.json')
-	saveCSV(deviceHistory, 'test.csv', '/Users/jaydoherty/Desktop/')

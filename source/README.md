@@ -100,13 +100,13 @@ The manager starts two processes, the user interface (`ui.py`), and the dispatch
 The dispatcher can be launched and given a schedule file without the use of the manager. This is done by running `dispatcher.py` and passing it the path of the desired schedule file as the first command line argument, such as
 
 ```console
-python dispatcher.py ../../AutexysData/user/project/schedules/scheduleFile.json
+python dispatcher.py WORKSPACE_DATA_DIRECTORY/user/project/schedules/scheduleFile.json
 ```
 
 To run a script in high priority (to avoid timing delays, especially important for real time procedures like SGM Control), on Windows run
 
 ```console
-start /high /b python dispatcher.py ../../AutexysData/user/project/schedules/scheduleFile.json
+start /high /b python dispatcher.py WORKSPACE_DATA_DIRECTORY/user/project/schedules/scheduleFile.json
 ```
 
 The user interface can also be run standalone if desired.

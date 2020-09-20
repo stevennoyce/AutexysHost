@@ -217,7 +217,7 @@
 								</v-list>
 							</v-card>
 						</v-menu>
-						<v-btn depressed small color="color_base darken-1" class="onClickFolderBrowser" v-model="dataFolderPath"><v-icon left>folder</v-icon>{{ dataFolderPath | formatFolderBaseName }}</v-btn>
+						<v-btn depressed small color="color_base darken-1" class="onClickFolderBrowser"><v-icon left>folder</v-icon>{{ workspaceDataFolderPath | formatFolderBaseName }}</v-btn>
 						<v-menu bottom left offset-y>
 							<template v-slot:activator="{ on }">
 								<v-btn v-on="on" text><v-icon left>people</v-icon>{{ user }}</v-btn>
@@ -245,8 +245,8 @@
 							<v-row dense>
 								<v-col cols="1">
 								<v-col sm="10" md="6" lg="6">
-									<v-text-field light filled rounded readonly label="Workspace Folder" append-icon="folder" v-model="dataFolderPath"></v-text-field>
-									<v-btn color="color_base darken-1" class="onClickFolderBrowser" v-model="dataFolderPath"><v-icon left>folder</v-icon>Choose</v-btn>
+									<v-text-field light filled rounded readonly label="Workspace Folder" append-icon="folder" v-model="workspaceDataFolderPath"></v-text-field>
+									<v-btn color="color_base darken-1" class="onClickFolderBrowser"><v-icon left>folder</v-icon>Choose</v-btn>
 								</v-col>
 								<v-spacer></v-spacer>
 							</v-row>
@@ -998,7 +998,7 @@
 										<v-spacer></v-spacer>
 										<v-tooltip top v-if="isValidScheduleSavePath()">
 											<template v-slot:activator="{ on }">
-												<v-btn v-on="on" icon @click='copyHTMLStringToClip("cd \"" + paths["sourceAbsPath"] + "\" \n" + "python dispatcher.py \"" + "../../AutexysData/" + creatorSaveUser + "/" + creatorSaveProject + "/schedules/" + creatorSaveFileName + ".json\"")' :disabled="!isValidScheduleSavePath()"><v-icon>settings_ethernet</v-icon></v-btn>
+												<v-btn v-on="on" icon @click='copyHTMLStringToClip("cd \"" + paths["sourceAbsPath"] + "\" \n" + "python dispatcher.py \"" + workspaceDataFolderPath + "/" + creatorSaveUser + "/" + creatorSaveProject + "/schedules/" + creatorSaveFileName + ".json\"")' :disabled="!isValidScheduleSavePath()"><v-icon>settings_ethernet</v-icon></v-btn>
 											</template>
 											<span>Copy launch commands for Terminal</span>
 										</v-tooltip>
@@ -1968,7 +1968,7 @@
 				
 				// === System Parameters ===
 				
-				dataFolderPath: '',
+				workspaceDataFolderPath: '',
 				
 				defaultParameters: {},
 				defaultParametersDescription: {},
@@ -2326,6 +2326,17 @@
 				fetchText: function(path, callback) {
 					if(path) {
 						fetch(this.serverAddress() + path).then(response => response.text()).then(callback);
+					}
+				},
+				
+				// === System Configuration ===
+				
+				setWorkspaceDataFolder: function(newWorkspaceDataFolderPath) {
+					if(newWorkspaceDataFolderPath) {
+						var path = '/setWorkspaceDataFolderPath';
+						this.postJSON(path, JSON.stringify(newWorkspaceDataFolderPath), (response => {
+							console.log("Set workspace data folder to: " + newWorkspaceDataFolderPath);
+						}), "Error setting workspace data folder.");
 					}
 				},
 				
@@ -3693,6 +3704,9 @@
 				recentActivityChip:    function(val) { this.getRecentActivity(); },
 				recentActivityDevice:  function(val) { this.getRecentActivity(); },
 				
+				// Let python backend know anytime workspace directory is modified
+				workspaceDataFolderPath: function(val) { this.setWorkspaceDataFolder(val); },
+				
 				experimentIndex: function(val) { this.getAssociatedAFMs(); },
 			},
 			computed: {
@@ -3841,7 +3855,10 @@
 				},
 				formatFolderBaseName: function(value) {
 					if(!value) return 'Data Folder';
-					return value;
+					var folders = value.split('/'); // TODO: make this work for windows file separators
+					var base = folders[folders.length - 1];
+					if(!base && (folders.length > 1)) base = folders[folders.length - 2];
+					return base + '/';
 				},
 				
 				// === Dynamic Units ===

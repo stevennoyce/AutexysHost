@@ -160,7 +160,8 @@ function start() {
           elem.addEventListener('click', (event) => {
             window.openFolderDialog().then((result) => {
               if(!result.canceled){
-                elem.setAttribute("value", result.filePaths[0]);
+                console.log(result.filePaths[0]);
+                window.app.$data.workspaceDataFolderPath = result.filePaths[0];
               }
             });
           });
