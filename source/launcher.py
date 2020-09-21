@@ -328,7 +328,7 @@ def initializeArduino(parameters):
 def initializeProcedures():
 	# Import all Procedure Definitions and save a reference to run their 'run' function
 	procedureDefinitions = {}
-	procedureDefinitionsBasePath = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'procedures')
+	procedureDefinitionsBasePath = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'procedures/') if(not getattr(sys, 'frozen', False)) else (os.path.join(sys._MEIPASS, 'procedures/'))
 	
 	for importer, packageName, isPackage in pkgutil.iter_modules([procedureDefinitionsBasePath] + glob.glob(procedureDefinitionsBasePath + '/*/')):
 		module = importer.find_module(packageName).load_module(packageName)
