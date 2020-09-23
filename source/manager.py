@@ -106,7 +106,7 @@ def runUI(specific_port, share):
 
 
 # === Dispatcher ===
-def startDispatcher(scheduleFilePath, share, priority=0):
+def startDispatcher(scheduleFilePath, workspace_data_path, share, priority=0):
 	"""Start a Process running dispatcher.dispatch(scheduleFilePath) and obtain a two-way Pipe for communication."""
 	pipeToDispatcher, pipeForDispatcher = mp.Pipe()
 	share['p'] = pipeForDispatcher
@@ -117,20 +117,20 @@ def startDispatcher(scheduleFilePath, share, priority=0):
 	# Clear the procedure stop locations since dispatcher is just beginning
 	share['procedureStopLocations'][:] = []
 	
-	dispatcherProcess = mp.Process(target=runDispatcher, args=(scheduleFilePath, share))
+	dispatcherProcess = mp.Process(target=runDispatcher, args=(scheduleFilePath, workspace_data_path, share))
 	dispatcherProcess.start()
 	# changePriorityOfProcessAndChildren(dispatcherProcess.pid, priority)
 	return {'process':dispatcherProcess, 'pipe':pipeToDispatcher}
 
-def runDispatcher(scheduleFilePath, share):
+def runDispatcher(scheduleFilePath, workspace_data_path, share):
 	"""A target method for running the dispatcher that also imports the dispatcher so the parent process does not have that dependency."""
 	import dispatcher
-	dispatcher.dispatch(scheduleFilePath, share)
+	dispatcher.dispatch(scheduleFilePath, workspace_data_path, share)
 
 
 
 # === Main ===
-def manage(on_startup_port=None, on_startup_schedule_file=None):
+def manage(on_startup_port=None, on_startup_schedule_file=None, on_startup_workspace_data_path=None):
 	"""Initialize a UI process and enter an event loop to handle communication with that UI. Manage the creation of dispatcher
 	processes to execute schedule files and facilitate communication between the UI and the currently running dispatcher."""
 		
@@ -143,7 +143,7 @@ def manage(on_startup_port=None, on_startup_schedule_file=None):
 	
 	# Spin out the optional "on-startup" Dispatcher sub-process
 	if(on_startup_schedule_file is not None):
-		dispatcher = startDispatcher(on_startup_schedule_file, share, priority=1)
+		dispatcher = startDispatcher(on_startup_schedule_file, on_startup_workspace_data_path, share, priority=1)
 	
 	# === Start ===
 	
@@ -160,7 +160,8 @@ def manage(on_startup_port=None, on_startup_schedule_file=None):
 				if(message.get('type') == 'Dispatch'):
 					if(dispatcher is None):
 						scheduleFilePath = message['scheduleFilePath']
-						dispatcher = startDispatcher(scheduleFilePath, share, priority=1)
+						workspace_data_path = message['workspace_data_path']
+						dispatcher = startDispatcher(scheduleFilePath, workspace_data_path, share, priority=1)
 					else:
 						print('Error: dispatcher is already running; wait for it to finish before starting another job.')
 			

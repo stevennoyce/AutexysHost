@@ -172,6 +172,7 @@ def sendStatic(path):
 def setWorkspaceDataFolderPath():
 	path = flask.request.get_json(force=True)
 	
+	# Sets workspace data folder path for the entire UI portion of the Python Server (browsing data, loading plots, saving schedule files, etc). But, does NOT affect data saving for experiments run by the Python Server, that is still handled directly by dispatcher.py and launcher.py
 	global workspace_data_path
 	workspace_data_path = path
 	
@@ -650,7 +651,7 @@ def loadBriefStandardSchedule(fileName):
 def dispatchSchedule(user, project, fileName):
 	scheduleFilePath = os.path.join(workspace_data_path, user, project, 'schedules', fileName + '.json')
 	eprint('UI Sending RUN:')
-	pipes.send(share, 'QueueToManager', {'type':'Dispatch', 'scheduleFilePath': scheduleFilePath})
+	pipes.send(share, 'QueueToManager', {'type':'Dispatch', 'scheduleFilePath': scheduleFilePath, 'workspace_data_path': workspace_data_path})
 	eprint('UI Sent RUN:')
 	return jsonvalid({'success': True})
 

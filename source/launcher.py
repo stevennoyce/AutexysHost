@@ -23,7 +23,7 @@ import pipes
 
 
 # === Main API ===
-def run(additional_parameters, share=None):
+def run(additional_parameters, workspace_data_path=None, share=None):
 	"""Begins execution of an experiment whose parameters are defined by the union of addition_parameters and defaults.py.
 	Also initializes a connection to the necessary SMU systems and/or Arduino systems needed to perform the experiment."""
 	
@@ -31,6 +31,9 @@ def run(additional_parameters, share=None):
 	
 	# === Load Defaults ===
 	parameters = defaults.with_added(additional_parameters)
+
+	# if workspace_data_path was specified, use that as the data folder for this procedure (instead of the value loaded from defaults.py)
+	parameters['dataFolder'] = workspace_data_path   if(workspace_data_path is not None)            else parameters['dataFolder']
 
 	# additional_parameters is required to specify valid user, project, wafer, chip, device
 	parameters['Identifiers']['user']    = 'guest'   if(parameters['Identifiers']['user']    == '') else parameters['Identifiers']['user']
