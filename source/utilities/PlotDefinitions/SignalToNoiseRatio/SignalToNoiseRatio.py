@@ -1,7 +1,7 @@
 # Author: Matthew Barbano
 
 from utilities.MatplotlibUtility import *
-import statistics
+import numpy as np
 
 plotDescription = {
 	'plotCategory': 'device',
@@ -83,8 +83,8 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 				my_drain_current_list = deviceHistory[i]['Results']['id_data'][0][index:index+pointsPerVGS]
 
 				next_drain_current_list = deviceHistory[i]['Results']['id_data'][0][index+pointsPerVGS:index+2*pointsPerVGS]
-				my_drain_current_mean = statistics.mean(next_drain_current_list) - statistics.mean(my_drain_current_list)
-				my_drain_current_stDev = statistics.pstdev(my_drain_current_list)
+				my_drain_current_mean = np.mean(next_drain_current_list) - np.mean(my_drain_current_list)
+				my_drain_current_stDev = np.std(my_drain_current_list)
 				if my_drain_current_stDev != 0:
 					normTerm = 1
 					if normalize:
@@ -92,7 +92,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 					my_direction_snr_to_plot.append(abs(my_drain_current_mean / (my_drain_current_stDev * normTerm)))  # abs value takes care of negative case
 
 					# Gate voltages - put inside the if statement so that the two lists are same length
-					my_direction_vgs_data_to_plot.append(statistics.mean(deviceHistory[i]['Results']['vgs_data'][0][index:index+pointsPerVGS]))
+					my_direction_vgs_data_to_plot.append(np.mean(deviceHistory[i]['Results']['vgs_data'][0][index:index+pointsPerVGS]))
 
 					# Same with noise axis data - inside if statement so the two lists are same length
 					my_direction_noise_to_plot.append(my_drain_current_stDev)
@@ -118,8 +118,8 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 				my_drain_current_list = deviceHistory[i]['Results']['id_data'][sweep_index][index:index+pointsPerVGS]
 
 				prev_drain_current_list = deviceHistory[i]['Results']['id_data'][sweep_index][index-pointsPerVGS:index]
-				my_drain_current_mean = statistics.mean(prev_drain_current_list) - statistics.mean(my_drain_current_list)
-				my_drain_current_stDev = statistics.pstdev(my_drain_current_list)
+				my_drain_current_mean = np.mean(prev_drain_current_list) - np.mean(my_drain_current_list)
+				my_drain_current_stDev = np.std(my_drain_current_list)
 				if my_drain_current_stDev != 0:
 					normTerm = 1
 					if normalize:
@@ -127,7 +127,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 					my_direction_snr_to_plot.append(abs(my_drain_current_mean / (my_drain_current_stDev * normTerm)))  # abs value takes care of negative case
 
 					# Gate voltages - inside if statement so that lists are same length
-					my_direction_vgs_data_to_plot.append(statistics.mean(deviceHistory[i]['Results']['vgs_data'][sweep_index][index:index+pointsPerVGS]))
+					my_direction_vgs_data_to_plot.append(np.mean(deviceHistory[i]['Results']['vgs_data'][sweep_index][index:index+pointsPerVGS]))
 
 					# Same with noise axis data - inside if statement so the two lists are same length
 					my_direction_noise_to_plot.append(my_drain_current_stDev)
