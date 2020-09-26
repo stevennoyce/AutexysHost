@@ -125,7 +125,7 @@ def runProcedure(parameters, smu_systems, arduino_systems, deviceIndexes, target
 	"""Runs the procedure specified in parameters, and iterates over many cycles if desired"""
 	
 	# Find all procedures defined in the 'procedures' sub-directory
-	procedureDefinitions = initializeProcedures()	
+	procedureDefinitions = explicitlyInitializeProcedures()	
 	
 	# Determine if any cycling is set to occur
 	is_cycling = (cycles > 1) or (len(target_devices) > 1)
@@ -328,7 +328,93 @@ def initializeArduino(parameters):
 	
 	
 # === Load Procedures ===	
-def initializeProcedures():
+from procedures import Gate_Sweep
+from procedures import Drain_Sweep
+from procedures import Free_Run
+
+from procedures import Static_Bias
+from procedures import Rapid_Bias
+from procedures import Delay
+
+from procedures import Auto_Gate_Sweep
+from procedures import Auto_Drain_Sweep
+from procedures import Auto_Static_Bias
+
+from procedures import Small_Signal
+
+from procedures import Noise_Collection
+from procedures import Noise_Grid
+
+from procedures import Burn_Out
+from procedures import Auto_Burn_Out
+from procedures import Inverter_Sweep
+from procedures import Inverter_Bias
+from procedures import Flow_Static_Bias
+from procedures import Auto_Flow_Static_Bias
+from procedures import AFM_Control
+from procedures import SGM_Control
+from procedures import PT_Sensor
+
+def explicitlyInitializeProcedures():	
+	basic_procedures = [
+		['GateSweep',  Gate_Sweep],
+		['DrainSweep', Drain_Sweep],
+		['FreeRun',    Free_Run],
+	]
+	
+	timed_procedures = [
+		['StaticBias', Static_Bias],
+		['RapidBias',  Rapid_Bias],
+		['Delay',      Delay],
+	]
+	
+	repeated_procedures = [
+		['AutoGateSweep',  Auto_Gate_Sweep],
+		['AutoDrainSweep', Auto_Drain_Sweep],
+		['AutoStaticBias', Auto_Static_Bias],
+	]
+	
+	ac_procedures = [
+		['SmallSignal', Small_Signal],
+	]
+	
+	noise_procedures = [
+		['NoiseCollection', Noise_Collection],
+		['NoiseGrid',       Noise_Grid],
+	]
+	
+	application_procedures = [
+		['BurnOut',       Burn_Out],
+		['AutoBurnOut',   Auto_Burn_Out],
+		['InverterSweep', Inverter_Sweep],
+		['InverterBias',  Inverter_Bias],
+		['FlowStaticBias',     Flow_Static_Bias],
+		['AutoFlowStaticBias', Auto_Flow_Static_Bias],
+		['AFMControl',    AFM_Control],
+		['SGMControl',    SGM_Control],
+		['PTSensor',      PT_Sensor],
+	]
+	
+	enabledProcedures = []
+	enabledProcedures.extend(basic_procedures)
+	enabledProcedures.extend(timed_procedures)
+	enabledProcedures.extend(repeated_procedures)
+	enabledProcedures.extend(ac_procedures)
+	enabledProcedures.extend(noise_procedures)
+	enabledProcedures.extend(application_procedures)
+	
+	procedureDefinitions = {}
+	for (procedureCommonName, procedureModule) in enabledProcedures:
+		procedureDefinitions[procedureCommonName] = {}
+		procedureDefinitions[procedureCommonName]['module'] = procedureModule
+		procedureDefinitions[procedureCommonName]['function'] = procedureModule.run
+
+	return procedureDefinitions
+	
+
+
+### DEPRECATED ###
+def dynamicallyInitializeProcedures():
 	# Import all Procedure Definitions and save a reference to run their 'run' function
 	procedureDefinitions = {}
 	procedureDefinitionsBasePath = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'procedures/') if(not getattr(sys, 'frozen', False)) else (os.path.join(sys._MEIPASS, 'procedures/'))
@@ -341,6 +427,7 @@ def initializeProcedures():
 		procedureDefinitions[packageCommonName]['function'] = module.run
 
 	return procedureDefinitions
+	
 	
 	
 	

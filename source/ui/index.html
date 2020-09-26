@@ -3749,7 +3749,7 @@
 				recentActivityDevice:  function(val) { this.getRecentActivity(); },
 				
 				// Let python backend know anytime workspace directory is modified
-				workspaceDataFolderPath: function(val) { this.setWorkspaceDataFolder(val); this.getAll(); },
+				workspaceDataFolderPath: function(val) { this.setWorkspaceDataFolder(val); this.goToUser(''); },
 				
 				experimentIndex: function(val) { this.getAssociatedAFMs(); },
 			},
