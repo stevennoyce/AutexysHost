@@ -39,7 +39,7 @@ app.on('window-all-closed', () => {
 
 app.on('quit', () => {
   if(server_process) {
-    server_process.kill();
+    process.kill(-server_process.pid);
   }
 });
 
@@ -67,9 +67,9 @@ function start() {
 
   function recursive_port_search(port) {
     var callback = (error, status) => {
-      console.log('Port ' + port + ' current activity: ' + status);
+      console.log('[ELECTRON] Port ' + port + ' current activity: ' + status);
       if(!port_blacklist.includes(port) && status === 'closed') {
-        console.log('Launching local server on port: ' + port);
+        console.log('[ELECTRON] Launching local server on port: ' + port);
         selected_port = port;
         createWindow();
         startPython();
@@ -83,7 +83,7 @@ function start() {
   
   function looping_wait_on_port(port) {
   	var callback = (error, status) => {
-  	  console.log('Any activity on port ' + port + ' yet? ' + (status==='open'? 'yes':'no'));
+  	  console.log('[ELECTRON] Any activity on port ' + port + ' yet? ' + (status==='open'? 'yes':'no'));
   	  if(status === 'open'){
   	  	showMainWindow();
   	  } else {
@@ -110,16 +110,10 @@ function start() {
     
     var executable = executablePath();
     
-    console.log('Launching python server at: ' + executable);
+    console.log('[ELECTRON] Launching python server at: ' + executable);
     
-    server_process = require('child_process').execFile(executable, [selected_port], (error, stdout, stderr) => {
-      console.log('Python executable has ended.');
-      if(error) {
-        console.log(error);
-      } 
-      console.log(stdout);
-    });
-    
+    server_process = require('child_process').spawn(executable, [selected_port], {detached: true, stdio: 'inherit'});
+        
   }
   
   // === Manage Application Windows ===
@@ -146,7 +140,7 @@ function start() {
     // Give it the URL that is being served up by our Python server (already running in the background)
   	var url = 'http://127.0.0.1:'+selected_port+'/ui/index.html';
   	mainWindow.loadURL(url);
-    console.log('Opening Electron browser at: ' + url);
+    console.log('[ELECTRON]: Opening Electron browser at: ' + url);
   
     
   	mainWindow.webContents.on('did-finish-load', () => {
