@@ -334,25 +334,24 @@ from procedures import Free_Run
 
 from procedures import Static_Bias
 from procedures import Rapid_Bias
-from procedures import Delay
+from procedures import Small_Signal
 
 from procedures import Auto_Gate_Sweep
 from procedures import Auto_Drain_Sweep
 from procedures import Auto_Static_Bias
 
-from procedures import Small_Signal
-
 from procedures import Noise_Collection
 from procedures import Noise_Grid
 
-from procedures import Burn_Out
-from procedures import Auto_Burn_Out
 from procedures import Inverter_Sweep
 from procedures import Inverter_Bias
-from procedures import Flow_Static_Bias
-from procedures import Auto_Flow_Static_Bias
 from procedures import AFM_Control
 from procedures import SGM_Control
+from procedures import Flow_Static_Bias
+from procedures import Auto_Flow_Static_Bias
+from procedures import Burn_Out
+from procedures import Auto_Burn_Out
+from procedures import Delay
 from procedures import PT_Sensor
 
 def explicitlyInitializeProcedures():	
@@ -365,7 +364,7 @@ def explicitlyInitializeProcedures():
 	timed_procedures = [
 		['StaticBias', Static_Bias],
 		['RapidBias',  Rapid_Bias],
-		['Delay',      Delay],
+		['SmallSignal', Small_Signal],
 	]
 	
 	repeated_procedures = [
@@ -374,24 +373,21 @@ def explicitlyInitializeProcedures():
 		['AutoStaticBias', Auto_Static_Bias],
 	]
 	
-	ac_procedures = [
-		['SmallSignal', Small_Signal],
-	]
-	
 	noise_procedures = [
 		['NoiseCollection', Noise_Collection],
 		['NoiseGrid',       Noise_Grid],
 	]
 	
-	application_procedures = [
-		['BurnOut',       Burn_Out],
-		['AutoBurnOut',   Auto_Burn_Out],
+	specialized_procedures = [
 		['InverterSweep', Inverter_Sweep],
 		['InverterBias',  Inverter_Bias],
-		['FlowStaticBias',     Flow_Static_Bias],
-		['AutoFlowStaticBias', Auto_Flow_Static_Bias],
 		['AFMControl',    AFM_Control],
 		['SGMControl',    SGM_Control],
+		['FlowStaticBias',     Flow_Static_Bias],
+		['AutoFlowStaticBias', Auto_Flow_Static_Bias],
+		['BurnOut',       Burn_Out],
+		['AutoBurnOut',   Auto_Burn_Out],
+		['Delay',         Delay],
 		['PTSensor',      PT_Sensor],
 	]
 	
@@ -399,9 +395,8 @@ def explicitlyInitializeProcedures():
 	enabledProcedures.extend(basic_procedures)
 	enabledProcedures.extend(timed_procedures)
 	enabledProcedures.extend(repeated_procedures)
-	enabledProcedures.extend(ac_procedures)
 	enabledProcedures.extend(noise_procedures)
-	enabledProcedures.extend(application_procedures)
+	enabledProcedures.extend(specialized_procedures)
 	
 	procedureDefinitions = {}
 	for (procedureCommonName, procedureModule) in enabledProcedures:
