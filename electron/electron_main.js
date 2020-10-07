@@ -6,6 +6,12 @@ const portscanner = require('portscanner');
 
 
 
+// === Constants ===
+
+const PORT_NUMBER_START = 5050;
+
+
+
 // === Globals ===
 
 var server_process = undefined;
@@ -74,7 +80,7 @@ function start() {
         createWindow();
         startPython();
         looping_wait_on_port(selected_port);
-      } else if(!selected_port && port < 5100) {
+      } else if(!selected_port && port < 5999) {
         recursive_port_search(port + 1);
       }
     }
@@ -172,6 +178,6 @@ function start() {
   // === Ready to Begin ===
   
   // This starts off the chain reaction that will launch the app
-  recursive_port_search(5000);
+  recursive_port_search(PORT_NUMBER_START);
   
 }

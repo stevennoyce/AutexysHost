@@ -6,8 +6,10 @@
 					<a-item-edit :setting.sync="settings[settingName]"></a-item-edit>
 				</v-list-item>
 			</template>
-			<span v-if="setting.units"><b>{{ setting.title }}</b></br>Type: <{{ setting.type }}>, Units: [{{ setting.units }}]</br>{{ setting.description }}</span>
-			<span v-if="!setting.units"><b>{{ setting.title }}</b></br>Type: <{{ setting.type }}></br>{{ setting.description }}</span>
+			<!--<span v-if="setting.units"><b>{{ setting.title }}</b> (Units: [{{ setting.units }}])</br>Type: <{{ setting.type }}></br>{{ setting.description }}</span>
+			<span v-if="!setting.units"><b>{{ setting.title }}</b></br>Type: <{{ setting.type }}></br>{{ setting.description }}</span>-->
+			<span v-if="setting.units"><b>{{ setting.title }}</b> (Units: [{{ setting.units }}])</br>{{ setting.description }}</span>
+			<span v-if="!setting.units"><b>{{ setting.title }}</b></br>{{ setting.description }}</span>
 		</v-tooltip>
 	</div>
 </script>

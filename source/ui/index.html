@@ -3130,6 +3130,12 @@
 							this.experimentProgressTimer.start = message.progress.timestamp;
 						}
 						
+						// Update "Procedure" bar's individual timer display
+						if(message.progress.barType === "Procedure"){
+							this.experimentProgressModel['Procedure'].time_start = this.checkStartTime(this.experimentProgressModel['Procedure'].time_start, this.experimentProgressModel['Procedure'].current, message.progress.timestamp, message.progress.current);
+							this.experimentProgressModel['Procedure'].time_current = message.progress.timestamp;
+						}
+						
 						// Update individual progress bars
 						if(Object.keys(this.experimentProgressModel).includes(message.progress.barType)){
 							var progressBarModel = this.experimentProgressModel[message.progress.barType];
@@ -3139,12 +3145,6 @@
 							progressBarModel.start = message.progress.start;
 							progressBarModel.current = message.progress.current;
 							progressBarModel.end = message.progress.end;
-						}
-						
-						// Update "Procedure" bar's individual timer display
-						if(message.progress.barType === "Procedure"){
-							this.experimentProgressModel['Procedure'].time_start = this.checkStartTime(this.experimentProgressModel['Procedure'].time_start, this.experimentProgressModel['Procedure'].current, message.progress.timestamp, message.progress.current);
-							this.experimentProgressModel['Procedure'].time_current = message.progress.timestamp;
 						}
 					}
 					
