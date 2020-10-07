@@ -234,7 +234,9 @@ def wafers(user, project):
 	indexCounts = [sum([(i['index'] if 'index' in i else 0) for i in indexObjectList]) for indexObjectList in indexObjectLists]
 	experimentCounts = [sum([(i['experimentNumber'] if 'experimentNumber' in i else 0) for i in indexObjectList]) for indexObjectList in indexObjectLists]
 	
-	wafers = [{'name': n, 'path': p, 'modificationTime': m, 'size': s, 'chipCount': c, 'indexCount': ic, 'experimentCount': ec} for n, p, m, s, c, ic, ec in zip(names, paths, modificationTimes, sizes, chipCounts, indexCounts, experimentCounts)]
+	abreviatedPaths = ['Workspace' + os.sep + str(user) + os.sep + str(project) + os.sep + str(n) + os.sep for n in names]
+	
+	wafers = [{'name': n, 'path': p, 'modificationTime': m, 'size': s, 'chipCount': c, 'indexCount': ic, 'experimentCount': ec} for n, p, m, s, c, ic, ec in zip(names, abreviatedPaths, modificationTimes, sizes, chipCounts, indexCounts, experimentCounts)]
 	
 	return jsonvalid(wafers)
 
@@ -252,7 +254,9 @@ def chips(user, project, wafer):
 	indexCounts = [sum([(i['index'] if 'index' in i else 0) for i in indexObjectList]) for indexObjectList in indexObjectLists]
 	experimentCounts = [sum([(i['experimentNumber'] if 'experimentNumber' in i else 0) for i in indexObjectList]) for indexObjectList in indexObjectLists]
 	
-	chips = [{'name': n, 'path': p, 'modificationTime': m, 'size': s, 'deviceCount': d, 'indexCount': ic, 'experimentCount': ec} for n, p, m, s, d, ic, ec in zip(names, paths, modificationTimes, sizes, deviceCounts, indexCounts, experimentCounts)]
+	abreviatedPaths = ['Workspace' + os.sep + str(user) + os.sep + str(project) + os.sep + str(wafer) + os.sep + str(n) + os.sep for n in names]
+	
+	chips = [{'name': n, 'path': p, 'modificationTime': m, 'size': s, 'deviceCount': d, 'indexCount': ic, 'experimentCount': ec} for n, p, m, s, d, ic, ec in zip(names, abreviatedPaths, modificationTimes, sizes, deviceCounts, indexCounts, experimentCounts)]
 	
 	return jsonvalid(chips)
 
@@ -267,7 +271,9 @@ def devices(user, project, wafer, chip):
 	indexCounts = [i['index'] for i in indexObjects]
 	experimentCounts = [i['experimentNumber'] for i in indexObjects]
 	
-	devices = [{'name': n, 'path': p, 'modificationTime': m, 'size': s, 'indexCount': ic, 'experimentCount': ec} for n, p, m, s, ic, ec in zip(names, paths, modificationTimes, sizes, indexCounts, experimentCounts)]
+	abreviatedPaths = ['Workspace' + os.sep + str(user) + os.sep + str(project) + os.sep + str(wafer) + os.sep + str(chip) + os.sep + str(n) + os.sep for n in names]
+	
+	devices = [{'name': n, 'path': p, 'modificationTime': m, 'size': s, 'indexCount': ic, 'experimentCount': ec} for n, p, m, s, ic, ec in zip(names, abreviatedPaths, modificationTimes, sizes, indexCounts, experimentCounts)]
 	
 	return jsonvalid(devices)
 
