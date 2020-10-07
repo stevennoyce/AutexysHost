@@ -162,8 +162,12 @@
 							<v-list-item-action><v-icon class="color_runner roundedcorners">play_circle_outline</v-icon></v-list-item-action>
 							<v-list-item-content><v-list-item-title>Experiment Runner</v-list-item-title></v-list-item-content>
 						</v-list-item>
+						<v-list-item @click="setTopLevelPage('benchtop')">
+							<v-list-item-action><v-icon class="color_benchtop roundedcorners">build_circle</v-icon></v-list-item-action>
+							<v-list-item-content><v-list-item-title>Benchtop</v-list-item-title></v-list-item-content>
+						</v-list-item>
 						<v-divider></v-divider>
-						<v-list-group prepend-icon="cloud" color="white">
+						<v-list-group prepend-icon="cloud" color="white" v-if="!ptSensorScheduleObject || Object.keys(ptSensorScheduleObject['runConfigs']).includes('PTSensor')">
 							<template v-slot:activator>
 								<v-list-item-content>
 									<v-list-item-title>Applications</v-list-item-title>
@@ -4006,8 +4010,8 @@
 		// Dark Business Theme
 		app.$data.colors = ['#5981a6', '#509593', '#595ea6', '#3973ac', '#457da1'];
 		
-		// Final Theme 	   [grey-blue,   green  ,  purple  ,   blue   , blue-purp, red-purp ,   gold   ,   light  , ]
-		app.$data.colors = ['#5981A6', '#008888', '#595EA6', '#3973AC', '#3F51B5', '#880E7F', '#C18C00', '#F5F5F5', ];
+		// Final Theme 	   [grey-blue,   green  ,  purple  ,   blue   ,  orange  , blue-purp, red-purp ,   gold   ,   light  , ]
+		app.$data.colors = ['#5981A6', '#008888', '#595EA6', '#3973AC', '#FBA100', '#3F51B5', '#880E7F', '#C18C00', '#F5F5F5', ];
 		
 		// --- Apply Theme --- 
 		
@@ -4029,12 +4033,13 @@
 		app.$vuetify.theme.themes.light['color_creator'] = app.$vuetify.theme.themes.light.color2;
 		app.$vuetify.theme.themes.light['color_runner'] = app.$vuetify.theme.themes.light.color3;
 		app.$vuetify.theme.themes.light['color_browser'] = app.$vuetify.theme.themes.light.color4;
+		app.$vuetify.theme.themes.light['color_benchtop'] = app.$vuetify.theme.themes.light.color5;
 			
-		app.$vuetify.theme.themes.light['color_performance'] = app.$vuetify.theme.themes.light.color5;
-		app.$vuetify.theme.themes.light['color_ptsensor'] = app.$vuetify.theme.themes.light.color5;
-		app.$vuetify.theme.themes.light['color_documentation'] = app.$vuetify.theme.themes.light.color7;
+		app.$vuetify.theme.themes.light['color_performance'] = app.$vuetify.theme.themes.light.color6;
+		app.$vuetify.theme.themes.light['color_ptsensor'] = app.$vuetify.theme.themes.light.color6;
+		app.$vuetify.theme.themes.light['color_documentation'] = app.$vuetify.theme.themes.light.color8;
 		
-		app.$vuetify.theme.themes.light['color_soft_background'] = app.$vuetify.theme.themes.light.color8;
+		app.$vuetify.theme.themes.light['color_soft_background'] = app.$vuetify.theme.themes.light.color9;
 		
 		// colors = {
 		// 	'dark': {
