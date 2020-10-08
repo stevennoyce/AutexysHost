@@ -167,7 +167,7 @@
 							<v-list-item-content><v-list-item-title>Benchtop</v-list-item-title></v-list-item-content>
 						</v-list-item>
 						<v-divider></v-divider>
-						<v-list-group prepend-icon="cloud" color="white" v-if="!ptSensorScheduleObject || Object.keys(ptSensorScheduleObject['runConfigs']).includes('PTSensor')">
+						<v-list-group prepend-icon="cloud" color="white" v-if="ptSensorScheduleObject['runConfigs'] && Object.keys(ptSensorScheduleObject['runConfigs']).includes('PTSensor')">
 							<template v-slot:activator>
 								<v-list-item-content>
 									<v-list-item-title>Applications</v-list-item-title>
@@ -422,6 +422,10 @@
 								</template>
 							</v-data-table>
 						</v-card>
+						<v-card outlined class="ma-4" v-if="!recentActivity.length">
+							<v-card-title>Recent Activity</v-card-title>
+							<v-card-subtitle>Check back here after you run a few experiments!</v-card-subtitle>
+						</v-card>
 					</v-card>
 					
 					<!-- End of dashboard -->
@@ -457,7 +461,7 @@
 											Projects
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
-										<v-text-field v-model="projectTableSearch" class="ma-2" light solo rounded color="color_browser" background-color="info lighten-1" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
+										<v-text-field v-model="projectTableSearch" class="ma-2" light solo rounded color="color_browser" background-color="info" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
 										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
 									<v-data-table must-sort :items="projects" :headers="projectTableHeaders" 
@@ -485,7 +489,7 @@
 											Wafers
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
-										<v-text-field v-model="waferTableSearch" class="ma-2" light solo rounded color="color_browser" background-color="info lighten-1" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
+										<v-text-field v-model="waferTableSearch" class="ma-2" light solo rounded color="color_browser" background-color="info" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
 										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
 									<v-data-table must-sort :items="wafers" :headers="waferTableHeaders" 
@@ -519,7 +523,7 @@
 											"{{ wafer }}" Chips
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
-										<v-text-field v-model="chipTableSearch" class="ma-2" light solo rounded color="color_browser" background-color="info lighten-1" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
+										<v-text-field v-model="chipTableSearch" class="ma-2" light solo rounded color="color_browser" background-color="info" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
 										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
 									<v-data-table must-sort :items="chips" :headers="chipTableHeaders" 
@@ -555,11 +559,11 @@
 										<v-spacer></v-spacer>
 										<v-tooltip left>
 											<template v-slot:activator="{ on: tooltip }">
-												<v-btn fab small color="info lighten-1" @click="copyHTMLStringToClip(devices.map(d => d.name))" v-on="{ ...tooltip }"><v-icon color="color_browser">format_list_bulleted</v-icon></v-btn>
+												<v-btn fab small color="info" @click="copyHTMLStringToClip(devices.map(d => d.name))" v-on="{ ...tooltip }"><v-icon color="color_browser">format_list_bulleted</v-icon></v-btn>
 											</template>
 											<span>Copy device list</span>
 										</v-tooltip>
-										<v-text-field v-model="deviceTableSearch" class="ma-2" light solo rounded color="color_browser" background-color="info lighten-1" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
+										<v-text-field v-model="deviceTableSearch" class="ma-2" light solo rounded color="color_browser" background-color="info" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
 										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
 									<v-data-table must-sort :items="devices" :headers="deviceTableHeaders" 
@@ -647,7 +651,7 @@
 											"{{ wafer }}{{ chip }} {{ device }}" Experiments
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
-										<v-text-field v-model="experimentTableSearch" class="ma-2" light solo rounded color="color_browser" background-color="info lighten-1" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
+										<v-text-field v-model="experimentTableSearch" class="ma-2" light solo rounded color="color_browser" background-color="info" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
 										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
 									<v-data-table must-sort :items="experimentsWithIndexes" :headers="experimentTableHeaders" 
@@ -718,7 +722,7 @@
 										<v-spacer></v-spacer>
 										<v-tooltip left>
 											<template v-slot:activator="{ on: tooltip }">
-												<v-btn fab small class="ma-2" color="info lighten-1" v-on="{ ...tooltip }" :href="'/saveCSV/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/data.csv' + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"><v-icon color="color_browser">save_alt</v-icon></v-btn>
+												<v-btn fab small class="ma-2" color="info" v-on="{ ...tooltip }" :href="'/saveCSV/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/data.csv' + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"><v-icon color="color_browser">save_alt</v-icon></v-btn>
 											</template>
 											<span>Download CSV</span>
 										</v-tooltip>
@@ -1330,6 +1334,96 @@
 					</v-card>
 					
 					<!-- End of experiment runner -->
+					
+					<!-- Start of benchtop -->
+					<v-card flat class="ma-4" v-if="topLevelPage === 'benchtop'">
+						<v-container>	
+							<v-row dense>
+								<v-col cols="6">
+									<v-card class="pa-3" :dark="benchtopOptions.channel1.enabled" :color="benchtopOptions.channel1.enabled? 'color6' : 'info'">
+										<v-row>
+											<v-col cols="6"><v-card-title>Channel 1 (VDS)</v-card-title></v-col>
+											<v-spacer></v-spacer>
+											<v-col class="pt-8">
+												<v-btn small dark @click="benchtopToggleChannel1()"
+													:depressed="benchtopOptions.channel1.enabled" 
+													:color="benchtopOptions.channel1.enabled? 'info darken-1' : 'color6'">
+													Turn {{ benchtopOptions.channel1.enabled? 'Off' : 'On' }}
+												</v-btn>
+											</v-col>
+										</v-row>
+										<template v-if="benchtopOptions.channel1.enabled">
+											<v-row class="pl-3 pr-3" >
+												<v-col cols="6">
+													<v-text-field light filled rounded readonly background-color="info" label="Voltage" :suffix="benchtopOptions.channel1.voltage_units" 
+													v-model="benchtopOptions.channel1.voltage_measured"></v-text-field>
+												</v-col>
+												<v-col cols="6">
+													<v-text-field light filled rounded readonly background-color="info" label="Current" :suffix="benchtopOptions.channel1.current_units" 
+													v-model="benchtopOptions.channel1.current_measured"></v-text-field>
+												</v-col>
+											</v-row>
+											<v-card-actions>
+												<v-spacer></v-spacer>
+												<v-btn color="info darken-1" class="text-none" @click="benchtopIncrementChannel1(-0.05)">-50 mV</v-btn>
+												<v-spacer></v-spacer>
+												<v-text-field dense light filled rounded class="mt-6" label="Voltage Control" type="number"
+													:background-color="(benchtopOptions.channel1.input === benchtopOptions.channel1.setpoint)? 'info lighten-3' : 'info'"
+													:suffix="benchtopOptions.channel1.voltage_units" 
+													v-model.number="benchtopOptions.channel1.input" @change="benchtopApplyVoltageChannel1()"></v-text-field>
+												<v-spacer></v-spacer>
+												<v-btn color="info darken-1" class="text-none" @click="benchtopIncrementChannel1(0.05)">+50 mV</v-btn>
+												<v-spacer></v-spacer>
+											</v-card-actions>
+										</template>
+									</v-card>
+								</v-col>
+								<v-col cols="6">
+									<v-card class="pa-3" :dark="benchtopOptions.channel2.enabled" :color="benchtopOptions.channel2.enabled? 'color7' : 'info'">
+										<v-row>
+											<v-col cols="6"><v-card-title>Channel 2 (VGS)</v-card-title></v-col>
+											<v-spacer></v-spacer>
+											<v-col class="pt-8">
+												<v-btn small dark @click="benchtopToggleChannel2()" 
+													:depressed="benchtopOptions.channel2.enabled" 
+													:color="benchtopOptions.channel2.enabled? 'info darken-1' : 'color7'">
+													Turn {{ benchtopOptions.channel2.enabled? 'Off' : 'On' }}
+												</v-btn>
+											</v-col>
+										</v-row>
+										<template v-if="benchtopOptions.channel2.enabled">
+											<v-row class="pl-3 pr-3">
+												<v-col cols="6">
+													<v-text-field light filled rounded readonly background-color="info" label="Voltage"
+													:suffix="benchtopOptions.channel2.voltage_units" 
+													v-model="benchtopOptions.channel2.voltage_measured"></v-text-field>
+												</v-col>
+												<v-col cols="6">
+													<v-text-field light filled rounded readonly background-color="info" label="Current" 
+													:suffix="benchtopOptions.channel2.current_units" 
+													v-model="benchtopOptions.channel2.current_measured"></v-text-field>
+												</v-col>
+											</v-row>
+											<v-card-actions>
+												<v-spacer></v-spacer>
+												<v-btn color="info darken-1" class="text-none" @click="benchtopIncrementChannel2(-0.05)">-50 mV</v-btn>
+												<v-spacer></v-spacer>
+												<v-text-field dense light filled rounded class="mt-6" label="Voltage Control" type="number"
+													:background-color="(benchtopOptions.channel2.input === benchtopOptions.channel2.setpoint)? 'info lighten-3' : 'info'"
+													:suffix="benchtopOptions.channel2.voltage_units" 
+													v-model.number="benchtopOptions.channel2.input" @change="benchtopApplyVoltageChannel2()"></v-text-field>
+												<v-spacer></v-spacer>
+												<v-btn color="info darken-1" class="text-none" @click="benchtopIncrementChannel2(0.05)">+50 mV</v-btn>
+												<v-spacer></v-spacer>
+											</v-card-actions>
+										</template>
+									</v-card>
+								</v-col>
+							</v-row>
+						</v-container>
+					</v-card>
+					<!-- End of benchtop -->
+					
 					<!-- Start of applications -->
 					
 					<v-card flat class="ma-4" v-if="topLevelPage === 'performance'">
@@ -2268,6 +2362,29 @@
 				deviceSelectActive: '',
 				deviceSelectItems: [],
 
+				// === Benchtop ===
+				
+				benchtopOptions: {
+					channel1: {
+						enabled: false,
+						setpoint: 0,
+						input: 0,
+						voltage_measured: 0,
+						current_measured: 0,
+						voltage_units: 'V',
+						current_units: 'µA',
+					},
+					channel2: {
+						enabled: false,
+						setpoint: 0,
+						input: 0,
+						voltage_measured: 0,
+						current_measured: 0,
+						voltage_units: 'V',
+						current_units: 'µA',
+					},
+				},
+
 				// === Performance App ===
 				
 				performanceRunning: false,
@@ -3020,6 +3137,31 @@
 					this.resetPlotSettings();
 					this.resetChipSummarySettings();
 					this.resetDeviceSummarySettings();
+				},
+				
+				// === Benchtop ===
+				
+				benchtopToggleChannel1: function() {
+					this.benchtopOptions.channel1.enabled = !(this.benchtopOptions.channel1.enabled);
+				},
+				benchtopToggleChannel2: function() {
+					this.benchtopOptions.channel2.enabled = !(this.benchtopOptions.channel2.enabled);
+				},
+				benchtopApplyVoltageChannel1: function() {
+					this.benchtopOptions.channel1.setpoint = this.benchtopOptions.channel1.input;
+				},
+				benchtopApplyVoltageChannel2: function() {
+					this.benchtopOptions.channel2.setpoint = this.benchtopOptions.channel2.input;
+				},
+				benchtopIncrementChannel1: function(increment) {
+					if(!this.benchtopOptions.channel1.input) this.benchtopOptions.channel1.input = 0;
+					this.benchtopOptions.channel1.input = parseFloat((this.benchtopOptions.channel1.input + increment).toFixed(3));
+					this.benchtopApplyVoltageChannel1();
+				},
+				benchtopIncrementChannel2: function(increment) {
+					if(!this.benchtopOptions.channel1.input) this.benchtopOptions.channel1.input = 0;
+					this.benchtopOptions.channel2.input = parseFloat((this.benchtopOptions.channel2.input + increment).toFixed(3));
+					this.benchtopApplyVoltageChannel2();
 				},
 				
 				// === Performance App ===
@@ -3974,7 +4116,7 @@
 		app.$vuetify.theme.themes.light.accent = '#7395AE';
 		app.$vuetify.theme.themes.light.error = '#e83b2b';
 		app.$vuetify.theme.themes.light.success = '#43a446';
-		app.$vuetify.theme.themes.light.info = '#00b1c6';
+		app.$vuetify.theme.themes.light.info = '#becdd9';
 		app.$vuetify.theme.themes.light.warning = '#fe9100';
 		
 		// Mint theme
@@ -4024,7 +4166,7 @@
 		app.$vuetify.theme.themes.light.tertiary = app.$vuetify.theme.themes.light.color4;
 		app.$vuetify.theme.themes.light.error = '#BF360C';
 		app.$vuetify.theme.themes.light.success = '#00897B';
-		app.$vuetify.theme.themes.light.info = '#A3B2BD';
+		app.$vuetify.theme.themes.light.info = '#BECDD9';
 		app.$vuetify.theme.themes.light.warning = '#FFB300';
 		
 		// --- Custom Color Keywords ---
