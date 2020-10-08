@@ -424,7 +424,7 @@
 						</v-card>
 						<v-card outlined class="ma-4" v-if="!recentActivity.length">
 							<v-card-title>Recent Activity</v-card-title>
-							<v-card-subtitle>Check back here after you run a few experiments!</v-card-subtitle>
+							<v-card-subtitle>Check back here after running a few experiments.</v-card-subtitle>
 						</v-card>
 					</v-card>
 					
@@ -1070,7 +1070,9 @@
 							<v-container class="pa-5">
 								<v-row dense>
 									<v-col sm="6" md="3" lg="3">
-										<v-select filled label="Experiment Type" v-model="runnerChoice" :items="['Schedule File'].concat(standardScheduleNames)"></v-select>
+										<v-select filled label="Experiment Type" v-model="runnerChoice" 
+										:items="['Schedule File'].concat(standardScheduleNames)"
+										:menu-props="{'maxHeight': 450}"></v-select>
 									</v-col>
 									
 									<template v-if="runnerChoice === 'Schedule File'">
@@ -1738,7 +1740,7 @@
 						<v-card>
 							<v-toolbar dark dense class="info darken-2">
 								<v-toolbar-title>
-									Settings
+									Plot Settings
 								</v-toolbar-title>
 								<v-spacer></v-spacer>
 								<v-btn light small @click="updatePlotSettings()">Save</v-btn>

@@ -1,3 +1,7 @@
+INCLUDE_EVERYTHING = True
+ALWAYS_INCLUDE_PROCEDURES = ["GateSweep", "DrainSweep", "StaticBias", "AutoGateSweep", "AutoDrainSweep", "AutoStaticBias", "RapidBias", "SmallSignal"]
+ALWAYS_INCLUDE_MEASUREMENT_SYSTEMS = ["standalone"]
+
 # --- Default Parameters ---
 
 default_parameters = {
@@ -316,20 +320,27 @@ default_schedules = {
 
 # --- Enable/Disable Specialized Procedures ---
 
-include_everything = True
-basic_procedures = ["GateSweep", "DrainSweep", "StaticBias", "AutoGateSweep", "AutoDrainSweep", "AutoStaticBias", "RapidBias", "SmallSignal", "FreeRun"]
-
-if(not include_everything):	
+if(not INCLUDE_EVERYTHING):	
+	# Remove extra entries from 'runConfig'
 	runConfigs_list = list(default_parameters['runConfigs'].keys())
 	for runConfig in runConfigs_list:
-		if(runConfig not in basic_procedures):
+		if(runConfig not in ALWAYS_INCLUDE_PROCEDURES):
 			del default_parameters['runConfigs'][runConfig]
 	
+	# Remove extra entries from 'default_schedules'
 	schedules_list = list(default_schedules.keys())
 	for schedule in schedules_list:
-		if(default_schedules[schedule]['runType'] not in basic_procedures):
+		if(default_schedules[schedule]['runType'] not in ALWAYS_INCLUDE_PROCEDURES):
 			del default_schedules[schedule]
 	
+	# Remove extra entries from 'MeasurementSystem'
+	measurement_systems_list = list(default_parameters['MeasurementSystem']['systemType']['choices'])
+	for measurement_system in measurement_systems_list:
+		if(measurement_system not in ALWAYS_INCLUDE_MEASUREMENT_SYSTEMS):
+			default_parameters['MeasurementSystem']['systemType']['choices'].remove(measurement_system)
+	if(len(ALWAYS_INCLUDE_MEASUREMENT_SYSTEMS) > 0):
+		default_parameters['MeasurementSystem']['systemType']['default'] = ALWAYS_INCLUDE_MEASUREMENT_SYSTEMS[0]
+
 
 
 import copy
