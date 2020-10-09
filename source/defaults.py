@@ -289,7 +289,8 @@ default_parameters = {
 		'deviceIndexes': {},
 	},
 	'dataFolder': {'type':'string', 'default':'../../AutexysData/', 'title':'Data Folder', 'description':''},
-	'ParametersFormatVersion': {'default': 4}	
+	'ParametersFormatVersion': {'default': 4},	
+	'Deployment': {'default': 'Development' if(INCLUDE_EVERYTHING) else 'Production'}
 }
 
 # --- Default Schedules ---

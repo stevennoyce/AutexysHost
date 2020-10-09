@@ -163,11 +163,11 @@
 							<v-list-item-content><v-list-item-title>Experiment Runner</v-list-item-title></v-list-item-content>
 						</v-list-item>
 						<v-list-item @click="setTopLevelPage('benchtop')">
-							<v-list-item-action><v-icon class="color_benchtop roundedcorners">build_circle</v-icon></v-list-item-action>
+							<v-list-item-action><v-icon class="color_benchtop roundedcorners">speed</v-icon></v-list-item-action>
 							<v-list-item-content><v-list-item-title>Benchtop</v-list-item-title></v-list-item-content>
 						</v-list-item>
 						<v-divider></v-divider>
-						<v-list-group prepend-icon="cloud" color="white" v-if="ptSensorScheduleObject['runConfigs'] && Object.keys(ptSensorScheduleObject['runConfigs']).includes('PTSensor')">
+						<v-list-group prepend-icon="cloud" color="white" v-if="defaultParameters['Deployment'] === 'Development'">
 							<template v-slot:activator>
 								<v-list-item-content>
 									<v-list-item-title>Applications</v-list-item-title>
@@ -189,9 +189,9 @@
 						</v-list-item>
 						<v-list-item @click="setTopLevelPage('about')">
 							<v-list-item-action><v-icon>info_outline</v-icon></v-list-item-action>
-							<v-list-item-content><v-list-item-title>About (and README)</v-list-item-title></v-list-item-content>
+							<v-list-item-content><v-list-item-title>About</v-list-item-title></v-list-item-content>
 						</v-list-item>
-						<v-list-item @click="setTopLevelPage('documentation')">
+						<v-list-item @click="setTopLevelPage('documentation')" v-if="defaultParameters['Deployment'] === 'Development'">
 							<v-list-item-action><v-icon>info_outline</v-icon></v-list-item-action>
 							<v-list-item-content><v-list-item-title>Documentation</v-list-item-title></v-list-item-content>
 						</v-list-item>
@@ -1342,14 +1342,14 @@
 						<v-container>	
 							<v-row dense>
 								<v-col cols="6">
-									<v-card class="pa-3" :dark="benchtopOptions.channel1.enabled" :color="benchtopOptions.channel1.enabled? 'color6' : 'info'">
+									<v-card class="pa-3" :dark="benchtopOptions.channel1.enabled" :color="benchtopOptions.channel1.enabled? 'color7' : 'info'">
 										<v-row>
 											<v-col cols="6"><v-card-title>Channel 1 (VDS)</v-card-title></v-col>
 											<v-spacer></v-spacer>
 											<v-col class="pt-8">
 												<v-btn small dark @click="benchtopToggleChannel1()"
 													:depressed="benchtopOptions.channel1.enabled" 
-													:color="benchtopOptions.channel1.enabled? 'info darken-1' : 'color6'">
+													:color="benchtopOptions.channel1.enabled? 'info darken-1' : 'color7'">
 													Turn {{ benchtopOptions.channel1.enabled? 'Off' : 'On' }}
 												</v-btn>
 											</v-col>
@@ -1381,14 +1381,14 @@
 									</v-card>
 								</v-col>
 								<v-col cols="6">
-									<v-card class="pa-3" :dark="benchtopOptions.channel2.enabled" :color="benchtopOptions.channel2.enabled? 'color7' : 'info'">
+									<v-card class="pa-3" :dark="benchtopOptions.channel2.enabled" :color="benchtopOptions.channel2.enabled? 'color8' : 'info'">
 										<v-row>
 											<v-col cols="6"><v-card-title>Channel 2 (VGS)</v-card-title></v-col>
 											<v-spacer></v-spacer>
 											<v-col class="pt-8">
 												<v-btn small dark @click="benchtopToggleChannel2()" 
 													:depressed="benchtopOptions.channel2.enabled" 
-													:color="benchtopOptions.channel2.enabled? 'info darken-1' : 'color7'">
+													:color="benchtopOptions.channel2.enabled? 'info darken-1' : 'color8'">
 													Turn {{ benchtopOptions.channel2.enabled? 'Off' : 'On' }}
 												</v-btn>
 											</v-col>
@@ -1812,54 +1812,14 @@
 						<v-card>
 							<v-toolbar dark dense class="color_documentation">
 								<v-toolbar-title>
-									README for Autexys - the Automated Experimentation System
-								</v-toolbar-title>
-								<v-spacer></v-spacer>
-								<v-btn icon><v-icon>info_outline</v-icon></v-btn>
-							</v-toolbar>
-							<v-container>
-								<div v-html="ReadMeHTML"></div>
-							</v-container>
-						</v-card>
-						
-						<v-card>
-							<v-toolbar dark dense class="color_documentation">
-								<v-toolbar-title>
 									About
 								</v-toolbar-title>
 							</v-toolbar>
 							<v-container>								
-								<v-toolbar dark dense v-for="colorValue, colorName in $vuetify.theme.themes.light" :key="colorName" :color="colorValue">
-									<v-toolbar-title>
-										{{ colorName }}
-									</v-toolbar-title>
-								</v-toolbar>
+								This software was developed by Steven Noyce and Jay Doherty in Dr. Aaron Franklin's lab at Duke University.
 							</v-container>
 						</v-card>
-					</v-card>
-					
-					<!-- End of about -->
-					<!-- Start of documentation -->
-					
-					<v-card flat class="ma-4" v-if="topLevelPage === 'documentation'">
-						<v-card>
-							<v-toolbar dark dense class="color_documentation">
-								<v-toolbar-title>
-									Developer Documentation
-								</v-toolbar-title>
-								<v-spacer></v-spacer>
-								<v-btn icon><v-icon>info_outline</v-icon></v-btn>
-							</v-toolbar>
-							
-							<v-container> 
-								This documentation is intended for developers adding to the Python code. It is built using Sphinx.
-							</v-container>
-							
-							<v-container>
-								<v-btn href="https://stevennoyce.github.io/AutexysHost/build/html/" target="_blank">View Documentation</v-btn>
-							</v-container>
-						</v-card>
-
+						
 						<v-card class="mt-3">
 							<v-toolbar dark dense class="color_documentation">
 								<v-toolbar-title>
@@ -1868,17 +1828,14 @@
 							</v-toolbar>
 							
 							<v-container>
-								This documentation is intended to answer common user questions.
-							</v-container>
-							
-							<v-container>
 								<v-expansion-panels multiple class="mt-1 mb-2" v-for="(documentationItemText, index) in documentationText" :key="index">
 									<v-expansion-panel class="grey lighten-4" v-for="(panel, i) in 1" :key="i">
 										<v-expansion-panel-header>
 											<div style="display:inline; height: 50px; line-height: 50px;">
 												{{ index + 1 }}. {{ documentationTitle[index] }}
 											</div>
-											<div style="display:inline; float:right;">
+											<v-spacer></v-spacer>
+											<div>
 												<v-tooltip top>
 													<template v-slot:activator="{ on }">
 														<v-btn icon @click.stop="moveDocumentationEntryUp(index)" v-on="on" :disabled="index == 0"><v-icon>arrow_upward</v-icon></v-btn>
@@ -1903,10 +1860,11 @@
 													</template>
 													<span>Delete entry</span>
 												</v-tooltip>
-												<v-snackbar v-model="documentationDeleteDialogVisible" :top="true" :timeout="0" :multi-line="true" color="red lighten-2">
+												<v-snackbar bottom centered multi-line v-model="documentationDeleteDialogVisible" :timeout="0" color="warning">
+													<v-icon left>warning</v-icon>
 													Once this entry is deleted, it will be permanently removed. Are you sure you want to continue?
-													<v-btn color="red" text @click="documentationDeleteDialogVisible = false">Cancel</v-btn>
-													<v-btn color="red" text @click="documentationDeleteDialogVisible = false; removeDocumentationEntry(documentationDeleteIndex);">Continue</v-btn>
+													<v-btn color="white" @click="documentationDeleteDialogVisible = false">Cancel</v-btn>
+													<v-btn color="red" @click="documentationDeleteDialogVisible = false; removeDocumentationEntry(documentationDeleteIndex);">Continue</v-btn>
 												</v-snackbar>
 											</div>
 										</v-expansion-panel-header>
@@ -1929,12 +1887,48 @@
 							</v-container>
 						</v-card>
 					</v-card>
+					
+					<!-- End of about -->
+					<!-- Start of documentation -->
+					
+					<v-card flat class="ma-4" v-if="topLevelPage === 'documentation'">
+						<v-card>
+							<v-toolbar dark dense class="color_documentation">
+								<v-toolbar-title>
+									README for Autexys - the Automated Experimentation System
+								</v-toolbar-title>
+								<v-spacer></v-spacer>
+								<v-btn icon><v-icon>info_outline</v-icon></v-btn>
+							</v-toolbar>
+							<v-container>
+								<div v-html="ReadMeHTML"></div>
+							</v-container>
+						</v-card>
+						
+						<v-card class="mt-3">
+							<v-toolbar dark dense class="color_documentation">
+								<v-toolbar-title>
+									Developer Documentation
+								</v-toolbar-title>
+								<v-spacer></v-spacer>
+								<v-btn icon><v-icon>info_outline</v-icon></v-btn>
+							</v-toolbar>
+							
+							<v-container> 
+								This documentation is intended for developers adding to the Python code. It is built using Sphinx.
+							</v-container>
+							
+							<v-container>
+								<v-btn href="https://stevennoyce.github.io/AutexysHost/build/html/" target="_blank">View Documentation</v-btn>
+							</v-container>
+						</v-card>
+					</v-card>
 
 					<!-- End of documentation -->
 
 				</v-content>
 				<v-footer inset>
-					<v-spacer></v-spacer><span class="pr-4">Created by Steven Noyce. Updated May 2020.</span>
+					<v-spacer></v-spacer><span class="pr-4">Created by Steven Noyce. Updated October 2020.</span>
 				</v-footer>
 			</v-app>
 		</transition>
@@ -4154,8 +4148,8 @@
 		// Dark Business Theme
 		app.$data.colors = ['#5981a6', '#509593', '#595ea6', '#3973ac', '#457da1'];
 		
-		// Final Theme 	   [grey-blue,   green  ,  purple  ,   blue   ,  orange  , blue-purp, red-purp ,   gold   ,   light  , ]
-		app.$data.colors = ['#5981A6', '#008888', '#595EA6', '#3973AC', '#FBA100', '#3F51B5', '#880E7F', '#C18C00', '#F5F5F5', ];
+		// Final Theme 	   [grey-blue,   green  ,  purple  ,   blue   ,   gold   ,  orange  , blue-purp, red-purp ,   ]
+		app.$data.colors = ['#5981A6', '#008888', '#595EA6', '#3973AC', '#C18C00', '#FBA100', '#3F51B5', '#880E7F',   ];
 		
 		// --- Apply Theme --- 
 		
@@ -4177,14 +4171,12 @@
 		app.$vuetify.theme.themes.light['color_creator'] = app.$vuetify.theme.themes.light.color2;
 		app.$vuetify.theme.themes.light['color_runner'] = app.$vuetify.theme.themes.light.color3;
 		app.$vuetify.theme.themes.light['color_browser'] = app.$vuetify.theme.themes.light.color4;
-		app.$vuetify.theme.themes.light['color_benchtop'] = app.$vuetify.theme.themes.light.color5;
+		app.$vuetify.theme.themes.light['color_documentation'] = app.$vuetify.theme.themes.light.color5;
+		app.$vuetify.theme.themes.light['color_benchtop'] = app.$vuetify.theme.themes.light.color6;
 			
-		app.$vuetify.theme.themes.light['color_performance'] = app.$vuetify.theme.themes.light.color6;
-		app.$vuetify.theme.themes.light['color_ptsensor'] = app.$vuetify.theme.themes.light.color6;
-		app.$vuetify.theme.themes.light['color_documentation'] = app.$vuetify.theme.themes.light.color8;
-		
-		app.$vuetify.theme.themes.light['color_soft_background'] = app.$vuetify.theme.themes.light.color9;
-		
+		app.$vuetify.theme.themes.light['color_performance'] = app.$vuetify.theme.themes.light.color7;
+		app.$vuetify.theme.themes.light['color_ptsensor'] = app.$vuetify.theme.themes.light.color7;
+				
 		// colors = {
 		// 	'dark': {
 		// 		'japanese indigo': '2B3D41',

@@ -54,14 +54,13 @@ default_makePlot_parameters = {
 	'plot_mode_parameters': None
 }
 default_data_path = '../../AutexysData/'
-default_documentation_path = '../../AutexysData/documentation'
 
 # === Paths ===
 workspace_data_path = default_data_path
 
-index_html_directory_path = 'ui/' if(not getattr(sys, 'frozen', False)) else (os.path.join(sys._MEIPASS, 'ui/'))
-readme_path = './README.md'       if(not getattr(sys, 'frozen', False)) else (os.path.join(sys._MEIPASS, './README.md'))
-
+index_html_directory_path = 'ui/' 		if(not getattr(sys, 'frozen', False)) else (os.path.join(sys._MEIPASS, 'ui/'))
+documentation_path = 'documentation/'   if(not getattr(sys, 'frozen', False)) else (os.path.join(sys._MEIPASS, 'documentation/'))
+readme_path = os.path.join(documentation_path, 'README.md') 
 
 # === Flask ===
 # Define custom delimiters for template rendering to not collide with Vue
@@ -538,12 +537,12 @@ def addToCorrection():
 @app.route('/addDocumentation/<indexToAdd>')
 def addDocumentation(indexToAdd):
 	incrementFilenameNumbersFrom(indexToAdd, 1)
-	dlu.emptyFile(default_documentation_path, "Doc" + str(indexToAdd) + ".json")
+	dlu.makeEmptyJSONFile(documentation_path, "Doc" + str(indexToAdd) + ".json")
 	return jsonvalid({'success': True})
 
 @app.route('/removeDocumentation/<indexToDelete>')
 def removeDocumentation(indexToDelete):
-	dlu.deleteFile(default_documentation_path, "Doc" + indexToDelete + ".json")
+	dlu.deleteJSONFile(documentation_path, "Doc" + indexToDelete + ".json")
 	incrementFilenameNumbersFrom(int(indexToDelete) + 1, -1)
 	return jsonvalid({'success': True})
 
@@ -553,7 +552,7 @@ def loadAllDocumentation():
 	filenames = getDocumentationFilenames()
 
 	for filename in filenames:
-		loadedJSON = dlu.loadJSON(default_documentation_path, filename)
+		loadedJSON = dlu.loadJSON(documentation_path, filename)
 		for json in loadedJSON:
 			documentationData.append(json)
 
@@ -561,15 +560,14 @@ def loadAllDocumentation():
 
 def getDocumentationFilenames():
 	filenames = []
-	if(os.path.exists(default_documentation_path)):
-		directoryListings = os.listdir(default_documentation_path)
+	if(os.path.exists(documentation_path)):
+		directoryListings = os.listdir(documentation_path)
 		# directoryListings in arbitrary order
 		for listing in directoryListings:
 			if len(listing) >= 3 and listing[0:3] == "Doc" and listing[-5:] == ".json":
 				filenames.append(listing)
 		filenames.sort(key=lambda listing : int(listing[3:-5]))
 	return filenames
-
 
 def incrementFilenameNumbersFrom(startIndex, increment):
 	originalFilenames = getDocumentationFilenames()
@@ -582,15 +580,15 @@ def incrementFilenameNumbersFrom(startIndex, increment):
 			newSuffix = str(numericalSuffix + increment)
 			tempFilename = "TDoc" + newSuffix + ".json"
 			tempFilenames.append(tempFilename)
-			os.rename(os.path.join(default_documentation_path, originalFilename), os.path.join(default_documentation_path, tempFilename))
+			os.rename(os.path.join(documentation_path, originalFilename), os.path.join(documentation_path, tempFilename))
 
 	for tempFilename in tempFilenames:
-		os.rename(os.path.join(default_documentation_path, tempFilename), os.path.join(default_documentation_path, tempFilename[1:]))
+		os.rename(os.path.join(documentation_path, tempFilename), os.path.join(documentation_path, tempFilename[1:]))
 
 def swapFilenames(file1, file2):
-	os.rename(os.path.join(default_documentation_path, file1), os.path.join(default_documentation_path, "T" + file1))
-	os.rename(os.path.join(default_documentation_path, file2), os.path.join(default_documentation_path, file1))
-	os.rename(os.path.join(default_documentation_path, "T" + file1), os.path.join(default_documentation_path, file2))
+	os.rename(os.path.join(documentation_path, file1), os.path.join(documentation_path, "T" + file1))
+	os.rename(os.path.join(documentation_path, file2), os.path.join(documentation_path, file1))
+	os.rename(os.path.join(documentation_path, "T" + file1), os.path.join(documentation_path, file2))
 
 @app.route('/swapDocumentationFilenames/<index1>/<index2>')
 def swapDocumentationFilenames(index1, index2):
@@ -601,8 +599,8 @@ def swapDocumentationFilenames(index1, index2):
 def saveDocumentation(fileName):
 	receivedDocumentation = flask.request.get_json(force=True)
 
-	dlu.emptyFile(default_documentation_path, "Doc" + fileName + ".json")
-	dlu.saveJSON(default_documentation_path, "Doc" + fileName + ".json", receivedDocumentation, incrementIndex=False)
+	dlu.makeEmptyJSONFile(documentation_path, "Doc" + fileName + ".json")
+	dlu.saveJSON(documentation_path, "Doc" + fileName + ".json", receivedDocumentation, incrementIndex=False)
 
 	return jsonvalid({'success': True})
 
@@ -617,7 +615,7 @@ def saveSchedule(user, project, fileName):
 	# with open(os.path.join(workspace_data_path, user, project, 'schedules/', fileName + '.json'), 'w') as f:
 	# 	f.write(json.dumps(receivedJobs))
 	
-	dlu.emptyFile(os.path.join(workspace_data_path, user, project, 'schedules/'), fileName)
+	dlu.makeEmptyJSONFile(os.path.join(workspace_data_path, user, project, 'schedules/'), fileName)
 	for job in receivedJobs:
 		dlu.saveJSON(os.path.join(workspace_data_path, user, project, 'schedules/'), fileName, defaults.extractDefaults(job), incrementIndex=False)
 	

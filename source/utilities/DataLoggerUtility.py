@@ -19,25 +19,17 @@ def makeFolder(folderPath):
 	except Exception as e:
 		print('Cannot make folder: "' + folderPath + '"')
 
-
-def emptyFolder(folderPath):
-	"""Remove all png files from a folder."""
-	if os.path.exists(folderPath):
-		fileNames = glob.glob(folderPath + '*.png')
-		for fileName in fileNames:
-			os.remove(fileName)
-
-def emptyFile(folderPath, fileName):
+def makeEmptyJSONFile(folderPath, fileName):
 	"""Make an empty file called fileName.json in the folderPath directory."""
 	makeFolder(folderPath)
 
-	if '.json' not in fileName:
+	if('.json' not in fileName):
 		fileName += '.json'
 
 	with open(os.path.join(folderPath, fileName), 'w') as file:
 		file.write('')
 
-def deleteFile(folderPath, fileName):
+def deleteJSONFile(folderPath, fileName):
 	"""Delete the file called fileName.json in the folderPath directory."""
 	if '.json' not in fileName:
 		fileName += '.json'
