@@ -203,7 +203,7 @@
 					<v-toolbar-title>Autexys</v-toolbar-title>
 					<v-spacer></v-spacer>
 					<v-toolbar-items>
-						<v-menu bottom left offset-y :close-on-content-click="false">
+						<v-menu bottom left offset-y :close-on-content-click="false" v-if="topLevelPage === 'stepper'">
 							<template v-slot:activator="{ on }">
 								<v-btn v-on="on" text><v-icon left>art_track</v-icon>Settings</v-btn>
 							</template>
@@ -223,13 +223,42 @@
 								</v-list>
 							</v-card>
 						</v-menu>
+						<v-menu bottom left offset-y min-width="250" :close-on-content-click="false">
+							<template v-slot:activator="{ on }">
+								<v-btn v-on="on" icon width="80">
+									<v-icon color="success" v-if="connectedMeasurementSystem">wifi</v-icon>
+									<v-icon v-if="!connectedMeasurementSystem">wifi_off</v-icon>
+								</v-btn>
+							</template>
+							<v-card light tile style="overflow-y: scroll; max-height:65vh">
+								<v-list>
+									<v-list-item v-for="system in availableMeasurementSystems" :key="system.name" 
+										@click="connectToMeasurementSystem(system)">
+										<v-list-item-avatar color="color_base"><v-icon dark>wifi</v-icon></v-list-item-avatar>
+										<v-list-item-content><v-list-item-title>{{ system.name }}</v-list-item-title></v-list-item-content>
+									</v-list-item>
+									<template v-if="!availableMeasurementSystems.length">
+										<v-list-item>
+											<v-list-item-content><v-list-item-title>
+												Searching for connections...
+											</v-list-item-title></v-list-item-content>
+										</v-list-item>
+										<v-list-item v-if="true">
+											<v-spacer></v-spacer>
+											<v-btn @click="getAvailableMeasurementSystems()"><v-icon left>refresh</v-icon>Refresh</v-btn>
+											<v-spacer></v-spacer>
+										</v-list-item>
+									</template>
+								</v-list>
+							</v-card>
+						</v-menu>
 						<v-tooltip bottom nudge-top="4" :disabled="!workspaceDataFolderPath">
 							<template v-slot:activator="{ on: tooltip }">
 								<v-btn depressed small color="color_base darken-1" class="onClickFolderBrowser" v-on="{ ...tooltip }"><v-icon left>folder</v-icon>{{ workspaceDataFolderPath | formatFolderBaseName }}</v-btn>
 							</template>
 							<span>Workspace: {{ workspaceDataFolderPath }}</span>
 						</v-tooltip>
-						<v-menu bottom left offset-y>
+						<v-menu bottom left offset-y min-width="250">
 							<template v-slot:activator="{ on }">
 								<v-btn v-on="on" text><v-icon left>people</v-icon>{{ user }}</v-btn>
 							</template>
@@ -424,7 +453,7 @@
 						</v-card>
 						<v-card outlined class="ma-4" v-if="!recentActivity.length">
 							<v-card-title>Recent Activity</v-card-title>
-							<v-card-subtitle>Check back here after running a few experiments.</v-card-subtitle>
+							<v-card-subtitle>{{ noDataToShowMessage }}</v-card-subtitle>
 						</v-card>
 					</v-card>
 					
@@ -455,7 +484,7 @@
 						<v-stepper-items>
 							
 							<v-stepper-content step="1">
-								<v-card v-if="stepperPage > 0" flat>
+								<v-card v-if="(stepperPage > 0) && (projects.length)" flat>
 									<v-toolbar dark class="color_browser">
 										<v-toolbar-title>
 											Projects
@@ -478,6 +507,10 @@
 											</tbody>
 										</template>
 									</v-data-table>
+								</v-card>
+								<v-card outlined v-if="!projects.length">
+									<v-card-title>Projects</v-card-title>
+									<v-card-subtitle>{{ noDataToShowMessage }}</v-card-subtitle>
 								</v-card>
 							</v-stepper-content>
 							
@@ -1829,7 +1862,7 @@
 							
 							<v-container>
 								<v-expansion-panels multiple class="mt-1 mb-2" v-for="(documentationItemText, index) in documentationText" :key="index">
-									<v-expansion-panel class="grey lighten-4" v-for="(panel, i) in 1" :key="i">
+									<v-expansion-panel class="grey lighten-4">
 										<v-expansion-panel-header>
 											<div style="display:inline; height: 50px; line-height: 50px;">
 												{{ index + 1 }}. {{ documentationTitle[index] }}
@@ -1860,12 +1893,6 @@
 													</template>
 													<span>Delete entry</span>
 												</v-tooltip>
-												<v-snackbar bottom centered multi-line v-model="documentationDeleteDialogVisible" :timeout="0" color="warning">
-													<v-icon left>warning</v-icon>
-													Once this entry is deleted, it will be permanently removed. Are you sure you want to continue?
-													<v-btn color="white" @click="documentationDeleteDialogVisible = false">Cancel</v-btn>
-													<v-btn color="red" @click="documentationDeleteDialogVisible = false; removeDocumentationEntry(documentationDeleteIndex);">Continue</v-btn>
-												</v-snackbar>
 											</div>
 										</v-expansion-panel-header>
 										
@@ -1884,6 +1911,13 @@
 										</v-expansion-panel-content>
 									</v-expansion-panel>
 								</v-expansion-panels>
+								
+								<v-snackbar bottom multi-line v-model="documentationDeleteDialogVisible" :timeout="0" color="warning">
+									<v-icon dark left>warning</v-icon>
+									Once this entry is deleted, it will be permanently removed. Are you sure you want to continue?
+									<v-btn color="white" @click="documentationDeleteDialogVisible = false">Cancel</v-btn>
+									<v-btn color="red" @click="documentationDeleteDialogVisible = false; removeDocumentationEntry(documentationDeleteIndex);">Continue</v-btn>
+								</v-snackbar>
 							</v-container>
 						</v-card>
 					</v-card>
@@ -2092,9 +2126,16 @@
 				stepperPage: localStorage.stepperPage ? JSON.parse(localStorage.stepperPage) : 1,
 				topLevelPage: localStorage.user ? 'dashboard' : 'gettingstarted',
 				
+				// === Alert Messages ===
+				
+				noDataToShowMessage: 'Check back here after running a few experiments.',
+				
 				// === System Parameters ===
 				
 				workspaceDataFolderPath: localStorage.workspaceDataFolderPath ? JSON.parse(localStorage.workspaceDataFolderPath) : '',
+				
+				connectedMeasurementSystem: undefined,
+				availableMeasurementSystems: [],
 				
 				defaultParameters: {},
 				defaultParametersDescription: {},
@@ -2478,19 +2519,6 @@
 					}
 				},
 				
-				// === System Configuration ===
-				
-				setWorkspaceDataFolder: function(newWorkspaceDataFolderPath) {
-					if(newWorkspaceDataFolderPath) {
-						var path = '/setWorkspaceDataFolderPath';
-						this.postJSON(path, JSON.stringify(newWorkspaceDataFolderPath), (response => {
-							console.log("Set workspace data folder to: " + newWorkspaceDataFolderPath);
-						}), "Error setting workspace data folder.");
-						
-						localStorage.workspaceDataFolderPath = JSON.stringify(newWorkspaceDataFolderPath);
-					}
-				},
-				
 				// === Initialization ===
 				
 				initialize: function() {
@@ -2513,13 +2541,15 @@
 					this.getExperiments();
 					this.getRecentActivity();
 					
-					this.getPossibleChipPlots();
-					this.getPossibleDevicePlots();
 					this.getDefaultParameters();
-					this.getScheduleNames();
 					this.getPaths();
 					
+					this.getAvailableMeasurementSystems();
+					this.getScheduleNames();
+					
 					this.pageLoading = false;
+					this.getPossibleChipPlots();
+					this.getPossibleDevicePlots();
 					this.getReadMe();
 					this.getAssociatedAFMs();
 					
@@ -2542,6 +2572,10 @@
 					this.getJSON(path, (response => {app.$data.wafers = response}), "Error getting wafers");
 					
 					this.getIndexes();
+				},
+				getIndexes: function() {
+					var path = '/' + this.user + '/' + this.project + '/indexes.json' + this.cacheBust;
+					this.getJSON(path, (response => {app.$data.indexes = response}), "Error getting indexes");
 				},
 				getChips: function() {
 					var path = '/' + this.user + '/' + this.project + '/' + this.wafer + '/chips.json' + this.cacheBust;
@@ -2592,19 +2626,7 @@
 					var path = '/' + this.user + '/' + this.recentActivityProject + '/' + this.recentActivityWafer + '/' + this.recentActivityChip + '/' + this.recentActivityDevice + '/' + this.recentActivityCategory + '/recentActivity.json' + this.cacheBust;
 					this.getJSON(path, (response => {app.$data.recentActivity = response}), "Error getting recent activity");
 				},
-				getIndexes: function() {
-					var path = '/' + this.user + '/' + this.project + '/indexes.json' + this.cacheBust;
-					this.getJSON(path, (response => {app.$data.indexes = response}), "Error getting indexes");
-				},
 				
-				getPossibleChipPlots: function() {
-					var path = '/' + this.user + '/' + this.project + '/' + this.wafer + '/' + this.chip + '/availableChipPlots.json' + this.cacheBust;
-					this.getJSON(path, (response => {app.$data.possibleChipPlots = response}), "Error getting possible chip plots");
-				},
-				getPossibleDevicePlots: function() {
-					var path = '/' + this.user + '/' + this.project + '/' + this.wafer + '/' + this.chip + '/' + this.device + '/availableDevicePlots.json' + this.cacheBust;
-					this.getJSON(path, (response => {app.$data.possibleDevicePlots = response}), "Error getting possible device plots");
-				},
 				getDefaultParameters() {
 					var path1 = "/defaultParameters.json" + this.$data.cacheBust;
 					this.getJSON(path1, (response => {this.$data.defaultParameters = response;}), "Error getting default parameters");
@@ -2621,6 +2643,15 @@
 					var path3 = "/defaultEssentialParameters.json" + this.$data.cacheBust;
 					this.getJSON(path3, (response => {this.$data.essentialScheduleParameters = response;}), "Error getting essential defaults");
 				},
+				getPaths: function() {
+					var path = '/paths.json' + this.cacheBust;
+					this.getJSON(path, (response => {app.$data.paths = response}), "Error getting paths");
+				},
+				
+				getAvailableMeasurementSystems: function() {
+					var path = '/availableMeasurementSystems.json' + this.cacheBust;
+					this.getJSON(path, (response => {app.$data.availableMeasurementSystems = response}), "Error getting measurement systems")
+				},
 				getScheduleNames: function() {
 					var path1 = '/userDefinedScheduleNames.json' + this.cacheBust;
 					this.getJSON(path1, (response => {app.$data.userDefinedScheduleNames = response}), "Error getting all user-defined schedule names");
@@ -2628,9 +2659,14 @@
 					var path2 = '/standardScheduleNames.json' + this.cacheBust;
 					this.getJSON(path2, (response => {app.$data.standardScheduleNames = response}), "Error getting standard schedule names");
 				},
-				getPaths: function() {
-					var path = '/paths.json' + this.cacheBust;
-					this.getJSON(path, (response => {app.$data.paths = response}), "Error getting paths");
+				
+				getPossibleChipPlots: function() {
+					var path = '/' + this.user + '/' + this.project + '/' + this.wafer + '/' + this.chip + '/availableChipPlots.json' + this.cacheBust;
+					this.getJSON(path, (response => {app.$data.possibleChipPlots = response}), "Error getting possible chip plots");
+				},
+				getPossibleDevicePlots: function() {
+					var path = '/' + this.user + '/' + this.project + '/' + this.wafer + '/' + this.chip + '/' + this.device + '/availableDevicePlots.json' + this.cacheBust;
+					this.getJSON(path, (response => {app.$data.possibleDevicePlots = response}), "Error getting possible device plots");
 				},
 				getReadMe: function() {
 					var path = '/readme.md';
@@ -2659,6 +2695,27 @@
 					var cacheBust = '?cb=' + new Date().getTime();
 					this.cacheBust = cacheBust;
 					return cacheBust;
+				},
+				
+				// === System Configuration ===
+				
+				setWorkspaceDataFolder: function(newWorkspaceDataFolderPath) {
+					if(newWorkspaceDataFolderPath) {
+						var path = '/setWorkspaceDataFolderPath' + this.cacheBust;
+						this.postJSON(path, JSON.stringify(newWorkspaceDataFolderPath), (response => {
+							console.log("Set workspace data folder to: " + newWorkspaceDataFolderPath);
+						}), "Error setting workspace data folder.");
+						
+						localStorage.workspaceDataFolderPath = JSON.stringify(newWorkspaceDataFolderPath);
+					}
+				},
+				
+				connectToMeasurementSystem: function(system) {
+					var path = '/connectToMeasurementSystem' + this.cacheBust;
+					this.postJSON(path, JSON.stringify(system), (response => {
+						console.log("Connected to new measurement system.");
+						connectedMeasurementSystem = system;
+					}), "Error connecting to measurement system.");
 				},
 				
 				// === Navigate ===
@@ -2725,7 +2782,7 @@
 					this.experimentIndex = experimentIndex;
 					localStorage.experimentIndex = JSON.stringify(experimentIndex);
 					this.stepperPage++;
-				},
+				},				
 				
 				// === Schedule File (Loading/Saving/Launching) ===
 				

@@ -177,6 +177,22 @@ def setWorkspaceDataFolderPath():
 	
 	return jsonvalid({'success': True})
 
+@app.route('/connectToMeasurementSystem', methods=['POST'])
+def connectToMeasurementSystem():
+	system = flask.request.get_json(force=True)
+	
+	#TODO: establish a connection with the measurement system
+	
+	return jsonvalid({'success': True})
+
+@app.route('/availableMeasurementSystems.json')
+def availableMeasurementSystems():
+	systems = []
+	
+	#TODO: obtain a list of available systems
+	
+	return jsonvalid(systems)
+
 @app.route('/<user>/addUser.json')
 def addUser(user):
 	dlu.makeFolder(os.path.join(workspace_data_path, user))
@@ -558,6 +574,20 @@ def loadAllDocumentation():
 
 	return jsonvalid(documentationData)
 
+@app.route('/saveDocumentation/<fileName>', methods=['POST'])
+def saveDocumentation(fileName):
+	receivedDocumentation = flask.request.get_json(force=True)
+
+	dlu.makeEmptyJSONFile(documentation_path, "Doc" + fileName + ".json")
+	dlu.saveJSON(documentation_path, "Doc" + fileName + ".json", receivedDocumentation, incrementIndex=False)
+
+	return jsonvalid({'success': True})
+
+@app.route('/swapDocumentationFilenames/<index1>/<index2>')
+def swapDocumentationFilenames(index1, index2):
+	swapFilenames("Doc" + index1 + ".json", "Doc" + index2 + ".json")
+	return jsonvalid({'success': True})
+
 def getDocumentationFilenames():
 	filenames = []
 	if(os.path.exists(documentation_path)):
@@ -589,20 +619,6 @@ def swapFilenames(file1, file2):
 	os.rename(os.path.join(documentation_path, file1), os.path.join(documentation_path, "T" + file1))
 	os.rename(os.path.join(documentation_path, file2), os.path.join(documentation_path, file1))
 	os.rename(os.path.join(documentation_path, "T" + file1), os.path.join(documentation_path, file2))
-
-@app.route('/swapDocumentationFilenames/<index1>/<index2>')
-def swapDocumentationFilenames(index1, index2):
-	swapFilenames("Doc" + index1 + ".json", "Doc" + index2 + ".json")
-	return jsonvalid({'success': True})
-
-@app.route('/saveDocumentation/<fileName>', methods=['POST'])
-def saveDocumentation(fileName):
-	receivedDocumentation = flask.request.get_json(force=True)
-
-	dlu.makeEmptyJSONFile(documentation_path, "Doc" + fileName + ".json")
-	dlu.saveJSON(documentation_path, "Doc" + fileName + ".json", receivedDocumentation, incrementIndex=False)
-
-	return jsonvalid({'success': True})
 
 
 

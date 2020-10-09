@@ -280,7 +280,12 @@ def initializeMeasurementSystems(parameters):
 		system_settings = system_info['settings']
 		
 		# Handle connection to each possible system type
-		if(system_type == 'B2912A'):
+		if(system_type == 'Automatic'):
+			try:
+				smu_systems[system_name] = smu.getConnectionToPCB(port=system_id, baud=115200, system_settings=system_settings)
+			except:
+				smu_systems[system_name] = smu.getConnectionToVisaResource(system_id, system_settings, defaultComplianceCurrent=100e-6, smuTimeout=60*1000)
+		elif(system_type == 'B2912A'):
 			smu_systems[system_name] = smu.getConnectionToVisaResource(system_id, system_settings, defaultComplianceCurrent=100e-6, smuTimeout=60*1000)
 		elif(system_type == 'PCB_System'):
 			smu_systems[system_name] = smu.getConnectionToPCB(port=system_id, baud=115200, system_settings=system_settings)

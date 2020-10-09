@@ -21,6 +21,13 @@ import copy
 # === Measurement System Configurations ===
 
 smu_system_configurations = {
+	'automatic': {
+		'SMU': {
+			'uniqueID': '',
+			'type': 'Automatic',
+			'settings': {},
+		}
+	},
 	'single': {
 		'SMU': {
 			'uniqueID': '',
