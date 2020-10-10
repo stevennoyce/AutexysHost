@@ -225,17 +225,33 @@
 						</v-menu>
 						<v-menu bottom left offset-y min-width="250" :close-on-content-click="false">
 							<template v-slot:activator="{ on }">
-								<v-btn v-on="on" icon width="80">
-									<v-icon color="success" v-if="connectedMeasurementSystem">wifi</v-icon>
-									<v-icon v-if="!connectedMeasurementSystem">wifi_off</v-icon>
+								<v-btn v-on="on" light icon width="80" @click="getAvailableMeasurementSystems()">
+									<v-avatar size="36" color="info">
+										<v-icon color="success" v-if="connectedMeasurementSystem">wifi</v-icon>
+										<v-icon v-if="!connectedMeasurementSystem">wifi_off</v-icon>
+									</v-avatar>
 								</v-btn>
 							</template>
 							<v-card light tile style="overflow-y: scroll; max-height:65vh">
 								<v-list>
-									<v-list-item v-for="system in availableMeasurementSystems" :key="system.name" 
+									<v-list-item v-for="system in availableMeasurementSystems" :key="system.uniqueID" 
 										@click="connectToMeasurementSystem(system)">
-										<v-list-item-avatar color="color_base"><v-icon dark>wifi</v-icon></v-list-item-avatar>
-										<v-list-item-content><v-list-item-title>{{ system.name }}</v-list-item-title></v-list-item-content>
+										<v-list-item-avatar :color="(connectedMeasurementSystem && connectedMeasurementSystem.uniqueID === system.uniqueID)? 'success' : 'info'">
+											<v-icon dark>wifi</v-icon>
+										</v-list-item-avatar>
+										<v-tooltip bottom>
+											<template v-slot:activator="{ on: tooltip }">
+												<v-list-item-content v-on="{ ...tooltip }">
+													<v-list-item-title>{{ system.name }}</v-list-item-title>
+												</v-list-item-content>
+											</template>
+											<span>{{ system.type }}: {{ system.uniqueID }}</span>
+										</v-tooltip>
+										<v-list-item-action>
+											<v-btn icon @click.stop="disconnectFromMeasurementSystem()" v-if="(connectedMeasurementSystem && connectedMeasurementSystem.uniqueID === system.uniqueID)">
+												<v-icon color="info">cancel</v-icon>
+											</v-btn>
+										</v-list-item-action>
 									</v-list-item>
 									<template v-if="!availableMeasurementSystems.length">
 										<v-list-item>
@@ -245,7 +261,7 @@
 										</v-list-item>
 										<v-list-item v-if="true">
 											<v-spacer></v-spacer>
-											<v-btn @click="getAvailableMeasurementSystems()"><v-icon left>refresh</v-icon>Refresh</v-btn>
+											<v-btn @click.stop="getAvailableMeasurementSystems()"><v-icon left>refresh</v-icon>Refresh</v-btn>
 											<v-spacer></v-spacer>
 										</v-list-item>
 									</template>
@@ -2647,11 +2663,6 @@
 					var path = '/paths.json' + this.cacheBust;
 					this.getJSON(path, (response => {app.$data.paths = response}), "Error getting paths");
 				},
-				
-				getAvailableMeasurementSystems: function() {
-					var path = '/availableMeasurementSystems.json' + this.cacheBust;
-					this.getJSON(path, (response => {app.$data.availableMeasurementSystems = response}), "Error getting measurement systems")
-				},
 				getScheduleNames: function() {
 					var path1 = '/userDefinedScheduleNames.json' + this.cacheBust;
 					this.getJSON(path1, (response => {app.$data.userDefinedScheduleNames = response}), "Error getting all user-defined schedule names");
@@ -2710,12 +2721,23 @@
 					}
 				},
 				
+				getAvailableMeasurementSystems: function() {
+					var path = '/availableMeasurementSystems.json' + this.cacheBust;
+					this.getJSON(path, (response => {
+						console.log("Requested updated connection status.");
+					}), "Error getting measurement systems.");
+				},
 				connectToMeasurementSystem: function(system) {
 					var path = '/connectToMeasurementSystem' + this.cacheBust;
 					this.postJSON(path, JSON.stringify(system), (response => {
-						console.log("Connected to new measurement system.");
-						connectedMeasurementSystem = system;
+						console.log("Requested connection to new measurement system.");
 					}), "Error connecting to measurement system.");
+				},
+				disconnectFromMeasurementSystem: function() {
+					var path = '/disconnectFromMeasurementSystem.json' + this.cacheBust;
+					this.getJSON(path, (response => {
+						console.log("Requested disconnection from measurement system.");
+					}), "Error disconnecting from measurement systems.");
 				},
 				
 				// === Navigate ===
@@ -3297,6 +3319,11 @@
 				// === Server Update ===
 				
 				handleServerMessage: function(message) {
+					if(message.type === 'ConnectionStatus') {
+						this.connectedMeasurementSystem = message.status.connected_system? message.status.connected_system : undefined;
+						this.availableMeasurementSystems = message.status.available_measurement_systems;
+					}
+					
 					if (message.type === 'JobNumberUpdate') {
 						if(!Object.keys(this.livePlots).includes("" + message.number)){
 							Vue.set(this.livePlots, message.number, {}); 

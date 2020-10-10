@@ -9,6 +9,7 @@ import sys
 import os
 
 import pipes
+from drivers import SourceMeasureUnit as smu
 
 # === Make this script runnable ===
 #if __name__ == '__main__':
@@ -129,6 +130,21 @@ def runDispatcher(scheduleFilePath, workspace_data_path, share):
 
 
 
+# === Measurement System Connection Status ===
+def updateConnectionStatus(share, previous_status=None):
+	updated_status = smu.updateConnectionStatus(previous_status)
+	pipes.send(share, 'QueueToUI', {'type':'ConnectionStatus', 'status': updated_status})
+	print('Sent updated connection status to the UI.')
+	return updated_status
+
+def connectToMeasurementSystem(share, system):
+	requested_status = None
+	if(smu.testConnection(system)):
+		requested_status = {'connected_system': system}
+	return updateConnectionStatus(share, requested_status)
+	
+	
+
 # === Main ===
 def manage(on_startup_port=None, on_startup_schedule_file=None, on_startup_workspace_data_path=None):
 	"""Initialize a UI process and enter an event loop to handle communication with that UI. Manage the creation of dispatcher
@@ -140,6 +156,7 @@ def manage(on_startup_port=None, on_startup_schedule_file=None, on_startup_works
 	# Spin out the UI sub-process
 	ui = startUI(on_startup_port, share, priority=0)	
 	dispatcher = None
+	connection_status = None
 	
 	# Spin out the optional "on-startup" Dispatcher sub-process
 	if(on_startup_schedule_file is not None):
@@ -161,9 +178,22 @@ def manage(on_startup_port=None, on_startup_schedule_file=None, on_startup_works
 					if(dispatcher is None):
 						scheduleFilePath = message['scheduleFilePath']
 						workspace_data_path = message['workspace_data_path']
-						dispatcher = startDispatcher(scheduleFilePath, workspace_data_path, share, priority=1)
+						dispatcher = startDispatcher(scheduleFilePath, workspace_data_path, share, priority=1) # TODO: pass in the connection_status object to inform this dispatcher 
 					else:
 						print('Error: dispatcher is already running; wait for it to finish before starting another job.')
+			
+				# Check the current status of connected measurement systems, and report this to the UI
+				if(message.get('type') == 'ConnectionStatus'):
+					connection_status = updateConnectionStatus(share, connection_status)
+				
+				# Check the current status of connected measurement systems, and report this to the UI
+				if(message.get('type') == 'Connect'):
+					connection_status = connectToMeasurementSystem(share, dict(message['system']))
+				
+				# Check the current status of connected measurement systems, and report this to the UI
+				if(message.get('type') == 'Disconnect'):
+					connection_status = updateConnectionStatus(share)
+					
 			
 			# If the dispatcher is not running, then check and clear its messages
 			if(dispatcher is None):

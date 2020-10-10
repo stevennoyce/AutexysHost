@@ -160,9 +160,87 @@ smu_system_configurations = {
 	},
 }
 
+system_uniqueID_distinguishers = {
+	'usb' : 'USB',
+	'HC-05-DevB' : 'Bluetooth',
+	'0x8C18' : 'B2902A',
+	'0x8E18' : 'B2912A',
+}
 
 
-# === Connection API ===
+
+# === Connection Status API ===
+
+def updateConnectionStatus(previous_status=None):
+	connected_system = previous_status['connected_system'] if(previous_status is not None) else None
+	available_measurement_systems = availableConnections()
+	
+	# Verify that the currently connected system is still available. If it is not available, reset it to None.
+	if(connected_system is not None):
+		connected_system = connected_system if(connected_system['uniqueID'] in [system['uniqueID'] for system in available_measurement_systems]) else None
+	
+	new_status = {'connected_system':connected_system, 'available_measurement_systems':available_measurement_systems}
+	return new_status
+
+def availableConnections(includePySerial=True, includeVisa=True):
+	available_connections = []
+	
+	# Add PySerial active ports to the list of connections
+	if(includePySerial):
+		active_ports = [serial_port for serial_port in pySerialPorts.comports() if(serial_port.description != 'n/a')]
+		for port in active_ports:
+			possible_system_names = [system_uniqueID_distinguishers[distinguisher] for distinguisher in system_uniqueID_distinguishers.keys() if(str(distinguisher) in str(port.device))]
+			available_connections.append({
+				'type': 'Serial', 
+				'name': possible_system_names[0] if(len(possible_system_names) == 1) else 'Serial', 
+				'uniqueID': port.device,
+			})
+	
+	# Add Visa resources to the list of connections, excluding the serial devices (ASRL) that are already handled by PySerial
+	if(includeVisa):
+		import visa
+		rm = visa.ResourceManager()
+		for visa_resource in rm.list_resources():
+			if(visa_resource[:4] != 'ASRL'):
+				possible_system_names = [system_uniqueID_distinguishers[distinguisher] for distinguisher in system_uniqueID_distinguishers.keys() if(str(distinguisher) in str(visa_resource))]
+				available_connections.append({
+					'type': 'Visa', 
+					'name': possible_system_names[0] if(len(possible_system_names) == 1) else 'Visa', 
+					'uniqueID': visa_resource,
+				})
+	
+	return available_connections
+
+def testConnection(connected_system):
+	if((connected_system is None) or ('type' not in connected_system)):
+		return False
+	
+	if(connected_system['type'] == 'Serial'):
+		try:
+			smu_instance = getConnectionToPCB(port=connected_system['uniqueID'])
+			authenication_status = authenticateConnection(smu_instance)
+			smu_instance.disconnect()
+			return authenication_status
+		except:
+			return False
+	
+	if(connected_system['type'] == 'Visa'):
+		try:
+			smu_instance = getConnectionToVisaResource(uniqueIdentifier=connected_system['uniqueID'])
+			authenication_status = authenticateConnection(smu_instance)
+			return authenication_status
+		except:
+			return False
+			
+	return False
+	
+def authenticateConnection(smu_instance):
+	print('Hardware authentication success.')
+	return True # This provides a hook for authenticating the software/hardware interface
+	
+
+	
+# === Establish Connection API ===
 
 def getSystemConfiguration(systemType):
 	return copy.deepcopy(smu_system_configurations[systemType])

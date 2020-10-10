@@ -176,23 +176,7 @@ def setWorkspaceDataFolderPath():
 	workspace_data_path = path
 	
 	return jsonvalid({'success': True})
-
-@app.route('/connectToMeasurementSystem', methods=['POST'])
-def connectToMeasurementSystem():
-	system = flask.request.get_json(force=True)
-	
-	#TODO: establish a connection with the measurement system
-	
-	return jsonvalid({'success': True})
-
-@app.route('/availableMeasurementSystems.json')
-def availableMeasurementSystems():
-	systems = []
-	
-	#TODO: obtain a list of available systems
-	
-	return jsonvalid(systems)
-
+		
 @app.route('/<user>/addUser.json')
 def addUser(user):
 	dlu.makeFolder(os.path.join(workspace_data_path, user))
@@ -202,6 +186,31 @@ def addUser(user):
 def paths():
 	sourceAbsPath = os.path.abspath(os.path.dirname(__file__))
 	return jsonvalid({'sourceAbsPath': sourceAbsPath})
+
+
+
+# === Measurement System Connection Status ===
+@app.route('/availableMeasurementSystems.json')
+def availableMeasurementSystems():	
+	print('UI Requesting Updated Connection Status...')
+	pipes.send(share, 'QueueToManager', {'type':'ConnectionStatus'})
+	print('UI Status request has been sent.')
+	return jsonvalid({'success': True})
+	
+@app.route('/connectToMeasurementSystem', methods=['POST'])
+def connectToMeasurementSystem():
+	system = flask.request.get_json(force=True)
+	print('UI Requesting New Connection Established...')
+	pipes.send(share, 'QueueToManager', {'type':'Connect', 'system':system})
+	print('UI Connection request has been sent.')
+	return jsonvalid({'success': True})
+
+@app.route('/disconnectFromMeasurementSystem.json')
+def disconnectFromMeasurementSystem():
+	print('UI Requesting Disconnection...')
+	pipes.send(share, 'QueueToManager', {'type':'Disconnect'})
+	print('UI Disconnection request has been sent.')
+	return jsonvalid({'success': True})
 
 
 
@@ -670,15 +679,16 @@ def loadBriefStandardSchedule(fileName):
 @app.route('/dispatchSchedule/<user>/<project>/<fileName>.json')
 def dispatchSchedule(user, project, fileName):
 	scheduleFilePath = os.path.join(workspace_data_path, user, project, 'schedules', fileName + '.json')
-	eprint('UI Sending RUN:')
+	print('UI Requesting Dispatcher Run...')
 	pipes.send(share, 'QueueToManager', {'type':'Dispatch', 'scheduleFilePath': scheduleFilePath, 'workspace_data_path': workspace_data_path})
-	eprint('UI Sent RUN:')
+	print('UI Run request has been sent.')
 	return jsonvalid({'success': True})
 
 @app.route('/stopDispatcher')
 def stopDispatcher():
-	eprint('Requesting Dispatcher Abort...')
+	print('UI Requesting Dispatcher Abort...')
 	pipes.send(share, 'QueueToDispatcher', {'type':'Stop'})
+	print('UI Abort request has been sent.')
 	return jsonvalid({'success': True})
 
 @app.route('/standardScheduleNames.json')
