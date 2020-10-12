@@ -10,13 +10,7 @@ import os
 
 import pipes
 
-# === Make this script runnable ===
-#if __name__ == '__main__':
-#	os.chdir(sys.path[0])
-#	
-#	pathParents = os.getcwd().split('/')
-#	if 'AutexysHost' in pathParents:
-#		os.chdir(os.path.join(os.path.abspath(os.sep), *pathParents[0:pathParents.index('AutexysHost')+1], 'source'))
+
 
 # === Defaults ===
 # Factory method that returns the default shared memory object that is passed throughout the UI and all Procedures.
@@ -88,16 +82,13 @@ def changePriorityOfProcessAndChildren(pid, priority):
 # === UI ===
 def startUI(specific_port, share):
 	"""Start a Process running ui.start() and use shared Queues for communication."""
-	pipeToUI, pipeForUI = mp.Pipe()
-	share['p'] = pipeForUI
 	
 	# Clear the UI message queue of old messages before starting a new instance
 	pipes.clear(share, 'QueueToUI')
 	
 	uiProcess = mp.Process(target=runUI, args=(specific_port, share))
 	uiProcess.start()
-	# changePriorityOfProcessAndChildren(uiProcess.pid, priority)
-	return {'process':uiProcess}
+	return uiProcess
 
 def runUI(specific_port, share):
 	"""A target method for running the UI that also imports the UI so the parent process does not have that dependency."""
@@ -109,8 +100,6 @@ def runUI(specific_port, share):
 # === Dispatcher ===
 def startDispatcher(scheduleFilePath, workspace_data_path, share):
 	"""Start a Process running dispatcher.dispatch(scheduleFilePath) and use shared Queues for communication."""
-	pipeToDispatcher, pipeForDispatcher = mp.Pipe()
-	share['p'] = pipeForDispatcher
 	
 	# Clear the dispatcher message queue of old messages before starting a new instance
 	pipes.clear(share, 'QueueToDispatcher')
@@ -120,8 +109,7 @@ def startDispatcher(scheduleFilePath, workspace_data_path, share):
 	
 	dispatcherProcess = mp.Process(target=runDispatcher, args=(scheduleFilePath, workspace_data_path, share))
 	dispatcherProcess.start()
-	# changePriorityOfProcessAndChildren(dispatcherProcess.pid, priority)
-	return {'process':dispatcherProcess}
+	return dispatcherProcess
 
 def runDispatcher(scheduleFilePath, workspace_data_path, share):
 	"""A target method for running the dispatcher that also imports the dispatcher so the parent process does not have that dependency."""
@@ -139,7 +127,7 @@ def startStatusChecker(share):
 	
 	statusCheckerProcess = mp.Process(target=runStatusChecker, args=(share,))
 	statusCheckerProcess.start()
-	return {'process':statusCheckerProcess}
+	return statusCheckerProcess
 	
 def runStatusChecker(share):
 	# These functions that contain calls to the smu drivers should not be run directly by manager.py, so they are only defined locally for this thread.
@@ -237,23 +225,23 @@ def manage(on_startup_port=None, on_startup_schedule_file=None, on_startup_works
 			print('[MANAGER]: loop exception: ', e)
 		
 		# Check if dispatcher is running, if not join it to explicitly end
-		if((dispatcher is not None) and (not dispatcher['process'].is_alive())):
-			dispatcher['process'].join()
+		if((dispatcher is not None) and (not dispatcher.is_alive())):
+			dispatcher.join()
 			dispatcher = None
 		
 		# If dispatcher is not running and UI is dead, exit the event loop
-		if((dispatcher is None) and (not ui['process'].is_alive())):
+		if((dispatcher is None) and (not ui.is_alive())):
 			break
 	
 	# === Complete ===
 	
 	# Join to all of the child processes to clean them up
-	ui['process'].terminate()
-	ui['process'].join()
+	ui.terminate()
+	ui.join()
 	if(dispatcher is not None):
-		dispatcher['process'].join()
-	status_checker['process'].terminate()
-	status_checker['process'].join()
+		dispatcher.join()
+	status_checker.terminate()
+	status_checker.join()
 
 	
 		
