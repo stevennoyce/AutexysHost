@@ -9,7 +9,6 @@ import sys
 import os
 
 import pipes
-from drivers import SourceMeasureUnit as smu
 
 # === Make this script runnable ===
 #if __name__ == '__main__':
@@ -30,6 +29,7 @@ def defaultShare():
 		'QueueToManager':      mp.Queue(100),
 		'QueueToUI':           mp.Queue(100),
 		'QueueToDispatcher':   mp.Queue(100),
+		'QueueToStatusChecker':mp.Queue(100),
 		
 		'procedureStopLocations': sharedMemoryManager.list([])
 		
@@ -86,8 +86,8 @@ def changePriorityOfProcessAndChildren(pid, priority):
 
 
 # === UI ===
-def startUI(specific_port, share, priority=0):
-	"""Start a Process running ui.start() and obtain a two-way Pipe for communication."""
+def startUI(specific_port, share):
+	"""Start a Process running ui.start() and use shared Queues for communication."""
 	pipeToUI, pipeForUI = mp.Pipe()
 	share['p'] = pipeForUI
 	
@@ -97,7 +97,7 @@ def startUI(specific_port, share, priority=0):
 	uiProcess = mp.Process(target=runUI, args=(specific_port, share))
 	uiProcess.start()
 	# changePriorityOfProcessAndChildren(uiProcess.pid, priority)
-	return {'process':uiProcess, 'pipe':pipeToUI}
+	return {'process':uiProcess}
 
 def runUI(specific_port, share):
 	"""A target method for running the UI that also imports the UI so the parent process does not have that dependency."""
@@ -107,8 +107,8 @@ def runUI(specific_port, share):
 
 
 # === Dispatcher ===
-def startDispatcher(scheduleFilePath, workspace_data_path, share, priority=0):
-	"""Start a Process running dispatcher.dispatch(scheduleFilePath) and obtain a two-way Pipe for communication."""
+def startDispatcher(scheduleFilePath, workspace_data_path, share):
+	"""Start a Process running dispatcher.dispatch(scheduleFilePath) and use shared Queues for communication."""
 	pipeToDispatcher, pipeForDispatcher = mp.Pipe()
 	share['p'] = pipeForDispatcher
 	
@@ -121,7 +121,7 @@ def startDispatcher(scheduleFilePath, workspace_data_path, share, priority=0):
 	dispatcherProcess = mp.Process(target=runDispatcher, args=(scheduleFilePath, workspace_data_path, share))
 	dispatcherProcess.start()
 	# changePriorityOfProcessAndChildren(dispatcherProcess.pid, priority)
-	return {'process':dispatcherProcess, 'pipe':pipeToDispatcher}
+	return {'process':dispatcherProcess}
 
 def runDispatcher(scheduleFilePath, workspace_data_path, share):
 	"""A target method for running the dispatcher that also imports the dispatcher so the parent process does not have that dependency."""
@@ -131,19 +131,54 @@ def runDispatcher(scheduleFilePath, workspace_data_path, share):
 
 
 # === Measurement System Connection Status ===
-def updateConnectionStatus(share, previous_status=None):
-	updated_status = smu.updateConnectionStatus(previous_status)
-	pipes.send(share, 'QueueToUI', {'type':'ConnectionStatus', 'status': updated_status})
-	print('Sent updated connection status to the UI.')
-	return updated_status
+def startStatusChecker(share):
+	"""Start a Process running the local runStatusChecker function and use shared Queues for communication."""
+	
+	# Clear the Status Checker message queue of old messages before starting a new instance
+	pipes.clear(share, 'QueueToStatusChecker')
+	
+	statusCheckerProcess = mp.Process(target=runStatusChecker, args=(share,))
+	statusCheckerProcess.start()
+	return {'process':statusCheckerProcess}
+	
+def runStatusChecker(share):
+	# These functions that contain calls to the smu drivers should not be run directly by manager.py, so they are only defined locally for this thread.
+	from drivers import SourceMeasureUnit as smu
+	
+	# Keep track of the most recent connection status. Need to track it here so that we don't have to ask the Manager what the previous status was.
+	connection_status = None
+	
+	def updateConnectionStatus(share, previous_status=None):
+		updated_status = smu.updateConnectionStatus(previous_status)
+		pipes.send(share, 'QueueToManager', {'type':'ConnectionStatus', 'status': updated_status})
+		print('[CHECKER]: Sent updated connection status to the Manager.')
+		return updated_status
 
-def connectToMeasurementSystem(share, system):
-	requested_status = None
-	if(smu.testConnection(system)):
-		requested_status = {'connected_system': system}
-	return updateConnectionStatus(share, requested_status)
+	def connectToMeasurementSystem(share, system):
+		requested_status = None
+		if(smu.testConnection(system)):
+			requested_status = {'connected_system': system}
+		return updateConnectionStatus(share, requested_status)
 	
-	
+	while(True):
+		message = pipes.recv(share, 'QueueToStatusChecker') #, timeout=1)
+		
+		if(message is not None):
+			print('[CHECKER]: received message: ' + str(message))
+		
+			# Check the current status of connected measurement systems, and report this to the Manager
+			if(message.get('type') == 'ConnectionStatusRequest'):
+				connection_status = updateConnectionStatus(share, connection_status)
+			
+			# Try to connect to the requested measurement system, and report the resulting success/failure to the Manager
+			if(message.get('type') == 'Connect'):
+				connection_status = connectToMeasurementSystem(share, dict(message['system']))
+			
+			# Disconnect from the current measurement system, and notify the Manager when done
+			if(message.get('type') == 'Disconnect'):
+				connection_status = updateConnectionStatus(share)
+
+
 
 # === Main ===
 def manage(on_startup_port=None, on_startup_schedule_file=None, on_startup_workspace_data_path=None):
@@ -153,14 +188,17 @@ def manage(on_startup_port=None, on_startup_schedule_file=None, on_startup_works
 	# Create the initial shared memory object for the UI and Dispatcher
 	share = defaultShare()
 	
-	# Spin out the UI sub-process
-	ui = startUI(on_startup_port, share, priority=0)	
-	dispatcher = None
+	# Create a local memory structure for tracking the latest updated connection status
 	connection_status = None
+	
+	# Spin out the UI sub-process
+	ui = startUI(on_startup_port, share)	
+	dispatcher = None
+	status_checker = startStatusChecker(share)
 	
 	# Spin out the optional "on-startup" Dispatcher sub-process
 	if(on_startup_schedule_file is not None):
-		dispatcher = startDispatcher(on_startup_schedule_file, on_startup_workspace_data_path, share, priority=1)
+		dispatcher = startDispatcher(on_startup_schedule_file, on_startup_workspace_data_path, share)
 	
 	# === Start ===
 	
@@ -171,38 +209,32 @@ def manage(on_startup_port=None, on_startup_schedule_file=None, on_startup_works
 			
 			# Handle Queue messages
 			if(message is not None):
-				print('Manager message: ' + str(message))
+				print('[MANAGER]: revieved message: ' + str(message))
 				
 				# Spin out a new dispatcher sub-process
 				if(message.get('type') == 'Dispatch'):
 					if(dispatcher is None):
 						scheduleFilePath = message['scheduleFilePath']
 						workspace_data_path = message['workspace_data_path']
-						dispatcher = startDispatcher(scheduleFilePath, workspace_data_path, share, priority=1) # TODO: pass in the connection_status object to inform this dispatcher 
+						dispatcher = startDispatcher(scheduleFilePath, workspace_data_path, share) # TODO: pass in the connection_status object to inform this dispatcher 
 					else:
-						print('Error: dispatcher is already running; wait for it to finish before starting another job.')
+						print('[MANAGER]: Error: dispatcher is already running; wait for it to finish before starting another job.')
 			
-				# Check the current status of connected measurement systems, and report this to the UI
+				# Receive updated connection status from the status_checker sub-process, save it and forward that info to the UI
 				if(message.get('type') == 'ConnectionStatus'):
-					connection_status = updateConnectionStatus(share, connection_status)
-				
-				# Check the current status of connected measurement systems, and report this to the UI
-				if(message.get('type') == 'Connect'):
-					connection_status = connectToMeasurementSystem(share, dict(message['system']))
-				
-				# Check the current status of connected measurement systems, and report this to the UI
-				if(message.get('type') == 'Disconnect'):
-					connection_status = updateConnectionStatus(share)
+					connection_status = message['status']	
+					pipes.send(share, 'QueueToUI', message)
+					print('[MANAGER]: Sent updated connection status to the UI.')		
 					
 			
 			# If the dispatcher is not running, then check and clear its messages
 			if(dispatcher is None):
 				while pipes.poll(share, 'QueueToDispatcher'):
 					dispMessage = pipes.recv(share, 'QueueToDispatcher')
-					print('Dispatcher not running, but received message: ' + str(dispMessage))
+					print('[MANAGER]: Dispatcher not running, but received message: ' + str(dispMessage))
 		
 		except Exception as e:
-			print('Manager loop exception: ', e)
+			print('[MANAGER]: loop exception: ', e)
 		
 		# Check if dispatcher is running, if not join it to explicitly end
 		if((dispatcher is not None) and (not dispatcher['process'].is_alive())):
@@ -220,6 +252,8 @@ def manage(on_startup_port=None, on_startup_schedule_file=None, on_startup_works
 	ui['process'].join()
 	if(dispatcher is not None):
 		dispatcher['process'].join()
+	status_checker['process'].terminate()
+	status_checker['process'].join()
 
 	
 		
