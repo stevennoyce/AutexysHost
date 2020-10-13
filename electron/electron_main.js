@@ -126,6 +126,7 @@ function start() {
   
   const createWindow = () => {
     mainWindow = new BrowserWindow({
+      show: false,
       width: 800,
       height: 600,
       title: '',
@@ -135,6 +136,11 @@ function start() {
       },
     });
     
+    // Wait until the window has resized before immediately showing it
+    mainWindow.maximize();
+    mainWindow.show();
+    
+    // Display a splash screen 
     mainWindow.loadFile(path.join(__dirname, 'splash_screen/splash_screen.html'));
     
     // Open the DevTools.
@@ -145,7 +151,6 @@ function start() {
    
     // Give it the URL that is being served up by our Python server (already running in the background)
   	var url = 'http://127.0.0.1:'+selected_port+'/ui/index.html';
-    mainWindow.maximize();
   	mainWindow.loadURL(url);
     console.log('[ELECTRON]: Opening Electron browser at: ' + url);
   
