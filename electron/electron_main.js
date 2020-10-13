@@ -126,7 +126,7 @@ function start() {
   
   const createWindow = () => {
     mainWindow = new BrowserWindow({
-      width: 1100,
+      width: 800,
       height: 600,
       title: '',
       titleBarStyle: 'hidden', //'hiddenInset',
@@ -145,6 +145,7 @@ function start() {
    
     // Give it the URL that is being served up by our Python server (already running in the background)
   	var url = 'http://127.0.0.1:'+selected_port+'/ui/index.html';
+    mainWindow.maximize();
   	mainWindow.loadURL(url);
     console.log('[ELECTRON]: Opening Electron browser at: ' + url);
   
@@ -170,7 +171,7 @@ function start() {
     });
   
   	// Open the DevTools.
-  	mainWindow.webContents.openDevTools();
+  	//mainWindow.webContents.openDevTools();
   };
   
   
