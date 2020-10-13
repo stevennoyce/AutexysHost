@@ -227,8 +227,8 @@
 							<template v-slot:activator="{ on }">
 								<v-btn v-on="on" light icon width="80" @click="getAvailableMeasurementSystems()">
 									<v-avatar size="36" color="info">
-										<v-icon color="success" v-if="connectedMeasurementSystem">wifi</v-icon>
-										<v-icon v-if="!connectedMeasurementSystem">wifi_off</v-icon>
+										<v-icon color="success" v-if="connectedMeasurementSystem">power</v-icon>
+										<v-icon v-if="!connectedMeasurementSystem">power_off</v-icon>
 									</v-avatar>
 								</v-btn>
 							</template>
@@ -237,7 +237,7 @@
 									<v-list-item v-for="system in availableMeasurementSystems" :key="system.uniqueID" 
 										@click="connectToMeasurementSystem(system)">
 										<v-list-item-avatar :color="(connectedMeasurementSystem && connectedMeasurementSystem.uniqueID === system.uniqueID)? 'success' : 'info'">
-											<v-icon dark>wifi</v-icon>
+											<v-icon dark>power</v-icon>
 										</v-list-item-avatar>
 										<v-tooltip bottom>
 											<template v-slot:activator="{ on: tooltip }">
@@ -256,7 +256,7 @@
 									<template v-if="!availableMeasurementSystems.length">
 										<v-list-item>
 											<v-list-item-content><v-list-item-title>
-												Searching for connections...
+												{{ noSystemsConnectedMessage }}
 											</v-list-item-title></v-list-item-content>
 										</v-list-item>
 										<v-list-item v-if="true">
@@ -1388,14 +1388,65 @@
 					
 					<!-- Start of benchtop -->
 					<v-card flat class="ma-4" v-if="topLevelPage === 'benchtop'">
-						<v-container>	
-							<v-row dense>
+						<v-container>
+							<v-card class="pl-3 pr-3" outlined v-if="!availableMeasurementSystems.length">
+								<v-row dense>
+									<v-col cols="6">
+										<v-card-title>Benchtop</v-card-title>
+										<v-card-subtitle>{{ noSystemsConnectedMessage }}</v-card-subtitle>
+									</v-col>
+									<v-spacer></v-spacer>
+									<v-spacer></v-spacer>
+									<v-col class="pt-7">
+										<v-btn @click="getAvailableMeasurementSystems()"><v-icon left>refresh</v-icon>Refresh</v-btn>
+									</v-col>
+								</v-row>
+							</v-card>
+							<template v-if="!benchtopOptions.system">
+								<v-card light class="pl-3 pr-3" color="info" v-for="system in availableMeasurementSystems" :key="system.uniqueID">
+									<v-row dense>
+										<v-col cols="6">
+											<v-card-title>
+												<v-avatar color="info darken-1" class="mr-3"><v-icon dark>power</v-icon></v-avatar>
+												{{ system.name }}
+											</v-card-title>
+										</v-col>
+										<v-spacer></v-spacer>
+										<v-spacer></v-spacer>
+										<v-col class="pt-7">
+											<v-btn dark color="success" @click="benchtopConnectToMeasurementSystem(system)">
+												Connect
+											</v-btn>
+										</v-col>
+									</v-row>
+								</v-card>
+							</template>
+							<v-card light class="pl-3 pr-3" color="info" v-if="benchtopOptions.system">
+								<v-row dense>
+									<v-col cols="6">
+										<v-card-title>
+											<v-avatar color="success" class="mr-3"><v-icon dark>power</v-icon></v-avatar>
+											{{ benchtopOptions.system.name }}
+										</v-card-title>
+									</v-col>
+									<v-spacer></v-spacer>
+									<v-spacer></v-spacer>
+									<v-col class="pt-7">
+										<v-btn dark depressed color="info darken-1" @click="benchtopDisconnectFromMeasurementSystem()"
+											:disabled="benchtopOptions.system && !connectedMeasurementSystem">
+											{{ (benchtopOptions.system && !connectedMeasurementSystem)? 'Connecting' : 'Disconnect' }}
+										</v-btn>
+									</v-col>
+								</v-row>
+							</v-card>
+							
+							<v-row dense class="pt-1" v-if="benchtopOptions.system && connectedMeasurementSystem">
 								<v-col cols="6">
 									<v-card class="pa-3" :dark="benchtopOptions.channel1.enabled" :color="benchtopOptions.channel1.enabled? 'color7' : 'info'">
-										<v-row>
+										<v-row dense>
 											<v-col cols="6"><v-card-title>Channel 1 (VDS)</v-card-title></v-col>
 											<v-spacer></v-spacer>
-											<v-col class="pt-8">
+											<v-col class="pt-6">
 												<v-btn small dark @click="benchtopToggleChannel1()"
 													:depressed="benchtopOptions.channel1.enabled" 
 													:color="benchtopOptions.channel1.enabled? 'info darken-1' : 'color7'">
@@ -1405,16 +1456,16 @@
 										</v-row>
 										<template v-if="benchtopOptions.channel1.enabled">
 											<v-row class="pl-3 pr-3" >
-												<v-col cols="6">
+												<v-col cols="6" class="pb-0">
 													<v-text-field light filled rounded readonly background-color="info" label="Voltage" :suffix="benchtopOptions.channel1.voltage_units" 
 													v-model="benchtopOptions.channel1.voltage_measured"></v-text-field>
 												</v-col>
-												<v-col cols="6">
+												<v-col cols="6" class="pb-0">
 													<v-text-field light filled rounded readonly background-color="info" label="Current" :suffix="benchtopOptions.channel1.current_units" 
 													v-model="benchtopOptions.channel1.current_measured"></v-text-field>
 												</v-col>
 											</v-row>
-											<v-card-actions>
+											<v-card-actions class="pt-0">
 												<v-spacer></v-spacer>
 												<v-btn color="info darken-1" class="text-none" @click="benchtopIncrementChannel1(-0.05)">-50 mV</v-btn>
 												<v-spacer></v-spacer>
@@ -1431,10 +1482,10 @@
 								</v-col>
 								<v-col cols="6">
 									<v-card class="pa-3" :dark="benchtopOptions.channel2.enabled" :color="benchtopOptions.channel2.enabled? 'color8' : 'info'">
-										<v-row>
+										<v-row dense>
 											<v-col cols="6"><v-card-title>Channel 2 (VGS)</v-card-title></v-col>
 											<v-spacer></v-spacer>
-											<v-col class="pt-8">
+											<v-col class="pt-6">
 												<v-btn small dark @click="benchtopToggleChannel2()" 
 													:depressed="benchtopOptions.channel2.enabled" 
 													:color="benchtopOptions.channel2.enabled? 'info darken-1' : 'color8'">
@@ -1444,18 +1495,18 @@
 										</v-row>
 										<template v-if="benchtopOptions.channel2.enabled">
 											<v-row class="pl-3 pr-3">
-												<v-col cols="6">
+												<v-col cols="6" class="pb-0">
 													<v-text-field light filled rounded readonly background-color="info" label="Voltage"
 													:suffix="benchtopOptions.channel2.voltage_units" 
 													v-model="benchtopOptions.channel2.voltage_measured"></v-text-field>
 												</v-col>
-												<v-col cols="6">
+												<v-col cols="6" class="pb-0">
 													<v-text-field light filled rounded readonly background-color="info" label="Current" 
 													:suffix="benchtopOptions.channel2.current_units" 
 													v-model="benchtopOptions.channel2.current_measured"></v-text-field>
 												</v-col>
 											</v-row>
-											<v-card-actions>
+											<v-card-actions class="pt-0">
 												<v-spacer></v-spacer>
 												<v-btn color="info darken-1" class="text-none" @click="benchtopIncrementChannel2(-0.05)">-50 mV</v-btn>
 												<v-spacer></v-spacer>
@@ -2145,6 +2196,7 @@
 				// === Alert Messages ===
 				
 				noDataToShowMessage: 'Check back here after running a few experiments.',
+				noSystemsConnectedMessage: 'Searching for connections...',
 				
 				// === System Parameters ===
 				
@@ -2418,6 +2470,7 @@
 				// === Benchtop ===
 				
 				benchtopOptions: {
+					system: undefined,
 					channel1: {
 						enabled: false,
 						setpoint: 0,
@@ -2731,12 +2784,15 @@
 					var path = '/connectToMeasurementSystem' + this.cacheBust;
 					this.postJSON(path, JSON.stringify(system), (response => {
 						console.log("Requested connection to new measurement system.");
-					}), "Error connecting to measurement system.");
+					}), "Error connecting to measurement system.");					
 				},
 				disconnectFromMeasurementSystem: function() {
 					var path = '/disconnectFromMeasurementSystem.json' + this.cacheBust;
 					this.getJSON(path, (response => {
 						console.log("Requested disconnection from measurement system.");
+						
+						// Also disconnect from benchtop system (if applicable)
+						if(this.benchtopOptions.system) this.benchtopDisconnectFromMeasurementSystem();
 					}), "Error disconnecting from measurement systems.");
 				},
 				
@@ -3216,12 +3272,52 @@
 				
 				// === Benchtop ===
 				
+				benchtopConnectToMeasurementSystem: function(system) {
+					this.benchtopOptions.system = system;
+					this.connectToMeasurementSystem(system);
+				},
+				benchtopDisconnectFromMeasurementSystem: function() {
+					this.benchtopOptions.system = undefined;
+					this.benchtopDisableChannels();
+					
+					this.getAvailableMeasurementSystems();
+				},
+				
 				benchtopToggleChannel1: function() {
-					this.benchtopOptions.channel1.enabled = !(this.benchtopOptions.channel1.enabled);
+					if(this.benchtopOptions.channel1.enabled) {
+						this.benchtopDisableChannel1();
+					} else {
+						this.benchtopEnableChannel1();
+					}
+				},
+				benchtopEnableChannel1: function() {
+					this.benchtopOptions.channel1.enabled = true;
+				},
+				benchtopDisableChannel1: function() {
+					this.benchtopOptions.channel1.enabled = false;
+					this.benchtopOptions.channel1.input = 0;
+					this.benchtopApplyVoltageChannel1();
 				},
 				benchtopToggleChannel2: function() {
-					this.benchtopOptions.channel2.enabled = !(this.benchtopOptions.channel2.enabled);
+					if(this.benchtopOptions.channel2.enabled) {
+						this.benchtopDisableChannel2();
+					} else {
+						this.benchtopEnableChannel2();
+					}
 				},
+				benchtopEnableChannel2: function() {
+					this.benchtopOptions.channel2.enabled = true;
+				},
+				benchtopDisableChannel2: function() {
+					this.benchtopOptions.channel2.enabled = false;
+					this.benchtopOptions.channel2.input = 0;
+					this.benchtopApplyVoltageChannel2();
+				},
+				benchtopDisableChannels: function() {
+					this.benchtopDisableChannel1();
+					this.benchtopDisableChannel2();
+				},
+				
 				benchtopApplyVoltageChannel1: function() {
 					this.benchtopOptions.channel1.setpoint = this.benchtopOptions.channel1.input;
 				},
@@ -3320,8 +3416,11 @@
 				
 				handleServerMessage: function(message) {
 					if(message.type === 'ConnectionStatus') {
-						this.connectedMeasurementSystem = message.status.connected_system? message.status.connected_system : undefined;
 						this.availableMeasurementSystems = message.status.available_measurement_systems;
+						this.connectedMeasurementSystem = message.status.connected_system? message.status.connected_system : undefined;
+						
+						// Explicitly exit Benchtop Mode if connection ends at any point
+						if(!this.connectedMeasurementSystem) this.benchtopOptions.system = undefined;
 					}
 					
 					if (message.type === 'JobNumberUpdate') {
