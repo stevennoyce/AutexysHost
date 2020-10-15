@@ -1,6 +1,8 @@
 INCLUDE_EVERYTHING = True
-ALWAYS_INCLUDE_PROCEDURES = ["GateSweep", "DrainSweep", "StaticBias", "AutoGateSweep", "AutoDrainSweep", "AutoStaticBias", "RapidBias", "SmallSignal"]
-ALWAYS_INCLUDE_MEASUREMENT_SYSTEMS = ["automatic"]
+ALWAYS_INCLUDED_PROCEDURES = ["GateSweep", "DrainSweep", "StaticBias", "AutoGateSweep", "AutoDrainSweep", "AutoStaticBias", "RapidBias", "SmallSignal"]
+ALWAYS_INCLUDED_MEASUREMENT_SYSTEMS = ["automatic"]
+HIDDEN_PARAMETERS = ['complianceCurrent', 'isFastSweep', 'fastSweepSpeed', 'delayBeforeMeasurementsBegin', 'floatChannelsWhenDone', 'supplyGateVoltage', 'supplyDrainVoltage', 'firstDelayBeforeMeasurementsBegin', 'startGrounded']
+
 
 # --- Default Parameters ---
 
@@ -435,22 +437,36 @@ if(not INCLUDE_EVERYTHING):
 	# Remove extra entries from 'runConfig'
 	runConfigs_list = list(default_parameters['runConfigs'].keys())
 	for runConfig in runConfigs_list:
-		if(runConfig not in ALWAYS_INCLUDE_PROCEDURES):
+		if(runConfig not in ALWAYS_INCLUDED_PROCEDURES):
 			del default_parameters['runConfigs'][runConfig]
+			
+	# Make certain parameters for the remaining runConfigs hidden from the UI
+	runConfigs_list = list(default_parameters['runConfigs'].keys())
+	for runConfig in runConfigs_list:
+		for parameterName in default_parameters['runConfigs'][runConfig].keys():
+			if(parameterName in HIDDEN_PARAMETERS):
+				default_parameters['runConfigs'][runConfig][parameterName]['type'] = 'hidden'
 	
 	# Remove extra entries from 'default_schedules'
 	schedules_list = list(default_schedules.keys())
 	for schedule in schedules_list:
-		if(default_schedules[schedule]['runType'] not in ALWAYS_INCLUDE_PROCEDURES):
+		if(default_schedules[schedule]['runType'] not in ALWAYS_INCLUDED_PROCEDURES):
 			del default_schedules[schedule]
 	
-	# Remove extra entries from 'MeasurementSystem'
-	measurement_systems_list = list(default_parameters['MeasurementSystem']['systemType']['choices'])
+	# Remove extra entries from 'measurement_system_configurations'
+	measurement_systems_list = list(measurement_system_configurations.keys())
 	for measurement_system in measurement_systems_list:
-		if(measurement_system not in ALWAYS_INCLUDE_MEASUREMENT_SYSTEMS):
+		if(measurement_system not in ALWAYS_INCLUDED_MEASUREMENT_SYSTEMS):
+			del measurement_system_configurations[measurement_system]
+		
+	# Remove extra entries from parameters['MeasurementSystem']['systemType']['choices']
+	measurement_systems_choices = list(default_parameters['MeasurementSystem']['systemType']['choices'])
+	for measurement_system in measurement_systems_choices:
+		if(measurement_system not in ALWAYS_INCLUDED_MEASUREMENT_SYSTEMS):
 			default_parameters['MeasurementSystem']['systemType']['choices'].remove(measurement_system)
-	if(len(ALWAYS_INCLUDE_MEASUREMENT_SYSTEMS) > 0):
-		default_parameters['MeasurementSystem']['systemType']['default'] = ALWAYS_INCLUDE_MEASUREMENT_SYSTEMS[0]
+	if(len(ALWAYS_INCLUDED_MEASUREMENT_SYSTEMS) > 0):
+		default_parameters['MeasurementSystem']['systemType']['default'] = ALWAYS_INCLUDED_MEASUREMENT_SYSTEMS[0]
+		
 
 
 

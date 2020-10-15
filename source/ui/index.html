@@ -166,22 +166,24 @@
 							<v-list-item-action><v-icon class="color_benchtop roundedcorners">speed</v-icon></v-list-item-action>
 							<v-list-item-content><v-list-item-title>Benchtop</v-list-item-title></v-list-item-content>
 						</v-list-item>
-						<v-divider></v-divider>
-						<v-list-group prepend-icon="cloud" color="white" v-if="defaultParameters['Deployment'] === 'Development'">
-							<template v-slot:activator>
-								<v-list-item-content>
-									<v-list-item-title>Applications</v-list-item-title>
-								</v-list-item-content>
-							</template>
-							<v-list-item @click="setTopLevelPage('performance')">
-								<v-list-item-action><v-icon>speed</v-icon></v-list-item-action>
-								<v-list-item-content><v-list-item-title>Performance</v-list-item-title></v-list-item-content>
-							</v-list-item>
-							<v-list-item @click="setTopLevelPage('ptSensor')">
-								<v-list-item-action><v-icon>opacity</v-icon></v-list-item-action>
-								<v-list-item-content><v-list-item-title>PT Sensor</v-list-item-title></v-list-item-content>
-							</v-list-item>
-						</v-list-group>
+						<template v-if="defaultParameters['Deployment'] === 'Development'">
+							<v-divider></v-divider>
+							<v-list-group prepend-icon="cloud" color="white">
+								<template v-slot:activator>
+									<v-list-item-content>
+										<v-list-item-title>Applications</v-list-item-title>
+									</v-list-item-content>
+								</template>
+								<v-list-item @click="setTopLevelPage('performance')">
+									<v-list-item-action><v-icon>speed</v-icon></v-list-item-action>
+									<v-list-item-content><v-list-item-title>Performance</v-list-item-title></v-list-item-content>
+								</v-list-item>
+								<v-list-item @click="setTopLevelPage('ptSensor')">
+									<v-list-item-action><v-icon>opacity</v-icon></v-list-item-action>
+									<v-list-item-content><v-list-item-title>PT Sensor</v-list-item-title></v-list-item-content>
+								</v-list-item>
+							</v-list-group>
+						</template>
 						<v-divider></v-divider>
 						<v-list-item @click="setTopLevelPage('settings')">
 							<v-list-item-action><v-icon>settings</v-icon></v-list-item-action>
