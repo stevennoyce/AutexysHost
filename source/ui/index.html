@@ -1247,7 +1247,8 @@
 												<template v-if="runnerChoice !== 'Schedule File'">
 													<v-btn class="ml-3" @click="runnerClear(); runnerSaveScheduleFile(); runnerStart();" :disabled="!isPossibleToSaveRunnerScheduleFile()">Launch {{ runnerChoice }}</v-btn>
 												</template>
-												<v-btn class="ml-3" @click="runnerStop()" :disabled="!dispatcherRunning">Stop</v-btn>
+												<v-btn class="ml-3" @click="runnerStop()" 
+													:disabled="(!dispatcherRunning) || (dispatcherStopRequested)">Stop</v-btn>
 											</v-row>
 										</v-list-item>
 									</v-list>
@@ -1287,6 +1288,8 @@
 								:valuecurrent="experimentProgressModel['Procedure'].current" 
 								:valuemaximum="experimentProgressModel['Procedure'].end" 
 								:time="experimentProgressModel['Procedure'].time_current - experimentProgressModel['Procedure'].time_start"></a-progress-bar-timed>
+								
+								<v-divider></v-divider>
 								
 								<!--
 								<v-list-item v-if="experimentProgressModel['Dispatcher'].visible">
@@ -2393,6 +2396,7 @@
 				// === Experiment Runner ===
 				
 				dispatcherRunning: false,
+				dispatcherStopRequested: false,
 				dispatcherIdentifiers: undefined,
 				
 				runnerChoice: '',
@@ -2808,7 +2812,7 @@
 						if(this.benchtopOptions.system) this.benchtopDisconnectFromMeasurementSystem();
 					}), "Error disconnecting from measurement systems.");
 				},
-				attemptToAutoAcquireMeasurementSystem: function(callback=undefined, timeout=1000) {
+				attemptToAutoAcquireMeasurementSystem: function(callback=undefined, timeout=3000) {
 					// Immediately start the clock: if this process takes too long, we will just give up and trigger the callback
 					if(callback) {
 						this.autoAcquiringMeasurementSystem.callback = callback;
@@ -2819,9 +2823,7 @@
 					this.autoAcquiringMeasurementSystem.status = 'scanning';
 					this.getAvailableMeasurementSystems();
 				},
-				finishAutoAcquiringMeasurementSystem: function() {
-					this.autoAcquiringMeasurementSystem.status = undefined;
-					
+				finishAutoAcquiringMeasurementSystem: function() {					
 					// Check if a callback is still scheduled to trigger, if so trigger it (if not, do nothing)
 					var callback = this.autoAcquiringMeasurementSystem.callback;
 					if(callback) {
@@ -2958,6 +2960,7 @@
 				runnerReset: function() {
 					this.runnerChoice = '';
 					this.showProgress = false;
+					this.getAvailableMeasurementSystems();
 				},
 				runnerClear: function() {
 					this.clearProgressBars();
@@ -2981,20 +2984,20 @@
 				},
 				
 				runnerStart: function() {
-					// If not
-					if(!this.connectedMeasurementSystem) {
-						this.attemptToAutoAcquireMeasurementSystem(callback=this.runnerDispatch);	
-					} else {
-						this.runnerDispatch();
-					}
+					// Rather than dispatching immediately, first refresh the measurement systems.
+					// If a measurement system is already connected, it stays connected. But if not, the system will attempt to auto-acquire.
+					this.attemptToAutoAcquireMeasurementSystem(callback=this.runnerDispatch);	
 				},
 				runnerDispatch: function() {					
 					var path = this.launchDispatcherPath(this.runnerUser, this.runnerProject, this.runnerFileName);
-					this.getJSON(path, (response => {this.dispatcherRunning = true}), "Error dispatching schedule file");
+					this.getJSON(path, (response => {
+						this.dispatcherRunning = true; 
+						this.dispatcherStopRequested = false;
+					}), "Error dispatching schedule file");
 				},
 				runnerStop: function() {
 					var path = this.stopDispatcherPath();
-					this.getJSON(path, (response => {this.dispatcherRunning = false}), "Error stopping dispatcher");
+					this.getJSON(path, (response => {this.dispatcherStopRequested = true;}), "Error stopping dispatcher");
 				},
 				
 				runnerLoadScheduleFile: function() {
@@ -3474,6 +3477,12 @@
 						// Always explicitly exit Benchtop Mode if connection ends at any point
 						if(!this.connectedMeasurementSystem) this.benchtopOptions.system = undefined;
 						
+						// If Step 2 of auto-acquiring just completed, it is time to call the finish-up function
+						if(this.autoAcquiringMeasurementSystem.status === 'connecting') {
+							this.autoAcquiringMeasurementSystem.status = undefined;
+							this.finishAutoAcquiringMeasurementSystem();
+						}
+						
 						// If Step 1 of auto-acquiring just completed, decide how to proceed
 						if(this.autoAcquiringMeasurementSystem.status === 'scanning') {
 							if ((!this.connectedMeasurementSystem) && (this.availableMeasurementSystems.length === 1)) {
@@ -3482,14 +3491,10 @@
 								this.connectToMeasurementSystem(this.availableMeasurementSystems[0]);
 							} else {
 								// Otherwise, the auto-acquiring process is simply terminated early
+								this.autoAcquiringMeasurementSystem.status = undefined;
 								this.finishAutoAcquiringMeasurementSystem();
 							}
 						} 
-						
-						// If Step 2 of auto-acquiring just completed, it is time to call the finish-up function
-						if(this.autoAcquiringMeasurementSystem.status === 'connecting') {
-							this.finishAutoAcquiringMeasurementSystem();
-						}
 					}
 					
 					if(message.type === 'DispatcherStatus') {

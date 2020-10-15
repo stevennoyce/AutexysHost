@@ -23,7 +23,7 @@ if(__name__ == '__main__'):
 
 
 # === Main entry point for dispatching a schedule file ===
-def dispatch(schedule_file_path=None, workspace_data_path=None, share=None):
+def dispatch(schedule_file_path=None, workspace_data_path=None, connection_status=None, share=None):
 	"""Given a schedule file path, begin executing the experiments in the schedule file, otherwise prompt the user for a schedule file."""
 	
 	if(schedule_file_path is not None):
@@ -35,7 +35,7 @@ def dispatch(schedule_file_path=None, workspace_data_path=None, share=None):
 	file = choice if(choice[-5:] == '.json') else (str(choice) + '.json')
 	file = file.strip()
 	
-	run_file(file, workspace_data_path, share)
+	run_file(file, workspace_data_path, connection_status, share)
 	
 	send_notification_via_pushbullet(
 		'Completed Main at {}'.format(time.strftime('%I:%M %p on %a')), 
@@ -44,7 +44,7 @@ def dispatch(schedule_file_path=None, workspace_data_path=None, share=None):
 
 
 
-def run_file(schedule_file_path, workspace_data_path=None, share=None):
+def run_file(schedule_file_path, workspace_data_path=None, connection_status=None, share=None):
 	"""Given a shedule file path, open the file and step through each experiment."""
 	schedule_index = 0
 	
@@ -65,7 +65,7 @@ def run_file(schedule_file_path, workspace_data_path=None, share=None):
 		# Update dispatcher progress bar
 		pipes.progressUpdate(share, 'Job', start=0, current=schedule_index, end=len(parameter_list), barType='Dispatcher', extraInfo=additional_parameters['Identifiers'] if('Identifiers' in additional_parameters) else '')
 		
-		launcher.run(additional_parameters, workspace_data_path, share)
+		launcher.run(additional_parameters, workspace_data_path, connection_status, share)
 		schedule_index += 1
 		
 		# Update dispatcher progress bar

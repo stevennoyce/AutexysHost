@@ -329,6 +329,106 @@ default_schedules = {
 	'PT Sensor':              {"runType": "PTSensor",       "Identifiers": {"user": "", "project": "", "wafer": "", "chip": "", "device": "", "step": 0}, "runConfigs": {"PTSensor": {"totalSensingTime": 60}}},
 }
 
+# --- Measurement System Configurations ---
+
+measurement_system_configurations = {
+	'automatic': {
+		'SMU': { 'type': 'AUTO', },
+	},
+	'single': {
+		'SMU': { 'type': 'B2900A', },
+	},
+	'standalone': {
+		'SMU': { 'type': 'PCB_SYSTEM', },
+	},
+	'Bluetooth': {
+		'SMU': {
+			'type': 'PCB_SYSTEM',
+			'uniqueID': '/dev/tty.HC-05-DevB',
+		},
+	},
+	'B2900A + PCB': {
+		'B2900A': { 'type': 'B2900A', },
+		'PCB': {
+			'type': 'PCB_SYSTEM',
+			'settings': {
+				'channel':2,
+			},
+		},
+	},
+	'B2900A (double)': {
+		'deviceSMU':{
+			'type': 'B2900A',
+			'uniqueID': 'USB0::0x0957::0x8E18::MY51141244::INSTR',
+			'settings': {
+				'reset': False,
+				'turnChannelsOn': False,
+				'channel1SourceMode': 'voltage',
+				'channel2SourceMode': 'voltage',
+			},
+		},
+		'secondarySMU':{
+			'type': 'B2900A',
+			'uniqueID': 'USB0::0x0957::0x8E18::MY51141241::INSTR',
+			'settings': {
+				'reset': False,
+				'turnChannelsOn': False,
+				'channel1SourceMode': 'current',
+				'channel2SourceMode': 'current',
+			},
+		},
+	},
+	'B2900A (inverter)': {
+		'logicSignalSMU':{
+			'type': 'B2900A',
+			'uniqueID': 'USB0::0x0957::0x8E18::MY51141241::INSTR',
+			'settings': {
+				'channel1SourceMode': 'current',
+				'channel2SourceMode': 'voltage',
+			},
+		},
+		'powerSupplySMU':{
+			'type': 'B2900A',
+			'uniqueID': 'USB0::0x0957::0x8C18::MY51142879::INSTR',
+			'settings': {
+				'channel1SourceMode': 'voltage',
+				'channel2SourceMode': 'voltage',
+			},
+		},
+	},
+	'Arduino':{
+		'MCU': {
+			'type': 'ARDUINO_SYSTEM',
+			'uniqueID': 'any',
+		},
+	},
+	'Emulator':{
+		'SMU': 			  { 'type': 'EMULATOR_SYSTEM', },
+		'logicSignalSMU': { 'type': 'EMULATOR_SYSTEM', },
+		'powerSupplySMU': { 'type': 'EMULATOR_SYSTEM', },
+		'deviceSMU':	  { 'type': 'EMULATOR_SYSTEM', },
+		'secondarySMU':	  { 'type': 'EMULATOR_SYSTEM', },
+	},
+	'slowSMU1': {
+		'SMU': {
+			'type': 'B2900A',
+			'uniqueID': 'USB0::0x0957::0x8C18::MY51142879::INSTR',
+		},
+	},
+	'fastSMU1': {
+		'SMU': {
+			'type': 'B2900A',
+			'uniqueID': 'USB0::0x0957::0x8E18::MY51141244::INSTR',
+		},
+	},
+	'fastSMU2': {
+		'SMU': {
+			'type': 'B2900A',
+			'uniqueID': 'USB0::0x0957::0x8E18::MY51141241::INSTR',
+		},
+	},
+}
+
 # --- Enable/Disable Specialized Procedures ---
 
 if(not INCLUDE_EVERYTHING):	
@@ -407,6 +507,10 @@ def full_schedule(scheduleName):
 # --- Get one of the standard schedule files (with the structure defined in this file)  ---
 def full_brief_schedule(scheduleName):
 	return full_with_only(full_schedules()[scheduleName])
+
+# --- Get the configuration info for a given measurement system choice ---
+def system_configuration(systemChoice):
+	return copy.deepcopy(measurement_system_configurations[systemChoice])
 
 
 

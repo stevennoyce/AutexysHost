@@ -18,154 +18,9 @@ import copy
 
 
 
-# === Measurement System Configurations ===
+# === Constants ===
 
-smu_system_configurations = {
-	'automatic': {
-		'SMU': {
-			'uniqueID': '',
-			'type': 'Automatic',
-			'settings': {},
-		}
-	},
-	'single': {
-		'SMU': {
-			'uniqueID': '',
-			'type': 'B2912A',
-			'settings': {},
-		}
-	},
-	'standalone': {
-		'PCB': {
-			'uniqueID': '',
-			'type': 'PCB_System',
-			'settings': {},
-		}
-	},
-	'Bluetooth': {
-		'PCB': {
-			'uniqueID': '/dev/tty.HC-05-DevB',
-			'type': 'PCB_System',
-			'settings': {},
-		}
-	},
-	'B2900A + PCB': {
-		'SMU': {
-			'uniqueID': '',
-			'type': 'B2912A',
-			'settings': {},
-		},
-		'PCB': {
-			'uniqueID': '',
-			'type': 'PCB_System',
-			'settings': {
-				'channel':2,
-			},
-		}
-	},
-	'B2900A (double)': {
-		'deviceSMU':{
-			'uniqueID': 'USB0::0x0957::0x8E18::MY51141244::INSTR',
-			'type': 'B2912A',
-			'settings': {
-				'reset': False,
-				'turnChannelsOn': False,
-				'channel1SourceMode': 'voltage',
-				'channel2SourceMode': 'voltage'
-			},
-		},
-		'secondarySMU':{
-			'uniqueID': 'USB0::0x0957::0x8E18::MY51141241::INSTR',
-			'type': 'B2912A',
-			'settings': {
-				'reset': False,
-				'turnChannelsOn': False,
-				'channel1SourceMode': 'current',
-				'channel2SourceMode': 'current'
-			},
-		}
-	},
-	'B2900A (inverter)': {
-		'logicSignalSMU':{
-			'uniqueID': 'USB0::0x0957::0x8E18::MY51141241::INSTR',
-			'type': 'B2912A',
-			'settings': {
-				'channel1SourceMode': 'current',
-				'channel2SourceMode': 'voltage'
-			},
-		},
-		'powerSupplySMU':{
-			'uniqueID': 'USB0::0x0957::0x8C18::MY51142879::INSTR',
-			'type': 'B2912A',
-			'settings': {
-				'channel1SourceMode': 'voltage',
-				'channel2SourceMode': 'voltage'
-			},
-		}
-	},
-	'Arduino':{
-		'MCU': {
-			'uniqueID': 'any',
-			'type': 'Arduino_System',
-			'settings': {},
-		}
-	},
-	'Emulator':{
-		'SMU': {
-			'uniqueID': '',
-			'type': 'Emulator_System',
-			'settings': {},
-		},
-		'logicSignalSMU':{
-			'uniqueID': '',
-			'type': 'Emulator_System',
-			'settings': {},
-		},
-		'powerSupplySMU':{
-			'uniqueID': '',
-			'type': 'Emulator_System',
-			'settings': {},
-		},
-		'deviceSMU':{
-			'uniqueID': '',
-			'type': 'Emulator_System',
-			'settings': {},
-		},
-		'secondarySMU':{
-			'uniqueID': '',
-			'type': 'Emulator_System',
-			'settings': {},
-		}
-	},
-	'slowSMU1': {
-		'SMU': {
-			'uniqueID': 'USB0::0x0957::0x8C18::MY51142879::INSTR',
-			'type': 'B2912A',
-			'settings': {},
-		}
-	},
-	'fastSMU1': {
-		'SMU': {
-			'uniqueID': 'USB0::0x0957::0x8E18::MY51141244::INSTR',
-			'type': 'B2912A',
-			'settings': {},
-		}
-	},
-	'fastSMU2': {
-		'SMU': {
-			'uniqueID': 'USB0::0x0957::0x8E18::MY51141241::INSTR',
-			'type': 'B2912A',
-			'settings': {},
-		}
-	},
-}
-
-system_uniqueID_distinguishers = {
-	'usb' : 'USB',
-	'HC-05-DevB' : 'Bluetooth',
-	'0x8C18' : 'B2902A',
-	'0x8E18' : 'B2912A',
-}
+NON_BLUETOOTH_PORT_SIGNATURE = 'usb'
 
 
 
@@ -184,6 +39,13 @@ def updateConnectionStatus(previous_status=None):
 
 def availableConnections(includePySerial=True, includeVisa=True):
 	available_connections = []
+	
+	system_uniqueID_distinguishers = {
+		'usb' : 'USB',
+		'HC-05-DevB' : 'Bluetooth',
+		'0x8C18' : 'B2902A',
+		'0x8E18' : 'B2912A',
+	}
 	
 	# Add PySerial active ports to the list of connections
 	if(includePySerial):
@@ -242,10 +104,7 @@ def authenticateConnection(smu_instance):
 	
 # === Establish Connection API ===
 
-def getSystemConfiguration(systemType):
-	return copy.deepcopy(smu_system_configurations[systemType])
-
-def getConnectionToVisaResource(uniqueIdentifier='', system_settings=None, defaultComplianceCurrent=100e-6, smuTimeout=60000):
+def getConnectionToVisaResource(uniqueIdentifier='', defaultComplianceCurrent=100e-6, smuTimeout=60000, system_settings=None):
 	import visa
 	
 	# Try forming connection over National Instruments backend (or Python backend if that fails)
@@ -269,7 +128,7 @@ def getConnectionToVisaResource(uniqueIdentifier='', system_settings=None, defau
 	# Print connection beginning message
 	print('Beginning connection to visa resource: ' + str(uniqueIdentifier)) 
 	
-	return B2912A(visa_system, uniqueIdentifier, defaultComplianceCurrent, system_settings)
+	return B2900A(visa_system, uniqueIdentifier, defaultComplianceCurrent, system_settings)
 
 def getConnectionToPCB(port='', baud=115200, system_settings=None):
 	# Iterate over possible USB connections
@@ -463,7 +322,7 @@ class SourceMeasureUnit:
 	
 # === B2900A Sub-Class Definition ===
 	
-class B2912A(SourceMeasureUnit):
+class B2900A(SourceMeasureUnit):
 	# === Generic instance variables ===
 	system_id = ''
 	stepsPerRamp = 20
@@ -820,7 +679,7 @@ class PCB_System(SourceMeasureUnit):
 	def __init__(self, pySerial, port, system_settings):
 		self.ser = pySerial
 		self.system_id = port
-		if(port == smu_system_configurations['Bluetooth']['PCB']['uniqueID']):
+		if(NON_BLUETOOTH_PORT_SIGNATURE not in str(port)):
 			print('Enabling bluetooth communication (can be slow).')
 			self.setParameter('enable-uart-sending !', responseStartsWith='#')
 		if((system_settings is not None) and ('channel' in system_settings)):
@@ -1155,11 +1014,7 @@ class Emulator(SourceMeasureUnit):
 
 	
 
-if (__name__ == '__main__'):
-	pcb = getConnectionToPCB(system_settings=smu_system_configurations['B2900A + PCB']['PCB']['settings'])
-	keysight = getConnectionToVisaResource(system_settings=smu_system_configurations['B2900A + PCB']['SMU']['settings'])
-	pcb.setDevice('1-2')		
-	print(keysight.takeMeasurement())
+
 
 
 

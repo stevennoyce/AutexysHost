@@ -23,7 +23,7 @@ import pipes
 
 
 # === Main API ===
-def run(additional_parameters, workspace_data_path=None, share=None):
+def run(additional_parameters, workspace_data_path=None, connection_status=None, share=None):
 	"""Begins execution of an experiment whose parameters are defined by the union of addition_parameters and defaults.py.
 	Also initializes a connection to the necessary SMU systems and/or Arduino systems needed to perform the experiment."""
 	
@@ -47,11 +47,11 @@ def run(additional_parameters, workspace_data_path=None, share=None):
 	parameters['originalRunType'] = parameters['runType']
 
 	# Extract relevant system configuration information from SourceMeasureUnit.py
-	parameters['MeasurementSystem']['systems'] = smu.getSystemConfiguration(parameters['MeasurementSystem']['systemType'])
+	parameters['MeasurementSystem']['systems'] = defaults.system_configuration(parameters['MeasurementSystem']['systemType'])
 
 	# === SMU  ===
 	# Initialize measurement system
-	smu_systems = initializeMeasurementSystems(parameters)		
+	smu_systems = initializeMeasurementSystems(parameters, connection_status)		
 
 	# Initialize Arduino connection
 	arduino_systems = initializeArduino(parameters)
@@ -270,33 +270,41 @@ def cleanUpDataSaving(parameters, target_devices, deviceIndexes):
 
 
 # === SMU Connection ===
-def initializeMeasurementSystems(parameters):
+def initializeMeasurementSystems(parameters, connection_status=None):
 	"""Given the parameters for running an experiment, sets up a connection to the necessary SMU or SMUs."""
 	
 	smu_systems = {}
 	
 	for system_name,system_info in parameters['MeasurementSystem']['systems'].items():
-		system_id = system_info['uniqueID']
-		system_type = system_info['type']
-		system_settings = system_info['settings']
+		system_type 	= system_info['type']
+		system_id 	    = system_info['uniqueID'] if('uniqueID' in system_info) else ''
+		system_settings = system_info['settings'] if('settings' in system_info) else {}
 		
-		# Handle connection to each possible system type
-		if(system_type == 'Automatic'):
-			try:
-				smu_systems[system_name] = smu.getConnectionToPCB(port=system_id, baud=115200, system_settings=system_settings)
-			except:
-				smu_systems[system_name] = smu.getConnectionToVisaResource(system_id, system_settings, defaultComplianceCurrent=100e-6, smuTimeout=60*1000)
-		elif(system_type == 'B2912A'):
-			smu_systems[system_name] = smu.getConnectionToVisaResource(system_id, system_settings, defaultComplianceCurrent=100e-6, smuTimeout=60*1000)
-		elif(system_type == 'PCB_System'):
+		# Handle connection to an auto-acquired measurement system
+		if(system_type == 'AUTO'):
+			if((connection_status is not None) and (connection_status['connected_system'] is not None)):
+				auto_acquired_type = connection_status['connected_system']['type']
+				auto_acquired_id   = connection_status['connected_system']['uniqueID']
+				if(auto_acquired_type == 'Serial'):
+					smu_systems[system_name] = smu.getConnectionToPCB(port=auto_acquired_id, baud=115200)
+				elif(auto_acquired_type == 'Visa'):
+					smu_systems[system_name] = smu.getConnectionToVisaResource(auto_acquired_id, defaultComplianceCurrent=100e-6, smuTimeout=60*1000)
+				else:
+					NotImplementedError("Aborting: Launcher does not recognize the auto-acquired Measurement System.")
+			else:
+				raise RuntimeError("Aborting: Launcher was unable to auto-acquire the Measurement System.")
+		# Handle connection to any specifically requested measurement system	
+		elif(system_type == 'B2900A'):
+			smu_systems[system_name] = smu.getConnectionToVisaResource(system_id, defaultComplianceCurrent=100e-6, smuTimeout=60*1000, system_settings=system_settings)
+		elif(system_type == 'PCB_SYSTEM'):
 			smu_systems[system_name] = smu.getConnectionToPCB(port=system_id, baud=115200, system_settings=system_settings)
-		elif(system_type == 'Emulator_System'):
+		elif(system_type == 'EMULATOR_SYSTEM'):
 			smu_systems[system_name] = smu.getConnectionToEmulator()
-		elif(system_type == 'Arduino_System'):
+		elif(system_type == 'ARDUINO_SYSTEM'):
 			print('Arduino system detected. Connection will be handled separately.')
 			continue
 		else:
-			raise NotImplementedError("Unkown Measurement System specified (try B2912A, PCB_System, ...)")
+			raise NotImplementedError("Aborting: Launcher does not recognize the requested Measurement System.")
 		
 		# Print connection success message
 		print("Connected to " + str(system_type) + " system '" + str(system_name) + "', with ID: " + str(smu_systems[system_name].system_id))
@@ -312,22 +320,17 @@ def initializeArduino(parameters):
 	arduino_systems = {}
 	
 	for system_name,system_info in parameters['MeasurementSystem']['systems'].items():
-		system_id = system_info['uniqueID']
-		system_type = system_info['type']
-		system_settings = system_info['settings']
+		system_type     = system_info['type']
+		system_id       = system_info['uniqueID'] if('uniqueID' in system_info) else ''
+		system_settings = system_info['settings'] if('settings' in system_info) else {}
 		
-		# Only handle connections of type 'Arduino_System'
-		if(system_type == 'Arduino_System'):
+		# Only handle connections of type 'ARDUINO_SYSTEM'
+		if(system_type == 'ARDUINO_SYSTEM'):
 			arduino_systems[system_name] = arduinoBoard.getConnection(port=system_id, baud=9600, system_settings=system_settings)
 	
-	# If no specific Arduino_System was specified in configuration, still check to see if any are available to connect 
+	# If no specific ARDUINO_SYSTEM was included in configuration, still check to see if any are available to connect 
 	if(len(arduino_systems.keys()) == 0):	
 		arduino_systems = {'MCU': arduinoBoard.getConnection(port='', baud=9600)}
-	
-	#for arduino_reference in arduino_systems:
-	#	sensor_data = arduino_reference.takeMeasurement()
-	#	for (measurement, value) in sensor_data.items():
-	#		parameters['SensorData'][measurement] = [value]
 	
 	return arduino_systems
 	
