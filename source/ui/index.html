@@ -151,7 +151,7 @@
 							<v-list-item-content><v-list-item-title>Dashboard</v-list-item-title></v-list-item-content>
 						</v-list-item>
 						<v-list-item @click="setTopLevelPage('stepper')">
-							<v-list-item-action><v-icon class="color_browser roundedcorners">list</v-icon></v-list-item-action>
+							<v-list-item-action><v-icon class="color_browser roundedcorners">view_carousel</v-icon></v-list-item-action>
 							<v-list-item-content><v-list-item-title>Browser</v-list-item-title></v-list-item-content>
 						</v-list-item>
 						<v-list-item @click="setTopLevelPage('scheduleCreator')">
@@ -385,7 +385,7 @@
 													Browser
 												</v-toolbar-title>
 												<v-spacer></v-spacer>
-												<v-icon>list</v-icon>
+												<v-icon>view_carousel</v-icon>
 											</v-toolbar>
 										</template>
 										<span>View and analyze the results</span>
@@ -951,7 +951,7 @@
 														<template v-slot:activator="{ on }">
 															<v-btn v-on="on" @click="loadSchedule()" :disabled="!isValidScheduleLoadPath()">Load Schedule File</v-btn>
 														</template>
-														<span>AutexysData/{{ creatorLoadUser }}/{{ creatorLoadProject }}/schedules/{{ creatorLoadFileName }}.json</span>
+														<span>Workspace/{{ creatorLoadUser }}/{{ creatorLoadProject }}/schedules/{{ creatorLoadFileName }}.json</span>
 													</v-tooltip>
 													<v-spacer></v-spacer>
 												</v-list-item>
@@ -1095,7 +1095,7 @@
 											<template v-slot:activator="{ on }">
 												<v-btn v-on="on" @click="saveSchedule()" :disabled="!isValidScheduleSavePath()">Save Schedule File</v-btn>
 											</template>
-											<span>AutexysData/{{ creatorSaveUser }}/{{ creatorSaveProject }}/schedules/{{ creatorSaveFileName }}.json</span>
+											<span>Workspace/{{ creatorSaveUser }}/{{ creatorSaveProject }}/schedules/{{ creatorSaveFileName }}.json</span>
 										</v-tooltip>
 									</v-card-actions>
 								</v-card>
@@ -1239,13 +1239,13 @@
 										<v-list-item class="pa-0">
 											<v-row no-gutters align="center" justify="end">
 												<v-list-item-content v-if="runnerChoice === 'Schedule File' && (runnerUser && runnerProject && runnerFileName)" style="overflow-x: scroll">
-													Schedule file: AutexysData/{{ runnerUser }}/{{ runnerProject }}/schedules/{{ runnerFileName }}.json
+													Schedule file: Workspace/{{ runnerUser }}/{{ runnerProject }}/schedules/{{ runnerFileName }}.json
 												</v-list-item-content>
 												<template v-if="runnerChoice === 'Schedule File'">
-													<v-btn class="ml-3" @click="runnerClear(); runnerSaveScheduleFile(); runnerDispatch();" :disabled="!(runnerUser && runnerProject && runnerFileName)">Launch Schedule File.</v-btn>
+													<v-btn class="ml-3" @click="runnerClear(); runnerSaveScheduleFile(); runnerStart();" :disabled="!(runnerUser && runnerProject && runnerFileName)">Launch Schedule File.</v-btn>
 												</template>
 												<template v-if="runnerChoice !== 'Schedule File'">
-													<v-btn class="ml-3" @click="runnerClear(); runnerSaveScheduleFile(); runnerDispatch();" :disabled="!isPossibleToSaveRunnerScheduleFile()">Launch {{ runnerChoice }}</v-btn>
+													<v-btn class="ml-3" @click="runnerClear(); runnerSaveScheduleFile(); runnerStart();" :disabled="!isPossibleToSaveRunnerScheduleFile()">Launch {{ runnerChoice }}</v-btn>
 												</template>
 												<v-btn class="ml-3" @click="runnerStop()" :disabled="!dispatcherRunning">Stop</v-btn>
 											</v-row>
@@ -1257,14 +1257,18 @@
 						</v-card>
 						
 						<v-card class="mt-3" v-if="showProgress">
-							<v-toolbar dark dense class="color_runner">
+							<v-toolbar dark dense :color="dispatcherRunning? 'color_runner' : 'success'">
+								<v-avatar size="36" color="info lighten-1" class="mr-3">
+									<v-icon color="color_runner" v-if="dispatcherRunning">hourglass_empty</v-icon>
+									<v-icon color="success" v-if="!dispatcherRunning">done</v-icon>
+								</v-avatar>
 								<v-toolbar-title>
-									Progress
+									{{ dispatcherRunning? 'Progress' : 'Complete' }} 
 								</v-toolbar-title>
-								<v-spacer></v-spacer>
+								<v-spacer></v-spacer>		
 								<v-toolbar-title>
 									{{experimentProgressTimer.current - experimentProgressTimer.start | formatTimestamp}}
-									<v-icon>schedule</v-icon>
+									<v-icon class="pb-1">timer</v-icon>
 								</v-toolbar-title>
 							</v-toolbar>
 							
@@ -1312,30 +1316,30 @@
 								</v-list-item>
 								-->
 							</v-list>
-						</v-card>
-						
-						<v-card class="mt-3" v-if="showProgress">
-							<v-toolbar dark dense class="color_runner">
-								<v-toolbar-title>
-									Live Plots
-								</v-toolbar-title>
-								<v-spacer></v-spacer>
-								<v-icon>view_carousel</v-icon>
-							</v-toolbar>
 							
 							<v-container>
-								<v-row dense>
-									<v-col sm="6" md="3" lg="3">
-										<v-select filled label="Job Number" v-model="jobSelectChoice" :items="jobSelectItems"></v-select>
+								<v-row dense >
+									<v-col cols="3">
+										<v-btn block height="50" class="mb-7" dark color="color_browser" v-if="dispatcherIdentifiers" 
+											@click="setTopLevelPage('stepper'); goToIdentifiers(dispatcherIdentifiers);">
+											<v-icon left>view_carousel</v-icon>View in Browser</v-btn>
 									</v-col>
-									<v-col sm="6" md="3" lg="3">
-										<v-select filled label="Device Number" v-model="deviceSelectChoice" :items="deviceSelectItems"></v-select>
+									<v-spacer></v-spacer>
+									<v-spacer ></v-spacer>
+									<v-spacer ></v-spacer>
+									<v-col cols="3" v-if="jobSelectItems.length >= 2">
+										<v-select dense filled rounded label="Job Number" v-model="jobSelectChoice" :items="jobSelectItems"></v-select>
+									</v-col>
+									<v-col cols="3" v-if="deviceSelectItems.length >= 2">
+										<v-select dense filled rounded label="Device Number" v-model="deviceSelectChoice" :items="deviceSelectItems"></v-select>
 									</v-col>
 								</v-row>
 								
 								<template v-if="(jobSelectChoice !== '') && (deviceSelectChoice !== '') && (livePlots[jobSelectChoice]) && (livePlots[jobSelectChoice][deviceSelectChoice])">
 									<v-row dense>
-										<v-col sm="12" md="6" lg="6" xl="4" v-for="[plotID, plot] of Object.entries(livePlots[jobSelectChoice][deviceSelectChoice])" :key="plotID">
+										<v-col :cols="(Object.entries(livePlots[jobSelectChoice][deviceSelectChoice]).length > 1)? 6 : 12" 
+												v-for="[plotID, plot] of Object.entries(livePlots[jobSelectChoice][deviceSelectChoice])" 
+												:key="plotID">
 											<v-card>
 												<v-toolbar dark dense class="color_runner darken-1">
 													<v-toolbar-title>
@@ -2204,9 +2208,14 @@
 				
 				connectedMeasurementSystem: undefined,
 				availableMeasurementSystems: [],
+				autoAcquiringMeasurementSystem: {
+					status: undefined,
+					callback: undefined,	
+				},
 				
 				defaultParameters: {},
 				defaultParametersDescription: {},
+				defaultIdentifiers: {},
 				paths: {},
 				cacheBust: '',
 				
@@ -2384,9 +2393,10 @@
 				// === Experiment Runner ===
 				
 				dispatcherRunning: false,
-				runnerLoadingFromDefaults: false, 
+				dispatcherIdentifiers: undefined,
 				
 				runnerChoice: '',
+				runnerLoadingFromDefaults: false, 
 				
 				runnerUser: '',
 				runnerProject: '',
@@ -2411,7 +2421,7 @@
 				
 				experimentProgressModel: {
 					'Dispatcher': {
-						title: 'Dispatcher: ',
+						title: '',
 						visible: false,
 						name: '',
 						start: 0,
@@ -2697,20 +2707,23 @@
 				},
 				
 				getDefaultParameters() {
-					var path1 = "/defaultParameters.json" + this.$data.cacheBust;
-					this.getJSON(path1, (response => {this.$data.defaultParameters = response;}), "Error getting default parameters");
+					var path1 = "/defaultParameters.json" + this.cacheBust;
+					this.getJSON(path1, (response => {app.$data.defaultParameters = response;}), "Error getting default parameters");
 					
-					var path2 = "/defaultParametersDescription.json" + this.$data.cacheBust;
+					var path2 = "/defaultParametersDescription.json" + this.cacheBust;
 					this.getJSON(path2, (response => {
-						this.$data.defaultParametersDescription = response;
-						this.$data.scheduleObjectDefault     = JSON.parse(JSON.stringify(response));
-						this.$data.scheduleObjects          = [JSON.parse(JSON.stringify(response))];
-						this.$data.performanceScheduleObject = JSON.parse(JSON.stringify(response));
-						this.$data.ptSensorScheduleObject = JSON.parse(JSON.stringify(response));
+						app.$data.defaultParametersDescription = response;
+						app.$data.scheduleObjectDefault     = JSON.parse(JSON.stringify(response));
+						app.$data.scheduleObjects          = [JSON.parse(JSON.stringify(response))];
+						app.$data.performanceScheduleObject = JSON.parse(JSON.stringify(response));
+						app.$data.ptSensorScheduleObject = JSON.parse(JSON.stringify(response));
 					}), "Error getting default parameters description");
 					
-					var path3 = "/defaultEssentialParameters.json" + this.$data.cacheBust;
-					this.getJSON(path3, (response => {this.$data.essentialScheduleParameters = response;}), "Error getting essential defaults");
+					var path3 = "/defaultEssentialParameters.json" + this.cacheBust;
+					this.getJSON(path3, (response => {app.$data.essentialScheduleParameters = response;}), "Error getting essential defaults");
+					
+					var path4 = "/defaultIdentifiers.json" + this.cacheBust;
+					this.getJSON(path4, (response => {app.$data.defaultIdentifiers = response;}), "Error getting identifier defaults");
 				},
 				getPaths: function() {
 					var path = '/paths.json' + this.cacheBust;
@@ -2795,6 +2808,27 @@
 						if(this.benchtopOptions.system) this.benchtopDisconnectFromMeasurementSystem();
 					}), "Error disconnecting from measurement systems.");
 				},
+				attemptToAutoAcquireMeasurementSystem: function(callback=undefined, timeout=1000) {
+					// Immediately start the clock: if this process takes too long, we will just give up and trigger the callback
+					if(callback) {
+						this.autoAcquiringMeasurementSystem.callback = callback;
+						setTimeout(this.finishAutoAcquiringMeasurementSystem, timeout);
+					}
+					
+					// Enable "scanning" mode and then execute Step 1: requesting an update on which systems are available
+					this.autoAcquiringMeasurementSystem.status = 'scanning';
+					this.getAvailableMeasurementSystems();
+				},
+				finishAutoAcquiringMeasurementSystem: function() {
+					this.autoAcquiringMeasurementSystem.status = undefined;
+					
+					// Check if a callback is still scheduled to trigger, if so trigger it (if not, do nothing)
+					var callback = this.autoAcquiringMeasurementSystem.callback;
+					if(callback) {
+						this.autoAcquiringMeasurementSystem.callback = undefined;
+						callback();
+					}
+				},
 				
 				// === Navigate ===
 				
@@ -2823,6 +2857,15 @@
 					if(waferName)   { this.goToWafer(waferName);     } else { return; }
 					if(chipName)    { this.goToChip(chipName);       } else { return; }
 					if(deviceName)  { this.goToDevice(deviceName);   } else { return; }
+				},
+				goToIdentifiers: function(identifiers) {
+					var userName    = identifiers['user']?    identifiers['user']    : this.defaultIdentifiers['user']['default'];
+					if(this.user !== userName) this.goToUser(userName);
+					var projectName = identifiers['project']? identifiers['project'] : this.defaultIdentifiers['project']['default'];
+					var waferName   = identifiers['wafer']?   identifiers['wafer']   : this.defaultIdentifiers['wafer']['default'];
+					var chipName    = identifiers['chip']?    identifiers['chip']    : this.defaultIdentifiers['chip']['default'];
+					var deviceName  = identifiers['device']?  identifiers['device']  : this.defaultIdentifiers['device']['default'];
+					this.goToDirectly(projectName, waferName, chipName, deviceName);
 				},
 				goToUser: function(userName) {
 					this.user = userName;
@@ -2937,6 +2980,14 @@
 					this.runnerFileName = this.runnerChoice;
 				},
 				
+				runnerStart: function() {
+					// If not
+					if(!this.connectedMeasurementSystem) {
+						this.attemptToAutoAcquireMeasurementSystem(callback=this.runnerDispatch);	
+					} else {
+						this.runnerDispatch();
+					}
+				},
 				runnerDispatch: function() {					
 					var path = this.launchDispatcherPath(this.runnerUser, this.runnerProject, this.runnerFileName);
 					this.getJSON(path, (response => {app.$data.dispatcherRunning = true}), "Error dispatching schedule file");
@@ -3416,11 +3467,33 @@
 				
 				handleServerMessage: function(message) {
 					if(message.type === 'ConnectionStatus') {
+						// Obtain connection status update from the message
 						this.availableMeasurementSystems = message.status.available_measurement_systems;
 						this.connectedMeasurementSystem = message.status.connected_system? message.status.connected_system : undefined;
 						
-						// Explicitly exit Benchtop Mode if connection ends at any point
+						// Always explicitly exit Benchtop Mode if connection ends at any point
 						if(!this.connectedMeasurementSystem) this.benchtopOptions.system = undefined;
+						
+						// If Step 1 of auto-acquiring just completed, decide how to proceed
+						if(this.autoAcquiringMeasurementSystem.status === 'scanning') {
+							if ((!this.connectedMeasurementSystem) && (this.availableMeasurementSystems.length === 1)) {
+								// If a system is available, immeditately tigger Step 2: a connection request
+								this.autoAcquiringMeasurementSystem.status = 'connecting';
+								this.connectToMeasurementSystem(this.availableMeasurementSystems[0]);
+							} else {
+								// Otherwise, the auto-acquiring process is simply terminated early
+								this.finishAutoAcquiringMeasurementSystem();
+							}
+						} 
+						
+						// If Step 2 of auto-acquiring just completed, it is time to call the finish-up function
+						if(this.autoAcquiringMeasurementSystem.status === 'connecting') {
+							this.finishAutoAcquiringMeasurementSystem();
+						}
+					}
+					
+					if(message.type === 'DispatcherStatus') {
+						this.dispatcherRunning = message.status.running? true : false;
 					}
 					
 					if (message.type === 'JobNumberUpdate') {
@@ -3459,6 +3532,11 @@
 						if(message.progress.barType === "Procedure"){
 							this.experimentProgressModel['Procedure'].time_start = this.checkStartTime(this.experimentProgressModel['Procedure'].time_start, this.experimentProgressModel['Procedure'].current, message.progress.timestamp, message.progress.current);
 							this.experimentProgressModel['Procedure'].time_current = message.progress.timestamp;
+						}
+						
+						// Enable the "View in Browser" feature of the progress bar 
+						if(message.progress.barType === "Dispatcher"){
+							this.dispatcherIdentifiers = (message.info)? message.info : undefined;
 						}
 						
 						// Update individual progress bars

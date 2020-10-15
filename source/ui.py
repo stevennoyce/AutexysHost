@@ -227,6 +227,10 @@ def defaultParametersDescription():
 def defaultEssentialParameters():
 	return jsonvalid(defaults.full_essentials())
 
+@app.route('/defaultIdentifiers.json')
+def defaultIdentifiers():
+	return jsonvalid(defaults.full_identifiers())
+
 
 
 # === Browser ===
@@ -693,7 +697,7 @@ def stopDispatcher():
 
 @app.route('/standardScheduleNames.json')
 def listStandardScheduleNames():
-	return jsonvalid(list(defaults.schedules().keys()))
+	return jsonvalid(list(defaults.full_schedules().keys()))
 
 @app.route('/userDefinedScheduleNames.json')
 def loadUserDefinedScheduleNames():

@@ -63,13 +63,13 @@ def run_file(schedule_file_path, workspace_data_path=None, share=None):
 		pipes.jobNumberUpdate(share, schedule_index)
 
 		# Update dispatcher progress bar
-		pipes.progressUpdate(share, 'Job', start=0, current=schedule_index, end=len(parameter_list), barType='Dispatcher')
+		pipes.progressUpdate(share, 'Job', start=0, current=schedule_index, end=len(parameter_list), barType='Dispatcher', extraInfo=additional_parameters['Identifiers'] if('Identifiers' in additional_parameters) else '')
 		
 		launcher.run(additional_parameters, workspace_data_path, share)
 		schedule_index += 1
 		
 		# Update dispatcher progress bar
-		pipes.progressUpdate(share, 'Job', start=0, current=schedule_index, end=len(parameter_list), barType='Dispatcher')
+		pipes.progressUpdate(share, 'Job', start=0, current=schedule_index, end=len(parameter_list), barType='Dispatcher', extraInfo=additional_parameters['Identifiers'] if('Identifiers' in additional_parameters) else '')
 	
 	print('Closing schedule file: ' + str(schedule_file_path))
 	

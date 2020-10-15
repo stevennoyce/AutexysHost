@@ -93,7 +93,7 @@ class AbortError(Exception):
 	"""Error type for a progress update that needs to trigger the abort sequence."""
 	pass
 
-def progressUpdate(share, progName, start, current, end, barType='Procedure', enableAbort=False):
+def progressUpdate(share, progressName, start, current, end, barType='Procedure', enableAbort=False, extraInfo=''):
 	try:
 		# Prevent null exceptions
 		if(share is None):
@@ -103,13 +103,14 @@ def progressUpdate(share, progName, start, current, end, barType='Procedure', en
 		send(share, 'QueueToUI', {
 				'type':'Progress',
 				'progress': {
-					'name': progName,
+					'name': progressName,
 					'barType': barType,
 					'start': start,
 					'current': current,
 					'end': end,
 					'timestamp':time.time()
-				}
+				},
+				'info': extraInfo,
 			}
 		)		
 	# Handle generic exceptions	

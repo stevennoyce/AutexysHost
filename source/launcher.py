@@ -36,11 +36,12 @@ def run(additional_parameters, workspace_data_path=None, share=None):
 	parameters['dataFolder'] = workspace_data_path   if(workspace_data_path is not None)            else parameters['dataFolder']
 
 	# additional_parameters is required to specify valid user, project, wafer, chip, device
-	parameters['Identifiers']['user']    = 'guest'   if(parameters['Identifiers']['user']    == '') else parameters['Identifiers']['user']
-	parameters['Identifiers']['project'] = 'Project' if(parameters['Identifiers']['project'] == '') else parameters['Identifiers']['project']
-	parameters['Identifiers']['wafer']   = 'Wafer'   if(parameters['Identifiers']['wafer']   == '') else parameters['Identifiers']['wafer']
-	parameters['Identifiers']['chip']    = 'Chip'    if(parameters['Identifiers']['chip']    == '') else parameters['Identifiers']['chip']
-	parameters['Identifiers']['device']  = 'Device'  if(parameters['Identifiers']['device']  == '') else parameters['Identifiers']['device']
+	placeholder_identifiers = defaults.identifiers()
+	parameters['Identifiers']['user']    = placeholder_identifiers['user']    if(parameters['Identifiers']['user']    == '') else parameters['Identifiers']['user']
+	parameters['Identifiers']['project'] = placeholder_identifiers['project'] if(parameters['Identifiers']['project'] == '') else parameters['Identifiers']['project']
+	parameters['Identifiers']['wafer']   = placeholder_identifiers['wafer']   if(parameters['Identifiers']['wafer']   == '') else parameters['Identifiers']['wafer']
+	parameters['Identifiers']['chip']    = placeholder_identifiers['chip']    if(parameters['Identifiers']['chip']    == '') else parameters['Identifiers']['chip']
+	parameters['Identifiers']['device']  = placeholder_identifiers['device']  if(parameters['Identifiers']['device']  == '') else parameters['Identifiers']['device']
 
 	# Make an explicit flag in the data noting the original 'runType' of the procedure since this can be changed over the course of the experiment
 	parameters['originalRunType'] = parameters['runType']

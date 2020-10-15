@@ -12,7 +12,7 @@ default_parameters = {
 		'wafer':  {'type':'string', 'default':'', 'title':'Wafer',     'description':'Wafer for this experiment.'},
 		'chip':   {'type':'string', 'default':'', 'title':'Chip',      'description':'Chip for this experiment.'},
 		'device': {'type':'string', 'default':'', 'title':'Device',    'description':'Device for this experiment.'},
-		'step':   {'type':'string', 'default':'0','title':'Step/Note', 'description':'Personal note for this experiment.'},
+		'step':   {'type':'string', 'default':'', 'title':'Step/Note', 'description':'Personal note for this experiment.'},
 	},
 	'runConfigs': {
 		'GateSweep':{
@@ -293,6 +293,16 @@ default_parameters = {
 	'Deployment': {'default': 'Development' if(INCLUDE_EVERYTHING) else 'Production'}
 }
 
+# --- Default Identifiers ---
+
+default_identifiers = {
+	'user':   {'type':'string', 'default':'guest',   'title':'User',    'description':'Default User whenever left unspecified.'},
+	'project':{'type':'string', 'default':'Project', 'title':'Project', 'description':'Default Project whenever left unspecified.'},
+	'wafer':  {'type':'string', 'default':'Wafer',   'title':'Wafer',   'description':'Default Wafer whenever left unspecified.'},
+	'chip':   {'type':'string', 'default':'Chip',    'title':'Chip',    'description':'Default Chip whenever left unspecified.'},
+	'device': {'type':'string', 'default':'Device',  'title':'Device',  'description':'Default Device whenever left unspecified.'},
+}
+
 # --- Default Schedules ---
 
 default_schedules = {
@@ -378,17 +388,25 @@ def full_essentials():
 	essential_defaults = mustInclude(full_defaults, keyword='essential')
 	return essential_defaults
 
+# --- Get a list of placeholders used whenever identifiers are left unspecified ---
+def identifiers():
+	return extractDefaults(copy.deepcopy(default_identifiers))
+
+# --- Get a list of placeholders used whenever identifiers are left unspecified (with the structure defined in this file) ---
+def full_identifiers():
+	return copy.deepcopy(default_identifiers)
+
 # --- Get a list of standard schedule files ---
-def schedules():
+def full_schedules():
 	return copy.deepcopy(default_schedules)
 
 # --- Get one of the standard schedule files, merged with all other default parameters (with the structure defined in this file)  ---
 def full_schedule(scheduleName):
-	return full_with_added(schedules()[scheduleName])
+	return full_with_added(full_schedules()[scheduleName])
 
 # --- Get one of the standard schedule files (with the structure defined in this file)  ---
 def full_brief_schedule(scheduleName):
-	return full_with_only(schedules()[scheduleName])
+	return full_with_only(full_schedules()[scheduleName])
 
 
 

@@ -228,6 +228,7 @@ def manage(on_startup_port=None, on_startup_schedule_file=None, on_startup_works
 		if((dispatcher is not None) and (not dispatcher.is_alive())):
 			dispatcher.join()
 			dispatcher = None
+			pipes.send(share, 'QueueToUI', {'type':'DispatcherStatus', 'status':{'running':False}})
 		
 		# If dispatcher is not running and UI is dead, exit the event loop
 		if((dispatcher is None) and (not ui.is_alive())):
