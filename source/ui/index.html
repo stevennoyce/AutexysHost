@@ -2644,21 +2644,21 @@
 				},
 				getProjects: function() {
 					var path = '/' + this.user + '/projects.json' + this.cacheBust;
-					this.getJSON(path, (response => {app.$data.projects = response}), "Error getting projects");
+					this.getJSON(path, (response => {this.projects = response}), "Error getting projects");
 				},
 				getWafers: function() {
 					var path = '/' + this.user + '/' + this.project + '/wafers.json' + this.cacheBust;
-					this.getJSON(path, (response => {app.$data.wafers = response}), "Error getting wafers");
+					this.getJSON(path, (response => {this.wafers = response}), "Error getting wafers");
 					
 					this.getIndexes();
 				},
 				getIndexes: function() {
 					var path = '/' + this.user + '/' + this.project + '/indexes.json' + this.cacheBust;
-					this.getJSON(path, (response => {app.$data.indexes = response}), "Error getting indexes");
+					this.getJSON(path, (response => {this.indexes = response}), "Error getting indexes");
 				},
 				getChips: function() {
 					var path = '/' + this.user + '/' + this.project + '/' + this.wafer + '/chips.json' + this.cacheBust;
-					this.getJSON(path, (response => {app.$data.chips = response}), "Error getting chips");
+					this.getJSON(path, (response => {this.chips = response}), "Error getting chips");
 				},
 				getDevices: function() {
 					var path = '/' + this.user + '/' + this.project + '/' + this.wafer + '/' + this.chip + '/devices.json' + this.cacheBust;
@@ -2673,7 +2673,7 @@
 							}
 							return device;
 						});
-						app.$data.devices = response;
+						this.devices = response;
 					}), "Error getting devices");
 				},
 				getExperiments: function() {
@@ -2684,7 +2684,7 @@
 							response[i]['uiComputed'] = {};
 							response[i]['uiComputed']['indexCount'] = response[i]['endIndexes']['index'] - response[i]['startIndexes']['index'];
 						}
-						app.$data.experiments = response;
+						this.experiments = response;
 						
 						// let lastExperiment = this.experiments[this.experiments.length - 1];
 						// let lastFinishedIndex = lastExperiment['endIndexes']['index'];
@@ -2703,47 +2703,47 @@
 				},
 				getRecentActivity: function() {
 					var path = '/' + this.user + '/' + this.recentActivityProject + '/' + this.recentActivityWafer + '/' + this.recentActivityChip + '/' + this.recentActivityDevice + '/' + this.recentActivityCategory + '/recentActivity.json' + this.cacheBust;
-					this.getJSON(path, (response => {app.$data.recentActivity = response}), "Error getting recent activity");
+					this.getJSON(path, (response => {this.recentActivity = response}), "Error getting recent activity");
 				},
 				
 				getDefaultParameters() {
 					var path1 = "/defaultParameters.json" + this.cacheBust;
-					this.getJSON(path1, (response => {app.$data.defaultParameters = response;}), "Error getting default parameters");
+					this.getJSON(path1, (response => {this.defaultParameters = response;}), "Error getting default parameters");
 					
 					var path2 = "/defaultParametersDescription.json" + this.cacheBust;
 					this.getJSON(path2, (response => {
-						app.$data.defaultParametersDescription = response;
-						app.$data.scheduleObjectDefault     = JSON.parse(JSON.stringify(response));
-						app.$data.scheduleObjects          = [JSON.parse(JSON.stringify(response))];
-						app.$data.performanceScheduleObject = JSON.parse(JSON.stringify(response));
-						app.$data.ptSensorScheduleObject = JSON.parse(JSON.stringify(response));
+						this.defaultParametersDescription = response;
+						this.scheduleObjectDefault     = JSON.parse(JSON.stringify(response));
+						this.scheduleObjects          = [JSON.parse(JSON.stringify(response))];
+						this.performanceScheduleObject = JSON.parse(JSON.stringify(response));
+						this.ptSensorScheduleObject = JSON.parse(JSON.stringify(response));
 					}), "Error getting default parameters description");
 					
 					var path3 = "/defaultEssentialParameters.json" + this.cacheBust;
-					this.getJSON(path3, (response => {app.$data.essentialScheduleParameters = response;}), "Error getting essential defaults");
+					this.getJSON(path3, (response => {this.essentialScheduleParameters = response;}), "Error getting essential defaults");
 					
 					var path4 = "/defaultIdentifiers.json" + this.cacheBust;
-					this.getJSON(path4, (response => {app.$data.defaultIdentifiers = response;}), "Error getting identifier defaults");
+					this.getJSON(path4, (response => {this.defaultIdentifiers = response;}), "Error getting identifier defaults");
 				},
 				getPaths: function() {
 					var path = '/paths.json' + this.cacheBust;
-					this.getJSON(path, (response => {app.$data.paths = response}), "Error getting paths");
+					this.getJSON(path, (response => {this.paths = response}), "Error getting paths");
 				},
 				getScheduleNames: function() {
 					var path1 = '/userDefinedScheduleNames.json' + this.cacheBust;
-					this.getJSON(path1, (response => {app.$data.userDefinedScheduleNames = response}), "Error getting all user-defined schedule names");
+					this.getJSON(path1, (response => {this.userDefinedScheduleNames = response}), "Error getting all user-defined schedule names");
 					
 					var path2 = '/standardScheduleNames.json' + this.cacheBust;
-					this.getJSON(path2, (response => {app.$data.standardScheduleNames = response}), "Error getting standard schedule names");
+					this.getJSON(path2, (response => {this.standardScheduleNames = response}), "Error getting standard schedule names");
 				},
 				
 				getPossibleChipPlots: function() {
 					var path = '/' + this.user + '/' + this.project + '/' + this.wafer + '/' + this.chip + '/availableChipPlots.json' + this.cacheBust;
-					this.getJSON(path, (response => {app.$data.possibleChipPlots = response}), "Error getting possible chip plots");
+					this.getJSON(path, (response => {this.possibleChipPlots = response}), "Error getting possible chip plots");
 				},
 				getPossibleDevicePlots: function() {
 					var path = '/' + this.user + '/' + this.project + '/' + this.wafer + '/' + this.chip + '/' + this.device + '/availableDevicePlots.json' + this.cacheBust;
-					this.getJSON(path, (response => {app.$data.possibleDevicePlots = response}), "Error getting possible device plots");
+					this.getJSON(path, (response => {this.possibleDevicePlots = response}), "Error getting possible device plots");
 				},
 				getReadMe: function() {
 					var path = '/readme.md';
@@ -2990,24 +2990,24 @@
 				},
 				runnerDispatch: function() {					
 					var path = this.launchDispatcherPath(this.runnerUser, this.runnerProject, this.runnerFileName);
-					this.getJSON(path, (response => {app.$data.dispatcherRunning = true}), "Error dispatching schedule file");
+					this.getJSON(path, (response => {this.dispatcherRunning = true}), "Error dispatching schedule file");
 				},
 				runnerStop: function() {
 					var path = this.stopDispatcherPath();
-					this.getJSON(path, (response => {app.$data.dispatcherRunning = false}), "Error stopping dispatcher");
+					this.getJSON(path, (response => {this.dispatcherRunning = false}), "Error stopping dispatcher");
 				},
 				
 				runnerLoadScheduleFile: function() {
 					if(this.runnerUser && this.runnerProject && this.runnerFileName) {
 						var path = this.loadBriefSchedulePath(this.runnerUser, this.runnerProject, this.runnerFileName, this.runnerLoadingFromDefaults);
 						
-						this.getJSON(path, (response => {app.$data.runnerScheduleObjects = response}), "Error loading schedule file (experiment runner).");
-						this.getJSON(path, (response => {app.$data.runnerScheduleObjectDefaults = response}), "Error loading schedule file (experiment runner).");
+						this.getJSON(path, (response => {this.runnerScheduleObjects = response}), "Error loading schedule file (experiment runner).");
+						this.getJSON(path, (response => {this.runnerScheduleObjectDefaults = response}), "Error loading schedule file (experiment runner).");
 						
 						var path = this.loadSchedulePath(this.runnerUser, this.runnerProject, this.runnerFileName, this.runnerLoadingFromDefaults);
 
-						this.getJSON(path, (response => {app.$data.runnerVerboseScheduleObjects = response}), "Error loading schedule file (experiment runner).");
-						this.getJSON(path, (response => {app.$data.runnerVerboseScheduleObjectDefaults = response}), "Error loading schedule file (experiment runner).");
+						this.getJSON(path, (response => {this.runnerVerboseScheduleObjects = response}), "Error loading schedule file (experiment runner).");
+						this.getJSON(path, (response => {this.runnerVerboseScheduleObjectDefaults = response}), "Error loading schedule file (experiment runner).");
 						
 						console.log("Loaded the active experiment runner schedule file: " + path);
 					}
@@ -3098,7 +3098,7 @@
 					var path = '/updateAFMRegistry' + this.cacheBust;
 					this.getJSON(path, (response => {
 						if (response['success']) {
-							app.$data.updateAFMRegistryTime = new Date();
+							this.updateAFMRegistryTime = new Date();
 						}
 					}), "Error updaing AFM registry");
 				},
@@ -3218,7 +3218,7 @@
 					var path = this.saveSchedulePath(this.creatorSaveUser, this.creatorSaveProject, this.creatorSaveFileName);
 										
 					console.log('saving path = ' + path);
-					this.postJSON(path, JSON.stringify(this.scheduleLines), (response => {app.$data.saveScheduleSuccessCode = response}), "Error saving schedule file.");
+					this.postJSON(path, JSON.stringify(this.scheduleLines), (response => {this.saveScheduleSuccessCode = response}), "Error saving schedule file.");
 					
 					if (this.runnerUser === '') this.runnerUser = this.creatorSaveUser;
 					if (this.runnerProject === '') this.runnerProject = this.creatorSaveProject;
@@ -3230,7 +3230,7 @@
 					var path = this.loadSchedulePath(this.creatorLoadUser, this.creatorLoadProject, this.creatorLoadFileName);
 					
 					console.log('loading path = ' + path);
-					this.getJSON(path, (response => {app.$data.scheduleObjects = response}), "Error loading schedule file");
+					this.getJSON(path, (response => {this.scheduleObjects = response}), "Error loading schedule file");
 					
 					if (this.creatorSaveUser === '') this.creatorSaveUser = this.creatorLoadUser;
 					if (this.creatorSaveProject === '') this.creatorSaveProject = this.creatorLoadProject;
@@ -3421,11 +3421,11 @@
 				},
 				performanceStart: function() {
 					var path = this.launchDispatcherPath('guest', 'Project', 'PerformanceApp');
-					this.getJSON(path, (response => {app.$data.performanceRunning = true}), "Error starting performance app");
+					this.getJSON(path, (response => {this.performanceRunning = true}), "Error starting performance app");
 				},
 				performanceStop: function() {
 					var path = this.stopDispatcherPath();
-					this.getJSON(path, (response => {app.$data.performanceRunning = false}), "Error stopping performance app");
+					this.getJSON(path, (response => {this.performanceRunning = false}), "Error stopping performance app");
 				},
 				
 				// === PT Sensor App ===
@@ -3456,11 +3456,11 @@
 				},
 				ptSensorStart: function() {
 					var path = this.launchDispatcherPath('guest', 'Project', 'PTSensorApp');
-					this.getJSON(path, (response => {app.$data.ptSensorRunning = true}), "Error starting PT sensor app");
+					this.getJSON(path, (response => {this.ptSensorRunning = true}), "Error starting PT sensor app");
 				},
 				ptSensorStop: function() {
 					var path = this.stopDispatcherPath();
-					this.getJSON(path, (response => {app.$data.ptSensorRunning = false}), "Error stopping PT sensor app");
+					this.getJSON(path, (response => {this.ptSensorRunning = false}), "Error stopping PT sensor app");
 				},
 				
 				// === Server Update ===
@@ -4178,8 +4178,8 @@
 							essentialsToInclude['runConfigs'] = {};
 							essentialsToInclude['runConfigs'][obj['runType']['default']] = this.essentialScheduleParameters['runConfigs'][obj['runType']['default']]
 							this.scheduleObjectDefault['runConfigs'][obj['runType']['default']]['dependencies']['value'].forEach(function(dependency) {
-								if(Object.keys(app.$data.essentialScheduleParameters['runConfigs']).includes(dependency)) {
-									essentialsToInclude['runConfigs'][dependency] = app.$data.essentialScheduleParameters['runConfigs'][dependency]
+								if(Object.keys(this.essentialScheduleParameters['runConfigs']).includes(dependency)) {
+									essentialsToInclude['runConfigs'][dependency] = this.essentialScheduleParameters['runConfigs'][dependency]
 								}
 							});
 						}
