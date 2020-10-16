@@ -1450,88 +1450,92 @@
 								</v-row>
 							</v-card>
 							
-							<v-row dense class="pt-1" v-if="benchtopOptions.system && connectedMeasurementSystem">
-								<v-col cols="6">
-									<v-card class="pa-3" :dark="benchtopOptions.channel1.enabled" :color="benchtopOptions.channel1.enabled? 'color7' : 'info'">
-										<v-row dense>
-											<v-col cols="6"><v-card-title>Channel 1 (VDS)</v-card-title></v-col>
-											<v-spacer></v-spacer>
-											<v-col class="pt-6">
-												<v-btn small dark @click="benchtopToggleChannel1()"
-													:depressed="benchtopOptions.channel1.enabled" 
-													:color="benchtopOptions.channel1.enabled? 'info darken-1' : 'color7'">
-													Turn {{ benchtopOptions.channel1.enabled? 'Off' : 'On' }}
-												</v-btn>
-											</v-col>
-										</v-row>
-										<template v-if="benchtopOptions.channel1.enabled">
-											<v-row class="pl-3 pr-3" >
-												<v-col cols="6" class="pb-0">
-													<v-text-field light filled rounded readonly background-color="info" label="Voltage" :suffix="benchtopOptions.channel1.voltage_units" 
-													v-model="benchtopOptions.channel1.voltage_measured"></v-text-field>
-												</v-col>
-												<v-col cols="6" class="pb-0">
-													<v-text-field light filled rounded readonly background-color="info" label="Current" :suffix="benchtopOptions.channel1.current_units" 
-													v-model="benchtopOptions.channel1.current_measured"></v-text-field>
+							<template v-if="benchtopOptions.system && connectedMeasurementSystem">
+								<v-row dense class="pt-1">
+									<v-col cols="6">
+										<v-card class="pa-3" :dark="benchtopOptions.channel1.enabled" :color="benchtopOptions.channel1.enabled? 'color7' : 'info'">
+											<v-row dense>
+												<v-col cols="6"><v-card-title>Channel 1 (VDS)</v-card-title></v-col>
+												<v-spacer></v-spacer>
+												<v-col class="pt-6">
+													<v-btn small dark @click="benchtopToggleChannel1()"
+														:depressed="benchtopOptions.channel1.enabled" 
+														:color="benchtopOptions.channel1.enabled? 'info darken-1' : 'color7'">
+														Turn {{ benchtopOptions.channel1.enabled? 'Off' : 'On' }}
+													</v-btn>
 												</v-col>
 											</v-row>
-											<v-card-actions class="pt-0">
+											<template v-if="benchtopOptions.channel1.enabled">
+												<v-row class="pl-3 pr-3" >
+													<v-col cols="6" class="pb-0">
+														<v-text-field light filled rounded readonly background-color="info" label="Voltage" :suffix="benchtopOptions.channel1.voltage_units" 
+														v-model="benchtopOptions.channel1.voltage_measured"></v-text-field>
+													</v-col>
+													<v-col cols="6" class="pb-0">
+														<v-text-field light filled rounded readonly background-color="info" label="Current" :suffix="benchtopOptions.channel1.current_units" 
+														v-model="benchtopOptions.channel1.current_measured"></v-text-field>
+													</v-col>
+												</v-row>
+												<v-card-actions class="pt-0">
+													<v-spacer></v-spacer>
+													<v-btn color="info darken-1" class="text-none" @click="benchtopIncrementChannel1(-0.05)">-50 mV</v-btn>
+													<v-spacer></v-spacer>
+													<v-text-field dense light filled rounded class="mt-6" label="Voltage Control" type="number"
+														:background-color="(benchtopOptions.channel1.input === benchtopOptions.channel1.setpoint)? 'info lighten-3' : 'info'"
+														:suffix="benchtopOptions.channel1.voltage_units" 
+														v-model.number="benchtopOptions.channel1.input" @change="benchtopApplyVoltageChannel1()"></v-text-field>
+													<v-spacer></v-spacer>
+													<v-btn color="info darken-1" class="text-none" @click="benchtopIncrementChannel1(0.05)">+50 mV</v-btn>
+													<v-spacer></v-spacer>
+												</v-card-actions>
+											</template>
+										</v-card>
+									</v-col>
+									<v-col cols="6">
+										<v-card class="pa-3" :dark="benchtopOptions.channel2.enabled" :color="benchtopOptions.channel2.enabled? 'color8' : 'info'">
+											<v-row dense>
+												<v-col cols="6"><v-card-title>Channel 2 (VGS)</v-card-title></v-col>
 												<v-spacer></v-spacer>
-												<v-btn color="info darken-1" class="text-none" @click="benchtopIncrementChannel1(-0.05)">-50 mV</v-btn>
-												<v-spacer></v-spacer>
-												<v-text-field dense light filled rounded class="mt-6" label="Voltage Control" type="number"
-													:background-color="(benchtopOptions.channel1.input === benchtopOptions.channel1.setpoint)? 'info lighten-3' : 'info'"
-													:suffix="benchtopOptions.channel1.voltage_units" 
-													v-model.number="benchtopOptions.channel1.input" @change="benchtopApplyVoltageChannel1()"></v-text-field>
-												<v-spacer></v-spacer>
-												<v-btn color="info darken-1" class="text-none" @click="benchtopIncrementChannel1(0.05)">+50 mV</v-btn>
-												<v-spacer></v-spacer>
-											</v-card-actions>
-										</template>
-									</v-card>
-								</v-col>
-								<v-col cols="6">
-									<v-card class="pa-3" :dark="benchtopOptions.channel2.enabled" :color="benchtopOptions.channel2.enabled? 'color8' : 'info'">
-										<v-row dense>
-											<v-col cols="6"><v-card-title>Channel 2 (VGS)</v-card-title></v-col>
-											<v-spacer></v-spacer>
-											<v-col class="pt-6">
-												<v-btn small dark @click="benchtopToggleChannel2()" 
-													:depressed="benchtopOptions.channel2.enabled" 
-													:color="benchtopOptions.channel2.enabled? 'info darken-1' : 'color8'">
-													Turn {{ benchtopOptions.channel2.enabled? 'Off' : 'On' }}
-												</v-btn>
-											</v-col>
-										</v-row>
-										<template v-if="benchtopOptions.channel2.enabled">
-											<v-row class="pl-3 pr-3">
-												<v-col cols="6" class="pb-0">
-													<v-text-field light filled rounded readonly background-color="info" label="Voltage"
-													:suffix="benchtopOptions.channel2.voltage_units" 
-													v-model="benchtopOptions.channel2.voltage_measured"></v-text-field>
-												</v-col>
-												<v-col cols="6" class="pb-0">
-													<v-text-field light filled rounded readonly background-color="info" label="Current" 
-													:suffix="benchtopOptions.channel2.current_units" 
-													v-model="benchtopOptions.channel2.current_measured"></v-text-field>
+												<v-col class="pt-6">
+													<v-btn small dark @click="benchtopToggleChannel2()" 
+														:depressed="benchtopOptions.channel2.enabled" 
+														:color="benchtopOptions.channel2.enabled? 'info darken-1' : 'color8'">
+														Turn {{ benchtopOptions.channel2.enabled? 'Off' : 'On' }}
+													</v-btn>
 												</v-col>
 											</v-row>
-											<v-card-actions class="pt-0">
-												<v-spacer></v-spacer>
-												<v-btn color="info darken-1" class="text-none" @click="benchtopIncrementChannel2(-0.05)">-50 mV</v-btn>
-												<v-spacer></v-spacer>
-												<v-text-field dense light filled rounded class="mt-6" label="Voltage Control" type="number"
-													:background-color="(benchtopOptions.channel2.input === benchtopOptions.channel2.setpoint)? 'info lighten-3' : 'info'"
-													:suffix="benchtopOptions.channel2.voltage_units" 
-													v-model.number="benchtopOptions.channel2.input" @change="benchtopApplyVoltageChannel2()"></v-text-field>
-												<v-spacer></v-spacer>
-												<v-btn color="info darken-1" class="text-none" @click="benchtopIncrementChannel2(0.05)">+50 mV</v-btn>
-												<v-spacer></v-spacer>
-											</v-card-actions>
-										</template>
-									</v-card>
-								</v-col>
-							</v-row>
+											<template v-if="benchtopOptions.channel2.enabled">
+												<v-row class="pl-3 pr-3">
+													<v-col cols="6" class="pb-0">
+														<v-text-field light filled rounded readonly background-color="info" label="Voltage"
+														:suffix="benchtopOptions.channel2.voltage_units" 
+														v-model="benchtopOptions.channel2.voltage_measured"></v-text-field>
+													</v-col>
+													<v-col cols="6" class="pb-0">
+														<v-text-field light filled rounded readonly background-color="info" label="Current" 
+														:suffix="benchtopOptions.channel2.current_units" 
+														v-model="benchtopOptions.channel2.current_measured"></v-text-field>
+													</v-col>
+												</v-row>
+												<v-card-actions class="pt-0">
+													<v-spacer></v-spacer>
+													<v-btn color="info darken-1" class="text-none" @click="benchtopIncrementChannel2(-0.05)">-50 mV</v-btn>
+													<v-spacer></v-spacer>
+													<v-text-field dense light filled rounded class="mt-6" label="Voltage Control" type="number"
+														:background-color="(benchtopOptions.channel2.input === benchtopOptions.channel2.setpoint)? 'info lighten-3' : 'info'"
+														:suffix="benchtopOptions.channel2.voltage_units" 
+														v-model.number="benchtopOptions.channel2.input" @change="benchtopApplyVoltageChannel2()"></v-text-field>
+													<v-spacer></v-spacer>
+													<v-btn color="info darken-1" class="text-none" @click="benchtopIncrementChannel2(0.05)">+50 mV</v-btn>
+													<v-spacer></v-spacer>
+												</v-card-actions>
+											</template>
+										</v-card>
+									</v-col>
+								</v-row>
+								
+								<v-slider vertical v-model="benchtopOptions.refresh_rate" :min="0.1" :max="10" :step="0.1" @end="benchtopSetRefreshRate(benchtopOptions.refresh_rate);"></v-slider>
+							</template>
 						</v-container>
 					</v-card>
 					<!-- End of benchtop -->
@@ -2488,6 +2492,7 @@
 				
 				benchtopOptions: {
 					system: undefined,
+					refresh_rate: 1,
 					channel1: {
 						enabled: false,
 						setpoint: 0,
@@ -2943,6 +2948,9 @@
 				launchDispatcherPath: function(user, project, fileName) {
 					return '/dispatchSchedule/'  + this.scheduleFilePath(user, project, fileName) + this.cacheBust;
 				},
+				launchDispatcherRunTypePath: function(runType) {
+					return '/dispatchRunType/' + runType + '.json' + this.cacheBust;	
+				},
 				stopDispatcherPath: function() {
 					return '/stopDispatcher' + this.cacheBust;
 				},
@@ -3347,7 +3355,7 @@
 					this.benchtopConnectToMeasurementSystem(system, callback=this.benchtopDispatch);
 				},
 				benchtopDispatch: function() {
-					var path = '/dispatchRunType/' + 'Benchtop' + this.cacheBust;
+					var path = this.launchDispatcherRunTypePath('Benchtop');
 					this.getJSON(path, (response => {console.log('Starting benchtop.');}), "Error dispatching benchtop");
 				},
 				benchtopStop: function() {
@@ -3400,11 +3408,26 @@
 					this.benchtopDisableChannel2();
 				},
 				
+				setBenchtopVoltagePath: function(channel, voltage) {
+					return '/setBenchtopVoltage/' + channel + '/' + voltage + '/';
+				},
+				setBenchtopRefreshRatePath: function(refresh_rate) {
+					return '/setBenchtopRefreshRate/' + refresh_rate + '/';
+				},
+				
 				benchtopApplyVoltageChannel1: function() {
 					this.benchtopOptions.channel1.setpoint = this.benchtopOptions.channel1.input;
+					var path = this.setBenchtopVoltagePath(1, this.benchtopOptions.channel1.setpoint);
+					this.getJSON(path, (response => {console.log('Set Benchtop channel1 voltage.')}), "Error setting benchtop voltage");
 				},
 				benchtopApplyVoltageChannel2: function() {
 					this.benchtopOptions.channel2.setpoint = this.benchtopOptions.channel2.input;
+					var path = this.setBenchtopVoltagePath(2, this.benchtopOptions.channel2.setpoint);
+					this.getJSON(path, (response => {console.log('Set Benchtop channel2 voltage.')}), "Error setting benchtop voltage");
+				},
+				benchtopSetRefreshRate: function(refresh_rate) {
+					var path = this.setBenchtopRefreshRatePath(refresh_rate);
+					this.getJSON(path, (response => {console.log('Set Benchtop refresh rate.')}), "Error setting benchtop refresh rate");
 				},
 				benchtopIncrementChannel1: function(increment) {
 					if(!this.benchtopOptions.channel1.input) this.benchtopOptions.channel1.input = 0;
@@ -3506,7 +3529,7 @@
 				
 				// === Server Update ===
 				
-				handleServerMessage: function(message) {
+				handleServerMessage: function(message) {					
 					if(message.type === 'ConnectionStatus') {
 						// Obtain connection status update from the message
 						this.availableMeasurementSystems = message.status.available_measurement_systems;
@@ -3533,11 +3556,11 @@
 								this.finishAcquiringMeasurementSystem();
 							}
 						} 
-					}
+					} else 
 					
 					if(message.type === 'DispatcherStatus') {
 						this.dispatcherRunning = message.status.running? true : false;
-					}
+					} else
 					
 					if (message.type === 'JobNumberUpdate') {
 						if(!Object.keys(this.livePlots).includes("" + message.number)){
@@ -3548,9 +3571,11 @@
 						this.jobSelectItems.push(message.number);
 						this.jobSelectActive = message.number;
 						this.jobSelectChoice = message.number;
-					}
+					} else
 
 					if (message.type === 'DeviceNumberUpdate') {
+						if(this.jobSelectActive === '') return;
+						
 						if(!Object.keys(this.livePlots[this.jobSelectActive]).includes(message.number)){
 							Vue.set(this.livePlots[this.jobSelectActive], message.number, {}); 
 							//this.livePlots[this.jobSelectActive][message.number] = {};
@@ -3559,7 +3584,7 @@
 						this.deviceSelectItems.push(message.number);
 						this.deviceSelectActive = message.number;
 						this.deviceSelectChoice = message.number;
-					}
+					} else
 
 					if (message.type === 'Progress') {
 						// Enable progress bar display
@@ -3592,7 +3617,7 @@
 							progressBarModel.current = message.progress.current;
 							progressBarModel.end = message.progress.end;
 						}
-					}
+					} else
 					
 					if (message.type === 'Data') {
 						this.showProgress = true;
@@ -3607,6 +3632,21 @@
 						
 						// Append data from this message to all relevant Live Plots
 						this.addNewLiveData(this.livePlots[this.jobSelectActive][this.deviceSelectActive], message.plots);
+					} else
+					
+					if (message.type === 'BenchtopMeasurement') {
+						var timestamp = message.timestamp; //TODO: make a scrolling plot of the past 30 seconds of measurements
+						
+						this.benchtopOptions.channel1.voltage_measured = message.measurement['V_ds'];
+						this.benchtopOptions.channel2.voltage_measured = message.measurement['V_gs'];
+						
+						var channel1_magnitude = this.scale_and_units(message.measurement['I_d']);
+						var channel2_magnitude = this.scale_and_units(message.measurement['I_g']);
+						
+						this.benchtopOptions.channel1.current_measured = (message.measurement['I_d'] * channel1_magnitude.scale).toFixed(1);
+						this.benchtopOptions.channel2.current_measured = (message.measurement['I_g'] * channel2_magnitude.scale).toFixed(1);
+						this.benchtopOptions.channel1.current_units = channel1_magnitude.units + 'A';
+						this.benchtopOptions.channel2.current_units = channel2_magnitude.units + 'A';
 					}
 				},
 
@@ -4175,7 +4215,14 @@
 						'subthreshold_fitted_vgs_data':vgs_subthreshold_region,
 					};
 				},
-				
+				scale_and_units: function(value) {
+					if(Math.abs(value) > 1)     return {scale: 1,    units: ''}; 
+					if(Math.abs(value) > 1e-3)  return {scale: 1e3,  units: 'm'}; 
+					if(Math.abs(value) > 1e-6)  return {scale: 1e6,  units: 'µ'}; 
+					if(Math.abs(value) > 1e-9)  return {scale: 1e9,  units: 'n'}; 
+					if(Math.abs(value) > 1e-12) return {scale: 1e12, units: 'p'}; 
+					return {scale: 1e15, units: 'f'}; 
+				},
 				
 			},
 			watch: {

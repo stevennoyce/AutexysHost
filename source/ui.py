@@ -110,35 +110,6 @@ def custom_connection_notification(json):
 
 
 
-# === Formatting ===
-def eprint(*args, **kwargs):
-	print(*args, file=sys.stderr, **kwargs)
-
-def replaceInfNan(obj):
-	if isinstance(obj, float):
-		if np.isnan(obj):
-			return None
-		if obj == float('inf'):
-			return 1e99
-		if obj == -float('inf'):
-			return -1e99
-		return obj
-	elif isinstance(obj, str):
-		return obj
-	elif isinstance(obj, bytes):
-		return obj
-	elif isinstance(obj, Sequence):
-		return [replaceInfNan(item) for item in obj]
-	elif isinstance(obj, Mapping):
-		return dict((key, replaceInfNan(value)) for key, value in obj.items())
-	else:
-		return obj
-
-def jsonvalid(obj):
-	return json.dumps(replaceInfNan(obj))
-
-
-
 # === Home Page ===
 @app.route('/')
 @app.route('/index')
@@ -163,6 +134,102 @@ def sendStaticUI(path):
 @app.route('/static/<path:path>')
 def sendStatic(path):
 	return flask.send_from_directory('../', path)
+	
+	
+	
+# === ===
+# Disable server-side caching
+@app.after_request
+def add_header(response):
+	response.cache_control.max_age = 0
+	response.cache_control.no_store = True
+	if('Cache-Control' not in response.headers):
+		response.headers['Cache-Control'] = 'no-store'
+	return response
+
+
+
+# === Webbrowser ===
+def findFirstOpenPort(startPort=1, blacklist=[5000]):
+	for port in range(startPort, 8081):
+		if(port not in blacklist):
+			with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+				try:
+					sock.bind((SOCKETIO_DEFAULT_IP_ADDRESS, port))
+					sock.close()
+					print('Port {} is available.'.format(port))
+					return port
+				except Exception as e:
+					print('Port {} is not available.'.format(port))
+				
+def launchBrowser(url):
+	socketio.sleep(2)
+	print('URL is "{}"'.format(url))
+	webbrowser.open_new(url)
+
+
+
+# === Main ===
+def start(share={}, debug=True, use_reloader=True, specific_port=None):
+	makeShareGlobal(share)
+	
+	if('AutexysUIRunning' in os.environ):
+		print('Reload detected. Not opening browser.')
+		print('Still running on port {}'.format(os.environ['AutexysUIPort']))
+	else:
+		port = specific_port if(specific_port is not None) else findFirstOpenPort(startPort=5000)
+		print('Using port {}'.format(port))
+	
+		os.environ['AutexysUIRunning'] = 'True'
+		os.environ['AutexysUIPort'] = str(port)
+		
+		launch_browser = (specific_port is None)
+		if(launch_browser):
+			print('Opening browser...')
+			url = 'http://'+ SOCKETIO_DEFAULT_IP_ADDRESS +':{:}/ui/index.html'.format(port)
+			socketio.start_background_task(launchBrowser, url)
+	
+	# app.run(debug=True, threaded=False, port=int(os.environ['AutexysUIPort']))
+	socketio.run(app, debug=debug, port=int(os.environ['AutexysUIPort']), use_reloader=use_reloader)
+
+def makeShareGlobal(localShare):
+	global share
+	share = localShare	
+
+
+
+
+
+# ========== Begin Custom Server API ==========
+# Everything from here onwards is a user-defined server function that is specific to this application.
+
+
+
+
+
+# === JSON Formatting ===
+def jsonvalid(obj):
+	return json.dumps(replaceInfNan(obj))
+
+def replaceInfNan(obj):
+	if isinstance(obj, float):
+		if np.isnan(obj):
+			return None
+		if obj == float('inf'):
+			return 1e99
+		if obj == -float('inf'):
+			return -1e99
+		return obj
+	elif isinstance(obj, str):
+		return obj
+	elif isinstance(obj, bytes):
+		return obj
+	elif isinstance(obj, Sequence):
+		return [replaceInfNan(item) for item in obj]
+	elif isinstance(obj, Mapping):
+		return dict((key, replaceInfNan(value)) for key, value in obj.items())
+	else:
+		return obj
 
 
 
@@ -189,6 +256,25 @@ def paths():
 
 
 
+# === System Parameters ===
+@app.route('/defaultParameters.json')
+def defaultParameters():
+	return jsonvalid(defaults.get())
+
+@app.route('/defaultParametersDescription.json')
+def defaultParametersDescription():
+	return jsonvalid(defaults.full())
+
+@app.route('/defaultEssentialParameters.json')
+def defaultEssentialParameters():
+	return jsonvalid(defaults.full_essentials())
+
+@app.route('/defaultIdentifiers.json')
+def defaultIdentifiers():
+	return jsonvalid(defaults.full_identifiers())
+	
+	
+	
 # === Measurement System Connection Status ===
 @app.route('/availableMeasurementSystems.json')
 def availableMeasurementSystems():	
@@ -211,25 +297,6 @@ def disconnectFromMeasurementSystem():
 	pipes.send(share, 'QueueToStatusChecker', {'type':'Disconnect'})
 	print('[UI]: Disconnection request has been sent.')
 	return jsonvalid({'success': True})
-
-
-
-# === System Parameters ===
-@app.route('/defaultParameters.json')
-def defaultParameters():
-	return jsonvalid(defaults.get())
-
-@app.route('/defaultParametersDescription.json')
-def defaultParametersDescription():
-	return jsonvalid(defaults.full())
-
-@app.route('/defaultEssentialParameters.json')
-def defaultEssentialParameters():
-	return jsonvalid(defaults.full_essentials())
-
-@app.route('/defaultIdentifiers.json')
-def defaultIdentifiers():
-	return jsonvalid(defaults.full_identifiers())
 
 
 
@@ -422,6 +489,38 @@ def recursiveFileSize(directory):
 		else:
 			total_size += recursiveFileSize(subpath)
 	return total_size
+	
+	
+	
+# === Data Export ===
+@app.route('/saveCSV/<user>/<project>/<wafer>/<chip>/<device>/<experiment>/data.csv')
+def saveCSV(user, project, wafer, chip, device, experiment):
+	# Find all '.json' files saved for this experiment
+	path = os.path.join(workspace_data_path, user, project, wafer, chip, device, 'Ex' + experiment)
+	fileNames = [os.path.basename(p) for p in glob.glob(os.path.join(path, '*.json'))]
+	
+	# Load data from all '.json' files
+	deviceHistories = [dlu.loadJSON(path, fileName) for fileName in fileNames]
+	
+	# Create data saving objects
+	proxy = io.StringIO()
+	filebuf = io.BytesIO()
+	
+	# Save into StringIO 
+	dlu.saveCSV(deviceHistories, proxy)
+	
+	# Convert from StringIO to BytesIO
+	filebuf.write(proxy.getvalue().encode('utf-8'))
+	proxy.close()
+	
+	filebuf.seek(0)
+	return flask.send_file(filebuf, attachment_filename='data.csv')
+
+@app.route('/getJSONData/<user>/<project>/<wafer>/<chip>/<device>/<experiment>/data.json')
+def getJSONData(user, project, wafer, chip, device, experiment):
+	path = os.path.join(workspace_data_path, user, project, wafer, chip, device, 'Ex' + experiment)
+	deviceHistory = dlu.loadJSON(path, 'GateSweep.json')
+	return jsonvalid(deviceHistory)
 
 
 
@@ -535,6 +634,106 @@ def availableChipPlots(user, project, wafer, chip):
 
 
 
+# === Benchtop ===
+@app.route('/setBenchtopVoltage/<channel>/<voltage>/')
+def setBenchtopVoltage(channel, voltage):
+	pipes.send(share, 'QueueToDispatcher', {'type':'SetVoltage', 'channel': int(channel), 'voltage': float(voltage)})
+	return jsonvalid({'success':True})
+	
+@app.route('/setBenchtopRefreshRate/<refresh_rate>/')
+def setBenchtopRefreshRate(refresh_rate):
+	pipes.send(share, 'QueueToDispatcher', {'type':'SetRefreshRate', 'refresh_rate': float(refresh_rate)})
+	return jsonvalid({'success':True})
+
+
+
+# === Schedule Files (Schecule Creator and Experiment Runner) ===
+@app.route('/saveSchedule/<user>/<project>/<fileName>', methods=['POST'])
+def saveSchedule(user, project, fileName):
+	# receivedJobs = json.loads(flask.request.args.get('jobs'))
+	receivedJobs = flask.request.get_json(force=True)
+	
+	# with open(os.path.join(workspace_data_path, user, project, 'schedules/', fileName + '.json'), 'w') as f:
+	# 	f.write(json.dumps(receivedJobs))
+	
+	dlu.makeEmptyJSONFile(os.path.join(workspace_data_path, user, project, 'schedules/'), fileName)
+	for job in receivedJobs:
+		dlu.saveJSON(os.path.join(workspace_data_path, user, project, 'schedules/'), fileName, defaults.extractDefaults(job), incrementIndex=False)
+	
+	return jsonvalid({'success':True})
+
+@app.route('/loadSchedule/<user>/<project>/<fileName>.json')
+def loadSchedule(user, project, fileName):
+	scheduleData = dlu.loadJSON(os.path.join(workspace_data_path, user, project, 'schedules/'), fileName + '.json')
+	
+	expandedScheduleData = []
+	for job in scheduleData:
+		expandedScheduleData.append(defaults.full_with_added(job))
+	
+	return jsonvalid(expandedScheduleData)
+
+@app.route('/loadBriefSchedule/<user>/<project>/<fileName>.json')
+def loadBriefSchedule(user, project, fileName):
+	scheduleData = dlu.loadJSON(os.path.join(workspace_data_path, user, project, 'schedules/'), fileName + '.json')
+	
+	expandedScheduleData = []
+	for job in scheduleData:
+		expandedScheduleData.append(defaults.full_with_only(job))
+	
+	return jsonvalid(expandedScheduleData)
+
+@app.route('/loadStandardSchedule/<fileName>.json')
+def loadStandardSchedule(fileName):
+	expandedScheduleData = [defaults.full_schedule(fileName)]
+	return jsonvalid(expandedScheduleData)
+
+@app.route('/loadBriefStandardSchedule/<fileName>.json')
+def loadBriefStandardSchedule(fileName):
+	expandedScheduleData = [defaults.full_brief_schedule(fileName)]
+	return jsonvalid(expandedScheduleData)
+
+@app.route('/dispatchSchedule/<user>/<project>/<fileName>.json')
+def dispatchSchedule(user, project, fileName):
+	scheduleFilePath = os.path.join(workspace_data_path, user, project, 'schedules', fileName + '.json')
+	print('[UI]: Requesting Dispatcher Run...')
+	pipes.send(share, 'QueueToManager', {'type':'Dispatch', 'dispatcher_command': scheduleFilePath, 'workspace_data_path': workspace_data_path})
+	print('[UI]: Run request has been sent.')
+	return jsonvalid({'success': True})
+
+@app.route('/dispatchRunType/<runType>.json')
+def dispatchRunType(runType):
+	print('[UI]: Requesting Dispatcher Run...')
+	pipes.send(share, 'QueueToManager', {'type':'Dispatch', 'dispatcher_command': runType, 'workspace_data_path': workspace_data_path})
+	print('[UI]: Run request has been sent.')
+	return jsonvalid({'success': True})
+
+@app.route('/stopDispatcher')
+def stopDispatcher():
+	print('[UI]: Requesting Dispatcher Abort...')
+	pipes.send(share, 'QueueToDispatcher', {'type':'Stop'})
+	print('[UI]: Abort request has been sent.')
+	return jsonvalid({'success': True})
+
+@app.route('/standardScheduleNames.json')
+def listStandardScheduleNames():
+	return jsonvalid(list(defaults.full_schedules().keys()))
+
+@app.route('/userDefinedScheduleNames.json')
+def loadUserDefinedScheduleNames():
+	getSubDirectories = lambda directory: [os.path.basename(os.path.dirname(g)) for g in glob.glob(directory + '/*/')]
+	
+	scheduleNames = {}
+	
+	for userName in getSubDirectories(workspace_data_path):
+		scheduleNames[userName] = {}
+		for projectName in getSubDirectories(os.path.join(workspace_data_path, userName)):
+			schedulePaths = glob.glob(os.path.join(workspace_data_path, userName, projectName, 'schedules/*.json'))
+			scheduleNames[userName][projectName] = [os.path.basename(schedule).split('.')[0] for schedule in schedulePaths]
+	
+	return jsonvalid(scheduleNames)
+
+
+
 # === README ===
 @app.route('/readme.md')
 def getReadMe():
@@ -635,93 +834,6 @@ def swapFilenames(file1, file2):
 
 
 
-# === Schedule Files ===
-@app.route('/saveSchedule/<user>/<project>/<fileName>', methods=['POST'])
-def saveSchedule(user, project, fileName):
-	# receivedJobs = json.loads(flask.request.args.get('jobs'))
-	receivedJobs = flask.request.get_json(force=True)
-	
-	# with open(os.path.join(workspace_data_path, user, project, 'schedules/', fileName + '.json'), 'w') as f:
-	# 	f.write(json.dumps(receivedJobs))
-	
-	dlu.makeEmptyJSONFile(os.path.join(workspace_data_path, user, project, 'schedules/'), fileName)
-	for job in receivedJobs:
-		dlu.saveJSON(os.path.join(workspace_data_path, user, project, 'schedules/'), fileName, defaults.extractDefaults(job), incrementIndex=False)
-	
-	return jsonvalid({'success':True})
-
-@app.route('/loadSchedule/<user>/<project>/<fileName>.json')
-def loadSchedule(user, project, fileName):
-	scheduleData = dlu.loadJSON(os.path.join(workspace_data_path, user, project, 'schedules/'), fileName + '.json')
-	
-	expandedScheduleData = []
-	for job in scheduleData:
-		expandedScheduleData.append(defaults.full_with_added(job))
-	
-	return jsonvalid(expandedScheduleData)
-
-@app.route('/loadBriefSchedule/<user>/<project>/<fileName>.json')
-def loadBriefSchedule(user, project, fileName):
-	scheduleData = dlu.loadJSON(os.path.join(workspace_data_path, user, project, 'schedules/'), fileName + '.json')
-	
-	expandedScheduleData = []
-	for job in scheduleData:
-		expandedScheduleData.append(defaults.full_with_only(job))
-	
-	return jsonvalid(expandedScheduleData)
-
-@app.route('/loadStandardSchedule/<fileName>.json')
-def loadStandardSchedule(fileName):
-	expandedScheduleData = [defaults.full_schedule(fileName)]
-	return jsonvalid(expandedScheduleData)
-
-@app.route('/loadBriefStandardSchedule/<fileName>.json')
-def loadBriefStandardSchedule(fileName):
-	expandedScheduleData = [defaults.full_brief_schedule(fileName)]
-	return jsonvalid(expandedScheduleData)
-
-@app.route('/dispatchSchedule/<user>/<project>/<fileName>.json')
-def dispatchSchedule(user, project, fileName):
-	scheduleFilePath = os.path.join(workspace_data_path, user, project, 'schedules', fileName + '.json')
-	print('[UI]: Requesting Dispatcher Run...')
-	pipes.send(share, 'QueueToManager', {'type':'Dispatch', 'dispatcher_command': scheduleFilePath, 'workspace_data_path': workspace_data_path})
-	print('[UI]: Run request has been sent.')
-	return jsonvalid({'success': True})
-
-@app.route('/dispatchRunType/<runType>.json')
-def dispatchRunType(runType):
-	print('[UI]: Requesting Dispatcher Run...')
-	pipes.send(share, 'QueueToManager', {'type':'Dispatch', 'dispatcher_command': runType, 'workspace_data_path': workspace_data_path})
-	print('[UI]: Run request has been sent.')
-	return jsonvalid({'success': True})
-
-@app.route('/stopDispatcher')
-def stopDispatcher():
-	print('[UI]: Requesting Dispatcher Abort...')
-	pipes.send(share, 'QueueToDispatcher', {'type':'Stop'})
-	print('[UI]: Abort request has been sent.')
-	return jsonvalid({'success': True})
-
-@app.route('/standardScheduleNames.json')
-def listStandardScheduleNames():
-	return jsonvalid(list(defaults.full_schedules().keys()))
-
-@app.route('/userDefinedScheduleNames.json')
-def loadUserDefinedScheduleNames():
-	getSubDirectories = lambda directory: [os.path.basename(os.path.dirname(g)) for g in glob.glob(directory + '/*/')]
-	
-	scheduleNames = {}
-	
-	for userName in getSubDirectories(workspace_data_path):
-		scheduleNames[userName] = {}
-		for projectName in getSubDirectories(os.path.join(workspace_data_path, userName)):
-			schedulePaths = glob.glob(os.path.join(workspace_data_path, userName, projectName, 'schedules/*.json'))
-			scheduleNames[userName][projectName] = [os.path.basename(schedule).split('.')[0] for schedule in schedulePaths]
-	
-	return jsonvalid(scheduleNames)
-
-
-
 # === AFM ===
 @app.route('/AFMFilesInTimestampRange/<startTime>/<endTime>/associatedAFMs.json')
 def AFMFilesInTimestampRange(startTime, endTime):
@@ -748,99 +860,6 @@ def updateAFMRegistry():
 	AFMReader.updateAFMRegistry(workspace_data_path)
 	
 	return jsonvalid({'success':True})
-
-
-
-# === Data Export ===
-@app.route('/saveCSV/<user>/<project>/<wafer>/<chip>/<device>/<experiment>/data.csv')
-def saveCSV(user, project, wafer, chip, device, experiment):
-	# Find all '.json' files saved for this experiment
-	path = os.path.join(workspace_data_path, user, project, wafer, chip, device, 'Ex' + experiment)
-	fileNames = [os.path.basename(p) for p in glob.glob(os.path.join(path, '*.json'))]
-	
-	# Load data from all '.json' files
-	deviceHistories = [dlu.loadJSON(path, fileName) for fileName in fileNames]
-	
-	# Create data saving objects
-	proxy = io.StringIO()
-	filebuf = io.BytesIO()
-	
-	# Save into StringIO 
-	dlu.saveCSV(deviceHistories, proxy)
-	
-	# Convert from StringIO to BytesIO
-	filebuf.write(proxy.getvalue().encode('utf-8'))
-	proxy.close()
-	
-	filebuf.seek(0)
-	return flask.send_file(filebuf, attachment_filename='data.csv')
-
-@app.route('/getJSONData/<user>/<project>/<wafer>/<chip>/<device>/<experiment>/data.json')
-def getJSONData(user, project, wafer, chip, device, experiment):
-	path = os.path.join(workspace_data_path, user, project, wafer, chip, device, 'Ex' + experiment)
-	deviceHistory = dlu.loadJSON(path, 'GateSweep.json')
-	return jsonvalid(deviceHistory)
-
-
-
-# === ===
-# Disable server-side caching
-@app.after_request
-def add_header(response):
-	response.cache_control.max_age = 0
-	response.cache_control.no_store = True
-	if('Cache-Control' not in response.headers):
-		response.headers['Cache-Control'] = 'no-store'
-	return response
-
-
-
-# === Webbrowser ===
-def findFirstOpenPort(startPort=1, blacklist=[5000]):
-	for port in range(startPort, 8081):
-		if(port not in blacklist):
-			with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-				try:
-					sock.bind((SOCKETIO_DEFAULT_IP_ADDRESS, port))
-					sock.close()
-					print('Port {} is available.'.format(port))
-					return port
-				except Exception as e:
-					print('Port {} is not available.'.format(port))
-				
-def launchBrowser(url):
-	socketio.sleep(2)
-	print('URL is "{}"'.format(url))
-	webbrowser.open_new(url)
-
-
-
-# === Main ===
-def start(share={}, debug=True, use_reloader=True, specific_port=None):
-	makeShareGlobal(share)
-	
-	if('AutexysUIRunning' in os.environ):
-		print('Reload detected. Not opening browser.')
-		print('Still running on port {}'.format(os.environ['AutexysUIPort']))
-	else:
-		port = specific_port if(specific_port is not None) else findFirstOpenPort(startPort=5000)
-		print('Using port {}'.format(port))
-	
-		os.environ['AutexysUIRunning'] = 'True'
-		os.environ['AutexysUIPort'] = str(port)
-		
-		launch_browser = (specific_port is None)
-		if(launch_browser):
-			print('Opening browser...')
-			url = 'http://'+ SOCKETIO_DEFAULT_IP_ADDRESS +':{:}/ui/index.html'.format(port)
-			socketio.start_background_task(launchBrowser, url)
-	
-	# app.run(debug=True, threaded=False, port=int(os.environ['AutexysUIPort']))
-	socketio.run(app, debug=debug, port=int(os.environ['AutexysUIPort']), use_reloader=use_reloader)
-
-def makeShareGlobal(localShare):
-	global share
-	share = localShare
 	
 
 

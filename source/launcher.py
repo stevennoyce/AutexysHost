@@ -339,7 +339,7 @@ def initializeArduino(parameters):
 # === Load Procedures ===	
 from procedures import Gate_Sweep
 from procedures import Drain_Sweep
-from procedures import Free_Run
+from procedures import Benchtop
 
 from procedures import Static_Bias
 from procedures import Rapid_Bias
@@ -352,6 +352,7 @@ from procedures import Auto_Static_Bias
 from procedures import Noise_Collection
 from procedures import Noise_Grid
 
+from procedures import Free_Run
 from procedures import Inverter_Sweep
 from procedures import Inverter_Bias
 from procedures import AFM_Control
@@ -367,7 +368,7 @@ def explicitlyInitializeProcedures():
 	basic_procedures = [
 		['GateSweep',  Gate_Sweep],
 		['DrainSweep', Drain_Sweep],
-		['FreeRun',    Free_Run],
+		['Benchtop',   Benchtop],
 	]
 	
 	timed_procedures = [
@@ -388,6 +389,7 @@ def explicitlyInitializeProcedures():
 	]
 	
 	specialized_procedures = [
+		['FreeRun',    Free_Run],
 		['InverterSweep', Inverter_Sweep],
 		['InverterBias',  Inverter_Bias],
 		['AFMControl',    AFM_Control],

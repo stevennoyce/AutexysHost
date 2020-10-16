@@ -44,7 +44,7 @@ def dispatch(input_command, workspace_data_path=None, connection_status=None, sh
 	
 	send_notification_via_pushbullet(
 		'Completed Main at {}'.format(time.strftime('%I:%M %p on %a')), 
-		'Script has finished choice of: {}'.format(choice)
+		'Script has finished choice of: {}'.format(input_command)
 	)
 
 
