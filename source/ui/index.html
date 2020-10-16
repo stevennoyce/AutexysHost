@@ -1534,7 +1534,22 @@
 									</v-col>
 								</v-row>
 								
-								<v-slider vertical v-model="benchtopOptions.refresh_rate" :min="0.1" :max="10" :step="0.1" @end="benchtopSetRefreshRate(benchtopOptions.refresh_rate);"></v-slider>
+								<template v-if="benchtopOptions.channel1.enabled || benchtopOptions.channel2.enabled">
+									<v-row dense class="mb-n4">
+										<v-spacer v-if="!benchtopOptions.channel1.enabled"></v-spacer>
+										<v-col cols="6">
+											<v-slider thumb-label :min="-5" :max="10" :step="0.1" label="Refresh Rate (Hz)" color="color_benchtop lighten-1" @end="benchtopApplyRefreshRate();" v-model="benchtopOptions.refresh_rate">
+												<template v-slot:thumb-label="{ value }">
+													{{ benchtopRefreshRate }}
+												</template>
+											</v-slider>
+										</v-col>
+									</v-row>
+									
+									<v-card dark color="#4B4B4B">
+										<a-plotly v-bind:data="extractPlotlyData(benchtopOptions.plot)" :layout="extractPlotlyLayout(benchtopOptions.plot)"></a-plotly>
+									</v-card>
+								</template>
 							</template>
 						</v-container>
 					</v-card>
@@ -2511,6 +2526,21 @@
 						voltage_units: 'V',
 						current_units: 'µA',
 					},
+					start_time: undefined,
+					plot: {
+						'plotID': 'Benchtop',
+						'xAxisTitle':'Time',
+						'yAxisTitle':'Current (A)',
+						'yScale':'linear',
+						'plotMode':'lines+markers',
+						'color': '',
+						'theme': 'dark',
+						'xRange': [0, 30],
+						'traces':{
+							'channel1':{xData:[], yData:[], color:'#3F51B5', traceID:'CH1'},
+							'channel2':{xData:[], yData:[], color:'#880E7F', traceID:'CH2'},
+						},
+					},
 				},
 
 				// === Performance App ===
@@ -3384,6 +3414,7 @@
 					this.benchtopOptions.channel1.enabled = true;
 				},
 				benchtopDisableChannel1: function() {
+					if(!this.benchtopOptions.channel2.enabled) this.benchtopClear();
 					this.benchtopOptions.channel1.enabled = false;
 					this.benchtopOptions.channel1.input = 0;
 					this.benchtopApplyVoltageChannel1();
@@ -3399,6 +3430,7 @@
 					this.benchtopOptions.channel2.enabled = true;
 				},
 				benchtopDisableChannel2: function() {
+					if(!this.benchtopOptions.channel1.enabled) this.benchtopClear();
 					this.benchtopOptions.channel2.enabled = false;
 					this.benchtopOptions.channel2.input = 0;
 					this.benchtopApplyVoltageChannel2();
@@ -3425,9 +3457,13 @@
 					var path = this.setBenchtopVoltagePath(2, this.benchtopOptions.channel2.setpoint);
 					this.getJSON(path, (response => {console.log('Set Benchtop channel2 voltage.')}), "Error setting benchtop voltage");
 				},
-				benchtopSetRefreshRate: function(refresh_rate) {
-					var path = this.setBenchtopRefreshRatePath(refresh_rate);
+				benchtopApplyRefreshRate: function() {
+					var path = this.setBenchtopRefreshRatePath(this.benchtopRefreshRate);
 					this.getJSON(path, (response => {console.log('Set Benchtop refresh rate.')}), "Error setting benchtop refresh rate");
+				},
+				benchtopResetRefreshRate: function() {
+					this.benchtopOptions.refresh_rate = 1;
+					this.benchtopApplyRefreshRate();
 				},
 				benchtopIncrementChannel1: function(increment) {
 					if(!this.benchtopOptions.channel1.input) this.benchtopOptions.channel1.input = 0;
@@ -3438,6 +3474,18 @@
 					if(!this.benchtopOptions.channel1.input) this.benchtopOptions.channel1.input = 0;
 					this.benchtopOptions.channel2.input = parseFloat((this.benchtopOptions.channel2.input + increment).toFixed(3));
 					this.benchtopApplyVoltageChannel2();
+				},
+				
+				benchtopClear: function() {
+					this.benchtopResetRefreshRate();
+					this.benchtopClearPlots();
+				},
+				benchtopClearPlots: function() {
+					this.benchtopOptions.start_time = undefined;
+					this.benchtopOptions.plot.traces.channel1.xData = [];
+					this.benchtopOptions.plot.traces.channel1.yData = [];
+					this.benchtopOptions.plot.traces.channel2.xData = [];
+					this.benchtopOptions.plot.traces.channel2.yData = [];
 				},
 				
 				// === Performance App ===
@@ -3635,8 +3683,7 @@
 					} else
 					
 					if (message.type === 'BenchtopMeasurement') {
-						var timestamp = message.timestamp; //TODO: make a scrolling plot of the past 30 seconds of measurements
-						
+						// Display measurements
 						this.benchtopOptions.channel1.voltage_measured = message.measurement['V_ds'];
 						this.benchtopOptions.channel2.voltage_measured = message.measurement['V_gs'];
 						
@@ -3647,6 +3694,17 @@
 						this.benchtopOptions.channel2.current_measured = (message.measurement['I_g'] * channel2_magnitude.scale).toFixed(1);
 						this.benchtopOptions.channel1.current_units = channel1_magnitude.units + 'A';
 						this.benchtopOptions.channel2.current_units = channel2_magnitude.units + 'A';
+						
+						// Plot over time 
+						if(this.benchtopOptions.start_time === undefined) this.benchtopOptions.start_time = message.timestamp;
+						var timestamp = message.timestamp - this.benchtopOptions.start_time
+						
+						this.benchtopOptions.plot.traces.channel1.xData.push(timestamp); 
+						this.benchtopOptions.plot.traces.channel1.yData.push(message.measurement['I_d']);
+						this.benchtopOptions.plot.traces.channel2.xData.push(timestamp);
+						this.benchtopOptions.plot.traces.channel2.yData.push(message.measurement['I_g']);
+						
+						if(timestamp > 30) this.benchtopOptions.plot.xRange = [timestamp-30,timestamp];
 					}
 				},
 
@@ -3858,12 +3916,13 @@
 				extractPlotlyLayout: function(plot) {
 					 return {
 						xaxis: { 
-							autorange: true,
+							autorange: (plot.xRange)? false : true,
+							range: (plot.xRange)? plot.xRange : undefined,
 							title: plot.xAxisTitle,
 							
 							zeroline: false,
 							zerolinewidth: 1,
-							showgrid: true,
+							showgrid: (plot.theme === 'dark')? false : true,
 							gridwidth: 1,
 							showline: true,
 							linewidth: 2,
@@ -3900,12 +3959,15 @@
 								size: 12,
 							},
 						}, 
+						paper_bgcolor: 'rgba(0,0,0,0)',
+						plot_bgcolor: 'rgba(0,0,0,0)',
 						margin: {l: 75, r: 20, b: 75, t: 20, pad: 1}, 
 						automargin: true, 
 						autosize: true, 
 						font:{
 							family: 'Arial',
 							size: 12,
+							color: (plot.theme === 'dark')? 'rgb(250,250,250)' : '',
 						},
 						exponentformat:'SI',
 					};
@@ -4285,6 +4347,12 @@
 				
 				dynamicRecentActivityTableHeaders: function() {
 					return this.recentActivityHeaders.filter(h => h.visible);
+				},
+				
+				benchtopRefreshRate: function() {
+					if(this.benchtopOptions.refresh_rate > 1) return this.benchtopOptions.refresh_rate;
+					if(this.benchtopOptions.refresh_rate > 0) return 1;
+					return (10 ** (this.benchtopOptions.refresh_rate/5)).toFixed(2);
 				},
 				
 				performanceMetrics: function() {
