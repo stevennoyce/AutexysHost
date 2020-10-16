@@ -3704,7 +3704,8 @@
 						this.benchtopOptions.plot.traces.channel2.xData.push(timestamp);
 						this.benchtopOptions.plot.traces.channel2.yData.push(message.measurement['I_g']);
 						
-						if(timestamp > 30) this.benchtopOptions.plot.xRange = [timestamp-30,timestamp];
+						// Adjust live plot to always show the last 30 seconds of data
+						this.benchtopOptions.plot.xRange = (timestamp > 30)? [timestamp-30,timestamp] : [0,30];
 					}
 				},
 
