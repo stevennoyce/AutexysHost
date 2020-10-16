@@ -1537,7 +1537,7 @@
 								<template v-if="benchtopOptions.channel1.enabled || benchtopOptions.channel2.enabled">
 									<v-row dense class="mb-n4">
 										<v-spacer v-if="!benchtopOptions.channel1.enabled"></v-spacer>
-										<v-col cols="6">
+										<v-col :cols="(benchtopOptions.channel1.enabled && benchtopOptions.channel2.enabled)? 12 : 6">
 											<v-slider thumb-label :min="-5" :max="10" :step="0.1" label="Refresh Rate (Hz)" color="color_benchtop lighten-1" @end="benchtopApplyRefreshRate();" v-model="benchtopOptions.refresh_rate">
 												<template v-slot:thumb-label="{ value }">
 													{{ benchtopRefreshRate }}
@@ -1546,9 +1546,25 @@
 										</v-col>
 									</v-row>
 									
-									<v-card dark color="#4B4B4B">
+									<v-card dark color="#4B4B4B" v-if="benchtopOptions.plot.traces.channel1.visible || benchtopOptions.plot.traces.channel2.visible">
 										<a-plotly v-bind:data="extractPlotlyData(benchtopOptions.plot)" :layout="extractPlotlyLayout(benchtopOptions.plot)"></a-plotly>
 									</v-card>
+									
+									<v-row dense class="mt-2">
+										<v-col cols="3" v-if="benchtopOptions.channel1.enabled">
+											<v-checkbox label="Track Channel 1" v-model="benchtopOptions.plot.traces.channel1.visible" 
+											color="color7" class="mt-0"></v-checkbox>
+										</v-col>
+										<v-spacer></v-spacer>
+										<v-col cols="6">
+											<v-slider thumb-label :min="15" :max="60" :step="1" label="Tracking Window (s)" color="color_benchtop lighten-1" v-model="benchtopOptions.tracking_window"></v-text-field>
+										</v-col>
+										<v-spacer></v-spacer>
+										<v-col cols="3" v-if="benchtopOptions.channel2.enabled" class="d-flex justify-end">
+											<v-checkbox label="Track Channel 2" v-model="benchtopOptions.plot.traces.channel2.visible" 
+											color="color8" class="mt-0 mr-2"></v-checkbox>
+										</v-col>
+									</v-row>
 								</template>
 							</template>
 						</v-container>
@@ -1851,8 +1867,6 @@
 																			   | withUnits(item.units) }}</td>
 														</tr>		
 													</tbody>
-												</template>
-													
 												</template>
 											</v-data-table>
 										</v-card>
@@ -2508,6 +2522,7 @@
 				benchtopOptions: {
 					system: undefined,
 					refresh_rate: 1,
+					tracking_window: 30,
 					channel1: {
 						enabled: false,
 						setpoint: 0,
@@ -2527,6 +2542,7 @@
 						current_units: 'µA',
 					},
 					start_time: undefined,
+					peak_value: 0,
 					plot: {
 						'plotID': 'Benchtop',
 						'xAxisTitle':'Time',
@@ -2536,9 +2552,10 @@
 						'color': '',
 						'theme': 'dark',
 						'xRange': [0, 30],
+						'yRange': undefined,
 						'traces':{
-							'channel1':{xData:[], yData:[], color:'#3F51B5', traceID:'CH1'},
-							'channel2':{xData:[], yData:[], color:'#880E7F', traceID:'CH2'},
+							'channel1':{xData:[], yData:[], color:'#3F51B5', traceID:'CH1', visible:false},
+							'channel2':{xData:[], yData:[], color:'#880E7F', traceID:'CH2', visible:false},
 						},
 					},
 				},
@@ -3410,15 +3427,6 @@
 						this.benchtopEnableChannel1();
 					}
 				},
-				benchtopEnableChannel1: function() {
-					this.benchtopOptions.channel1.enabled = true;
-				},
-				benchtopDisableChannel1: function() {
-					if(!this.benchtopOptions.channel2.enabled) this.benchtopClear();
-					this.benchtopOptions.channel1.enabled = false;
-					this.benchtopOptions.channel1.input = 0;
-					this.benchtopApplyVoltageChannel1();
-				},
 				benchtopToggleChannel2: function() {
 					if(this.benchtopOptions.channel2.enabled) {
 						this.benchtopDisableChannel2();
@@ -3426,14 +3434,27 @@
 						this.benchtopEnableChannel2();
 					}
 				},
+				benchtopEnableChannel1: function() {
+					this.benchtopOptions.channel1.enabled = true;
+					this.benchtopOptions.plot.traces.channel1.visible = true;
+				},
 				benchtopEnableChannel2: function() {
 					this.benchtopOptions.channel2.enabled = true;
+					this.benchtopOptions.plot.traces.channel2.visible = true;
+				},
+				benchtopDisableChannel1: function() {
+					this.benchtopOptions.channel1.enabled = false;
+					this.benchtopOptions.plot.traces.channel1.visible = false;
+					this.benchtopOptions.channel1.input = 0;
+					this.benchtopApplyVoltageChannel1();
+					if(!this.benchtopOptions.channel2.enabled) this.benchtopClear();
 				},
 				benchtopDisableChannel2: function() {
-					if(!this.benchtopOptions.channel1.enabled) this.benchtopClear();
 					this.benchtopOptions.channel2.enabled = false;
+					this.benchtopOptions.plot.traces.channel2.visible = false;
 					this.benchtopOptions.channel2.input = 0;
 					this.benchtopApplyVoltageChannel2();
+					if(!this.benchtopOptions.channel1.enabled) this.benchtopClear();
 				},
 				benchtopDisableChannels: function() {
 					this.benchtopDisableChannel1();
@@ -3457,14 +3478,6 @@
 					var path = this.setBenchtopVoltagePath(2, this.benchtopOptions.channel2.setpoint);
 					this.getJSON(path, (response => {console.log('Set Benchtop channel2 voltage.')}), "Error setting benchtop voltage");
 				},
-				benchtopApplyRefreshRate: function() {
-					var path = this.setBenchtopRefreshRatePath(this.benchtopRefreshRate);
-					this.getJSON(path, (response => {console.log('Set Benchtop refresh rate.')}), "Error setting benchtop refresh rate");
-				},
-				benchtopResetRefreshRate: function() {
-					this.benchtopOptions.refresh_rate = 1;
-					this.benchtopApplyRefreshRate();
-				},
 				benchtopIncrementChannel1: function(increment) {
 					if(!this.benchtopOptions.channel1.input) this.benchtopOptions.channel1.input = 0;
 					this.benchtopOptions.channel1.input = parseFloat((this.benchtopOptions.channel1.input + increment).toFixed(3));
@@ -3476,12 +3489,22 @@
 					this.benchtopApplyVoltageChannel2();
 				},
 				
+				benchtopApplyRefreshRate: function() {
+					var path = this.setBenchtopRefreshRatePath(this.benchtopRefreshRate);
+					this.getJSON(path, (response => {console.log('Set Benchtop refresh rate.')}), "Error setting benchtop refresh rate");
+				},
+				benchtopResetRefreshRate: function() {
+					this.benchtopOptions.refresh_rate = 1;
+					this.benchtopApplyRefreshRate();
+				},
+				
 				benchtopClear: function() {
 					this.benchtopResetRefreshRate();
 					this.benchtopClearPlots();
 				},
 				benchtopClearPlots: function() {
 					this.benchtopOptions.start_time = undefined;
+					this.benchtopOptions.peak_value = 0;
 					this.benchtopOptions.plot.traces.channel1.xData = [];
 					this.benchtopOptions.plot.traces.channel1.yData = [];
 					this.benchtopOptions.plot.traces.channel2.xData = [];
@@ -3697,15 +3720,21 @@
 						
 						// Plot over time 
 						if(this.benchtopOptions.start_time === undefined) this.benchtopOptions.start_time = message.timestamp;
-						var timestamp = message.timestamp - this.benchtopOptions.start_time
+						this.benchtopOptions.peak_value = Math.max(this.benchtopOptions.peak_value, Math.abs(message.measurement['I_d']));
+						this.benchtopOptions.peak_value = Math.max(this.benchtopOptions.peak_value, Math.abs(message.measurement['I_g']));
 						
+						var timestamp = message.timestamp - this.benchtopOptions.start_time
 						this.benchtopOptions.plot.traces.channel1.xData.push(timestamp); 
 						this.benchtopOptions.plot.traces.channel1.yData.push(message.measurement['I_d']);
 						this.benchtopOptions.plot.traces.channel2.xData.push(timestamp);
 						this.benchtopOptions.plot.traces.channel2.yData.push(message.measurement['I_g']);
 						
-						// Adjust live plot to always show the last 30 seconds of data
-						this.benchtopOptions.plot.xRange = (timestamp > 30)? [timestamp-30,timestamp] : [0,30];
+						// Adjust plot x-axis to always show the last 30 seconds of data
+						this.benchtopOptions.plot.xRange = (timestamp > this.benchtopOptions.tracking_window)? 
+							[timestamp-this.benchtopOptions.tracking_window,timestamp] : [0,this.benchtopOptions.tracking_window];
+						
+						//Adjust plot y-axis to prevent auto-zooming in to closer than +/- 1 nA
+						this.benchtopOptions.plot.yRange = (this.benchtopOptions.peak_value > 1e-9)? undefined : [-1e-9,1e-9];
 					}
 				},
 
@@ -3907,6 +3936,7 @@
 							x: trace.xData,
 							y: trace.yData,
 							mode: (trace.mode)? trace.mode : plot.plotMode,
+							visible: (trace.visible !== undefined)? trace.visible : true, 
 							line:   {width: 3, dash: 'solid',  color: (trace.color)? trace.color : plot.color},
 							marker: {size: 9, symbol:'circle', color: (trace.color)? trace.color : plot.color},
 							//showlegend: true,
@@ -3936,7 +3966,8 @@
 						}, 
 						yaxis: {
 							type: plot.yScale, 
-							autorange: true,
+							autorange: (plot.yRange)? false : true,
+							range: (plot.yRange)? plot.yRange : undefined,
 							title: plot.yAxisTitle, 
 							
 							zeroline: false,
