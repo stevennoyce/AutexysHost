@@ -684,7 +684,14 @@ def loadBriefStandardSchedule(fileName):
 def dispatchSchedule(user, project, fileName):
 	scheduleFilePath = os.path.join(workspace_data_path, user, project, 'schedules', fileName + '.json')
 	print('[UI]: Requesting Dispatcher Run...')
-	pipes.send(share, 'QueueToManager', {'type':'Dispatch', 'scheduleFilePath': scheduleFilePath, 'workspace_data_path': workspace_data_path})
+	pipes.send(share, 'QueueToManager', {'type':'Dispatch', 'dispatcher_command': scheduleFilePath, 'workspace_data_path': workspace_data_path})
+	print('[UI]: Run request has been sent.')
+	return jsonvalid({'success': True})
+
+@app.route('/dispatchRunType/<runType>.json')
+def dispatchRunType(runType):
+	print('[UI]: Requesting Dispatcher Run...')
+	pipes.send(share, 'QueueToManager', {'type':'Dispatch', 'dispatcher_command': runType, 'workspace_data_path': workspace_data_path})
 	print('[UI]: Run request has been sent.')
 	return jsonvalid({'success': True})
 

@@ -33,7 +33,7 @@ def run(additional_parameters, workspace_data_path=None, connection_status=None,
 	parameters = defaults.with_added(additional_parameters)
 
 	# if workspace_data_path was specified, use that as the data folder for this procedure (instead of the value loaded from defaults.py)
-	parameters['dataFolder'] = workspace_data_path   if(workspace_data_path is not None)            else parameters['dataFolder']
+	parameters['dataFolder'] = workspace_data_path if(workspace_data_path is not None) else parameters['dataFolder']
 
 	# additional_parameters is required to specify valid user, project, wafer, chip, device
 	placeholder_identifiers = defaults.identifiers()

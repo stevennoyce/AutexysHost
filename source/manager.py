@@ -98,8 +98,8 @@ def runUI(specific_port, share):
 
 
 # === Dispatcher ===
-def startDispatcher(scheduleFilePath, workspace_data_path, share, connection_status=None):
-	"""Start a Process running dispatcher.dispatch(scheduleFilePath) and use shared Queues for communication."""
+def startDispatcher(dispatcher_command, workspace_data_path, share, connection_status=None):
+	"""Start a Process running dispatcher.dispatch(dispatcher_command) and use shared Queues for communication."""
 	
 	# Clear the dispatcher message queue of old messages before starting a new instance
 	pipes.clear(share, 'QueueToDispatcher')
@@ -107,14 +107,14 @@ def startDispatcher(scheduleFilePath, workspace_data_path, share, connection_sta
 	# Clear the procedure stop locations since dispatcher is just beginning
 	share['procedureStopLocations'][:] = []
 	
-	dispatcherProcess = mp.Process(target=runDispatcher, args=(scheduleFilePath, workspace_data_path, share, connection_status))
+	dispatcherProcess = mp.Process(target=runDispatcher, args=(dispatcher_command, workspace_data_path, share, connection_status))
 	dispatcherProcess.start()
 	return dispatcherProcess
 
-def runDispatcher(scheduleFilePath, workspace_data_path, share, connection_status=None):
+def runDispatcher(dispatcher_command, workspace_data_path, share, connection_status=None):
 	"""A target method for running the dispatcher that also imports the dispatcher so the parent process does not have that dependency."""
 	import dispatcher
-	dispatcher.dispatch(scheduleFilePath, workspace_data_path, connection_status, share)
+	dispatcher.dispatch(dispatcher_command, workspace_data_path, connection_status, share)
 
 
 
@@ -202,9 +202,9 @@ def manage(on_startup_port=None, on_startup_schedule_file=None, on_startup_works
 				# Spin out a new dispatcher sub-process
 				if(message.get('type') == 'Dispatch'):
 					if(dispatcher is None):
-						scheduleFilePath = message['scheduleFilePath']
+						dispatcher_command = message['dispatcher_command']
 						workspace_data_path = message['workspace_data_path']
-						dispatcher = startDispatcher(scheduleFilePath, workspace_data_path, share, connection_status)
+						dispatcher = startDispatcher(dispatcher_command, workspace_data_path, share, connection_status)
 					else:
 						print('[MANAGER]: Error: dispatcher is already running; wait for it to finish before starting another job.')
 			

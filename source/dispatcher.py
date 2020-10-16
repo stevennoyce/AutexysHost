@@ -23,19 +23,24 @@ if(__name__ == '__main__'):
 
 
 # === Main entry point for dispatching a schedule file ===
-def dispatch(schedule_file_path=None, workspace_data_path=None, connection_status=None, share=None):
-	"""Given a schedule file path, begin executing the experiments in the schedule file, otherwise prompt the user for a schedule file."""
+def dispatch(input_command, workspace_data_path=None, connection_status=None, share=None):
+	"""Given an input command that is a valid schedule file path, begin executing the experiments in the schedule file, otherwise treat the input as a runType and attempt to launch it directly."""
 	
-	if(schedule_file_path is not None):
-		choice = schedule_file_path
+	# Check if the input is a file
+	isFile = input_command[-5:] == '.json'
+	
+	if(isFile):
+		print('Dispatcher received a schedule file input.')
+		schedule_file_path = input_command
+		schedule_file_path = schedule_file_path.strip()
+	
+		run_file(schedule_file_path, workspace_data_path, connection_status, share)
 	else:
-		choice = input('Choose a schedule file to run: ')
-	
-	# File must end in '.json'
-	file = choice if(choice[-5:] == '.json') else (str(choice) + '.json')
-	file = file.strip()
-	
-	run_file(file, workspace_data_path, connection_status, share)
+		print('Dispatcher received a runType input.')
+		runType = input_command
+		additional_parameters = {'runType':runType}
+		
+		launcher.run(additional_parameters, workspace_data_path, connection_status, share)
 	
 	send_notification_via_pushbullet(
 		'Completed Main at {}'.format(time.strftime('%I:%M %p on %a')), 
@@ -133,9 +138,9 @@ def dispatch_cycler(schedule_file_path, pipe=None):
 
 if(__name__ == '__main__'):
 	if((len(sys.argv) > 1)):
-		dispatch(schedule_file_path=sys.argv[1])
+		dispatch(input_command=sys.argv[1])
 	else:
-		dispatch()
+		print('Dispatcher was unable to run without a valid command-line input.')
 	
 	
 	
