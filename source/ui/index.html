@@ -1413,7 +1413,7 @@
 									</v-col>
 								</v-row>
 							</v-card>
-							<template v-if="!benchtopOptions.system">
+							<template v-if="!benchtop.system">
 								<v-card light class="pl-3 pr-3" color="info" v-for="system in availableMeasurementSystems" :key="system.uniqueID">
 									<v-row dense>
 										<v-col cols="6">
@@ -1432,48 +1432,48 @@
 									</v-row>
 								</v-card>
 							</template>
-							<v-card light class="pl-3 pr-3" color="info" v-if="benchtopOptions.system">
+							<v-card light class="pl-3 pr-3" color="info" v-if="benchtop.system">
 								<v-row dense>
 									<v-col cols="6">
 										<v-card-title>
 											<v-avatar color="success" class="mr-3"><v-icon dark>power</v-icon></v-avatar>
-											{{ benchtopOptions.system.name }}
+											{{ benchtop.system.name }}
 										</v-card-title>
 									</v-col>
 									<v-spacer></v-spacer>
 									<v-spacer></v-spacer>
 									<v-col class="pt-7">
-										<v-btn dark depressed color="info darken-1" @click="benchtopStop();" :disabled="benchtopOptions.system && !connectedMeasurementSystem">
-											{{ (benchtopOptions.system && !connectedMeasurementSystem)? 'Connecting' : 'Disconnect' }}
+										<v-btn dark depressed color="info darken-1" @click="benchtopStop();" :disabled="benchtop.system && !connectedMeasurementSystem">
+											{{ (benchtop.system && !connectedMeasurementSystem)? 'Connecting' : 'Disconnect' }}
 										</v-btn>
 									</v-col>
 								</v-row>
 							</v-card>
 							
-							<template v-if="benchtopOptions.system && connectedMeasurementSystem">
+							<template v-if="benchtop.system && connectedMeasurementSystem">
 								<v-row dense class="pt-1">
 									<v-col cols="6">
-										<v-card class="pa-3" :dark="benchtopOptions.channel1.enabled" :color="benchtopOptions.channel1.enabled? 'color7' : 'info'">
+										<v-card class="pa-3" :dark="benchtop.channel1.enabled" :color="benchtop.channel1.enabled? 'color7' : 'info'">
 											<v-row dense>
 												<v-col cols="6"><v-card-title>Channel 1 (VDS)</v-card-title></v-col>
 												<v-spacer></v-spacer>
 												<v-col class="pt-6">
 													<v-btn small dark @click="benchtopToggleChannel1()"
-														:depressed="benchtopOptions.channel1.enabled" 
-														:color="benchtopOptions.channel1.enabled? 'info darken-1' : 'color7'">
-														Turn {{ benchtopOptions.channel1.enabled? 'Off' : 'On' }}
+														:depressed="benchtop.channel1.enabled" 
+														:color="benchtop.channel1.enabled? 'info darken-1' : 'color7'">
+														Turn {{ benchtop.channel1.enabled? 'Off' : 'On' }}
 													</v-btn>
 												</v-col>
 											</v-row>
-											<template v-if="benchtopOptions.channel1.enabled">
+											<template v-if="benchtop.channel1.enabled">
 												<v-row class="pl-3 pr-3" >
 													<v-col cols="6" class="pb-0">
-														<v-text-field light filled rounded readonly background-color="info" label="Voltage" :suffix="benchtopOptions.channel1.voltage_units" 
-														v-model="benchtopOptions.channel1.voltage_measured"></v-text-field>
+														<v-text-field light filled rounded readonly background-color="info" label="Voltage" :suffix="benchtop.channel1.voltage_units" 
+														v-model="benchtop.channel1.voltage_measured"></v-text-field>
 													</v-col>
 													<v-col cols="6" class="pb-0">
-														<v-text-field light filled rounded readonly background-color="info" label="Current" :suffix="benchtopOptions.channel1.current_units" 
-														v-model="benchtopOptions.channel1.current_measured"></v-text-field>
+														<v-text-field light filled rounded readonly background-color="info" label="Current" :suffix="benchtop.channel1.current_units" 
+														v-model="benchtop.channel1.current_measured"></v-text-field>
 													</v-col>
 												</v-row>
 												<v-card-actions class="pt-0">
@@ -1481,9 +1481,9 @@
 													<v-btn color="info darken-1" class="text-none" @click="benchtopIncrementChannel1(-0.05)">-50 mV</v-btn>
 													<v-spacer></v-spacer>
 													<v-text-field dense light filled rounded class="mt-6" label="Voltage Control" type="number"
-														:background-color="(benchtopOptions.channel1.input === benchtopOptions.channel1.setpoint)? 'info lighten-3' : 'info'"
-														:suffix="benchtopOptions.channel1.voltage_units" 
-														v-model.number="benchtopOptions.channel1.input" @change="benchtopApplyVoltageChannel1()"></v-text-field>
+														:background-color="(benchtop.channel1.input === benchtop.channel1.setpoint)? 'info lighten-3' : 'info'"
+														:suffix="benchtop.channel1.voltage_units" 
+														v-model.number="benchtop.channel1.input" @change="benchtopApplyVoltageChannel1()"></v-text-field>
 													<v-spacer></v-spacer>
 													<v-btn color="info darken-1" class="text-none" @click="benchtopIncrementChannel1(0.05)">+50 mV</v-btn>
 													<v-spacer></v-spacer>
@@ -1492,29 +1492,29 @@
 										</v-card>
 									</v-col>
 									<v-col cols="6">
-										<v-card class="pa-3" :dark="benchtopOptions.channel2.enabled" :color="benchtopOptions.channel2.enabled? 'color8' : 'info'">
+										<v-card class="pa-3" :dark="benchtop.channel2.enabled" :color="benchtop.channel2.enabled? 'color8' : 'info'">
 											<v-row dense>
 												<v-col cols="6"><v-card-title>Channel 2 (VGS)</v-card-title></v-col>
 												<v-spacer></v-spacer>
 												<v-col class="pt-6">
 													<v-btn small dark @click="benchtopToggleChannel2()" 
-														:depressed="benchtopOptions.channel2.enabled" 
-														:color="benchtopOptions.channel2.enabled? 'info darken-1' : 'color8'">
-														Turn {{ benchtopOptions.channel2.enabled? 'Off' : 'On' }}
+														:depressed="benchtop.channel2.enabled" 
+														:color="benchtop.channel2.enabled? 'info darken-1' : 'color8'">
+														Turn {{ benchtop.channel2.enabled? 'Off' : 'On' }}
 													</v-btn>
 												</v-col>
 											</v-row>
-											<template v-if="benchtopOptions.channel2.enabled">
+											<template v-if="benchtop.channel2.enabled">
 												<v-row class="pl-3 pr-3">
 													<v-col cols="6" class="pb-0">
 														<v-text-field light filled rounded readonly background-color="info" label="Voltage"
-														:suffix="benchtopOptions.channel2.voltage_units" 
-														v-model="benchtopOptions.channel2.voltage_measured"></v-text-field>
+														:suffix="benchtop.channel2.voltage_units" 
+														v-model="benchtop.channel2.voltage_measured"></v-text-field>
 													</v-col>
 													<v-col cols="6" class="pb-0">
 														<v-text-field light filled rounded readonly background-color="info" label="Current" 
-														:suffix="benchtopOptions.channel2.current_units" 
-														v-model="benchtopOptions.channel2.current_measured"></v-text-field>
+														:suffix="benchtop.channel2.current_units" 
+														v-model="benchtop.channel2.current_measured"></v-text-field>
 													</v-col>
 												</v-row>
 												<v-card-actions class="pt-0">
@@ -1522,9 +1522,9 @@
 													<v-btn color="info darken-1" class="text-none" @click="benchtopIncrementChannel2(-0.05)">-50 mV</v-btn>
 													<v-spacer></v-spacer>
 													<v-text-field dense light filled rounded class="mt-6" label="Voltage Control" type="number"
-														:background-color="(benchtopOptions.channel2.input === benchtopOptions.channel2.setpoint)? 'info lighten-3' : 'info'"
-														:suffix="benchtopOptions.channel2.voltage_units" 
-														v-model.number="benchtopOptions.channel2.input" @change="benchtopApplyVoltageChannel2()"></v-text-field>
+														:background-color="(benchtop.channel2.input === benchtop.channel2.setpoint)? 'info lighten-3' : 'info'"
+														:suffix="benchtop.channel2.voltage_units" 
+														v-model.number="benchtop.channel2.input" @change="benchtopApplyVoltageChannel2()"></v-text-field>
 													<v-spacer></v-spacer>
 													<v-btn color="info darken-1" class="text-none" @click="benchtopIncrementChannel2(0.05)">+50 mV</v-btn>
 													<v-spacer></v-spacer>
@@ -1534,11 +1534,11 @@
 									</v-col>
 								</v-row>
 								
-								<template v-if="benchtopOptions.channel1.enabled || benchtopOptions.channel2.enabled">
+								<template v-if="benchtop.channel1.enabled || benchtop.channel2.enabled">
 									<v-row dense class="mb-n4">
-										<v-spacer v-if="!benchtopOptions.channel1.enabled"></v-spacer>
-										<v-col :cols="(benchtopOptions.channel1.enabled && benchtopOptions.channel2.enabled)? 12 : 6">
-											<v-slider thumb-label :min="-5" :max="10" :step="0.1" label="Refresh Rate (Hz)" color="color_benchtop lighten-1" @end="benchtopApplyRefreshRate();" v-model="benchtopOptions.refresh_rate">
+										<v-spacer v-if="!benchtop.channel1.enabled"></v-spacer>
+										<v-col :cols="(benchtop.channel1.enabled && benchtop.channel2.enabled)? 12 : 6">
+											<v-slider thumb-label :min="-5" :max="10" :step="0.1" label="Refresh Rate (Hz)" color="color_benchtop lighten-1" @end="benchtopApplyRefreshRate();" v-model="benchtop.refresh_rate">
 												<template v-slot:thumb-label="{ value }">
 													{{ benchtopRefreshRate }}
 												</template>
@@ -1546,22 +1546,22 @@
 										</v-col>
 									</v-row>
 									
-									<v-card dark color="#4B4B4B" v-if="benchtopOptions.plot.traces.channel1.visible || benchtopOptions.plot.traces.channel2.visible">
-										<a-plotly v-bind:data="extractPlotlyData(benchtopOptions.plot)" :layout="extractPlotlyLayout(benchtopOptions.plot)"></a-plotly>
+									<v-card dark color="#4B4B4B" v-if="benchtop.plot.traces.channel1.visible || benchtop.plot.traces.channel2.visible">
+										<a-plotly v-bind:data="extractPlotlyData(benchtop.plot)" :layout="extractPlotlyLayout(benchtop.plot)"></a-plotly>
 									</v-card>
 									
 									<v-row dense class="mt-2">
-										<v-col cols="3" v-if="benchtopOptions.channel1.enabled">
-											<v-checkbox label="Track Channel 1" v-model="benchtopOptions.plot.traces.channel1.visible" 
+										<v-col cols="3" v-if="benchtop.channel1.enabled">
+											<v-checkbox label="Track Channel 1" v-model="benchtop.plot.traces.channel1.visible" 
 											color="color7" class="mt-0"></v-checkbox>
 										</v-col>
 										<v-spacer></v-spacer>
 										<v-col cols="6">
-											<v-slider thumb-label :min="15" :max="60" :step="1" label="Tracking Window (s)" color="color_benchtop lighten-1" v-model="benchtopOptions.tracking_window"></v-text-field>
+											<v-slider thumb-label :min="15" :max="60" :step="1" label="Tracking Window (s)" color="color_benchtop lighten-1" v-model="benchtop.plot_info.tracking_window"></v-text-field>
 										</v-col>
 										<v-spacer></v-spacer>
-										<v-col cols="3" v-if="benchtopOptions.channel2.enabled" class="d-flex justify-end">
-											<v-checkbox label="Track Channel 2" v-model="benchtopOptions.plot.traces.channel2.visible" 
+										<v-col cols="3" v-if="benchtop.channel2.enabled" class="d-flex justify-end">
+											<v-checkbox label="Track Channel 2" v-model="benchtop.plot.traces.channel2.visible" 
 											color="color8" class="mt-0 mr-2"></v-checkbox>
 										</v-col>
 									</v-row>
@@ -2519,10 +2519,9 @@
 
 				// === Benchtop ===
 				
-				benchtopOptions: {
+				benchtop: {
 					system: undefined,
 					refresh_rate: 1,
-					tracking_window: 30,
 					channel1: {
 						enabled: false,
 						setpoint: 0,
@@ -2541,8 +2540,13 @@
 						voltage_units: 'V',
 						current_units: 'µA',
 					},
-					start_time: undefined,
-					peak_value: 0,
+					plot_info:{
+						start_time: undefined,
+						tracking_window: 30,
+						peak_value: 0,
+						min_ylimit: 1e-9,	
+						max_data_length: 500,
+					},
 					plot: {
 						'plotID': 'Benchtop',
 						'xAxisTitle':'Time',
@@ -2864,7 +2868,7 @@
 						console.log("Requested disconnection from measurement system.");
 						
 						// Also disconnect from benchtop system (if applicable)
-						if(this.benchtopOptions.system) this.benchtopDisconnectFromMeasurementSystem();
+						if(this.benchtop.system) this.benchtopDisconnectFromMeasurementSystem();
 					}), "Error disconnecting from measurement systems.");
 				},
 				
@@ -3412,49 +3416,49 @@
 				},
 				
 				benchtopConnectToMeasurementSystem: function(system, callback) {
-					this.benchtopOptions.system = system;
+					this.benchtop.system = system;
 					this.specificallyAcquireMeasurementSystem(system, callback=callback, timeout=undefined);
 				},
 				benchtopDisconnectFromMeasurementSystem: function() {
-					this.benchtopOptions.system = undefined;
+					this.benchtop.system = undefined;
 					this.benchtopDisableChannels();
 				},
 				
 				benchtopToggleChannel1: function() {
-					if(this.benchtopOptions.channel1.enabled) {
+					if(this.benchtop.channel1.enabled) {
 						this.benchtopDisableChannel1();
 					} else {
 						this.benchtopEnableChannel1();
 					}
 				},
 				benchtopToggleChannel2: function() {
-					if(this.benchtopOptions.channel2.enabled) {
+					if(this.benchtop.channel2.enabled) {
 						this.benchtopDisableChannel2();
 					} else {
 						this.benchtopEnableChannel2();
 					}
 				},
 				benchtopEnableChannel1: function() {
-					this.benchtopOptions.channel1.enabled = true;
-					this.benchtopOptions.plot.traces.channel1.visible = true;
+					this.benchtop.channel1.enabled = true;
+					this.benchtop.plot.traces.channel1.visible = true;
 				},
 				benchtopEnableChannel2: function() {
-					this.benchtopOptions.channel2.enabled = true;
-					this.benchtopOptions.plot.traces.channel2.visible = true;
+					this.benchtop.channel2.enabled = true;
+					this.benchtop.plot.traces.channel2.visible = true;
 				},
 				benchtopDisableChannel1: function() {
-					this.benchtopOptions.channel1.enabled = false;
-					this.benchtopOptions.plot.traces.channel1.visible = false;
-					this.benchtopOptions.channel1.input = 0;
+					this.benchtop.channel1.enabled = false;
+					this.benchtop.plot.traces.channel1.visible = false;
+					this.benchtop.channel1.input = 0;
 					this.benchtopApplyVoltageChannel1();
-					if(!this.benchtopOptions.channel2.enabled) this.benchtopClear();
+					if(!this.benchtop.channel2.enabled) this.benchtopClear();
 				},
 				benchtopDisableChannel2: function() {
-					this.benchtopOptions.channel2.enabled = false;
-					this.benchtopOptions.plot.traces.channel2.visible = false;
-					this.benchtopOptions.channel2.input = 0;
+					this.benchtop.channel2.enabled = false;
+					this.benchtop.plot.traces.channel2.visible = false;
+					this.benchtop.channel2.input = 0;
 					this.benchtopApplyVoltageChannel2();
-					if(!this.benchtopOptions.channel1.enabled) this.benchtopClear();
+					if(!this.benchtop.channel1.enabled) this.benchtopClear();
 				},
 				benchtopDisableChannels: function() {
 					this.benchtopDisableChannel1();
@@ -3469,23 +3473,23 @@
 				},
 				
 				benchtopApplyVoltageChannel1: function() {
-					this.benchtopOptions.channel1.setpoint = this.benchtopOptions.channel1.input;
-					var path = this.setBenchtopVoltagePath(1, this.benchtopOptions.channel1.setpoint);
+					this.benchtop.channel1.setpoint = this.benchtop.channel1.input;
+					var path = this.setBenchtopVoltagePath(1, this.benchtop.channel1.setpoint);
 					this.getJSON(path, (response => {console.log('Set Benchtop channel1 voltage.')}), "Error setting benchtop voltage");
 				},
 				benchtopApplyVoltageChannel2: function() {
-					this.benchtopOptions.channel2.setpoint = this.benchtopOptions.channel2.input;
-					var path = this.setBenchtopVoltagePath(2, this.benchtopOptions.channel2.setpoint);
+					this.benchtop.channel2.setpoint = this.benchtop.channel2.input;
+					var path = this.setBenchtopVoltagePath(2, this.benchtop.channel2.setpoint);
 					this.getJSON(path, (response => {console.log('Set Benchtop channel2 voltage.')}), "Error setting benchtop voltage");
 				},
 				benchtopIncrementChannel1: function(increment) {
-					if(!this.benchtopOptions.channel1.input) this.benchtopOptions.channel1.input = 0;
-					this.benchtopOptions.channel1.input = parseFloat((this.benchtopOptions.channel1.input + increment).toFixed(3));
+					if(!this.benchtop.channel1.input) this.benchtop.channel1.input = 0;
+					this.benchtop.channel1.input = parseFloat((this.benchtop.channel1.input + increment).toFixed(3));
 					this.benchtopApplyVoltageChannel1();
 				},
 				benchtopIncrementChannel2: function(increment) {
-					if(!this.benchtopOptions.channel1.input) this.benchtopOptions.channel1.input = 0;
-					this.benchtopOptions.channel2.input = parseFloat((this.benchtopOptions.channel2.input + increment).toFixed(3));
+					if(!this.benchtop.channel1.input) this.benchtop.channel1.input = 0;
+					this.benchtop.channel2.input = parseFloat((this.benchtop.channel2.input + increment).toFixed(3));
 					this.benchtopApplyVoltageChannel2();
 				},
 				
@@ -3494,7 +3498,7 @@
 					this.getJSON(path, (response => {console.log('Set Benchtop refresh rate.')}), "Error setting benchtop refresh rate");
 				},
 				benchtopResetRefreshRate: function() {
-					this.benchtopOptions.refresh_rate = 1;
+					this.benchtop.refresh_rate = 1;
 					this.benchtopApplyRefreshRate();
 				},
 				
@@ -3503,12 +3507,12 @@
 					this.benchtopClearPlots();
 				},
 				benchtopClearPlots: function() {
-					this.benchtopOptions.start_time = undefined;
-					this.benchtopOptions.peak_value = 0;
-					this.benchtopOptions.plot.traces.channel1.xData = [];
-					this.benchtopOptions.plot.traces.channel1.yData = [];
-					this.benchtopOptions.plot.traces.channel2.xData = [];
-					this.benchtopOptions.plot.traces.channel2.yData = [];
+					this.benchtop.plot_info.start_time = undefined;
+					this.benchtop.plot_info.peak_value = 0;
+					this.benchtop.plot.traces.channel1.xData = [];
+					this.benchtop.plot.traces.channel1.yData = [];
+					this.benchtop.plot.traces.channel2.xData = [];
+					this.benchtop.plot.traces.channel2.yData = [];
 				},
 				
 				// === Performance App ===
@@ -3607,7 +3611,7 @@
 						this.connectedMeasurementSystem = message.status.connected_system? message.status.connected_system : undefined;
 						
 						// Inform Benchtop mode if connection was unsuccessful
-						if(this.benchtopOptions.system && !this.connectedMeasurementSystem) this.benchtopDisconnectFromMeasurementSystem();
+						if(this.benchtop.system && !this.connectedMeasurementSystem) this.benchtopDisconnectFromMeasurementSystem();
 						
 						// If Step 2 of auto-acquiring just completed, it is time to call the finish-up function
 						if(this.acquiringMeasurementSystem.status === 'connecting') {
@@ -3707,34 +3711,44 @@
 					
 					if (message.type === 'BenchtopMeasurement') {
 						// Display measurements
-						this.benchtopOptions.channel1.voltage_measured = message.measurement['V_ds'];
-						this.benchtopOptions.channel2.voltage_measured = message.measurement['V_gs'];
+						this.benchtop.channel1.voltage_measured = message.measurement['V_ds'];
+						this.benchtop.channel2.voltage_measured = message.measurement['V_gs'];
 						
 						var channel1_magnitude = this.scale_and_units(message.measurement['I_d']);
 						var channel2_magnitude = this.scale_and_units(message.measurement['I_g']);
 						
-						this.benchtopOptions.channel1.current_measured = (message.measurement['I_d'] * channel1_magnitude.scale).toFixed(1);
-						this.benchtopOptions.channel2.current_measured = (message.measurement['I_g'] * channel2_magnitude.scale).toFixed(1);
-						this.benchtopOptions.channel1.current_units = channel1_magnitude.units + 'A';
-						this.benchtopOptions.channel2.current_units = channel2_magnitude.units + 'A';
+						this.benchtop.channel1.current_measured = (message.measurement['I_d'] * channel1_magnitude.scale).toFixed(1);
+						this.benchtop.channel2.current_measured = (message.measurement['I_g'] * channel2_magnitude.scale).toFixed(1);
+						this.benchtop.channel1.current_units = channel1_magnitude.units + 'A';
+						this.benchtop.channel2.current_units = channel2_magnitude.units + 'A';
 						
 						// Plot over time 
-						if(this.benchtopOptions.start_time === undefined) this.benchtopOptions.start_time = message.timestamp;
-						this.benchtopOptions.peak_value = Math.max(this.benchtopOptions.peak_value, Math.abs(message.measurement['I_d']));
-						this.benchtopOptions.peak_value = Math.max(this.benchtopOptions.peak_value, Math.abs(message.measurement['I_g']));
+						if(this.benchtop.plot_info.start_time === undefined) this.benchtop.plot_info.start_time = message.timestamp;
+						this.benchtop.plot_info.peak_value = Math.max(this.benchtop.plot_info.peak_value, Math.abs(message.measurement['I_d']));
+						this.benchtop.plot_info.peak_value = Math.max(this.benchtop.plot_info.peak_value, Math.abs(message.measurement['I_g']));
 						
-						var timestamp = message.timestamp - this.benchtopOptions.start_time
-						this.benchtopOptions.plot.traces.channel1.xData.push(timestamp); 
-						this.benchtopOptions.plot.traces.channel1.yData.push(message.measurement['I_d']);
-						this.benchtopOptions.plot.traces.channel2.xData.push(timestamp);
-						this.benchtopOptions.plot.traces.channel2.yData.push(message.measurement['I_g']);
+						var timestamp = message.timestamp - this.benchtop.plot_info.start_time
+						this.benchtop.plot.traces.channel1.xData.push(timestamp); 
+						this.benchtop.plot.traces.channel1.yData.push(message.measurement['I_d']);
+						this.benchtop.plot.traces.channel2.xData.push(timestamp);
+						this.benchtop.plot.traces.channel2.yData.push(message.measurement['I_g']);
 						
 						// Adjust plot x-axis to always show the last 30 seconds of data
-						this.benchtopOptions.plot.xRange = (timestamp > this.benchtopOptions.tracking_window)? 
-							[timestamp-this.benchtopOptions.tracking_window,timestamp] : [0,this.benchtopOptions.tracking_window];
+						this.benchtop.plot.xRange = (timestamp > this.benchtop.plot_info.tracking_window)? 
+							[timestamp-this.benchtop.plot_info.tracking_window,timestamp] : [0,this.benchtop.plot_info.tracking_window];
 						
-						//Adjust plot y-axis to prevent auto-zooming in to closer than +/- 1 nA
-						this.benchtopOptions.plot.yRange = (this.benchtopOptions.peak_value > 1e-9)? undefined : [-1e-9,1e-9];
+						// Adjust plot y-axis to prevent auto-zooming in to closer than +/- 1 nA
+						this.benchtop.plot.yRange = (this.benchtop.plot_info.peak_value > this.benchtop.plot_info.min_ylimit)? undefined : [-this.benchtop.plot_info.min_ylimit,this.benchtop.plot_info.min_ylimit];
+						
+						// When data gets longer than 500 entries, start discarding oldest data to preserve memory space
+						if(this.benchtop.plot.traces.channel1.xData.length > this.benchtop.plot_info.max_data_length) {
+							this.benchtop.plot.traces.channel1.xData.shift();
+							this.benchtop.plot.traces.channel1.yData.shift();
+						} 
+						if(this.benchtop.plot.traces.channel2.xData.length > this.benchtop.plot_info.max_data_length) {
+							this.benchtop.plot.traces.channel2.xData.shift();
+							this.benchtop.plot.traces.channel2.yData.shift();
+						} 
 					}
 				},
 
@@ -4382,9 +4396,9 @@
 				},
 				
 				benchtopRefreshRate: function() {
-					if(this.benchtopOptions.refresh_rate > 1) return this.benchtopOptions.refresh_rate;
-					if(this.benchtopOptions.refresh_rate > 0) return 1;
-					return (10 ** (this.benchtopOptions.refresh_rate/5)).toFixed(2);
+					if(this.benchtop.refresh_rate > 1) return this.benchtop.refresh_rate;
+					if(this.benchtop.refresh_rate > 0) return 1;
+					return (10 ** (this.benchtop.refresh_rate/5)).toFixed(2);
 				},
 				
 				performanceMetrics: function() {
