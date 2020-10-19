@@ -3,6 +3,7 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const portscanner = require('portscanner');
+const contextMenu = require('electron-context-menu');
 
 
 
@@ -20,6 +21,13 @@ var mainWindow = undefined;
 
 
 // === Setup ===
+
+contextMenu({
+  showLookUpSelection: false,
+  showSearchWithGoogle: false,
+  showSaveImage: true,
+  showSaveImageAs: true,
+});
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require

@@ -45,6 +45,7 @@
     }
   },
   "dependencies": {
+    "electron-context-menu": "^2.3.0",
     "electron-squirrel-startup": "^1.0.0",
     "portscanner": "^2.2.0"
   },
