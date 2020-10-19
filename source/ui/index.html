@@ -150,20 +150,20 @@
 							<v-list-item-action><v-icon>dashboard</v-icon></v-list-item-action>
 							<v-list-item-content><v-list-item-title>Dashboard</v-list-item-title></v-list-item-content>
 						</v-list-item>
-						<v-list-item @click="setTopLevelPage('stepper')">
-							<v-list-item-action><v-icon class="color_browser roundedcorners">view_carousel</v-icon></v-list-item-action>
-							<v-list-item-content><v-list-item-title>Browser</v-list-item-title></v-list-item-content>
-						</v-list-item>
-						<v-list-item @click="setTopLevelPage('scheduleBuilder')">
-							<v-list-item-action><v-icon class="color_builder roundedcorners">schedule</v-icon></v-list-item-action>
-							<v-list-item-content><v-list-item-title>Schedule Builder</v-list-item-title></v-list-item-content>
-						</v-list-item>
 						<v-list-item @click="setTopLevelPage('experimentRunner')">
-							<v-list-item-action><v-icon class="color_runner roundedcorners">play_circle_outline</v-icon></v-list-item-action>
+							<v-list-item-action><v-avatar tile size="24" class="roundedcorners" color="color_runner"><v-icon>play_circle_outline</v-icon></v-avatar></v-list-item-action>
 							<v-list-item-content><v-list-item-title>Experiment Runner</v-list-item-title></v-list-item-content>
 						</v-list-item>
+						<v-list-item @click="setTopLevelPage('scheduleBuilder')">
+							<v-list-item-action><v-avatar tile size="24" class="roundedcorners" color="color_builder"><v-icon>schedule</v-icon></v-avatar></v-list-item-action>
+							<v-list-item-content><v-list-item-title>Schedule Builder</v-list-item-title></v-list-item-content>
+						</v-list-item>
+						<v-list-item @click="setTopLevelPage('stepper')">
+							<v-list-item-action><v-avatar tile size="24" class="roundedcorners" color="color_browser"><v-icon>view_carousel</v-icon></v-avatar></v-list-item-action>
+							<v-list-item-content><v-list-item-title>Browser</v-list-item-title></v-list-item-content>
+						</v-list-item>
 						<v-list-item @click="setTopLevelPage('benchtop')">
-							<v-list-item-action><v-icon class="color_benchtop roundedcorners">speed</v-icon></v-list-item-action>
+							<v-list-item-action><v-avatar tile size="24" class="roundedcorners" color="color_benchtop"><v-icon>speed</v-icon></v-avatar></v-list-item-action>
 							<v-list-item-content><v-list-item-title>Benchtop</v-list-item-title></v-list-item-content>
 						</v-list-item>
 						<template v-if="defaultParameters['Deployment'] === 'Development'">
@@ -1971,26 +1971,29 @@
 							</v-toolbar>
 							
 							<v-container>
-								<v-expansion-panels multiple class="mt-1 mb-2" v-for="(documentationItemText, index) in documentationText" :key="index">
+								<v-expansion-panels multiple class="mt-1 mb-2" v-for="(documentationItemText, index) in documentationInfo" :key="index">
 									<v-expansion-panel class="grey lighten-4">
-										<v-expansion-panel-header>
+										<v-expansion-panel-header class="pt-0 pb-0">
 											<template v-slot:default="{ open }">
 												<v-row no-gutters>
+													<v-avatar tile size="24" class="mt-3 mr-2 roundedcorners" :color="getDocumentationColor(documentationInfo[index]['title'])" v-if="getDocumentationColor(documentationInfo[index]['title'])">
+														<v-icon dark>{{ getDocumentationIcon(documentationInfo[index]['title']) }}</v-icon>
+													</v-avatar>
 													<div style="display:inline; height: 50px; line-height: 50px;">
-														{{ index + 1 }}. {{ documentationTitle[index] }}
+														{{ documentationInfo[index]['title'] }}
 													</div>
 													<v-spacer></v-spacer>
-													<v-col cols="3">
+													<v-col cols="3" v-if="!documentationInfo[index]['readonly'] || (index == documentationInfo.length - 1)">
 														<v-row no-gutters class="pt-2">
 															<v-tooltip top>
 																<template v-slot:activator="{ on }">
-																	<v-btn icon @click.stop="moveDocumentationEntryUp(index)" v-on="on" :disabled="index == 0"><v-icon>arrow_upward</v-icon></v-btn>
+																	<v-btn icon @click.stop="moveDocumentationEntryUp(index)" v-on="on" :disabled="(index == 0) || documentationInfo[index-1]['readonly']"><v-icon>arrow_upward</v-icon></v-btn>
 																</template>
 																<span>Move entry up</span>
 															</v-tooltip>
 															<v-tooltip top>
 																<template v-slot:activator="{ on }">
-																	<v-btn icon @click.stop="moveDocumentationEntryDown(index)" v-on="on" :disabled="index >= documentationText.length - 1"><v-icon>arrow_downward</v-icon></v-btn>
+																	<v-btn icon @click.stop="moveDocumentationEntryDown(index)" v-on="on" :disabled="index >= documentationInfo.length - 1"><v-icon>arrow_downward</v-icon></v-btn>
 																</template>
 																<span>Move entry down</span>
 															</v-tooltip>
@@ -2002,7 +2005,7 @@
 															</v-tooltip>
 															<v-tooltip top>
 																<template v-slot:activator="{ on }">
-																	<v-btn icon @click.stop="documentationDeleteDialogVisible = true; documentationDeleteIndex=index;" v-on="on" :disabled="documentationText.length == 1"><v-icon>cancel</v-icon></v-btn>
+																	<v-btn icon @click.stop="documentationDeleteDialogVisible = true; documentationDeleteIndex=index;" v-on="on" :disabled="(documentationInfo.length == 1) || documentationInfo[index]['readonly']"><v-icon>cancel</v-icon></v-btn>
 																</template>
 																<span>Delete entry</span>
 															</v-tooltip>
@@ -2014,15 +2017,15 @@
 										
 										<v-expansion-panel-content>
 											<v-container> 
-												<p v-if="!documentationEditMode[index]">
-													{{ documentationText[index] }}
+												<p v-if="!documentationInfo[index]['edit_mode']" style="white-space: pre-line;">
+													{{ documentationInfo[index]['text'] }}
 												</p>
-												<v-text-field solo v-if="documentationEditMode[index]" label="Enter documentation title" v-model="documentationProposedTitle[index]" auto-grow></v-text-field>
-												<v-textarea solo v-if="documentationEditMode[index]" label="Enter documentation text" v-model="documentationProposedText[index]" auto-grow>
+												<v-text-field solo v-if="documentationInfo[index]['edit_mode']" label="Enter documentation title" v-model="documentationProposedInfo[index]['title']" auto-grow></v-text-field>
+												<v-textarea solo v-if="documentationInfo[index]['edit_mode']" label="Enter documentation text" v-model="documentationProposedInfo[index]['text']" auto-grow>
 												</v-textarea>
-												<v-btn v-if="!documentationEditMode[index]" class="mb-3 mt-3" @click="documentationEdit(index)">Edit</v-btn>
-												<v-btn v-if="documentationEditMode[index]" class="mb-3 mt-3" @click="documentationSave(index)">Save</v-btn>
-												<v-btn v-if="documentationEditMode[index]" class="mb-3 mt-3" @click="documentationCancel(index)">Cancel</v-btn>
+												<v-btn v-if="!documentationInfo[index]['edit_mode'] && !documentationInfo[index]['readonly']" class="mb-3 mt-3" @click="documentationEdit(index)">Edit</v-btn>
+												<v-btn v-if="documentationInfo[index]['edit_mode']" class="mb-3 mt-3" @click="documentationSave(index)">Save</v-btn>
+												<v-btn v-if="documentationInfo[index]['edit_mode']" class="mb-3 mt-3" @click="documentationCancel(index)">Cancel</v-btn>
 											</v-container>
 										</v-expansion-panel-content>
 									</v-expansion-panel>
@@ -2632,11 +2635,17 @@
 				
 				// === Documentation ===
 
-				documentationEditMode: [],
-				documentationText: [],
-				documentationProposedText: [],
-				documentationTitle: [],
-				documentationProposedTitle: [],
+				documentationThemes: {
+					'Dashboard': 		{'color': 'color_base',    'icon':'dashboard'},
+					'Experiment Runner':{'color': 'color_runner',  'icon':'play_circle_outline'},
+					'Schedule Builder': {'color': 'color_builder', 'icon':'schedule'},
+					'Browser': 			{'color': 'color_browser', 'icon':'view_carousel'},
+					'Benchtop': 		{'color': 'color_benchtop','icon':'speed'},
+					'Settings': 		{'color': 'info', 		   'icon':'settings'},
+				},
+
+				documentationInfo: [],
+				documentationProposedInfo: [],
 				documentationDeleteDialogVisible: false,
 				documentationDeleteIndex: -1
 			},
@@ -4032,117 +4041,101 @@
 					this.getJSON(path, (response => {
 						//Response is a list of dictionaries
 						if(response.length == 0){
-							Vue.set(this.documentationText, 0, "");
-							Vue.set(this.documentationEditMode, 0, false);
-							Vue.set(this.documentationProposedText, 0, "");
-							Vue.set(this.documentationTitle, 0, "");
-							Vue.set(this.documentationProposedTitle, 0, "")
+							this.documentationInfo.push({
+								'text': '',
+								'title': '',
+								'edit_mode': false,
+								'readonly': false,
+							});
+							this.documentationProposedInfo.push({
+								'text': '',
+								'title': '',
+							});
 						}
 						for(var i = 0; i < response.length; i++){
-							Vue.set(this.documentationText, i, response[i]["text"]);
-							Vue.set(this.documentationEditMode, i, false);
-							Vue.set(this.documentationProposedText, i, "");
-							Vue.set(this.documentationTitle, i, response[i]["title"])
-							Vue.set(this.documentationProposedTitle, i, "");
+							this.documentationInfo.push({
+								'text': response[i]["text"],
+								'title': response[i]["title"],
+								'edit_mode': false,
+								'readonly': (response[i]["readonly"])? response[i]["readonly"] : false,
+							});
+							this.documentationProposedInfo.push({
+								'text': '',
+								'title': '',
+							});
 						}
 					}), "Error loading documentation");
 				},
-
+				
 				documentationEdit: function(index) {
-					Vue.set(this.documentationEditMode, index, true);
-					this.documentationProposedText[index] = this.documentationText[index];
-					this.documentationProposedTitle[index] = this.documentationTitle[index];
+					this.documentationInfo[index]['edit_mode'] = true;
+					this.documentationProposedInfo[index]['text']  = this.documentationInfo[index]['text'];
+					this.documentationProposedInfo[index]['title'] = this.documentationInfo[index]['title'];
 				},
-
 				documentationSave: function(index) {
-					Vue.set(this.documentationEditMode, index, false);
-					this.documentationText[index] = this.documentationProposedText[index];
-					this.documentationTitle[index] = this.documentationProposedTitle[index];
+					this.documentationInfo[index]['edit_mode'] = false;
+					this.documentationInfo[index]['text']  = this.documentationProposedInfo[index]['text'];
+					this.documentationInfo[index]['title'] = this.documentationProposedInfo[index]['title'];
 
 					var path = "/saveDocumentation/" + index + this.cacheBust;
-					this.postJSON(path, JSON.stringify({"title": this.documentationTitle[index], "text": this.documentationText[index]}), (response => {this.saveDocumentationSuccessCode = response;}), "Error saving documentation");
+					this.postJSON(path, JSON.stringify(this.documentationInfo[index]), (response => {this.saveDocumentationSuccessCode = response;}), "Error saving documentation");
 				},
-
 				documentationCancel: function(index) {
-					Vue.set(this.documentationEditMode, index, false);
+					this.documentationInfo[index]['edit_mode'] = false;
 				},
 
 				addDocumentationEntry: function(index) {
 					var indexToAdd = index + 1;
-					this.documentationText.splice(indexToAdd, 0, "");
-					this.documentationProposedText.splice(indexToAdd, 0, "");
-					this.documentationEditMode.splice(indexToAdd, 0, false);
-					this.documentationTitle.splice(indexToAdd, 0, "");
-					this.documentationProposedTitle.splice(indexToAdd, 0, "");
+					this.documentationInfo.splice(indexToAdd, 0, {'text': "", 'title':"", 'edit_mode':false, 'readonly':false});
+					this.documentationProposedInfo.splice(indexToAdd, 0, {'text': "", 'title':""});
 
 					var path = "/addDocumentation/" + indexToAdd + this.cacheBust;
 					this.getJSON(path, (response => {}), "Error adding documentation entry");
 					this.documentationSave(indexToAdd);
 				},
-				
 				removeDocumentationEntry: function(index) {
 					if(index != -1){
-						this.documentationText.splice(index, 1);
-						this.documentationProposedText.splice(index, 1);
-						this.documentationEditMode.splice(index, 1);
-						this.documentationTitle.splice(index, 1);
-						this.documentationProposedText.splice(index, 1);
+						this.documentationInfo.splice(index, 1);
+						this.documentationProposedInfo.splice(index, 1);
 
 						var path = "/removeDocumentation/" + index + this.cacheBust;
 						this.getJSON(path, (response => {}), "Error removing documentation entry");
 					}
 				},
-
 				moveDocumentationEntryUp: function(index) {
-					var text = this.documentationText[index];
-					this.documentationText.splice(index, 1);
-					this.documentationText.splice(index-1, 0, text);
+					var text = this.documentationInfo[index];
+					this.documentationInfo.splice(index, 1);
+					this.documentationInfo.splice(index-1, 0, text);
 
-					var proposedText = this.documentationProposedText[index];
-					this.documentationProposedText.splice(index, 1);
-					this.documentationProposedText.splice(index-1, 0, proposedText);
-
-					var editMode = this.documentationEditMode[index];
-					this.documentationEditMode.splice(index, 1);
-					this.documentationEditMode.splice(index-1, 0, editMode);
-
-					var title = this.documentationTitle[index];
-					this.documentationTitle.splice(index, 1);
-					this.documentationTitle.splice(index-1, 0, title);
-
-					var proposedTitle = this.documentationProposedTitle[index];
-					this.documentationProposedTitle.splice(index, 1);
-					this.documentationProposedTitle.splice(index-1, 0, proposedTitle);
+					var proposedText = this.documentationProposedInfo[index];
+					this.documentationProposedInfo.splice(index, 1);
+					this.documentationProposedInfo.splice(index-1, 0, proposedText);
 
 					var indexMinusOne = index-1;
 					var path = "/swapDocumentationFilenames/" + indexMinusOne + "/" + index + this.cacheBust;
 					this.getJSON(path, (response => {}), "Error moving documentation entry up");
 				},
-				
 				moveDocumentationEntryDown: function(index) {
-					var text = this.documentationText[index];
-					this.documentationText.splice(index, 1);
-					this.documentationText.splice(index+1, 0, text);
+					var text = this.documentationInfo[index];
+					this.documentationInfo.splice(index, 1);
+					this.documentationInfo.splice(index+1, 0, text);
 
-					var proposedText = this.documentationProposedText[index];
-					this.documentationProposedText.splice(index, 1);
-					this.documentationProposedText.splice(index+1, 0, proposedText);
-
-					var editMode = this.documentationEditMode[index];
-					this.documentationEditMode.splice(index, 1);
-					this.documentationEditMode.splice(index+1, 0, editMode);
-
-					var title = this.documentationTitle[index];
-					this.documentationTitle.splice(index, 1);
-					this.documentationTitle.splice(index+1, 0, title);
-
-					var proposedTitle = this.documentationProposedTitle[index];
-					this.documentationProposedTitle.splice(index, 1);
-					this.documentationProposedTitle.splice(index+1, 0, proposedTitle);
+					var proposedText = this.documentationProposedInfo[index];
+					this.documentationProposedInfo.splice(index, 1);
+					this.documentationProposedInfo.splice(index+1, 0, proposedText);
 
 					var indexPlusOne = index + 1;
 					var path = "/swapDocumentationFilenames/" + index + "/" + indexPlusOne + this.cacheBust;
 					this.getJSON(path, (response => {}), "Error moving documentation entry down");
+				},
+				
+				getDocumentationColor: function(title) {
+					if(Object.keys(this.documentationThemes).includes(title)) return this.documentationThemes[title]['color'];
+					return undefined;
+				},
+				getDocumentationIcon: function(title) {
+					if(Object.keys(this.documentationThemes).includes(title)) return this.documentationThemes[title]['icon'];
+					return undefined;
 				},
 				
 				// === Linear Regression & Metric Extraction ===
