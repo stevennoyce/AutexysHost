@@ -1,4 +1,4 @@
-INCLUDE_EVERYTHING = True
+INCLUDE_EVERYTHING = False
 ALWAYS_INCLUDED_PROCEDURES = ["GateSweep", "DrainSweep", "StaticBias", "AutoGateSweep", "AutoDrainSweep", "AutoStaticBias", "RapidBias", "SmallSignal"]
 ALWAYS_INCLUDED_MEASUREMENT_SYSTEMS = ["automatic"]
 HIDDEN_PARAMETERS = ['complianceCurrent', 'isFastSweep', 'fastSweepSpeed', 'delayBeforeMeasurementsBegin', 'floatChannelsWhenDone', 'supplyGateVoltage', 'supplyDrainVoltage', 'firstDelayBeforeMeasurementsBegin', 'startGrounded']

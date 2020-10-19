@@ -154,9 +154,9 @@
 							<v-list-item-action><v-icon class="color_browser roundedcorners">view_carousel</v-icon></v-list-item-action>
 							<v-list-item-content><v-list-item-title>Browser</v-list-item-title></v-list-item-content>
 						</v-list-item>
-						<v-list-item @click="setTopLevelPage('scheduleCreator')">
-							<v-list-item-action><v-icon class="color_creator roundedcorners">schedule</v-icon></v-list-item-action>
-							<v-list-item-content><v-list-item-title>Schedule Creator</v-list-item-title></v-list-item-content>
+						<v-list-item @click="setTopLevelPage('scheduleBuilder')">
+							<v-list-item-action><v-icon class="color_builder roundedcorners">schedule</v-icon></v-list-item-action>
+							<v-list-item-content><v-list-item-title>Schedule Builder</v-list-item-title></v-list-item-content>
 						</v-list-item>
 						<v-list-item @click="setTopLevelPage('experimentRunner')">
 							<v-list-item-action><v-icon class="color_runner roundedcorners">play_circle_outline</v-icon></v-list-item-action>
@@ -229,8 +229,8 @@
 							<template v-slot:activator="{ on }">
 								<v-btn v-on="on" light icon width="80" @click="getAvailableMeasurementSystems()">
 									<v-avatar size="36" color="info">
-										<v-icon color="success" v-if="connectedMeasurementSystem">power</v-icon>
-										<v-icon v-if="!connectedMeasurementSystem">power_off</v-icon>
+										<v-icon color="success" v-if="connectedMeasurementSystem">wifi</v-icon>
+										<v-icon v-if="!connectedMeasurementSystem">wifi_off</v-icon>
 									</v-avatar>
 								</v-btn>
 							</template>
@@ -239,7 +239,7 @@
 									<v-list-item v-for="system in availableMeasurementSystems" :key="system.uniqueID" 
 										@click="connectToMeasurementSystem(system)">
 										<v-list-item-avatar :color="(connectedMeasurementSystem && connectedMeasurementSystem.uniqueID === system.uniqueID)? 'success' : 'info'">
-											<v-icon dark>power</v-icon>
+											<v-icon dark>wifi</v-icon>
 										</v-list-item-avatar>
 										<v-tooltip bottom>
 											<template v-slot:activator="{ on: tooltip }">
@@ -365,11 +365,11 @@
 								</v-col>
 								
 								<v-col cols="4" class="pa-1">
-									<v-tooltip bottom nudge-top="4" color="color_creator">
+									<v-tooltip bottom nudge-top="4" color="color_builder">
 										<template v-slot:activator="{ on: tooltip }">
-											<v-toolbar dark class="color_creator roundedcorners" v-on="{ ...tooltip }" style="cursor: pointer;" @click="setTopLevelPage('scheduleCreator')">
+											<v-toolbar dark class="color_builder roundedcorners" v-on="{ ...tooltip }" style="cursor: pointer;" @click="setTopLevelPage('scheduleBuilder')">
 												<v-toolbar-title>
-													Schedule Creator
+													Schedule Builder
 												</v-toolbar-title>
 												<v-spacer></v-spacer>
 												<v-icon>schedule</v-icon>
@@ -849,7 +849,7 @@
 									
 									<v-card class="ma-1 mt-2 mb-2">
 										<v-expansion-panels dark hover accordion>
-											<v-expansion-panel class="color_creator " v-for="section in Object.keys(experiment)" :key="section" v-if="typeof experiment[section] == 'object'">
+											<v-expansion-panel class="color_builder " v-for="section in Object.keys(experiment)" :key="section" v-if="typeof experiment[section] == 'object'">
 												<v-expansion-panel-header>{{ section }}</v-expansion-panel-header>
 												<v-expansion-panel-content>
 													<v-data-table light hide-default-header hide-default-footer 
@@ -907,13 +907,13 @@
 					</v-stepper>
 					
 					<!-- End of browser -->
-					<!-- Start of sched creator -->
+					<!-- Start of sched builder -->
 					
-					<v-card flat class="ma-4" v-if="topLevelPage === 'scheduleCreator'">
+					<v-card flat class="ma-4" v-if="topLevelPage === 'scheduleBuilder'">
 						<v-card>
-							<v-toolbar dark dense class="color_creator ">
+							<v-toolbar dark dense class="color_builder ">
 								<v-toolbar-title>
-									Schedule Creator
+									Schedule Builder
 								</v-toolbar-title>
 								
 								<v-spacer></v-spacer>
@@ -923,7 +923,7 @@
 										<v-btn v-on="on" icon><v-icon>folder</v-icon></v-btn>
 									</template>
 									<v-card light>
-										<v-toolbar dark dense class="color_creator lighten-1">
+										<v-toolbar dark dense class="color_builder lighten-1">
 											<v-toolbar-title>
 												Load Schedule File
 											</v-toolbar-title>
@@ -935,13 +935,13 @@
 										
 										<v-list class="pt-4">
 											<v-list-item>
-												<v-autocomplete dense clearable v-model="creatorLoadUser" label="User" :items="Object.keys(userDefinedScheduleNames)"></v-autocomplete>
+												<v-autocomplete dense clearable v-model="builderLoadUser" label="User" :items="Object.keys(userDefinedScheduleNames)"></v-autocomplete>
 											</v-list-item>
 											<v-list-item>
-												<v-autocomplete dense clearable v-model="creatorLoadProject" label="Project" :items="Object.keys(_.get(userDefinedScheduleNames, [creatorLoadUser], {}))"></v-autocomplete>
+												<v-autocomplete dense clearable v-model="builderLoadProject" label="Project" :items="Object.keys(_.get(userDefinedScheduleNames, [builderLoadUser], {}))"></v-autocomplete>
 											</v-list-item>
 											<v-list-item>
-												<v-autocomplete dense clearable v-model="creatorLoadFileName" label="File Name" :items="_.get(userDefinedScheduleNames, [creatorLoadUser, creatorLoadProject], [])"></v-autocomplete>
+												<v-autocomplete dense clearable v-model="builderLoadFileName" label="File Name" :items="_.get(userDefinedScheduleNames, [builderLoadUser, builderLoadProject], [])"></v-autocomplete>
 											</v-list-item>
 										</v-list>
 										
@@ -953,7 +953,7 @@
 														<template v-slot:activator="{ on }">
 															<v-btn v-on="on" @click="loadSchedule()" :disabled="!isValidScheduleLoadPath()">Load Schedule File</v-btn>
 														</template>
-														<span>Workspace/{{ creatorLoadUser }}/{{ creatorLoadProject }}/schedules/{{ creatorLoadFileName }}.json</span>
+														<span>Workspace/{{ builderLoadUser }}/{{ builderLoadProject }}/schedules/{{ builderLoadFileName }}.json</span>
 													</v-tooltip>
 													<v-spacer></v-spacer>
 												</v-list-item>
@@ -962,7 +962,7 @@
 									</v-card>
 								</v-menu>
 								
-								<v-btn icon @click="resetScheduleCreator()" :disabled="!hasModifiedScheduleObjects()"><v-icon>settings_backup_restore</v-icon></v-btn>
+								<v-btn icon @click="resetScheduleBuilder()" :disabled="!hasModifiedScheduleObjects()"><v-icon>settings_backup_restore</v-icon></v-btn>
 							</v-toolbar>
 							
 							<v-expansion-panels hover accordion>
@@ -1022,7 +1022,7 @@
 								</v-expansion-panel>
 							</v-expansion-panels>
 							
-							<v-card class="ma-4" v-if="showScheduleCreatorPreview && nonTrivialScheduleObjects()">
+							<v-card class="ma-4" v-if="showScheduleBuilderPreview && nonTrivialScheduleObjects()">
 								<v-toolbar dark dense class="info">
 									<v-toolbar-title>
 										Preview Schedule File
@@ -1040,7 +1040,7 @@
 						<v-row no-gutters>
 							<v-col cols="6">
 								<v-card class="mt-3" v-if="nonTrivialScheduleObjects()">
-									<v-toolbar dark dense class="color_creator">
+									<v-toolbar dark dense class="color_builder">
 										<v-toolbar-title>
 											Save Schedule File
 										</v-toolbar-title>
@@ -1054,7 +1054,7 @@
 										<v-container>
 											<v-row dense>
 												<v-col cols="4" class="pt-0 pb-0">
-													<v-combobox clearable v-model="creatorSaveUser" label="User" :items="Object.keys(userDefinedScheduleNames)">
+													<v-combobox clearable v-model="builderSaveUser" label="User" :items="Object.keys(userDefinedScheduleNames)">
 														<template slot="no-data">
 															<v-list-item><v-list-item-content><v-list-item-title>
 																No results. Continuing will create a new user.
@@ -1063,7 +1063,7 @@
 													</v-combobox>
 												</v-col>
 												<v-col cols="4" class="pt-0 pb-0">
-													<v-combobox clearable v-model="creatorSaveProject" label="Project" :items="Object.keys(_.get(userDefinedScheduleNames, [creatorSaveUser], {}))">
+													<v-combobox clearable v-model="builderSaveProject" label="Project" :items="Object.keys(_.get(userDefinedScheduleNames, [builderSaveUser], {}))">
 														<template slot="no-data">
 															<v-list-item><v-list-item-content><v-list-item-title>
 																No results. Continuing will create a new project.
@@ -1072,7 +1072,7 @@
 													</v-combobox>
 												</v-col>
 												<v-col cols="4" class="pt-0 pb-0"> 
-													<v-combobox clearable v-model="creatorSaveFileName" label="File Name" :items="_.get(userDefinedScheduleNames, [creatorSaveUser, creatorSaveProject], [])">
+													<v-combobox clearable v-model="builderSaveFileName" label="File Name" :items="_.get(userDefinedScheduleNames, [builderSaveUser, builderSaveProject], [])">
 														<template slot="no-data">
 															<v-list-item><v-list-item-content><v-list-item-title>
 																No results. Continuing will create a new file.
@@ -1085,11 +1085,11 @@
 									</v-form>
 									
 									<v-card-actions>
-										<v-switch class="ml-1" label="Preview" v-model="showScheduleCreatorPreview"></v-switch>
+										<v-switch class="ml-1" label="Preview" v-model="showScheduleBuilderPreview"></v-switch>
 										<v-spacer></v-spacer>
 										<v-tooltip top v-if="isValidScheduleSavePath()">
 											<template v-slot:activator="{ on }">
-												<v-btn v-on="on" icon @click='copyHTMLStringToClip("cd \"" + paths["sourceAbsPath"] + "\" \n" + "python dispatcher.py \"" + workspaceDataFolderPath + "/" + creatorSaveUser + "/" + creatorSaveProject + "/schedules/" + creatorSaveFileName + ".json\"")' :disabled="!isValidScheduleSavePath()"><v-icon>settings_ethernet</v-icon></v-btn>
+												<v-btn v-on="on" icon @click='copyHTMLStringToClip("cd \"" + paths["sourceAbsPath"] + "\" \n" + "python dispatcher.py \"" + workspaceDataFolderPath + "/" + builderSaveUser + "/" + builderSaveProject + "/schedules/" + builderSaveFileName + ".json\"")' :disabled="!isValidScheduleSavePath()"><v-icon>settings_ethernet</v-icon></v-btn>
 											</template>
 											<span>Copy launch commands for Terminal</span>
 										</v-tooltip>
@@ -1097,7 +1097,7 @@
 											<template v-slot:activator="{ on }">
 												<v-btn v-on="on" @click="saveSchedule()" :disabled="!isValidScheduleSavePath()">Save Schedule File</v-btn>
 											</template>
-											<span>Workspace/{{ creatorSaveUser }}/{{ creatorSaveProject }}/schedules/{{ creatorSaveFileName }}.json</span>
+											<span>Workspace/{{ builderSaveUser }}/{{ builderSaveProject }}/schedules/{{ builderSaveFileName }}.json</span>
 										</v-tooltip>
 									</v-card-actions>
 								</v-card>
@@ -1105,7 +1105,7 @@
 						</v-row>
 					</v-card>
 					
-					<!-- End of sched creator -->
+					<!-- End of sched builder -->
 					<!-- Start of experiment runner -->
 					
 					<v-card flat class="ma-4" v-if="topLevelPage === 'experimentRunner'">
@@ -1418,7 +1418,7 @@
 									<v-row dense>
 										<v-col cols="6">
 											<v-card-title>
-												<v-avatar color="info darken-1" class="mr-3"><v-icon dark>power</v-icon></v-avatar>
+												<v-avatar color="info darken-1" class="mr-3"><v-icon dark>wifi</v-icon></v-avatar>
 												{{ system.name }}
 											</v-card-title>
 										</v-col>
@@ -1436,7 +1436,7 @@
 								<v-row dense>
 									<v-col cols="6">
 										<v-card-title>
-											<v-avatar color="success" class="mr-3"><v-icon dark>power</v-icon></v-avatar>
+											<v-avatar color="success" class="mr-3"><v-icon dark>wifi</v-icon></v-avatar>
 											{{ benchtop.system.name }}
 										</v-card-title>
 									</v-col>
@@ -1966,7 +1966,7 @@
 						<v-card class="mt-3">
 							<v-toolbar dark dense class="color_documentation">
 								<v-toolbar-title>
-									User Documentation
+									Help
 								</v-toolbar-title>
 							</v-toolbar>
 							
@@ -1974,36 +1974,42 @@
 								<v-expansion-panels multiple class="mt-1 mb-2" v-for="(documentationItemText, index) in documentationText" :key="index">
 									<v-expansion-panel class="grey lighten-4">
 										<v-expansion-panel-header>
-											<div style="display:inline; height: 50px; line-height: 50px;">
-												{{ index + 1 }}. {{ documentationTitle[index] }}
-											</div>
-											<v-spacer></v-spacer>
-											<div>
-												<v-tooltip top>
-													<template v-slot:activator="{ on }">
-														<v-btn icon @click.stop="moveDocumentationEntryUp(index)" v-on="on" :disabled="index == 0"><v-icon>arrow_upward</v-icon></v-btn>
-													</template>
-													<span>Move entry up</span>
-												</v-tooltip>
-												<v-tooltip top>
-													<template v-slot:activator="{ on }">
-														<v-btn icon @click.stop="moveDocumentationEntryDown(index)" v-on="on" :disabled="index >= documentationText.length - 1"><v-icon>arrow_downward</v-icon></v-btn>
-													</template>
-													<span>Move entry down</span>
-												</v-tooltip>
-												<v-tooltip top>
-													<template v-slot:activator="{ on }">
-														<v-btn icon @click.stop="addDocumentationEntry(index)" v-on="on"><v-icon>add_circle</v-icon></v-btn>
-													</template>
-													<span>Add new entry after</span>
-												</v-tooltip>
-												<v-tooltip top>
-													<template v-slot:activator="{ on }">
-														<v-btn icon @click.stop="documentationDeleteDialogVisible = true; documentationDeleteIndex=index;" v-on="on" :disabled="documentationText.length == 1"><v-icon>cancel</v-icon></v-btn>
-													</template>
-													<span>Delete entry</span>
-												</v-tooltip>
-											</div>
+											<template v-slot:default="{ open }">
+												<v-row no-gutters>
+													<div style="display:inline; height: 50px; line-height: 50px;">
+														{{ index + 1 }}. {{ documentationTitle[index] }}
+													</div>
+													<v-spacer></v-spacer>
+													<v-col cols="3">
+														<v-row no-gutters class="pt-2">
+															<v-tooltip top>
+																<template v-slot:activator="{ on }">
+																	<v-btn icon @click.stop="moveDocumentationEntryUp(index)" v-on="on" :disabled="index == 0"><v-icon>arrow_upward</v-icon></v-btn>
+																</template>
+																<span>Move entry up</span>
+															</v-tooltip>
+															<v-tooltip top>
+																<template v-slot:activator="{ on }">
+																	<v-btn icon @click.stop="moveDocumentationEntryDown(index)" v-on="on" :disabled="index >= documentationText.length - 1"><v-icon>arrow_downward</v-icon></v-btn>
+																</template>
+																<span>Move entry down</span>
+															</v-tooltip>
+															<v-tooltip top>
+																<template v-slot:activator="{ on }">
+																	<v-btn icon @click.stop="addDocumentationEntry(index)" v-on="on"><v-icon>add_circle</v-icon></v-btn>
+																</template>
+																<span>Add new entry after</span>
+															</v-tooltip>
+															<v-tooltip top>
+																<template v-slot:activator="{ on }">
+																	<v-btn icon @click.stop="documentationDeleteDialogVisible = true; documentationDeleteIndex=index;" v-on="on" :disabled="documentationText.length == 1"><v-icon>cancel</v-icon></v-btn>
+																</template>
+																<span>Delete entry</span>
+															</v-tooltip>
+														</v-row>
+													</v-col>
+												</v-row>
+											</template>
 										</v-expansion-panel-header>
 										
 										<v-expansion-panel-content>
@@ -2412,7 +2418,7 @@
 				
 				disabledPlots: localStorage.disabledPlots ? JSON.parse(localStorage.disabledPlots) : [],
 				
-				// === Schedule Creator ===
+				// === Schedule Builder ===
 								
 				scheduleObjects: localStorage.scheduleObjects ? JSON.parse(localStorage.scheduleObjects) : {},
 				scheduleObjectDefault: {},
@@ -2420,14 +2426,14 @@
 				
 				essentialScheduleParameters: {},
 				
-				showScheduleCreatorPreview: false,
+				showScheduleBuilderPreview: false,
 				
-				creatorSaveUser: '',
-				creatorSaveProject: '',
-				creatorSaveFileName: '',
-				creatorLoadUser: '',
-				creatorLoadProject: '',
-				creatorLoadFileName: '',
+				builderSaveUser: '',
+				builderSaveProject: '',
+				builderSaveFileName: '',
+				builderLoadUser: '',
+				builderLoadProject: '',
+				builderLoadFileName: '',
 				
 				// === Experiment Runner ===
 				
@@ -3227,9 +3233,9 @@
 					}), "Error adding to note");
 				},
 				
-				// === Schedule Creator ===
+				// === Schedule Builder ===
 				
-				resetScheduleCreator: function() {
+				resetScheduleBuilder: function() {
 					this.scheduleObjects = [JSON.parse(JSON.stringify(this.scheduleObjectDefault))];
 				},
 				
@@ -3274,46 +3280,46 @@
 				},
 				
 				resetScheduleSavePath: function() {
-					this.creatorSaveUser = '';	
-					this.creatorSaveProject = '';	
-					this.creatorSaveFileName = '';	
+					this.builderSaveUser = '';	
+					this.builderSaveProject = '';	
+					this.builderSaveFileName = '';	
 				},
 				resetScheduleLoadPath: function() {
-					this.creatorLoadUser = '';	
-					this.creatorLoadProject = '';	
-					this.creatorLoadFileName = '';	
+					this.builderLoadUser = '';	
+					this.builderLoadProject = '';	
+					this.builderLoadFileName = '';	
 				},
 				
 				isValidScheduleSavePath: function() {
-					return (this.creatorSaveUser != null) && (this.creatorSaveProject != null) && (this.creatorSaveFileName != null) &&
-						   (this.creatorSaveUser !== '') && (this.creatorSaveProject !== '') && (this.creatorSaveFileName !== '');	
+					return (this.builderSaveUser != null) && (this.builderSaveProject != null) && (this.builderSaveFileName != null) &&
+						   (this.builderSaveUser !== '') && (this.builderSaveProject !== '') && (this.builderSaveFileName !== '');	
 				},
 				isValidScheduleLoadPath: function() {
-					return (this.creatorLoadUser != null) && (this.creatorLoadProject != null) && (this.creatorLoadFileName != null) &&
-						   (this.creatorLoadUser !== '') && (this.creatorLoadProject !== '') && (this.creatorLoadFileName !== '');	
+					return (this.builderLoadUser != null) && (this.builderLoadProject != null) && (this.builderLoadFileName != null) &&
+						   (this.builderLoadUser !== '') && (this.builderLoadProject !== '') && (this.builderLoadFileName !== '');	
 				},
 				
 				saveSchedule: function() {
-					var path = this.saveSchedulePath(this.creatorSaveUser, this.creatorSaveProject, this.creatorSaveFileName);
+					var path = this.saveSchedulePath(this.builderSaveUser, this.builderSaveProject, this.builderSaveFileName);
 										
 					console.log('saving path = ' + path);
 					this.postJSON(path, JSON.stringify(this.scheduleLines), (response => {this.saveScheduleSuccessCode = response}), "Error saving schedule file.");
 					
-					if (this.runnerUser === '') this.runnerUser = this.creatorSaveUser;
-					if (this.runnerProject === '') this.runnerProject = this.creatorSaveProject;
-					if (this.runnerFileName === '') this.runnerFileName = this.creatorSaveFileName;
+					if (this.runnerUser === '') this.runnerUser = this.builderSaveUser;
+					if (this.runnerProject === '') this.runnerProject = this.builderSaveProject;
+					if (this.runnerFileName === '') this.runnerFileName = this.builderSaveFileName;
 					
 					this.getScheduleNames();
 				},
 				loadSchedule: function() {
-					var path = this.loadSchedulePath(this.creatorLoadUser, this.creatorLoadProject, this.creatorLoadFileName);
+					var path = this.loadSchedulePath(this.builderLoadUser, this.builderLoadProject, this.builderLoadFileName);
 					
 					console.log('loading path = ' + path);
 					this.getJSON(path, (response => {this.scheduleObjects = response}), "Error loading schedule file");
 					
-					if (this.creatorSaveUser === '') this.creatorSaveUser = this.creatorLoadUser;
-					if (this.creatorSaveProject === '') this.creatorSaveProject = this.creatorLoadProject;
-					if (this.creatorSaveFileName === '') this.creatorSaveFileName = this.creatorLoadFileName;
+					if (this.builderSaveUser === '') this.builderSaveUser = this.builderLoadUser;
+					if (this.builderSaveProject === '') this.builderSaveProject = this.builderLoadProject;
+					if (this.builderSaveFileName === '') this.builderSaveFileName = this.builderLoadFileName;
 				},
 				
 				// === Settings ===
@@ -4633,7 +4639,7 @@
 		// --- Custom Color Keywords ---
 		
 		app.$vuetify.theme.themes.light['color_base'] = app.$vuetify.theme.themes.light.color1;
-		app.$vuetify.theme.themes.light['color_creator'] = app.$vuetify.theme.themes.light.color2;
+		app.$vuetify.theme.themes.light['color_builder'] = app.$vuetify.theme.themes.light.color2;
 		app.$vuetify.theme.themes.light['color_runner'] = app.$vuetify.theme.themes.light.color3;
 		app.$vuetify.theme.themes.light['color_browser'] = app.$vuetify.theme.themes.light.color4;
 		app.$vuetify.theme.themes.light['color_documentation'] = app.$vuetify.theme.themes.light.color5;

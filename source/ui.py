@@ -647,7 +647,7 @@ def setBenchtopRefreshRate(refresh_rate):
 
 
 
-# === Schedule Files (Schecule Creator and Experiment Runner) ===
+# === Schedule Files (Schecule Builder and Experiment Runner) ===
 @app.route('/saveSchedule/<user>/<project>/<fileName>', methods=['POST'])
 def saveSchedule(user, project, fileName):
 	# receivedJobs = json.loads(flask.request.args.get('jobs'))
