@@ -36,6 +36,11 @@ if __name__ == '__main__':
 SOCKETIO_DEFAULT_IP_ADDRESS = '127.0.0.1'
 UI_REFRESH_DELAY_SECONDS = 0.01
 
+NOTES_FILE_NAME = 'Note.txt'
+DATA_EXPORT_NAME = 'data.csv'
+HELP_FILE_PREFIX = 'Doc'
+EXPERIMENT_FOLDER_PREFIX = 'Ex'
+
 # === Globals ===
 share = None
 
@@ -106,7 +111,7 @@ def connect():
 
 @socketio.on('Client Notification')
 def custom_connection_notification(json):
-	print('Received socketio notification: ' + str(json))
+	print('[UI]: Received socketio notification: ' + str(json))
 
 
 
@@ -157,14 +162,14 @@ def findFirstOpenPort(startPort=1, blacklist=[5000]):
 				try:
 					sock.bind((SOCKETIO_DEFAULT_IP_ADDRESS, port))
 					sock.close()
-					print('Port {} is available.'.format(port))
+					print('[UI]: Port {} is available.'.format(port))
 					return port
 				except Exception as e:
-					print('Port {} is not available.'.format(port))
+					print('[UI]: Port {} is not available.'.format(port))
 				
 def launchBrowser(url):
 	socketio.sleep(2)
-	print('URL is "{}"'.format(url))
+	print('[UI]: Opening Web Browser with URL: "{}"'.format(url))
 	webbrowser.open_new(url)
 
 
@@ -178,14 +183,14 @@ def start(share={}, debug=True, use_reloader=True, specific_port=None):
 		print('Still running on port {}'.format(os.environ['AutexysUIPort']))
 	else:
 		port = specific_port if(specific_port is not None) else findFirstOpenPort(startPort=5000)
-		print('Using port {}'.format(port))
+		print('[UI]: Serving on port {}'.format(port))
 	
 		os.environ['AutexysUIRunning'] = 'True'
 		os.environ['AutexysUIPort'] = str(port)
 		
 		launch_browser = (specific_port is None)
 		if(launch_browser):
-			print('Opening browser...')
+			print('[UI]: Opening browser...')
 			url = 'http://'+ SOCKETIO_DEFAULT_IP_ADDRESS +':{:}/ui/index.html'.format(port)
 			socketio.start_background_task(launchBrowser, url)
 	
@@ -242,12 +247,12 @@ def setWorkspaceDataFolderPath():
 	global workspace_data_path
 	workspace_data_path = path
 	
-	return jsonvalid({'success': True})
+	return jsonvalid({"success": True})
 		
 @app.route('/<user>/addUser.json')
 def addUser(user):
 	dlu.makeFolder(os.path.join(workspace_data_path, user))
-	return jsonvalid({'success': True})
+	return jsonvalid({"success": True})
 
 @app.route('/paths.json')
 def paths():
@@ -281,7 +286,7 @@ def availableMeasurementSystems():
 	print('[UI]: Requesting Updated Connection Status...')
 	pipes.send(share, 'QueueToStatusChecker', {'type':'ConnectionStatusRequest'})
 	print('[UI]: Status request has been sent.')
-	return jsonvalid({'success': True})
+	return jsonvalid({"success": True})
 	
 @app.route('/connectToMeasurementSystem', methods=['POST'])
 def connectToMeasurementSystem():
@@ -289,14 +294,14 @@ def connectToMeasurementSystem():
 	print('[UI]: Requesting New Connection Established...')
 	pipes.send(share, 'QueueToStatusChecker', {'type':'Connect', 'system':system})
 	print('[UI]: Connection request has been sent.')
-	return jsonvalid({'success': True})
+	return jsonvalid({"success": True})
 
 @app.route('/disconnectFromMeasurementSystem.json')
 def disconnectFromMeasurementSystem():
 	print('[UI]: Requesting Disconnection...')
 	pipes.send(share, 'QueueToStatusChecker', {'type':'Disconnect'})
 	print('[UI]: Disconnection request has been sent.')
-	return jsonvalid({'success': True})
+	return jsonvalid({"success": True})
 
 
 
@@ -319,7 +324,7 @@ def projects(user):
 @app.route('/<user>/<project>/wafers.json')
 def wafers(user, project):
 	paths = glob.glob(os.path.join(workspace_data_path, user, project, '*/'))
-	names = [os.path.basename(os.path.dirname(p)) for p in paths]
+	names = [os.path.basename(os.path.dirname(p)) for p in paths if((os.path.basename(os.path.dirname(p)) != 'schedules') or (len(glob.glob(os.path.join(p, '*/'))) > 0))]
 	modificationTimes = [os.path.getmtime(p) for p in paths]
 	sizes = [recursiveFileSize(p) for p in paths]
 	chipCounts = [len(glob.glob(p + '/*/')) for p in paths]
@@ -382,8 +387,8 @@ def experiments(user, project, wafer, chip, device):
 	# Load all found experiment folders and make a dictionary of experiments
 	experimentDictionary = {}
 	for name in names:
-		if('Ex' in name and name.replace('Ex', '').isdigit()):
-			experimentDictionary[int(name.replace('Ex', ''))] = None
+		if(EXPERIMENT_FOLDER_PREFIX in name and name.replace(EXPERIMENT_FOLDER_PREFIX, '').isdigit()):
+			experimentDictionary[int(name.replace(EXPERIMENT_FOLDER_PREFIX, ''))] = None
 	
 	# Load parameters history
 	try:
@@ -397,7 +402,7 @@ def experiments(user, project, wafer, chip, device):
 	
 	for experimentNumber in experimentDictionary.keys():
 		# If an experiment had no "ParametersHistory.json", load the last known data entry for that experiment and use it to reconstruct as much info as possible
-		experimentFolder = os.path.join(folder, 'Ex' + str(experimentNumber))
+		experimentFolder = os.path.join(folder, EXPERIMENT_FOLDER_PREFIX + str(experimentNumber))
 		experimentFiles = glob.glob(os.path.join(experimentFolder, '*.json'))
 		
 		if(experimentDictionary[experimentNumber] is None):
@@ -414,7 +419,7 @@ def experiments(user, project, wafer, chip, device):
 			experimentDictionary[experimentNumber] = lastDataEntryParameters
 		
 		# Get the possible plots for this experiment and save that with the parameters 
-		parameter_identifiers = {'dataFolder':workspace_data_path, 'Identifiers':{'user':user,'project':project,'wafer':wafer,'chip':chip,'device':device}}
+		parameter_identifiers = getIdentifierParameters(user, project, wafer, chip, device)
 		experimentDictionary[experimentNumber]['possiblePlots'] = DH.plotsForExperiments(parameter_identifiers, minExperiment=experimentNumber, maxExperiment=experimentNumber)
 		
 		experimentDictionary[experimentNumber]['dataFolderSpecific'] = experimentFolder
@@ -489,6 +494,10 @@ def recursiveFileSize(directory):
 		else:
 			total_size += recursiveFileSize(subpath)
 	return total_size
+
+def getIdentifierParameters(user, project, wafer, chip, device=None):
+	parameter_identifiers = {'dataFolder':workspace_data_path, 'Identifiers':{'user':user,'project':project,'wafer':wafer,'chip':chip,'device':device}} 	
+	return parameter_identifiers
 	
 	
 	
@@ -496,7 +505,7 @@ def recursiveFileSize(directory):
 @app.route('/saveCSV/<user>/<project>/<wafer>/<chip>/<device>/<experiment>/data.csv')
 def saveCSV(user, project, wafer, chip, device, experiment):
 	# Find all '.json' files saved for this experiment
-	path = os.path.join(workspace_data_path, user, project, wafer, chip, device, 'Ex' + experiment)
+	path = os.path.join(workspace_data_path, user, project, wafer, chip, device, EXPERIMENT_FOLDER_PREFIX + experiment)
 	fileNames = [os.path.basename(p) for p in glob.glob(os.path.join(path, '*.json'))]
 	
 	# Load data from all '.json' files
@@ -514,13 +523,7 @@ def saveCSV(user, project, wafer, chip, device, experiment):
 	proxy.close()
 	
 	filebuf.seek(0)
-	return flask.send_file(filebuf, attachment_filename='data.csv')
-
-@app.route('/getJSONData/<user>/<project>/<wafer>/<chip>/<device>/<experiment>/data.json')
-def getJSONData(user, project, wafer, chip, device, experiment):
-	path = os.path.join(workspace_data_path, user, project, wafer, chip, device, 'Ex' + experiment)
-	deviceHistory = dlu.loadJSON(path, 'GateSweep.json')
-	return jsonvalid(deviceHistory)
+	return flask.send_file(filebuf, attachment_filename=DATA_EXPORT_NAME)
 
 
 
@@ -530,7 +533,7 @@ def getPlotSettings(plotType, filebuf, minExperiment, maxExperiment, includeChip
 	# Get default plot settings, plus any modifications specified by the UI
 	plotSettings = copy.deepcopy(default_makePlot_parameters)
 	receivedPlotSettings = json.loads(flask.request.args.get('plotSettings'))
-	print('Loaded plot settings: ' + str(receivedPlotSettings))
+	print('[UI]: Loaded plot settings: ' + str(receivedPlotSettings))
 	
 	# Make nicknames for any plot setting modifications specified by the UI
 	primaryPlotSettings = receivedPlotSettings['primary']
@@ -622,13 +625,13 @@ def sendChipPlot(user, project, wafer, chip, plotType):
 
 @app.route('/<user>/<project>/<wafer>/<chip>/<device>/availableDevicePlots.json')
 def availableDevicePlots(user, project, wafer, chip, device):
-	parameter_identifiers = {'dataFolder':workspace_data_path, 'Identifiers':{'user':user,'project':project,'wafer':wafer,'chip':chip,'device':device}}
+	parameter_identifiers = getIdentifierParameters(user, project, wafer, chip, device)
 	plots = DH.plotsForExperiments(parameter_identifiers, maxPriority=999, linkingFile=None)
 	return jsonvalid(plots)
 	
 @app.route('/<user>/<project>/<wafer>/<chip>/availableChipPlots.json')
 def availableChipPlots(user, project, wafer, chip):
-	parameter_identifiers = {'dataFolder':workspace_data_path, 'Identifiers':{'user':user,'project':project,'wafer':wafer,'chip':chip}}
+	parameter_identifiers = getIdentifierParameters(user, project, wafer, chip)
 	plots = CH.plotsForExperiments(parameter_identifiers)
 	return jsonvalid(plots)
 
@@ -638,12 +641,12 @@ def availableChipPlots(user, project, wafer, chip):
 @app.route('/setBenchtopVoltage/<channel>/<voltage>/')
 def setBenchtopVoltage(channel, voltage):
 	pipes.send(share, 'QueueToDispatcher', {'type':'SetVoltage', 'channel': int(channel), 'voltage': float(voltage)})
-	return jsonvalid({'success':True})
+	return jsonvalid({"success":True})
 	
 @app.route('/setBenchtopRefreshRate/<refresh_rate>/')
 def setBenchtopRefreshRate(refresh_rate):
 	pipes.send(share, 'QueueToDispatcher', {'type':'SetRefreshRate', 'refresh_rate': float(refresh_rate)})
-	return jsonvalid({'success':True})
+	return jsonvalid({"success":True})
 
 
 
@@ -660,7 +663,7 @@ def saveSchedule(user, project, fileName):
 	for job in receivedJobs:
 		dlu.saveJSON(os.path.join(workspace_data_path, user, project, 'schedules/'), fileName, defaults.extractDefaults(job), incrementIndex=False)
 	
-	return jsonvalid({'success':True})
+	return jsonvalid({"success":True})
 
 @app.route('/loadSchedule/<user>/<project>/<fileName>.json')
 def loadSchedule(user, project, fileName):
@@ -698,21 +701,21 @@ def dispatchSchedule(user, project, fileName):
 	print('[UI]: Requesting Dispatcher Run...')
 	pipes.send(share, 'QueueToManager', {'type':'Dispatch', 'dispatcher_command': scheduleFilePath, 'workspace_data_path': workspace_data_path})
 	print('[UI]: Run request has been sent.')
-	return jsonvalid({'success': True})
+	return jsonvalid({"success": True})
 
 @app.route('/dispatchRunType/<runType>.json')
 def dispatchRunType(runType):
 	print('[UI]: Requesting Dispatcher Run...')
 	pipes.send(share, 'QueueToManager', {'type':'Dispatch', 'dispatcher_command': runType, 'workspace_data_path': workspace_data_path})
 	print('[UI]: Run request has been sent.')
-	return jsonvalid({'success': True})
+	return jsonvalid({"success": True})
 
 @app.route('/stopDispatcher')
 def stopDispatcher():
 	print('[UI]: Requesting Dispatcher Abort...')
 	pipes.send(share, 'QueueToDispatcher', {'type':'Stop'})
 	print('[UI]: Abort request has been sent.')
-	return jsonvalid({'success': True})
+	return jsonvalid({"success": True})
 
 @app.route('/standardScheduleNames.json')
 def listStandardScheduleNames():
@@ -743,36 +746,40 @@ def getReadMe():
 
 
 # === Notes ===
-@app.route('/addToNote', methods=['POST'])
-def addToNote():
-	experiment = flask.request.get_json(force=True)
-	experimentNumber = experiment['startIndexes']['experimentNumber']
-	noteAddition = experiment['noteAddition']
-	path = dlu.getExperimentDirectory(experiment, experimentNumber)
+@app.route('/addNote/<user>/<project>/<wafer>/<chip>/<device>/<experimentNumber>', methods=['POST'])
+def addNote(user, project, wafer, chip, device, experimentNumber):
+	noteAddition = flask.request.get_json(force=True)
+	parameter_identifiers = getIdentifierParameters(user, project, wafer, chip, device)
+	path = dlu.getExperimentDirectory(dlu.getDeviceDirectory(parameter_identifiers), experimentNumber)
 	
-	dlu.appendTextToFile(path, 'Note.txt', noteAddition)
+	dlu.saveText(path, NOTES_FILE_NAME, noteAddition['noteAddition'])
+	print('[UI]: Saved changes to Note.')
 	
-	return jsonvalid({'success': True})
-
-@app.route('/addToCorrection', methods=['POST'])
-def addToCorrection():	
-	folder = os.path.join(workspace_data_path, user, project, wafer, chip, device, 'Ex' + experimentNumber)
-	correction = flask.request.get_json(force=True)
-
+	return jsonvalid({"success": True})
+	
+@app.route('/getNote/<user>/<project>/<wafer>/<chip>/<device>/<experimentNumber>')	
+def getNote(user, project, wafer, chip, device, experimentNumber):
+	parameter_identifiers = getIdentifierParameters(user, project, wafer, chip, device)
+	path = dlu.getExperimentDirectory(dlu.getDeviceDirectory(parameter_identifiers), experimentNumber)
+	
+	text = dlu.loadText(path, NOTES_FILE_NAME)
+	print('[UI]: Loaded Note.')
+	
+	return jsonvalid({"text":text})
 
 
 # === Documentation ===
 @app.route('/addDocumentation/<indexToAdd>')
 def addDocumentation(indexToAdd):
 	incrementFilenameNumbersFrom(indexToAdd, 1)
-	dlu.makeEmptyJSONFile(documentation_path, "Doc" + str(indexToAdd) + ".json")
-	return jsonvalid({'success': True})
+	dlu.makeEmptyJSONFile(documentation_path, HELP_FILE_PREFIX + str(indexToAdd) + ".json")
+	return jsonvalid({"success": True})
 
 @app.route('/removeDocumentation/<indexToDelete>')
 def removeDocumentation(indexToDelete):
-	dlu.deleteJSONFile(documentation_path, "Doc" + indexToDelete + ".json")
+	dlu.deleteJSONFile(documentation_path, HELP_FILE_PREFIX + indexToDelete + ".json")
 	incrementFilenameNumbersFrom(int(indexToDelete) + 1, -1)
-	return jsonvalid({'success': True})
+	return jsonvalid({"success": True})
 
 @app.route('/loadAllDocumentation')
 def loadAllDocumentation():
@@ -790,15 +797,15 @@ def loadAllDocumentation():
 def saveDocumentation(fileName):
 	receivedDocumentation = flask.request.get_json(force=True)
 
-	dlu.makeEmptyJSONFile(documentation_path, "Doc" + fileName + ".json")
-	dlu.saveJSON(documentation_path, "Doc" + fileName + ".json", receivedDocumentation, incrementIndex=False)
+	dlu.makeEmptyJSONFile(documentation_path, HELP_FILE_PREFIX + fileName + ".json")
+	dlu.saveJSON(documentation_path, HELP_FILE_PREFIX + fileName + ".json", receivedDocumentation, incrementIndex=False)
 
-	return jsonvalid({'success': True})
+	return jsonvalid({"success": True})
 
 @app.route('/swapDocumentationFilenames/<index1>/<index2>')
 def swapDocumentationFilenames(index1, index2):
-	swapFilenames("Doc" + index1 + ".json", "Doc" + index2 + ".json")
-	return jsonvalid({'success': True})
+	swapFilenames(HELP_FILE_PREFIX + index1 + ".json", HELP_FILE_PREFIX + index2 + ".json")
+	return jsonvalid({"success": True})
 
 def getDocumentationFilenames():
 	filenames = []
@@ -806,7 +813,7 @@ def getDocumentationFilenames():
 		directoryListings = os.listdir(documentation_path)
 		# directoryListings in arbitrary order
 		for listing in directoryListings:
-			if len(listing) >= 3 and listing[0:3] == "Doc" and listing[-5:] == ".json":
+			if len(listing) >= 3 and listing[0:3] == HELP_FILE_PREFIX and listing[-5:] == ".json":
 				filenames.append(listing)
 		filenames.sort(key=lambda listing : int(listing[3:-5]))
 	return filenames
@@ -859,7 +866,7 @@ def updateAFMRegistry():
 	
 	AFMReader.updateAFMRegistry(workspace_data_path)
 	
-	return jsonvalid({'success':True})
+	return jsonvalid({"success":True})
 	
 
 

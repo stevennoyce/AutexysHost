@@ -768,12 +768,12 @@
 										<v-toolbar-title>
 											"{{ wafer }}{{ chip }} {{ device }}" Experiment #{{ experiment.startIndexes.experimentNumber }}
 										</v-toolbar-title>
-										<v-btn icon @click="experimentIndex--" :disabled="experimentIndex <= 0" class="ml-4"><v-icon>arrow_back_ios</v-icon></v-btn>
-										<v-btn icon @click="experimentIndex++" :disabled="experimentIndex >= experiments.length - 1"><v-icon>arrow_forward_ios</v-icon></v-btn>
+										<v-btn icon @click="goToExperiment(experimentIndex - 1)" :disabled="experimentIndex <= 0" class="ml-4"><v-icon right>arrow_back_ios</v-icon></v-btn>
+										<v-btn icon @click="goToExperiment(experimentIndex + 1)" :disabled="experimentIndex >= experiments.length - 1"><v-icon>arrow_forward_ios</v-icon></v-btn>
 										<v-spacer></v-spacer>
 										<v-tooltip left>
 											<template v-slot:activator="{ on: tooltip }">
-												<v-btn fab small class="ma-2" color="info" v-on="{ ...tooltip }" :href="'/saveCSV/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/data.csv' + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"><v-icon color="color_browser">save_alt</v-icon></v-btn>
+												<v-btn class="ma-2 color_browser--text" color="info" v-on="{ ...tooltip }" :href="'/saveCSV/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/data.csv' + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))">Export<v-icon right color="color_browser">save_alt</v-icon></v-btn>
 											</template>
 											<span>Download CSV</span>
 										</v-tooltip>
@@ -820,8 +820,8 @@
 											</v-col>
 										</v-row>
 									</v-container>
-									
-									<v-card class="ma-1">
+		
+									<v-card class="ma-1" color="info">
 										<v-toolbar dark dense class="info">
 											<v-toolbar-title>
 												Notes
@@ -829,9 +829,42 @@
 											<v-spacer></v-spacer>
 											<v-icon>note_add</v-icon>
 										</v-toolbar>
-										<v-text-field v-model="experiment.noteAddition"></v-text-field>
-										<v-btn @click="addToNote(experiment)">Save</v-btn>
+										<v-textarea readonly auto-grow rows="2" class="mt-4 mr-4 ml-4" v-model="noteContent" v-if="noteContent"></v-textarea>
+										<v-textarea solo auto-grow rows="2" class="mt-4 mr-4 ml-4 mb-n4" label="Take notes here" v-model="noteAddition"></v-textarea>
+										<v-row justify="center">
+											<v-btn class="mb-4" dark color="color_browser" @click="addNote(experiment)"><v-icon left>add</v-icon>Add Note</v-btn>
+										</v-row>
 									</v-card>
+								
+									<v-card class="ma-1 mt-2">
+										<v-toolbar dark dense class="color_browser ">
+											<v-toolbar-title>
+												Data Export
+											</v-toolbar-title>
+											<v-spacer></v-spacer>
+											<v-tooltip left>
+												<template v-slot:activator="{ on: tooltip }">
+													<v-btn class="ma-2 color_browser--text" color="info" v-on="{ ...tooltip }" :href="'/saveCSV/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/data.csv' + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))">Export<v-icon right color="color_browser">save_alt</v-icon></v-btn>
+												</template>
+												<span>Download CSV</span>
+											</v-tooltip>
+										</v-toolbar>
+										
+										<v-card-actions class="ma-1">
+											<v-tooltip top>
+												<template v-slot:activator="{ on }">
+													<v-btn v-on="on" @click="copyHTMLStringToClip(experiment['dataFolderSpecificAbs'])">
+														Copy File Location
+													</v-btn>
+												</template>
+												<span>{{ experiment['dataFolderSpecificAbs'] }}</span>
+											</v-tooltip>
+											
+											<v-chip dark class="ma-2" :color="getRunTypeColor(experiment['runType'])" v-for="file in experiment['dataFiles']" :key="file">
+												{{file}}
+											</v-chip>
+										</v-card-actions>
+									</v-card>	
 									
 									<v-card class="ma-1" v-if="experiment.runType.includes('AFM') || experiment.runType.includes('SGM')">
 										<v-toolbar dark dense class="color1 ">
@@ -849,7 +882,7 @@
 									
 									<v-card class="ma-1 mt-2 mb-2">
 										<v-expansion-panels dark hover accordion>
-											<v-expansion-panel class="color_builder " v-for="section in Object.keys(experiment)" :key="section" v-if="typeof experiment[section] == 'object'">
+											<v-expansion-panel class="color_builder" v-for="section in Object.keys(experiment)" :key="section" v-if="['Identifiers', 'runConfigs', 'MeasurementSystem', 'DeviceCycling', 'startIndexes', 'endIndexes'].includes(section)">
 												<v-expansion-panel-header>{{ section }}</v-expansion-panel-header>
 												<v-expansion-panel-content>
 													<v-data-table light hide-default-header hide-default-footer 
@@ -867,40 +900,7 @@
 											</v-expansion-panel>
 										</v-expansion-panels>
 									</v-card>
-									
-									<v-card class="ma-1">
-										<v-toolbar dark dense class="color_browser ">
-											<v-toolbar-title>
-												Data Export
-											</v-toolbar-title>
-										</v-toolbar>
-										
-										<v-card-actions class="ma-1">
-											<v-btn :href="'/saveCSV/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/data.csv' + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))">Save CSV</v-btn>
-											<v-spacer></v-spacer>
-											<v-btn @click="updateAFMRegistry()">Update AFM Registry</v-btn>
-										</v-card-actions>
-										
-										<v-card-actions class="ma-1">
-											<v-tooltip top>
-												<template v-slot:activator="{ on }">
-													<v-btn v-on="on" @click="copyHTMLStringToClip(experiment['dataFolderSpecificAbs'])">
-														Copy Folder Path
-													</v-btn>
-												</template>
-												<span>{{ experiment['dataFolderSpecificAbs'] }}</span>
-											</v-tooltip>
-											
-											<v-chip dark class="ma-2" :color="getRunTypeColor(experiment['runType'])" v-for="file in experiment['dataFiles']" :key="file">
-												{{file}}
-											</v-chip>
-										</v-card-actions>
-										
-										<v-card-actions class="ma-1">
-											<v-btn @click="copyHTMLStringToClip('from utilities import DataLoggerUtility as dlu' + '\n\n' + 'dlu.loadSpecificDeviceHistory(\'' + experiment['dataFolderSpecific'] + '\', \'' + experiment['dataFiles'][0] + '\', minIndex=0, maxIndex=float(\'inf\'), minExperiment=' + experiment.startIndexes.experimentNumber + ', maxExperiment=' + experiment.startIndexes.experimentNumber + ', minRelativeIndex=0, maxRelativeIndex=float(\'inf\'))')">Copy Python</v-btn>
-										</v-card-actions>
-									</v-card>
-									
+																		
 								</v-card>
 							</v-stepper-content>
 						</v-stepper-items>
@@ -1087,7 +1087,7 @@
 									<v-card-actions>
 										<v-switch class="ml-1" label="Preview" v-model="showScheduleBuilderPreview"></v-switch>
 										<v-spacer></v-spacer>
-										<v-tooltip top v-if="isValidScheduleSavePath()">
+										<v-tooltip top v-if="isValidScheduleSavePath() && false">
 											<template v-slot:activator="{ on }">
 												<v-btn v-on="on" icon @click='copyHTMLStringToClip("cd \"" + paths["sourceAbsPath"] + "\" \n" + "python dispatcher.py \"" + workspaceDataFolderPath + "/" + builderSaveUser + "/" + builderSaveProject + "/schedules/" + builderSaveFileName + ".json\"")' :disabled="!isValidScheduleSavePath()"><v-icon>settings_ethernet</v-icon></v-btn>
 											</template>
@@ -2269,10 +2269,7 @@
 				
 				standardScheduleNames: [],
 				userDefinedScheduleNames: {},
-				
-				saveScheduleSuccessCode: {},
-				addToNoteSuccessCode: {},
-				
+								
 				// === Plot Settings ===
 								
 				plotSettings: {'primary':{}, 'mode_parameters':{}, 'chip':{}, 'device':{}},
@@ -2420,6 +2417,9 @@
 				possibleDevicePlots: [],
 				
 				disabledPlots: localStorage.disabledPlots ? JSON.parse(localStorage.disabledPlots) : [],
+				
+				noteAddition: '',
+				noteContent: '',
 				
 				// === Schedule Builder ===
 								
@@ -2757,26 +2757,15 @@
 				getExperiments: function() {
 					var path = '/' + this.user + '/' + this.project + '/' + this.wafer + '/' + this.chip + '/' + this.device + '/experiments.json' + this.cacheBust;
 					this.getJSON(path, (response => {
-						console.log("Loading experiments.");
 						for (var i = 0; i < response.length; i++) {
 							response[i]['uiComputed'] = {};
 							response[i]['uiComputed']['indexCount'] = response[i]['endIndexes']['index'] - response[i]['startIndexes']['index'];
 						}
 						this.experiments = response;
+						console.log("Loaded experiments.");
 						
-						// let lastExperiment = this.experiments[this.experiments.length - 1];
-						// let lastFinishedIndex = lastExperiment['endIndexes']['index'];
-						// let lastIndexObject = this.indexes[this.wafer][this.chip][this.device];
-						// let lastIndex = lastIndexObject['index'];
-						
-						// if (lastIndex > lastFinishedIndex) {
-						// 	let currentExperiment = JSON.parse(JSON.stringify(lastExperiment));
-						// 	currentExperiment['startIndexes'] = JSON.parse(JSON.stringify(lastExperiment['startIndexes']));
-						// 	currentExperiment['startIndexes']['experimentNumber']++;
-						// 	currentExperiment['endIndexes'] = JSON.parse(JSON.stringify(lastIndexObject));
-						// 	currentExperiment['runType'] = 'Running';
-						// 	this.experiments.push(currentExperiment);
-						// }
+						// getNote depends on this.experiments being up-to-date, so we should refresh it any time this.experiments changes
+						this.getNote();
 					}), "Error getting experiments");
 				},
 				getRecentActivity: function() {
@@ -2965,33 +2954,35 @@
 					this.project = projectName;
 					localStorage.project = JSON.stringify(projectName);
 					this.getWafers();
-					this.stepperPage++;
+					this.stepperPage = 2;
 				},
 				goToWafer: function(waferName) {
 					this.wafer = waferName;
 					localStorage.wafer = JSON.stringify(waferName);
 					this.getChips();
-					this.stepperPage++;
+					this.stepperPage = 3;
 				},
 				goToChip: function(chipName) {
 					this.chip = chipName;
 					localStorage.chip = JSON.stringify(chipName);
 					this.getDevices();
 					this.getPossibleChipPlots()
-					this.stepperPage++;
+					this.stepperPage = 4;
 				},
 				goToDevice: function(deviceName) {
 					this.device = deviceName;
 					localStorage.device = JSON.stringify(deviceName);
 					this.getExperiments();
 					this.getPossibleDevicePlots()
-					this.stepperPage++;
+					this.stepperPage = 5;
 				},
 				goToExperiment: function(experimentIndex) {
 					this.experimentIndex = experimentIndex;
 					localStorage.experimentIndex = JSON.stringify(experimentIndex);
-					this.stepperPage++;
-				},				
+					this.getNote();
+					this.stepperPage = 6;
+				},
+								
 				
 				// === Schedule File (Loading/Saving/Launching) ===
 				
@@ -3233,13 +3224,21 @@
 					while(array.includes(value)) { array.splice( array.indexOf(value), 1 ); }
 				},
 				
-				addToNote: function(experiment) {
-					var path = '/addToNote';
+				addNote: function() {
+					var path = '/addNote/' + this.user + '/' + this.project + '/' + this.wafer + '/' + this.chip + '/' + this.device + '/' 
+						+ this.experiment['startIndexes']['experimentNumber'];
 					
-					this.postJSON(path, JSON.stringify(experiment), (response => {
-						this.addToNoteSuccessCode = response;
-						this.experiment.noteAddition = '';
+					this.postJSON(path, JSON.stringify({'noteAddition': this.noteAddition}), (response => {
+						console.log('Saved changes to Note.')
+						this.noteAddition = '';
+						this.getNote();
 					}), "Error adding to note");
+				},
+				getNote: function() {
+					var path = '/getNote/' + this.user + '/' + this.project + '/' + this.wafer + '/' + this.chip + '/' + this.device + '/' 
+						+ this.experiment['startIndexes']['experimentNumber'];
+					
+					this.getJSON(path, (response => {this.noteContent = response['text'];}), "Error getting note");
 				},
 				
 				// === Schedule Builder ===
@@ -3312,7 +3311,7 @@
 					var path = this.saveSchedulePath(this.builderSaveUser, this.builderSaveProject, this.builderSaveFileName);
 										
 					console.log('saving path = ' + path);
-					this.postJSON(path, JSON.stringify(this.scheduleLines), (response => {this.saveScheduleSuccessCode = response}), "Error saving schedule file.");
+					this.postJSON(path, JSON.stringify(this.scheduleLines), (response => {console.log('Saved schedule file.')}), "Error saving schedule file.");
 					
 					if (this.runnerUser === '') this.runnerUser = this.builderSaveUser;
 					if (this.runnerProject === '') this.runnerProject = this.builderSaveProject;
@@ -3324,7 +3323,10 @@
 					var path = this.loadSchedulePath(this.builderLoadUser, this.builderLoadProject, this.builderLoadFileName);
 					
 					console.log('loading path = ' + path);
-					this.getJSON(path, (response => {this.scheduleObjects = response}), "Error loading schedule file");
+					this.getJSON(path, (response => {
+						console.log('Loaded schedule file.')
+						this.scheduleObjects = response;
+					}), "Error loading schedule file");
 					
 					if (this.builderSaveUser === '') this.builderSaveUser = this.builderLoadUser;
 					if (this.builderSaveProject === '') this.builderSaveProject = this.builderLoadProject;
@@ -4078,7 +4080,7 @@
 					this.documentationInfo[index]['title'] = this.documentationProposedInfo[index]['title'];
 
 					var path = "/saveDocumentation/" + index + this.cacheBust;
-					this.postJSON(path, JSON.stringify(this.documentationInfo[index]), (response => {this.saveDocumentationSuccessCode = response;}), "Error saving documentation");
+					this.postJSON(path, JSON.stringify(this.documentationInfo[index]), (response => {console.log('Saved documentation file.')}), "Error saving documentation");
 				},
 				documentationCancel: function(index) {
 					this.documentationInfo[index]['edit_mode'] = false;
@@ -4090,7 +4092,7 @@
 					this.documentationProposedInfo.splice(indexToAdd, 0, {'text': "", 'title':""});
 
 					var path = "/addDocumentation/" + indexToAdd + this.cacheBust;
-					this.getJSON(path, (response => {}), "Error adding documentation entry");
+					this.getJSON(path, (response => {console.log("Added documentation entry.")}), "Error adding documentation entry");
 					this.documentationSave(indexToAdd);
 				},
 				removeDocumentationEntry: function(index) {
@@ -4099,7 +4101,7 @@
 						this.documentationProposedInfo.splice(index, 1);
 
 						var path = "/removeDocumentation/" + index + this.cacheBust;
-						this.getJSON(path, (response => {}), "Error removing documentation entry");
+						this.getJSON(path, (response => {console.log("Removed documentation entry.")}), "Error removing documentation entry");
 					}
 				},
 				moveDocumentationEntryUp: function(index) {
@@ -4113,7 +4115,7 @@
 
 					var indexMinusOne = index-1;
 					var path = "/swapDocumentationFilenames/" + indexMinusOne + "/" + index + this.cacheBust;
-					this.getJSON(path, (response => {}), "Error moving documentation entry up");
+					this.getJSON(path, (response => {console.log("Moved documentation entry up.")}), "Error moving documentation entry up");
 				},
 				moveDocumentationEntryDown: function(index) {
 					var text = this.documentationInfo[index];
@@ -4126,7 +4128,7 @@
 
 					var indexPlusOne = index + 1;
 					var path = "/swapDocumentationFilenames/" + index + "/" + indexPlusOne + this.cacheBust;
-					this.getJSON(path, (response => {}), "Error moving documentation entry down");
+					this.getJSON(path, (response => {console.log("Moved documentation entry down.")}), "Error moving documentation entry down");
 				},
 				
 				getDocumentationColor: function(title) {
@@ -4357,9 +4359,7 @@
 			},
 			computed: {
 				experiment: function() {
-					if (this.experimentIndex > this.experiments.length) {
-						this.experimentIndex = 0;
-					}
+					if (this.experimentIndex > this.experiments.length) this.experimentIndex = 0;
 					return this.experiments[this.experimentIndex];
 				},
 				experimentsWithIndexes: function() {

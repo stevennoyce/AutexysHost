@@ -164,11 +164,22 @@ def formatAsCSV(deviceHistory, separateDataByEmptyRows=True):
 	
 	return lines
 
-def appendTextToFile(directory, saveFileName, textToAppend):
+# === TXT ===
+def saveText(directory, saveFileName, text, appendNewLine=True):
 	makeFolder(directory)
 	with open(os.path.join(directory, saveFileName), 'a') as file:
-		file.write(textToAppend)
-		file.write('\n')
+		file.write(text)
+		if(appendNewLine):
+			file.write('\n')
+
+def loadText(directory, loadFileName):
+	textData = ''
+	try:
+		with open(os.path.join(directory, loadFileName), 'r') as file:
+			textData = file.read()
+	except FileNotFoundError:
+		textData = ''
+	return textData
 
 # === JSON ===
 def saveJSON(directory, saveFileName, jsonData, subDirectory=None, incrementIndex=True):
@@ -255,9 +266,9 @@ def getDeviceDirectory(parameters):
 	"""Given the typical parameters used to run an experiment, return the path to the directory where data will be saved for this device."""
 	return os.path.join(parameters['dataFolder'], parameters['Identifiers']['user'], parameters['Identifiers']['project'], parameters['Identifiers']['wafer'], parameters['Identifiers']['chip'], parameters['Identifiers']['device']) + os.sep
 
-def getExperimentDirectory(parameters, experimentNumber):
+def getExperimentDirectory(device_directory, experimentNumber):
 	"""Given the typical parameters used to run an experiment, return the path to the directory where data will be saved for this device."""
-	return os.path.join(getDeviceDirectory(parameters), 'Ex'+str(experimentNumber)) + os.sep
+	return os.path.join(device_directory, 'Ex'+str(experimentNumber)) + os.sep
 
 def loadSpecificDeviceHistory(directory, fileName, minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf'), looseFiltering=False):
 	"""Given a folder path and fileName, load data for a device over a range of indices or experiments.
