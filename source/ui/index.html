@@ -185,7 +185,7 @@
 							</v-list-group>
 						</template>
 						<v-divider></v-divider>
-						<v-list-item @click="setTopLevelPage('settings')">
+						<v-list-item @click="setTopLevelPage('settings')" v-if="defaultParameters['Deployment'] === 'Development'">
 							<v-list-item-action><v-icon>settings</v-icon></v-list-item-action>
 							<v-list-item-content><v-list-item-title>Settings</v-list-item-title></v-list-item-content>
 						</v-list-item>
@@ -207,7 +207,7 @@
 					<v-toolbar-items>
 						<v-menu bottom left offset-y :close-on-content-click="false" v-if="topLevelPage === 'stepper'">
 							<template v-slot:activator="{ on }">
-								<v-btn v-on="on" text><v-icon left>art_track</v-icon>Settings</v-btn>
+								<v-btn v-on="on" text><v-icon left>settings</v-icon>Settings</v-btn>
 							</template>
 							<v-card light tile style="overflow-y: scroll; max-height:65vh">
 								<v-list class="pt-4">
@@ -647,7 +647,7 @@
 										<v-toolbar-items>
 											<v-menu bottom left offset-y :close-on-content-click="false" :nudge-width="200">
 												<template v-slot:activator="{ on }">
-													<v-btn v-on="on" text><v-icon>art_track</v-icon></v-btn>
+													<v-btn v-on="on" text><v-icon>settings</v-icon></v-btn>
 												</template>
 												<v-card light tile style="overflow-y: scroll; max-height:65vh">
 													<v-list class="pt-4">
