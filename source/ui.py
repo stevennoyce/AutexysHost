@@ -49,7 +49,7 @@ default_makePlot_parameters = {
 	'minExperiment': None,
 	'maxExperiment': None,
 	'minRelativeIndex': 0,
-	'maxRelativeIndex': 1e10,
+	'maxRelativeIndex': float('inf'),
 	'specificPlot': '',
 	'plotSaveName': '',
 	'dataFolder': None,
@@ -183,14 +183,13 @@ def start(share={}, debug=True, use_reloader=True, specific_port=None):
 		print('Still running on port {}'.format(os.environ['AutexysUIPort']))
 	else:
 		port = specific_port if(specific_port is not None) else findFirstOpenPort(startPort=5000)
-		print('[UI]: Serving on port {}'.format(port))
+		print('[UI]: Serving port {}'.format(port))
 	
 		os.environ['AutexysUIRunning'] = 'True'
 		os.environ['AutexysUIPort'] = str(port)
 		
 		launch_browser = (specific_port is None)
 		if(launch_browser):
-			print('[UI]: Opening browser...')
 			url = 'http://'+ SOCKETIO_DEFAULT_IP_ADDRESS +':{:}/ui/index.html'.format(port)
 			socketio.start_background_task(launchBrowser, url)
 	
@@ -653,7 +652,6 @@ def setBenchtopRefreshRate(refresh_rate):
 # === Schedule Files (Schecule Builder and Experiment Runner) ===
 @app.route('/saveSchedule/<user>/<project>/<fileName>', methods=['POST'])
 def saveSchedule(user, project, fileName):
-	# receivedJobs = json.loads(flask.request.args.get('jobs'))
 	receivedJobs = flask.request.get_json(force=True)
 	
 	# with open(os.path.join(workspace_data_path, user, project, 'schedules/', fileName + '.json'), 'w') as f:
@@ -662,27 +660,21 @@ def saveSchedule(user, project, fileName):
 	dlu.makeEmptyJSONFile(os.path.join(workspace_data_path, user, project, 'schedules/'), fileName)
 	for job in receivedJobs:
 		dlu.saveJSON(os.path.join(workspace_data_path, user, project, 'schedules/'), fileName, defaults.extractDefaults(job), incrementIndex=False)
+	print('[UI]: Saved schecule file.')
 	
 	return jsonvalid({"success":True})
 
 @app.route('/loadSchedule/<user>/<project>/<fileName>.json')
 def loadSchedule(user, project, fileName):
 	scheduleData = dlu.loadJSON(os.path.join(workspace_data_path, user, project, 'schedules/'), fileName + '.json')
-	
-	expandedScheduleData = []
-	for job in scheduleData:
-		expandedScheduleData.append(defaults.full_with_added(job))
-	
+	expandedScheduleData = [defaults.full_with_added(job) for job in scheduleData]
+	print('[UI]: Loaded schecule file.')
 	return jsonvalid(expandedScheduleData)
 
 @app.route('/loadBriefSchedule/<user>/<project>/<fileName>.json')
 def loadBriefSchedule(user, project, fileName):
 	scheduleData = dlu.loadJSON(os.path.join(workspace_data_path, user, project, 'schedules/'), fileName + '.json')
-	
-	expandedScheduleData = []
-	for job in scheduleData:
-		expandedScheduleData.append(defaults.full_with_only(job))
-	
+	expandedScheduleData = [defaults.full_with_only(job) for job in scheduleData]
 	return jsonvalid(expandedScheduleData)
 
 @app.route('/loadStandardSchedule/<fileName>.json')
@@ -752,7 +744,7 @@ def addNote(user, project, wafer, chip, device, experimentNumber):
 	parameter_identifiers = getIdentifierParameters(user, project, wafer, chip, device)
 	path = dlu.getExperimentDirectory(dlu.getDeviceDirectory(parameter_identifiers), experimentNumber)
 	
-	dlu.saveText(path, NOTES_FILE_NAME, noteAddition['noteAddition'])
+	dlu.appendText(path, NOTES_FILE_NAME, noteAddition['noteAddition'])
 	print('[UI]: Saved changes to Note.')
 	
 	return jsonvalid({"success": True})
@@ -763,9 +755,18 @@ def getNote(user, project, wafer, chip, device, experimentNumber):
 	path = dlu.getExperimentDirectory(dlu.getDeviceDirectory(parameter_identifiers), experimentNumber)
 	
 	text = dlu.loadText(path, NOTES_FILE_NAME)
-	print('[UI]: Loaded Note.')
 	
 	return jsonvalid({"text":text})
+
+@app.route('/clearNote/<user>/<project>/<wafer>/<chip>/<device>/<experimentNumber>')	
+def clearNote(user, project, wafer, chip, device, experimentNumber):
+	parameter_identifiers = getIdentifierParameters(user, project, wafer, chip, device)
+	path = dlu.getExperimentDirectory(dlu.getDeviceDirectory(parameter_identifiers), experimentNumber)
+	
+	dlu.overwriteText(path, NOTES_FILE_NAME, '')
+	print('[UI]: Cleared Note.')
+	
+	return jsonvalid({"success": True})
 
 
 # === Documentation ===

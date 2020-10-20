@@ -822,17 +822,29 @@
 									</v-container>
 		
 									<v-card class="ma-1" color="info">
-										<v-toolbar dark dense class="info">
+										<v-toolbar dark dense class="info mb-4">
 											<v-toolbar-title>
 												Notes
 											</v-toolbar-title>
 											<v-spacer></v-spacer>
-											<v-icon>note_add</v-icon>
+											<v-snackbar absolute shaped v-model="noteClearDialog" color="info darken-1">
+												<v-icon dark left>warning</v-icon>
+													Are you sure you want to clear the notes for this experiment?
+												<v-btn light color="white" @click="noteClearDialog = false">Cancel</v-btn>
+												<v-btn color="info darken-2" @click="noteClearDialog = false; clearNote();">Clear</v-btn>
+											</v-snackbar>
+											<v-tooltip left color="info darken-1" :disabled="!noteContent">
+												<template v-slot:activator="{ on: tooltip }">
+													<v-btn icon :disabled="!noteContent" v-on="{ ...tooltip }" @click="noteClearDialog = true"><v-icon>clear</v-icon></v-btn>
+												</template>
+												<span>Clear Notes</span>
+											</v-tooltip>
 										</v-toolbar>
-										<v-textarea readonly auto-grow rows="2" class="mt-4 mr-4 ml-4" v-model="noteContent" v-if="noteContent"></v-textarea>
-										<v-textarea solo auto-grow rows="2" class="mt-4 mr-4 ml-4 mb-n4" label="Take notes here" v-model="noteAddition"></v-textarea>
-										<v-row justify="center">
-											<v-btn class="mb-4" dark color="color_browser" @click="addNote(experiment)"><v-icon left>add</v-icon>Add Note</v-btn>
+										<v-textarea readonly solo flat auto-grow rows="1" class="mr-4 ml-4 mb-n8" background-color="info" v-model="noteContent" v-if="noteContent"></v-textarea>
+										<v-row class="mr-4 ml-4" align="end">
+											<v-textarea solo auto-grow rows="2" class="mr-4 mb-n4" label="Enter a new note here. Press the button to save." v-model="noteAddition"></v-textarea>
+										
+											<v-btn class="mb-4" dark color="color_browser" @click="addNote(experiment)"><v-icon left>add</v-icon>Add To Notes</v-btn>
 										</v-row>
 									</v-card>
 								
@@ -2031,11 +2043,11 @@
 									</v-expansion-panel>
 								</v-expansion-panels>
 								
-								<v-snackbar bottom multi-line v-model="documentationDeleteDialogVisible" :timeout="0" color="warning">
+								<v-snackbar bottom v-model="documentationDeleteDialogVisible" color="warning">
 									<v-icon dark left>warning</v-icon>
-									Once this entry is deleted, it will be permanently removed. Are you sure you want to continue?
+									Are you sure you want to delete this entry?
 									<v-btn color="white" @click="documentationDeleteDialogVisible = false">Cancel</v-btn>
-									<v-btn color="red" @click="documentationDeleteDialogVisible = false; removeDocumentationEntry(documentationDeleteIndex);">Continue</v-btn>
+									<v-btn color="red" @click="documentationDeleteDialogVisible = false; removeDocumentationEntry(documentationDeleteIndex);">Delete</v-btn>
 								</v-snackbar>
 							</v-container>
 						</v-card>
@@ -2277,8 +2289,8 @@
 				primaryPlotSettings: {
 					'minExperiment':      {'type': 'int',   'default':undefined, 'title':'Min Experiment',   'description':'Show mult on plot.'},
 					'maxExperiment':      {'type': 'int',   'default':undefined, 'title':'Max Experiment',   'description':'Show mult on plot.'},
-					'minRelativeIndex':   {'type': 'int',   'default':0,         'title':'Min Rel. Index',   'description':'Within experiment.'},
-					'maxRelativeIndex':   {'type': 'int',   'default':1e10,      'title':'Max Rel. Index',   'description':'Within experiment.'},
+					'minRelativeIndex':   {'type': 'int',   'default':undefined, 'title':'Min Rel. Index',   'description':'Within experiment.'},
+					'maxRelativeIndex':   {'type': 'int',   'default':undefined, 'title':'Max Rel. Index',   'description':'Within experiment.'},
 				},
 				primaryPlotSettingDefaults: undefined,
 				
@@ -2420,6 +2432,7 @@
 				
 				noteAddition: '',
 				noteContent: '',
+				noteClearDialog: false,
 				
 				// === Schedule Builder ===
 								
@@ -3239,6 +3252,12 @@
 						+ this.experiment['startIndexes']['experimentNumber'];
 					
 					this.getJSON(path, (response => {this.noteContent = response['text'];}), "Error getting note");
+				},
+				clearNote: function() {
+					var path = '/clearNote/' + this.user + '/' + this.project + '/' + this.wafer + '/' + this.chip + '/' + this.device + '/' 
+						+ this.experiment['startIndexes']['experimentNumber'];
+					
+					this.getJSON(path, (response => {this.noteContent = ''; console.log('Cleared note.');}), "Error clearing note");
 				},
 				
 				// === Schedule Builder ===

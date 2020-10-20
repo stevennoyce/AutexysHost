@@ -114,10 +114,10 @@ def run(additional_parameters, plot_mode_parameters=None, cacheBust=None):
 	p = parameters
 
 	# Print information about the device and experiment being plotted
-	print('  ' + parameters['Identifiers']['wafer'] + parameters['Identifiers']['chip'] + ':' + parameters['Identifiers']['device'])
-	'' if((p['minJSONExperimentNumber'] == 0) and (p['maxJSONExperimentNumber'] == float('inf'))) else (print('  Experiment #{:}'.format(p['maxJSONExperimentNumber'])) if(p['minJSONExperimentNumber'] == p['maxJSONExperimentNumber']) else (print('  Experiments #{:} to #{:}'.format(p['minJSONExperimentNumber'],p['maxJSONExperimentNumber']))))
-	'' if((p['minJSONRelativeIndex'] == 0) and (p['maxJSONRelativeIndex'] == float('inf'))) else (print('  Rel. Index #{:}'.format(p['maxJSONRelativeIndex'])) if(p['minJSONRelativeIndex'] == p['maxJSONRelativeIndex']) else (print('  Rel. Indices #{:} to #{:}'.format(p['minJSONRelativeIndex'],p['maxJSONRelativeIndex']))))
-	'' if((p['minJSONIndex'] == 0) and (p['maxJSONIndex'] == float('inf'))) else (print('  Abs. Index #{:}'.format(p['maxJSONIndex'])) if(p['minJSONIndex'] == p['maxJSONIndex']) else (print('  Abs. Indices #{:} to #{:}'.format(p['minJSONIndex'],p['maxJSONIndex']))))
+	print('[DH]: === ' + parameters['Identifiers']['wafer'] + parameters['Identifiers']['chip'] + ':' + parameters['Identifiers']['device'] + ' ===')
+	'' if((p['minJSONExperimentNumber'] == 0) and (p['maxJSONExperimentNumber'] == float('inf'))) else (print('[DH]: Experiment #{:}'.format(p['maxJSONExperimentNumber'])) if(p['minJSONExperimentNumber'] == p['maxJSONExperimentNumber']) else (print('[DH]: Experiments #{:} to #{:}'.format(p['minJSONExperimentNumber'],p['maxJSONExperimentNumber']))))
+	'' if((p['minJSONRelativeIndex'] == 0) and (p['maxJSONRelativeIndex'] == float('inf'))) else (print('[DH]: Rel. Index #{:}'.format(p['maxJSONRelativeIndex'])) if(p['minJSONRelativeIndex'] == p['maxJSONRelativeIndex']) else (print('[DH]: Rel. Indices #{:} to #{:}'.format(p['minJSONRelativeIndex'],p['maxJSONRelativeIndex']))))
+	'' if((p['minJSONIndex'] == 0) and (p['maxJSONIndex'] == float('inf'))) else (print('[DH]: Abs. Index #{:}'.format(p['maxJSONIndex'])) if(p['minJSONIndex'] == p['maxJSONIndex']) else (print('[DH]: Abs. Indices #{:} to #{:}'.format(p['minJSONIndex'],p['maxJSONIndex']))))
 
 	# Try to load general information file 'wafer.json' if such a file exists
 	if('generalInfo' not in mode_parameters):
@@ -125,12 +125,12 @@ def run(additional_parameters, plot_mode_parameters=None, cacheBust=None):
 			wafer_info = dlu.loadJSON(dlu.getWaferDirectory(parameters), 'wafer.json')[0]
 			mode_parameters['generalInfo'] = wafer_info
 		except:
-			print('Error: no information in wafer.json for this device.')
+			pass
 
 	# Determine which plots are being requested and make them all
 	plotsToCreate = [p['specificPlotToCreate']] if(p['specificPlotToCreate'] != '') else plotsForExperiments(parameters, minExperiment=p['minJSONExperimentNumber'], maxExperiment=p['maxJSONExperimentNumber'])
 	for plotType in plotsToCreate:
-		print('Loading data for ' + str(plotType) + ' plot.')
+		print('[DH]: Loading data for ' + str(plotType) + ' plot.')
 		
 		# Get a list of relevant data files needed for this plot
 		dataFileDependencies = dpu.getDataFileDependencies(plotType)
@@ -158,7 +158,7 @@ def run(additional_parameters, plot_mode_parameters=None, cacheBust=None):
 			# Add generated plot to the results list
 			plotList.append(plot)
 		except FileNotFoundError as e:
-			print("Error: Unable to load data files for '" + str(plotType) + "' plot.")
+			print("[DH]: Error, unable to load data files for '" + str(plotType) + "' plot.")
 			print(e)
 			import traceback
 			traceback.print_exc()
@@ -184,7 +184,7 @@ def plotsForExperiments(parameters, minExperiment=0, maxExperiment=float('inf'),
 		# Return list of available plots based on the available data files
 		return dpu.getPlotTypesFromDependencies(available_data_files, plotCategory='device', maxPriority=maxPriority)
 	except FileNotFoundError:
-		print('No device plots available for the requested experiments.')
+		print('[DH]: No device plots available for the requested experiments.')
 		return []
 
 def dataFilesForExperiments(parameters, minExperiment=0, maxExperiment=float('inf')):

@@ -9,6 +9,11 @@ import sys
 import os
 
 import pipes
+import time
+
+# === Constants ===
+MANAGER_THREAD_RESPONSE_TIME_SEC = 0.1
+CHECKER_THREAD_RESPONSE_TIME_SEC = 0.1
 
 
 
@@ -149,9 +154,11 @@ def runStatusChecker(share):
 		return updateConnectionStatus(share, requested_status)
 	
 	while(True):
-		message = pipes.recv(share, 'QueueToStatusChecker') #, timeout=1)
-		
-		if(message is not None):
+		if(not pipes.poll(share, 'QueueToStatusChecker')):
+			time.sleep(CHECKER_THREAD_RESPONSE_TIME_SEC)
+		else:
+			# Handle Queue messages
+			message = pipes.recv(share, 'QueueToStatusChecker')
 			print('[CHECKER]: received message: ' + str(message))
 		
 			# Check the current status of connected measurement systems, and report this to the Manager
@@ -193,10 +200,11 @@ def manage(on_startup_port=None, on_startup_schedule_file=None, on_startup_works
 	# While UI is running, enter an event loop to handle messages that request spinning out a new sub-process
 	while(True):
 		try:
-			message = pipes.recv(share, 'QueueToManager', timeout=1)
-			
-			# Handle Queue messages
-			if(message is not None):
+			if(not pipes.poll(share, 'QueueToManager')):
+				time.sleep(MANAGER_THREAD_RESPONSE_TIME_SEC)
+			else:
+				# Handle Queue messages
+				message = pipes.recv(share, 'QueueToManager')
 				print('[MANAGER]: revieved message: ' + str(message))
 				
 				# Spin out a new dispatcher sub-process
@@ -214,15 +222,14 @@ def manage(on_startup_port=None, on_startup_schedule_file=None, on_startup_works
 					pipes.send(share, 'QueueToUI', message)
 					print('[MANAGER]: Sent updated connection status to the UI.')		
 					
-			
-			# If the dispatcher is not running, then check and clear its messages
-			if(dispatcher is None):
-				while pipes.poll(share, 'QueueToDispatcher'):
-					dispMessage = pipes.recv(share, 'QueueToDispatcher')
-					print('[MANAGER]: Dispatcher not running, but received message: ' + str(dispMessage))
-		
 		except Exception as e:
 			print('[MANAGER]: loop exception: ', e)
+			
+		# If the dispatcher is not running, then check and clear its messages
+		if(dispatcher is None):
+			while pipes.poll(share, 'QueueToDispatcher'):
+				dispMessage = pipes.recv(share, 'QueueToDispatcher')
+				print('[MANAGER]: Dispatcher not running, but received message: ' + str(dispMessage))
 		
 		# Check if dispatcher is running, if not join it to explicitly end
 		if((dispatcher is not None) and (not dispatcher.is_alive())):

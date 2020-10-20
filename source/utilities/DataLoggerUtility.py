@@ -165,12 +165,18 @@ def formatAsCSV(deviceHistory, separateDataByEmptyRows=True):
 	return lines
 
 # === TXT ===
-def saveText(directory, saveFileName, text, appendNewLine=True):
+def saveText(directory, saveFileName, text, mode='a', appendNewLine=True):
 	makeFolder(directory)
-	with open(os.path.join(directory, saveFileName), 'a') as file:
+	with open(os.path.join(directory, saveFileName), mode) as file:
 		file.write(text)
 		if(appendNewLine):
 			file.write('\n')
+
+def appendText(directory, saveFileName, text):
+	saveText(directory, saveFileName, text, mode='a', appendNewLine=True)
+
+def overwriteText(directory, saveFileName, text):
+	saveText(directory, saveFileName, text, mode='w', appendNewLine=False)
 
 def loadText(directory, loadFileName):
 	textData = ''

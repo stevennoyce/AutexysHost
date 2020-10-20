@@ -407,16 +407,16 @@ def adjustAndSaveFigure(figure, plotType, mode_parameters, subplotWidthPad=0, su
 	plt.subplots_adjust(wspace=subplotWidthPad, hspace=subplotHeightPad)
 	pngDPI = (600) if(mode_parameters['publication_mode']) else (mode_parameters['default_png_dpi'])
 	if(mode_parameters['saveFigures']):
-		print('Saving figures.')
+		print('[MPL]: Saving figures.')
 		start = time.time()
 		if isinstance(mode_parameters['plotSaveName'], io.BytesIO):
 			plt.savefig(mode_parameters['plotSaveName'], transparent=True, dpi=pngDPI, format='png')
 		else:
 			plt.savefig(os.path.join(mode_parameters['plotSaveFolder'], mode_parameters['plotSaveName'] + plotType + mode_parameters['plotSaveExtension']), transparent=True, dpi=pngDPI)
 		end = time.time()
-		print('Figures saved. (Seconds elapsed: {:})'.format(end-start))
+		print('[MPL]: Figures saved. (Seconds elapsed: {:.3f} s)'.format(end-start))
 	if(not mode_parameters['showFigures']):
-		print('Closing figures.')
+		print('[MPL]: Closing figures.')
 		plt.close(figure)
 
 

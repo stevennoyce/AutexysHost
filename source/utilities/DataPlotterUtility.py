@@ -86,7 +86,7 @@ def makeDevicePlot(plotType, deviceHistory, identifiers, mode_parameters=None):
 	
 	# If no data is available, do not proceed
 	if(len(deviceHistory) <= 0):
-		print('No ' + str(plotType) + ' device history to plot.')
+		print('[PLOT]: No ' + str(plotType) + ' device history to plot.')
 		return
 	
 	# Merge mode_parameters with defaults
@@ -94,13 +94,13 @@ def makeDevicePlot(plotType, deviceHistory, identifiers, mode_parameters=None):
 	if(mode_parameters is not None):
 		updated_mode_parameters.update(mode_parameters)
 	
-	print('Plotting ' + str(plotType) + ' plot.')
+	print('[PLOT]: Plotting ' + str(plotType) + ' plot.')
 	try:
 		fig, axes = plotDefinitions[plotType]['function'](deviceHistory, identifiers, mode_parameters=updated_mode_parameters)
 	except:
-		print('Error plotting "plotType": ' + str(plotType))
+		print('[PLOT]: Error plotting "plotType": ' + str(plotType))
 		raise
-	print('Finished plotting ' + str(plotType) + ' plot.')
+	print('[PLOT]: Finished plotting ' + str(plotType) + ' plot.')
 	
 	# If axis labels are the standard 'xlabel', 'ylabel' go ahead and make sure those are on the plot
 	if(('automaticAxisLabels' in plotDefinitions[plotType]['description']['plotDefaults']) and (plotDefinitions[plotType]['description']['plotDefaults']['automaticAxisLabels'])):
@@ -150,10 +150,10 @@ def makeChipPlot(plotType, identifiers, chipIndexes=None, firstRunChipHistory=No
 	# If no data is available, do not proceed
 	if(plotType == 'ChipHistogram'):
 		if((chipIndexes is None) or len(chipIndexes.keys()) <= 0):
-			print('No chip histogram to plot.')
+			print('[PLOT]: No chip histogram to plot.')
 			return
 	elif((recentRunChipHistory is None) or len(recentRunChipHistory) <= 0):
-		print('No ' + str(plotType) + ' chip history to plot.')
+		print('[PLOT]: No ' + str(plotType) + ' chip history to plot.')
 		return
 	
 	# Merge mode_parameters with defaults
@@ -161,11 +161,11 @@ def makeChipPlot(plotType, identifiers, chipIndexes=None, firstRunChipHistory=No
 	if(mode_parameters is not None):
 		updated_mode_parameters.update(mode_parameters)
 	
-	print('Plotting ' + str(plotType) + ' plot.')
+	print('[PLOT]: Plotting ' + str(plotType) + ' plot.')
 	try:
 		fig, axes = plotDefinitions[plotType]['function'](identifiers, chipIndexes, firstRunChipHistory, recentRunChipHistory, specificRunChipHistory, groupedChipHistory, mode_parameters=updated_mode_parameters)
 	except:
-		print('Error plotting "plotType": ' + str(plotType))
+		print('[PLOT]: Error plotting "plotType": ' + str(plotType))
 		raise
 		
 	# If axis labels are the standard 'xlabel', 'ylabel' go ahead and make sure those are on the plot
