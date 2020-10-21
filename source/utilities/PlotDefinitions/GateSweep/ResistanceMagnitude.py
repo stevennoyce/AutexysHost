@@ -8,7 +8,7 @@ plotDescription = {
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(2,2.5),
-		'includeOriginOnYaxis':True,
+		'includeAtLeastOrderOfMagnitudeOnYaxis':True,
 		'colorMap':'white_blue_black',
 		'colorDefault': ['#f2b134'],
 		
@@ -36,7 +36,7 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	
 	# Plot
 	for i in range(len(deviceHistory)):
-		line = plotResistanceCurve(ax, deviceHistory[i], colors[i], direction=mode_parameters['sweepDirection'], scaleYaxisBy=resistance_scale, lineStyle=None, errorBars=mode_parameters['enableErrorBars'])
+		line = plotTransferResistanceCurve(ax, deviceHistory[i], colors[i], direction=mode_parameters['sweepDirection'], scaleYaxisBy=resistance_scale, lineStyle=None, errorBars=mode_parameters['enableErrorBars'])
 		if(len(deviceHistory) == len(mode_parameters['legendLabels'])):
 			setLabel(line, mode_parameters['legendLabels'][i])
 

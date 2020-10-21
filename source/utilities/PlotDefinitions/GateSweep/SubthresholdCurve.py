@@ -8,6 +8,7 @@ plotDescription = {
 	'dataFileDependencies': ['GateSweep.json'],
 	'plotDefaults': {
 		'figsize':(2,2.5),
+		'includeAtLeastOrderOfMagnitudeOnYaxis':True,
 		'colorMap':'white_blue_black',
 		'colorDefault': ['#1f77b4'],
 		

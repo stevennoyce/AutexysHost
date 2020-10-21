@@ -6,7 +6,7 @@ from utilities import FET_Modeling as fet_model
 plotDescription = {
 	'plotCategory': 'device',
 	'priority': 4010,
-	'dataFileDependencies': ['GateSweep.json'],
+	'dataFileDependencies': ['GateSweep.json', 'disabled.json'],
 	'plotDefaults': {
 		'figsize':(2,2.5),
 		'includeOriginOnYaxis':True,

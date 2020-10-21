@@ -684,9 +684,8 @@
 															 {{ possiblePlot }}
 														</v-toolbar-title>
 													</v-toolbar>
-													<div class="text-center">
-														<a-zoomable-image src="" :data-src="'/chipPlots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></a-zoomable-image>
-													</div>
+													
+													<a-zoomable-image src="" :srcdata="'/chipPlots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></a-zoomable-image>
 												</v-card>
 											</v-col>
 										</v-row>
@@ -750,9 +749,8 @@
 															 {{ possiblePlot }}
 														</v-toolbar-title>
 													</v-toolbar> 
-													<div class="text-center">
-														<a-zoomable-image src="" :data-src="'/devicePlots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></a-zoomable-image>
-													</div>
+													
+													<a-zoomable-image src="" :srcdata="'/devicePlots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></a-zoomable-image>
 												</v-card>
 											</v-col>
 										</v-row>
@@ -782,7 +780,7 @@
 									
 									<v-container>
 										<v-row dense>
-											<v-col xs="12" sm="6" md="4" lg="3" xl="2" v-for="possiblePlot in experiment.possiblePlots" :key="possiblePlot">
+											<v-col xs="12" sm="6" md="4" lg="3" xl="2" v-for="possiblePlot in experiment.possiblePlots" :key="possiblePlot + experimentIndex">
 												<v-card>
 													<v-toolbar dark dense class="color_base">
 														<v-toolbar-title>
@@ -813,9 +811,9 @@
 														</v-menu>
 													</v-toolbar>
 													
-													<div class="text-center" v-if="!disabledPlots.includes(possiblePlot)">
-														<a-zoomable-image src="" :data-src="'/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></a-zoomable-image>
-													</div>
+													<template v-if="!disabledPlots.includes(possiblePlot)">
+														<a-zoomable-image src="" :srcdata="'/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></a-zoomable-image>
+													</template>
 												</v-card>
 											</v-col>
 										</v-row>
@@ -2211,21 +2209,16 @@
 			let zoomableImages = document.getElementsByClassName("zoomableImage");
 			
 			for (var i = 0; i < zoomableImages.length; i++) {
-				if (zoomableImages[i].getAttribute('data-src') != zoomableImages[i].getAttribute('src')) {
-					zoomableImages[i].setAttribute('src', zoomableImages[i].getAttribute('data-src'));
-					
+				if (zoomableImages[i].getAttribute('srcdata') != zoomableImages[i].getAttribute('src')) {
+					// Setup callbacks for when the <img> loads
 					imageRequestsLoading++;
+					zoomableImages[i].addEventListener('load',  (event) => {imageRequestsLoading--;});
+					zoomableImages[i].addEventListener('error', (event) => {imageRequestsLoading--;});
 					
-					zoomableImages[i].onload = function() {
-						imageRequestsLoading--;
-					}
-					zoomableImages[i].onerror = function() {
-						imageRequestsLoading--;
-					}
+					// Tell the <img> to start loading
+					zoomableImages[i].setAttribute('src', zoomableImages[i].getAttribute('srcdata'));
 				}
-				if (!zoomableImages[i].complete) {
-					return;
-				}
+				if (!zoomableImages[i].complete) return;
 			}
 		}, 100);
 		

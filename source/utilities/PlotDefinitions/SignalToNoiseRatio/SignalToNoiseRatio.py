@@ -6,7 +6,7 @@ import numpy as np
 plotDescription = {
 	'plotCategory': 'device',
 	'priority': 1e6,
-	'dataFileDependencies': ['GateSweep.json'],
+	'dataFileDependencies': ['GateSweep.json', 'disabled.json'],
 	'plotDefaults': {
 		'figsize':(2,2.5),
 		'colorMap':'white_blue_black',

@@ -5,7 +5,7 @@ from utilities.MatplotlibUtility import *
 plotDescription = {
 	'plotCategory': 'device',
 	'priority': 5010,
-	'dataFileDependencies': ['GateSweep.json'],
+	'dataFileDependencies': ['GateSweep.json', 'disabled.json'],
 	'plotDefaults': {
 		'figsize':(3.1,2.4),#(2*2.2,2*1.7),#(5,4),
 		'colorMap':'white_blue_black',

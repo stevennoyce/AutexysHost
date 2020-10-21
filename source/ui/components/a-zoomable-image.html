@@ -1,17 +1,27 @@
 
 
 <script type="text/html" id="a-zoomable-image">
-	<img :src="src" v-bind:class="{ zoomedImage: zoomActive, zoomableImage: !zoomActive }" @click="zoomActive = !zoomActive">
+<div>
+	<!-- <v-skeleton-loader v-if="!imageLoaded" type="card" boilerplate></v-skeleton-loader> -->
+	<img :src="src" :srcdata="srcdata" v-bind:class="{ zoomedImage: zoomActive, zoomableImage: !zoomActive }" 
+	@click="zoomActive = !zoomActive" @load="imageFinishLoading()">
+</div>
 </script>
 
 <script type="text/javascript">
 	Vue.component('a-zoomable-image', {
 		template: '#a-zoomable-image',
-		props: ['src'],
+		props: ['src', 'srcdata'],
 		data: function() {
 			return {
-				zoomActive: false
+				imageLoaded: false,
+				zoomActive: false,
 			}
+		},
+		methods: {
+			imageFinishLoading: function() {
+				this.imageLoaded = true;
+			},
 		}
 		//.getBoundingClientRect();
 	});

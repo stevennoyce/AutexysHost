@@ -109,6 +109,8 @@ def makeDevicePlot(plotType, deviceHistory, identifiers, mode_parameters=None):
 	# Adjust figure y-limits if desired
 	if('includeOriginOnYaxis' in plotDefinitions[plotType]['description']['plotDefaults']):
 		mplu.includeOriginOnYaxis(axes[0], include=plotDefinitions[plotType]['description']['plotDefaults']['includeOriginOnYaxis'])
+	if('includeAtLeastOrderOfMagnitudeOnYaxis' in plotDefinitions[plotType]['description']['plotDefaults']):
+		mplu.includeAtLeastOrderOfMagnitudeOnYaxis(axes[0], include=plotDefinitions[plotType]['description']['plotDefaults']['includeAtLeastOrderOfMagnitudeOnYaxis'])
 	
 	# Add title label to figure
 	if(not updated_mode_parameters['publication_mode']):
