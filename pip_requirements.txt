@@ -21,3 +21,4 @@ PyVISA==1.9.1
 PyVISA-py==0.2
 requests==2.18.4
 scipy==1.1.0
+tornado==5.0.2
