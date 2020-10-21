@@ -4,6 +4,7 @@ from utilities.PlotDefinitions.Metrics.BoxPlotThresholdVoltage import plot as im
 
 
 plotDescription = {
+	'name':'Chip Threshold Voltage',
 	'plotCategory': 'chip',
 	'priority': 1060,
 	'dataFileDependencies': ['GateSweep.json'],

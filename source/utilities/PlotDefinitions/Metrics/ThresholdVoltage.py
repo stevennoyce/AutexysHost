@@ -4,6 +4,7 @@ from utilities import FET_Modeling as fet_model
 
 
 plotDescription = {
+	'name': 'Threshold Voltage',
 	'plotCategory': 'device',
 	'priority': 2030,
 	'dataFileDependencies': ['GateSweep.json'],

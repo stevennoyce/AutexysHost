@@ -677,15 +677,15 @@
 									
 									<v-container>
 										<v-row dense v-if="enableChipSummaryPlots">
-											<v-col xs="12" sm="6" md="4" lg="3" xl="2" v-for="possiblePlot in possibleChipPlots" :key="possiblePlot">
+											<v-col xs="12" sm="6" md="4" lg="3" xl="2" v-for="possiblePlot in possibleChipPlots" :key="possiblePlot['type']">
 												<v-card>
 													<v-toolbar dark dense class="color_base">
 														<v-toolbar-title>
-															 {{ possiblePlot }}
+															 {{ possiblePlot['name']? possiblePlot['name'] : possiblePlot['type'] }}
 														</v-toolbar-title>
 													</v-toolbar>
 													
-													<a-zoomable-image src="" :srcdata="'/chipPlots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></a-zoomable-image>
+													<a-zoomable-image src="" :srcdata="'/chipPlots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+possiblePlot['type'] + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></a-zoomable-image>
 												</v-card>
 											</v-col>
 										</v-row>
@@ -742,15 +742,15 @@
 									
 									<v-container>
 										<v-row dense v-if="enableDeviceSummaryPlots">
-											<v-col xs="12" sm="6" md="4" lg="3" xl="2" v-for="possiblePlot in possibleDevicePlots" :key="possiblePlot">
+											<v-col xs="12" sm="6" md="4" lg="3" xl="2" v-for="possiblePlot in possibleDevicePlots" :key="possiblePlot['type']">
 												<v-card>
 													<v-toolbar dark dense class="color_base">
 														<v-toolbar-title>
-															 {{ possiblePlot }}
+															  {{ possiblePlot['name']? possiblePlot['name'] : possiblePlot['type'] }}
 														</v-toolbar-title>
 													</v-toolbar> 
 													
-													<a-zoomable-image src="" :srcdata="'/devicePlots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></a-zoomable-image>
+													<a-zoomable-image src="" :srcdata="'/devicePlots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+possiblePlot['type'] + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></a-zoomable-image>
 												</v-card>
 											</v-col>
 										</v-row>
@@ -780,11 +780,11 @@
 									
 									<v-container>
 										<v-row dense>
-											<v-col xs="12" sm="6" md="4" lg="3" xl="2" v-for="possiblePlot in experiment.possiblePlots" :key="possiblePlot + experimentIndex">
+											<v-col xs="12" sm="6" md="4" lg="3" xl="2" v-for="possiblePlot in experiment.possiblePlots" :key="possiblePlot['type'] + experimentIndex">
 												<v-card>
 													<v-toolbar dark dense class="color_base">
 														<v-toolbar-title>
-															{{ possiblePlot }}
+															 {{ possiblePlot['name']? possiblePlot['name'] : possiblePlot['type'] }}
 														</v-toolbar-title>
 														
 														<v-spacer></v-spacer>
@@ -795,15 +795,15 @@
 															</template>
 															<!-- !this.$parent.getElementsByClassName('zoomableImage')[0].complete -->
 															<v-list dense light>
-																<v-list-item @click="copyHTMLImageToClip('/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings)))">
+																<v-list-item @click="copyHTMLImageToClip('/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot['type'] + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings)))">
 																	<v-list-item-action><v-icon dense>photo</v-icon></v-list-item-action>
 																	<v-list-item-title>Copy</v-list-item-title>
 																</v-list-item>
-																<v-list-item @click="disabledPlots.push(possiblePlot)">
+																<v-list-item @click="disabledPlots.push(possiblePlot['type'])">
 																	<v-list-item-action><v-icon dense>photo</v-icon></v-list-item-action>
 																	<v-list-item-title>Disable</v-list-item-title>
 																</v-list-item>
-																<v-list-item @click="removeValueFromArray(possiblePlot, disabledPlots)">
+																<v-list-item @click="removeValueFromArray(possiblePlot['type'], disabledPlots)">
 																	<v-list-item-action><v-icon dense>photo</v-icon></v-list-item-action>
 																	<v-list-item-title>Enable</v-list-item-content>
 																</v-list-item>
@@ -811,8 +811,8 @@
 														</v-menu>
 													</v-toolbar>
 													
-													<template v-if="!disabledPlots.includes(possiblePlot)">
-														<a-zoomable-image src="" :srcdata="'/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></a-zoomable-image>
+													<template v-if="!disabledPlots.includes(possiblePlot['type'])">
+														<a-zoomable-image src="" :srcdata="'/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot['type'] + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings))"></a-zoomable-image>
 													</template>
 												</v-card>
 											</v-col>

@@ -3,6 +3,7 @@ from utilities.MatplotlibUtility import *
 
 
 plotDescription = {
+	'name': 'Inverter VTC',
 	'plotCategory': 'device',
 	'priority': 510,
 	'dataFileDependencies': ['InverterSweep.json'],

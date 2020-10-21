@@ -3,6 +3,7 @@ from utilities.MatplotlibUtility import *
 
 
 plotDescription = {
+	'name':'Chip On/Off Ratio',
 	'plotCategory': 'chip',
 	'priority': 1010,
 	'dataFileDependencies': ['GateSweep.json'],

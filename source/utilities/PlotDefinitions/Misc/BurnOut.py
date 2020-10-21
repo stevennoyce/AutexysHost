@@ -3,6 +3,7 @@ from utilities.MatplotlibUtility import *
 
 
 plotDescription = {
+	'name': 'CNT Burn Out',
 	'plotCategory': 'device',
 	'priority': 710,
 	'dataFileDependencies': ['BurnOut.json'],

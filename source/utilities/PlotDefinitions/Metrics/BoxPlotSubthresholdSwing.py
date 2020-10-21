@@ -4,6 +4,7 @@ from utilities import FET_Modeling as fet_model
 
 
 plotDescription = {
+	'name': 'SS',
 	'plotCategory': 'device',
 	'priority': 3020,
 	'dataFileDependencies': ['GateSweep.json'],

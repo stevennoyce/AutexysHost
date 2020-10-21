@@ -3,6 +3,7 @@ from utilities.MatplotlibUtility import *
 
 
 plotDescription = {
+	'name': 'Response',
 	'plotCategory': 'device',
 	'priority': 460,
 	'dataFileDependencies': ['RapidBias.json'],

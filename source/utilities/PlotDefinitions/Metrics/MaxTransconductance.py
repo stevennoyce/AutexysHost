@@ -4,6 +4,7 @@ from utilities import FET_Modeling as fet_model
 
 
 plotDescription = {
+	'name': 'Transconductance',
 	'plotCategory': 'device',
 	'priority': 2010,
 	'dataFileDependencies': ['GateSweep.json'],

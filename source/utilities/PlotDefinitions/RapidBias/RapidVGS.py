@@ -3,6 +3,7 @@ from utilities.MatplotlibUtility import *
 
 
 plotDescription = {
+	'name': 'Gate Voltage',
 	'plotCategory': 'device',
 	'priority': 450,
 	'dataFileDependencies': ['RapidBias.json'],

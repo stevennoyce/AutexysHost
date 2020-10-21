@@ -3,6 +3,7 @@ from utilities.MatplotlibUtility import *
 
 
 plotDescription = {
+	'name': 'Drain Current',
 	'plotCategory': 'device',
 	'priority': 420,
 	'dataFileDependencies': ['RapidBias.json'],

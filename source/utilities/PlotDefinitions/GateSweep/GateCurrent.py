@@ -3,6 +3,7 @@ from utilities.MatplotlibUtility import *
 
 
 plotDescription = {
+	'name': 'Gate Current',
 	'plotCategory': 'device',
 	'priority': 130,
 	'dataFileDependencies': ['GateSweep.json'],

@@ -3,6 +3,7 @@ from utilities.MatplotlibUtility import *
 
 
 plotDescription = {
+	'name': 'Inverter Gain',
 	'plotCategory': 'device',
 	'priority': 520,
 	'dataFileDependencies': ['InverterSweep.json'],

@@ -3,6 +3,7 @@ from utilities.PlotDefinitions.GateSweep.TransferCurve import plot as importedTr
 
 
 plotDescription = {
+	'name':'Chip Transfer Curve',
 	'plotCategory': 'chip',
 	'priority': 10,
 	'dataFileDependencies': ['GateSweep.json'],

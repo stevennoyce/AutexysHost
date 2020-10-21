@@ -3,6 +3,7 @@ import copy
 
 
 plotDescription = {
+	'name': 'Drain Voltage',
 	'plotCategory': 'device',
 	'priority': 330,
 	'dataFileDependencies': ['StaticCurrent.json'],

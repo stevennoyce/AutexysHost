@@ -3,6 +3,7 @@ from utilities.MatplotlibUtility import *
 
 
 plotDescription = {
+	'name': 'Resistance',
 	'plotCategory': 'device',
 	'priority': 140,
 	'dataFileDependencies': ['GateSweep.json'],

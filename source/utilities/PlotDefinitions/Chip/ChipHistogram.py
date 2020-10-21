@@ -3,6 +3,7 @@ from utilities.MatplotlibUtility import *
 
 
 plotDescription = {
+	'name':'Chip Experiments',
 	'plotCategory': '',#'chip',
 	'priority': 1010,
 	'dataFileDependencies': ['index.json'],

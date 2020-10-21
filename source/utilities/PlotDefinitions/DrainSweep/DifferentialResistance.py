@@ -3,19 +3,20 @@ from utilities.MatplotlibUtility import *
 
 
 plotDescription = {
+	'name': 'Differential Resistance',
 	'plotCategory': 'device',
 	'priority': 240,
 	'dataFileDependencies': ['DrainSweep.json'],
 	'plotDefaults': {
 		'figsize':(2,2.5),
 		'includeAtLeastOrderOfMagnitudeOnYaxis':True,
-		'colorMap':'white_red_black',
-		'colorDefault': ['#ed553b'],
+		'colorMap':'white_orange_black',
+		'colorDefault': ['#ee7539'],
 		
 		'xlabel':'$V_{{DS}}$ (V)',		
-		'ylabel':'$r_{{ds}}$ ($\\mathregular{\\Omega}$)',
-		'kilo_ylabel':'$R$ (k$\\mathregular{\\Omega}$)',
-		'leg_vgs_label':'$V_{{GS}}$\n  = {:}V',
+		'ylabel':     '$r_{{ds}}$ ($\\mathregular{\\Omega}$)',
+		'kilo_ylabel':'$r_{{ds}}$ (k$\\mathregular{\\Omega}$)',
+		'leg_vgs_label':'$V_{{GS}}$  = {:}V',
 		'leg_vgs_range_label':'$V_{{GS}}^{{min}} = $ {:}V\n'+'$V_{{GS}}^{{max}} = $ {:}V'
 	},
 }

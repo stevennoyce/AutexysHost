@@ -3,6 +3,7 @@ from utilities.PlotDefinitions.DrainSweep.OutputCurve import plot as importedOut
 
 
 plotDescription = {
+	'name':'Chip Output Curves',
 	'plotCategory': 'chip',
 	'priority': 40,
 	'dataFileDependencies': ['DrainSweep.json'],

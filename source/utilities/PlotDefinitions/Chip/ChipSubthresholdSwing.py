@@ -4,6 +4,7 @@ from utilities.PlotDefinitions.Metrics.BoxPlotSubthresholdSwing import plot as i
 
 
 plotDescription = {
+	'name':'Chip SS',
 	'plotCategory': 'chip',
 	'priority': 1050,
 	'dataFileDependencies': ['GateSweep.json'],

@@ -3,6 +3,7 @@ from utilities.MatplotlibUtility import *
 
 
 plotDescription = {
+	'name': 'Subthreshold Curve',
 	'plotCategory': 'device',
 	'priority': 120,
 	'dataFileDependencies': ['GateSweep.json'],

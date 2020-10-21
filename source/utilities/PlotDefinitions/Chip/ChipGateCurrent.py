@@ -3,6 +3,7 @@ from utilities.PlotDefinitions.GateSweep.GateCurrent import plot as importedGate
 
 
 plotDescription = {
+	'name':'Chip Gate Current',
 	'plotCategory': 'chip',
 	'priority': 30,
 	'dataFileDependencies': ['GateSweep.json'],

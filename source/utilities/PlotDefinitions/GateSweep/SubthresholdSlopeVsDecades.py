@@ -4,6 +4,7 @@ from utilities import FET_Modeling as fet_model
 
 
 plotDescription = {
+	'name': 'SS vs. Current',
 	'plotCategory': 'device',
 	'priority': 1030,
 	'dataFileDependencies': ['GateSweep.json'],

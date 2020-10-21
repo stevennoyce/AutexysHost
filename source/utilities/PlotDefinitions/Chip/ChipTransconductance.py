@@ -4,6 +4,7 @@ from utilities.PlotDefinitions.Metrics.BoxPlotTransconductance import plot as im
 
 
 plotDescription = {
+	'name':'Chip Transconductance',
 	'plotCategory': 'chip',
 	'priority': 1040,
 	'dataFileDependencies': ['GateSweep.json'],

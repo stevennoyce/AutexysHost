@@ -4,6 +4,7 @@ from utilities.MatplotlibUtility import *
 
 
 plotDescription = {
+	'name': 'Hysteresis',
 	'plotCategory': 'device',
 	'priority': 1040,
 	'dataFileDependencies': ['GateSweep.json'],

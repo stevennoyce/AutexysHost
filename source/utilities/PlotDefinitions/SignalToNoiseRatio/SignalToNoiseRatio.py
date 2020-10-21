@@ -4,6 +4,7 @@ from utilities.MatplotlibUtility import *
 import numpy as np
 
 plotDescription = {
+	'name': 'SNR',
 	'plotCategory': 'device',
 	'priority': 1e6,
 	'dataFileDependencies': ['GateSweep.json', 'disabled.json'],

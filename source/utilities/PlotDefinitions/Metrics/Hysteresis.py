@@ -5,6 +5,7 @@ import numpy as np
 
 
 plotDescription = {
+	'name': 'Hysteresis',
 	'plotCategory': 'device',
 	'priority': 2040,
 	'dataFileDependencies': ['GateSweep.json'],

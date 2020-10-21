@@ -324,8 +324,11 @@ def plotOutputGateCurrent(axis, jsonData, lineColor, direction='both', scaleYaxi
 	return line
 
 def plotResistanceCurve(axis, jsonData, lineColor, direction='both', scaleYaxisBy=1, lineStyle=None, errorBars=True, alpha=1):
-	x, y, pointsPerX = extractSweep(axis, jsonData, direction, x_data='drain voltage', y_data='drain current', scaleYaxisBy=scaleYaxisBy)
-	y = np.array(x) / np.array(y)
+	x, y, pointsPerX = extractSweep(axis, jsonData, direction, x_data='drain voltage', y_data='drain current', scaleYaxisBy=1)
+	y = scaleYaxisBy * np.array(x) / np.array(y)
+	resolution_limit_volts = 1e-6
+	y = [[y[i][j] for j in range(len(y[i])) if(abs(x[i][j]) > resolution_limit_volts)] for i in range(len(y))]
+	x = [[x[i][j] for j in range(len(x[i])) if(abs(x[i][j]) > resolution_limit_volts)] for i in range(len(x))]
 	line = plotAll(axis, x, y, lineColor, pointsPerX=pointsPerX, lineStyle=lineStyle, errorBars=errorBars, alpha=alpha)
 	return line
 

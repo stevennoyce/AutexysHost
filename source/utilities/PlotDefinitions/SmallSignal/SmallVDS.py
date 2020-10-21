@@ -3,6 +3,7 @@ from utilities.MatplotlibUtility import *
 
 
 plotDescription = {
+	'name': 'Drain Voltage',
 	'plotCategory': 'device',
 	'priority': 430,
 	'dataFileDependencies': ['SmallSignal.json'],

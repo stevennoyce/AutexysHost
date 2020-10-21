@@ -3,6 +3,7 @@ import copy
 
 
 plotDescription = {
+	'name': 'Gate Current',
 	'plotCategory': 'device',
 	'priority': 320,
 	'dataFileDependencies': ['StaticBias.json'],

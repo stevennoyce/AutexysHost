@@ -3,6 +3,7 @@ from utilities.MatplotlibUtility import *
 
 
 plotDescription = {
+	'name': 'SS vs. Voltage',
 	'plotCategory': 'device',
 	'priority': 1020,
 	'dataFileDependencies': ['GateSweep.json'],

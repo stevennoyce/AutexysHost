@@ -3,6 +3,7 @@ from utilities.MatplotlibUtility import *
 
 
 plotDescription = {
+	'name': 'Output Curve',
 	'plotCategory': 'device',
 	'priority': 210,
 	'dataFileDependencies': ['DrainSweep.json'],
@@ -21,7 +22,7 @@ plotDescription = {
 		'neg_micro_ylabel':'$-I_{{D}}$ ($\\mathregular{\\mu}$A)',
 		'neg_nano_ylabel': '$-I_{{D}}$ (nA)',
 		'neg_pico_ylabel': '$-I_{{D}}$ (pA)',
-		'leg_vgs_label':'$V_{{GS}}$\n  = {:}V',
+		'leg_vgs_label':'$V_{{GS}}$  = {:}V',
 		'leg_vgs_range_label':'$V_{{GS}}^{{min}} = $ {:}V\n'+'$V_{{GS}}^{{max}} = $ {:}V'
 	},
 }

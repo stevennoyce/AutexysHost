@@ -3,6 +3,7 @@ from utilities.MatplotlibUtility import *
 
 
 plotDescription = {
+	'name': 'Transfer Curve',
 	'plotCategory': 'device',
 	'priority': 110,
 	'dataFileDependencies': ['GateSweep.json'],

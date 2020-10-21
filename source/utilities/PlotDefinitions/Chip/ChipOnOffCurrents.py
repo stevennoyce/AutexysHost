@@ -3,6 +3,7 @@ from utilities.MatplotlibUtility import *
 
 
 plotDescription = {
+	'name':'Chip On/Off Current',
 	'plotCategory': 'chip',
 	'priority': 1020,
 	'dataFileDependencies': ['GateSweep.json'],

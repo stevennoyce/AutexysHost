@@ -3,6 +3,7 @@ import copy
 
 
 plotDescription = {
+	'name': 'Drain Current',
 	'plotCategory': 'device',
 	'priority': 310,
 	'dataFileDependencies': ['StaticBias.json'],

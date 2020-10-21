@@ -3,6 +3,7 @@ import copy
 
 
 plotDescription = {
+	'name': 'Gate Voltage',
 	'plotCategory': 'device',
 	'priority': 340,
 	'dataFileDependencies': ['StaticCurrent.json'],

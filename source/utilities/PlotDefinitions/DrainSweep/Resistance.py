@@ -3,6 +3,7 @@ from utilities.MatplotlibUtility import *
 
 
 plotDescription = {
+	'name': 'Resistance',
 	'plotCategory': 'device',
 	'priority': 230,
 	'dataFileDependencies': ['DrainSweep.json'],
@@ -15,7 +16,8 @@ plotDescription = {
 		'xlabel':'$V_{{DS}}$ (V)',		
 		'ylabel':'$R$ ($\\mathregular{\\Omega}$)',
 		'kilo_ylabel':'$R$ (k$\\mathregular{\\Omega}$)',
-		'leg_vgs_label':'$V_{{GS}}$\n  = {:}V',
+		'mega_ylabel':'$R$ (M$\\mathregular{\\Omega}$)',
+		'leg_vgs_label':'$V_{{GS}}$  = {:}V',
 		'leg_vgs_range_label':'$V_{{GS}}^{{min}} = $ {:}V\n'+'$V_{{GS}}^{{max}} = $ {:}V'
 	},
 }
@@ -30,10 +32,9 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	colors = setupColors(fig, len(deviceHistory), colorOverride=mode_parameters['colorsOverride'], colorDefault=plotDescription['plotDefaults']['colorDefault'], colorMapName=plotDescription['plotDefaults']['colorMap'], colorMapStart=0.9, colorMapEnd=0.15, enableColorBar=False, colorBarTicks=[0,0.6,1], colorBarTickLabels=[endVGS, '$V_{{GS}}$', startVGS], colorBarAxisLabel='')		
 		
 	# Adjust y-scale and y-axis labels 
-	#max_voltage = max(abs(deviceHistory[0]['runConfigs']['DrainSweep']['drainVoltageStart']), abs(deviceHistory[0]['runConfigs']['DrainSweep']['drainVoltageEnd']))
-	#max_resistance = max_voltage/np.min(np.abs(np.array(deviceHistory[0]['Results']['id_data'])))
-	#resistance_scale, ylabel = (1e-3, plotDescription['plotDefaults']['kilo_ylabel']) if(max_resistance >= 1e3) else (1, plotDescription['plotDefaults']['ylabel'])
-	resistance_scale, ylabel = (1, plotDescription['plotDefaults']['ylabel'])
+	max_voltage = max(abs(deviceHistory[0]['Results']['vds_data'][0][0]), abs(deviceHistory[0]['Results']['vds_data'][0][-1]))
+	max_resistance = max_voltage/np.min(np.abs(np.array(deviceHistory[0]['Results']['id_data'])))
+	resistance_scale, ylabel = (1e-6, plotDescription['plotDefaults']['mega_ylabel']) if(max_resistance >= 1e6) else ((1e-3, plotDescription['plotDefaults']['kilo_ylabel']) if(max_resistance >= 1e3) else (1, plotDescription['plotDefaults']['ylabel']))
 	
 	# Plot
 	for i in range(len(deviceHistory)):

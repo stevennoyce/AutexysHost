@@ -3,6 +3,7 @@ from utilities.MatplotlibUtility import *
 
 
 plotDescription = {
+	'name': 'Imepdance Bode Plot',
 	'plotCategory': 'device',
 	'priority': 450,
 	'dataFileDependencies': ['SmallSignal.json'],

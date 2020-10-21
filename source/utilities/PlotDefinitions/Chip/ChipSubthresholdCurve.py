@@ -4,6 +4,7 @@ from utilities.PlotDefinitions.GateSweep.SubthresholdCurve import plot as import
 
 
 plotDescription = {
+	'name':'Chip Subthreshold Curves',
 	'plotCategory': 'chip',
 	'priority': 20,
 	'dataFileDependencies': ['GateSweep.json'],

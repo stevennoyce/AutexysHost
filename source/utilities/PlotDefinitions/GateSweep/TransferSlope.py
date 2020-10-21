@@ -3,6 +3,7 @@ from utilities.MatplotlibUtility import *
 
 
 plotDescription = {
+	'name': 'Transconductance',
 	'plotCategory': 'device',
 	'priority': 1010,
 	'dataFileDependencies': ['GateSweep.json'],
