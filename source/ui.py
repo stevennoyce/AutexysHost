@@ -668,7 +668,7 @@ def saveSchedule(user, project, fileName):
 def loadSchedule(user, project, fileName):
 	scheduleData = dlu.loadJSON(os.path.join(workspace_data_path, user, project, 'schedules/'), fileName + '.json')
 	expandedScheduleData = [defaults.full_with_added(job) for job in scheduleData]
-	print('[UI]: Loaded schecule file.')
+	print('[UI]: Loaded schedule file.')
 	return jsonvalid(expandedScheduleData)
 
 @app.route('/loadBriefSchedule/<user>/<project>/<fileName>.json')
