@@ -2202,7 +2202,7 @@
 		}
 		
 		var imageRequestsLoading = 0;
-		var imageLoaderTimer = setInterval(function() {
+		function loadAvailableImages() {
 			if (imageRequestsLoading > 0) return;
 			if (imageRequestsLoading < 0) imageRequestsLoading = 0;
 			
@@ -2212,15 +2212,17 @@
 				if (zoomableImages[i].getAttribute('srcdata') != zoomableImages[i].getAttribute('src')) {
 					// Setup callbacks for when the <img> loads
 					imageRequestsLoading++;
-					zoomableImages[i].addEventListener('load',  (event) => {imageRequestsLoading--;});
-					zoomableImages[i].addEventListener('error', (event) => {imageRequestsLoading--;});
+					zoomableImages[i].addEventListener('load',  (event) => {imageRequestsLoading--; loadAvailableImages();});
+					zoomableImages[i].addEventListener('error', (event) => {imageRequestsLoading--; loadAvailableImages();});
 					
 					// Tell the <img> to start loading
 					zoomableImages[i].setAttribute('src', zoomableImages[i].getAttribute('srcdata'));
 				}
 				if (!zoomableImages[i].complete) return;
 			}
-		}, 100);
+		}
+		
+		var imageLoaderTimer = setInterval(loadAvailableImages, 100);
 		
 		
 		
