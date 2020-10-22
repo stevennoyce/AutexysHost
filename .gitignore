@@ -154,5 +154,8 @@ dist/
 
 # ====== End Electron App Files ======
 
+# ====== Ignore Python Virtual Environment ======
+env/
+# ===============================================
 
 

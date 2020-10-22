@@ -1032,17 +1032,19 @@
 								</v-expansion-panel>
 							</v-expansion-panels>
 							
-							<v-card class="ma-4" v-if="showScheduleBuilderPreview && nonTrivialScheduleObjects()">
+							<v-card class="ma-4 pb-1" v-if="showScheduleBuilderPreview && nonTrivialScheduleObjects()">
 								<v-toolbar dark dense class="info">
 									<v-toolbar-title>
 										Preview Schedule File
 									</v-toolbar-title>
 								</v-toolbar>
-								<v-card-text class="text-no-wrap" style="overflow-x: scroll">
-									<template v-for="schedLine in scheduleLines">
-										{{ schedLine }} <br>
-									</template>
-								</v-card-text>
+								<v-card outlined class="ma-2 mb-1">
+									<v-card-text class="text-no-wrap" style="overflow-x: scroll">
+										<template v-for="schedLine in scheduleLines">
+											{{ schedLine }} <br>
+										</template>
+									</v-card-text>
+								</v-card>
 							</v-card>
 							<!-- <v-btn fab small dark bottom right absolute @click="addScheduleJob(0)"><v-icon>add</v-icon></v-btn> -->
 						</v-card>
@@ -1238,6 +1240,11 @@
 											
 										</v-expansion-panel>
 									</v-expansion-panels>
+								</template>
+								<template v-else-if="(runnerChoice !== '') && (runnerUser && runnerProject && runnerFileName) && (runnerScheduleObjects.length > 1) && (runnerVerboseScheduleObjects.length > 1)">
+									<v-chip-group>
+										<v-chip v-for="scheduleObject, scheduleObjectIndex in runnerScheduleObjects" :key="scheduleObjectIndex" class="ml-1 mr-1" :color="getRunTypeColor(scheduleObject['runType']['default'])">{{ scheduleObjectIndex + 1 }}. {{ scheduleObject['runType']['default'] }}</v-chip>
+									</v-chip-group>
 								</template>
 								<template v-else>
 									<v-list class="pa-0">
@@ -3259,6 +3266,7 @@
 				
 				resetScheduleBuilder: function() {
 					this.scheduleObjects = [JSON.parse(JSON.stringify(this.scheduleObjectDefault))];
+					this.showScheduleBuilderPreview = false;
 				},
 				
 				addScheduleJob: function(index) {
