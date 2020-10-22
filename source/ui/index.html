@@ -348,7 +348,7 @@
 					
 					<v-card flat class="ma-4" v-if="topLevelPage === 'dashboard'">
 						<v-container>
-							<v-row class="pa-3">
+							<v-row class="pa-2">
 								<v-col cols="4" class="pa-1">
 									<v-tooltip bottom nudge-top="4" color="color_runner">
 										<template v-slot:activator="{ on: tooltip }">
@@ -396,7 +396,7 @@
 							</v-row>
 						</v-container>
 						
-						<v-card class="ma-4" v-if="recentActivity.length">
+						<v-card class="ma-3 mt-5" v-if="recentActivity.length">
 							<v-toolbar dark dense class="color_base darken-1">
 								<v-toolbar-title>
 									Recent Activity
@@ -945,10 +945,10 @@
 										
 										<v-list class="pt-4">
 											<v-list-item>
-												<v-autocomplete dense clearable v-model="builderLoadUser" label="User" :items="Object.keys(userDefinedScheduleNames)"></v-autocomplete>
+												<v-autocomplete dense clearable v-model="builderLoadUser" label="User" :items="Object.keys(userDefinedScheduleNames)" @change="builderLoadProject = ''; builderLoadFileName = '';"></v-autocomplete>
 											</v-list-item>
 											<v-list-item>
-												<v-autocomplete dense clearable v-model="builderLoadProject" label="Project" :items="Object.keys(_.get(userDefinedScheduleNames, [builderLoadUser], {}))"></v-autocomplete>
+												<v-autocomplete dense clearable v-model="builderLoadProject" label="Project" :items="Object.keys(_.get(userDefinedScheduleNames, [builderLoadUser], {}))" @change="builderLoadFileName = '';"></v-autocomplete>
 											</v-list-item>
 											<v-list-item>
 												<v-autocomplete dense clearable v-model="builderLoadFileName" label="File Name" :items="_.get(userDefinedScheduleNames, [builderLoadUser, builderLoadProject], [])"></v-autocomplete>
@@ -1032,7 +1032,7 @@
 								</v-expansion-panel>
 							</v-expansion-panels>
 							
-							<v-card class="ma-4 pb-1" v-if="showScheduleBuilderPreview && nonTrivialScheduleObjects()">
+							<v-card class="ma-4 pb-1" v-if="scheduleBuilderPreview && nonTrivialScheduleObjects()">
 								<v-toolbar dark dense class="info">
 									<v-toolbar-title>
 										Preview Schedule File
@@ -1062,49 +1062,47 @@
 										</v-btn>
 									</v-toolbar>
 									
-									<v-form>
-										<v-container>
-											<v-row dense>
-												<v-col cols="4" class="pt-0 pb-0">
-													<v-combobox clearable v-model="builderSaveUser" label="User" :items="Object.keys(userDefinedScheduleNames)">
-														<template slot="no-data">
-															<v-list-item><v-list-item-content><v-list-item-title>
-																No results. Continuing will create a new user.
-															</v-list-item-title></v-list-item-content></v-list-item>
-														</template>
-													</v-combobox>
-												</v-col>
-												<v-col cols="4" class="pt-0 pb-0">
-													<v-combobox clearable v-model="builderSaveProject" label="Project" :items="Object.keys(_.get(userDefinedScheduleNames, [builderSaveUser], {}))">
-														<template slot="no-data">
-															<v-list-item><v-list-item-content><v-list-item-title>
-																No results. Continuing will create a new project.
-															</v-list-item-title></v-list-item-content></v-list-item>
-														</template>
-													</v-combobox>
-												</v-col>
-												<v-col cols="4" class="pt-0 pb-0"> 
-													<v-combobox clearable v-model="builderSaveFileName" label="File Name" :items="_.get(userDefinedScheduleNames, [builderSaveUser, builderSaveProject], [])">
-														<template slot="no-data">
-															<v-list-item><v-list-item-content><v-list-item-title>
-																No results. Continuing will create a new file.
-															</v-list-item-title></v-list-item-content></v-list-item>
-														</template>
-													</v-combobox>
-												</v-col>
-											</v-row>
-										</v-container>
-									</v-form>
+									<v-container>
+										<v-row dense>
+											<v-col cols="4" class="pt-0 pb-0">
+												<v-combobox clearable v-model="builderSaveUser" label="User" :items="Object.keys(userDefinedScheduleNames)">
+													<template slot="no-data">
+														<v-list-item><v-list-item-content><v-list-item-title>
+															No results. Continuing will create a new user.
+														</v-list-item-title></v-list-item-content></v-list-item>
+													</template>
+												</v-combobox>
+											</v-col>
+											<v-col cols="4" class="pt-0 pb-0">
+												<v-combobox clearable v-model="builderSaveProject" label="Project" :items="Object.keys(_.get(userDefinedScheduleNames, [builderSaveUser], {}))">
+													<template slot="no-data">
+														<v-list-item><v-list-item-content><v-list-item-title>
+															No results. Continuing will create a new project.
+														</v-list-item-title></v-list-item-content></v-list-item>
+													</template>
+												</v-combobox>
+											</v-col>
+											<v-col cols="4" class="pt-0 pb-0"> 
+												<v-combobox clearable v-model="builderSaveFileName" label="File Name" :items="_.get(userDefinedScheduleNames, [builderSaveUser, builderSaveProject], [])">
+													<template slot="no-data">
+														<v-list-item><v-list-item-content><v-list-item-title>
+															No results. Continuing will create a new file.
+														</v-list-item-title></v-list-item-content></v-list-item>
+													</template>
+												</v-combobox>
+											</v-col>
+										</v-row>
+									</v-container>
+									
+									<v-snackbar absolute shaped v-model="scheduleBuilderSaveDialog" color="color_builder" :timeout="2000">
+										<v-icon dark left>done</v-icon>
+										Save Complete
+										<v-btn text @click="scheduleBuilderSaveDialog = false">OK</v-btn>
+									</v-snackbar>
 									
 									<v-card-actions>
-										<v-switch class="ml-1" label="Preview" v-model="showScheduleBuilderPreview"></v-switch>
+										<v-switch class="ml-1" label="Preview" v-model="scheduleBuilderPreview"></v-switch>
 										<v-spacer></v-spacer>
-										<v-tooltip top v-if="isValidScheduleSavePath() && false">
-											<template v-slot:activator="{ on }">
-												<v-btn v-on="on" icon @click='copyHTMLStringToClip("cd \"" + paths["sourceAbsPath"] + "\" \n" + "python dispatcher.py \"" + workspaceDataFolderPath + "/" + builderSaveUser + "/" + builderSaveProject + "/schedules/" + builderSaveFileName + ".json\"")' :disabled="!isValidScheduleSavePath()"><v-icon>settings_ethernet</v-icon></v-btn>
-											</template>
-											<span>Copy launch commands for Terminal</span>
-										</v-tooltip>
 										<v-tooltip top :disabled="!isValidScheduleSavePath()" class="ml-2">
 											<template v-slot:activator="{ on }">
 												<v-btn v-on="on" @click="saveSchedule()" :disabled="!isValidScheduleSavePath()">Save Schedule File</v-btn>
@@ -1140,10 +1138,10 @@
 									
 									<template v-if="runnerChoice === 'Schedule File'">
 										<v-col sm="6" md="3" lg="3">
-											<v-autocomplete outlined clearable v-model="runnerUser" label="User" :items="Object.keys(userDefinedScheduleNames)"></v-autocomplete>
+											<v-autocomplete outlined clearable v-model="runnerUser" label="User" :items="Object.keys(userDefinedScheduleNames)" @change="runnerProject = ''; runnerFileName = '';"></v-autocomplete>
 										</v-col>
 										<v-col sm="6" md="3" lg="3">
-											<v-autocomplete outlined clearable v-model="runnerProject" label="Project" :items="Object.keys(_.get(userDefinedScheduleNames, [runnerUser], {}))"></v-autocomplete>
+											<v-autocomplete outlined clearable v-model="runnerProject" label="Project" :items="Object.keys(_.get(userDefinedScheduleNames, [runnerUser], {}))" @change="runnerFileName = '';"></v-autocomplete>
 										</v-col>
 										<v-col sm="6" md="3" lg="3">
 											<v-autocomplete outlined clearable v-model="runnerFileName" label="File Name" :items="_.get(userDefinedScheduleNames, [runnerUser, runnerProject], [])"></v-autocomplete>
@@ -1241,11 +1239,45 @@
 										</v-expansion-panel>
 									</v-expansion-panels>
 								</template>
+								
 								<template v-else-if="(runnerChoice !== '') && (runnerUser && runnerProject && runnerFileName) && (runnerScheduleObjects.length > 1) && (runnerVerboseScheduleObjects.length > 1)">
 									<v-chip-group>
-										<v-chip v-for="scheduleObject, scheduleObjectIndex in runnerScheduleObjects" :key="scheduleObjectIndex" class="ml-1 mr-1" :color="getRunTypeColor(scheduleObject['runType']['default'])">{{ scheduleObjectIndex + 1 }}. {{ scheduleObject['runType']['default'] }}</v-chip>
+										<v-menu bottom right offset-y :close-on-content-click="false" v-for="scheduleObject, scheduleObjectIndex in runnerScheduleObjects" :key="scheduleObjectIndex">
+											<template v-slot:activator="{ on }">
+												<v-chip v-on="on" label :color="getRunTypeColor(scheduleObject['runType']['default'])" class="mr-2">{{ scheduleObjectIndex + 1 }}. {{ scheduleObject['runType']['default'] }}</v-chip>
+											</template>
+											<v-card>
+												<v-row dense>
+													<v-col v-if="scheduleObject['Identifiers']">
+														<v-list>
+															<v-list-item>
+																<v-list-item-content><v-list-item-title style="font-weight: bold">
+																	Identifiers
+																</v-list-item-title></v-list-item-content>
+															</v-list-item>
+															<a-item-edit-group :settings.sync="runnerScheduleObjects[scheduleObjectIndex]['Identifiers']"></a-item-edit-group>
+														</v-list>
+													</v-col>
+													<v-col v-for="runConfig,runType in scheduleObject['runConfigs']" :key="runType">
+														<v-list>
+															<v-list-item>
+																<v-list-item-content><v-list-item-title style="font-weight: bold">
+																	{{ runType }}
+																</v-list-item-title></v-list-item-content>
+															</v-list-item>
+															<a-item-edit-group :settings.sync="runnerScheduleObjects[scheduleObjectIndex]['runConfigs'][runType]"></a-item-edit-group>
+														</v-list>
+													</v-col>
+												</v-row>
+												<v-row>
+													<v-spacer></v-spacer>
+													<v-btn class="mr-6 mb-3" small @click="runnerSaveScheduleFile()" :disabled="!isNecessaryToSaveRunnerScheduleFile()">Save</v-btn>
+												</v-row>
+											</v-card>
+										</v-menu>
 									</v-chip-group>
 								</template>
+								
 								<template v-else>
 									<v-list class="pa-0">
 										<v-list-item>
@@ -2444,7 +2476,8 @@
 				
 				essentialScheduleParameters: {},
 				
-				showScheduleBuilderPreview: false,
+				scheduleBuilderPreview: false,
+				scheduleBuilderSaveDialog: false,
 				
 				builderSaveUser: '',
 				builderSaveProject: '',
@@ -3138,15 +3171,19 @@
 							this.runnerScheduleObjectsHasBeenModified = false;
 							// Force re-load of schedule file to make sure everything is refreshed to its original state
 							this.runnerLoadScheduleFile();
-							//If a callback task was provided to be run when done saving, perform that now.
+							// If a callback task was provided to be run when done saving, perform that now.
 							if(callback) callback();
 						}), "Error saving schedule file from the experiment runner.");
+					} else {
+						// If saving was unnecessary, go ahead and perform the callback
+						if(callback) callback();
 					}
 				},
 				isPossibleToSaveRunnerScheduleFile: function() {
 					return (this.runnerUser && this.runnerProject && this.runnerFileName && 
-						(this.runnerScheduleObjects.length === 1) && (this.runnerScheduleObjectDefaults.length === 1) && 
-						(this.runnerVerboseScheduleObjects.length === 1) && ((this.runnerVerboseScheduleObjectDefaults.length === 1)));
+						(this.runnerScheduleObjects.length === this.runnerScheduleObjectDefaults.length) && 
+						(this.runnerVerboseScheduleObjects.length === this.runnerVerboseScheduleObjectDefaults.length) && 
+						(this.runnerScheduleObjects.length === this.runnerVerboseScheduleObjects.length));
 				}, 
 				isNecessaryToSaveRunnerScheduleFile: function() {
 					if(this.isPossibleToSaveRunnerScheduleFile()) {
@@ -3184,7 +3221,11 @@
 					}
 				},
 				hasModifiedRunnerSchedule: function() {
-					var basicChanges = objectDeepDiff(this.runnerScheduleObjects[0], this.runnerScheduleObjectDefaults[0]);
+					var basicChanges = {}
+					for (var i = 0; i < this.runnerScheduleObjects.length; i++) {
+						basicChanges = objectDeepDiff(this.runnerScheduleObjects[i], this.runnerScheduleObjectDefaults[i]);
+						if(Object.keys(basicChanges).length > 0) return true;
+					}
 					return (Object.keys(basicChanges).length > 0);
 				},
 				hasModifiedRunnerScheduleAdvanced: function() {
@@ -3266,7 +3307,7 @@
 				
 				resetScheduleBuilder: function() {
 					this.scheduleObjects = [JSON.parse(JSON.stringify(this.scheduleObjectDefault))];
-					this.showScheduleBuilderPreview = false;
+					this.scheduleBuilderPreview = false;
 				},
 				
 				addScheduleJob: function(index) {
@@ -3313,6 +3354,7 @@
 					this.builderSaveUser = '';	
 					this.builderSaveProject = '';	
 					this.builderSaveFileName = '';	
+					this.scheduleBuilderSaveDialog = false;
 				},
 				resetScheduleLoadPath: function() {
 					this.builderLoadUser = '';	
@@ -3333,7 +3375,10 @@
 					var path = this.saveSchedulePath(this.builderSaveUser, this.builderSaveProject, this.builderSaveFileName);
 										
 					console.log('saving path = ' + path);
-					this.postJSON(path, JSON.stringify(this.scheduleLines), (response => {console.log('Saved schedule file.')}), "Error saving schedule file.");
+					this.postJSON(path, JSON.stringify(this.scheduleLines), (response => {
+						console.log('Saved schedule file.');
+						this.scheduleBuilderSaveDialog = true;
+					}), "Error saving schedule file.");
 					
 					if (this.runnerUser === '') this.runnerUser = this.builderSaveUser;
 					if (this.runnerProject === '') this.runnerProject = this.builderSaveProject;

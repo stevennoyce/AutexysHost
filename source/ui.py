@@ -660,7 +660,7 @@ def saveSchedule(user, project, fileName):
 	dlu.makeEmptyJSONFile(os.path.join(workspace_data_path, user, project, 'schedules/'), fileName)
 	for job in receivedJobs:
 		dlu.saveJSON(os.path.join(workspace_data_path, user, project, 'schedules/'), fileName, defaults.extractDefaults(job), incrementIndex=False)
-	print('[UI]: Saved schecule file.')
+	print('[UI]: Saved schedule file.')
 	
 	return jsonvalid({"success":True})
 
