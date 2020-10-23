@@ -17,6 +17,7 @@ import io
 import time
 
 from utilities import FET_Modeling as fet_model
+from utilities import SequenceGeneratorUtility as dgu
 
 
 # ********** Matplotlib Parameters **********
@@ -393,6 +394,36 @@ def plotHysteresisCurve(axis, jsonData, lineColor, scaleYaxisBy=1, lineStyle=Non
 	
 	line = axis.plot(vgs_region, np.array(hysteresis) * scaleYaxisBy, color=lineColor, marker='o', markersize=2, linewidth=(0 if(lineStyle == '') else 1))[0]				
 	return line
+
+# === Parameter Plots ===
+def plotSweepParameters(axis, lineColor, start, end, points, duplicates, ramps):
+	sweep_waveform = dgu.sweepValuesWithDuplicates(start, end, points*2*duplicates, duplicates, ramps)
+	sweep_waveform = [item for sublist in sweep_waveform for item in sublist]
+	time_waveform = np.linspace(0, 1, len(sweep_waveform))
+	
+	axis.set_yticks([start, 0, end])
+	axis.set_xticks([0, 1])
+	axis.set_xticklabels(['Start', 'End'])
+	
+	line = axis.plot(time_waveform, sweep_waveform, color=lineColor, marker='o', markersize=2, linewidth=1)[0]				
+	return line
+
+def plotStaticParameter(axis, lineColor, value, duration, measurementTime):
+	time_waveform = np.linspace(0, duration, max(int(duration/measurementTime)+1, 2))
+	line = axis.plot(time_waveform, [value]*len(time_waveform), color=lineColor, marker='o', markersize=2, linewidth=1)[0]				
+	return line
+
+def plotRapidParameter(axis, lineColor, waveform, values, points, maxStep, other_length=0):
+	values = values if(len(values) >= other_length) else values + [values[-1]]*(other_length-len(values))
+	value_waveform = dgu.waveformValues(waveform, values, points, maxStep)
+	time_waveform = np.linspace(0, 1, len(value_waveform))
+	
+	axis.set_xticks([0, 1])
+	axis.set_xticklabels(['Start', 'End'])
+	
+	line = axis.plot(time_waveform, value_waveform, color=lineColor, marker='o', markersize=2, linewidth=1)[0]				
+	return line
+	
 
 # === Figures ===
 def initFigure(rows, columns, figsizeDefault, figsizeOverride=None, shareX=False, subplotWidthRatio=None, subplotHeightRatio=None):

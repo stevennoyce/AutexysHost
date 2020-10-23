@@ -177,6 +177,8 @@ def makeChipPlot(plotType, identifiers, chipIndexes=None, firstRunChipHistory=No
 	# Adjust figure y-limits if desired
 	if('includeOriginOnYaxis' in plotDefinitions[plotType]['description']['plotDefaults']):
 		mplu.includeOriginOnYaxis(axes[0], include=plotDefinitions[plotType]['description']['plotDefaults']['includeOriginOnYaxis'])
+	if('includeAtLeastOrderOfMagnitudeOnYaxis' in plotDefinitions[plotType]['description']['plotDefaults']):
+		mplu.includeAtLeastOrderOfMagnitudeOnYaxis(axes[0], include=plotDefinitions[plotType]['description']['plotDefaults']['includeAtLeastOrderOfMagnitudeOnYaxis'])
 		
 	# Add title label to figure
 	if(not updated_mode_parameters['publication_mode']):
@@ -204,6 +206,34 @@ def makeChipPlot(plotType, identifiers, chipIndexes=None, firstRunChipHistory=No
 	mplu.adjustAndSaveFigure(fig, plotType, updated_mode_parameters, subplotWidthPad=subplotWidthPad, subplotHeightPad=subplotHeightPad)
 	
 	return fig, axes
+
+def makeParameterPlot(plotType, parameters, mode_parameters=None):
+	# Add 'Parameters_' prefix to distinguish these plot files from other plots for device/chip data
+	plotType = 'Parameters_' + plotType
+	
+	# Merge mode_parameters with defaults
+	updated_mode_parameters = default_mode_parameters.copy()
+	if(mode_parameters is not None):
+		updated_mode_parameters.update(mode_parameters)
+	
+	print('[PLOT]: Plotting ' + str(plotType) + ' plot.')
+	try:
+		fig, axes = plotDefinitions[plotType]['function'](parameters, mode_parameters=updated_mode_parameters)
+	except:
+		print('[PLOT]: Error plotting "plotType": ' + str(plotType))
+		raise
+	
+	# If axis labels are the standard 'xlabel', 'ylabel' go ahead and make sure those are on the plot
+	if(('automaticAxisLabels' in plotDefinitions[plotType]['description']['plotDefaults']) and (plotDefinitions[plotType]['description']['plotDefaults']['automaticAxisLabels'])):
+		mplu.axisLabels(axes[0], x_label=plotDefinitions[plotType]['description']['plotDefaults']['xlabel'], y_label=plotDefinitions[plotType]['description']['plotDefaults']['ylabel'])
+	
+	# Adjust figure y-limits if desired
+	if('includeOriginOnYaxis' in plotDefinitions[plotType]['description']['plotDefaults']):
+		mplu.includeOriginOnYaxis(axes[0], include=plotDefinitions[plotType]['description']['plotDefaults']['includeOriginOnYaxis'])
+	if('includeAtLeastOrderOfMagnitudeOnYaxis' in plotDefinitions[plotType]['description']['plotDefaults']):
+		mplu.includeAtLeastOrderOfMagnitudeOnYaxis(axes[0], include=plotDefinitions[plotType]['description']['plotDefaults']['includeAtLeastOrderOfMagnitudeOnYaxis'])
+	
+	mplu.adjustAndSaveFigure(fig, plotType, updated_mode_parameters)	
 
 def makeBlankPlot(figsize=None):
 	return mplu.initFigure(1,1, figsizeDefault=figsize)

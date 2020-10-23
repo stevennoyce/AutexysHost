@@ -1222,11 +1222,15 @@
 																</template>
 															</v-list>
 														</v-col>
-
+														
+														<template v-if="(runnerChoice !== 'Schedule File') && ['GateSweep', 'DrainSweep','StaticBias','RapidBias'].includes(runnerScheduleObjects[0]['runType']['default'])">
+															<v-spacer></v-spacer>
+															<v-col cols="4">
+																<a-zoomable-image class="white roundedcorners" :key="runnerChoice" src="" :srcdata="'/parameterPlots/'+runnerUser+'/'+runnerProject+'/'+runnerFileName+'/'+runnerLoadingFromDefaults+'/' + cacheBust"></a-zoomable-image>
+															</v-col>
+														</template>
+														
 													</v-row>
-													<v-alert :value="(['single', 'B2900A (double)'].includes(runnerVerboseScheduleObjects[0]['MeasurementSystem']['systemType']['default'])) && (runnerVerboseScheduleObjects[0]['MeasurementSystem']['deviceCycling']['default'])" icon="warning "color="warning">
-														<b>Advanced:</b> Device Cycling has been enabled, but the chosen Measurement System cannot dynamically select devices.
-													</v-alert>
 												</v-container>
 												
 												<v-row>
@@ -3171,6 +3175,8 @@
 							this.runnerScheduleObjectsHasBeenModified = false;
 							// Force re-load of schedule file to make sure everything is refreshed to its original state
 							this.runnerLoadScheduleFile();
+							// Clear the cache bust to reload any plots in the experiment page
+							this.newCacheBust();
 							// If a callback task was provided to be run when done saving, perform that now.
 							if(callback) callback();
 						}), "Error saving schedule file from the experiment runner.");

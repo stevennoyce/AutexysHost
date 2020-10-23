@@ -634,7 +634,23 @@ def availableChipPlots(user, project, wafer, chip):
 	plots = CH.plotsForExperiments(parameter_identifiers)
 	return jsonvalid(plots)
 
+@app.route('/parameterPlots/<user>/<project>/<fileName>/<standardSchedule>/')
+def sendParameterPlot(user, project, fileName, standardSchedule):
+	scheduleObjects = []
+	if(standardSchedule == 'true'):
+		scheduleObjects = loadStandardSchedule(fileName)
+	else:
+		scheduleObjects = loadSchedule(user, project, fileName)
+	parameters = json.loads(scheduleObjects)[0]
+	
+	filebuf = io.BytesIO()
+	mode_parameters = {'plotSaveName': filebuf, 'saveFigures': True, 'showFigures': False}
+	
+	DH.dpu.makeParameterPlot(parameters['runType']['default'], defaults.extractDefaults(parameters), mode_parameters=mode_parameters)
+	filebuf.seek(0)
+	return flask.send_file(filebuf, attachment_filename='plot.png')
 
+	
 
 # === Benchtop ===
 @app.route('/setBenchtopVoltage/<channel>/<voltage>/')
