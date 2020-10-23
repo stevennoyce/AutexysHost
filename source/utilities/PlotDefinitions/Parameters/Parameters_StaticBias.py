@@ -10,9 +10,8 @@ plotDescription = {
 	'plotDefaults': {
 		'figsize':(2,2),
 		'automaticAxisLabels':True,
-		'colorMap':'white_blue_black',
-		'colorDefault1': ['#3F51B5'],
-		'colorDefault2': ['#880E7F'],
+		'colorDefault_Drain': ['#3F51B5'],
+		'colorDefault_Gate': ['#880E7F'],
 		
 		'xlabel':'Time (s)',
 		'ylabel':'Voltage (V)',
@@ -26,7 +25,7 @@ def plot(parameters, mode_parameters=None):
 
 	# Build Color Map and Color Bar
 	waverforms = 2
-	colors = setupColors(fig, waverforms, colorOverride=[plotDescription['plotDefaults']['colorDefault1'][0], plotDescription['plotDefaults']['colorDefault2'][0]], colorDefault=plotDescription['plotDefaults']['colorDefault1'], colorMapName=plotDescription['plotDefaults']['colorMap'], colorMapStart=0.8, colorMapEnd=0.15, enableColorBar=False)
+	colors = [plotDescription['plotDefaults']['colorDefault_Drain'][0], plotDescription['plotDefaults']['colorDefault_Gate'][0]]
 	
 	drainVoltage    = parameters['runConfigs']['StaticBias']['drainVoltageSetPoint']
 	gateVoltage     = parameters['runConfigs']['StaticBias']['gateVoltageSetPoint']

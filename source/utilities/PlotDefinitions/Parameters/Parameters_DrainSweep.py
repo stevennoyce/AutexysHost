@@ -10,11 +10,12 @@ plotDescription = {
 	'plotDefaults': {
 		'figsize':(2,2),
 		'automaticAxisLabels':True,
-		'colorMap':'white_red_black',
-		'colorDefault': ['#3F51B5'],
+		'colorDefault_Drain': ['#3F51B5'],
+		'colorDefault_Gate': ['#880E7F'],
 		
 		'xlabel':'Time',
-		'ylabel':'$V_{{DS}}$ (V)',
+		'ylabel':'Voltage (V)',
+		'legend_labels':['$V_{{DS}}$', '$V_{{GS}}$'],
 	},
 }
 
@@ -23,8 +24,7 @@ def plot(parameters, mode_parameters=None):
 	fig, ax = initFigure(1, 1, plotDescription['plotDefaults']['figsize'], figsizeOverride=mode_parameters['figureSizeOverride'])
 
 	# Build Color Map and Color Bar
-	data_sets_collected = 1
-	colors = setupColors(fig, data_sets_collected, colorOverride=mode_parameters['colorsOverride'], colorDefault=plotDescription['plotDefaults']['colorDefault'], colorMapName=plotDescription['plotDefaults']['colorMap'], colorMapStart=0.8, colorMapEnd=0.15, enableColorBar=False)
+	colors = [plotDescription['plotDefaults']['colorDefault_Drain'][0], plotDescription['plotDefaults']['colorDefault_Gate'][0]]
 	
 	start      = parameters['runConfigs']['DrainSweep']['drainVoltageMinimum']
 	end        = parameters['runConfigs']['DrainSweep']['drainVoltageMaximum']
@@ -32,10 +32,18 @@ def plot(parameters, mode_parameters=None):
 	duplicates = parameters['runConfigs']['DrainSweep']['pointsPerVDS']
 	ramps      = parameters['runConfigs']['DrainSweep']['drainVoltageRamps']
 	
-	# Plot
-	for i in range(data_sets_collected):
-		line = plotSweepParameters(ax, colors[i], start, end, points, duplicates, ramps)
-
-	ax.set_title('Drain Voltage Waveform')
+	gate       = parameters['runConfigs']['DrainSweep']['gateVoltageSetPoint']
+	
+	# Plot Sweeping Drain Voltage
+	line = plotSweepParameters(ax, colors[0], start, end, points, duplicates, ramps)
+	setLabel(line, plotDescription['plotDefaults']['legend_labels'][0])
+	
+	# Plot Constant Gate Voltage
+	line = plotSweepParameters(ax, colors[1], gate, gate, points, duplicates, ramps)
+	setLabel(line, plotDescription['plotDefaults']['legend_labels'][1])
+	
+	ax.set_title('Drain Sweep Voltage Waveform')
+	ax.set_yticks([0] + [start, end, gate])
+	ax.legend(loc='best')
 
 	return (fig, (ax,))
