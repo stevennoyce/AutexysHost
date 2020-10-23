@@ -1225,7 +1225,7 @@
 														
 														<template v-if="(runnerChoice !== 'Schedule File') && ['GateSweep', 'DrainSweep','StaticBias','RapidBias'].includes(runnerScheduleObjects[0]['runType']['default'])">
 															<v-spacer></v-spacer>
-															<v-col cols="4">
+															<v-col :cols="runnerVerboseScheduleObjects[0]['MeasurementSystem']['deviceCycling']['default']? 3 : 4">
 																<a-zoomable-image class="white roundedcorners" :key="runnerChoice" src="" :srcdata="'/parameterPlots/'+runnerUser+'/'+runnerProject+'/'+runnerFileName+'/'+runnerLoadingFromDefaults+'/' + cacheBust"></a-zoomable-image>
 															</v-col>
 														</template>

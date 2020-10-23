@@ -6,7 +6,7 @@ plotDescription = {
 	'name': 'Rapid Bias',
 	'plotCategory': 'parameters',
 	'priority': 0,
-	'dataFileDependencies': [],
+	'dataFileDependencies': ['disabled.json'],
 	'plotDefaults': {
 		'figsize':(2,2),
 		'automaticAxisLabels':True,
