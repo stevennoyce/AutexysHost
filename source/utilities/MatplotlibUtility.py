@@ -423,7 +423,17 @@ def plotRapidParameter(axis, lineColor, waveform, values, points, maxStep, other
 	
 	line = axis.plot(time_waveform, value_waveform, color=lineColor, marker='o', markersize=2, linewidth=1)[0]				
 	return line
-	
+
+def plotSmallSignalParameter(axis, lineColor, offset, amplitude, periods, points, frequencies):
+	line = None
+	time_start = 0
+	for frequency in frequencies:
+		value_waveform = dgu.sineValues(offset, amplitude, periods, points*periods)
+		time_waveform = np.linspace(time_start, time_start + periods/frequency, len(value_waveform))
+		
+		line = axis.plot(time_waveform, value_waveform, color=lineColor, marker='o', markersize=2, linewidth=1)[0]		
+		time_start = time_waveform[-1]
+	return line
 
 # === Figures ===
 def initFigure(rows, columns, figsizeDefault, figsizeOverride=None, shareX=False, subplotWidthRatio=None, subplotHeightRatio=None):

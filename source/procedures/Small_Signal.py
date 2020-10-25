@@ -49,6 +49,7 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 							gateVoltageAmplitude=ss_parameters['gateVoltageAmplitude'],
 							drainVoltageAmplitude=ss_parameters['drainVoltageAmplitude'],
 							frequencies=ss_parameters['frequencies'],
+							periods=ss_parameters['periods'],
 							stepsPerPeriod=ss_parameters['stepsPerPeriod'],
 							supplyGateVoltage=ss_parameters['supplyGateVoltage'],
 							supplyDrainVoltage=ss_parameters['supplyDrainVoltage'],
@@ -76,7 +77,7 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 	return jsonData
 
 # === Data Collection ===
-def runSmallSignal(smu_instance, gateVoltageSetPoint, drainVoltageSetPoint, gateVoltageAmplitude, drainVoltageAmplitude, frequencies, stepsPerPeriod, supplyGateVoltage, supplyDrainVoltage, share=None):
+def runSmallSignal(smu_instance, gateVoltageSetPoint, drainVoltageSetPoint, gateVoltageAmplitude, drainVoltageAmplitude, frequencies, periods, stepsPerPeriod, supplyGateVoltage, supplyDrainVoltage, share=None):
 	vds_data   = [[] for i in range(len(frequencies))]
 	id_data    = [[] for i in range(len(frequencies))]
 	vgs_data   = [[] for i in range(len(frequencies))]
@@ -84,8 +85,8 @@ def runSmallSignal(smu_instance, gateVoltageSetPoint, drainVoltageSetPoint, gate
 	timestamps = [[] for i in range(len(frequencies))]
 	
 	# Generate list of sinusoidal gate and drain voltages to apply
-	gateVoltages  = [dgu.sineValues(gateVoltageSetPoint, gateVoltageAmplitude, periods=6, points=stepsPerPeriod*6)   for i in range(len(frequencies))]
-	drainVoltages = [dgu.sineValues(drainVoltageSetPoint, drainVoltageAmplitude, periods=6, points=stepsPerPeriod*6) for i in range(len(frequencies))]
+	gateVoltages  = [dgu.sineValues(gateVoltageSetPoint, gateVoltageAmplitude, periods=periods, points=stepsPerPeriod*periods)   for i in range(len(frequencies))]
+	drainVoltages = [dgu.sineValues(drainVoltageSetPoint, drainVoltageAmplitude, periods=periods, points=stepsPerPeriod*periods) for i in range(len(frequencies))]
 
 	for frequencyIndex in range(len(frequencies)):
 		for voltageIndex in range(len(gateVoltages[frequencyIndex])):
