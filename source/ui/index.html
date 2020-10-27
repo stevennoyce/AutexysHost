@@ -185,6 +185,10 @@
 							</v-list-group>
 						</template>
 						<v-divider></v-divider>
+						<v-list-item @click="setTopLevelPage('system')" v-if="connectedMeasurementSystem">
+							<v-list-item-action><v-icon>camera</v-icon></v-list-item-action>
+							<v-list-item-content><v-list-item-title>System</v-list-item-title></v-list-item-content>
+						</v-list-item>
 						<v-list-item @click="setTopLevelPage('settings')" v-if="defaultParameters['Deployment'] === 'Development'">
 							<v-list-item-action><v-icon>settings</v-icon></v-list-item-action>
 							<v-list-item-content><v-list-item-title>Settings</v-list-item-title></v-list-item-content>
@@ -236,6 +240,19 @@
 							</template>
 							<v-card light tile style="overflow-y: scroll; max-height:65vh">
 								<v-list>
+									<template v-if="!availableMeasurementSystems.length">
+										<v-list-item>
+											<v-list-item-content><v-list-item-title>
+												{{ noSystemsConnectedMessage }}
+											</v-list-item-title></v-list-item-content>
+										</v-list-item>
+										<v-list-item>
+											<v-spacer></v-spacer>
+											<v-btn @click.stop="getAvailableMeasurementSystems()"><v-icon left>refresh</v-icon>Refresh</v-btn>
+											<v-spacer></v-spacer>
+										</v-list-item>
+									</template>
+									
 									<v-list-item v-for="system in availableMeasurementSystems" :key="system.uniqueID" 
 										@click="connectToMeasurementSystem(system)">
 										<v-list-item-avatar :color="(connectedMeasurementSystem && connectedMeasurementSystem.uniqueID === system.uniqueID)? 'success' : 'info'">
@@ -255,18 +272,6 @@
 											</v-btn>
 										</v-list-item-action>
 									</v-list-item>
-									<template v-if="!availableMeasurementSystems.length">
-										<v-list-item>
-											<v-list-item-content><v-list-item-title>
-												{{ noSystemsConnectedMessage }}
-											</v-list-item-title></v-list-item-content>
-										</v-list-item>
-										<v-list-item v-if="true">
-											<v-spacer></v-spacer>
-											<v-btn @click.stop="getAvailableMeasurementSystems()"><v-icon left>refresh</v-icon>Refresh</v-btn>
-											<v-spacer></v-spacer>
-										</v-list-item>
-									</template>
 								</v-list>
 							</v-card>
 						</v-menu>
@@ -1458,8 +1463,8 @@
 					</v-card>
 					
 					<!-- End of experiment runner -->
-					
 					<!-- Start of benchtop -->
+					
 					<v-card flat class="ma-4" v-if="topLevelPage === 'benchtop'">
 						<v-container>
 							<v-card class="pl-3 pr-3" outlined v-if="!availableMeasurementSystems.length">
@@ -1647,8 +1652,103 @@
 							</template>
 						</v-container>
 					</v-card>
-					<!-- End of benchtop -->
 					
+					<!-- End of benchtop -->
+					<!-- Start of system -->
+					
+					<v-card flat class="ma-4" v-if="topLevelPage === 'system'">
+						<template v-if="!connectedMeasurementSystem">
+								
+							<v-card class="pl-3 pr-3" outlined>
+								<v-card-title>System Configuration</v-card-title>
+								<v-card-subtitle>Connect a system to see its configuration information.</v-card-subtitle>		
+							</v-card>
+								
+						</template>
+						<template v-if="connectedMeasurementSystem">
+							
+							<v-card>
+								<v-toolbar dark dense class="info darken-1">
+									<v-toolbar-title>
+										System Configuration
+									</v-toolbar-title>
+									<v-spacer></v-spacer>
+									<v-btn icon @click="systemConfigReset()"><v-icon>settings_backup_restore</v-icon></v-btn>
+								</v-toolbar>
+								
+								<template v-if="connectedMeasurementSystem['type'] == 'Serial'">
+									<v-card-subtitle>
+										The connected measurement system contains dynamic routing for its Source and Drain signals. There are 64 different options as shown in the diagram below. These signals are routed based on the "Device" specified for each Experiment, using the format "Source-Drain" by default. So, entering a Device name of "1-2" for an Experiment will connect channel "1" to the Source signal and channel "2" to the Drain throughout that Experiment. If you would like to add nicknames for special devices (e.g. set "Favorite Device" equal to "30-20") then you may do that with the controls below.
+									</v-card-subtitle>
+									<v-row dense>
+										<v-col cols="5" class="pa-3">
+											<v-card flat>
+												<img src="/ui/resources/Socket_PLCC68_Diagram.png">
+												<template v-if="measurementSystemConfig.selected_source">
+													<img :src="'/ui/resources/overlays/overlay'+measurementSystemConfig.selected_source+'.png'" style="position: absolute; top: 0; left:0;">
+												</template>
+												<template v-if="measurementSystemConfig.selected_drain">
+													<img :src="'/ui/resources/overlays/overlay'+measurementSystemConfig.selected_drain+'.png'" style="position: absolute; top: 0; left:0;">
+												</template>
+											</v-card>
+										</v-col>
+										<v-col cols="7">
+											<v-card color="info"> 
+												<v-toolbar dark dense class="info darken-1 mb-4">
+													<v-toolbar-title>Device Pin Selector</v-toolbar-title>
+													<v-spacer></v-spacer>
+													<v-btn icon @click="systemConfigReset()"><v-icon>settings_backup_restore</v-icon></v-btn>
+												</v-toolbar>
+												<v-row>
+													<v-spacer></v-spacer>
+													<v-col cols="4">
+														<v-autocomplete filled rounded background-color="white" clearable auto-select-first hide-no-data label="Source" v-model.number="measurementSystemConfig.selected_source" :items="Array.from({length:64},(v,k)=>k+1)" :menu-props="{'bottom':true}" @change="measurementSystemConfig.selected_device = measurementSystemConfig.selected_source+'-'+measurementSystemConfig.selected_drain"></v-autocomplete>
+													</v-col>
+													<v-spacer></v-spacer>
+													<v-col cols="4">
+														<v-autocomplete filled rounded background-color="white" clearable auto-select-first hide-no-data label="Drain" v-model.number="measurementSystemConfig.selected_drain" 
+														:items="Array.from({length:64},(v,k)=>k+1)" :menu-props="{'bottom':true}" @change="measurementSystemConfig.selected_device = measurementSystemConfig.selected_source+'-'+measurementSystemConfig.selected_drain"></v-autocomplete>
+													</v-col>
+													<v-spacer></v-spacer>
+												</v-row>
+												<template v-if="measurementSystemConfig.selected_source && measurementSystemConfig.selected_drain">
+													<v-expansion-panels>
+														<v-expansion-panel class="info">
+															<v-expansion-panel-header>
+																<div style="font-weight: bold;">Device Name</div>
+															</v-expansion-panel-header>
+															<v-expansion-panel-content>
+																<v-row dense>
+																	<v-col cols="4" class="pl-4">
+																		<v-text-field filled rounded readonly label="Default Name" background-color="info lighten-1" v-model="measurementSystemConfig.selected_device"></v-text-field>
+																	</v-col>
+																	<v-col cols="4">
+																		<v-text-field class="mt-1" solo clearable hide-details label="Nickname" v-model="measurementSystemConfig.input_nickname"></v-text-field>
+																	</v-col>
+																	<v-col class="pr-4">
+																		<v-btn class="mt-2" block dark color="success" @click="addDeviceNickname()" :disabled="!(measurementSystemConfig.selected_source && measurementSystemConfig.selected_drain && measurementSystemConfig.input_nickname)"><v-icon left>add</v-icon>Nickname</v-btn>
+																	</v-col>
+																</v-row>
+															</v-expansion-panel-content>
+														</v-expansion-panel>
+													</v-expansion-panels>
+												</template>
+												<template v-else>
+													<v-list class="info pa-0">
+														<v-list-item>
+														</v-list-item>
+													</v-list>
+												</template>
+											</v-card>
+										</v-col>
+									</v-row>
+								</template>
+							</v-card>
+							
+						</template>
+					</v-card>
+					
+					<!-- End of system -->
 					<!-- Start of applications -->
 					
 					<v-card flat class="ma-4" v-if="topLevelPage === 'performance'">
@@ -2331,9 +2431,12 @@
 				
 				connectedMeasurementSystem: undefined,
 				availableMeasurementSystems: [],
-				acquiringMeasurementSystem: {
-					status: undefined,
-					callback: undefined,	
+				acquiringMeasurementSystem: {status: undefined, callback: undefined},
+				measurementSystemConfig: {
+					selected_source: undefined,
+					selected_drain: undefined,
+					selected_device: '',
+					input_nickname: '',
 				},
 				
 				defaultParameters: {},
@@ -3631,6 +3734,14 @@
 					this.benchtop.plot.traces.channel1.yData = [];
 					this.benchtop.plot.traces.channel2.xData = [];
 					this.benchtop.plot.traces.channel2.yData = [];
+				},
+				
+				// === System Configuration ===
+				
+				systemConfigReset: function() {
+					this.measurementSystemConfig.selected_source = undefined;
+					this.measurementSystemConfig.selected_drain = undefined;
+					this.measurementSystemConfig.input_nickname = '';
 				},
 				
 				// === Performance App ===

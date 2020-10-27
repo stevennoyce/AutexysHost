@@ -133,12 +133,8 @@ def index():
 	return flask.render_template('index.html', components=components)
 
 @app.route('/ui/<path:path>')
-def sendStaticUI(path):
-	return flask.send_from_directory('ui', path)
-
-@app.route('/static/<path:path>')
-def sendStatic(path):
-	return flask.send_from_directory('../', path)
+def sendResourceFilesFromCorrectDirectory(path):
+	return flask.send_from_directory(index_html_directory_path, path)
 	
 	
 	
