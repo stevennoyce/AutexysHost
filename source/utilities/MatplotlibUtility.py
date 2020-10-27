@@ -396,13 +396,13 @@ def plotHysteresisCurve(axis, jsonData, lineColor, scaleYaxisBy=1, lineStyle=Non
 	return line
 
 # === Parameter Plots ===
-def plotSweepParameters(axis, lineColor, start, end, points, duplicates, ramps):
+def plotSweepParameters(axis, lineColor, start, end, points, duplicates, ramps, time_offset=0):
 	sweep_waveform = dgu.sweepValuesWithDuplicates(start, end, points*2*duplicates, duplicates, ramps)
 	sweep_waveform = [item for sublist in sweep_waveform for item in sublist]
-	time_waveform = np.linspace(0, 1, len(sweep_waveform))
+	time_waveform = np.linspace(time_offset, time_offset+1, len(sweep_waveform))
 	
 	axis.set_yticks([start, 0, end])
-	axis.set_xticks([0, 1])
+	axis.set_xticks([0, time_offset+1])
 	axis.set_xticklabels(['Start', 'End'])
 	
 	line = axis.plot(time_waveform, sweep_waveform, color=lineColor, marker='o', markersize=2, linewidth=1)[0]				

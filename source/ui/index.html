@@ -1223,7 +1223,7 @@
 															</v-list>
 														</v-col>
 														
-														<template v-if="['GateSweep', 'DrainSweep','StaticBias','RapidBias','SmallSignal'].includes(runnerScheduleObjects[0]['runType']['default'])">
+														<template v-if="['GateSweep', 'DrainSweep','StaticBias','RapidBias','SmallSignal','AutoGateSweep','AutoDrainSweep'].includes(runnerScheduleObjects[0]['runType']['default'])">
 															<v-spacer></v-spacer>
 															<v-col :cols="(runnerVerboseScheduleObjects[0]['MeasurementSystem']['deviceCycling']['default'] || Object.keys(runnerScheduleObjects[0]['runConfigs']).length > 1)? 3 : 4">
 																<v-expansion-panels flat class="roundedcorners" v-model="runnerShowPreview">
