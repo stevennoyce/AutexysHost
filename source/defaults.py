@@ -1,7 +1,7 @@
 INCLUDE_EVERYTHING = False
 ALWAYS_INCLUDED_PROCEDURES = ["GateSweep", "DrainSweep", "StaticBias", "AutoGateSweep", "AutoDrainSweep", "AutoStaticBias", "RapidBias", "SmallSignal"]
 ALWAYS_INCLUDED_MEASUREMENT_SYSTEMS = ["automatic"]
-HIDDEN_PARAMETERS = ['complianceCurrent', 'isFastSweep', 'fastSweepSpeed', 'delayBeforeMeasurementsBegin', 'floatChannelsWhenDone', 'supplyGateVoltage', 'supplyDrainVoltage', 'firstDelayBeforeMeasurementsBegin', 'startGrounded']
+HIDDEN_PARAMETERS = ['complianceCurrent', 'isFastSweep', 'fastSweepSpeed', 'delayBeforeMeasurementsBegin', 'floatChannelsWhenDone', 'supplyGateVoltage', 'supplyDrainVoltage', 'firstDelayBeforeMeasurementsBegin', 'startGrounded', 'gateVoltageWhenDoneList', 'drainVoltageWhenDoneList', 'delayWhenDoneList']
 
 
 # --- Default Parameters ---
@@ -71,21 +71,21 @@ default_parameters = {
 		},
 		'AutoDrainSweep':{
 			'dependencies': 				{'ignore':True, 'value':['DrainSweep']},
-			'sweepsPerVGS': 				{'type':'int',   'essential':True, 'units':'#', 'default': 3,          'title':'Sweeps Per Gate Voltage', 'description':'Number of drain sweeps to take at each value of gate voltage.'},
-			'gateVoltageSetPoints':			{'type':'array', 'essential':True, 'units':'V', 'default': [],         'title':'Gate Voltage Set Points', 'description':'List of gate voltage values to do sweeps at. If this list is not empty, it overrides the value provided in "DrainSweep."'},
+			'sweepsPerVGS': 				{'type':'int',   'essential':True, 'units':'#', 'default': 1,          'title':'Sweeps Per Gate Voltage', 'description':'Number of drain sweeps to take at each value of gate voltage.'},
+			'gateVoltageSetPoints':			{'type':'array', 'essential':True, 'units':'V', 'default': [-1,0,1],   'title':'Gate Voltage Set Points', 'description':'List of gate voltage values to do sweeps at. If this list is not empty, it overrides the value provided in "DrainSweep."'},
 			'delayBetweenSweeps': 			{'type':'float',                   'units':'s', 'default': 2,          'title':'Delay Between Sweeps',    'description':'Delay between each sweep.'},
 			'timedSweepStarts': 			{'type':'bool',                                 'default': False,      'title':'Timed Sweeps',            'description':'When enabled, the delay between sweeps is dynamically reduced by the amount of time the sweep took.'}, 
 		},
 		'AutoStaticBias':{
 			'dependencies': 						{'ignore':True, 'value':['StaticBias','GateSweep']},
 			'numberOfStaticBiases': 				{'type':'int',   'essential':True, 'units':'#', 'default': 1,     'title':'Number Of Static Biases',          'description':'Number of successive static bias trials.'},
-			'doInitialGateSweep': 					{'type':'bool',  'essential':True,              'default': True,  'title':'Initial Gate Sweep',               'description':'When enabled, begin the experiment with a gate sweep.'},
-			'applyGateSweepBetweenBiases': 			{'type':'bool',  'essential':True,              'default': False, 'title':'Gate Sweep Between Biases',        'description':'When enabled, perform one gate sweep between each static bias.'},
-			'applyGateSweepBothBeforeAndAfter':		{'type':'bool',                                 'default': False, 'title':'Gate Sweep Both Before And After', 'description':'When enabled, perform two gate sweeps between each static bias.'},
-			'delayBetweenBiases':					{'type':'float',                   'units':'s', 'default': 0,     'title':'Delay Between Biases',             'description':'Length of time to delay between each static bias.'},
 			'biasTimeList':							{'type':'array', 'essential':True, 'units':'s', 'default': [],    'title':'Bias Time List',                   'description':'List of total bias times for each static bias.'},
 			'gateVoltageSetPointList': 				{'type':'array', 'essential':True, 'units':'V', 'default': [],    'title':'Gate Voltage List',                'description':'List of gate voltages for each static bias.'},
 			'drainVoltageSetPointList': 			{'type':'array', 'essential':True, 'units':'V', 'default': [],    'title':'Drain Voltage List',               'description':'List of drain voltages for each static bias.'},
+			'doInitialGateSweep': 					{'type':'bool',                                 'default': False, 'title':'Initial Gate Sweep',               'description':'When enabled, begin the experiment with a gate sweep.'},
+			'applyGateSweepBetweenBiases': 			{'type':'bool',                                 'default': False, 'title':'Gate Sweep Between Biases',        'description':'When enabled, perform one gate sweep between each static bias.'},
+			'applyGateSweepBothBeforeAndAfter':		{'type':'bool',                                 'default': False, 'title':'Gate Sweep Both Before And After', 'description':'When enabled, perform two gate sweeps between each static bias.'},
+			'delayBetweenBiases':					{'type':'float',                   'units':'s', 'default': 0,     'title':'Delay Between Biases',             'description':'Length of time to delay between each static bias.'},
 			'gateVoltageWhenDoneList': 				{'type':'array',                   'units':'V', 'default': [],    'title':'Gate Voltage When Done List',      'description':'List of ending gate voltages for each static bias.'},
 			'drainVoltageWhenDoneList':				{'type':'array',                   'units':'V', 'default': [],    'title':'Drain Voltage When Done List',     'description':'List of ending drain voltages for each static bias.'},
 			'delayWhenDoneList':					{'type':'array',                   'units':'s', 'default': [],    'title':'Delay When Done List',             'description':'List of ending hold times for each static bias.'},
@@ -313,8 +313,8 @@ default_schedules = {
 	'Drain Sweep':            {"runType": "DrainSweep",     "Identifiers": {"user": "", "project": "", "wafer": "", "chip": "", "device": "", "step": ""}, "runConfigs": {"DrainSweep": {"drainVoltageMinimum": 0, "drainVoltageMaximum": 1, "gateVoltageSetPoint": 0, "stepsInVDSPerDirection": 100}}},
 	'Static Bias':            {"runType": "StaticBias",     "Identifiers": {"user": "", "project": "", "wafer": "", "chip": "", "device": "", "step": ""}, "runConfigs": {"StaticBias": {"gateVoltageSetPoint": 0, "drainVoltageSetPoint": 0.5, "totalBiasTime": 60, "measurementTime": 1}}},
 	'Multiple Gate Sweeps':   {"runType": "AutoGateSweep",  "Identifiers": {"user": "", "project": "", "wafer": "", "chip": "", "device": "", "step": ""}, "runConfigs": {"AutoGateSweep": {"sweepsPerVDS": 3, "drainVoltageSetPoints": []}, "GateSweep": {"gateVoltageMinimum": -1, "gateVoltageMaximum": 1, "drainVoltageSetPoint": 0.5, "stepsInVGSPerDirection": 100}}},
-	'Multiple Drain Sweeps':  {"runType": "AutoDrainSweep", "Identifiers": {"user": "", "project": "", "wafer": "", "chip": "", "device": "", "step": ""}, "runConfigs": {"AutoDrainSweep": {"sweepsPerVGS": 3, "gateVoltageSetPoints": []}, "DrainSweep": {"drainVoltageMinimum": 0, "drainVoltageMaximum": 1, "gateVoltageSetPoint": 0, "stepsInVDSPerDirection": 100}}},
-	'Multiple Static Biases': {"runType": "AutoStaticBias", "Identifiers": {"user": "", "project": "", "wafer": "", "chip": "", "device": "", "step": ""}, "runConfigs": {"AutoStaticBias": {"numberOfStaticBiases": 1, "doInitialGateSweep": True, "applyGateSweepBetweenBiases": False, "biasTimeList": [], "gateVoltageSetPointList": [], "drainVoltageSetPointList": []}, "StaticBias": {"gateVoltageSetPoint": 0, "drainVoltageSetPoint": 0.5, "totalBiasTime": 60, "measurementTime": 1}, "GateSweep": {"gateVoltageMinimum": -1, "gateVoltageMaximum": 1, "drainVoltageSetPoint": 0.5, "stepsInVGSPerDirection": 100}}},
+	'Multiple Drain Sweeps':  {"runType": "AutoDrainSweep", "Identifiers": {"user": "", "project": "", "wafer": "", "chip": "", "device": "", "step": ""}, "runConfigs": {"AutoDrainSweep": {"sweepsPerVGS": 1, "gateVoltageSetPoints": [-1,0,1]}, "DrainSweep": {"drainVoltageMinimum": 0, "drainVoltageMaximum": 1, "gateVoltageSetPoint": 0, "stepsInVDSPerDirection": 100}}},
+	'Multiple Static Biases': {"runType": "AutoStaticBias", "Identifiers": {"user": "", "project": "", "wafer": "", "chip": "", "device": "", "step": ""}, "runConfigs": {"AutoStaticBias": {"numberOfStaticBiases": 1, "biasTimeList": [], "gateVoltageSetPointList": [], "drainVoltageSetPointList": []}, "StaticBias": {"gateVoltageSetPoint": 0, "drainVoltageSetPoint": 0.5, "totalBiasTime": 60, "measurementTime": 1}, "GateSweep": {"gateVoltageMinimum": -1, "gateVoltageMaximum": 1, "drainVoltageSetPoint": 0.5, "stepsInVGSPerDirection": 100}}},
 	'Rapid Bias':             {"runType": "RapidBias",      "Identifiers": {"user": "", "project": "", "wafer": "", "chip": "", "device": "", "step": ""}, "runConfigs": {"RapidBias": {"waveform": "square", "drainVoltageSetPoints": [0.1], "gateVoltageSetPoints": [0, 1, 0, 1, 0], "measurementPoints": [50, 50, 50, 50, 50]}}},
 	'Small Signal':           {"runType": "SmallSignal",    "Identifiers": {"user": "", "project": "", "wafer": "", "chip": "", "device": "", "step": ""}, "runConfigs": {"SmallSignal": {"gateVoltageSetPoint": 0, "drainVoltageSetPoint": 0, "gateVoltageAmplitude": 0.5, "drainVoltageAmplitude": 0.2, "frequencies":[1]}}},
 	'Free Run':               {"runType": "FreeRun",        "Identifiers": {"device": ""}, "runConfigs": {"FreeRun": {"gateVoltageMinimum": -1, "gateVoltageMaximum": 1, "drainVoltageMinimum": 0.5, "drainVoltageMaximum": 0.5}}},

@@ -408,8 +408,8 @@ def plotSweepParameters(axis, lineColor, start, end, points, duplicates, ramps, 
 	line = axis.plot(time_waveform, sweep_waveform, color=lineColor, marker='o', markersize=2, linewidth=1)[0]				
 	return line
 
-def plotStaticParameter(axis, lineColor, value, duration, measurementTime):
-	time_waveform = np.linspace(0, duration, max(int(duration/measurementTime)+1, 2))
+def plotStaticParameter(axis, lineColor, value, duration, measurementTime, time_offset=0):
+	time_waveform = np.linspace(time_offset, time_offset+duration, max(int(duration/measurementTime)+1, 2))
 	line = axis.plot(time_waveform, [value]*len(time_waveform), color=lineColor, marker='o', markersize=2, linewidth=1)[0]				
 	return line
 
