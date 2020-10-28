@@ -185,10 +185,6 @@
 							</v-list-group>
 						</template>
 						<v-divider></v-divider>
-						<v-list-item @click="setTopLevelPage('system')" v-if="connectedMeasurementSystem">
-							<v-list-item-action><v-icon>camera</v-icon></v-list-item-action>
-							<v-list-item-content><v-list-item-title>System</v-list-item-title></v-list-item-content>
-						</v-list-item>
 						<v-list-item @click="setTopLevelPage('settings')" v-if="defaultParameters['Deployment'] === 'Development'">
 							<v-list-item-action><v-icon>settings</v-icon></v-list-item-action>
 							<v-list-item-content><v-list-item-title>Settings</v-list-item-title></v-list-item-content>
@@ -271,6 +267,11 @@
 												<v-icon color="info">cancel</v-icon>
 											</v-btn>
 										</v-list-item-action>
+									</v-list-item>
+									
+									<v-list-item @click="setTopLevelPage('system')" v-if="connectedMeasurementSystem">
+										<v-list-item-action><v-icon>device_hub</v-icon></v-list-item-action>
+										<v-list-item-content><v-list-item-title>View System Info</v-list-item-title></v-list-item-content>
 									</v-list-item>
 								</v-list>
 							</v-card>
@@ -1677,9 +1678,23 @@
 								</v-toolbar>
 								
 								<template v-if="connectedMeasurementSystem['type'] == 'Serial'">
-									<v-card-subtitle>
-										The connected measurement system contains dynamic routing for its Source and Drain signals. There are 64 different options as shown in the diagram below. These signals are routed based on the "Device" specified for each Experiment, using the format "Source-Drain" by default. So, entering a Device name of "1-2" for an Experiment will connect channel "1" to the Source signal and channel "2" to the Drain throughout that Experiment. If you would like to add nicknames for special devices (e.g. set "Favorite Device" equal to "30-20") then you may do that with the controls below.
-									</v-card-subtitle>
+									<v-expansion-panels class="mt-2 mb-2 pl-2 pr-2" v-for="doc in measurementSystemConfig.docs">
+										<v-expansion-panel class="grey lighten-4">
+											<v-expansion-panel-header class="pt-0 pb-0">
+												<v-row no-gutters>
+													<v-avatar tile size="24" class="mt-3 mr-2 roundedcorners" color="info"><v-icon dark>{{ doc.icon }}</v-icon></v-avatar>
+													<div style="display:inline; height: 50px; line-height: 50px;">{{ doc.title }}</div>
+													<v-spacer></v-spacer>
+												</v-row>
+											</v-expansion-panel-header>
+											<v-expansion-panel-content>
+												<v-container>
+													<p>{{ doc.text }}</p>
+												</v-container>
+											</v-expansion-panel-content>
+										</v-expansion-panel>
+									</v-expansion-panels>
+									
 									<v-row dense>
 										<v-col cols="5" class="pa-3">
 											<v-card flat>
@@ -1702,12 +1717,11 @@
 												<v-row>
 													<v-spacer></v-spacer>
 													<v-col cols="4">
-														<v-autocomplete filled rounded background-color="white" clearable auto-select-first hide-no-data label="Source" v-model.number="measurementSystemConfig.selected_source" :items="Array.from({length:64},(v,k)=>k+1)" :menu-props="{'bottom':true}" @change="measurementSystemConfig.selected_device = measurementSystemConfig.selected_source+'-'+measurementSystemConfig.selected_drain"></v-autocomplete>
+														<v-autocomplete class="mb-n4" filled rounded background-color="white" clearable auto-select-first hide-no-data label="Source" v-model.number="measurementSystemConfig.selected_source" :items="Array.from({length:64},(v,k)=>k+1)" :menu-props="{'bottom':true}"></v-autocomplete>
 													</v-col>
 													<v-spacer></v-spacer>
 													<v-col cols="4">
-														<v-autocomplete filled rounded background-color="white" clearable auto-select-first hide-no-data label="Drain" v-model.number="measurementSystemConfig.selected_drain" 
-														:items="Array.from({length:64},(v,k)=>k+1)" :menu-props="{'bottom':true}" @change="measurementSystemConfig.selected_device = measurementSystemConfig.selected_source+'-'+measurementSystemConfig.selected_drain"></v-autocomplete>
+														<v-autocomplete class="mb-n4" filled rounded background-color="white" clearable auto-select-first hide-no-data label="Drain" v-model.number="measurementSystemConfig.selected_drain" :items="Array.from({length:64},(v,k)=>k+1)" :menu-props="{'bottom':true}"></v-autocomplete>
 													</v-col>
 													<v-spacer></v-spacer>
 												</v-row>
@@ -1715,17 +1729,17 @@
 													<v-expansion-panels>
 														<v-expansion-panel class="info">
 															<v-expansion-panel-header>
-																<div style="font-weight: bold;">Device Name</div>
+																<v-toolbar-title>Device Name</v-toolbar-title>
 															</v-expansion-panel-header>
 															<v-expansion-panel-content>
 																<v-row dense>
-																	<v-col cols="4" class="pl-4">
-																		<v-text-field filled rounded readonly label="Default Name" background-color="info lighten-1" v-model="measurementSystemConfig.selected_device"></v-text-field>
+																	<v-col cols="4">
+																		<v-text-field light filled rounded readonly label="Default Name" background-color="info lighten-1" v-model="measurementSystemDefaultDeviceName"></v-text-field>
 																	</v-col>
 																	<v-col cols="4">
-																		<v-text-field class="mt-1" solo clearable hide-details label="Nickname" v-model="measurementSystemConfig.input_nickname"></v-text-field>
+																		<v-text-field light class="mt-1" solo clearable hide-details label="Nickname" v-model="measurementSystemConfig.input_nickname"></v-text-field>
 																	</v-col>
-																	<v-col class="pr-4">
+																	<v-col>
 																		<v-btn class="mt-2" block dark color="success" @click="addDeviceNickname()" :disabled="!(measurementSystemConfig.selected_source && measurementSystemConfig.selected_drain && measurementSystemConfig.input_nickname)"><v-icon left>add</v-icon>Nickname</v-btn>
 																	</v-col>
 																</v-row>
@@ -1742,6 +1756,7 @@
 											</v-card>
 										</v-col>
 									</v-row>
+									
 								</template>
 							</v-card>
 							
@@ -2433,9 +2448,9 @@
 				availableMeasurementSystems: [],
 				acquiringMeasurementSystem: {status: undefined, callback: undefined},
 				measurementSystemConfig: {
+					docs: [],
 					selected_source: undefined,
 					selected_drain: undefined,
-					selected_device: '',
 					input_nickname: '',
 				},
 				
@@ -3088,6 +3103,11 @@
 						this.acquiringMeasurementSystem.callback = undefined;
 						callback();
 					}
+				},
+				
+				loadMeasurementSystemConfig: function(systemType) {
+					var path = '/loadMeasurementSystemConfiguration/' + systemType;
+					this.getJSON(path, (response => {this.measurementSystemConfig.docs = response;}), "Error loading system config");
 				},
 				
 				// === Navigate ===
@@ -3835,7 +3855,10 @@
 				
 				handleServerMessage: function(message) {					
 					if(message.type === 'ConnectionStatus') {
-						// Obtain connection status update from the message
+						// Refresh config files if about to begin a new connection
+						if(!this.connectedMeasurementSystem && message.status.connected_system) this.loadMeasurementSystemConfig(message.status.connected_system['type']);
+						
+						// === Obtain connection status update from the message ===
 						this.availableMeasurementSystems = message.status.available_measurement_systems;
 						this.connectedMeasurementSystem = message.status.connected_system? message.status.connected_system : undefined;
 						
@@ -4253,7 +4276,7 @@
 				// === Documentation ===
 
 				initializeDocumentation: function() {
-					var path = "/loadAllDocumentation" + this.cacheBust;
+					var path = "/loadDocumentation" + this.cacheBust;
 					this.getJSON(path, (response => {
 						//Response is a list of dictionaries
 						if(response.length == 0){
@@ -4606,6 +4629,10 @@
 				
 				dynamicRecentActivityTableHeaders: function() {
 					return this.recentActivityHeaders.filter(h => h.visible);
+				},
+				
+				measurementSystemDefaultDeviceName: function() {
+					return this.measurementSystemConfig.selected_source + '-' + this.measurementSystemConfig.selected_drain;	
 				},
 				
 				benchtopRefreshRate: function() {
