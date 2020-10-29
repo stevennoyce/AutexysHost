@@ -269,7 +269,7 @@
 										</v-list-item-action>
 									</v-list-item>
 									
-									<v-list-item @click="setTopLevelPage('system')" v-if="connectedMeasurementSystem">
+									<v-list-item @click="loadMeasurementSystemConfig(connectedMeasurementSystem); setTopLevelPage('system');" v-if="connectedMeasurementSystem">
 										<v-list-item-action><v-icon>device_hub</v-icon></v-list-item-action>
 										<v-list-item-content><v-list-item-title>View System Info</v-list-item-title></v-list-item-content>
 									</v-list-item>
@@ -1674,36 +1674,36 @@
 										System Configuration
 									</v-toolbar-title>
 									<v-spacer></v-spacer>
-									<v-btn icon @click="systemConfigReset()"><v-icon>settings_backup_restore</v-icon></v-btn>
+									<v-btn icon @click="()"><v-icon>settings_backup_restore</v-icon></v-btn>
 								</v-toolbar>
 								
+								<v-expansion-panels class="mt-2 mb-2 pl-2 pr-2" v-for="doc in measurementSystemConfig.docs">
+									<v-expansion-panel class="grey lighten-4">
+										<v-expansion-panel-header class="pt-0 pb-0">
+											<v-row no-gutters>
+												<v-avatar tile size="24" class="mt-3 mr-2 roundedcorners" color="info"><v-icon dark>{{ doc.icon }}</v-icon></v-avatar>
+												<div style="display:inline; height: 50px; line-height: 50px;">{{ doc.title }}</div>
+												<v-spacer></v-spacer>
+											</v-row>
+										</v-expansion-panel-header>
+										<v-expansion-panel-content>
+											<v-container>
+												<p style="white-space: pre-line;">{{ doc.text }}</p>
+											</v-container>
+										</v-expansion-panel-content>
+									</v-expansion-panel>
+								</v-expansion-panels>
+								
 								<template v-if="connectedMeasurementSystem['type'] == 'Serial'">
-									<v-expansion-panels class="mt-2 mb-2 pl-2 pr-2" v-for="doc in measurementSystemConfig.docs">
-										<v-expansion-panel class="grey lighten-4">
-											<v-expansion-panel-header class="pt-0 pb-0">
-												<v-row no-gutters>
-													<v-avatar tile size="24" class="mt-3 mr-2 roundedcorners" color="info"><v-icon dark>{{ doc.icon }}</v-icon></v-avatar>
-													<div style="display:inline; height: 50px; line-height: 50px;">{{ doc.title }}</div>
-													<v-spacer></v-spacer>
-												</v-row>
-											</v-expansion-panel-header>
-											<v-expansion-panel-content>
-												<v-container>
-													<p>{{ doc.text }}</p>
-												</v-container>
-											</v-expansion-panel-content>
-										</v-expansion-panel>
-									</v-expansion-panels>
-									
 									<v-row dense>
 										<v-col cols="5" class="pa-3">
 											<v-card flat>
 												<img src="/ui/resources/Socket_PLCC68_Diagram.png">
-												<template v-if="measurementSystemConfig.selected_source">
-													<img :src="'/ui/resources/overlays/overlay'+measurementSystemConfig.selected_source+'.png'" style="position: absolute; top: 0; left:0;">
+												<template v-if="measurementSystemConfig.inputs.source">
+													<img :src="'/ui/resources/overlays/overlay'+measurementSystemConfig.inputs.source+'.png'" style="position: absolute; top: 0; left:0;">
 												</template>
-												<template v-if="measurementSystemConfig.selected_drain">
-													<img :src="'/ui/resources/overlays/overlay'+measurementSystemConfig.selected_drain+'.png'" style="position: absolute; top: 0; left:0;">
+												<template v-if="measurementSystemConfig.inputs.drain">
+													<img :src="'/ui/resources/overlays/overlay'+measurementSystemConfig.inputs.drain+'.png'" style="position: absolute; top: 0; left:0;">
 												</template>
 											</v-card>
 										</v-col>
@@ -1712,20 +1712,20 @@
 												<v-toolbar dark dense class="info darken-1 mb-4">
 													<v-toolbar-title>Device Pin Selector</v-toolbar-title>
 													<v-spacer></v-spacer>
-													<v-btn icon @click="systemConfigReset()"><v-icon>settings_backup_restore</v-icon></v-btn>
+													<v-btn icon @click="resetMeasurementSystemConfig()"><v-icon>settings_backup_restore</v-icon></v-btn>
 												</v-toolbar>
 												<v-row>
 													<v-spacer></v-spacer>
 													<v-col cols="4">
-														<v-autocomplete class="mb-n4" filled rounded background-color="white" clearable auto-select-first hide-no-data label="Source" v-model.number="measurementSystemConfig.selected_source" :items="Array.from({length:64},(v,k)=>k+1)" :menu-props="{'bottom':true}"></v-autocomplete>
+														<v-autocomplete class="mb-n4" filled rounded background-color="white" clearable auto-select-first hide-no-data label="Source" v-model.number="measurementSystemConfig.inputs.source" :items="Array.from({length:64},(v,k)=>k+1)" :menu-props="{'bottom':true}"></v-autocomplete>
 													</v-col>
 													<v-spacer></v-spacer>
 													<v-col cols="4">
-														<v-autocomplete class="mb-n4" filled rounded background-color="white" clearable auto-select-first hide-no-data label="Drain" v-model.number="measurementSystemConfig.selected_drain" :items="Array.from({length:64},(v,k)=>k+1)" :menu-props="{'bottom':true}"></v-autocomplete>
+														<v-autocomplete class="mb-n4" filled rounded background-color="white" clearable auto-select-first hide-no-data label="Drain" v-model.number="measurementSystemConfig.inputs.drain" :items="Array.from({length:64},(v,k)=>k+1)" :menu-props="{'bottom':true}"></v-autocomplete>
 													</v-col>
 													<v-spacer></v-spacer>
 												</v-row>
-												<template v-if="measurementSystemConfig.selected_source && measurementSystemConfig.selected_drain">
+												<template v-if="measurementSystemConfig.inputs.source && measurementSystemConfig.inputs.drain">
 													<v-expansion-panels>
 														<v-expansion-panel class="info">
 															<v-expansion-panel-header>
@@ -1737,10 +1737,10 @@
 																		<v-text-field light filled rounded readonly label="Default Name" background-color="info lighten-1" v-model="measurementSystemDefaultDeviceName"></v-text-field>
 																	</v-col>
 																	<v-col cols="4">
-																		<v-text-field light class="mt-1" solo clearable hide-details label="Nickname" v-model="measurementSystemConfig.input_nickname"></v-text-field>
+																		<v-text-field light class="mt-1" solo clearable hide-details label="Nickname" v-model="measurementSystemConfig.inputs.nickname"></v-text-field>
 																	</v-col>
 																	<v-col>
-																		<v-btn class="mt-2" block dark color="success" @click="addDeviceNickname()" :disabled="!(measurementSystemConfig.selected_source && measurementSystemConfig.selected_drain && measurementSystemConfig.input_nickname)"><v-icon left>add</v-icon>Nickname</v-btn>
+																		<v-btn class="mt-2" block dark color="success" @click="addDeviceNicknameToMeasurementSystemConfig(measurementSystemConfig.inputs.nickname, measurementSystemDefaultDeviceName)" :disabled="!(measurementSystemConfig.inputs.source && measurementSystemConfig.inputs.drain && measurementSystemConfig.inputs.nickname)"><v-icon left>add</v-icon>Nickname</v-btn>
 																	</v-col>
 																</v-row>
 															</v-expansion-panel-content>
@@ -2210,7 +2210,7 @@
 										
 										<v-expansion-panel-content>
 											<v-container> 
-												<p v-if="!documentationInfo[index]['edit_mode']" style="white-space: pre-line;">
+												<p style="white-space: pre-line;" v-if="!documentationInfo[index]['edit_mode']">
 													{{ documentationInfo[index]['text'] }}
 												</p>
 												<v-text-field solo v-if="documentationInfo[index]['edit_mode']" label="Enter documentation title" v-model="documentationProposedInfo[index]['title']" auto-grow></v-text-field>
@@ -2449,9 +2449,8 @@
 				acquiringMeasurementSystem: {status: undefined, callback: undefined},
 				measurementSystemConfig: {
 					docs: [],
-					selected_source: undefined,
-					selected_drain: undefined,
-					input_nickname: '',
+					inputs: {},
+					device_map: {},
 				},
 				
 				defaultParameters: {},
@@ -3039,18 +3038,7 @@
 					return cacheBust;
 				},
 				
-				// === System Configuration ===
-				
-				setWorkspaceDataFolder: function(newWorkspaceDataFolderPath) {
-					if(newWorkspaceDataFolderPath) {
-						var path = '/setWorkspaceDataFolderPath' + this.cacheBust;
-						this.postJSON(path, JSON.stringify(newWorkspaceDataFolderPath), (response => {
-							console.log("Set workspace data folder to: " + newWorkspaceDataFolderPath);
-						}), "Error setting workspace data folder.");
-						
-						localStorage.workspaceDataFolderPath = JSON.stringify(newWorkspaceDataFolderPath);
-					}
-				},
+				// === System Connection Status ===
 				
 				getAvailableMeasurementSystems: function() {
 					var path = '/availableMeasurementSystems.json' + this.cacheBust;
@@ -3105,16 +3093,30 @@
 					}
 				},
 				
-				loadMeasurementSystemConfig: function(systemType) {
-					var path = '/loadMeasurementSystemConfiguration/' + systemType;
+				// === System Configuration ===
+				
+				resetMeasurementSystemConfig: function() {
+					this.measurementSystemConfig.inputs = {};
+				},
+				loadMeasurementSystemConfig: function(system) {
+					var path = '/loadMeasurementSystemConfiguration/' + system['type'];
 					this.getJSON(path, (response => {this.measurementSystemConfig.docs = response;}), "Error loading system config");
+				},
+				addDeviceNicknameToMeasurementSystemConfig: function(nickname, device) {
+					this.measurementSystemConfig.device_map[nickname] = device;
 				},
 				
 				// === Navigate ===
 				
-				setTopLevelPage: function(name) {
-					this.topLevelPage = name;
-					localStorage.topLevelPage = JSON.stringify(name);
+				setWorkspaceDataFolder: function(newWorkspaceDataFolderPath) {
+					if(newWorkspaceDataFolderPath) {
+						var path = '/setWorkspaceDataFolderPath' + this.cacheBust;
+						this.postJSON(path, JSON.stringify(newWorkspaceDataFolderPath), (response => {
+							console.log("Set workspace data folder to: " + newWorkspaceDataFolderPath);
+						}), "Error setting workspace data folder.");
+						
+						localStorage.workspaceDataFolderPath = JSON.stringify(newWorkspaceDataFolderPath);
+					}
 				},
 				addUser: function(userName) {
 					var path = '/' + userName + '/addUser.json' + this.cacheBust;
@@ -3123,6 +3125,11 @@
 					}), "Error creating new user");
 					
 					this.goToUser(userName);
+				},
+				
+				setTopLevelPage: function(name) {
+					this.topLevelPage = name;
+					localStorage.topLevelPage = JSON.stringify(name);
 				},
 				
 				goToBeginning: function() {
@@ -3186,7 +3193,6 @@
 					this.stepperPage = 6;
 				},
 								
-				
 				// === Schedule File (Loading/Saving/Launching) ===
 				
 				scheduleFilePath: function(user, project, fileName) {
@@ -3756,14 +3762,6 @@
 					this.benchtop.plot.traces.channel2.yData = [];
 				},
 				
-				// === System Configuration ===
-				
-				systemConfigReset: function() {
-					this.measurementSystemConfig.selected_source = undefined;
-					this.measurementSystemConfig.selected_drain = undefined;
-					this.measurementSystemConfig.input_nickname = '';
-				},
-				
 				// === Performance App ===
 				
 				performanceReset: function() {
@@ -3855,9 +3853,6 @@
 				
 				handleServerMessage: function(message) {					
 					if(message.type === 'ConnectionStatus') {
-						// Refresh config files if about to begin a new connection
-						if(!this.connectedMeasurementSystem && message.status.connected_system) this.loadMeasurementSystemConfig(message.status.connected_system['type']);
-						
 						// === Obtain connection status update from the message ===
 						this.availableMeasurementSystems = message.status.available_measurement_systems;
 						this.connectedMeasurementSystem = message.status.connected_system? message.status.connected_system : undefined;
@@ -4632,7 +4627,7 @@
 				},
 				
 				measurementSystemDefaultDeviceName: function() {
-					return this.measurementSystemConfig.selected_source + '-' + this.measurementSystemConfig.selected_drain;	
+					return this.measurementSystemConfig.inputs.source + '-' + this.measurementSystemConfig.inputs.drain;	
 				},
 				
 				benchtopRefreshRate: function() {
