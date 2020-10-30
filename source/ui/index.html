@@ -111,6 +111,18 @@
 			transform: translate(50%, -50%);
 		}
 		
+		/* === Transitions === */
+		
+		.fadeInOutFast-enter-active, .fadeInOutFast-leave-active{
+			transition: opacity .5s ease-in-out;
+		}
+		.fadeInOutFast-enter, .fadeInOutFast-leave-to {
+			opacity: 0;
+		}
+		.fadeInOutFast-enter-to, .fadeInOutFast-leave {
+			opacity: 1;
+		}
+		
 		/* === Expansion Panels === */
 		
 		.padlessexpansionpanel .v-expansion-panel-content__wrap {
@@ -1674,14 +1686,14 @@
 										System Configuration
 									</v-toolbar-title>
 									<v-spacer></v-spacer>
-									<v-btn icon @click="()"><v-icon>settings_backup_restore</v-icon></v-btn>
+									<v-btn icon @click="resetMeasurementSystemConfigInputs()"><v-icon>settings_backup_restore</v-icon></v-btn>
 								</v-toolbar>
 								
-								<v-expansion-panels class="mt-2 mb-2 pl-2 pr-2" v-for="doc in measurementSystemConfig.docs">
+								<v-expansion-panels class="mt-2 mb-2 pl-2 pr-2" v-for="doc,index in measurementSystemConfig.docs">
 									<v-expansion-panel class="grey lighten-4">
 										<v-expansion-panel-header class="pt-0 pb-0">
 											<v-row no-gutters>
-												<v-avatar tile size="24" class="mt-3 mr-2 roundedcorners" color="info"><v-icon dark>{{ doc.icon }}</v-icon></v-avatar>
+												<v-avatar tile size="24" class="mt-3 mr-2 roundedcorners" color="info darken-2"><v-icon dark>{{ doc.icon }}</v-icon></v-avatar>
 												<div style="display:inline; height: 50px; line-height: 50px;">{{ doc.title }}</div>
 												<v-spacer></v-spacer>
 											</v-row>
@@ -1696,23 +1708,27 @@
 								
 								<template v-if="connectedMeasurementSystem['type'] == 'Serial'">
 									<v-row dense>
-										<v-col cols="5" class="pa-3">
+										<v-col cols="5" class="pa-2">
 											<v-card flat>
 												<img src="/ui/resources/Socket_PLCC68_Diagram.png">
 												<template v-if="measurementSystemConfig.inputs.source">
-													<img :src="'/ui/resources/overlays/overlay'+measurementSystemConfig.inputs.source+'.png'" style="position: absolute; top: 0; left:0;">
+													<transition name="fadeInOutFast">
+														<img :src="'/ui/resources/overlays/overlay'+measurementSystemConfig.inputs.source+'.png'" style="position: absolute; top: 0; left:0;">
+													</transition>
 												</template>
 												<template v-if="measurementSystemConfig.inputs.drain">
-													<img :src="'/ui/resources/overlays/overlay'+measurementSystemConfig.inputs.drain+'.png'" style="position: absolute; top: 0; left:0;">
+													<transition name="fadeInOutFast">
+														<img :src="'/ui/resources/overlays/overlay'+measurementSystemConfig.inputs.drain+'.png'" style="position: absolute; top: 0; left:0;">
+													</transition>
 												</template>
 											</v-card>
 										</v-col>
-										<v-col cols="7">
+										<v-col cols="7" class="pr-2">
 											<v-card color="info"> 
 												<v-toolbar dark dense class="info darken-1 mb-4">
 													<v-toolbar-title>Device Pin Selector</v-toolbar-title>
 													<v-spacer></v-spacer>
-													<v-btn icon @click="resetMeasurementSystemConfig()"><v-icon>settings_backup_restore</v-icon></v-btn>
+													<v-btn icon @click="resetMeasurementSystemConfigInputs()"><v-icon>settings_backup_restore</v-icon></v-btn>
 												</v-toolbar>
 												<v-row>
 													<v-spacer></v-spacer>
@@ -1754,6 +1770,26 @@
 													</v-list>
 												</template>
 											</v-card>
+											
+											<template v-if="Object.keys(measurementSystemConfig.device_map).length">
+												<v-card color="info" class="mt-2">
+													<v-toolbar dark dense class="info darken-1 mb-4">
+														<v-toolbar-title>Named Devices</v-toolbar-title>
+														<v-spacer></v-spacer>
+														<v-tooltip left color="info darken-2">
+															<template v-slot:activator="{ on: tooltip }">
+																<v-btn icon @click="clearMeasurementSystemConfigDeviceMap()" v-on="{ ...tooltip }"><v-icon>clear</v-icon></v-btn>
+															</template>
+															<span>Clear Nicknames</span>
+														</v-tooltip>
+													</v-toolbar>
+													<v-chip-group column>
+														<v-chip small v-for="deviceID, deviceNickname in measurementSystemConfig.device_map" :key="deviceNickname" @mouseover="setMeasurementSystemConfigActiveDevice(deviceNickname, deviceID)" color="info lighten-1">
+															{{ deviceNickname }}
+														</v-chip>
+													</v-chip-group>
+												</v-card> 
+											</template>
 										</v-col>
 									</v-row>
 									
@@ -2449,7 +2485,7 @@
 				acquiringMeasurementSystem: {status: undefined, callback: undefined},
 				measurementSystemConfig: {
 					docs: [],
-					inputs: {},
+					inputs: {source:undefined, drain:undefined, nickname:undefined},
 					device_map: {},
 				},
 				
@@ -3095,16 +3131,28 @@
 				
 				// === System Configuration ===
 				
-				resetMeasurementSystemConfig: function() {
-					this.measurementSystemConfig.inputs = {};
+				resetMeasurementSystemConfigInputs: function() {
+					this.measurementSystemConfig.inputs = {source:undefined, drain:undefined, nickname:undefined};
 				},
 				loadMeasurementSystemConfig: function(system) {
 					var path = '/loadMeasurementSystemConfiguration/' + system['type'];
 					this.getJSON(path, (response => {this.measurementSystemConfig.docs = response;}), "Error loading system config");
 				},
-				addDeviceNicknameToMeasurementSystemConfig: function(nickname, device) {
-					this.measurementSystemConfig.device_map[nickname] = device;
+				addDeviceNicknameToMeasurementSystemConfig: function(nickname, deviceID) {
+					Vue.set(this.measurementSystemConfig.device_map, nickname, deviceID);
 				},
+				setMeasurementSystemConfigActiveDevice: function(deviceNickname, deviceID) {
+					if(!deviceID.includes('-')) return;
+					var electrodes = deviceID.split('-').map((elem) => parseInt(elem));
+					this.measurementSystemConfig.inputs.source = electrodes[0];
+					this.measurementSystemConfig.inputs.drain  = electrodes[1];
+					this.measurementSystemConfig.inputs.nickname = deviceNickname;
+				},
+				clearMeasurementSystemConfigDeviceMap: function() {
+					this.measurementSystemConfig.device_map = {};
+					this.resetMeasurementSystemConfigInputs();
+				},
+				
 				
 				// === Navigate ===
 				
