@@ -38,9 +38,14 @@ UI_REFRESH_DELAY_SECONDS = 0.01
 
 NOTES_FILE_NAME = 'Note.txt'
 DATA_EXPORT_NAME = 'data.csv'
-HELP_FILE_PREFIX = 'Doc'
-CONFIG_FILE_PREFIX = 'Config'
+CONFIG_FILE_NAME = 'Config.json'
+
+CONFIG_DOC_PREFIX = 'Config_Doc'
+HELP_DOC_PREFIX = 'Doc'
 EXPERIMENT_FOLDER_PREFIX = 'Ex'
+
+CONFIG_DOC_SUFFIX = '.json'
+HELP_DOC_SUFFIX = '.json'
 
 # === Globals ===
 share = None
@@ -64,8 +69,9 @@ default_data_path = '../../AutexysData/'
 # === Paths ===
 workspace_data_path = default_data_path
 
-index_html_directory_path = 'ui/' 		if(not getattr(sys, 'frozen', False)) else (os.path.join(sys._MEIPASS, 'ui/'))
-documentation_path = 'documentation/'   if(not getattr(sys, 'frozen', False)) else (os.path.join(sys._MEIPASS, 'documentation/'))
+index_html_directory_path = 'ui/' 		       if(not getattr(sys, 'frozen', False)) else (os.path.join(sys._MEIPASS, 'ui/'))
+config_path               = 'config/'          if(not getattr(sys, 'frozen', False)) else (os.path.join(sys._MEIPASS, 'config/'))
+documentation_path        = 'documentation/'   if(not getattr(sys, 'frozen', False)) else (os.path.join(sys._MEIPASS, 'documentation/'))
 readme_path = os.path.join(documentation_path, 'README.md') 
 help_path   = os.path.join(documentation_path, 'help/')
 
@@ -305,26 +311,33 @@ def disconnectFromMeasurementSystem():
 # === Measurement System Configuration ===
 @app.route('/loadMeasurementSystemConfiguration/<systemType>')
 def loadMeasurementSystemConfiguration(systemType):
-	configuration = []
-
-	path = os.path.join(documentation_path, systemType)
+	path = os.path.join(config_path, systemType)
+	
+	# Load the system-specific config file
+	config_file = {}
+	loadedJSON = dlu.loadJSON(path, CONFIG_FILE_NAME)
+	for json in loadedJSON:
+		config_file.update(json)
+	
+	# Load all of the custom info docs for this system
+	config_docs = []
 	for filename in getConfigurationFilenames(systemType):
 		loadedJSON = dlu.loadJSON(path, filename)
 		for json in loadedJSON:
-			configuration.append(json)
+			config_docs.append(json)
 
-	return jsonvalid(configuration)
+	return jsonvalid({'config': config_file, 'docs': config_docs})
 
 def getConfigurationFilenames(systemType):
 	filenames = []
-	path = os.path.join(documentation_path, systemType)
+	path = os.path.join(config_path, systemType)
 	if(os.path.exists(path)):
 		directoryListings = os.listdir(path)
 		# directoryListings in arbitrary order
 		for listing in directoryListings:
-			if(len(listing) >= 6) and (listing[0:6] == CONFIG_FILE_PREFIX) and (listing[-5:] == ".json"):
+			if(len(listing) >= len(CONFIG_DOC_PREFIX)) and (listing[0:len(CONFIG_DOC_PREFIX)] == CONFIG_DOC_PREFIX) and (listing[-len(CONFIG_DOC_SUFFIX):] == CONFIG_DOC_SUFFIX):
 				filenames.append(listing)
-		filenames.sort(key=lambda listing : int(listing[6:-5]))
+		filenames.sort(key=lambda listing : int(listing[len(CONFIG_DOC_PREFIX):-len(CONFIG_DOC_SUFFIX)]))
 	return filenames
 
 
@@ -815,12 +828,12 @@ def clearNote(user, project, wafer, chip, device, experimentNumber):
 @app.route('/addDocumentation/<indexToAdd>')
 def addDocumentation(indexToAdd):
 	incrementFilenameNumbersFrom(indexToAdd, 1)
-	dlu.makeEmptyJSONFile(help_path, HELP_FILE_PREFIX + str(indexToAdd) + ".json")
+	dlu.makeEmptyJSONFile(help_path, HELP_DOC_PREFIX + str(indexToAdd) + HELP_DOC_SUFFIX)
 	return jsonvalid({"success": True})
 
 @app.route('/removeDocumentation/<indexToDelete>')
 def removeDocumentation(indexToDelete):
-	dlu.deleteJSONFile(help_path, HELP_FILE_PREFIX + indexToDelete + ".json")
+	dlu.deleteJSONFile(help_path, HELP_DOC_PREFIX + indexToDelete + HELP_DOC_SUFFIX)
 	incrementFilenameNumbersFrom(int(indexToDelete) + 1, -1)
 	return jsonvalid({"success": True})
 
@@ -839,14 +852,14 @@ def loadDocumentation():
 def saveDocumentation(fileName):
 	receivedDocumentation = flask.request.get_json(force=True)
 
-	dlu.makeEmptyJSONFile(help_path, HELP_FILE_PREFIX + fileName + ".json")
-	dlu.saveJSON(help_path, HELP_FILE_PREFIX + fileName + ".json", receivedDocumentation, incrementIndex=False)
+	dlu.makeEmptyJSONFile(help_path, HELP_DOC_PREFIX + fileName + HELP_DOC_SUFFIX)
+	dlu.saveJSON(help_path, HELP_DOC_PREFIX + fileName + HELP_DOC_SUFFIX, receivedDocumentation, incrementIndex=False)
 
 	return jsonvalid({"success": True})
 
 @app.route('/swapDocumentationFilenames/<index1>/<index2>')
 def swapDocumentationFilenames(index1, index2):
-	swapFilenames(HELP_FILE_PREFIX + index1 + ".json", HELP_FILE_PREFIX + index2 + ".json")
+	swapFilenames(HELP_DOC_PREFIX + index1 + HELP_DOC_SUFFIX, HELP_DOC_PREFIX + index2 + HELP_DOC_SUFFIX)
 	return jsonvalid({"success": True})
 
 def getDocumentationFilenames():
@@ -855,21 +868,21 @@ def getDocumentationFilenames():
 		directoryListings = os.listdir(help_path)
 		# directoryListings in arbitrary order
 		for listing in directoryListings:
-			if len(listing) >= 3 and listing[0:3] == HELP_FILE_PREFIX and listing[-5:] == ".json":
+			if(len(listing) >= len(HELP_DOC_PREFIX)) and (listing[0:len(HELP_DOC_PREFIX)] == HELP_DOC_PREFIX) and (listing[-len(HELP_DOC_SUFFIX):] == HELP_DOC_SUFFIX):
 				filenames.append(listing)
-		filenames.sort(key=lambda listing : int(listing[3:-5]))
+		filenames.sort(key=lambda listing : int(listing[len(HELP_DOC_PREFIX):-len(HELP_DOC_SUFFIX)]))
 	return filenames
 
 def incrementFilenameNumbersFrom(startIndex, increment):
 	originalFilenames = getDocumentationFilenames()
 	tempFilenames = []
 	for originalFilename in originalFilenames:
-		numericalSuffix = int(originalFilename[3:-5])
+		numericalSuffix = int(originalFilename[len(HELP_DOC_PREFIX):-len(HELP_DOC_SUFFIX)])
 		if numericalSuffix >= int(startIndex):
 			if numericalSuffix + increment < 0:
 				print("Warning - assigning a documentation file a negative index")
 			newSuffix = str(numericalSuffix + increment)
-			tempFilename = "TDoc" + newSuffix + ".json"
+			tempFilename = "TDoc" + newSuffix + HELP_DOC_SUFFIX
 			tempFilenames.append(tempFilename)
 			os.rename(os.path.join(help_path, originalFilename), os.path.join(help_path, tempFilename))
 

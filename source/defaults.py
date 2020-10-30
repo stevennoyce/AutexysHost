@@ -9,12 +9,12 @@ HIDDEN_PARAMETERS = ['complianceCurrent', 'isFastSweep', 'fastSweepSpeed', 'dela
 default_parameters = {
 	'runType': {'type': 'keyChoice', 'ChoiceFrom': 'runConfigs', 'default':''},
 	'Identifiers':{
-		'user':   {'type':'string', 'default':'', 'title':'User',      'description':'User for this experiment.'},
-		'project':{'type':'string', 'default':'', 'title':'Project',   'description':'Project for this experiment.'},
-		'wafer':  {'type':'string', 'default':'', 'title':'Wafer',     'description':'Wafer for this experiment.'},
-		'chip':   {'type':'string', 'default':'', 'title':'Chip',      'description':'Chip for this experiment.'},
-		'device': {'type':'string', 'default':'', 'title':'Device',    'description':'Device for this experiment.'},
-		'step':   {'type':'string', 'default':'', 'title':'Step/Note', 'description':'Personal note for this experiment.'},
+		'user':   {'type':'string', 'default':'', 'title':'User',    'description':'User for this experiment.'},
+		'project':{'type':'string', 'default':'', 'title':'Project', 'description':'Project for this experiment.'},
+		'wafer':  {'type':'string', 'default':'', 'title':'Wafer',   'description':'Wafer for this experiment.'},
+		'chip':   {'type':'string', 'default':'', 'title':'Chip',    'description':'Chip for this experiment.'},
+		'device': {'type':'string', 'default':'', 'title':'Device',  'description':'Device for this experiment.'},
+		'step':   {'type':'string', 'default':'', 'title':'Note',    'description':'Personal note for this experiment.'},
 	},
 	'runConfigs': {
 		'GateSweep':{
