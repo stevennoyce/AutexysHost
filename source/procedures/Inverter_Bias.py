@@ -72,7 +72,7 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 		
 	# Save results as a JSON object
 	print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
-	dlu.saveJSON(dlu.getDeviceDirectory(parameters), ib_parameters['saveFileName'], jsonData, subDirectory='Ex'+str(parameters['startIndexes']['experimentNumber']))
+	dlu.saveJSON(dlu.getDeviceDirectory(parameters), ib_parameters['saveFileName'], jsonData, subDirectory=parameters['experimentSubFolder']+str(parameters['startIndexes']['experimentNumber']))
 
 	return jsonData
 

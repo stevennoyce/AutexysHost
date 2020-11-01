@@ -156,7 +156,7 @@ def runAFM(parameters, smu_systems, share=None):
 			print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
 			# Spin a new thread to save the data in the background
 			threading.Thread(target=dlu.saveJSON,
-				args=(dlu.getDeviceDirectory(parameters), afm_parameters['saveFileName'], jsonData, 'Ex'+str(parameters['startIndexes']['experimentNumber']))
+				args=(dlu.getDeviceDirectory(parameters), afm_parameters['saveFileName'], jsonData, parameters['experimentSubFolder']+str(parameters['startIndexes']['experimentNumber']))
 			).start()
 	
 	# smu_device.turnChannelsOff()

@@ -3442,10 +3442,12 @@
 					}), "Error adding to note");
 				},
 				getNote: function() {
-					var path = '/getNote/' + this.user + '/' + this.project + '/' + this.wafer + '/' + this.chip + '/' + this.device + '/' 
-						+ this.experiment['startIndexes']['experimentNumber'];
-					
-					this.getJSON(path, (response => {this.noteContent = response['text'];}), "Error getting note");
+					if(this.experiment) {
+						var path = '/getNote/' + this.user + '/' + this.project + '/' + this.wafer + '/' + this.chip + '/' + this.device + '/' 
+							+ this.experiment['startIndexes']['experimentNumber'];
+						
+						this.getJSON(path, (response => {this.noteContent = response['text'];}), "Error getting note");
+					}
 				},
 				clearNote: function() {
 					var path = '/clearNote/' + this.user + '/' + this.project + '/' + this.wafer + '/' + this.chip + '/' + this.device + '/' 

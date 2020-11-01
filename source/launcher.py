@@ -243,6 +243,12 @@ def cleanUpDataSaving(parameters, target_devices, deviceIndexes):
 		# Save finished result to 'ParametersHistory' file for each device
 		print('Saving to ParametersHistory...')
 		dlu.saveJSON(dlu.getDeviceDirectory(deviceParameters), 'ParametersHistory', deviceParameters, incrementIndex=False)
+		
+		# If there was a note for this procedure, save it now
+		note = deviceParameters['Identifiers']['note']
+		if((note is not None) and (note != '')):
+			print('Saving Note...')
+			dlu.appendText(dlu.getExperimentDirectory(dlu.getDeviceDirectory(deviceParameters), deviceParameters['startIndexes']['experimentNumber']), defaults.NOTES_FILE_NAME, note)
 	
 	# If multiple devices were involved in this procedure, we need an additional file to be saved to track this
 	if(len(target_devices) > 1):
@@ -264,7 +270,7 @@ def cleanUpDataSaving(parameters, target_devices, deviceIndexes):
 		
 		# Save an additional file that contains information about all of the devices just involved in the last experiment
 		print('Saving to DeviceCycling...')
-		dlu.saveJSON(dlu.getDeviceDirectory(cyclingParameters), 'DeviceCycling', cyclingParameters, subDirectory='Ex'+str(cyclingParameters['startIndexes']['experimentNumber']))
+		dlu.saveJSON(dlu.getDeviceDirectory(cyclingParameters), 'DeviceCycling', cyclingParameters, subDirectory=defaults.EXPERIMENT_FOLDER_PREFIX+str(cyclingParameters['startIndexes']['experimentNumber']))
 		dlu.saveJSON(dlu.getDeviceDirectory(cyclingParameters), 'ParametersHistory', cyclingParameters, incrementIndex=False)
 		
 

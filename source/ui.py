@@ -36,13 +36,9 @@ if __name__ == '__main__':
 SOCKETIO_DEFAULT_IP_ADDRESS = '127.0.0.1'
 UI_REFRESH_DELAY_SECONDS = 0.01
 
-NOTES_FILE_NAME = 'Note.txt'
-DATA_EXPORT_NAME = 'data.csv'
 CONFIG_FILE_NAME = 'Config.json'
-
 CONFIG_DOC_PREFIX = 'Config_Doc'
 HELP_DOC_PREFIX = 'Doc'
-EXPERIMENT_FOLDER_PREFIX = 'Ex'
 
 CONFIG_DOC_SUFFIX = '.json'
 HELP_DOC_SUFFIX = '.json'
@@ -424,8 +420,8 @@ def experiments(user, project, wafer, chip, device):
 	# Load all found experiment folders and make a dictionary of experiments
 	experimentDictionary = {}
 	for name in names:
-		if(EXPERIMENT_FOLDER_PREFIX in name and name.replace(EXPERIMENT_FOLDER_PREFIX, '').isdigit()):
-			experimentDictionary[int(name.replace(EXPERIMENT_FOLDER_PREFIX, ''))] = None
+		if(defaults.EXPERIMENT_FOLDER_PREFIX in name and name.replace(defaults.EXPERIMENT_FOLDER_PREFIX, '').isdigit()):
+			experimentDictionary[int(name.replace(defaults.EXPERIMENT_FOLDER_PREFIX, ''))] = None
 	
 	# Load parameters history
 	try:
@@ -439,7 +435,7 @@ def experiments(user, project, wafer, chip, device):
 	
 	for experimentNumber in experimentDictionary.keys():
 		# If an experiment had no "ParametersHistory.json", load the last known data entry for that experiment and use it to reconstruct as much info as possible
-		experimentFolder = os.path.join(folder, EXPERIMENT_FOLDER_PREFIX + str(experimentNumber))
+		experimentFolder = os.path.join(folder, defaults.EXPERIMENT_FOLDER_PREFIX + str(experimentNumber))
 		experimentFiles = glob.glob(os.path.join(experimentFolder, '*.json'))
 		
 		if(experimentDictionary[experimentNumber] is None):
@@ -542,7 +538,7 @@ def getIdentifierParameters(user, project, wafer, chip, device=None):
 @app.route('/saveCSV/<user>/<project>/<wafer>/<chip>/<device>/<experiment>/data.csv')
 def saveCSV(user, project, wafer, chip, device, experiment):
 	# Find all '.json' files saved for this experiment
-	path = os.path.join(workspace_data_path, user, project, wafer, chip, device, EXPERIMENT_FOLDER_PREFIX + experiment)
+	path = os.path.join(workspace_data_path, user, project, wafer, chip, device, defaults.EXPERIMENT_FOLDER_PREFIX + experiment)
 	fileNames = [os.path.basename(p) for p in glob.glob(os.path.join(path, '*.json'))]
 	
 	# Load data from all '.json' files
@@ -560,7 +556,7 @@ def saveCSV(user, project, wafer, chip, device, experiment):
 	proxy.close()
 	
 	filebuf.seek(0)
-	return flask.send_file(filebuf, attachment_filename=DATA_EXPORT_NAME)
+	return flask.send_file(filebuf, attachment_filename=defaults.DATA_EXPORT_NAME)
 
 
 
@@ -798,7 +794,7 @@ def addNote(user, project, wafer, chip, device, experimentNumber):
 	parameter_identifiers = getIdentifierParameters(user, project, wafer, chip, device)
 	path = dlu.getExperimentDirectory(dlu.getDeviceDirectory(parameter_identifiers), experimentNumber)
 	
-	dlu.appendText(path, NOTES_FILE_NAME, noteAddition['noteAddition'])
+	dlu.appendText(path, defaults.NOTES_FILE_NAME, noteAddition['noteAddition'])
 	print('[UI]: Saved changes to Note.')
 	
 	return jsonvalid({"success": True})
@@ -808,7 +804,7 @@ def getNote(user, project, wafer, chip, device, experimentNumber):
 	parameter_identifiers = getIdentifierParameters(user, project, wafer, chip, device)
 	path = dlu.getExperimentDirectory(dlu.getDeviceDirectory(parameter_identifiers), experimentNumber)
 	
-	text = dlu.loadText(path, NOTES_FILE_NAME)
+	text = dlu.loadText(path, defaults.NOTES_FILE_NAME)
 	
 	return jsonvalid({"text":text})
 
@@ -817,7 +813,7 @@ def clearNote(user, project, wafer, chip, device, experimentNumber):
 	parameter_identifiers = getIdentifierParameters(user, project, wafer, chip, device)
 	path = dlu.getExperimentDirectory(dlu.getDeviceDirectory(parameter_identifiers), experimentNumber)
 	
-	dlu.overwriteText(path, NOTES_FILE_NAME, '')
+	dlu.overwriteText(path, defaults.NOTES_FILE_NAME, '')
 	print('[UI]: Cleared Note.')
 	
 	return jsonvalid({"success": True})
