@@ -129,6 +129,15 @@
 			padding: 0px;
 		}
 		
+		/* === Data Tables === */
+		
+		.v-data-footer {
+			background-color: #f5f5f5;
+		}
+		thead.v-data-table-header {
+			/* background-color: #f5f5f5; */
+		}
+		
 		/* === Layout === */
 		
 		.roundedcorners {
@@ -522,7 +531,7 @@
 								<v-card v-if="(stepperPage > 0) && (projects.length)" flat>
 									<v-toolbar dark class="color_browser">
 										<v-toolbar-title>
-											Projects
+											{{ user | capitalize }}'s Projects
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
 										<v-text-field v-model="projectTableSearch" class="ma-2" light solo rounded color="color_browser" background-color="info" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
@@ -544,7 +553,7 @@
 									</v-data-table>
 								</v-card>
 								<v-card outlined v-if="!projects.length">
-									<v-card-title>Projects</v-card-title>
+									<v-card-title>{{ user | capitalize }}'s Projects</v-card-title>
 									<v-card-subtitle>{{ noDataToShowMessage }}</v-card-subtitle>
 								</v-card>
 							</v-stepper-content>
@@ -554,7 +563,7 @@
 									<v-toolbar dark class="color_browser">
 										<v-btn icon @click="goBack(); getProjects()"><v-icon>arrow_back</v-icon></v-btn>
 										<v-toolbar-title>
-											Wafers
+											Wafers ({{ project }})
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
 										<v-text-field v-model="waferTableSearch" class="ma-2" light solo rounded color="color_browser" background-color="info" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
@@ -588,7 +597,7 @@
 									<v-toolbar dark class="color_browser">
 										<v-btn icon @click="goBack(); getWafers()"><v-icon>arrow_back</v-icon></v-btn>
 										<v-toolbar-title>
-											"{{ wafer }}" Chips
+											Chips ({{ project }}/{{ wafer }})
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
 										<v-text-field v-model="chipTableSearch" class="ma-2" light solo rounded color="color_browser" background-color="info" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
@@ -622,7 +631,7 @@
 									<v-toolbar dark class="color_browser">
 										<v-btn icon @click="goBack(); getChips();"><v-icon>arrow_back</v-icon></v-btn>
 										<v-toolbar-title>
-											"{{ wafer }}{{ chip }}" Devices
+											Devices ({{ project }}/{{ wafer }}/{{ chip }})
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
 										<v-tooltip left>
@@ -658,7 +667,7 @@
 								<v-card v-if="stepperPage == 4 " flat>
 									<v-toolbar dark class="color_browser darken-1">
 										<v-toolbar-title>
-											"{{ wafer }}{{ chip }}" Chip Summary Plots
+											Chip Summary Plots ({{ project }}/{{ wafer }}/{{ chip }})
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
 										<v-toolbar-items>
@@ -715,7 +724,7 @@
 									<v-toolbar dark class="color_browser">
 										<v-btn icon @click="goBack(); getDevices();"><v-icon>arrow_back</v-icon></v-btn>
 										<v-toolbar-title>
-											"{{ wafer }}{{ chip }} {{ device }}" Experiments
+											Experiments ({{ wafer }}/{{ chip }}/{{ device }})
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
 										<v-text-field v-model="experimentTableSearch" class="ma-2" light solo rounded color="color_browser" background-color="info" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
@@ -744,7 +753,7 @@
 								<v-card v-if="stepperPage == 5" flat>
 									<v-toolbar dark class="color_browser darken-1">
 										<v-toolbar-title>
-											"{{ wafer }}{{ chip }} {{ device }}" Device Summary Plots
+											Device Summary Plots ({{ wafer }}/{{ chip }}/{{ device }})
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
 										<v-toolbar-items class="pt-5 pb-5 ml-6">
@@ -781,7 +790,7 @@
 									<v-toolbar dark class="color_browser ">
 										<v-btn icon @click="goBack(); getExperiments();"><v-icon>arrow_back</v-icon></v-btn>
 										<v-toolbar-title>
-											"{{ wafer }}{{ chip }} {{ device }}" Experiment #{{ experiment.startIndexes.experimentNumber }}
+											"{{ wafer }}/{{ chip }}/{{ device }}" Experiment #{{ experiment.startIndexes.experimentNumber }}
 										</v-toolbar-title>
 										<v-btn icon @click="goToExperiment(experimentIndex - 1)" :disabled="experimentIndex <= 0" class="ml-4"><v-icon right>arrow_back_ios</v-icon></v-btn>
 										<v-btn icon @click="goToExperiment(experimentIndex + 1)" :disabled="experimentIndex >= experiments.length - 1"><v-icon>arrow_forward_ios</v-icon></v-btn>
@@ -1256,7 +1265,7 @@
 																			<div style="font-weight:bold;font-size:12pt">Preview</div>
 																		</v-expansion-panel-header>
 																		<v-expansion-panel-content class="padlessexpansionpanel">
-																			<a-zoomable-image class="white roundedcorners" :key="runnerChoice" src="" :srcdata="'/parameterPlots/'+runnerUser+'/'+runnerProject+'/'+runnerFileName+'/'+runnerLoadingFromDefaults+'/' + cacheBust"></a-zoomable-image>
+																			<img :key="runnerChoice" :src="'/parameterPlots/'+runnerUser+'/'+runnerProject+'/'+runnerFileName+'/'+runnerLoadingFromDefaults+'/' + cacheBust">
 																		</v-expansion-panel-content>
 																	</v-expansion-panel>
 																</v-expansion-panels>
@@ -1417,9 +1426,29 @@
 											@click="setTopLevelPage('stepper'); goToIdentifiers(dispatcherIdentifiers);">
 											<v-icon left>view_carousel</v-icon>View in Browser</v-btn>
 									</v-col>
+									<v-col cols="3" v-if="connectedMeasurementSystem && (connectedMeasurementSystem['type'] == 'Serial')">
+										<v-expansion-panels flat class="roundedcorners">
+											<v-expansion-panel class="roundedcorners">
+												<v-expansion-panel-header class="info lighten-1 roundedcorners">
+													<div style="font-weight:bold;font-size:12pt">System Layout</div>
+												</v-expansion-panel-header>
+												<v-expansion-panel-content class="padlessexpansionpanel">
+													<img src="/ui/resources/Socket_PLCC68_Diagram.png">
+													<template v-if="measurementSystemConfig.specs.pins && deviceSelectChoice && (deviceSelectChoice.split('-').length > 1) && (parseInt(deviceSelectChoice.split('-')[0]) >= measurementSystemConfig.specs.pins.start_index) && (parseInt(deviceSelectChoice.split('-')[0]) <= measurementSystemConfig.specs.pins.end_index)">
+														<transition name="fadeInOutFast">
+															<img :src="'/ui/resources/overlays/overlay'+deviceSelectChoice.split('-')[0]+'.png'" style="position: absolute; top: 64; left:0;">
+														</transition>
+													</template>
+													<template v-if="measurementSystemConfig.specs.pins && deviceSelectChoice && (deviceSelectChoice.split('-').length > 1) && (parseInt(deviceSelectChoice.split('-')[1]) >= measurementSystemConfig.specs.pins.start_index) && (parseInt(deviceSelectChoice.split('-')[1]) <= measurementSystemConfig.specs.pins.end_index)">
+														<transition name="fadeInOutFast">
+															<img :src="'/ui/resources/overlays/overlay'+deviceSelectChoice.split('-')[1]+'.png'" style="position: absolute; top: 64; left:0;">
+														</transition>
+													</template>
+												</v-expansion-panel-content>
+											</v-expansion-panel>
+										</v-expansion-panels>
+									</v-col>
 									<v-spacer></v-spacer>
-									<v-spacer ></v-spacer>
-									<v-spacer ></v-spacer>
 									<v-col cols="3" v-if="jobSelectItems.length >= 2">
 										<v-select dense filled rounded label="Job Number" v-model="jobSelectChoice" :items="jobSelectItems"></v-select>
 									</v-col>
@@ -2268,7 +2297,7 @@
 
 				</v-content>
 				<v-footer inset>
-					<v-spacer></v-spacer><span class="pr-4">Created by Steven Noyce. Updated October 2020.</span>
+					<v-spacer></v-spacer><span class="pr-4">Created by Steven Noyce. Updated November 2020.</span>
 				</v-footer>
 			</v-app>
 		</transition>
@@ -3044,7 +3073,9 @@
 					var path = '/connectToMeasurementSystem' + this.cacheBust;
 					this.postJSON(path, JSON.stringify(system), (response => {
 						console.log("Requested connection to new measurement system.");
-					}), "Error connecting to measurement system.");					
+					}), "Error connecting to measurement system.");		
+					
+					this.loadMeasurementSystemConfig(system);			
 				},
 				disconnectFromMeasurementSystem: function() {
 					var path = '/disconnectFromMeasurementSystem.json' + this.cacheBust;
@@ -3089,15 +3120,15 @@
 				
 				// === System Configuration ===
 				
-				resetMeasurementSystemConfigInputs: function() {
-					this.measurementSystemConfig.inputs = {source:undefined, drain:undefined};
-				},
 				loadMeasurementSystemConfig: function(system) {
 					var path = '/loadMeasurementSystemConfiguration/' + system['type'];
 					this.getJSON(path, (response => {
 						this.measurementSystemConfig.docs  = response['docs'];
 						this.measurementSystemConfig.specs = response['config'];
 					}), "Error loading system config");
+				},
+				resetMeasurementSystemConfigInputs: function() {
+					this.measurementSystemConfig.inputs = {source:undefined, drain:undefined};
 				},
 				
 				// === Navigate ===
