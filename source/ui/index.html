@@ -442,22 +442,21 @@
 									<v-card light>
 										<v-list class="pt-4">
 											<v-list-item>
-												<v-autocomplete dense clearable label="Project" v-model="recentActivityProject" 
-												:items="recentActivity.map( entry => entry['project'] )"
+												<v-autocomplete dense clearable auto-select-first label="Project" v-model="recentActivityProject" :items="recentActivity.map( entry => entry['project'] )"
 												:disabled="false"></v-autocomplete>
 											</v-list-item>
 											<v-list-item>
-												<v-autocomplete dense clearable label="Wafer" v-model="recentActivityWafer" 
+												<v-autocomplete dense clearable auto-select-first label="Wafer" v-model="recentActivityWafer" 
 												:items="recentActivity.map( entry => entry['wafer'] ).filter( entry => entry !== undefined )"
 												:disabled="!recentActivityIncludesCategory(['wafer', 'chip', 'device'])"></v-autocomplete>
 											</v-list-item>
 											<v-list-item>
-												<v-autocomplete dense clearable label="Chip" v-model="recentActivityChip" 
+												<v-autocomplete dense clearable auto-select-first label="Chip" v-model="recentActivityChip" 
 												:items="recentActivity.map( entry => entry['chip'] ).filter( entry => entry !== undefined )"
 												:disabled="!recentActivityIncludesCategory(['chip', 'device'])"></v-autocomplete>
 											</v-list-item>
 											<v-list-item>
-												<v-autocomplete dense clearable label="Device" v-model="recentActivityDevice" 
+												<v-autocomplete dense clearable auto-select-first label="Device" v-model="recentActivityDevice" 
 												:items="recentActivity.map( entry => entry['device'] ).filter( entry => entry !== undefined )"
 												:disabled="!recentActivityIncludesCategory(['device'])"></v-autocomplete>
 											</v-list-item>
@@ -947,8 +946,13 @@
 								<v-spacer></v-spacer>
 								
 								<v-menu bottom left offset-y :close-on-content-click="false">
-									<template v-slot:activator="{ on }">
-										<v-btn v-on="on" icon><v-icon>folder</v-icon></v-btn>
+									<template v-slot:activator="{ on: menu }">
+										<v-tooltip left color="color_builder darken-1">
+											<template v-slot:activator="{ on: tooltip }">
+												<v-btn v-on="{ ...menu, ...tooltip }" icon><v-icon>folder</v-icon></v-btn>
+											</template>
+											<span>Load</span>
+										</v-tooltip>
 									</template>
 									<v-card light>
 										<v-toolbar dark dense class="color_builder lighten-1">
@@ -963,13 +967,13 @@
 										
 										<v-list class="pt-4">
 											<v-list-item>
-												<v-autocomplete dense clearable v-model="builderLoadUser" label="User" :items="Object.keys(userDefinedScheduleNames)" @change="builderLoadProject = ''; builderLoadFileName = '';"></v-autocomplete>
+												<v-autocomplete dense clearable auto-select-first v-model="builderLoadUser" label="User" :items="Object.keys(userDefinedScheduleNames)" @change="builderLoadProject = ''; builderLoadFileName = '';"></v-autocomplete>
 											</v-list-item>
 											<v-list-item>
-												<v-autocomplete dense clearable v-model="builderLoadProject" label="Project" :items="Object.keys(_.get(userDefinedScheduleNames, [builderLoadUser], {}))" @change="builderLoadFileName = '';"></v-autocomplete>
+												<v-autocomplete dense clearable auto-select-first v-model="builderLoadProject" label="Project" :items="Object.keys(_.get(userDefinedScheduleNames, [builderLoadUser], {}))" @change="builderLoadFileName = '';"></v-autocomplete>
 											</v-list-item>
 											<v-list-item>
-												<v-autocomplete dense clearable v-model="builderLoadFileName" label="File Name" :items="_.get(userDefinedScheduleNames, [builderLoadUser, builderLoadProject], [])"></v-autocomplete>
+												<v-autocomplete dense clearable auto-select-first v-model="builderLoadFileName" label="File Name" :items="_.get(userDefinedScheduleNames, [builderLoadUser, builderLoadProject], [])"></v-autocomplete>
 											</v-list-item>
 										</v-list>
 										
@@ -1072,7 +1076,7 @@
 								<v-card class="mt-3" v-if="nonTrivialScheduleObjects()">
 									<v-toolbar dark dense class="color_builder">
 										<v-toolbar-title>
-											Save Schedule File
+											Save As
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
 										<v-btn icon @click="resetScheduleSavePath()" :disabled="!isValidScheduleSavePath()">
@@ -1080,10 +1084,10 @@
 										</v-btn>
 									</v-toolbar>
 									
-									<v-container>
+									<v-container class="pb-0">
 										<v-row dense>
 											<v-col cols="4" class="pt-0 pb-0">
-												<v-combobox clearable v-model="builderSaveUser" label="User" :items="Object.keys(userDefinedScheduleNames)">
+												<v-combobox outlined clearable auto-select-first v-model="builderSaveUser" label="User" :items="Object.keys(userDefinedScheduleNames)">
 													<template slot="no-data">
 														<v-list-item><v-list-item-content><v-list-item-title>
 															No results. Continuing will create a new user.
@@ -1092,7 +1096,7 @@
 												</v-combobox>
 											</v-col>
 											<v-col cols="4" class="pt-0 pb-0">
-												<v-combobox clearable v-model="builderSaveProject" label="Project" :items="Object.keys(_.get(userDefinedScheduleNames, [builderSaveUser], {}))">
+												<v-combobox outlined clearable auto-select-first v-model="builderSaveProject" label="Project" :items="Object.keys(_.get(userDefinedScheduleNames, [builderSaveUser], {}))">
 													<template slot="no-data">
 														<v-list-item><v-list-item-content><v-list-item-title>
 															No results. Continuing will create a new project.
@@ -1101,7 +1105,7 @@
 												</v-combobox>
 											</v-col>
 											<v-col cols="4" class="pt-0 pb-0"> 
-												<v-combobox clearable v-model="builderSaveFileName" label="File Name" :items="_.get(userDefinedScheduleNames, [builderSaveUser, builderSaveProject], [])">
+												<v-combobox outlined clearable auto-select-first v-model="builderSaveFileName" label="File Name" :items="_.get(userDefinedScheduleNames, [builderSaveUser, builderSaveProject], [])">
 													<template slot="no-data">
 														<v-list-item><v-list-item-content><v-list-item-title>
 															No results. Continuing will create a new file.
@@ -1118,7 +1122,7 @@
 										<v-btn text @click="scheduleBuilderSaveDialog = false">OK</v-btn>
 									</v-snackbar>
 									
-									<v-card-actions>
+									<v-card-actions class="pt-0">
 										<v-switch class="ml-1" label="Preview" v-model="scheduleBuilderPreview"></v-switch>
 										<v-spacer></v-spacer>
 										<v-tooltip top :disabled="!isValidScheduleSavePath()" class="ml-2">
@@ -1156,13 +1160,15 @@
 									
 									<template v-if="runnerChoice === 'Schedule File'">
 										<v-col sm="6" md="3" lg="3">
-											<v-autocomplete outlined clearable v-model="runnerUser" label="User" :items="Object.keys(userDefinedScheduleNames)" @change="runnerProject = ''; runnerFileName = '';"></v-autocomplete>
+											<v-autocomplete outlined clearable auto-select-first v-model="runnerUser" label="User" 
+											:items="Object.keys(userDefinedScheduleNames)" @change="runnerProject = ''; runnerFileName = '';"></v-autocomplete>
 										</v-col>
 										<v-col sm="6" md="3" lg="3">
-											<v-autocomplete outlined clearable v-model="runnerProject" label="Project" :items="Object.keys(_.get(userDefinedScheduleNames, [runnerUser], {}))" @change="runnerFileName = '';"></v-autocomplete>
+											<v-autocomplete outlined clearable auto-select-first v-model="runnerProject" label="Project" 
+											:items="Object.keys(_.get(userDefinedScheduleNames, [runnerUser], {}))" @change="runnerFileName = '';"></v-autocomplete>
 										</v-col>
 										<v-col sm="6" md="3" lg="3">
-											<v-autocomplete outlined clearable v-model="runnerFileName" label="File Name" :items="_.get(userDefinedScheduleNames, [runnerUser, runnerProject], [])"></v-autocomplete>
+											<v-autocomplete outlined clearable auto-select-first v-model="runnerFileName" label="File Name" :items="_.get(userDefinedScheduleNames, [runnerUser, runnerProject], [])"></v-autocomplete>
 										</v-col>
 									</template>
 								</v-row>
@@ -2425,7 +2431,7 @@
 				
 				// === Alert Messages ===
 				
-				noDataToShowMessage: 'Check back here after running a few experiments.',
+				noDataToShowMessage: 'Check back here after running a few experiments with this User.',
 				noSystemsConnectedMessage: 'Searching for connections...',
 				
 				// === System Parameters ===
