@@ -1,0 +1,70 @@
+
+
+<script type="text/html" id="a-field-paired-choice">
+<v-row no gutters class="pb-0 pt-0">
+	<v-col class="pb-0 pt-0">
+		<v-text-field dense :label="headers[0]['name']" :placeholder="''" :value="pair1" @input="(val) => {pair1 = val; updateValue();}"></v-text-field>
+	</v-col>
+	<v-col class="pb-0 pt-0">
+		<v-text-field dense :label="headers[1]['name']" :placeholder="''" :value="pair2" @input="(val) => {pair2 = val; updateValue();}"></v-text-field>
+	</v-col>
+</v-row>
+</script>
+
+<script type="text/javascript">
+	Vue.component('a-field-paired-choice', {
+		template: '#a-field-paired-choice',
+		props: ['value', 'label', 'placeholder', 'choices', 'headers'],
+		data: function() {
+			return {
+				pair1:(this.value === undefined || this.value === '')? '' : ( (this.value.split('-').length > 1)? this.value.split('-')[0] : 
+					 ((this.value.slice(0,this.headers[0]['prefix'].length) === this.headers[0]['prefix'])? 
+					   this.value.slice(this.headers[0]['prefix'].length) : '' )),
+				
+				pair2:(this.value === undefined || this.value === '')? '' : ( (this.value.split('-').length > 1)? this.value.split('-')[1] : 
+					 ((this.value.slice(0,this.headers[1]['prefix'].length) === this.headers[1]['prefix'])? 
+					   this.value.slice(this.headers[1]['prefix'].length) : '' )),
+			};
+		},
+		methods: {
+			// Triggers to update "this.value" whenever either of the comboboxes is changed
+			updateValue: function() {
+				var val = '';
+				
+				if(this.pair1 && this.pair2) {
+					val = this.pair1 + '-' + this.pair2;
+				} else if(this.pair1) {
+					val = this.headers[0]['prefix'] + this.pair1;
+				} else if(this.pair2) {
+					val = this.headers[1]['prefix'] + this.pair2;
+				}
+				
+				this.$emit('input', val);
+			},
+		},
+		watch: {
+			// Triggers to update what's actually displayed in the comboboxes whenever we make changes to "this.value" (such as when "this.value" is changed by like a reset button for example)
+			value(val) {
+				if(val === undefined || this.value === '') {
+					this.pair1 = '';
+					this.pair2 = '';
+					return;
+				}
+				
+				var elements = val.split('-');
+				if(elements.length > 1) {
+					this.pair1 = elements[0];
+					this.pair2 = elements[1];
+					return;
+				}
+				
+				var element = elements[0];
+				var prefix1 = this.headers[0]['prefix'];
+				var prefix2 = this.headers[1]['prefix'];
+				if((element.length > prefix1.length) && (element.slice(0,prefix1.length) === prefix1)) this.pair1 = element.slice(prefix1.length);
+				if((element.length > prefix2.length) && (element.slice(0,prefix2.length) === prefix2)) this.pair2 = element.slice(prefix2.length);
+			}
+		}
+	});
+</script>
+

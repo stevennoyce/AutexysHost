@@ -25,10 +25,16 @@
 		:items="setting.choices">
 	</v-select>
 	
-	<a-text-array-field v-else-if="setting.type == 'array'"
+	<a-field-paired-choice  v-else-if="setting.type == 'choice2'"
+		:label="(hide_label)? '' : setting.title" v-model="setting.default" 
+		:choices="setting.choices" :headers="setting.headers"
+		:placeholder="(placeholder)? placeholder : ' '">
+	</a-field-paired-choice>	
+	
+	<a-field-text-array v-else-if="setting.type == 'array'"
 		:label="(hide_label)? '' : setting.title" :suffix="setting.units" v-model="setting.default"
 		:placeholder="(placeholder)? placeholder : ' '">
-	</a-text-array-field>
+	</a-field-text-array>
 	
 </script>
 <script type="text/javascript">

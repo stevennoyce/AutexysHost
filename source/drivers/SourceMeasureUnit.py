@@ -715,12 +715,30 @@ class PCB_System(SourceMeasureUnit):
 		# Make sure the device selector is delivering the correct signal to our device of interest
 		self.turnChannelsOn()
 			
-		# Extract device contact numbers from the deviceID
-		if('-' not in deviceID):
+		# Extract device contact pin numbers from the deviceID
+		contactPad1 = None
+		contactPad2 = None
+		try:
+			if('-' in deviceID): 								# Format: "(source)-(drain)"
+				electrodes = deviceID.split('-')
+				contactPad1 = int(electrodes[0]) 
+				contactPad2 = int(electrodes[1])
+			elif((len(deviceID) > 1) and ('s' == deviceID[0])): # Format: "s(source)"
+				electrode = deviceID[1:]
+				contactPad1 = int(electrode) 
+				contactPad2 = 0
+			elif((len(deviceID) > 1) and ('d' == deviceID[0])):	# Format: "d(drain)"
+				electrode = deviceID[1:]
+				contactPad2 = int(electrode) 
+				contactPad1 = 0
+		except ValueError:
+			contactPad1 = None
+			contactPad2 = None
+		
+		# If any contact pin numbers can't be interpreted, don't try to connect to the device 
+		if(contactPad1 is None or contactPad2 is None):
 			print('PCB system is unable to connect to device: "' + str(deviceID) +'".')
 			return
-		contactPad1 = int(deviceID.split('-')[0])
-		contactPad2 = int(deviceID.split('-')[1])
 		
 		# Connect to device and run calibration routine
 		self.setParameter("connect-device {:} {:}!".format(contactPad1, contactPad2), responseStartsWith='#')

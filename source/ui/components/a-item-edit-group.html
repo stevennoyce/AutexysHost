@@ -1,6 +1,6 @@
 <script type="text/html" id="a-item-edit-group">
 	<div>
-		<v-tooltip top v-for="(setting, settingName) in settings" v-if="['bool','float','int','string','choice','array'].includes(setting.type)" :key="settingName">
+		<v-tooltip top v-for="(setting, settingName) in settings" v-if="['bool','float','int','string','choice','choice2','array'].includes(setting.type)" :key="settingName">
 			<template v-slot:activator="{ on: tooltip }">
 				<v-list-item dense v-on="{ ...tooltip }">
 					<a-item-edit :setting.sync="settings[settingName]"></a-item-edit>
