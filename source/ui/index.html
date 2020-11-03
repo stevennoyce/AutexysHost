@@ -1263,9 +1263,20 @@
 																	<v-expansion-panel class="roundedcorners">
 																		<v-expansion-panel-header>
 																			<div style="font-weight:bold;font-size:12pt">Preview</div>
+																			<v-spacer>
+																			<v-btn small @click.stop="runnerPreviewToggle = !runnerPreviewToggle" v-if="connectedMeasurementSystem && connectedMeasurementSystem['type'] === 'Serial'">{{ (runnerPreviewToggle)? 'Signals' : 'System' }}</v-btn>
+																			</v-spacer>
 																		</v-expansion-panel-header>
 																		<v-expansion-panel-content class="padlessexpansionpanel">
-																			<img :key="runnerChoice" :src="'/parameterPlots/'+runnerUser+'/'+runnerProject+'/'+runnerFileName+'/'+runnerLoadingFromDefaults+'/' + cacheBust">
+																			<img :key="runnerChoice" :src="'/parameterPlots/'+runnerUser+'/'+runnerProject+'/'+runnerFileName+'/'+runnerLoadingFromDefaults+'/' + cacheBust" v-show="!runnerPreviewToggle">
+																			
+																			<img src="/ui/resources/Socket_PLCC68_Diagram.png" v-show="runnerPreviewToggle">
+																			<template v-if="measurementSystemConfig.specs.pins && (parseInt(getDeviceSource(runnerScheduleObjects[0]['Identifiers']['device']['default'])) >= measurementSystemConfig.specs.pins.start_index) && (parseInt(getDeviceSource(runnerScheduleObjects[0]['Identifiers']['device']['default'])) <= measurementSystemConfig.specs.pins.end_index)">
+																				<img :src="'/ui/resources/overlays/overlay'+getDeviceSource(runnerScheduleObjects[0]['Identifiers']['device']['default'])+'.png'" style="position: absolute; top: 64; left:0;" v-show="runnerPreviewToggle">
+																			</template>
+																			<template v-if="measurementSystemConfig.specs.pins && (parseInt(getDeviceDrain(runnerScheduleObjects[0]['Identifiers']['device']['default'])) >= measurementSystemConfig.specs.pins.start_index) && (parseInt(getDeviceDrain(runnerScheduleObjects[0]['Identifiers']['device']['default'])) <= measurementSystemConfig.specs.pins.end_index)">
+																				<img :src="'/ui/resources/overlays/overlay'+getDeviceDrain(runnerScheduleObjects[0]['Identifiers']['device']['default'])+'.png'" style="position: absolute; top: 64; left:0;" v-show="runnerPreviewToggle">
+																			</template>
 																		</v-expansion-panel-content>
 																	</v-expansion-panel>
 																</v-expansion-panels>
@@ -1425,29 +1436,7 @@
 										<v-btn block height="50" class="mb-7" dark color="color_browser" v-if="dispatcherIdentifiers" 
 											@click="setTopLevelPage('stepper'); goToIdentifiers(dispatcherIdentifiers);">
 											<v-icon left>view_carousel</v-icon>View in Browser</v-btn>
-									</v-col>
-									<v-col cols="3" v-if="connectedMeasurementSystem && (connectedMeasurementSystem['type'] == 'Serial')">
-										<v-expansion-panels flat class="roundedcorners">
-											<v-expansion-panel class="roundedcorners">
-												<v-expansion-panel-header class="info lighten-1 roundedcorners">
-													<div style="font-weight:bold;font-size:12pt">System Layout</div>
-												</v-expansion-panel-header>
-												<v-expansion-panel-content class="padlessexpansionpanel">
-													<img src="/ui/resources/Socket_PLCC68_Diagram.png">
-													<template v-if="measurementSystemConfig.specs.pins && deviceSelectChoice && (deviceSelectChoice.split('-').length > 1) && (parseInt(deviceSelectChoice.split('-')[0]) >= measurementSystemConfig.specs.pins.start_index) && (parseInt(deviceSelectChoice.split('-')[0]) <= measurementSystemConfig.specs.pins.end_index)">
-														<transition name="fadeInOutFast">
-															<img :src="'/ui/resources/overlays/overlay'+deviceSelectChoice.split('-')[0]+'.png'" style="position: absolute; top: 64; left:0;">
-														</transition>
-													</template>
-													<template v-if="measurementSystemConfig.specs.pins && deviceSelectChoice && (deviceSelectChoice.split('-').length > 1) && (parseInt(deviceSelectChoice.split('-')[1]) >= measurementSystemConfig.specs.pins.start_index) && (parseInt(deviceSelectChoice.split('-')[1]) <= measurementSystemConfig.specs.pins.end_index)">
-														<transition name="fadeInOutFast">
-															<img :src="'/ui/resources/overlays/overlay'+deviceSelectChoice.split('-')[1]+'.png'" style="position: absolute; top: 64; left:0;">
-														</transition>
-													</template>
-												</v-expansion-panel-content>
-											</v-expansion-panel>
-										</v-expansion-panels>
-									</v-col>
+									</v-col>										
 									<v-spacer></v-spacer>
 									<v-col cols="3" v-if="jobSelectItems.length >= 2">
 										<v-select dense filled rounded label="Job Number" v-model="jobSelectChoice" :items="jobSelectItems"></v-select>
@@ -2674,6 +2663,8 @@
 				runnerVerboseScheduleObjectDefaults: [],
 				
 				runnerShowPreview: 0,
+				runnerPreviewToggle: false,
+				
 				runnerToggleAdvancedSettings: false,
 				runnerScheduleObjectsHasBeenModified: false,
 				
@@ -3419,6 +3410,19 @@
 				hasModifiedRunnerScheduleAdvanced: function() {
 					var advancedChanges = objectDeepDiff(this.runnerVerboseScheduleObjects[0], this.runnerVerboseScheduleObjectDefaults[0]);
 					return (Object.keys(advancedChanges).length > 0);
+				},
+				
+				getDeviceSource: function(deviceID) {
+					if(deviceID.split('-').length > 1) return deviceID.split('-')[0];
+					var prefix = this.defaultParametersDescription['Identifiers']['device']['headers'][0]['prefix'];
+					if(deviceID.slice(0,prefix.length) === prefix) return deviceID.slice(prefix.length);
+					return undefined;
+				},
+				getDeviceDrain: function(deviceID) {
+					if(deviceID.split('-').length > 1) return deviceID.split('-')[1];
+					var prefix = this.defaultParametersDescription['Identifiers']['device']['headers'][1]['prefix'];
+					if(deviceID.slice(0,prefix.length) === prefix) return deviceID.slice(prefix.length);
+					return undefined;
 				},
 				
 				// === AFM Registry ===
