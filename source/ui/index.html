@@ -25,23 +25,6 @@
 
 		/* === Page Loading Animation === */
 		
-		.fade-leave-active, .fade-enter-active {
-			transition: 0.7s ease;
-		}
-		.fade-leave-to {
-			opacity: 1;
-		}
-		.fade-enter, .fade-leave {
-			opacity: 0;
-		}
-		
-		.loaderfadeaway-enter-active .loaderfadeaway-leave-active {
-			transition: opacity .5s;
-		}
-		.loaderfadeaway-enter, .loaderfadeaway-leave-to {
-			opacity: 0;
-		}
-		
 		.spinner {
 			margin: 100px auto;
 			width: 40px;
@@ -111,16 +94,27 @@
 			transform: translate(50%, -50%);
 		}
 		
-		/* === Transitions === */
+		/* === Vue Transitions === */
 		
-		.fadeInOutFast-enter-active, .fadeInOutFast-leave-active{
-			transition: opacity .5s ease-in-out;
+		.pageload-enter-active, .pageload-leave-active {
+			transition: opacity 0.9s ease;
 		}
-		.fadeInOutFast-enter, .fadeInOutFast-leave-to {
+		.pageload-enter, .pageload-leave-to {
 			opacity: 0;
 		}
-		.fadeInOutFast-enter-to, .fadeInOutFast-leave {
-			opacity: 1;
+		
+		.fade-enter-active, .fade-leave-active {
+			transition: opacity 0.9s ease;
+		}
+		.fade-enter, .fade-leave-to {
+			opacity: 0;
+		}
+		
+		.fadefast-enter-active, .fadefast-leave-active{
+			transition: opacity .5s;
+		}
+		.fadefast-enter, .fadefast-leave-to {
+			opacity: 0;
 		}
 		
 		/* === Expansion Panels === */
@@ -149,7 +143,7 @@
 <body>
 	<div id="app" style="background-color: #3f688c;">
 		
-		<transition name="loaderfadeaway">
+		<transition name="fadefast">
 			<div style="height:100%; width: 100%; z-index: 1000; position: absolute; background-color: #3f688c;" v-if="pageLoading">
 				<div class="spinner">
 					<div class="dot1" style="background-color: #ffffff;"></div>
@@ -158,7 +152,7 @@
 			</div>
 		</transition>
 		
-		<transition name="fade" mode="out-in" appear>
+		<transition name="pageload" mode="out-in" appear>
 			<v-app v-cloak>
 				
 				<!-- Start of app sidebar/toolbar -->
@@ -168,7 +162,7 @@
 				<v-navigation-drawer app dark clipped fixed v-model="drawer" class="color_base pt-4">
 					<v-list dense>
 						<v-list-item @click="setTopLevelPage('dashboard')">
-							<v-list-item-action><v-icon>dashboard</v-icon></v-list-item-action>
+							<v-list-item-action><v-avatar tile size="24"><v-icon>dashboard</v-icon></v-avatar></v-list-item-action>
 							<v-list-item-content><v-list-item-title>Dashboard</v-list-item-title></v-list-item-content>
 						</v-list-item>
 						<v-list-item @click="setTopLevelPage('experimentRunner')">
@@ -196,26 +190,26 @@
 									</v-list-item-content>
 								</template>
 								<v-list-item @click="setTopLevelPage('performance')">
-									<v-list-item-action><v-icon>speed</v-icon></v-list-item-action>
+									<v-list-item-action><v-avatar tile size="24"><v-icon>speed</v-icon></v-avatar></v-list-item-action>
 									<v-list-item-content><v-list-item-title>Performance</v-list-item-title></v-list-item-content>
 								</v-list-item>
 								<v-list-item @click="setTopLevelPage('ptSensor')">
-									<v-list-item-action><v-icon>opacity</v-icon></v-list-item-action>
+									<v-list-item-action><v-avatar tile size="24"><v-icon>opacity</v-icon></v-avatar></v-list-item-action>
 									<v-list-item-content><v-list-item-title>PT Sensor</v-list-item-title></v-list-item-content>
 								</v-list-item>
 							</v-list-group>
 						</template>
 						<v-divider></v-divider>
 						<v-list-item @click="setTopLevelPage('settings')" v-if="defaultParameters['Deployment'] === 'Development'">
-							<v-list-item-action><v-icon>settings</v-icon></v-list-item-action>
+							<v-list-item-action><v-avatar tile size="24"><v-icon>settings</v-icon></v-avatar></v-list-item-action>
 							<v-list-item-content><v-list-item-title>Settings</v-list-item-title></v-list-item-content>
 						</v-list-item>
 						<v-list-item @click="setTopLevelPage('about')">
-							<v-list-item-action><v-icon>info_outline</v-icon></v-list-item-action>
+							<v-list-item-action><v-avatar tile size="24"><v-icon>info_outline</v-icon></v-avatar></v-list-item-action>
 							<v-list-item-content><v-list-item-title>About</v-list-item-title></v-list-item-content>
 						</v-list-item>
 						<v-list-item @click="setTopLevelPage('documentation')" v-if="defaultParameters['Deployment'] === 'Development'">
-							<v-list-item-action><v-icon>info_outline</v-icon></v-list-item-action>
+							<v-list-item-action><v-avatar tile size="24"><v-icon>info_outline</v-icon></v-avatar></v-list-item-action>
 							<v-list-item-content><v-list-item-title>Documentation</v-list-item-title></v-list-item-content>
 						</v-list-item>
 					</v-list>
@@ -1736,12 +1730,12 @@
 											<v-card flat>
 												<img src="/ui/resources/Socket_PLCC68_Diagram.png">
 												<template v-if="measurementSystemConfig.inputs.source && (measurementSystemConfig.inputs.source >= measurementSystemConfig.specs.pins.start_index) && (measurementSystemConfig.inputs.source <= measurementSystemConfig.specs.pins.end_index)">
-													<transition name="fadeInOutFast">
+													<transition name="fadefast">
 														<img :src="'/ui/resources/overlays/overlay'+measurementSystemConfig.inputs.source+'.png'" style="position: absolute; top: 0; left:0;">
 													</transition>
 												</template>
 												<template v-if="measurementSystemConfig.inputs.drain && (measurementSystemConfig.inputs.drain >= measurementSystemConfig.specs.pins.start_index) && (measurementSystemConfig.inputs.drain <= measurementSystemConfig.specs.pins.end_index)">
-													<transition name="fadeInOutFast">
+													<transition name="fadefast">
 														<img :src="'/ui/resources/overlays/overlay'+measurementSystemConfig.inputs.drain+'.png'" style="position: absolute; top: 0; left:0;">
 													</transition>
 												</template>
