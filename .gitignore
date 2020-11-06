@@ -12,7 +12,7 @@ data/
 AutexysData/
 
 #ignore generated plots
-*.png
+#*.png
 *.pdf
 *.svg
 
