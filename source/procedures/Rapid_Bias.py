@@ -144,7 +144,7 @@ def runRapidBias(smu_instance, waveform, drainVoltageSetPoints, gateVoltageSetPo
 												yValues=[id_data[-1], ig_data[-1]], 
 												xAxisTitle='Time (s)', 
 												yAxisTitle='Current (A)', 
-												yscale='log', 
+												yscale='linear', 
 												plotMode='lines',
 												enumerateLegend=False,
 												timeseries=True),
