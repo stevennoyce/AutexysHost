@@ -1,8 +1,8 @@
 {
-  "name": "app",
-  "productName": "app",
+  "name": "versametrics-app",
+  "productName": "Versametrics",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "Versametrics system control software.",
   "main": "electron_main.js",
   "scripts": {
     "start": "electron-forge start",
@@ -19,7 +19,7 @@
   "license": "MIT",
   "config": {
     "forge": {
-      "packagerConfig": {},
+      "packagerConfig": {"icon": "assets/icon"},
       "makers": [
         {
           "name": "@electron-forge/maker-squirrel",
