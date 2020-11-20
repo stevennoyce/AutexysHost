@@ -307,6 +307,16 @@
 										<v-list-item-avatar color="color_base"><v-icon dark>account_circle</v-icon></v-list-item-avatar>
 										<v-list-item-content><v-list-item-title>{{ u }}</v-list-item-title></v-list-item-content>
 									</v-list-item>
+									<v-list-item @click.stop="showNewUser = true;" :inactive="showNewUser" :ripple="false">
+										<template v-if="!showNewUser">
+											<v-list-item-avatar color="color_base"><v-icon dark>person_add</v-icon></v-list-item-avatar>
+											<v-list-item-content><v-list-item-title>Add User...</v-list-item-title></v-list-item-content>
+										</template>
+										<v-row align="start" class="pt-2" v-if="showNewUser">
+											<v-text-field solo dense class="ml-2 mr-2 mb-n2" placeholder="New User" v-model="newUser" @click.stop=""></v-text-field>
+											<v-btn fab x-small depressed color="success" class="mr-2 mt-1" :disabled="!newUser" @click.stop="addUser(newUser); getAll(); newUser = ''; showNewUser = false;"><v-icon>add</v-icon></v-btn>
+										</v-row>
+									</v-list-item>
 								</v-list>
 							</v-card>
 						</v-menu>
@@ -1345,14 +1355,14 @@
 												</v-list-item-content>
 												<template v-if="runnerChoice === 'Schedule File'">
 													<v-btn class="ml-3" @click="runnerClear(); runnerSaveScheduleFile(runnerStart);" 
-													:disabled="!(runnerUser && runnerProject && runnerFileName)">Launch Schedule File.</v-btn>
+													:disabled="!(runnerUser && runnerProject && runnerFileName)"><v-icon left color="success">play_arrow</v-icon>Run</v-btn>
 												</template>
 												<template v-if="runnerChoice !== 'Schedule File'">
 													<v-btn class="ml-3" @click="runnerClear(); runnerSaveScheduleFile(runnerStart);" 
-													:disabled="!isPossibleToSaveRunnerScheduleFile()">Launch {{ runnerChoice }}</v-btn>
+													:disabled="!isPossibleToSaveRunnerScheduleFile()"><v-icon left color="success">play_arrow</v-icon>Run ({{ runnerChoice }})</v-btn>
 												</template>
 												<v-btn class="ml-3" @click="runnerStop()" 
-													:disabled="(!dispatcherRunning) || (dispatcherStopping)">Stop</v-btn>
+													:disabled="(!dispatcherRunning) || (dispatcherStopping)"><v-icon left>pause</v-icon>Stop</v-btn>
 											</v-row>
 										</v-list-item>
 									</v-list>
@@ -2553,6 +2563,9 @@
 					'AutoDrainSweep':'pink accent-1',
 					'AutoStaticBias':'deep-purple accent-1',
 				},
+				
+				showNewUser: false,
+				newUser: '',
 				
 				users: [],
 				user: localStorage.user ? JSON.parse(localStorage.user) : '',
