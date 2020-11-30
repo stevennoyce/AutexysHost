@@ -137,11 +137,20 @@ def formatAsCSV(deviceHistory, separateDataByEmptyRows=True):
 				if(separateDataByEmptyRows):
 					data_columns[key].append('')
 
+	# Try to collect identifying info from the first entry in the data
+	data_type = ''
+	data_location = ''
+	try:
+		data_type = deviceHistory[0]['runType']
+		data_location = getExperimentDirectory(getDeviceDirectory(deviceHistory[0]), deviceHistory[0]['experimentNumber'])
+	except:
+		pass
+
 	lines = []
 
 	# Write all of the variable names in the first line of the CSV
 	header_line2 = ','.join(data_columns.keys()) + '\n'
-	header_line1 = deviceHistory[0]['runType'] + ','.join(['']*(header_line2.count(',')+1)) + '\n'
+	header_line1 = data_type + ',' + data_location +  ','.join(['']*(header_line2.count(','))) + '\n'
 	lines.append(header_line1)
 	lines.append(header_line2)
 
