@@ -113,7 +113,7 @@ function start() {
   
   const startPython = () => {
     const PY_DIST_FOLDER = 'dist';
-    const PY_MODULE = 'AutexysPyinstalled';
+    const PY_MODULE = 'VersametricsPyinstalled';
     
     const executablePath = () => {
       if(process.platform === 'win32') {
