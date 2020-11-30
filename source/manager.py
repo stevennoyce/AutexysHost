@@ -254,6 +254,7 @@ def manage(on_startup_port=None, on_startup_schedule_file=None, on_startup_works
 	
 		
 if __name__ == '__main__':
+	mp.freeze_support()
 	if len(sys.argv) > 1:
 		on_startup_port = sys.argv[1]
 		manage(on_startup_port)
