@@ -23,7 +23,7 @@ def defaultShare():
 	sharedMemoryManager = mp.Manager()
 	
 	share = {
-		'sharedMemoryManager': sharedMemoryManager,
+		#'sharedMemoryManager': sharedMemoryManager, # DO NOT INCLUDE THIS ON WINDOWS: mp.Manager is not a pickle-able object, so including this breaks cross-platform support for Windows
 		
 		'QueueToManager':      mp.Queue(100),
 		'QueueToUI':           mp.Queue(100),
