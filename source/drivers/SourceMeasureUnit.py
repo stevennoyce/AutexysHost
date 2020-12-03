@@ -60,16 +60,19 @@ def availableConnections(includePySerial=True, includeVisa=True):
 	
 	# Add Visa resources to the list of connections, excluding the serial devices (ASRL) that are already handled by PySerial
 	if(includeVisa):
-		import visa
-		rm = visa.ResourceManager()
-		for visa_resource in rm.list_resources():
-			if(visa_resource[:4] != 'ASRL'):
-				possible_system_names = [system_uniqueID_distinguishers[distinguisher] for distinguisher in system_uniqueID_distinguishers.keys() if(str(distinguisher) in str(visa_resource))]
-				available_connections.append({
-					'type': 'Visa', 
-					'name': possible_system_names[0] if(len(possible_system_names) == 1) else 'Visa', 
-					'uniqueID': visa_resource,
-				})
+		try: 
+			import visa
+			rm = visa.ResourceManager()
+			for visa_resource in rm.list_resources():
+				if(visa_resource[:4] != 'ASRL'):
+					possible_system_names = [system_uniqueID_distinguishers[distinguisher] for distinguisher in system_uniqueID_distinguishers.keys() if(str(distinguisher) in str(visa_resource))]
+					available_connections.append({
+						'type': 'Visa', 
+						'name': possible_system_names[0] if(len(possible_system_names) == 1) else 'Visa', 
+						'uniqueID': visa_resource,
+					})
+		except:
+			print('Error finding available VISA connections.')
 	
 	return available_connections
 
