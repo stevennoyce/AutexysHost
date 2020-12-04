@@ -173,7 +173,7 @@
 							<v-list-item-action><v-avatar tile size="24" class="roundedcorners" color="color_builder"><v-icon>schedule</v-icon></v-avatar></v-list-item-action>
 							<v-list-item-content><v-list-item-title>Schedule Builder</v-list-item-title></v-list-item-content>
 						</v-list-item>
-						<v-list-item @click="setTopLevelPage('stepper')">
+						<v-list-item @click="setTopLevelPage('stepper'); getProjects();">
 							<v-list-item-action><v-avatar tile size="24" class="roundedcorners" color="color_browser"><v-icon>view_carousel</v-icon></v-avatar></v-list-item-action>
 							<v-list-item-content><v-list-item-title>Browser</v-list-item-title></v-list-item-content>
 						</v-list-item>
@@ -413,7 +413,7 @@
 								<v-col cols="4" class="pa-1">
 									<v-tooltip bottom nudge-top="4" color="color_browser">
 										<template v-slot:activator="{ on: tooltip }">
-											<v-toolbar dark class="color_browser roundedcorners" v-on="{ ...tooltip }" style="cursor: pointer;" @click="setTopLevelPage('stepper')">
+											<v-toolbar dark class="color_browser roundedcorners" v-on="{ ...tooltip }" style="cursor: pointer;" @click="setTopLevelPage('stepper'); getProjects();">
 												<v-toolbar-title>
 													Browser
 												</v-toolbar-title>
@@ -477,7 +477,12 @@
 									</v-card>
 								</v-menu>
 								
-								<v-btn icon @click="resetDashboard(); getAll();"><v-icon>refresh</v-icon></v-btn>
+								<v-tooltip left color="color_base darken-2">
+									<template v-slot:activator="{ on: tooltip }">
+										<v-btn v-on="{ ...tooltip }" icon @click="resetDashboard(); getAll();"><v-icon>refresh</v-icon></v-btn>
+									</template>
+									<span>Refresh</span>
+								</v-tooltip>
 							</v-toolbar>
 							
 							<v-data-table must-sort :items="recentActivity" :headers="dynamicRecentActivityTableHeaders" 
@@ -1007,7 +1012,12 @@
 									</v-card>
 								</v-menu>
 								
-								<v-btn icon @click="resetScheduleBuilder()" :disabled="!hasModifiedScheduleObjects()"><v-icon>settings_backup_restore</v-icon></v-btn>
+								<v-tooltip left color="color_builder darken-1">
+									<template v-slot:activator="{ on: tooltip }">
+										<v-btn v-on="{ ...tooltip }" icon @click="resetScheduleBuilder()" :disabled="!hasModifiedScheduleObjects()"><v-icon>settings_backup_restore</v-icon></v-btn>
+									</template>
+									<span>Reset</span>
+								</v-tooltip>
 							</v-toolbar>
 							
 							<v-expansion-panels hover accordion>
@@ -1160,7 +1170,12 @@
 									Experiment Runner
 								</v-toolbar-title>
 								<v-spacer></v-spacer>
-								<v-btn icon @click="runnerReset()" :disabled="(runnerChoice === '') && (!showProgress)"><v-icon>settings_backup_restore</v-icon></v-btn>
+								<v-tooltip left color="color_runner darken-1">
+									<template v-slot:activator="{ on: tooltip }">
+										<v-btn v-on="{ ...tooltip }" icon @click="runnerReset()" :disabled="(runnerChoice === '') && (!showProgress)"><v-icon>settings_backup_restore</v-icon></v-btn>
+									</template>
+									<span>Reset</span>
+								</v-tooltip>
 							</v-toolbar>
 							
 							<v-container class="pa-5">
@@ -1293,7 +1308,12 @@
 												<v-row>
 													<v-switch class="ml-6 mt-0" label="Advanced" v-model="runnerToggleAdvancedSettings"></v-switch>
 													<v-spacer></v-spacer>
-													<v-btn class="mr-6" small @click="runnerSaveScheduleFile()" :disabled="!isNecessaryToSaveRunnerScheduleFile()">Save</v-btn>
+													<v-tooltip left color="color_runner">
+														<template v-slot:activator="{ on: tooltip }">
+															<v-btn v-on="{ ...tooltip }" class="mr-6" small @click="runnerSaveScheduleFile()" :disabled="!isNecessaryToSaveRunnerScheduleFile()">Save</v-btn>
+														</template>
+														<span>Save & Apply Options</span>
+													</v-tooltip>
 												</v-row>
 											</v-expansion-panel-content>
 											
@@ -1468,31 +1488,31 @@
 															<v-btn v-on="on" icon><v-icon>settings</v-icon></v-btn>
 														</template>
 														<v-list>
-															<v-list-item @click="toggleLivePlotYAxisLog(plot)">
+															<v-list-item @click="toggleLivePlotYAxisLog(plot)" dense>
 																<v-list-item-avatar><v-icon>timeline</v-icon></v-list-item-avatar>
 																<v-list-item-content><v-list-item-title>Toggle Log Scale</v-list-item-title></v-list-item-content>
 															</v-list-item>
-															<v-list-item>
+															<v-list-item dense>
 																<v-list-item-avatar><v-icon>color_lens</v-icon></v-list-item-avatar>
-																<v-list-item-content><v-text-field clearable single-line label="Color" v-model="plot['color']"></v-text-field></v-list-item-content>
+																<v-list-item-content><v-text-field dense clearable single-line label="Color" v-model="plot['color']"></v-text-field></v-list-item-content>
 															</v-list-item>
-															<v-list-item>
+															<v-list-item dense>
 																<v-list-item-avatar><v-icon>linear_scale</v-icon></v-list-item-avatar>
-																<v-list-item-content><v-select clearable single-line label="Style" v-model="plot['plotMode']" :items="['lines', 'markers', 'lines+markers']"></v-text-field></v-list-item-content>
+																<v-list-item-content><v-select dense clearable single-line label="Style" v-model="plot['plotMode']" :items="['lines', 'markers', 'lines+markers']"></v-text-field></v-list-item-content>
 															</v-list-item>
 														</v-list>
 													</v-menu>
 													
 													<v-tooltip top color="color_runner">
-														<template v-slot:activator="{ on }">
-															<v-btn v-on="on" icon @click="resizeLivePlot(plot)"><v-icon v-if="plot['size'] !== 12">fullscreen</v-icon><v-icon v-else>fullscreen_exit</v-icon></v-btn>
+														<template v-slot:activator="{ on: tooltip }">
+															<v-btn v-on="{ ...tooltip }" icon @click="resizeLivePlot(plot)"><v-icon v-if="plot['size'] !== 12">fullscreen</v-icon><v-icon v-else>fullscreen_exit</v-icon></v-btn>
 														</template>
 														<span>Resize</span>
 													</v-tooltip>
 													
 													<v-tooltip top color="color_runner">
-														<template v-slot:activator="{ on }">
-															<v-btn v-on="on" icon @click="clearLivePlot(plot); delete livePlots[jobSelectChoice][deviceSelectChoice][plotID];"><v-icon>clear</v-icon></v-btn>
+														<template v-slot:activator="{ on: tooltip }">
+															<v-btn v-on="{ ...tooltip }" icon @click="clearLivePlot(plot); delete livePlots[jobSelectChoice][deviceSelectChoice][plotID];"><v-icon>clear</v-icon></v-btn>
 														</template>
 														<span>Clear</span>
 													</v-tooltip>
@@ -3164,6 +3184,7 @@
 				
 				goToBeginning: function() {
 					this.stepperPage = 1;
+					this.getProjects();
 				},
 				goBack: function() {
 					this.stepperPage--;
