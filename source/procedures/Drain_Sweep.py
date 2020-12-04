@@ -131,9 +131,9 @@ def runDrainSweep(smu_instance, isFastSweep, fastSweepSpeed, gateVoltageSetPoint
 				preppedDrainVoltage = drainVoltage if abs((drainVoltage - measurement['V_ds'])) < abs(0.1*drainVoltage) else measurement['V_ds']
 				pipes.livePlotUpdate(share, plots=
 				[livePlotter.createLiveDataPoint(plotID='Output Curve', 
-												labels=['Drain Current', 'Gate Current'],
-												xValues=[preppedDrainVoltage, preppedDrainVoltage], 
-												yValues=[measurement['I_d'], measurement['I_g']], 
+												labels=['Drain Current'],
+												xValues=[preppedDrainVoltage], 
+												yValues=[measurement['I_d']], 
 												#colors=['', '#4FB99F'],
 												xAxisTitle='Drain Voltage (V)', 
 												yAxisTitle='Current (A)', 
@@ -141,17 +141,17 @@ def runDrainSweep(smu_instance, isFastSweep, fastSweepSpeed, gateVoltageSetPoint
 												plotMode='lines',
 												enumerateLegend=True,
 												timeseries=False),
-				 livePlotter.createLiveDataPoint(plotID='Response vs. Time', 
+				 livePlotter.createLiveDataPoint(plotID='Gate Current', 
 												labels=['Drain Current', 'Gate Current'],
-												xValues=[timestamp, timestamp], 
-												yValues=[measurement['I_d'], measurement['I_g']], 
+												xValues=[preppedDrainVoltage], 
+												yValues=[measurement['I_d']], 
 												#colors=['', '#4FB99F'],
-												xAxisTitle='Time (s)', 
+												xAxisTitle='Drain Voltage (V)', 
 												yAxisTitle='Current (A)', 
 												yscale='linear', 
 												plotMode='lines',
 												enumerateLegend=True,
-												timeseries=True),
+												timeseries=False),
 				])
 			livePlotter.incrementActivePlots()
 

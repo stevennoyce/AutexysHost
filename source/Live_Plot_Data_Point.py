@@ -56,6 +56,7 @@ class Live_Plot_Figure:
         self.yScale = yScale
         self.plotMode = plotMode
         self.color = ''
+        self.size = 6
         self.traces = traces # dictionary of Live_Plot_Traces
 
     def toDict(self):
@@ -70,6 +71,7 @@ class Live_Plot_Figure:
             'yScale': self.yScale,
             'plotMode': self.plotMode,
             'color': self.color,
+            'size': self.size,
             'traces': {},
         }
         

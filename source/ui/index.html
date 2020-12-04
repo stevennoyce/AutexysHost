@@ -1452,7 +1452,7 @@
 								
 								<template v-if="(jobSelectChoice !== '') && (deviceSelectChoice !== '') && (livePlots[jobSelectChoice]) && (livePlots[jobSelectChoice][deviceSelectChoice])">
 									<v-row dense>
-										<v-col :cols="(Object.entries(livePlots[jobSelectChoice][deviceSelectChoice]).length > 1)? 6 : 12" 
+										<v-col :cols="plot['size']" 
 												v-for="[plotID, plot] of Object.entries(livePlots[jobSelectChoice][deviceSelectChoice])" 
 												:key="plotID">
 											<v-card>
@@ -1483,7 +1483,14 @@
 														</v-list>
 													</v-menu>
 													
-													<v-tooltip top>
+													<v-tooltip top color="color_runner">
+														<template v-slot:activator="{ on }">
+															<v-btn v-on="on" icon @click="resizeLivePlot(plot)"><v-icon v-if="plot['size'] !== 12">fullscreen</v-icon><v-icon v-else>fullscreen_exit</v-icon></v-btn>
+														</template>
+														<span>Resize</span>
+													</v-tooltip>
+													
+													<v-tooltip top color="color_runner">
 														<template v-slot:activator="{ on }">
 															<v-btn v-on="on" icon @click="clearLivePlot(plot); delete livePlots[jobSelectChoice][deviceSelectChoice][plotID];"><v-icon>clear</v-icon></v-btn>
 														</template>
@@ -3316,12 +3323,18 @@
 					if(this.runnerUser && this.runnerProject && this.runnerFileName) {
 						var path = this.loadBriefSchedulePath(this.runnerUser, this.runnerProject, this.runnerFileName, this.runnerLoadingFromDefaults);
 						
-						this.getJSON(path, (response => {this.runnerScheduleObjects = response}), "Error loading schedule file (experiment runner).");
+						this.getJSON(path, (response => {
+							this.runnerScheduleObjects = response;
+							this.runnerScheduleObjects[0]['Identifiers']['user']['default'] = this.user;
+						}), "Error loading schedule file (experiment runner).");
 						this.getJSON(path, (response => {this.runnerScheduleObjectDefaults = response}), "Error loading schedule file (experiment runner).");
 						
 						var path = this.loadSchedulePath(this.runnerUser, this.runnerProject, this.runnerFileName, this.runnerLoadingFromDefaults);
 
-						this.getJSON(path, (response => {this.runnerVerboseScheduleObjects = response}), "Error loading schedule file (experiment runner).");
+						this.getJSON(path, (response => {
+							this.runnerVerboseScheduleObjects = response;
+							this.runnerVerboseScheduleObjects[0]['Identifiers']['user']['default'] = this.user;
+						}), "Error loading schedule file (experiment runner).");
 						this.getJSON(path, (response => {this.runnerVerboseScheduleObjectDefaults = response}), "Error loading schedule file (experiment runner).");
 						
 						console.log("Loaded the active experiment runner schedule file: " + path);
@@ -4205,6 +4218,13 @@
 					this.clearJobSelect();
 					this.clearDeviceSelect();
 					this.livePlots = {};
+				},
+				resizeLivePlot: function(plot) {
+					if(plot['size'] === 12) {
+						plot['size'] = 6;
+					} else {
+						plot['size'] = 12;
+					}
 				},
 				clearJobSelect: function() {
 					this.jobSelectChoice = '';
