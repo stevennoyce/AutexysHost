@@ -143,7 +143,7 @@ def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint
 												timeseries=False),
 				 livePlotter.createLiveDataPoint(plotID='Subthreshold Curve', 
 												labels=['Drain Current'],
-												xValues=[timestamp], 
+												xValues=[preppedGateVoltage], 
 												yValues=[abs(measurement['I_d'])], 
 												#colors=['', '#4FB99F'],
 												xAxisTitle='Gate Voltage (V)', 
@@ -151,7 +151,7 @@ def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint
 												yscale='log', 
 												plotMode='lines',
 												enumerateLegend=True,
-												timeseries=True),
+												timeseries=False),
 				])
 			livePlotter.incrementActivePlots()
 			
