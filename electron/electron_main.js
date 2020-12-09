@@ -52,8 +52,18 @@ app.on('window-all-closed', () => {
 // code. You can also put them in separate files and import them here.
 
 app.on('quit', () => {
-  if(server_process) {
-    process.kill(-server_process.pid);
+  if(process.platform === 'darwin') {
+    console.log('[ELECTRON]: shutting down app (detected platform is macOS).');
+    if(server_process) {
+      process.kill(-server_process.pid);
+    }
+  }
+  
+  if(process.platform === 'win32') {
+    console.log('[ELECTRON]: shutting down app (detected platform is Windows).');
+    if(server_process) {
+      require('child_process').exec('taskkill /PID ' + server_process.pid + ' /T /F');
+    }
   }
 });
 
@@ -81,9 +91,9 @@ function start() {
 
   function recursive_port_search(port) {
     var callback = (error, status) => {
-      console.log('[ELECTRON] Port ' + port + ' current activity: ' + status);
+      console.log('[ELECTRON]: Port ' + port + ' current activity: ' + status);
       if(!port_blacklist.includes(port) && status === 'closed') {
-        console.log('[ELECTRON] Launching local server on port: ' + port);
+        console.log('[ELECTRON]: Launching local server on port: ' + port);
         selected_port = port;
         createWindow();
         startPython();
@@ -97,7 +107,7 @@ function start() {
   
   function looping_wait_on_port(port) {
   	var callback = (error, status) => {
-  	  console.log('[ELECTRON] Any activity on port ' + port + ' yet? ' + (status==='open'? 'yes':'no'));
+  	  console.log('[ELECTRON]: Any activity on port ' + port + ' yet? ' + (status==='open'? 'yes':'no'));
   	  if(status === 'open'){
   	  	showMainWindow();
   	  } else {
@@ -124,7 +134,7 @@ function start() {
     
     var executable = executablePath();
     
-    console.log('[ELECTRON] Launching python server at: ' + executable);
+    console.log('[ELECTRON]: Launching python server at: ' + executable);
     
     server_process = require('child_process').spawn(executable, [selected_port], {detached: true, stdio: 'inherit'});
         
