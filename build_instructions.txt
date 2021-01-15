@@ -1,0 +1,105 @@
+# ==================
+# === MacOS/Unix ===
+# ==================
+
+# --- Download and install pyenv to get a clean install of Python (optional) ----------------------------------
+# Step 1: Install with Homebrew
+brew install pyenv
+
+# Step 2: Configure PATH with Shims
+# Add the following block to this file: ~/.bash_profile (if no file exists at that location then create it)
+	# Give pyenv control of my Python version (Note: this command is very similar to export PATH="/Users/jaydoherty/.pyenv/shims:$PATH")
+	if command -v pyenv 1>/dev/null 2>&1; then
+	  eval "$(pyenv init -)"
+	fi
+
+# Step 3: # Install Python 3.6.8
+pyenv install 3.6.8
+pyenv global 3.6.8
+
+# Step 4: Check Everything Worked
+pyenv versions
+pyenv version 
+which python
+# -------------------------------------------------------------------------------------------------------------
+
+# --- Setting up a Python virtual environment (for the first time) --------------------------------------------
+cd REPOSITORY_FOLDER (one level above "source/")
+python -m venv env
+source env/bin/activate
+which pip
+pip install -r pip_requirements.txt
+# -------------------------------------------------------------------------------------------------------------
+
+# --- Building python distributable with Pyinstaller ----------------------------------------------------------
+source env/bin/activate
+cd source
+pyinstaller VersametricsInstalled.spec
+deactivate
+# -------------------------------------------------------------------------------------------------------------
+
+
+
+# ===============
+# === Windows ===
+# ===============
+
+# --- Download and install pyenv to get a clean install of Python (optional) ----------------------------------
+# Step 1: Download with Git
+# for cmd.exe (my prefered terminal): 
+git clone https://github.com/pyenv-win/pyenv-win.git "%USERPROFILE%\.pyenv" 
+# for Windows PowerShell:
+git clone https://github.com/pyenv-win/pyenv-win.git "$HOME/.pyenv"
+
+# Step 2: Disable aliases that get in the way
+Go to Start Menu > "Manage App Execution Aliases" and disable the "App Installer" aliases for Python
+
+# Step 3: Configure PATH with Shims
+# Option 1: Set the following User-level environment variables, using Windows PowerShell
+[System.Environment]::SetEnvironmentVariable('PYENV', $HOME + "\.pyenv\pyenv-win\", "User")
+[System.Environment]::SetEnvironmentVariable('PYENV_HOME', $HOME + "\.pyenv\pyenv-win\", "User")
+[System.Environment]::SetEnvironmentVariable('Path', $HOME + "\.pyenv\pyenv-win\bin;" + $HOME + "\.pyenv\pyenv-win\shims;" + $env:Path,"User")
+
+# Option 2: Set those environmental variables with the Windows GUI (this is more confusing to explain, but is my preference)
+Go to Control Panel > "System and Security" > "System" > "Advanced system settings" > "Environment Variables"
+Here's an example (specific to Jay's machine):
+Click "New..." > "Variable Name" PYENV      > "Variable value" C:\Users\Jay\.pyenv\pyenv-win\
+Click "New..." > "Variable Name" PYENV_HOME > "Variable value" C:\Users\Jay\.pyenv\pyenv-win\
+Click "Path" > Click "Edit" > Click "New" C:\Users\Jay\.pyenv\pyenv-win\bin > Click "New" C:\Users\Jay\.pyenv\pyenv-win\shims
+
+# Step 4: Check Install Worked
+pyenv --version
+
+# Step 5: Install Python 3.6.8
+pyenv install 3.6.8
+pyenv global 3.6.8
+
+# Step 6: Check Everything Worked
+pyenv versions
+pyenv version 
+where python
+# -------------------------------------------------------------------------------------------------------------
+
+# --- Setting up a Python virtual environment (for the first time) --------------------------------------------
+cd REPOSITORY_FOLDER  (one level above "source/")
+python -m venv env
+env\Scripts\activate.bat
+where pip
+pip install -r pip_requirements.txt
+# -------------------------------------------------------------------------------------------------------------
+
+# --- Building python distributable with Pyinstaller ----------------------------------------------------------
+env\Scripts\activate.bat
+cd source
+pyinstaller VersametricsInstalled.spec
+deactivate
+# -------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
