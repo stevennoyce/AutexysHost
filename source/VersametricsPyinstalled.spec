@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['manager.py'],
-             pathex=['/Users/jaydoherty/Documents/myWorkspaces/Research/Autexys/AutexysHost/source'],
+             pathex=[],
              binaries=[],
              datas=[
              		('ui/','ui/'),
