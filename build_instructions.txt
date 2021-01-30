@@ -37,10 +37,14 @@ source env/bin/activate
 cd source
 pyinstaller VersametricsInstalled.spec
 deactivate
+
 # To stage newly built distributable for Electron
 mv dist/ ../electron/dist/
 rm -r build/
+cd ../electron
 # -------------------------------------------------------------------------------------------------------------
+
+
 
 # --- Download and install Node.js and "npm" package manager --------------------------------------------------
 Download from the official Node.js website (https://nodejs.org/en/download/)
@@ -51,6 +55,24 @@ Download from the official Node.js website (https://nodejs.org/en/download/)
 cd REPOSITORY_FOLDER (one level above "source/")
 cd electron
 npm install
+---------------------------------------------------------------------------------------------------------------
+
+# --- Running local Electron App ------------------------------------------------------------------------------
+cd REPOSITORY_FOLDER (one level above "source/")
+cd electron
+npm start
+---------------------------------------------------------------------------------------------------------------
+
+# --- Packaging local Electron App (into a clickable ".app" file) ---------------------------------------------
+cd REPOSITORY_FOLDER (one level above "source/")
+cd electron
+npm run package
+---------------------------------------------------------------------------------------------------------------
+
+# --- Making & Packaging local Electron App (into a shareable ".zip" file) ------------------------------------
+cd REPOSITORY_FOLDER (one level above "source/")
+cd electron
+npm run make
 ---------------------------------------------------------------------------------------------------------------
 
 
@@ -110,10 +132,14 @@ cd source
 pyinstaller VersametricsInstalled.spec
 deactivate
 
+# To stage newly built distributable for Electron
 xcopy /E /H /I /Y "dist" "../electron/dist/" 
 rmdir /S /Q "dist" 
 rmdir /S /Q "build"
+cd "../electron"
 # -------------------------------------------------------------------------------------------------------------
+
+
 
 # --- Download and install Node.js and "npm" package manager --------------------------------------------------
 Download from the official Node.js website (https://nodejs.org/en/download/)
@@ -126,9 +152,23 @@ cd electron
 npm install
 ---------------------------------------------------------------------------------------------------------------
 
+# --- Running local Electron App ------------------------------------------------------------------------------
+cd REPOSITORY_FOLDER (one level above "source/")
+cd electron
+npm start
+---------------------------------------------------------------------------------------------------------------
 
+# --- Packaging Electron App (into a clickable ".exe" file) ---------------------------------------------------
+cd REPOSITORY_FOLDER (one level above "source/")
+cd electron
+npm run package
+---------------------------------------------------------------------------------------------------------------
 
-
+# --- Making & Packaging Electron App (into a shareable "-Setup.exe" file) ------------------------------------
+cd REPOSITORY_FOLDER (one level above "source/")
+cd electron
+npm run make
+---------------------------------------------------------------------------------------------------------------
 
 
 
