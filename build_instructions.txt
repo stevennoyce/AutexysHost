@@ -32,11 +32,26 @@ pip install -r pip_requirements.txt
 # -------------------------------------------------------------------------------------------------------------
 
 # --- Building python distributable with Pyinstaller ----------------------------------------------------------
+cd REPOSITORY_FOLDER (one level above "source/")
 source env/bin/activate
 cd source
 pyinstaller VersametricsInstalled.spec
 deactivate
+# To stage newly built distributable for Electron
+mv dist/ ../electron/dist/
+rm -r build/
 # -------------------------------------------------------------------------------------------------------------
+
+# --- Download and install Node.js and "npm" package manager --------------------------------------------------
+Download from the official Node.js website (https://nodejs.org/en/download/)
+(Note: npm should be included with this installation by default, make sure to get it! Unless you prefer yarn)
+# -------------------------------------------------------------------------------------------------------------
+
+# --- Installing local "node_modules" environment (for the first time) ----------------------------------------
+cd REPOSITORY_FOLDER (one level above "source/")
+cd electron
+npm install
+---------------------------------------------------------------------------------------------------------------
 
 
 
@@ -89,13 +104,27 @@ pip install -r pip_requirements.txt
 # -------------------------------------------------------------------------------------------------------------
 
 # --- Building python distributable with Pyinstaller ----------------------------------------------------------
+cd REPOSITORY_FOLDER (one level above "source/")
 env\Scripts\activate.bat
 cd source
 pyinstaller VersametricsInstalled.spec
 deactivate
+
+xcopy /E /H /I /Y "dist" "../electron/dist/" 
+rmdir /S /Q "dist" 
+rmdir /S /Q "build"
 # -------------------------------------------------------------------------------------------------------------
 
+# --- Download and install Node.js and "npm" package manager --------------------------------------------------
+Download from the official Node.js website (https://nodejs.org/en/download/)
+(Note: npm should be included with this installation by default, make sure to get it! Unless you prefer yarn)
+# -------------------------------------------------------------------------------------------------------------
 
+# --- Installing local "node_modules" environment (for the first time) ----------------------------------------
+cd REPOSITORY_FOLDER (one level above "source/")
+cd electron
+npm install
+---------------------------------------------------------------------------------------------------------------
 
 
 
