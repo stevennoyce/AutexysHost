@@ -122,11 +122,12 @@ function start() {
   // === Launch Python Server ===
   
   const startPython = () => {
+  	const IS_WINDOWS = process.platform === 'win32';
     const PY_DIST_FOLDER = 'dist';
     const PY_MODULE = 'VersametricsPyinstalled';
     
     const executablePath = () => {
-      if(process.platform === 'win32') {
+      if(IS_WINDOWS) {
         return path.join(__dirname, PY_DIST_FOLDER, PY_MODULE, PY_MODULE + '.exe');
       }
       return path.join(__dirname, PY_DIST_FOLDER, PY_MODULE, PY_MODULE);
@@ -136,7 +137,7 @@ function start() {
     
     console.log('[ELECTRON]: Launching python server at: ' + executable);
     
-    server_process = require('child_process').spawn(executable, [selected_port], {detached: true, stdio: 'inherit'});
+    server_process = require('child_process').spawn(executable, [selected_port], {detached: !IS_WINDOWS, stdio: 'inherit'});
         
   }
   
