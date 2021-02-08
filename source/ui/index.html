@@ -1382,7 +1382,7 @@
 													:disabled="!isPossibleToSaveRunnerScheduleFile()"><v-icon left color="success">play_arrow</v-icon>Run ({{ runnerChoice }})</v-btn>
 												</template>
 												<v-btn class="ml-3" @click="runnerStop()" 
-													:disabled="(!dispatcherRunning) || (dispatcherStopping)"><v-icon left>pause</v-icon>Stop</v-btn>
+													:disabled="(!dispatcherStatus.running) || (dispatcherStatus.stopping)"><v-icon left>pause</v-icon>Stop</v-btn>
 											</v-row>
 										</v-list-item>
 									</v-list>
@@ -1392,13 +1392,16 @@
 						</v-card>
 						
 						<v-card class="mt-3" v-if="showProgress">
-							<v-toolbar dark dense :color="dispatcherRunning? 'color_runner' : 'success'">
+							<v-toolbar dark dense :color="dispatcherStatus.running? 'color_runner' : (dispatcherStatus.error? 'warning' : 'success')">
 								<v-avatar size="36" color="info lighten-1" class="mr-3">
-									<v-icon color="color_runner" v-if="dispatcherRunning">hourglass_empty</v-icon>
-									<v-icon color="success" v-if="!dispatcherRunning">done</v-icon>
+									<v-icon color="color_runner" v-if="dispatcherStatus.running">hourglass_empty</v-icon>
+									<template v-if="!dispatcherStatus.running">
+										<v-icon color="warning darken-1" v-if="dispatcherStatus.error">warning</v-icon>
+										<v-icon color="success" v-if="!dispatcherStatus.error">done</v-icon>
+									</template>
 								</v-avatar>
 								<v-toolbar-title>
-									{{ dispatcherRunning? 'Progress' : 'Complete' }} 
+									{{ dispatcherStatus.running? 'Progress' : (dispatcherStatus.error? 'Error':'Complete') }} 
 								</v-toolbar-title>
 								<v-spacer></v-spacer>		
 								<v-toolbar-title>
@@ -2680,8 +2683,11 @@
 				
 				// === Experiment Runner ===
 				
-				dispatcherRunning: false,
-				dispatcherStopping: false,
+				dispatcherStatus: {
+					running: false,
+					error: false,
+					stopping: false,
+				},
 				dispatcherIdentifiers: undefined,
 				
 				runnerChoice: '',
@@ -3333,11 +3339,11 @@
 					projectName = projectName? projectName : this.runnerProject;
 					fileName    = fileName?    fileName    : this.runnerFileName;
 					var path = this.launchDispatcherPath(userName, projectName, fileName);
-					this.getJSON(path, (response => {this.dispatcherRunning = true; this.dispatcherStopping = false;}), "Error dispatching schedule file");
+					this.getJSON(path, (response => {this.dispatcherStatus.running = true; this.dispatcherStatus.stopping = false; this.dispatcherStatus.error = false;}), "Error dispatching schedule file");
 				},
 				runnerStop: function() {
 					var path = this.stopDispatcherPath();
-					this.getJSON(path, (response => {this.dispatcherStopping = true;}), "Error stopping dispatcher");
+					this.getJSON(path, (response => {this.dispatcherStatus.stopping = true;}), "Error stopping dispatcher");
 				},
 				
 				runnerLoadScheduleFile: function() {
@@ -3953,7 +3959,8 @@
 					} else 
 					
 					if(message.type === 'DispatcherStatus') {
-						this.dispatcherRunning = message.status.running? true : false;
+						this.dispatcherStatus.running = message.status.running? true : false;
+						this.dispatcherStatus.error   = message.status.error?   true : false;
 					} else
 					
 					if (message.type === 'JobNumberUpdate') {

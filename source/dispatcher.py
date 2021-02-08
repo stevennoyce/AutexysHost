@@ -10,6 +10,7 @@ import time
 import requests
 import json
 import time
+import logging
 
 import pipes
 import launcher
@@ -26,21 +27,28 @@ if(__name__ == '__main__'):
 def dispatch(input_command, workspace_data_path=None, connection_status=None, share=None):
 	"""Given an input command that is a valid schedule file path, begin executing the experiments in the schedule file, otherwise treat the input as a runType and attempt to launch it directly."""
 	
-	# Check if the input is a file
-	isFile = input_command[-5:] == '.json'
+	setup_logging(log_directory=workspace_data_path)
 	
-	if(isFile):
-		print('Dispatcher received a schedule file input.')
-		schedule_file_path = input_command
-		schedule_file_path = schedule_file_path.strip()
-	
-		run_file(schedule_file_path, workspace_data_path, connection_status, share)
-	else:
-		print('Dispatcher received a runType input.')
-		runType = input_command
-		additional_parameters = {'runType':runType}
+	try:
+		# Check if the input is a file
+		isFile = input_command[-5:] == '.json'
 		
-		launcher.run(additional_parameters, workspace_data_path, connection_status, share)
+		if(isFile):
+			print('Dispatcher received a schedule file input.')
+			schedule_file_path = input_command
+			schedule_file_path = schedule_file_path.strip()
+		
+			run_file(schedule_file_path, workspace_data_path, connection_status, share)
+		else:
+			print('Dispatcher received a runType input.')
+			runType = input_command
+			additional_parameters = {'runType':runType}
+			x = 1/0
+			launcher.run(additional_parameters, workspace_data_path, connection_status, share)
+	except Exception as e:
+		logging.exception('Error: ' + str(e))
+		raise
+		
 	
 	send_notification_via_pushbullet(
 		'Completed Main at {}'.format(time.strftime('%I:%M %p on %a')), 
@@ -80,6 +88,12 @@ def run_file(schedule_file_path, workspace_data_path=None, connection_status=Non
 	
 
 
+def setup_logging(log_directory, log_file='system.log'):
+	log_file_path = os.path.join(log_directory, log_file) if((log_directory is not None) and (log_file is not None)) else None
+	logging.basicConfig(filename=log_file_path, format='%(asctime)s | %(levelname)s | %(name)s:%(funcName)s:%(lineno)d - %(message)s')
+		
+
+
 def send_notification_via_pushbullet(title, body):
 	url = 'https://api.pushbullet.com/v2/pushes'
 	access_token = 'o.jc84248QDFZCW8QJWu9DXpzaLbdwhoD7'
@@ -104,35 +118,6 @@ def devicesInRange(startContact, endContact, skip=True):
 		contactList = list(contactList-omitList)
 	return ['{0:}-{1:}'.format(c, c+1) for c in contactList]
 
-
-
-# === Nathaniel's Custhom Dispatchers ===
-def dispatch_continuously(schedule_file_path, totalTime=10800, delayTime=300, pipe=None):
-	startTime = time.time()
-	while(time.time() < startTime + totalTime):
-		dispatchTime = time.time()
-		dispatch(schedule_file_path=schedule_file_path)
-		dispatchTime = time.time() - dispatchTime
-		print("Delaying " + str(delayTime - dispatchTime) + " seconds")
-		time.sleep(delayTime - dispatchTime)
-
-def dispatch_cycler(schedule_file_path, pipe=None):
-	allDevices = ["1-2", "2-3", "3-4", "4-5", "5-6", "6-7", "7-8", "8-9", "9-10", "10-11", "11-12", "12-13", "14-15", "15-16", "16-17", "17-18", "18-19", "19-20", "21-22", "22-23", "23-24", "24-25", "25-26", "26-27", "27-28", "28-29", "29-30", "30-31", "31-32", "33-34", "34-35", "35-36", "36-37", "37-38", "38-39", "40-41", "41-42", "42-43", "43-44", "45-46", "46-47", "47-48", "48-49", "49-50", "50-51", "52-53", "53-54", "54-55", "55-56", "57-58", "58-59", "59-60", "60-61", "61-62", "62-63"]
-	startDevice = "62-63"
-	
-	currentDevice = startDevice
-	for device in allDevices:
-		input('\n\nChange to device ' + str(device))
-		# Edit schedule file and save new version in temp location
-		with open(schedule_file_path) as in_file:
-			with open('temp.txt', 'w') as out_file:
-				out_file.write(in_file.read().replace(currentDevice, device))
-		# Overwrite schedule file		
-		with open(schedule_file_path, 'w') as out_file:
-			with open('temp.txt') as in_file:
-				out_file.write(in_file.read())
-		currentDevice = device
-		dispatch(schedule_file_path=schedule_file_path)
 		
 
 
