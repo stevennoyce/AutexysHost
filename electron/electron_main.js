@@ -132,12 +132,19 @@ function start() {
       }
       return path.join(__dirname, PY_DIST_FOLDER, PY_MODULE, PY_MODULE);
     }
+    const executableOptions = () => {
+      if(IS_WINDOWS) {
+        return {};
+      }
+      return {detached: true, stdio: 'inherit'};
+    }
     
     var executable = executablePath();
+    var options = executableOptions();
     
     console.log('[ELECTRON]: Launching python server at: ' + executable);
     
-    server_process = require('child_process').spawn(executable, [selected_port], {detached: !IS_WINDOWS, stdio: 'inherit'});
+    server_process = require('child_process').spawn(executable, [selected_port], options);
         
   }
   
