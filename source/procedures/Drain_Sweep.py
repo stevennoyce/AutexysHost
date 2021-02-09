@@ -165,9 +165,9 @@ def runDrainSweep(smu_instance, isFastSweep, fastSweepSpeed, gateVoltageSetPoint
 			'drainVoltages':drainVoltages,
 		},
 		'Computed':{
-			'id_max':max(abs(np.array(id_data[0] + id_data[1]))),
-			'G_max':max(abs(np.array(id_data[0] + id_data[1]) / np.array(vds_data[0] + vds_data[1]))),
-			'ig_max':max(abs(np.array(ig_data[0] + ig_data[1])))
+			'id_max':np.max(np.abs(id_data)),
+			'G_max':np.max(np.abs(id_data) / np.array(vds_data)),
+			'ig_max':np.max(np.abs(ig_data)),
 		}
 	}
 

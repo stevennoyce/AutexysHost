@@ -168,7 +168,7 @@ def runGateSweep(smu_instance, isFastSweep, fastSweepSpeed, drainVoltageSetPoint
 			'onOffRatio':onOffRatio(id_data),
 			'onCurrent':onCurrent(id_data),
 			'offCurrent':offCurrent(id_data),
-			'ig_max':max(abs(np.array(ig_data[0] + ig_data[1])))
+			'ig_max':np.max(np.abs(ig_data))
 		}
 	}
 
