@@ -1202,7 +1202,7 @@
 								</v-row>
 							
 								<template v-if="(runnerChoice !== '') && (runnerUser && runnerProject && runnerFileName) && (runnerScheduleObjects.length === 1) && (runnerVerboseScheduleObjects.length === 1)">
-									<v-expansion-panels>
+									<v-expansion-panels :value="0">
 										<v-expansion-panel class="grey lighten-4">
 											<v-expansion-panel-header><div style="font-weight: bold;">Options</div></v-expansion-panel-header>
 											
@@ -1310,7 +1310,7 @@
 													<v-spacer></v-spacer>
 													<v-tooltip left color="color_runner">
 														<template v-slot:activator="{ on: tooltip }">
-															<v-btn v-on="{ ...tooltip }" class="mr-6" small @click="runnerSaveScheduleFile()" :disabled="!isNecessaryToSaveRunnerScheduleFile()">Save</v-btn>
+															<v-btn v-on="{ ...tooltip }" class="mr-6 white--text" color="color_runner" @click="runnerSaveScheduleFile()" :disabled="!isNecessaryToSaveRunnerScheduleFile()">Save</v-btn>
 														</template>
 														<span>Save & Apply Options</span>
 													</v-tooltip>

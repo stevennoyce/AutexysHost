@@ -18,17 +18,17 @@ default_parameters = {
 		'project':{'type':'string', 'default':'', 'title':'Project', 'description':'Project for this experiment.'},
 		'wafer':  {'type':'string', 'default':'', 'title':'Wafer',   'description':'Wafer for this experiment.'},
 		'chip':   {'type':'string', 'default':'', 'title':'Chip',    'description':'Chip for this experiment.'},
-		'device': {'type':'choice2','default':'', 'title':'Device',  'description':'Source and Drain pins of the device for this experiment.', 'choices':[''] + [str(n) for n in range(1,64+1)], 'headers':[{'name':'Source', 'prefix':'s'}, {'name':'Drain', 'prefix':'d'}]},
+		'device': {'type':'choice2','default':'', 'title':'Device',  'description':'Source and Drain pins of the device for this experiment.', 'choices':[''] + [str(n) for n in range(1,64+1)], 'headers':[{'name':'Source*', 'prefix':'s'}, {'name':'Drain*', 'prefix':'d'}]},
 		'note':   {'type':'string', 'default':'', 'title':'Note',    'description':'Personal note for this experiment. (Saved and visible later in the Browser).'},
 	},
 	'runConfigs': {
 		'GateSweep':{
 			'dependencies':				{'ignore':True, 'value':[]},
 			'saveFileName': 			{'type':'constant', 'default': 'GateSweep', 'title':'Save File Name', 'description':'The name of the file that will be saved with the data from this experiment. This name should typically not be changed.'},
-			'gateVoltageMinimum': 		{'type':'float', 'essential':True, 'units':'V',  'default': -1,     'title':'Gate Voltage Start',           'description':'Gate voltage starting value.'},
-			'gateVoltageMaximum': 		{'type':'float', 'essential':True, 'units':'V',  'default': 1,      'title':'Gate Voltage End',             'description':'Gate voltage final value.'}, 
-			'drainVoltageSetPoint':		{'type':'float', 'essential':True, 'units':'V',  'default': 0.5,    'title':'Drain Voltage',                'description':'Drain voltage value.'},
-			'stepsInVGSPerDirection': 	{'type':'int',   'essential':True, 'units':'#',  'default': 100,    'title':'Steps In VGS (per direction)', 'description':'Number of unique gate voltage steps in the sweep.'},
+			'gateVoltageMinimum': 		{'type':'float', 'essential':True, 'units':'V',  'default': -1,     'title':'Gate Voltage Start',           'description':'Gate voltage (VGS) starting value.'},
+			'gateVoltageMaximum': 		{'type':'float', 'essential':True, 'units':'V',  'default': 1,      'title':'Gate Voltage End',             'description':'Gate voltage (VGS) final value.'}, 
+			'drainVoltageSetPoint':		{'type':'float', 'essential':True, 'units':'V',  'default': 0.5,    'title':'Drain Voltage',                'description':'Drain voltage (VDS) constant value.'},
+			'stepsInVGSPerDirection': 	{'type':'int',   'essential':True, 'units':'#',  'default': 100,    'title':'Steps In VGS (per direction)', 'description':'Number of unique gate voltage steps in each ramp of the sweep.'},
 			'complianceCurrent':		{'type':'float',                   'units':'A',  'default': 100e-6, 'title':'Compliance Current',           'description':'Maximum current limit for the SMU.'},
 			'pointsPerVGS': 			{'type':'int',                     'units':'#',  'default': 1,      'title':'Measurements per VGS',         'description':'Number of measurements taken at each gate voltage step.'},
 			'gateVoltageRamps':			{'type':'int',                     'units':'#',  'default': 2,      'title':'Gate Voltage Ramps',           'description':'Number of times to loop through gate voltage values.'},
@@ -39,10 +39,10 @@ default_parameters = {
 		'DrainSweep':{
 			'dependencies': 			{'ignore':True, 'value':[]},
 			'saveFileName': 			{'type':'constant', 'default':'DrainSweep', 'title':'Save File Name', 'description':'The name of the file that will be saved with the data from this experiment. This name should typically not be changed.'},
-			'drainVoltageMinimum': 		{'type':'float', 'essential':True, 'units':'V',  'default': 0,      'title':'Drain Voltage Start',          'description':'Drain voltage starting value.'},
-			'drainVoltageMaximum': 		{'type':'float', 'essential':True, 'units':'V',  'default': 1,      'title':'Drain Voltage End',            'description':'Drain voltage final value.'}, 
-			'gateVoltageSetPoint':		{'type':'float', 'essential':True, 'units':'V',  'default': 0,      'title':'Gate Voltage',                 'description':'Gate voltage value.'},
-			'stepsInVDSPerDirection': 	{'type':'int',   'essential':True, 'units':'#',  'default': 100,    'title':'Steps In VDS (per direction)', 'description':'Number of unique drain voltage steps in the sweep.'},
+			'drainVoltageMinimum': 		{'type':'float', 'essential':True, 'units':'V',  'default': 0,      'title':'Drain Voltage Start',          'description':'Drain voltage (VDS) starting value.'},
+			'drainVoltageMaximum': 		{'type':'float', 'essential':True, 'units':'V',  'default': 1,      'title':'Drain Voltage End',            'description':'Drain voltage (VDS) final value.'}, 
+			'gateVoltageSetPoint':		{'type':'float', 'essential':True, 'units':'V',  'default': 0,      'title':'Gate Voltage',                 'description':'Gate voltage (VGS) constant value.'},
+			'stepsInVDSPerDirection': 	{'type':'int',   'essential':True, 'units':'#',  'default': 100,    'title':'Steps In VDS (per direction)', 'description':'Number of unique drain voltage steps in each ramp of the sweep.'},
 			'complianceCurrent':		{'type':'float',                   'units':'A',  'default': 100e-6, 'title':'Compliance Current',           'description':'Maximum current limit for the SMU.'},
 			'pointsPerVDS': 			{'type':'int',                     'units':'#',  'default': 1,      'title':'Measurements per VDS',         'description':'Number of measurements taken at each drain voltage step.'},
 			'drainVoltageRamps':		{'type':'int',                     'units':'#',  'default': 2,      'title':'Drain Voltage Ramps',          'description':'Number of times to loop through drain voltage values.'},
@@ -54,8 +54,8 @@ default_parameters = {
 			'dependencies':					{'ignore':True, 'value':[]},
 			'saveFileName': 				{'type':'constant', 'default':'StaticBias', 'title':'Save File Name', 'description':'The name of the file that will be saved with the data from this experiment. This name should typically not be changed.'},
 			'secondaryFileName': 			{'type':'constant', 'default':'StaticCurrent', 'title':'Save File Name', 'description':'The name of the file that will be saved with the data from this experiment. This name should typically not be changed.'},
-			'gateVoltageSetPoint': 			{'type':'float', 'essential':True, 'units':'V', 'default': 0,      'title':'Gate Voltage',                    'description':'Gate voltage constant bias value.'},
-			'drainVoltageSetPoint':			{'type':'float', 'essential':True, 'units':'V', 'default': 0.5,    'title':'Drain Voltage',                   'description':'Drain voltage constant bias value.'},
+			'gateVoltageSetPoint': 			{'type':'float', 'essential':True, 'units':'V', 'default': 0,      'title':'Gate Voltage',                    'description':'Gate voltage (VGS) constant bias value.'},
+			'drainVoltageSetPoint':			{'type':'float', 'essential':True, 'units':'V', 'default': 0.5,    'title':'Drain Voltage',                   'description':'Drain voltage (VDS) constant bias value.'},
 			'totalBiasTime': 				{'type':'float', 'essential':True, 'units':'s', 'default': 60,     'title':'Duration',                        'description':'Total time to apply voltages.'},
 			'measurementTime': 				{'type':'float', 'essential':True, 'units':'s', 'default': 1,      'title':'Measurement Time',                'description':'Interval over which to average each measurement.'},
 			'complianceCurrent': 			{'type':'float',                   'units':'A', 'default': 100e-6, 'title':'Compliance Current',              'description':'Maximum current limit for the SMU.'},
@@ -70,14 +70,14 @@ default_parameters = {
 		'AutoGateSweep':{
 			'dependencies':					{'ignore':True, 'value':['GateSweep']},
 			'sweepsPerVDS': 				{'type':'int',   'essential':True, 'units':'#', 'default': 3,     'title':'Sweeps Per Drain Voltage', 'description':'Number of gate sweeps to take at each value of drain voltage.'},
-			'drainVoltageSetPoints': 		{'type':'array', 'essential':True, 'units':'V', 'default': [],    'title':'Drain Voltage Set Points', 'description':'List of drain voltage values to do sweeps at. If this list is not empty, it overrides the value provided in "GateSweep."'},
+			'drainVoltageSetPoints': 		{'type':'array', 'essential':True, 'units':'V', 'default': [],    'title':'Drain Voltage Set Points', 'description':'List of drain voltage values to do sweeps at. If this list is empty, it defaults to the value provided in "GateSweep."'},
 			'delayBetweenSweeps': 			{'type':'float',                   'units':'s', 'default': 2,     'title':'Delay Between Sweeps',     'description':'Delay between each sweep.'},
 			'timedSweepStarts': 			{'type':'bool',                                 'default': False, 'title':'Timed Sweeps',       	  'description':'When enabled, the delay between sweeps is dynamically reduced by the amount of time the sweep took.'}, 
 		},
 		'AutoDrainSweep':{
 			'dependencies': 				{'ignore':True, 'value':['DrainSweep']},
 			'sweepsPerVGS': 				{'type':'int',   'essential':True, 'units':'#', 'default': 1,          'title':'Sweeps Per Gate Voltage', 'description':'Number of drain sweeps to take at each value of gate voltage.'},
-			'gateVoltageSetPoints':			{'type':'array', 'essential':True, 'units':'V', 'default': [-1,0,1],   'title':'Gate Voltage Set Points', 'description':'List of gate voltage values to do sweeps at. If this list is not empty, it overrides the value provided in "DrainSweep."'},
+			'gateVoltageSetPoints':			{'type':'array', 'essential':True, 'units':'V', 'default': [-1,0,1],   'title':'Gate Voltage Set Points', 'description':'List of gate voltage values to do sweeps at. If this list is empty, it defaults to the value provided in "DrainSweep."'},
 			'delayBetweenSweeps': 			{'type':'float',                   'units':'s', 'default': 2,          'title':'Delay Between Sweeps',    'description':'Delay between each sweep.'},
 			'timedSweepStarts': 			{'type':'bool',                                 'default': False,      'title':'Timed Sweeps',            'description':'When enabled, the delay between sweeps is dynamically reduced by the amount of time the sweep took.'}, 
 		},
@@ -473,6 +473,8 @@ if(not INCLUDE_EVERYTHING):
 			default_parameters['MeasurementSystem']['systemType']['choices'].remove(measurement_system)
 	if(len(ALWAYS_INCLUDED_MEASUREMENT_SYSTEMS) > 0):
 		default_parameters['MeasurementSystem']['systemType']['default'] = ALWAYS_INCLUDED_MEASUREMENT_SYSTEMS[0]
+	if(len(ALWAYS_INCLUDED_MEASUREMENT_SYSTEMS) == 1):
+		default_parameters['MeasurementSystem']['systemType']['type'] = 'hidden'
 		
 
 

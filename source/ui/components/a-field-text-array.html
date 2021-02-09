@@ -25,6 +25,7 @@
 					if (val.indexOf(']') === -1) {
 						val = val + ']';
 					}
+					val = val.replace("-.", "-0.");
 					
 					// Convert from "stringRepresentation" to an actual array. All entries are converted to numbers or strings.
 		 			var objectRepresentation = jsyaml.safeLoad(val);
@@ -54,7 +55,10 @@
 				// Triggers to update what's actually displayed in the text field whenever we make changes to "this.value" (such as by calling this.makeInputValidJSON or also when "this.value" is changed by like a reset button for example)
 				this.stringRepresentation = (val === undefined)? '' : JSON.stringify(val);
 			}
-		}
+		},
+		computed: {
+			console: () => console,
+		},
 	});
 </script>
 
