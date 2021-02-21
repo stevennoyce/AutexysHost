@@ -100,6 +100,7 @@ def testConnection(connected_system):
 	return False
 	
 def authenticateConnection(smu_instance):
+	response = smu_instance.connect()
 	print('Hardware authentication success.')
 	return True # This provides a hook for authenticating the software/hardware interface
 	
@@ -171,6 +172,9 @@ class SourceMeasureUnit:
 	
 	def setDevice(self, deviceID):
 		raise NotImplementedError("Please implement SourceMeasureUnit.setDevice()")
+	
+	def connect(self):
+		raise NotImplementedError("Please implement SourceMeasureUnit.connect()")
 	
 	def disconnect(self):
 		raise NotImplementedError("Please implement SourceMeasureUnit.disconnect()")
@@ -394,6 +398,9 @@ class B2900A(SourceMeasureUnit):
 	
 	def setDevice(self, deviceID):
 		pass
+	
+	def connect(self):
+		return self.system_id
 	
 	def disconnect(self):
 		pass
@@ -748,7 +755,14 @@ class PCB_System(SourceMeasureUnit):
 		self.setParameter("calibrate-adc-offset !", responseStartsWith='#')
 		print('Switched to device: ' + str(deviceID))
 
+	def connect(self):
+		self.setParameter('activate !') #self.setParameter('activate !', responseStartsWith='#') # TODO: enforce activation acknowledgement
+		self.setParameter('authenticate !')
+		#return self.getResponse(startsWith='#') # TODO: capture the PCB's authentication token / serial number
+		return '' 
+
 	def disconnect(self):
+		self.setParameter('deactivate !')
 		self.ser.close()
 	
 	# --- Measurement Channels ---
@@ -953,6 +967,9 @@ class Emulator(SourceMeasureUnit):
 		pass
 
 	def setDevice(self, deviceID):
+		pass
+	
+	def connect(self):
 		pass
 	
 	def disconnect(self):
