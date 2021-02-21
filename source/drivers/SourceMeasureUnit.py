@@ -76,7 +76,7 @@ def availableConnections(includePySerial=True, includeVisa=True):
 	
 	return available_connections
 
-def testConnection(connected_system):
+def testConnection(connected_system, silent_disconnect=False):
 	if((connected_system is None) or ('type' not in connected_system)):
 		return False
 	
@@ -84,7 +84,7 @@ def testConnection(connected_system):
 		try:
 			smu_instance = getConnectionToPCB(port=connected_system['uniqueID'])
 			authenication_status = authenticateConnection(smu_instance)
-			smu_instance.disconnect()
+			smu_instance.disconnect(silent=silent_disconnect)
 			return authenication_status
 		except:
 			return False
@@ -101,6 +101,13 @@ def testConnection(connected_system):
 	
 def authenticateConnection(smu_instance):
 	response = smu_instance.connect()
+	
+	# TODO: use the response from .connect() to determine if this hardware is allowed to connect to the software
+	if(response == 'fake device'):
+		smu_instance.disconnect(silent=False)
+		print('Hardware authentication failed.')
+		return False
+	
 	print('Hardware authentication success.')
 	return True # This provides a hook for authenticating the software/hardware interface
 	
@@ -176,7 +183,7 @@ class SourceMeasureUnit:
 	def connect(self):
 		raise NotImplementedError("Please implement SourceMeasureUnit.connect()")
 	
-	def disconnect(self):
+	def disconnect(self, silent=False):
 		raise NotImplementedError("Please implement SourceMeasureUnit.disconnect()")
 	
 	# --- Measurement Channels ---
@@ -402,7 +409,7 @@ class B2900A(SourceMeasureUnit):
 	def connect(self):
 		return self.system_id
 	
-	def disconnect(self):
+	def disconnect(self, silent=False):
 		pass
 	
 	# --- Measurement Channels ---	
@@ -761,8 +768,9 @@ class PCB_System(SourceMeasureUnit):
 		#return self.getResponse(startsWith='#') # TODO: capture the PCB's authentication token / serial number
 		return '' 
 
-	def disconnect(self):
-		self.setParameter('deactivate !')
+	def disconnect(self, silent=False):
+		if(not silent):
+			self.setParameter('deactivate !')
 		self.ser.close()
 	
 	# --- Measurement Channels ---
@@ -972,7 +980,7 @@ class Emulator(SourceMeasureUnit):
 	def connect(self):
 		pass
 	
-	def disconnect(self):
+	def disconnect(self, silent=False):
 		pass
 
 	# --- Measurement Channels ---

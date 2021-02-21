@@ -58,7 +58,7 @@ def alternatingSweepValues(maximum, points):
 # Generates a sequence that linearly ramps from start to end. 
 # Every point is duplicated "duplicates" number of times.
 def rampValuesWithDuplicates(start, end, points, duplicates):
-	data = np.linspace(start, end, points/duplicates).tolist()
+	data = np.linspace(start, end, int(points/duplicates)).tolist()
 	if(start <= end):
 		return sorted(duplicates*data)
 	else:

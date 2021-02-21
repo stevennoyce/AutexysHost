@@ -149,9 +149,14 @@ def runStatusChecker(share):
 
 	def connectToMeasurementSystem(share, system):
 		requested_status = None
-		if(smu.testConnection(system)):
+		if(smu.testConnection(system, silent_disconnect=True)):
 			requested_status = {'connected_system': system}
 		return updateConnectionStatus(share, requested_status)
+	
+	def disconnectFromMeasurementSystem(share, previous_status=None):
+		if(previous_status is not None):
+			smu.testConnection(previous_status['connected_system'], silent_disconnect=False)
+		return updateConnectionStatus(share)
 	
 	while(True):
 		if(not pipes.poll(share, 'QueueToStatusChecker')):
@@ -171,7 +176,7 @@ def runStatusChecker(share):
 			
 			# Disconnect from the current measurement system, and notify the Manager when done
 			if(message.get('type') == 'Disconnect'):
-				connection_status = updateConnectionStatus(share)
+				connection_status = disconnectFromMeasurementSystem(share, connection_status)
 
 
 
