@@ -84,7 +84,7 @@ def testConnection(connected_system, silent_disconnect=False):
 		try:
 			smu_instance = getConnectionToPCB(port=connected_system['uniqueID'])
 			authenication_status = authenticateConnection(smu_instance)
-			smu_instance.disconnect(silent=silent_disconnect)
+			smu_instance.disconnect(silent=(silent_disconnect and authentication_status))
 			return authenication_status
 		except:
 			return False
@@ -104,7 +104,6 @@ def authenticateConnection(smu_instance):
 	
 	# TODO: use the response from .connect() to determine if this hardware is allowed to connect to the software
 	if(response == 'fake device'):
-		smu_instance.disconnect(silent=False)
 		print('Hardware authentication failed.')
 		return False
 	
