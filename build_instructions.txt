@@ -35,12 +35,13 @@ pip install -r pip_requirements.txt
 cd REPOSITORY_FOLDER (one level above "source/")
 source env/bin/activate
 cd source
-pyinstaller VersametricsInstalled.spec
+pyinstaller VersametricsPyinstalled.spec
 deactivate
 
 # To stage newly built distributable for Electron
-mv dist/ ../electron/dist/
 rm -r build/
+rm -r ../electon/dist/
+mv dist/ ../electron/
 cd ../electron
 # -------------------------------------------------------------------------------------------------------------
 
@@ -129,7 +130,7 @@ pip install -r pip_requirements.txt
 cd REPOSITORY_FOLDER (one level above "source/")
 env\Scripts\activate.bat
 cd source
-pyinstaller VersametricsInstalled.spec
+pyinstaller VersametricsPyinstalled.spec
 deactivate
 
 # To stage newly built distributable for Electron
