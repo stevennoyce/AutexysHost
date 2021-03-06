@@ -40,7 +40,7 @@ deactivate
 
 # To stage newly built distributable for Electron
 rm -r build/
-rm -r ../electon/dist/
+rm -r ../electron/dist/
 mv dist/ ../electron/
 cd ../electron
 # -------------------------------------------------------------------------------------------------------------
