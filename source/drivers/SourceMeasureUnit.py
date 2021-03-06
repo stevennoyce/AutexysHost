@@ -83,17 +83,17 @@ def testConnection(connected_system, silent_disconnect=False):
 	if(connected_system['type'] == 'Serial'):
 		try:
 			smu_instance = getConnectionToPCB(port=connected_system['uniqueID'])
-			authenication_status = authenticateConnection(smu_instance)
+			authentication_status = authenticateConnection(smu_instance)
 			smu_instance.disconnect(silent=(silent_disconnect and authentication_status))
-			return authenication_status
+			return authentication_status
 		except:
 			return False
 	
 	if(connected_system['type'] == 'Visa'):
 		try:
 			smu_instance = getConnectionToVisaResource(uniqueIdentifier=connected_system['uniqueID'])
-			authenication_status = authenticateConnection(smu_instance)
-			return authenication_status
+			authentication_status = authenticateConnection(smu_instance)
+			return authentication_status
 		except:
 			return False
 			
