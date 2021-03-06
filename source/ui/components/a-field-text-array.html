@@ -13,7 +13,7 @@
 		props: ['value', 'label', 'suffix', 'placeholder'],
 		data: function() {
 			return {
-				stringRepresentation: (this.value === undefined)? '' : JSON.stringify(this.value)
+				stringRepresentation: (this.value === undefined || !this.value.length)? '' : JSON.stringify(this.value)
 			};
 		},
 		methods: {
@@ -56,7 +56,7 @@
 			},
 			value(val) {
 				// Triggers to update what's actually displayed in the text field whenever we make changes to "this.value" (such as by calling this.makeInputValidJSON or also when "this.value" is changed by like a reset button for example)
-				this.stringRepresentation = (val === undefined)? '' : JSON.stringify(val);
+				this.stringRepresentation = (val === undefined || !val.length)? '' : JSON.stringify(val);
 			}
 		},
 		computed: {

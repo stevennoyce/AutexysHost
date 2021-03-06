@@ -70,7 +70,7 @@ default_parameters = {
 		'AutoGateSweep':{
 			'dependencies':					{'ignore':True, 'value':['GateSweep']},
 			'sweepsPerVDS': 				{'type':'int',   'essential':True, 'units':'#', 'default': 3,     'title':'Sweeps Per Drain Voltage', 'description':'Number of gate sweeps to take at each value of drain voltage.'},
-			'drainVoltageSetPoints': 		{'type':'array', 'essential':True, 'units':'V', 'default': [],    'title':'Drain Voltage Set Points', 'description':'List of drain voltage values to do sweeps at. If this list is empty, it defaults to the value provided in "GateSweep."'},
+			'drainVoltageSetPoints': 		{'type':'array', 'essential':True, 'units':'V', 'default': [],    'title':'Drain Voltage Set Points', 'description':'List of drain voltage values to do sweeps at. If this list is empty, it defaults to the value provided in "GateSweep."', 'placeholder':'Example: [-1, 0, 0.5]'}, 
 			'delayBetweenSweeps': 			{'type':'float',                   'units':'s', 'default': 2,     'title':'Delay Between Sweeps',     'description':'Delay between each sweep.'},
 			'timedSweepStarts': 			{'type':'bool',                                 'default': False, 'title':'Timed Sweeps',       	  'description':'When enabled, the delay between sweeps is dynamically reduced by the amount of time the sweep took.'}, 
 		},
@@ -290,7 +290,7 @@ default_parameters = {
 	},
 	'DeviceCycling':{
 		'numberOfCycles':		{'type':'int',   'units':'#', 'default': 1,       'title':'Number Of Cycles',      'description':'Number of times to repeat the measurement procedure on each device.'},
-		'specificDeviceRange':	{'type':'array',              'default': [],      'title':'Specific Device Range', 'description':'List of specific devices to cycle over.', 'choices':["1-2", "2-3", "3-4", "5-6", "6-7", "7-8", "9-10", "10-11", "11-12", "13-14", "14-15", "15-16", "19-20", "21-22", "27-28", "29-30", "30-31", "31-32", "33-34", "34-35", "35-36", "37-38", "38-39", "39-40", "41-42", "42-43", "43-44", "45-46", "46-47", "47-48", "51-52", "53-54", "59-60", "61-62", "62-63", "63-64"]}, 
+		'specificDeviceRange':	{'type':'array',              'default': [],      'title':'Specific Device Range', 'description':'List of specific devices to cycle over.', 'placeholder':'Example: ["1-2", "3-4"]', 'choices':["1-2", "2-3", "3-4", "5-6", "6-7", "7-8", "9-10", "10-11", "11-12", "13-14", "14-15", "15-16", "19-20", "21-22", "27-28", "29-30", "30-31", "31-32", "33-34", "34-35", "35-36", "37-38", "38-39", "39-40", "41-42", "42-43", "43-44", "45-46", "46-47", "47-48", "51-52", "53-54", "59-60", "61-62", "62-63", "63-64"]}, 
 		'delayBetweenDevices': 	{'type':'float', 'units':'s', 'default': 0,       'title':'Delay Between Devices', 'description':'Delay between switching from one device to the next.'},
 		'delayBetweenCycles': 	{'type':'float', 'units':'s', 'default': 0,       'title':'Delay Between Cycles',  'description':'Delay between each cycle of devices.'},
 		'timedCycles': 			{'type':'bool',               'default': False,   'title':'Timed Cycles',          'description':'When enabled, the delay between cycles is dynamically reduced by the amount of time the last cycle took.'}, 

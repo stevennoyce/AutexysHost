@@ -1,7 +1,7 @@
 <script type="text/html" id="a-item-edit-group">
 	<div>
 		<v-list-item dense v-for="(setting, settingName) in settings" v-if="['bool','float','int','string','choice','choice2','array'].includes(setting.type)" :key="settingName">
-			<a-item-edit :setting.sync="settings[settingName]" :tooltip="true"></a-item-edit>
+			<a-item-edit :setting.sync="settings[settingName]" :tooltip="true" :placeholder="setting.placeholder? setting.placeholder : ''"></a-item-edit>
 		</v-list-item>
 	</div>
 </script>
