@@ -3,44 +3,120 @@
 	<v-switch v-if="setting.type == 'bool'"
 		dense :label="(hide_label)? '' : setting.title" :suffix="setting.units" v-model="setting.default" 
 		class="mt-n3 mb-n2">
+		<template #append v-if="tooltip">
+			<v-tooltip right>
+				<template v-slot:activator="{ on: tooltip }">
+					<v-icon v-on="{ ...tooltip }" color="info">info_outline</v-icon>
+				</template>
+				<span v-if="setting.units"><b>{{ setting.title }}</b> (Units: [{{ setting.units }}])</br>{{ setting.description }}</span>
+				<span v-if="!setting.units"><b>{{ setting.title }}</b></br>{{ setting.description }}</span>
+			</v-tooltip>
+		</template>
 	</v-switch>
 	
 	<v-text-field v-else-if="setting.type == 'float'"
 		dense :label="(hide_label)? '' : setting.title" :suffix="setting.units" v-model.number="setting.default"
 		:placeholder="(placeholder)? placeholder : ' '" type="number" step="any" :rules="[rules.float]">
+		<template #append-outer v-if="tooltip">
+			<v-tooltip right>
+				<template v-slot:activator="{ on: tooltip }">
+					<v-icon v-on="{ ...tooltip }" color="info">info_outline</v-icon>
+				</template>
+				<span v-if="setting.units"><b>{{ setting.title }}</b> (Units: [{{ setting.units }}])</br>{{ setting.description }}</span>
+				<span v-if="!setting.units"><b>{{ setting.title }}</b></br>{{ setting.description }}</span>
+			</v-tooltip>
+		</template>
 	</v-text-field>
 	
 	<v-text-field v-else-if="setting.type == 'int'"
 		dense :label="(hide_label)? '' : setting.title" :suffix="setting.units" v-model.number="setting.default"
 		:placeholder="(placeholder)? placeholder : ' '" type="number" :rules="[rules.integer]">
+		<template #append-outer v-if="tooltip">
+			<v-tooltip right>
+				<template v-slot:activator="{ on: tooltip }">
+					<v-icon v-on="{ ...tooltip }" color="info">info_outline</v-icon>
+				</template>
+				<span v-if="setting.units"><b>{{ setting.title }}</b> (Units: [{{ setting.units }}])</br>{{ setting.description }}</span>
+				<span v-if="!setting.units"><b>{{ setting.title }}</b></br>{{ setting.description }}</span>
+			</v-tooltip>
+		</template>
 	</v-text-field>
 	
 	<v-text-field v-else-if="setting.type == 'string'"
 		dense :label="(hide_label)? '' : setting.title" :suffix="setting.units" v-model="setting.default"
 		:placeholder="(placeholder)? placeholder : ' '">
+		<template #append-outer v-if="tooltip">
+			<v-tooltip right>
+				<template v-slot:activator="{ on: tooltip }">
+					<v-icon v-on="{ ...tooltip }" color="info">info_outline</v-icon>
+				</template>
+				<span v-if="setting.units"><b>{{ setting.title }}</b> (Units: [{{ setting.units }}])</br>{{ setting.description }}</span>
+				<span v-if="!setting.units"><b>{{ setting.title }}</b></br>{{ setting.description }}</span>
+			</v-tooltip>
+		</template>
 	</v-text-field>
 	
 	<v-select v-else-if="setting.type == 'choice'"
 		dense :label="(hide_label)? '' : setting.title" :suffix="setting.units" v-model="setting.default"
 		:items="setting.choices">
+		<template #append-outer v-if="tooltip">
+			<v-tooltip right>
+				<template v-slot:activator="{ on: tooltip }">
+					<v-icon v-on="{ ...tooltip }" color="info">info_outline</v-icon>
+				</template>
+				<span v-if="setting.units"><b>{{ setting.title }}</b> (Units: [{{ setting.units }}])</br>{{ setting.description }}</span>
+				<span v-if="!setting.units"><b>{{ setting.title }}</b></br>{{ setting.description }}</span>
+			</v-tooltip>
+		</template>
 	</v-select>
 	
-	<a-field-paired-choice  v-else-if="setting.type == 'choice2'"
-		:label="(hide_label)? '' : setting.title" v-model="setting.default" 
-		:choices="setting.choices" :headers="setting.headers"
-		:placeholder="(placeholder)? placeholder : ' '">
-	</a-field-paired-choice>	
+	<v-tooltip top v-else-if="setting.type == 'choice2'">
+		<template v-slot:activator="{ on: tooltip }">
+			<div v-on="{ ...tooltip }">
+				<a-field-paired-choice 
+					:label="(hide_label)? '' : setting.title" v-model="setting.default" 
+					:choices="setting.choices" :headers="setting.headers"
+					:placeholder="(placeholder)? placeholder : ' '">
+				</a-field-paired-choice>
+			</div>
+		</template>
+		<span v-if="setting.units"><b>{{ setting.title }}</b> (Units: [{{ setting.units }}])</br>{{ setting.description }}</span>
+		<span v-if="!setting.units"><b>{{ setting.title }}</b></br>{{ setting.description }}</span>
+	</v-tooltip>
 	
 	<a-field-text-array v-else-if="setting.type == 'array'"
 		:label="(hide_label)? '' : setting.title" :suffix="setting.units" v-model="setting.default"
 		:placeholder="(placeholder)? placeholder : ' '">
+		<template #append-outer v-if="tooltip">
+			<v-tooltip right>
+				<template v-slot:activator="{ on: tooltip }">
+					<v-icon v-on="{ ...tooltip }" color="info">info_outline</v-icon>
+				</template>
+				<span v-if="setting.units"><b>{{ setting.title }}</b> (Units: [{{ setting.units }}])</br>{{ setting.description }}</span>
+				<span v-if="!setting.units"><b>{{ setting.title }}</b></br>{{ setting.description }}</span>
+			</v-tooltip>
+		</template>
 	</a-field-text-array>
+	
+	<!-- 
+		# === Tooltip "info" Icon === (duplicated several times above)
+		
+		<template #append v-if="tooltip">
+			<v-tooltip right>
+				<template v-slot:activator="{ on: tooltip }">
+					<v-icon v-on="{ ...tooltip }" color="info">info_outline</v-icon>
+				</template>
+				<span v-if="setting.units"><b>{{ setting.title }}</b> (Units: [{{ setting.units }}])</br>{{ setting.description }}</span>
+				<span v-if="!setting.units"><b>{{ setting.title }}</b></br>{{ setting.description }}</span>
+			</v-tooltip>
+		</template>
+	-->
 	
 </script>
 <script type="text/javascript">
 	Vue.component('a-item-edit', {
 		template: '#a-item-edit',
-		props: ['setting', 'hide_label', 'placeholder'],
+		props: ['setting', 'hide_label', 'placeholder', 'tooltip'],
 		data: function() {
 			return {
 				rules: {

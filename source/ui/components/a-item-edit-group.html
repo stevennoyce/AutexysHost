@@ -1,16 +1,8 @@
 <script type="text/html" id="a-item-edit-group">
 	<div>
-		<v-tooltip top v-for="(setting, settingName) in settings" v-if="['bool','float','int','string','choice','choice2','array'].includes(setting.type)" :key="settingName">
-			<template v-slot:activator="{ on: tooltip }">
-				<v-list-item dense v-on="{ ...tooltip }">
-					<a-item-edit :setting.sync="settings[settingName]"></a-item-edit>
-				</v-list-item>
-			</template>
-			<!--<span v-if="setting.units"><b>{{ setting.title }}</b> (Units: [{{ setting.units }}])</br>Type: <{{ setting.type }}></br>{{ setting.description }}</span>
-			<span v-if="!setting.units"><b>{{ setting.title }}</b></br>Type: <{{ setting.type }}></br>{{ setting.description }}</span>-->
-			<span v-if="setting.units"><b>{{ setting.title }}</b> (Units: [{{ setting.units }}])</br>{{ setting.description }}</span>
-			<span v-if="!setting.units"><b>{{ setting.title }}</b></br>{{ setting.description }}</span>
-		</v-tooltip>
+		<v-list-item dense v-for="(setting, settingName) in settings" v-if="['bool','float','int','string','choice','choice2','array'].includes(setting.type)" :key="settingName">
+			<a-item-edit :setting.sync="settings[settingName]" :tooltip="true"></a-item-edit>
+		</v-list-item>
 	</div>
 </script>
 

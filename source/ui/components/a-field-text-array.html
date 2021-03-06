@@ -1,7 +1,10 @@
 
 
 <script type="text/html" id="a-field-text-array">
-	<v-text-field v-model="stringRepresentation" dense :label="label" :suffix="suffix" :placeholder="placeholder" @blur="makeInputValidJSON"></v-text-field>
+	<v-text-field v-model="stringRepresentation" dense :label="label" :suffix="suffix" :placeholder="placeholder" @blur="makeInputValidJSON">
+		<slot name="append" slot="append"/>
+		<slot name="append-outer" slot="append-outer"/>
+	</v-text-field>
 </script>
 
 <script type="text/javascript">
