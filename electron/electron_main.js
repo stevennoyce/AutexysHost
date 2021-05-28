@@ -124,7 +124,7 @@ function start() {
   const startPython = () => {
   	const IS_WINDOWS = process.platform === 'win32';
     const PY_DIST_FOLDER = 'dist';
-    const PY_MODULE = 'VersametricsPyinstalled';
+    const PY_MODULE = 'VersametricsApp';
     
     const executablePath = () => {
       if(IS_WINDOWS) {
