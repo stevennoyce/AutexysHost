@@ -156,6 +156,7 @@ dist/
 
 # ====== Ignore Python Virtual Environment ======
 env/
+env36/
 # ===============================================
 
 
