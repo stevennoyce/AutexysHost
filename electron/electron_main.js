@@ -158,6 +158,8 @@ function start() {
       title: '',
       titleBarStyle: 'hidden', //'hiddenInset',
       webPreferences: {
+        enableRemoteModule: true,
+        contextIsolation: false,
         preload: path.join(__dirname, 'electron_preload.js'),
       },
     });
