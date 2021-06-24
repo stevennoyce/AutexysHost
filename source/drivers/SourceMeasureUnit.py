@@ -62,7 +62,7 @@ def availableConnections(includePySerial=True, includeVisa=True):
 	if(includeVisa):
 		try: 
 			import visa
-			rm = visa.ResourceManager('@py')
+			rm = visa.ResourceManager()
 			for visa_resource in rm.list_resources():
 				if(visa_resource[:4] != 'ASRL'):
 					possible_system_names = [system_uniqueID_distinguishers[distinguisher] for distinguisher in system_uniqueID_distinguishers.keys() if(str(distinguisher) in str(visa_resource))]
@@ -118,13 +118,13 @@ def getConnectionToVisaResource(uniqueIdentifier='', defaultComplianceCurrent=10
 	import visa
 	
 	# Try forming connection over National Instruments backend (or Python backend if that fails)
-	if(False): # As of 2021, the NI backend is too unstable on MacOS Big Sur and beyond. If this changes in the future this can be reverted to a try/except instead of if(False).
+	try:
 		rm = visa.ResourceManager()
 		if(uniqueIdentifier == ''):
 			uniqueIdentifier = rm.list_resources()[0]
 		visa_system = rm.open_resource(uniqueIdentifier)
 		print('Opened VISA connection through NI-VISA backend.')
-	else: #except:
+	except:
 		rm = visa.ResourceManager('@py')
 		if(uniqueIdentifier == ''):
 			uniqueIdentifier = rm.list_resources()[0]
