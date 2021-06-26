@@ -4829,7 +4829,7 @@
 				},
 				formatFolderBaseName: function(value) {
 					if(!value) return 'Data Folder';
-					var folders = value.split('/'); // TODO: make this work for windows file separators
+					var folders = value.split(/[\\/]/);
 					var base = folders[folders.length - 1];
 					if(!base && (folders.length > 1)) base = folders[folders.length - 2];
 					return base + '/';
