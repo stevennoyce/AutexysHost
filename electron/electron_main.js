@@ -1,6 +1,6 @@
 // === Imports ===
 
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, Menu } = require('electron');
 const path = require('path');
 const portscanner = require('portscanner');
 const contextMenu = require('electron-context-menu');
@@ -163,6 +163,9 @@ function start() {
         preload: path.join(__dirname, 'electron_preload.js'),
       },
     });
+    
+    // Hide default menu on Windows
+    Menu.setApplicationMenu(null);
     
     // Wait until the window has resized before immediately showing it
     mainWindow.maximize();
