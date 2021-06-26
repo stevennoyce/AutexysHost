@@ -49,7 +49,7 @@ def availableConnections(includePySerial=True, includeVisa=True):
 	
 	# Add PySerial active ports to the list of connections
 	if(includePySerial):
-		active_ports = [serial_port for serial_port in pySerialPorts.comports() if(serial_port.description != 'n/a')]
+		active_ports = [serial_port for serial_port in pySerialPorts.comports() if(serial_port.description != 'n/a' and serial_port.serial_number is not None)]
 		for port in active_ports:
 			possible_system_names = [system_uniqueID_distinguishers[distinguisher] for distinguisher in system_uniqueID_distinguishers.keys() if(str(distinguisher) in str(port.device))]
 			available_connections.append({
@@ -143,7 +143,7 @@ def getConnectionToVisaResource(uniqueIdentifier='', defaultComplianceCurrent=10
 def getConnectionToPCB(port='', baud=115200, system_settings=None):
 	# Iterate over possible USB connections
 	if(port == ''):
-		active_ports = [serial_port for serial_port in pySerialPorts.comports() if(serial_port.description != 'n/a')]
+		active_ports = [serial_port for serial_port in pySerialPorts.comports() if(serial_port.description != 'n/a' and serial_port.serial_number is not None)]
 		if(len(active_ports) == 0):
 			raise Exception('Unable to find any active serial ports to connect to PCB.')
 		else:
