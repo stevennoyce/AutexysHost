@@ -43,7 +43,6 @@ def dispatch(input_command, workspace_data_path=None, connection_status=None, sh
 			print('Dispatcher received a runType input.')
 			runType = input_command
 			additional_parameters = {'runType':runType}
-			x = 1/0
 			launcher.run(additional_parameters, workspace_data_path, connection_status, share)
 	except Exception as e:
 		logging.exception('Error: ' + str(e))
