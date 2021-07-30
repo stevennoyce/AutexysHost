@@ -273,6 +273,12 @@ default_parameters = {
 			'totalSensingTime':         {'type':'float',                   'units':'s', 'default': 60, 'title':'Total Sensing Time',         'description':'Total time to record measurements.'},
 			'delayBetweenMeasurements': {'type':'float',                   'units':'s', 'default': 0,  'title':'Delay Between Measurements', 'description':'Duration of time to delay after taking a measurement.'},
 		},
+		'Sensor':{
+			'dependencies': 			{'ignore':True, 'value':[]},
+			'saveFileName': 			{'type':'constant', 'default': 'Sensor', 'title':'Save File Name', 'description':'The name of the file that will be saved with the data from this experiment. This name should typically not be changed.'},
+			'totalDuration': 			{'type':'float',                   'units':'s', 'default': 60, 'title':'Total Sensing Time',         'description':'Total time to record measurements.'},
+			'delayBetweenMeasurements': {'type':'float',                   'units':'s', 'default': 0,  'title':'Delay Between Measurements', 'description':'Duration of time to delay after taking a measurement.'},
+		},
 	},
 	'Results':{
 		
@@ -336,6 +342,7 @@ default_schedules = {
 	'Multiple CNT Burn Outs': {"runType": "AutoBurnOut",    "Identifiers": {"user": "", "project": "", "wafer": "", "chip": "", "device": ""}, "runConfigs": {"AutoBurnOut": {"targetOnOffRatio": 80, "limitBurnOutsAllowed": 8}, "BurnOut": {"gateVoltageSetPoint": 15, "drainVoltageMaxPoint": 5, "minimumAppliedDrainVoltage": 1.1}}},
 	'Delay':                  {"runType": "Delay",          "Identifiers": {"user": "", "project": "", "wafer": "", "chip": "", "device": ""}, "runConfigs": {"Delay": {"delayTime": 60}}},
 	'PT Sensor':              {"runType": "PTSensor",       "Identifiers": {"user": "", "project": "", "wafer": "", "chip": "", "device": ""}, "runConfigs": {"PTSensor": {"totalSensingTime": 60}}},
+	'Sensor':                 {"runType": "Sensor",         "Identifiers": {"user": "", "project": "", "wafer": "", "chip": "", "device": ""}, "runConfigs": {"Sensor": {"totalDuration": 60}}},
 }
 
 # --- Measurement System Configurations ---

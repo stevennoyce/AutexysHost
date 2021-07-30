@@ -15,17 +15,17 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 	arduino_reference = arduino_systems[arduino_names[0]]
 
 	# Get shorthand name to easily refer to configuration parameters
-	pt_parameters = parameters['runConfigs']['PTSensor']
+	s_parameters = parameters['runConfigs']['Sensor']
 
 	# Print the starting message
-	print('Measuring prothrombin time sensor, with parameters: ' + str(pt_parameters))
+	print('Measuring sensor, with parameters: ' + str(s_parameters))
 
 	# === START ===	
 
 	print('Starting prothrombin time measurements.')
 	results = runSensor( arduino_reference,
-							total_duration=pt_parameters['totalSensingTime'],
-							delay_between_measurements=pt_parameters['delayBetweenMeasurements'],
+							total_duration=s_parameters['totalDuration'],
+							delay_between_measurements=s_parameters['delayBetweenMeasurements'],
 							share=share)
 	
 	# === COMPLETE ===
@@ -43,7 +43,7 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 
 	# Save results as a JSON object
 	print('Saving JSON: ' + str(dlu.getDeviceDirectory(parameters)))
-	dlu.saveJSON(dlu.getDeviceDirectory(parameters), pt_parameters['saveFileName'], jsonData, subDirectory=parameters['experimentSubFolder']+str(parameters['startIndexes']['experimentNumber']))
+	dlu.saveJSON(dlu.getDeviceDirectory(parameters), s_parameters['saveFileName'], jsonData, subDirectory=parameters['experimentSubFolder']+str(parameters['startIndexes']['experimentNumber']))
 
 	return jsonData
 
