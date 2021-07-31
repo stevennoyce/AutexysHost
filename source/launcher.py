@@ -332,11 +332,11 @@ def initializeArduino(parameters):
 		
 		# Only handle connections of type 'ARDUINO_SYSTEM'
 		if(system_type == 'ARDUINO_SYSTEM'):
-			arduino_systems[system_name] = arduinoBoard.getConnection(port=system_id, baud=9600, system_settings=system_settings)
+			arduino_systems[system_name] = arduinoBoard.getConnection(port=system_id, baud=115200, system_settings=system_settings)
 	
 	# If no specific ARDUINO_SYSTEM was included in configuration, still check to see if any are available to connect 
 	if(len(arduino_systems.keys()) == 0):	
-		arduino_systems = {'MCU': arduinoBoard.getConnection(port='', baud=9600)}
+		arduino_systems = {'MCU': arduinoBoard.getConnection(port='', baud=115200)}
 	
 	return arduino_systems
 	
@@ -369,6 +369,7 @@ from procedures import Burn_Out
 from procedures import Auto_Burn_Out
 from procedures import Delay
 from procedures import PT_Sensor
+from procedures import Sensor
 
 def explicitlyInitializeProcedures():	
 	basic_procedures = [
@@ -406,6 +407,7 @@ def explicitlyInitializeProcedures():
 		['AutoBurnOut',   Auto_Burn_Out],
 		['Delay',         Delay],
 		['PTSensor',      PT_Sensor],
+		['Sensor',        Sensor],
 	]
 	
 	enabledProcedures = []

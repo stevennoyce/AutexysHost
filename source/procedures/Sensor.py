@@ -81,7 +81,7 @@ def runSensor(arduino_reference, total_duration, delay_between_measurements, sha
 											xValues=[timestamp]*len(points), 
 											yValues=points, 
 											xAxisTitle='Time (s)', 
-											yAxisTitle='Sensor', 
+											yAxisTitle=f"Sensor ({key})", 
 											yscale='linear', 
 											plotMode='lines',
 											enumerateLegend=False,

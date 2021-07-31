@@ -12,7 +12,7 @@ import serial.tools.list_ports as pySerialPorts
 
 # === Connection API ===
 
-def getConnection(port='', baud=9600, system_settings=None):
+def getConnection(port='', baud=115200, system_settings=None):
 	# Iterate over possible USB connections, with looser restrictions if port == 'any'
 	active_ports = []
 	if(port == ''):
