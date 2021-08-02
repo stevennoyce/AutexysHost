@@ -58,7 +58,7 @@ class ArduinoSerial:
 	def getResponse(self, startsWith=''):
 		response = self.ser.readline().decode(encoding='UTF-8')
 		if(startsWith != ''):
-			while(response[0] != startsWith):
+			while(len(response) == 0) or (response[0] != startsWith):
 				print('SKIPPED:' + str(response))
 				response = self.ser.readline().decode(encoding='UTF-8')
 		return response
