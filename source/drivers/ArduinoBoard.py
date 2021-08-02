@@ -20,7 +20,6 @@ def getConnection(port='', baud=115200, system_settings=None):
 		if(len(limited_ports) > 0):
 			port = limited_ports[0].device
 	elif(port == 'any'):
-		print([(p.device, p.description) for p in pySerialPorts.comports()])
 		active_ports = [serial_port for serial_port in pySerialPorts.comports() if(serial_port.description != 'n/a')]
 		if(len(active_ports) > 0):
 			port = active_ports[0].device
