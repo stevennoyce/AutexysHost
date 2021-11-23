@@ -1,7 +1,7 @@
 """A utility that generates sequences of numbers that represent a particular voltage waveform."""
 
-import numpy as np
 import math
+import numpy as np
 
 # === Math Functions ===
 

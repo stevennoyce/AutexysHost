@@ -1,15 +1,10 @@
-# === Imports ===
 import time
-import queue
-
-
 
 # === Basic Queue Communication ===
 def send(share, qName, message):
+	if share is None: # Prevent null exceptions
+		return
 	try:
-		# Prevent null exceptions
-		if share is None:
-			return 
 		if qName not in share:
 			return
 		q = share[qName]
@@ -20,15 +15,13 @@ def send(share, qName, message):
 		else:
 			print('Queue is full')
 	
-	# Handle generic exceptions	
 	except Exception as e:
-		print('Queue put exception: ', e)
+		print(f"Queue put exception: {e}")
 
 def poll(share, qName):
+	if share is None: # Prevent null exceptions
+		return False
 	try:
-		# Prevent null exceptions
-		if share is None:
-			return False
 		if qName not in share:
 			return False
 		q = share[qName]
@@ -39,16 +32,14 @@ def poll(share, qName):
 		else:
 			return True
 	
-	# Handle generic exceptions	
 	except Exception as e:
-		print('Queue poll exception: ', e)
+		print(f"Queue poll exception: {e}")
 		return False
 
 def recv(share, qName, timeout=0):
+	if share is None: # Prevent null exceptions
+		return
 	try:
-		# Prevent null exceptions
-		if share is None:
-			return
 		if qName not in share:
 			return
 		q = share[qName]
@@ -61,19 +52,15 @@ def recv(share, qName, timeout=0):
 				return None
 			return q.get_nowait()
 	
-	# Handle empty Queue			
-	except queue.Empty as e:
-		return None
-	
-	# Handle generic exceptions	
 	except Exception as e:
-		print('Queue get exception: ', e)
+		if(timeout > 0):
+			print(f"Queue get exception: {e}")
+		return None
 
 def clear(share, qName):
+	if share is None: # Prevent null exceptions
+		return
 	try:
-		# Prevent null exceptions
-		if share is None:
-			return
 		if qName not in share:
 			return
 		q = share[qName]
@@ -82,9 +69,8 @@ def clear(share, qName):
 		while(not q.empty()):
 			q.get()
 	
-	# Handle generic exceptions	
 	except Exception as e:
-		print('Queue clearing exception: ', e)
+		print(f"Queue clearing exception: {e}")
 
 
 

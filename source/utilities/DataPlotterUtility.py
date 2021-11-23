@@ -1,9 +1,11 @@
+import glob
+import os
+import pkgutil
+import sys
+
 from utilities import MatplotlibUtility as mplu
 
-import pkgutil
-import os
-import sys
-import glob
+
 
 # Import all Plot Definitions and save a reference to run their 'plot' function
 plotDefinitions = {}

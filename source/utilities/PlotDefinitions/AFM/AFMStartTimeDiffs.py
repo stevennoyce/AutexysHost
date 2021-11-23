@@ -1,8 +1,5 @@
 from utilities.MatplotlibUtility import *
 
-import lmfit
-
-
 plotDescription = {
 	'plotCategory': 'device',
 	'priority': 550,
@@ -35,4 +32,3 @@ def plot(deviceHistory, identifiers, mode_parameters=None):
 	ax.set_xlabel('Line Number [#]')
 		
 	return (fig, (ax,))
-

@@ -1,8 +1,5 @@
 from utilities.MatplotlibUtility import *
 
-import lmfit
-
-
 plotDescription = {
 	'plotCategory': 'device',
 	'priority': 550,
@@ -24,59 +21,6 @@ def triangleSinWave(times, amplitude, period, phase, offset):
 
 def triangleCosWave(times, amplitude, period, phase, offset):
 	return triangleSinWave(times, amplitude, period, phase - period/4, offset)
-
-# def fitTriangleWave(times, values):
-# 	model = lmfit.Model(triangleCosWave)
-	
-# 	values = np.array(values)
-# 	minTime = np.min(times)
-# 	times = np.array(times) - minTime
-	
-# 	slopes = np.abs(values[1:]-values[0:-1])/((max(times)-min(times))/len(times))
-# 	slope = np.mean(slopes)
-	
-# 	params = model.make_params()
-	
-# 	params['amplitude'].value = (np.max(values) - np.min(values))/2
-# 	params['period'].value = 4*params['amplitude'].value/slope
-# 	params['offset'].value = np.mean(values)
-# 	params['phase'].value = (1-(values[0] - np.min(values))/(params['amplitude'].value*2))/(params['period'].value/2)
-	
-# 	fft = np.fft.rfft(values)
-# 	fft /= len(fft)
-	
-# 	offset = fft[0]
-# 	fft[0] = 0
-# 	maxFpos = np.argsort(np.abs(fft))[-1]
-# 	Fs = np.fft.rfftfreq(len(values), d=(max(times) - min(times))/len(times))
-# 	maxF = Fs[maxFpos]
-# 	phaseAngle = np.angle(fft[maxFpos])
-# 	amplitude = np.abs(fft[maxFpos])
-	
-# 	print('Frequency is: {}'.format(maxF))
-# 	print('Period is: {}'.format(1/maxF))
-# 	params['phase'].value = phaseAngle
-# 	params['period'].value = 1/maxF/2*1.1
-	
-# 	# params['phase'].min = 0
-# 	# params['phase'].max = 2*np.pi
-	
-# 	if True: # Fit only period first
-# 		for param in params:
-# 			params[param].vary = False
-# 		# params['phase'].vary = True
-# 		params['period'].vary = True
-		
-# 		result = model.fit(values, params, times=times)
-# 		# params['phase'].value  = result.best_values['phase']
-# 		params['period'].value = result.best_values['period']
-		
-# 		for param in params:
-# 			params[param].vary = True
-	
-# 	# result = model.fit(values, params, times=times)
-	
-# 	return result
 
 def fitTriangleWave(times, values):
 	import scipy

@@ -1,8 +1,5 @@
 from utilities.MatplotlibUtility import *
 
-import lmfit
-
-
 plotDescription = {
 	'plotCategory': 'device',
 	'priority': 570,
@@ -24,6 +21,7 @@ def triangleCosWave(times, amplitude, period, phase, offset):
 	return triangleSinWave(times, amplitude, period, phase - period/4, offset)
 
 def fitTriangleWave(times, values):
+	import lmfit
 	model = lmfit.Model(triangleCosWave)
 	
 	values = np.array(values)

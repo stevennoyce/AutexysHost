@@ -1,21 +1,9 @@
 """This module provides an interface for generating plots for a particular chip. The primary method is ChipHistory.makePlots()."""
 
-# === Make this script runnable ===
-if(__name__ == '__main__'):
-	import sys
-	sys.path.append(sys.path[0] + '/..')
-	
-	import os
-	pathParents = os.getcwd().split('/')
-	if 'AutexysHost' in pathParents:
-		os.chdir(os.path.join(os.path.abspath(os.sep), *pathParents[0:pathParents.index('AutexysHost')+1], 'source'))
-
 # === Imports ===
 import numpy as np
 from utilities import DataPlotterUtility as dpu
 from utilities import DataLoggerUtility as dlu
-
-
 
 # === Defaults ===
 default_ch_parameters = {
@@ -39,9 +27,6 @@ default_ch_parameters = {
 }
 
 
-
-# === Deprecated External Interface ===
-# makePlots(userID, projectID, waferID, chipID, specificPlot='', figureSize=None, sweepDirection=None, minIndex=0, maxIndex=float('inf'), minExperiment=0, maxExperiment=float('inf'), minRelativeIndex=0, maxRelativeIndex=float('inf'), loadOnlyMostRecentExperiments=True, numberOfRecentExperiments=1, numberOfRecentIndexes=1, specificDeviceList=None, minOnCurrent=None, maxOnCurrent=None, maxOffCurrent=None, maxGateCurrent=None, deviceCategoryLists=None, dataFolder=None, saveFolder=None, plotSaveName='', saveFigures=False, showFigures=True, plot_mode_parameters=None):
 
 # === External Interface ===
 def makePlots(userID, projectID, waferID, chipID, specificPlot='', 
@@ -178,12 +163,6 @@ def plotsForExperiments(parameters, minExperiment=0, maxExperiment=float('inf'),
 
 if(__name__ == '__main__'):
 	pass
-	#parameters = {'Identifiers':{'user':'stevenjay','project':'RedBoard','wafer':'Resistor','chip':'MegaOhm'}, 'dataFolder':'../../AutexysData'}
-	#print(dlu.getDataFileNamesForChipExperiments(dlu.getChipDirectory(parameters), minExperiment=0, maxExperiment=float('inf')))
-	#print(plotsForExperiments(parameters, minExperiment=0, maxExperiment=float('inf')))
-	#makePlots('jay', 'MoS2FET', 'JM4', 'C', specificPlot='ChipSubthresholdCurve', specificDeviceList={'3-6', '5-6', '4-5', '27-30', '28-29', '24-25', '34-35', '20-31', '31-32', '19-32'})
-	#makePlots('jay', 'MoS2FET', 'JM4', 'D', specificPlot='ChipTransferCurve', specificDeviceList={'3-6', '3-4', '1-2', '53-58', '28-29', '24-25', '59-63', '7-11', '43-44'})
-	#makePlots('jay', 'MoS2FET', 'JM4', 'D', specificPlot='ChipSubthresholdCurve', specificDeviceList={'3-6', '3-4', '1-2', '53-58', '28-29', '24-25', '59-63', '7-11', '43-44'}, sweepDirection='forward')
-	makePlots('jay', 'MoS2FET', 'JM4', 'D', specificPlot='ChipTransferCurve', specificDeviceList={'3-6', '3-4', '1-2', '28-29', '24-25', '7-11', '43-44'}, sweepDirection='forward')
+	#makePlots('jay', 'MoS2FET', 'JM4', 'D', specificPlot='ChipTransferCurve', specificDeviceList={'3-6', '3-4', '1-2', '28-29', '24-25', '7-11', '43-44'}, sweepDirection='forward')
 	
 
