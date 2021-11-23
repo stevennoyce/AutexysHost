@@ -1,17 +1,17 @@
-# === Imports ===
-import io
-import os
-import sys
-import glob
-import flask
-import json
 import copy
-import time
-import numpy as np
-import webbrowser
-import flask_socketio
+import glob
+import io
+import json
+import os
 import socket
+import sys
+import time
+import webbrowser
 from collections import Mapping, Sequence
+
+import numpy as np
+import flask
+import flask_socketio
 
 import defaults
 import pipes
@@ -23,14 +23,6 @@ from procedures import Chip_History as CH
 CH.dpu.mplu.plt.switch_backend('agg')
 
 from utilities import DataLoggerUtility as dlu
-
-# === Make this script runnable ===
-if __name__ == '__main__':
-	os.chdir(sys.path[0])
-	
-	pathParents = os.getcwd().split('/')
-	if 'AutexysHost' in pathParents:
-		os.chdir(os.path.join(os.path.abspath(os.sep), *pathParents[0:pathParents.index('AutexysHost')+1], 'source'))
 
 # === Constants ===
 SOCKETIO_DEFAULT_IP_ADDRESS = '127.0.0.1'
