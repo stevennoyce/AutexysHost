@@ -79,13 +79,10 @@ class AbortError(Exception):
 	"""Error type for a progress update that needs to trigger the abort sequence."""
 	pass
 
-def progressUpdate(share, progressName, start, current, end, barType='Procedure', enableAbort=False, extraInfo=''):
+def progressUpdate(share, progressName, start, current, end, barType='Procedure', enableAbort=False):
+	if(share is None): # Prevent null exceptions
+		return
 	try:
-		# Prevent null exceptions
-		if(share is None):
-			return
-
-		# Send a progress-type message to the UI
 		send(share, 'QueueToUI', {
 				'type':'Progress',
 				'progress': {
@@ -96,12 +93,10 @@ def progressUpdate(share, progressName, start, current, end, barType='Procedure'
 					'end': end,
 					'timestamp':time.time()
 				},
-				'info': extraInfo,
 			}
 		)		
-	# Handle generic exceptions	
 	except Exception as e:
-		print('Progress update exception: ', e)
+		print(f'Progress-Update exception: {e}')
 	
 	if(enableAbort):
 	 	checkAbortStatus(share)
@@ -112,6 +107,28 @@ def checkAbortStatus(share):
 
 def abortStatus(share):
 	return poll(share, 'QueueToDispatcher')
+
+
+
+# === Error Notifications ===
+def broadcastError(share, exception):
+	if(share is None): # Prevent null exceptions
+		return
+	exception_type = str(repr(exception)).split('(')[0]
+	exception_type = ''.join(f"{' ' if(c.isupper()) else ''}{c}" for c in exception_type).strip() 
+	
+	try:
+		send(share, 'QueueToUI', {
+				'type':'ErrorNotification',
+				'error': {
+					'group': 'Dispatcher',
+					'type': exception_type,
+					'message': str(exception),
+				},
+			}
+		)		
+	except Exception as e:
+		print(f'Broadcast-Error exception: {e}')
 
 
 
