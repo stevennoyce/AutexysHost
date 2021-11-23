@@ -3992,6 +3992,10 @@
 						this.dispatcherStatus.crashed = message.status.error?   true : false;
 					} else
 					
+					if(message.type === 'DispatcherIdentifiers') {
+						this.dispatcherIdentifiers = message.identifiers? message.identifiers : undefined;
+					} else
+										
 					if (message.type === 'JobNumberUpdate') {
 						if(!Object.keys(this.livePlots).includes("" + message.number)){
 							Vue.set(this.livePlots, message.number, {}); 
