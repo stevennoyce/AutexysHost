@@ -544,19 +544,17 @@ def saveCSV(user, project, wafer, chip, device, experiment):
 	# Load data from all '.json' files
 	deviceHistories = [dlu.loadJSON(path, fileName) for fileName in fileNames]
 	
-	# Create data saving objects
-	proxy = io.StringIO()
-	filebuf = io.BytesIO()
-	
 	# Save into StringIO 
+	proxy = io.StringIO()
 	dlu.saveCSV(deviceHistories, proxy)
 	
 	# Convert from StringIO to BytesIO
+	filebuf = io.BytesIO()
 	filebuf.write(proxy.getvalue().encode('utf-8'))
 	proxy.close()
 	
 	filebuf.seek(0)
-	return flask.send_file(filebuf, attachment_filename=defaults.DATA_EXPORT_NAME)
+	return flask.send_file(filebuf, as_attachment=True, attachment_filename=f"{chip}_{device}_Experiment{experiment}.csv")
 
 
 

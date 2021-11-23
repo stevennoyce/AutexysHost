@@ -6,7 +6,6 @@ HIDDEN_PARAMETERS = ['complianceCurrent', 'isFastSweep', 'fastSweepSpeed', 'dela
 # --- System Constants ---
 
 NOTES_FILE_NAME = 'Note.txt'
-DATA_EXPORT_NAME = 'data.csv'
 EXPERIMENT_FOLDER_PREFIX = 'Ex'
 
 # --- Default Parameters ---
