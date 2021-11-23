@@ -912,7 +912,7 @@ def updateAFMRegistry():
 
 
 if __name__ == '__main__':
-	start(debug=False, use_reloader=True, specific_port=None)
+	start()
 
 
 
