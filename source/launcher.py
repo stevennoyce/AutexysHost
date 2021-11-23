@@ -3,22 +3,19 @@ Experiments are typically fed to the launcher by a dispatcher as it reads experi
 also be run by providing a subset of the parameters found in defaults.py, but it is still recommended to define these parameters 
 in a schedule file and have a dispatcher handle execution."""
 
-# === Imports ===
-import os
-import sys
 import platform
-import time
 import copy
-
 import glob
+import os
 import pkgutil
-
-from utilities import DataLoggerUtility as dlu
-from drivers import SourceMeasureUnit as smu
-from drivers import ArduinoBoard as arduinoBoard
+import sys
+import time
 
 import defaults
 import pipes
+from utilities import DataLoggerUtility as dlu
+from drivers import SourceMeasureUnit as smu
+from drivers import ArduinoBoard as arduinoBoard
 
 
 
@@ -27,7 +24,7 @@ def run(additional_parameters, workspace_data_path=None, connection_status=None,
 	"""Begins execution of an experiment whose parameters are defined by the union of addition_parameters and defaults.py.
 	Also initializes a connection to the necessary SMU systems and/or Arduino systems needed to perform the experiment."""
 	
-	startTime = time.time()
+	start_time = time.time()
 	
 	# === Load Defaults ===
 	parameters = defaults.with_added(additional_parameters)
@@ -50,19 +47,15 @@ def run(additional_parameters, workspace_data_path=None, connection_status=None,
 	parameters['MeasurementSystem']['systems'] = defaults.system_configuration(parameters['MeasurementSystem']['systemType'])
 
 	# === SMU  ===
-	# Initialize measurement system
-	smu_systems = initializeMeasurementSystems(parameters, connection_status)		
-
-	# Initialize Arduino connection
+	smu_systems = initializeMeasurementSystems(parameters, connection_status, share)		
 	arduino_systems = initializeArduino(parameters)
-	print("Sensor data: " + str(parameters['SensorData']))
+	print(f"Sensor data: {parameters['SensorData']}")
 	
 	# === Start ===
 	startProcedure(parameters, smu_systems, arduino_systems, share=share)
 	# === Complete ===
 	
-	# Print finishing message noting how long this job took to run
-	print('Completed job in "' + '{:.4f}'.format(time.time() - startTime) + '" seconds.')
+	print(f'Completed job in "{round(time.time() - start_time, 4)}" seconds.')
 
 
 
@@ -98,7 +91,7 @@ def startProcedure(parameters, smu_systems, arduino_systems, share=None):
 		pipes.checkAbortStatus(share)
 		runProcedure(parameters, smu_systems, arduino_systems, deviceIndexes, target_devices, cycles=procedure_cycles, delay_between_devices=delay_between_devices, delay_between_cycles=delay_between_cycles, timed_cycles=timed_cycles, share=share)
 	except pipes.AbortError as e:
-		print("ABORT. Launcher received abort: " + str(e))
+		print(f"ABORT. Launcher received abort: {e}")
 	except:
 		# In case of a general procedure error, still try to ramp down SMU voltages, then disconnect
 		for smu_name, smu_instance in smu_systems.items():
@@ -108,7 +101,7 @@ def startProcedure(parameters, smu_systems, arduino_systems, share=None):
 		# Save data files to mark this experiment as ended before exiting
 		cleanUpDataSaving(parameters, target_devices, deviceIndexes)
 		
-		print('ERROR: Exception raised during the experiment.')
+		print("ERROR: Exception raised during the experiment.")
 		raise
 	# === Procedure Complete ===
 	
@@ -118,26 +111,21 @@ def startProcedure(parameters, smu_systems, arduino_systems, share=None):
 	
 	# Save data files to mark this experiment as complete
 	cleanUpDataSaving(parameters, target_devices, deviceIndexes)
-	print('Procedure complete.')
+	print("Procedure complete.")
 
 
 
 def runProcedure(parameters, smu_systems, arduino_systems, deviceIndexes, target_devices, cycles=1, delay_between_devices=0, delay_between_cycles=0, timed_cycles=False, share=None):
 	"""Runs the procedure specified in parameters, and iterates over many cycles if desired"""
 	
-	# Find all procedures defined in the 'procedures' sub-directory
 	procedureDefinitions = explicitlyInitializeProcedures()	
 	
-	# Determine if any cycling is set to occur
 	is_cycling = (cycles > 1) or (len(target_devices) > 1)
-	
-	# If any cycling will occur, notify the UI
 	if(is_cycling):
 		pipes.progressUpdate(share, 'Cycle', start=0, current=0, end=cycles, barType='Group1', enableAbort=True)
-		print('Device Cycling is beginning.')
+		print("Device Cycling is starting.")
 	
-	# Mark the start of this procedure
-	startTime = time.time()
+	start_time = time.time()
 	
 	# Repeat the procedure 'cycles' number of times
 	for cycle_index in range(cycles):
@@ -150,7 +138,7 @@ def runProcedure(parameters, smu_systems, arduino_systems, deviceIndexes, target
 				pipes.progressUpdate(share, 'Device', start=0, current=0, end=len(target_devices), barType='Group2', enableAbort=True)
 			
 			# Print the experiment start message
-			print('Running experiment #' + str(deviceIndexes[device]['experimentNumber']) + ' for device ' + str(parameters['Identifiers']['wafer']) + str(parameters['Identifiers']['chip']) + ':' + str(device))
+			print(f"Running experiment #{deviceIndexes[device]['experimentNumber']} for device {parameters['Identifiers']['wafer']}{parameters['Identifiers']['chip']}:{device}")
 		
 			# Make copy of parameters to run this Procedure, adjusting relevant device-specific properties
 			deviceParameters = copy.deepcopy(parameters)
@@ -176,7 +164,7 @@ def runProcedure(parameters, smu_systems, arduino_systems, deviceIndexes, target
 			# If desired, delay before moving on to the next device
 			if(device_index < len(target_devices)-1):
 				if(delay_between_devices > 0):
-					print('Waiting for ' + str(delay_between_devices) + ' seconds, before switching to next device...')
+					print(f"Waiting for {delay_between_devices} seconds, before switching to next device...")
 					time.sleep(delay_between_devices)
 		
 		# Send cycle progress update
@@ -186,8 +174,8 @@ def runProcedure(parameters, smu_systems, arduino_systems, deviceIndexes, target
 		# If desired, delay until next cycle should start.	
 		if(cycle_index < cycles-1):
 			if(delay_between_cycles > 0):
-				wait_duration = (delay_between_cycles) if(not timed_cycles) else ((startTime + delay_between_cycles*(cycle_index+1)) - time.time())
-				print('Waiting for ' + str(wait_duration) + ' seconds, before beginning next cycle...')
+				wait_duration = (delay_between_cycles) if(not timed_cycles) else ((start_time + delay_between_cycles*(cycle_index+1)) - time.time())
+				print(f"Waiting for {wait_duration} seconds, before beginning next cycle...")
 				time.sleep(max(0, wait_duration))	
 	
 	
@@ -198,7 +186,7 @@ def setUpDataSaving(parameters, target_devices):
 	deviceIndexes = {}
 	
 	# Save a single starting timestamp for all target devices
-	startTime = time.time()
+	start_timestamp = time.time()
 	
 	# Initialize saving data structures for all devices
 	for device in target_devices:
@@ -214,10 +202,10 @@ def setUpDataSaving(parameters, target_devices):
 		
 		# Store information about the start of this experiment for each device
 		deviceIndexes[device] = dlu.loadJSONIndex(dlu.getDeviceDirectory(deviceParameters))
-		deviceIndexes[device]['timestamp'] = startTime
+		deviceIndexes[device]['timestamp'] = start_timestamp
 		
 		# Print the experiment start message
-		print('Set up experiment #' + str(deviceIndexes[device]['experimentNumber']) + ' for device ' + str(deviceParameters['Identifiers']['wafer']) + str(deviceParameters['Identifiers']['chip']) + ':' + str(device))
+		print(f"Set up experiment #{deviceIndexes[device]['experimentNumber']} for device {deviceParameters['Identifiers']['wafer']}{deviceParameters['Identifiers']['chip']}:{device}")
 	
 	return deviceIndexes
 
@@ -236,18 +224,18 @@ def cleanUpDataSaving(parameters, target_devices, deviceIndexes):
 		deviceParameters['Identifiers']['device'] = device
 		
 		# Store information about the start and end of this experiment
-		deviceParameters['startIndexes'] = 	deviceIndexes[device]
+		deviceParameters['startIndexes'] = deviceIndexes[device]
 		deviceParameters['endIndexes'] = dlu.loadJSONIndex(dlu.getDeviceDirectory(deviceParameters))
 		deviceParameters['endIndexes']['timestamp'] = endTime
 		
 		# Save finished result to 'ParametersHistory' file for each device
-		print('Saving to ParametersHistory...')
+		print("Saving to ParametersHistory...")
 		dlu.saveJSON(dlu.getDeviceDirectory(deviceParameters), 'ParametersHistory', deviceParameters, incrementIndex=False)
 		
 		# If there was a note for this procedure, save it now
 		note = deviceParameters['Identifiers']['note']
 		if((note is not None) and (note != '')):
-			print('Saving Note...')
+			print("Saving Note...")
 			dlu.appendText(dlu.getExperimentDirectory(dlu.getDeviceDirectory(deviceParameters), deviceParameters['startIndexes']['experimentNumber']), defaults.NOTES_FILE_NAME, note)
 	
 	# If multiple devices were involved in this procedure, we need an additional file to be saved to track this
@@ -269,14 +257,14 @@ def cleanUpDataSaving(parameters, target_devices, deviceIndexes):
 		cyclingParameters['endIndexes']['timestamp']   = endTime
 		
 		# Save an additional file that contains information about all of the devices just involved in the last experiment
-		print('Saving to DeviceCycling...')
+		print("Saving to DeviceCycling...")
 		dlu.saveJSON(dlu.getDeviceDirectory(cyclingParameters), 'DeviceCycling', cyclingParameters, subDirectory=defaults.EXPERIMENT_FOLDER_PREFIX+str(cyclingParameters['startIndexes']['experimentNumber']))
 		dlu.saveJSON(dlu.getDeviceDirectory(cyclingParameters), 'ParametersHistory', cyclingParameters, incrementIndex=False)
 		
 
 
 # === SMU Connection ===
-def initializeMeasurementSystems(parameters, connection_status=None):
+def initializeMeasurementSystems(parameters, connection_status=None, share=None):
 	"""Given the parameters for running an experiment, sets up a connection to the necessary SMU or SMUs."""
 	
 	smu_systems = {}
