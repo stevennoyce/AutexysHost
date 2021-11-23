@@ -303,9 +303,9 @@ def loadMeasurementSystemConfiguration(systemType):
 	
 	# Load the system-specific config file
 	config_file = {}
-		if(os.path.exists(os.path.join(path, CONFIG_FILE_NAME))):
-			for json_data in dlu.loadJSON(path, CONFIG_FILE_NAME):
-				config_file.update(json_data)
+	if(os.path.exists(os.path.join(path, CONFIG_FILE_NAME))):
+		for json_data in dlu.loadJSON(path, CONFIG_FILE_NAME):
+			config_file.update(json_data)
 	
 	# Load all of the custom info docs for this system
 	config_docs = []
