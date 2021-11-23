@@ -3,10 +3,10 @@
 <script type="text/html" id="a-field-paired-choice">
 <v-row class="pb-0 pt-0">
 	<v-col class="pb-0 pt-0">
-		<v-text-field dense :label="headers[0]['name']" :placeholder="placeholder" :value="pair1" @input="(val) => {pair1 = val; updateValue();}"></v-text-field>
+		<v-text-field dense :label="headers[0]['name']" :placeholder="placeholder" persistent-placeholder :value="pair1" @input="(val) => {pair1 = val; updateValue();}"></v-text-field>
 	</v-col>
 	<v-col class="pb-0 pt-0">
-		<v-text-field dense :label="headers[1]['name']" :placeholder="placeholder" :value="pair2" @input="(val) => {pair2 = val; updateValue();}"></v-text-field>
+		<v-text-field dense :label="headers[1]['name']" :placeholder="placeholder" persistent-placeholder :value="pair2" @input="(val) => {pair2 = val; updateValue();}"></v-text-field>
 	</v-col>
 </v-row>
 </script>

@@ -16,7 +16,7 @@
 	
 	<v-text-field v-else-if="setting.type == 'float'"
 		dense :label="(hide_label)? '' : setting.title" :suffix="setting.units" v-model.number="setting.default"
-		:placeholder="(placeholder)? placeholder : ' '" type="number" step="any" :rules="[rules.float]">
+		:placeholder="(placeholder)? placeholder : ' '" persistent-placeholder type="number" step="any" :rules="[rules.float]">
 		<template #append-outer v-if="tooltip">
 			<v-tooltip right>
 				<template v-slot:activator="{ on: tooltip }">
@@ -30,7 +30,7 @@
 	
 	<v-text-field v-else-if="setting.type == 'int'"
 		dense :label="(hide_label)? '' : setting.title" :suffix="setting.units" v-model.number="setting.default"
-		:placeholder="(placeholder)? placeholder : ' '" type="number" :rules="[rules.integer]">
+		:placeholder="(placeholder)? placeholder : ' '" persistent-placeholder type="number" :rules="[rules.integer]">
 		<template #append-outer v-if="tooltip">
 			<v-tooltip right>
 				<template v-slot:activator="{ on: tooltip }">
@@ -44,7 +44,7 @@
 	
 	<v-text-field v-else-if="setting.type == 'string'"
 		dense :label="(hide_label)? '' : setting.title" :suffix="setting.units" v-model="setting.default"
-		:placeholder="(placeholder)? placeholder : ' '">
+		:placeholder="(placeholder)? placeholder : ' '" persistent-placeholder>
 		<template #append-outer v-if="tooltip">
 			<v-tooltip right>
 				<template v-slot:activator="{ on: tooltip }">

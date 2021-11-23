@@ -6,7 +6,7 @@
 	<!--<link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons' rel="stylesheet">-->
 	<link href='./css_icons_fonts/material_icons/material_icons.css' rel="stylesheet">
 	<link href='./css_icons_fonts/roboto_font/roboto_font.css' rel="stylesheet">
-	<link href="./libs/vuetify.css" rel="stylesheet">
+	<link href="./libs/vuetify.min.css" rel="stylesheet">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
 	
 	<meta http-equiv="cache-control" content="no-cache, must-revalidate, post-check=0, pre-check=0" />
@@ -135,7 +135,7 @@
 		/* === Layout === */
 		
 		.roundedcorners {
-			border-radius: 7px
+			border-radius: 7px !important;
 		}
 
 	</style>
@@ -162,23 +162,23 @@
 				<v-navigation-drawer app dark clipped fixed v-model="drawer" class="color_base pt-4">
 					<v-list dense>
 						<v-list-item @click="setTopLevelPage('dashboard')">
-							<v-list-item-action><v-avatar tile size="24"><v-icon>dashboard</v-icon></v-avatar></v-list-item-action>
+							<v-list-item-action><v-avatar size="24"><v-icon>dashboard</v-icon></v-avatar></v-list-item-action>
 							<v-list-item-content><v-list-item-title>Dashboard</v-list-item-title></v-list-item-content>
 						</v-list-item>
 						<v-list-item @click="setTopLevelPage('experimentRunner')">
-							<v-list-item-action><v-avatar tile size="24" class="roundedcorners" color="color_runner"><v-icon>play_circle_outline</v-icon></v-avatar></v-list-item-action>
+							<v-list-item-action><v-avatar size="24" class="roundedcorners" color="color_runner"><v-icon>play_circle_outline</v-icon></v-avatar></v-list-item-action>
 							<v-list-item-content><v-list-item-title>Experiment Runner</v-list-item-title></v-list-item-content>
 						</v-list-item>
 						<v-list-item @click="setTopLevelPage('scheduleBuilder')">
-							<v-list-item-action><v-avatar tile size="24" class="roundedcorners" color="color_builder"><v-icon>schedule</v-icon></v-avatar></v-list-item-action>
+							<v-list-item-action><v-avatar size="24" class="roundedcorners" color="color_builder"><v-icon>schedule</v-icon></v-avatar></v-list-item-action>
 							<v-list-item-content><v-list-item-title>Schedule Builder</v-list-item-title></v-list-item-content>
 						</v-list-item>
 						<v-list-item @click="setTopLevelPage('stepper'); getProjects();">
-							<v-list-item-action><v-avatar tile size="24" class="roundedcorners" color="color_browser"><v-icon>view_carousel</v-icon></v-avatar></v-list-item-action>
+							<v-list-item-action><v-avatar size="24" class="roundedcorners" color="color_browser"><v-icon>view_carousel</v-icon></v-avatar></v-list-item-action>
 							<v-list-item-content><v-list-item-title>Browser</v-list-item-title></v-list-item-content>
 						</v-list-item>
 						<v-list-item @click="setTopLevelPage('benchtop')">
-							<v-list-item-action><v-avatar tile size="24" class="roundedcorners" color="color_benchtop"><v-icon>speed</v-icon></v-avatar></v-list-item-action>
+							<v-list-item-action><v-avatar size="24" class="roundedcorners" color="color_benchtop"><v-icon>speed</v-icon></v-avatar></v-list-item-action>
 							<v-list-item-content><v-list-item-title>Benchtop</v-list-item-title></v-list-item-content>
 						</v-list-item>
 						<template v-if="defaultParameters['Deployment'] === 'Development'">
@@ -190,26 +190,26 @@
 									</v-list-item-content>
 								</template>
 								<v-list-item @click="setTopLevelPage('performance')">
-									<v-list-item-action><v-avatar tile size="24"><v-icon>speed</v-icon></v-avatar></v-list-item-action>
+									<v-list-item-action><v-avatar size="24"><v-icon>speed</v-icon></v-avatar></v-list-item-action>
 									<v-list-item-content><v-list-item-title>Performance</v-list-item-title></v-list-item-content>
 								</v-list-item>
 								<v-list-item @click="setTopLevelPage('ptSensor')">
-									<v-list-item-action><v-avatar tile size="24"><v-icon>opacity</v-icon></v-avatar></v-list-item-action>
+									<v-list-item-action><v-avatar size="24"><v-icon>opacity</v-icon></v-avatar></v-list-item-action>
 									<v-list-item-content><v-list-item-title>PT Sensor</v-list-item-title></v-list-item-content>
 								</v-list-item>
 							</v-list-group>
 						</template>
 						<v-divider></v-divider>
 						<v-list-item @click="setTopLevelPage('settings')" v-if="defaultParameters['Deployment'] === 'Development'">
-							<v-list-item-action><v-avatar tile size="24"><v-icon>settings</v-icon></v-avatar></v-list-item-action>
+							<v-list-item-action><v-avatar size="24"><v-icon>settings</v-icon></v-avatar></v-list-item-action>
 							<v-list-item-content><v-list-item-title>Settings</v-list-item-title></v-list-item-content>
 						</v-list-item>
 						<v-list-item @click="setTopLevelPage('about')">
-							<v-list-item-action><v-avatar tile size="24"><v-icon>info_outline</v-icon></v-avatar></v-list-item-action>
+							<v-list-item-action><v-avatar size="24"><v-icon>info_outline</v-icon></v-avatar></v-list-item-action>
 							<v-list-item-content><v-list-item-title>About</v-list-item-title></v-list-item-content>
 						</v-list-item>
 						<v-list-item @click="setTopLevelPage('documentation')" v-if="defaultParameters['Deployment'] === 'Development'">
-							<v-list-item-action><v-avatar tile size="24"><v-icon>info_outline</v-icon></v-avatar></v-list-item-action>
+							<v-list-item-action><v-avatar size="24"><v-icon>info_outline</v-icon></v-avatar></v-list-item-action>
 							<v-list-item-content><v-list-item-title>Documentation</v-list-item-title></v-list-item-content>
 						</v-list-item>
 					</v-list>
@@ -312,10 +312,11 @@
 											<v-list-item-avatar color="color_base"><v-icon dark>person_add</v-icon></v-list-item-avatar>
 											<v-list-item-content><v-list-item-title>Add User...</v-list-item-title></v-list-item-content>
 										</template>
-										<v-row align="start" class="pt-2" v-if="showNewUser">
-											<v-text-field solo dense class="ml-2 mr-2 mb-n2" placeholder="New User" v-model="newUser" @click.stop=""></v-text-field>
-											<v-btn fab x-small depressed color="success" class="mr-2 mt-1" :disabled="!newUser" @click.stop="addUser(newUser); getAll(); newUser = ''; showNewUser = false;"><v-icon>add</v-icon></v-btn>
-										</v-row>
+										<v-text-field v-if="showNewUser" solo hide-details dense placeholder="New User" v-model="newUser" @click.stop="">
+											<template v-slot:append-outer>
+												<v-btn fab x-small depressed color="success" :disabled="!newUser" @click.stop="addUser(newUser); getAll(); newUser = ''; showNewUser = false;"><v-icon>add</v-icon></v-btn>
+											</template>
+										</v-text-field>
 									</v-list-item>
 								</v-list>
 							</v-card>
@@ -367,7 +368,7 @@
 										</v-col>	
 									</template>
 									<span v-if="!workspaceDataFolderPath || !user">Setup a workspace and username above to get started.</span>
-									<span v-if="workspaceDataFolderPath && user">Go to dashboard!</span>
+									<span v-if="workspaceDataFolderPath && user">Go to Dashboard!</span>
 								</v-tooltip>			
 								<v-spacer></v-spacer>
 							</v-row>
@@ -379,7 +380,7 @@
 					
 					<v-card flat class="ma-4" v-if="topLevelPage === 'dashboard'">
 						<v-container>
-							<v-row class="pa-2">
+							<v-row class="my-0 pa-2">
 								<v-col cols="4" class="pa-1">
 									<v-tooltip bottom nudge-top="4" color="color_runner">
 										<template v-slot:activator="{ on: tooltip }">
@@ -536,15 +537,20 @@
 						
 						<v-stepper-items>
 							
-							<v-stepper-content step="1">
+							<v-stepper-content step="1" class="px-2 py-3">
 								<v-card v-if="(stepperPage > 0) && (projects.length)" flat>
 									<v-toolbar dark class="color_browser">
 										<v-toolbar-title>
-											{{ user | capitalize }}'s Projects
+											{{ (user || 'User') | capitalize }}'s Projects
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
-										<v-text-field v-model="projectTableSearch" class="ma-2" light solo rounded color="color_browser" background-color="info" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
-										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
+										<v-text-field v-model="projectTableSearch" class="ma-2 flex-grow-0" light solo rounded color="color_browser" background-color="info" prepend-inner-icon="search" label="Search Projects" single-line hide-details clearable></v-text-field>
+										<v-tooltip left color="color_browser">
+											<template v-slot:activator="{ on: tooltip }">
+												<v-btn icon @click="getAll()" v-on="{ ...tooltip }"><v-icon>refresh</v-icon></v-btn>
+											</template>
+											<span>Refresh</span>
+										</v-tooltip>
 									</v-toolbar>
 									<v-data-table must-sort :items="projects" :headers="projectTableHeaders" 
 										:search="projectTableSearch" no-results-text="Your search did not return any results."
@@ -567,16 +573,22 @@
 								</v-card>
 							</v-stepper-content>
 							
-							<v-stepper-content step="2">
+							<v-stepper-content step="2" class="px-2 py-3">
 								<v-card v-if="stepperPage > 1" flat>
 									<v-toolbar dark class="color_browser">
 										<v-btn icon @click="goBack(); getProjects()"><v-icon>arrow_back</v-icon></v-btn>
 										<v-toolbar-title>
-											Wafers ({{ project }})
+											Wafers
+											<div class="subheading text-body-2">{{ project }}</div>
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
-										<v-text-field v-model="waferTableSearch" class="ma-2" light solo rounded color="color_browser" background-color="info" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
-										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
+										<v-text-field v-model="waferTableSearch" class="ma-2 flex-grow-0" light solo rounded color="color_browser" background-color="info" prepend-inner-icon="search" label="Search Wafers" single-line hide-details clearable></v-text-field>
+										<v-tooltip left color="color_browser">
+											<template v-slot:activator="{ on: tooltip }">
+												<v-btn icon @click="getAll()" v-on="{ ...tooltip }"><v-icon>refresh</v-icon></v-btn>
+											</template>
+											<span>Refresh</span>
+										</v-tooltip>
 									</v-toolbar>
 									<v-data-table must-sort :items="wafers" :headers="waferTableHeaders" 
 										:search="waferTableSearch" no-results-text="Your search did not return any results."
@@ -601,16 +613,22 @@
 								</v-card>
 							</v-stepper-content>
 							
-							<v-stepper-content step="3">
+							<v-stepper-content step="3" class="px-2 py-3">
 								<v-card v-if="stepperPage > 2" flat>
 									<v-toolbar dark class="color_browser">
 										<v-btn icon @click="goBack(); getWafers()"><v-icon>arrow_back</v-icon></v-btn>
 										<v-toolbar-title>
-											Chips ({{ project }}/{{ wafer }})
+											Chips
+											<div class="subheading text-body-2">{{ project }}/{{ wafer }}</div>
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
-										<v-text-field v-model="chipTableSearch" class="ma-2" light solo rounded color="color_browser" background-color="info" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
-										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
+										<v-text-field v-model="chipTableSearch" class="ma-2 flex-grow-0" light solo rounded color="color_browser" background-color="info" prepend-inner-icon="search" label="Search Chips" single-line hide-details clearable></v-text-field>
+										<v-tooltip left color="color_browser">
+											<template v-slot:activator="{ on: tooltip }">
+												<v-btn icon @click="getAll()" v-on="{ ...tooltip }"><v-icon>refresh</v-icon></v-btn>
+											</template>
+											<span>Refresh</span>
+										</v-tooltip>
 									</v-toolbar>
 									<v-data-table must-sort :items="chips" :headers="chipTableHeaders" 
 										:search="chipTableSearch" no-results-text="Your search did not return any results."
@@ -635,22 +653,22 @@
 								</v-card>
 							</v-stepper-content>
 							
-							<v-stepper-content step="4">
+							<v-stepper-content step="4" class="px-2 py-3">
 								<v-card v-if="stepperPage > 3" flat>
 									<v-toolbar dark class="color_browser">
 										<v-btn icon @click="goBack(); getChips();"><v-icon>arrow_back</v-icon></v-btn>
 										<v-toolbar-title>
-											Devices ({{ project }}/{{ wafer }}/{{ chip }})
+											Devices
+											<div class="subheading text-body-2">{{ project }}/{{ wafer }}/{{ chip }}</div>
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
-										<v-tooltip left>
+										<v-text-field v-model="deviceTableSearch" class="ma-2 flex-grow-0" light solo rounded color="color_browser" background-color="info" prepend-inner-icon="search" label="Search Devices" single-line hide-details clearable></v-text-field>
+										<v-tooltip left color="color_browser">
 											<template v-slot:activator="{ on: tooltip }">
-												<v-btn fab small color="info" @click="copyHTMLStringToClip(devices.map(d => d.name))" v-on="{ ...tooltip }"><v-icon color="color_browser">format_list_bulleted</v-icon></v-btn>
+												<v-btn icon @click="getAll()" v-on="{ ...tooltip }"><v-icon>refresh</v-icon></v-btn>
 											</template>
-											<span>Copy device list</span>
+											<span>Refresh</span>
 										</v-tooltip>
-										<v-text-field v-model="deviceTableSearch" class="ma-2" light solo rounded color="color_browser" background-color="info" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
-										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
 									</v-toolbar>
 									<v-data-table must-sort :items="devices" :headers="deviceTableHeaders" 
 										:search="deviceTableSearch" no-results-text="Your search did not return any results."
@@ -676,7 +694,8 @@
 								<v-card v-if="stepperPage == 4 " flat>
 									<v-toolbar dark class="color_browser darken-1">
 										<v-toolbar-title>
-											Chip Summary Plots ({{ project }}/{{ wafer }}/{{ chip }})
+											Chip Summary Plots
+											<div class="subheading text-body-2">{{ project }}/{{ wafer }}/{{ chip }}</div>
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
 										<v-toolbar-items>
@@ -728,16 +747,30 @@
 								</v-card>
 							</v-stepper-content>
 
-							<v-stepper-content step="5">
+							<v-stepper-content step="5" class="px-2 py-3">
 								<v-card v-if="stepperPage > 4" flat>
 									<v-toolbar dark class="color_browser">
 										<v-btn icon @click="goBack(); getDevices();"><v-icon>arrow_back</v-icon></v-btn>
 										<v-toolbar-title>
-											Experiments ({{ wafer }}/{{ chip }}/{{ device }})
+											Experiments
+											<div class="subheading text-body-2">{{ project }}/{{ wafer }}/{{ chip }}/{{ device }}</div>
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
-										<v-text-field v-model="experimentTableSearch" class="ma-2" light solo rounded color="color_browser" background-color="info" append-icon="search" label="Search" single-line hide-details clearable></v-text-field>
-										<v-btn icon @click="getAll()"><v-icon>refresh</v-icon></v-btn>
+										<v-text-field v-model="experimentTableSearch" class="ma-2 flex-grow-0" light solo rounded color="color_browser" background-color="info" prepend-inner-icon="search" label="Search Experiments" single-line hide-details clearable></v-text-field>
+										<v-menu left bottom offset-y>
+											<template v-slot:activator="{ on: menu }">
+												<v-btn class="mr-2" icon v-on="{ ...menu }"><v-icon color="info">more_horiz</v-icon></v-btn>
+											</template>
+											<v-list dense>
+												<v-list-item disabled><v-list-item-action class="mr-2 my-0"><v-icon dense color="color_browser">save_alt</v-icon></v-list-item-action><v-list-item-content><v-list-item-title>Export...(coming soon)</v-list-item-title></v-list-item-content></v-list-item>
+											</v-list>
+										</v-menu>
+										<v-tooltip left color="color_browser">
+											<template v-slot:activator="{ on: tooltip }">
+												<v-btn icon @click="getAll()" v-on="{ ...tooltip }"><v-icon>refresh</v-icon></v-btn>
+											</template>
+											<span>Refresh</span>
+										</v-tooltip>
 									</v-toolbar>
 									<v-data-table must-sort :items="experimentsWithIndexes" :headers="experimentTableHeaders" 
 										:search="experimentTableSearch" no-results-text="Your search did not return any results."
@@ -762,7 +795,8 @@
 								<v-card v-if="stepperPage == 5" flat>
 									<v-toolbar dark class="color_browser darken-1">
 										<v-toolbar-title>
-											Device Summary Plots ({{ wafer }}/{{ chip }}/{{ device }})
+											Device Summary Plots
+											<div class="subheading text-body-2">{{ project }}/{{ wafer }}/{{ chip }}/{{ device }}</div>
 										</v-toolbar-title>
 										<v-spacer></v-spacer>
 										<v-toolbar-items class="pt-5 pb-5 ml-6">
@@ -794,12 +828,13 @@
 								
 							</v-stepper-content>
 							
-							<v-stepper-content step="6">
+							<v-stepper-content step="6" class="px-2 py-3">
 								<v-card v-if="stepperPage > 5 && experiments.length > experimentIndex" flat>
 									<v-toolbar dark class="color_browser ">
 										<v-btn icon @click="goBack(); getExperiments();"><v-icon>arrow_back</v-icon></v-btn>
 										<v-toolbar-title>
-											"{{ wafer }}/{{ chip }}/{{ device }}" Experiment #{{ experiment.startIndexes.experimentNumber }}
+											Experiment #{{ experiment.startIndexes.experimentNumber }}
+											<div class="subheading text-body-2">{{ project }}/{{ wafer }}/{{ chip }}/{{ device }}</div>
 										</v-toolbar-title>
 										<v-btn icon @click="goToExperiment(experimentIndex - 1)" :disabled="experimentIndex <= 0" class="ml-4"><v-icon right>arrow_back_ios</v-icon></v-btn>
 										<v-btn icon @click="goToExperiment(experimentIndex + 1)" :disabled="experimentIndex >= experiments.length - 1"><v-icon>arrow_forward_ios</v-icon></v-btn>
@@ -826,20 +861,20 @@
 														
 														<v-menu bottom left offset-y>
 															<template v-slot:activator="{ on }">
-																<v-btn v-on="on" icon><v-icon>settings</v-icon></v-btn>
+																<v-btn v-on="on" icon><v-icon>more_horiz</v-icon></v-btn>
 															</template>
 															<!-- !this.$parent.getElementsByClassName('zoomableImage')[0].complete -->
 															<v-list dense light>
 																<v-list-item @click="copyHTMLImageToClip('/plots/'+user+'/'+project+'/'+wafer+'/'+chip+'/'+device+'/'+experiment.startIndexes.experimentNumber+'/'+possiblePlot['type'] + cacheBust + '&plotSettings=' + encodeURI(JSON.stringify(plotSettings)))">
-																	<v-list-item-action><v-icon dense>photo</v-icon></v-list-item-action>
+																	<v-list-item-action class="mr-2 my-0"><v-icon dense>photo</v-icon></v-list-item-action>
 																	<v-list-item-title>Copy</v-list-item-title>
 																</v-list-item>
 																<v-list-item @click="disabledPlots.push(possiblePlot['type'])">
-																	<v-list-item-action><v-icon dense>photo</v-icon></v-list-item-action>
+																	<v-list-item-action class="mr-2 my-0"><v-icon dense>photo</v-icon></v-list-item-action>
 																	<v-list-item-title>Disable</v-list-item-title>
 																</v-list-item>
 																<v-list-item @click="removeValueFromArray(possiblePlot['type'], disabledPlots)">
-																	<v-list-item-action><v-icon dense>photo</v-icon></v-list-item-action>
+																	<v-list-item-action class="mr-2 my-0"><v-icon dense>photo</v-icon></v-list-item-action>
 																	<v-list-item-title>Enable</v-list-item-content>
 																</v-list-item>
 															</v-list>
@@ -874,10 +909,10 @@
 											</v-tooltip>
 										</v-toolbar>
 										<v-textarea readonly solo flat auto-grow rows="1" class="mr-4 ml-4 mb-n8" background-color="info" v-model="noteContent" v-if="noteContent"></v-textarea>
-										<v-row class="mr-4 ml-4" align="end">
+										<v-row class="my-0 mr-4 ml-4" align="end">
 											<v-textarea solo auto-grow rows="2" class="mr-4 mb-n4" label="Enter a new note here. Press the button to save." v-model="noteAddition"></v-textarea>
 										
-											<v-btn class="mb-4" dark color="color_browser" @click="addNote(experiment)"><v-icon left>add</v-icon>Add To Notes</v-btn>
+											<v-btn class="mb-4" :dark="!!noteAddition" color="color_browser" @click="addNote(experiment)" :disabled="!noteAddition"><v-icon left>add</v-icon>Add To Notes</v-btn>
 										</v-row>
 									</v-card>
 								
@@ -1179,7 +1214,7 @@
 							</v-toolbar>
 							
 							<v-container class="pa-5">
-								<v-row dense>
+								<v-row dense class="my-0">
 									<v-col sm="6" md="3" lg="3">
 										<v-select filled label="Experiment Type" v-model="runnerChoice" 
 										:items="['Schedule File'].concat(standardScheduleNames)"
@@ -1208,7 +1243,7 @@
 											
 											<v-expansion-panel-content>
 												<v-container>
-													<v-row dense>
+													<v-row dense class="my-0">
 														
 														<v-col cols="3">
 															<v-list class="roundedcorners">
@@ -1290,11 +1325,11 @@
 																			<img :key="runnerChoice" :src="'/parameterPlots/'+runnerUser+'/'+runnerProject+'/'+runnerFileName+'/'+runnerLoadingFromDefaults+'/' + cacheBust" v-show="!runnerPreviewToggle">
 																			
 																			<img src="/ui/resources/Socket_PLCC68_Diagram.png" v-show="runnerPreviewToggle">
-																			<template v-if="measurementSystemConfig.specs.pins && (parseInt(getDeviceSource(runnerScheduleObjects[0]['Identifiers']['device']['default'])) >= measurementSystemConfig.specs.pins.start_index) && (parseInt(getDeviceSource(runnerScheduleObjects[0]['Identifiers']['device']['default'])) <= measurementSystemConfig.specs.pins.end_index)">
-																				<img :src="'/ui/resources/overlays/overlay'+getDeviceSource(runnerScheduleObjects[0]['Identifiers']['device']['default'])+'.png'" style="position: absolute; top: 64; left:0;" v-show="runnerPreviewToggle">
+																			<template v-if="runner_selected_device && measurementSystemConfig.specs.pins && (parseInt(getDeviceSource(runner_selected_device)) >= measurementSystemConfig.specs.pins.start_index) && (parseInt(getDeviceSource(runner_selected_device)) <= measurementSystemConfig.specs.pins.end_index)">
+																				<img :src="'/ui/resources/overlays/overlay'+getDeviceSource(runner_selected_device)+'.png'" style="position: absolute; top: 64; left:0;" v-show="runnerPreviewToggle">
 																			</template>
-																			<template v-if="measurementSystemConfig.specs.pins && (parseInt(getDeviceDrain(runnerScheduleObjects[0]['Identifiers']['device']['default'])) >= measurementSystemConfig.specs.pins.start_index) && (parseInt(getDeviceDrain(runnerScheduleObjects[0]['Identifiers']['device']['default'])) <= measurementSystemConfig.specs.pins.end_index)">
-																				<img :src="'/ui/resources/overlays/overlay'+getDeviceDrain(runnerScheduleObjects[0]['Identifiers']['device']['default'])+'.png'" style="position: absolute; top: 64; left:0;" v-show="runnerPreviewToggle">
+																			<template v-if="runner_selected_device && measurementSystemConfig.specs.pins && (parseInt(getDeviceDrain(runner_selected_device)) >= measurementSystemConfig.specs.pins.start_index) && (parseInt(getDeviceDrain(runner_selected_device)) <= measurementSystemConfig.specs.pins.end_index)">
+																				<img :src="'/ui/resources/overlays/overlay'+getDeviceDrain(runner_selected_device)+'.png'" style="position: absolute; top: 64; left:0;" v-show="runnerPreviewToggle">
 																			</template>
 																		</v-expansion-panel-content>
 																	</v-expansion-panel>
@@ -1305,7 +1340,7 @@
 													</v-row>
 												</v-container>
 												
-												<v-row>
+												<v-row class="my-0">
 													<v-switch class="ml-6 mt-0" label="Advanced" v-model="runnerToggleAdvancedSettings"></v-switch>
 													<v-spacer></v-spacer>
 													<v-tooltip left color="color_runner">
@@ -1350,7 +1385,7 @@
 														</v-list>
 													</v-col>
 												</v-row>
-												<v-row>
+												<v-row class="my-0">
 													<v-spacer></v-spacer>
 													<v-btn class="mr-6 mb-3" small @click="runnerSaveScheduleFile()" :disabled="!isNecessaryToSaveRunnerScheduleFile()">Save</v-btn>
 												</v-row>
@@ -1373,6 +1408,8 @@
 												<v-list-item-content v-if="runnerChoice === 'Schedule File' && (runnerUser && runnerProject && runnerFileName)" style="overflow-x: scroll">
 													Schedule file: Workspace/{{ runnerUser }}/{{ runnerProject }}/schedules/{{ runnerFileName }}.json
 												</v-list-item-content>
+												<v-btn class="ml-3" @click="runnerStop()" 
+													:disabled="(!dispatcherStatus.running) || (dispatcherStatus.stopping)"><v-icon left>pause</v-icon>Stop</v-btn>
 												<template v-if="runnerChoice === 'Schedule File'">
 													<v-btn class="ml-3" @click="runnerClear(); runnerSaveScheduleFile(runnerStart);" 
 													:disabled="!(runnerUser && runnerProject && runnerFileName)"><v-icon left color="success">play_arrow</v-icon>Run</v-btn>
@@ -1381,8 +1418,6 @@
 													<v-btn class="ml-3" @click="runnerClear(); runnerSaveScheduleFile(runnerStart);" 
 													:disabled="!isPossibleToSaveRunnerScheduleFile()"><v-icon left color="success">play_arrow</v-icon>Run ({{ runnerChoice }})</v-btn>
 												</template>
-												<v-btn class="ml-3" @click="runnerStop()" 
-													:disabled="(!dispatcherStatus.running) || (dispatcherStatus.stopping)"><v-icon left>pause</v-icon>Stop</v-btn>
 											</v-row>
 										</v-list-item>
 									</v-list>
@@ -1392,16 +1427,16 @@
 						</v-card>
 						
 						<v-card class="mt-3" v-if="showProgress">
-							<v-toolbar dark dense :color="dispatcherStatus.running? 'color_runner' : (dispatcherStatus.error? 'warning' : 'success')">
+							<v-toolbar dark dense :color="dispatcherStatus.running? 'color_runner' : (dispatcherStatus.crashed? 'warning' : 'success')">
 								<v-avatar size="36" color="info lighten-1" class="mr-3">
 									<v-icon color="color_runner" v-if="dispatcherStatus.running">hourglass_empty</v-icon>
 									<template v-if="!dispatcherStatus.running">
-										<v-icon color="warning darken-1" v-if="dispatcherStatus.error">warning</v-icon>
-										<v-icon color="success" v-if="!dispatcherStatus.error">done</v-icon>
+										<v-icon color="warning" v-if="dispatcherStatus.crashed">warning</v-icon>
+										<v-icon color="success" v-if="!dispatcherStatus.crashed">done</v-icon>
 									</template>
 								</v-avatar>
 								<v-toolbar-title>
-									{{ dispatcherStatus.running? 'Progress' : (dispatcherStatus.error? 'Error':'Complete') }} 
+									{{ dispatcherStatus.running? 'Progress' : (dispatcherStatus.crashed? 'Error':'Complete') }} 
 								</v-toolbar-title>
 								<v-spacer></v-spacer>		
 								<v-toolbar-title>
@@ -1409,6 +1444,14 @@
 									<v-icon class="pb-1">timer</v-icon>
 								</v-toolbar-title>
 							</v-toolbar>
+							
+							<v-card v-if="dispatcherStatus.crashed && dispatcherStatus.error">
+								<v-card-title>
+									<v-icon left color="warning">info_outline</v-icon>
+									<span class="font-weight-light">{{ dispatcherStatus.error.type }}</span>
+								</v-card-title>
+								<v-card-subtitle>{{ dispatcherStatus.error.message }}</v-card-subtitle>
+							</v-card>
 							
 							<v-list>
 								<a-progress-bar-timed v-for="barID in ['Dispatcher', 'Group1', 'Group2', 'Sweep']" :key="barID" 
@@ -1427,40 +1470,13 @@
 								:time="experimentProgressModel['Procedure'].time_current - experimentProgressModel['Procedure'].time_start"></a-progress-bar-timed>
 								
 								<v-divider></v-divider>
-								
-								<!--
-								<v-list-item v-if="experimentProgressModel['Dispatcher'].visible">
-									<v-list-item-content style="flex-direction:row;align-items:center;" class="mr-3">
-										<v-list-item-title>Dispatcher: {{experimentProgressModel['Dispatcher'].name}} {{experimentProgressModel['Dispatcher'].current}} of {{experimentProgressModel['Dispatcher'].end}} </v-list-item-title>
-										<v-progress-linear class="roundedcorners" height="10" color="success" v-model="experimentProgressModel['Dispatcher'].percent"></v-progress-linear>
-									</v-list-item-content>
-									<v-list-item-action style="text-align:right;">	
-										<v-list-item-sub-title>{{experimentProgressTimer.current - experimentProgressTimer.start | twoDecimalPoints}}</v-list-item-sub-title>
-									</v-list-item-action>
-								</v-list-item>
-								<v-list-item v-if="experimentProgressModel['Sweep'].visible">
-									<v-list-item-title>Sweep: {{experimentProgressModel['Sweep'].name}} {{experimentProgressModel['Sweep'].current}} of {{experimentProgressModel['Sweep'].end}} </v-list-item-title>
-									<v-progress-linear v-model="experimentProgressModel['Sweep'].percent"></v-progress-linear>
-								</v-list-item>
-								<v-list-item v-if="experimentProgressModel['Group1'].visible">
-									<v-list-item-title>{{experimentProgressModel['Group1'].name}} {{experimentProgressModel['Group1'].current}} of {{experimentProgressModel['Group1'].end}} </v-list-item-title>
-									<v-progress-linear v-model="experimentProgressModel['Group1'].percent"></v-progress-linear>
-								</v-list-item>
-								<v-list-item v-if="experimentProgressModel['Group2'].visible">
-									<v-list-item-title>{{experimentProgressModel['Group2'].name}} {{experimentProgressModel['Group2'].current}} of {{experimentProgressModel['Group2'].end}} </v-list-item-title>
-									<v-progress-linear v-model="experimentProgressModel['Group2'].percent"></v-progress-linear>
-								</v-list-item>
-								<v-list-item v-if="experimentProgressModel['Procedure'].visible">
-									<v-list-item-title>Procedure: {{experimentProgressModel['Procedure'].name}} {{experimentProgressModel['Procedure'].current}} of {{experimentProgressModel['Procedure'].end}} </v-list-item-title>
-									<v-progress-linear v-model="experimentProgressModel['Procedure'].percent"></v-progress-linear>
-								</v-list-item>
-								-->
 							</v-list>
 							
 							<v-container>
-								<v-row dense >
+								<v-row dense>
+									<v-spacer v-if="(jobSelectItems.length < 2) && (deviceSelectItems.length < 2)"></v-spacer>
 									<v-col cols="3">
-										<v-btn block height="50" class="mb-7" dark color="color_browser" v-if="dispatcherIdentifiers" 
+										<v-btn block height="50" class="mb-7" dark color="color_browser" v-if="dispatcherIdentifiers && experimentProgressModel['Procedure'].visible" 
 											@click="setTopLevelPage('stepper'); goToIdentifiers(dispatcherIdentifiers);">
 											<v-icon left>view_carousel</v-icon>View in Browser</v-btn>
 									</v-col>										
@@ -1571,7 +1587,7 @@
 								</v-card>
 							</template>
 							<v-card light class="pl-3 pr-3" color="info" v-if="benchtop.system">
-								<v-row dense>
+								<v-row dense class="my-0">
 									<v-col cols="6">
 										<v-card-title>
 											<v-avatar color="success" class="mr-3"><v-icon dark>wifi</v-icon></v-avatar>
@@ -1589,7 +1605,7 @@
 							</v-card>
 							
 							<template v-if="benchtop.system && connectedMeasurementSystem">
-								<v-row dense class="pt-1">
+								<v-row dense class="pt-1 my-0">
 									<v-col cols="6">
 										<v-card class="pa-3" :dark="benchtop.channel1.enabled" :color="benchtop.channel1.enabled? 'color7' : 'info'">
 											<v-row dense>
@@ -1687,13 +1703,13 @@
 									<v-card dark color="#4B4B4B" v-if="(benchtop.plot.traces.channel1.visible || benchtop.plot.traces.channel2.visible) && !(benchtop.plot_info.splitscreen && benchtop.plot.traces.channel1.visible && benchtop.plot.traces.channel2.visible)">
 										<a-plotly v-bind:data="extractPlotlyData(benchtop.plot)" :layout="extractPlotlyLayout(benchtop.plot)"></a-plotly>
 									</v-card>
-									<v-row dense v-if="benchtop.plot_info.splitscreen && benchtop.plot.traces.channel1.visible && benchtop.plot.traces.channel2.visible">
-										<v-col cols="6">
+									<v-row class="my-0" dense v-if="benchtop.plot_info.splitscreen && benchtop.plot.traces.channel1.visible && benchtop.plot.traces.channel2.visible">
+										<v-col cols="6" class="py-0">
 											<v-card dark color="color7 darken-2">
 												<a-plotly v-bind:data="extractPlotlyData(benchtop.plot, specificTraces='channel1')" :layout="extractPlotlyLayout(benchtop.plot)"></a-plotly>
 											</v-card>
 										</v-col>
-										<v-col cols="6">
+										<v-col cols="6" class="py-0">
 											<v-card dark color="color8 darken-2">
 												<a-plotly v-bind:data="extractPlotlyData(benchtop.plot, specificTraces='channel2')" :layout="extractPlotlyLayout(benchtop.plot)"></a-plotly>
 											</v-card>
@@ -1751,7 +1767,7 @@
 									<v-expansion-panel class="grey lighten-4">
 										<v-expansion-panel-header class="pt-0 pb-0">
 											<v-row no-gutters>
-												<v-avatar tile size="24" class="mt-3 mr-2 roundedcorners" color="info darken-2"><v-icon dark>{{ doc.icon }}</v-icon></v-avatar>
+												<v-avatar size="24" class="mt-3 mr-2 roundedcorners" color="info darken-2"><v-icon dark>{{ doc.icon }}</v-icon></v-avatar>
 												<div style="display:inline; height: 50px; line-height: 50px;">{{ doc.title }}</div>
 												<v-spacer></v-spacer>
 											</v-row>
@@ -1825,7 +1841,7 @@
 							<v-container>							
 								<v-card class="mb-1 pa-1 grey lighten-4 roundedcorners" v-if="Object.keys(performanceScheduleObject).length > 0">
 									<v-container>
-										<v-row dense>
+										<v-row dense class="my-0">
 											<v-col cols="3">
 												<v-list class="roundedcorners">
 													<v-list-item class="pb-1">
@@ -1880,7 +1896,7 @@
 														<v-expansion-panel-content class="padlessexpansionpanel">
 															<v-list class="roundedcorners">
 																<v-list-item>
-																	<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['pointLimit']" placeholder="unlimited"></a-item-edit>
+																	<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['pointLimit']" placeholder="unlimited" persistent-placeholder></a-item-edit>
 																</v-list-item>
 																<v-list-item>
 																	<a-item-edit :setting.sync="performanceScheduleObject['runConfigs']['FreeRun']['delayBetweenMeasurements']"></a-item-edit>
@@ -1928,7 +1944,7 @@
 							</v-container>
 								
 							<v-container class="pa-0">
-								<v-row no-gutters>
+								<v-row no-gutters class="my-0">
 									<v-col cols="10">
 										<v-card flat>
 											<v-toolbar dark flat color="color_performance" class="pb-1">
@@ -2022,7 +2038,7 @@
 							<v-container>
 								<v-card class="mb-1 pa-1 grey lighten-4 roundedcorners" v-if="Object.keys(ptSensorScheduleObject).length > 0">
 									<v-container>
-										<v-row dense>
+										<v-row dense class="my-0">
 											<v-col cols="3">
 												<v-list class="roundedcorners">
 													<v-list-item class="pb-1">
@@ -2057,7 +2073,7 @@
 							</v-container>
 								
 							<v-container class="pa-0">
-								<v-row no-gutters>
+								<v-row no-gutters class="my-0">
 									<v-col cols="10">
 										<v-card flat>
 											<v-toolbar dark flat color="color_ptsensor" class="pb-1">
@@ -2215,7 +2231,7 @@
 										<v-expansion-panel-header class="pt-0 pb-0">
 											<template v-slot:default="{ open }">
 												<v-row no-gutters>
-													<v-avatar tile size="24" class="mt-3 mr-2 roundedcorners" :color="getDocumentationColor(documentationInfo[index]['title'])" v-if="getDocumentationColor(documentationInfo[index]['title'])">
+													<v-avatar size="24" class="mt-3 mr-2 roundedcorners" :color="getDocumentationColor(documentationInfo[index]['title'])" v-if="getDocumentationColor(documentationInfo[index]['title'])">
 														<v-icon dark>{{ getDocumentationIcon(documentationInfo[index]['title']) }}</v-icon>
 													</v-avatar>
 													<div style="display:inline; height: 50px; line-height: 50px;">
@@ -2685,7 +2701,8 @@
 				
 				dispatcherStatus: {
 					running: false,
-					error: false,
+					crashed: false,
+					error: undefined,
 					stopping: false,
 				},
 				dispatcherIdentifiers: undefined,
@@ -3339,7 +3356,13 @@
 					projectName = projectName? projectName : this.runnerProject;
 					fileName    = fileName?    fileName    : this.runnerFileName;
 					var path = this.launchDispatcherPath(userName, projectName, fileName);
-					this.getJSON(path, (response => {this.dispatcherStatus.running = true; this.dispatcherStatus.stopping = false; this.dispatcherStatus.error = false;}), "Error dispatching schedule file");
+					this.getJSON(path, (response => {
+						this.dispatcherStatus.running = true; 
+						this.dispatcherStatus.stopping = false; 
+						this.dispatcherStatus.crashed = false; 
+						this.dispatcherStatus.error = undefined;
+						this.dispatcherIdentifiers = undefined;
+					}), "Error dispatching schedule file");
 				},
 				runnerStop: function() {
 					var path = this.stopDispatcherPath();
@@ -3929,7 +3952,13 @@
 				
 				// === Server Update ===
 				
-				handleServerMessage: function(message) {					
+				handleServerMessage: function(message) {
+					if(message.type === 'ErrorNotification') {
+						if(message.error.group === 'Dispatcher') {
+							this.dispatcherStatus.error = {type: message.error.type, message: message.error.message};
+						}
+					} else
+					
 					if(message.type === 'ConnectionStatus') {
 						// === Obtain connection status update from the message ===
 						this.availableMeasurementSystems = message.status.available_measurement_systems;
@@ -3960,7 +3989,7 @@
 					
 					if(message.type === 'DispatcherStatus') {
 						this.dispatcherStatus.running = message.status.running? true : false;
-						this.dispatcherStatus.error   = message.status.error?   true : false;
+						this.dispatcherStatus.crashed = message.status.error?   true : false;
 					} else
 					
 					if (message.type === 'JobNumberUpdate') {
@@ -4001,11 +4030,6 @@
 						if(message.progress.barType === "Procedure"){
 							this.experimentProgressModel['Procedure'].time_start = this.checkStartTime(this.experimentProgressModel['Procedure'].time_start, this.experimentProgressModel['Procedure'].current, message.progress.timestamp, message.progress.current);
 							this.experimentProgressModel['Procedure'].time_current = message.progress.timestamp;
-						}
-						
-						// Enable the "View in Browser" feature of the progress bar 
-						if(message.progress.barType === "Dispatcher"){
-							this.dispatcherIdentifiers = (message.info)? message.info : undefined;
 						}
 						
 						// Update individual progress bars
@@ -4676,6 +4700,10 @@
 				experimentIndex: function(val) { this.getAssociatedAFMs(); },
 			},
 			computed: {
+				runner_selected_device: function() {
+					return _.get(this.runnerScheduleObjects, '0.Identifiers.device.default', undefined);	
+				},
+				
 				experiment: function() {
 					if (this.experimentIndex > this.experiments.length) this.experimentIndex = 0;
 					return this.experiments[this.experimentIndex];
