@@ -181,7 +181,7 @@ def runStaticBias(smu_instance, arduino_instance, totalBiasTime, measurementTime
 		vgs_data.append(vgs_data_median)
 		ig_data.append(ig_data_median)
 		timestamps.append(timestamp)
-		arduino_data.append(arduino_instance.take_measurement())
+		arduino_data.append(arduino_instance.takeMeasurement())
 
 		# If multiple data points were collected in this measurementTime, save their standard deviation
 		id_normalized = measurements['Id_data']
