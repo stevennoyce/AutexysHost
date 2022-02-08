@@ -45,6 +45,7 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 		time.sleep(sb_parameters['delayBeforeMeasurementsBegin'])
 
 	results = runStaticBias(smu_instance, 
+							arduino_instance,
 							totalBiasTime=sb_parameters['totalBiasTime'], 
 							measurementTime=sb_parameters['measurementTime'],
 							share=share)
@@ -101,7 +102,7 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 	return jsonData
 
 # === Data Collection ===
-def runStaticBias(smu_instance, totalBiasTime, measurementTime, share=None):
+def runStaticBias(smu_instance, arduino_instance, totalBiasTime, measurementTime, share=None):
 	vds_data = []
 	id_data = []
 	vgs_data = []
