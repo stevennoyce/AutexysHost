@@ -324,7 +324,7 @@ def initializeArduino(parameters):
 	
 	# If no specific ARDUINO_SYSTEM was included in configuration, still check to see if any are available to connect 
 	if(len(arduino_systems.keys()) == 0):	
-		arduino_systems = {'MCU': arduinoBoard.getConnection(port='any', baud=115200)}
+		arduino_systems = {'MCU': arduinoBoard.getConnection(port='', baud=115200)}
 	
 	return arduino_systems
 	
