@@ -13,6 +13,7 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 	# This script uses the default SMU, which is the first one in the list of SMU systems
 	smu_names = list(smu_systems.keys())
 	smu_instance = smu_systems[smu_names[0]]
+	arduino_instance = arduino_systems[list(arduino_systems.keys())[0]]
 	
 	# Get shorthand name to easily refer to configuration parameters
 	sb_parameters = parameters['runConfigs']['StaticBias']
@@ -44,6 +45,7 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 		time.sleep(sb_parameters['delayBeforeMeasurementsBegin'])
 
 	results = runStaticBias(smu_instance, 
+							arduino_instance,
 							totalBiasTime=sb_parameters['totalBiasTime'], 
 							measurementTime=sb_parameters['measurementTime'],
 							share=share)
@@ -100,7 +102,7 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 	return jsonData
 
 # === Data Collection ===
-def runStaticBias(smu_instance, totalBiasTime, measurementTime, share=None):
+def runStaticBias(smu_instance, arduino_instance, totalBiasTime, measurementTime, share=None):
 	vds_data = []
 	id_data = []
 	vgs_data = []
@@ -110,6 +112,7 @@ def runStaticBias(smu_instance, totalBiasTime, measurementTime, share=None):
 	id_std = []
 	vgs_std = []
 	ig_std = []
+	arduino_data = []
 
 	# Set the SMU timeout to be a few measurementTime's long
 	timeout = max(1000, 3*measurementTime*1000)
@@ -178,6 +181,7 @@ def runStaticBias(smu_instance, totalBiasTime, measurementTime, share=None):
 		vgs_data.append(vgs_data_median)
 		ig_data.append(ig_data_median)
 		timestamps.append(timestamp)
+		arduino_data.append(arduino_instance.takeMeasurement())
 
 		# If multiple data points were collected in this measurementTime, save their standard deviation
 		id_normalized = measurements['Id_data']
@@ -221,7 +225,8 @@ def runStaticBias(smu_instance, totalBiasTime, measurementTime, share=None):
 			'ig_data':ig_data,
 			'timestamps':timestamps,
 			'id_std':id_std,
-			'ig_std':ig_std
+			'ig_std':ig_std,
+			'arduino_data':arduino_data,
 		},
 		'Computed':{
 			'id_max':max(id_data),

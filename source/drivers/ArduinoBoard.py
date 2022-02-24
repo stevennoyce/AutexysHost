@@ -25,7 +25,7 @@ def getConnection(port='', baud=115200, system_settings=None):
 			port = active_ports[0].device
 	
 	# If not able to connect, return null instance
-	if(port == ''): 
+	if(port in ['', 'any']): 
 		print("No Arduino connected.")
 		return NullArduinoSerial()			
 	
