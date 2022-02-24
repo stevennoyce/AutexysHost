@@ -334,6 +334,7 @@ def initializeArduino(parameters):
 from procedures import Gate_Sweep
 from procedures import Drain_Sweep
 from procedures import Benchtop
+from procedures import Four_Point_Probe
 
 from procedures import Static_Bias
 from procedures import Rapid_Bias
@@ -364,6 +365,7 @@ def explicitlyInitializeProcedures():
 		['GateSweep',  Gate_Sweep],
 		['DrainSweep', Drain_Sweep],
 		['Benchtop',   Benchtop],
+		['FourPointProbe', Four_Point_Probe],
 	]
 	
 	timed_procedures = [

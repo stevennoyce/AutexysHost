@@ -333,6 +333,21 @@ def plotResistanceCurve(axis, jsonData, lineColor, direction='both', scaleYaxisB
 	line = plotAll(axis, x, y, lineColor, pointsPerX=pointsPerX, lineStyle=lineStyle, errorBars=errorBars, alpha=alpha)
 	return line
 
+def plotFourPointResistanceCurve(axis, jsonData, lineColor, direction='both', scaleYaxisBy=1, lineStyle=None, errorBars=True, alpha=1):
+	x, y, pointsPerX = extractSweep(axis, jsonData, direction, x_data='drain current', y_data='drain voltage', scaleYaxisBy=1)
+	resolution_limit_volts = 1e-6
+	y = [[y[i][j] for j in range(len(y[i])) if(abs(y[i][j]) > resolution_limit_volts)] for i in range(len(y))]
+	x = [[x[i][j] for j in range(len(x[i])) if(abs(y[i][j]) > resolution_limit_volts)] for i in range(len(x))]
+	y = scaleYaxisBy * np.array(y) / np.array(x)
+	line = plotAll(axis, x, y, lineColor, pointsPerX=pointsPerX, lineStyle=lineStyle, errorBars=errorBars, alpha=alpha)
+	return line
+
+def plotFourPointVoltageCurve(axis, jsonData, lineColor, direction='both', scaleYaxisBy=1, lineStyle=None, errorBars=True, alpha=1):
+	x, y, pointsPerX = extractSweep(axis, jsonData, direction, x_data='drain current', y_data='drain voltage', scaleYaxisBy=scaleYaxisBy)
+	#axis.set_xscale('log')
+	line = plotAll(axis, x, y, lineColor, pointsPerX=pointsPerX, lineStyle=lineStyle, errorBars=errorBars, alpha=alpha)
+	return line
+
 def plotOutputResistanceCurve(axis, jsonData, lineColor, direction='both', scaleYaxisBy=1, lineStyle=None, errorBars=True, alpha=1):
 	x, y, pointsPerX = extractSweep(axis, jsonData, direction, x_data='drain voltage', y_data='drain current', scaleYaxisBy=scaleYaxisBy, derivative=True, absoluteValue=True, reciprocal=True)
 	y = np.abs(y)

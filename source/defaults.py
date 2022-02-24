@@ -66,6 +66,11 @@ default_parameters = {
 			'supplyGateVoltage': 			{'type':'bool',  			                    'default': True,   'title':'Supply Gate Voltage',        	  'description':'When disabled, gate channel enters a high-resistance state to measure the gate voltage.'},
 			'supplyDrainVoltage': 			{'type':'bool',  			                    'default': True,   'title':'Supply Drain Voltage',       	  'description':'When disabled, drain channel enters a high-resistance state to measure the drain voltage.'},
 		},
+		'FourPointProbe': {
+			'dependencies':				{'ignore':True, 'value':[]},
+			'saveFileName': 			{'type':'constant', 'default': 'FourPointProbe', 'title':'Save File Name', 'description':'The name of the file that will be saved with the data from this experiment. This name should typically not be changed.'},
+			'complianceVoltage':		{'type':'float',                   'units':'V',  'default': 50e-3, 'title':'Compliance Voltage',           'description':'Maximum voltage limit for the SMU.'},
+		},
 		'AutoGateSweep':{
 			'dependencies':					{'ignore':True, 'value':['GateSweep']},
 			'sweepsPerVDS': 				{'type':'int',   'essential':True, 'units':'#', 'default': 3,     'title':'Sweeps Per Drain Voltage', 'description':'Number of gate sweeps to take at each value of drain voltage.'},
