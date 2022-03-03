@@ -19,7 +19,7 @@ def sineValues(offset, amplitude, periods, points):
 
 # Generages a sequence that linearly ramps from start to end.
 def rampValues(start, end, points):
-	return np.linspace(start, end, points).tolist()
+	return np.linspace(start, end, int(points)).tolist()
 
 # Generates a sequence that linearly ramps from start to end, and back to start.
 def sweepValues(start, end, points):
