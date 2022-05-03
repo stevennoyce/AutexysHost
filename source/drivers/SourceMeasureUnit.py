@@ -763,7 +763,7 @@ class PCB_System(SourceMeasureUnit):
 
 	def connect(self):
 		self.setParameter('activate !') #self.setParameter('activate !', responseStartsWith='#') # TODO: enforce activation acknowledgement
-		self.setParameter('authenticate !')
+		#self.setParameter('serial_number !')
 		#return self.getResponse(startsWith='#') # TODO: capture the PCB's authentication token / serial number
 		return '' 
 
