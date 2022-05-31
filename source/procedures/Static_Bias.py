@@ -114,12 +114,6 @@ def runStaticBias(smu_instance, arduino_instance, totalBiasTime, measurementTime
 	ig_std = []
 	arduino_data = []
 
-	# Set the SMU timeout to be a few measurementTime's long
-	timeout = max(1000, 3*measurementTime*1000)
-	timeout = 60000
-	smu_instance.setTimeout(timeout_ms=timeout)
-	print('SMU timeout set to ' + str(timeout) + ' ms.')
-
 	# Get the SMU measurement speed
 	smu_measurementsPerSecond = smu_instance.measurementsPerSecond
 	smu_secondsPerMeasurement = 1/smu_measurementsPerSecond

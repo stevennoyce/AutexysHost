@@ -772,6 +772,9 @@ class PCB_System(SourceMeasureUnit):
 			self.setParameter('deactivate !')
 		self.ser.close()
 	
+	def setTimeout(self, timeout_ms=60000):
+		self.ser.timeout = timeout_ms/1000
+	
 	# --- Measurement Channels ---
 	def setComplianceCurrent(self, complianceCurrent):
 		pass
