@@ -20,7 +20,7 @@ lmfit==0.9.12
 macholib==1.14
 MarkupSafe==1.1.1
 matplotlib==3.0.3
-numpy==1.14.3
+numpy==1.22.0
 pkginfo==1.4.2
 psutil==5.8.0
 pyinstaller==4.3
