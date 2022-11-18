@@ -378,7 +378,10 @@ measurement_system_configurations = {
 	},
 	'B2900A + Arduino': {
 		'B2900A': { 'type': 'B2900A', },
-		'MCU': {'type': 'ARDUINO_SYSTEM', },
+		'MCU': {
+			'type': 'ARDUINO_SYSTEM',
+			'uniqueID': 'any',
+		},
 	},
 	'B2900A (double)': {
 		'deviceSMU':{
