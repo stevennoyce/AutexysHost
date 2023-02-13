@@ -32,7 +32,8 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 								 sweepEnd=cc_parameters['sweepEnd'],
 								 sweepSteps=cc_parameters['sweepSteps'],
 								 sweepDelayBetweenMeasurements=cc_parameters['sweepDelayBetweenMeasurements'],
-								 sweepFrequency=cc_parameters['sweepFrequency'])
+								 sweepFrequency=cc_parameters['sweepFrequency'],
+								 share=share)
 	
 	smu_instance.turnChannelsOff()
 	smu_instance.setChannel1SourceMode(mode='voltage')
@@ -52,7 +53,7 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 	
 	return jsonData
 
-def runConstantCurrent(smu_instance, currentApplied, currentDuration, currentDataInterval, complianceVoltage, enableSweep, sweepStart, sweepEnd, sweepSteps, sweepDelayBetweenMeasurements, sweepFrequency):
+def runConstantCurrent(smu_instance, currentApplied, currentDuration, currentDataInterval, complianceVoltage, enableSweep, sweepStart, sweepEnd, sweepSteps, sweepDelayBetweenMeasurements, sweepFrequency, share=None):
 	voltage_data = []
 	current_data = []
 	timestamps = []
