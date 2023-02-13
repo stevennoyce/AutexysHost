@@ -337,6 +337,7 @@ from procedures import Benchtop
 from procedures import Four_Point_Probe
 
 from procedures import Static_Bias
+from procedures import Constant_Current
 from procedures import Rapid_Bias
 from procedures import Small_Signal
 
@@ -370,6 +371,7 @@ def explicitlyInitializeProcedures():
 	
 	timed_procedures = [
 		['StaticBias', Static_Bias],
+		['ConstantCurrent', Constant_Current],
 		['RapidBias',  Rapid_Bias],
 		['SmallSignal', Small_Signal],
 	]
