@@ -61,7 +61,8 @@ def runConstantCurrent(smu_instance, currentApplied, currentDuration, currentDat
 		smu_instance.setChannel2SourceMode(mode='voltage')
 		smu_instance.setParameter(":sense1:curr:prot {}".format(100e-6))
 		smu_instance.setParameter(":sense2:curr:prot {}".format(100e-6))
-		smu_instance.rampDownVoltages()
+		smu_instance.setVds(0)
+		smu_instance.setVgs(0)
 		smu_instance.turnChannelsOn()
 		
 		sweep_voltages = dgu.sweepValuesWithDuplicates(sweepStart, sweepEnd, sweepSteps, 1, ramps=2)
@@ -92,30 +93,32 @@ def runConstantCurrent(smu_instance, currentApplied, currentDuration, currentDat
 		smu_instance.turnChannelsOff()
 		smu_instance.setChannel1SourceMode(mode='voltage')
 		smu_instance.setChannel2SourceMode(mode='voltage')
-		smu_instance.rampDownVoltages()
+		smu_instance.setVds(0)
+		smu_instance.setVgs(0)
 		smu_instance.setChannel1SourceMode(mode='current')
 		smu_instance.setParameter(f":sense1:volt:prot {complianceVoltage}")
-		smu_instance.rampDrainCurrentDown()
+		smu_instance.setId(0)
 		smu_instance.turnChannel1On()
 		smu_instance.turnChannel2Off()
 		
 		# Set Constant Current
-		smu_instance.rampDrainCurrentTo(currentApplied)
+		smu_instance.rampDrainCurrent(0, currentApplied)
 	
 	
 	# Configure Channels to Run Constant Current
 	smu_instance.turnChannelsOff()
 	smu_instance.setChannel1SourceMode(mode='voltage')
 	smu_instance.setChannel2SourceMode(mode='voltage')
-	smu_instance.rampDownVoltages()
+	smu_instance.setVds(0)
+	smu_instance.setVgs(0)
 	smu_instance.setChannel1SourceMode(mode='current')
 	smu_instance.setParameter(f":sense1:volt:prot {complianceVoltage}")
-	smu_instance.rampDrainCurrentDown()
+	smu_instance.setId(0)
 	smu_instance.turnChannel1On()
 	smu_instance.turnChannel2Off()
 	
 	# Set Constant Current
-	smu_instance.rampDrainCurrentTo(currentApplied)
+	smu_instance.rampDrainCurrent(0, currentApplied)
 	
 	# Prepare to loop
 	start_time = time.time()
