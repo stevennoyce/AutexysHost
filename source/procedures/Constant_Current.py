@@ -173,6 +173,14 @@ def runConstantCurrent(smu_instance, currentApplied, currentDuration, currentDat
 										enumerateLegend=False,
 										timeseries=True),
 		])
+		# =============
+		
+		# === Enable Stop Button ===
+		try:
+			pipes.checkAbortStatus(share)
+		except pipes.AbortError as e:
+			break # exit the while loop to stop the experiment
+		# =============
 	
 	return {
 		'Raw': {
