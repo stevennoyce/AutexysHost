@@ -69,7 +69,7 @@ default_parameters = {
 		'ConstantCurrent': {
 			'dependencies':					{'ignore':True, 'value':[]},
 			'saveFileName': 				{'type':'constant', 'default':'ConstantCurrent', 'title':'Save File Name', 'description':'The name of the file that will be saved with the data from this experiment. This name should typically not be changed.'},
-			'currentApplied':				{'type':'float', 'essential':True, 'units':'A', 'default': 0,     'title':'Current Applied', 				  'description':''},
+			'currentAppliedMilliamps':		{'type':'float', 'essential':True, 'units':'mA','default': 0,     'title':'Current Applied', 				  'description':''},
 			'currentDuration':				{'type':'float', 'essential':True, 'units':'s', 'default': 60,    'title':'Duration', 						  'description':''},
 			'currentDataInterval':			{'type':'float', 'essential':True, 'units':'s', 'default': 1,     'title':'Data Interval', 					  'description':''},
 			'complianceVoltage':			{'type':'float', 'essential':True, 'units':'V', 'default': 5,     'title':'Compliance Voltage', 			  'description':''},

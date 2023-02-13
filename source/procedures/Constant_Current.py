@@ -23,7 +23,7 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 	
 	# === START ===
 	results = runConstantCurrent(smu_instance,
-								 currentApplied=cc_parameters['currentApplied'],
+								 currentApplied=cc_parameters['currentAppliedMilliamps']/1000,
 								 currentDuration=cc_parameters['currentDuration'],
 								 currentDataInterval=cc_parameters['currentDataInterval'],
 								 complianceVoltage=cc_parameters['complianceVoltage'],
@@ -158,6 +158,20 @@ def runConstantCurrent(smu_instance, currentApplied, currentDuration, currentDat
 		if(currentDataInterval > 0):
 			time.sleep(currentDataInterval)
 		# =============
+		
+		# === Live Plotting ===
+		pipes.livePlotUpdate(share,plots=
+		[livePlotter.createLiveDataPoint(plotID='Response vs. Time',
+										labels=['Voltage'],
+										xValues=[timestamp], 
+										yValues=[measurement['V']], 
+										xAxisTitle='Time (s)', 
+										yAxisTitle='Voltage (V)', 
+										yscale='linear', 
+										plotMode='lines',
+										enumerateLegend=False,
+										timeseries=True),
+		])
 	
 	return {
 		'Raw': {
