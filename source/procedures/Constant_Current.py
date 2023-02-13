@@ -25,6 +25,7 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 								 currentApplied=cc_parameters['currentApplied'],
 								 currentDuration=cc_parameters['currentDuration'],
 								 currentDataInterval=cc_parameters['currentDataInterval'],
+								 complianceVoltage=cc_parameters['complianceVoltage'],
 								 enableSweep=cc_parameters['enableSweep'],
 								 sweepStart=cc_parameters['sweepStart'],
 								 sweepEnd=cc_parameters['sweepEnd'],
@@ -43,7 +44,7 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 	
 	return jsonData
 
-def runConstantCurrent(smu_instance, currentApplied, currentDuration, currentDataInterval, enableSweep, sweepStart, sweepEnd, sweepSteps, sweepDelayBetweenMeasurements, sweepFrequency):
+def runConstantCurrent(smu_instance, currentApplied, currentDuration, currentDataInterval, complianceVoltage, enableSweep, sweepStart, sweepEnd, sweepSteps, sweepDelayBetweenMeasurements, sweepFrequency):
 	voltage_data = []
 	current_data = []
 	timestamps = []
@@ -93,7 +94,7 @@ def runConstantCurrent(smu_instance, currentApplied, currentDuration, currentDat
 		smu_instance.setChannel2SourceMode(mode='voltage')
 		smu_instance.rampDownVoltages()
 		smu_instance.setChannel1SourceMode(mode='current')
-		smu_instance.setParameter(":sense1:volt:prot {}".format(cc_parameters['complianceVoltage']))
+		smu_instance.setParameter(f":sense1:volt:prot {complianceVoltage}")
 		smu_instance.rampDrainCurrentDown()
 		smu_instance.turnChannel1On()
 		smu_instance.turnChannel2Off()
@@ -108,7 +109,7 @@ def runConstantCurrent(smu_instance, currentApplied, currentDuration, currentDat
 	smu_instance.setChannel2SourceMode(mode='voltage')
 	smu_instance.rampDownVoltages()
 	smu_instance.setChannel1SourceMode(mode='current')
-	smu_instance.setParameter(":sense1:volt:prot {}".format(cc_parameters['complianceVoltage']))
+	smu_instance.setParameter(f":sense1:volt:prot {complianceVoltage}")
 	smu_instance.rampDrainCurrentDown()
 	smu_instance.turnChannel1On()
 	smu_instance.turnChannel2Off()
