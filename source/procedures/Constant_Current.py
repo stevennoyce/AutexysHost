@@ -81,16 +81,17 @@ def runConstantCurrent(smu_instance, currentApplied, currentDuration, currentDat
 		run_sweep_numbers = []
 		
 		# Do Sweep
-		for v in sweep_voltages:
-			smu_instance.setVgs(v)
-			
-			timestamp = time.time()
-			measurement = smu_instance.takeMeasurement()
-			
-			run_voltages.append(measurement['V_gs'])
-			run_currents.append(measurement['I_g'])
-			run_timestamps.append(timestamp)
-			run_sweep_numbers.append(sweepNumber)
+		for index, voltages in enumerate(sweep_voltages):
+			for v in voltages:
+				smu_instance.setVgs(v)
+				
+				timestamp = time.time()
+				measurement = smu_instance.takeMeasurement()
+				
+				run_voltages.append(measurement['V_gs'])
+				run_currents.append(measurement['I_g'])
+				run_timestamps.append(timestamp)
+				run_sweep_numbers.append(sweepNumber)
 			
 		sweep_voltage_data.append(run_voltages)
 		sweep_current_data.append(run_currents)
