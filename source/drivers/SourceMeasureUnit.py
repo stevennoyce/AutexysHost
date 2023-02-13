@@ -423,9 +423,21 @@ class B2900A(SourceMeasureUnit):
 	def turnChannelsOn(self):
 		self.setParameter(":output1 ON")
 		self.setParameter(":output2 ON")
+		
+	def turnChannel1On(self):
+		self.setParameter(":output1 ON")
+	
+	def turnChannel2On(self):
+		self.setParameter(":output2 ON")
 	
 	def turnChannelsOff(self):
 		self.setParameter(":output1 OFF")
+		self.setParameter(":output2 OFF")
+	
+	def turnChannel1Off(self):
+		self.setParameter(":output1 OFF")
+	
+	def turnChannel2Off(self):
 		self.setParameter(":output2 OFF")
 	
 	def setNPLC(self, nplc=1):
