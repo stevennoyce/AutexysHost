@@ -5,6 +5,7 @@ import numpy as np
 import pipes
 import Live_Plot_Data_Point as livePlotter
 from utilities import DataLoggerUtility as dlu
+from utilities import SequenceGeneratorUtility as dgu
 
 
 
@@ -32,6 +33,13 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 								 sweepSteps=cc_parameters['sweepSteps'],
 								 sweepDelayBetweenMeasurements=cc_parameters['sweepDelayBetweenMeasurements'],
 								 sweepFrequency=cc_parameters['sweepFrequency'])
+	
+	smu_instance.turnChannelsOff()
+	smu_instance.setChannel1SourceMode(mode='voltage')
+	smu_instance.setChannel2SourceMode(mode='voltage')
+	smu_instance.setVds(0)
+	smu_instance.setVgs(0)
+	smu_instance.turnChannelsOn()
 	# === COMPLETE ===
 	
 	# Copy parameters and add in the test results
