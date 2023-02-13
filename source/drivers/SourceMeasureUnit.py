@@ -521,6 +521,14 @@ class B2900A(SourceMeasureUnit):
 			'I_g':  data[7]
 		}
 	
+	def takeSingleChannelMeasurement(self, channel=1):
+		data = self.query_values(f":MEAS? (@{channel})")
+		
+		return {
+			'V': data[0],
+			'I': data[1],
+		}
+	
 	# --- Sweep ---
 	# SWEEP: configure all hardware settings to prepare a sweep
 	def setupSweep(self, src1start, src1stop, src2start, src2stop, points, triggerInterval=None, src1vals=None, src2vals=None):

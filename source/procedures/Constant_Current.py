@@ -78,8 +78,8 @@ def runConstantCurrent(smu_instance, currentApplied, currentDuration, currentDat
 			timestamp = time.time()
 			measurement = smu_instance.takeMeasurement()
 			
-			run_voltages.append(measurement['V_ds'])
-			run_currents.append(measurement['I_d'])
+			run_voltages.append(measurement['V_gs'])
+			run_currents.append(measurement['I_g'])
 			run_timestamps.append(timestamp)
 			run_sweep_numbers.append(sweepNumber)
 			
@@ -136,10 +136,10 @@ def runConstantCurrent(smu_instance, currentApplied, currentDuration, currentDat
 		
 		# === Constant Current ===
 		timestamp = time.time()
-		measurement = smu_instance.takeMeasurement()
+		measurement = smu_instance.takeSingleChannelMeasurement(channel=1)
 		
-		voltage_data.append(measurement['V_ds'])
-		current_data.append(measurement['I_d'])
+		voltage_data.append(measurement['V'])
+		current_data.append(measurement['I'])
 		timestamps.append(timestamp)
 		
 		# Pause for the interval time
