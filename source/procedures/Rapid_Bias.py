@@ -33,6 +33,8 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 							maxStepInVDS=rb_parameters['maxStepInVDS'],
 							maxStepInVGS=rb_parameters['maxStepInVGS'],
 							startGrounded=rb_parameters['startGrounded'],
+							isFastSweep=rb_parameters['isFastSweep'],
+							fastSweepSpeed=rb_parameters['fastSweepSpeed'],
 							supplyDrainVoltage=rb_parameters['supplyDrainVoltage'],
 							supplyGateVoltage=rb_parameters['supplyGateVoltage'],
 							share=share)
@@ -64,7 +66,7 @@ def run(parameters, smu_systems, arduino_systems, share=None):
 	return jsonData
 
 # === Data Collection ===
-def runRapidBias(smu_instance, waveform, drainVoltageSetPoints, gateVoltageSetPoints, measurementPoints, averageOverPoints, maxStepInVDS, maxStepInVGS, startGrounded, supplyDrainVoltage=True, supplyGateVoltage=True, share=None):
+def runRapidBias(smu_instance, waveform, drainVoltageSetPoints, gateVoltageSetPoints, measurementPoints, averageOverPoints, maxStepInVDS, maxStepInVGS, startGrounded, isFastSweep, fastSweepSpeed, supplyDrainVoltage=True, supplyGateVoltage=True, share=None):
 	vds_data = []
 	id_data = []
 	vgs_data = []
@@ -107,48 +109,61 @@ def runRapidBias(smu_instance, waveform, drainVoltageSetPoints, gateVoltageSetPo
 		gateVoltages.extend([finalVGS]*lengthDifference)
 
 	# -- at this point gateVoltages and drainVoltages are vectors of points to measure
+	
+	if(isFastSweep):
+		triggerInterval = 1/fastSweepSpeed
 
-	# Step through all voltage points to measure
-	measurement_buffer = []
-	for i in range(len(gateVoltages)):
-		# Send a progress message
-		pipes.progressUpdate(share, 'Rapid Bias Point', start=0, current=i+1, end=len(gateVoltages))
-		
-		# Apply V_GS and V_DS (only issue commands that affect the voltage)
-		if(supplyGateVoltage and ((i == 0) or (gateVoltages[i] != gateVoltages[i-1]))):
-			smu_instance.setVgs(gateVoltages[i])
-		if(supplyDrainVoltage and ((i == 0) or (drainVoltages[i] != drainVoltages[i-1]))):
-			smu_instance.setVds(drainVoltages[i])
+		# Use SMU built-in sweep to sweep the gate forwards and backwards
+		measurements = smu_instance.takeSweep(None, None, None, None, points=len(drainVoltages), triggerInterval=triggerInterval, src1vals=drainVoltages, src2vals=gateVoltages)
 
-		# Take Measurement and add it to the buffer
-		measurement = smu_instance.takeMeasurement()
-		timestamp = time.time()
-		measurement['timestamp'] = timestamp
-		
-		measurement_buffer.append(measurement)
-		
-		# Once the buffer reaches the desired number of measurements to average over, save the mean data and timestamp and reset the buffer
-		if(len(measurement_buffer) >= averageOverPoints):
-			vds_data.append(np.mean([entry['V_ds'] for entry in measurement_buffer]))
-			id_data.append(np.mean([entry['I_d'] for entry in measurement_buffer]))
-			vgs_data.append(np.mean([entry['V_gs'] for entry in measurement_buffer]))
-			ig_data.append(np.mean([entry['I_g'] for entry in measurement_buffer]))
-			timestamps.append(np.mean([entry['timestamp'] for entry in measurement_buffer]))
-			measurement_buffer = []
+		# Save forward measurements
+		vds_data   = measurements['Vds_data']
+		id_data    = measurements['Id_data']
+		vgs_data   = measurements['Vgs_data']
+		ig_data    = measurements['Ig_data']
+		timestamps = measurements['timestamps']
+	else:
+		# Step through all voltage points to measure
+		measurement_buffer = []
+		for i in range(len(gateVoltages)):
+			# Send a progress message
+			pipes.progressUpdate(share, 'Rapid Bias Point', start=0, current=i+1, end=len(gateVoltages))
 			
-			# Send a data message
-			pipes.livePlotUpdate(share,plots=
-			[livePlotter.createLiveDataPoint(plotID='Current vs. Time', 
-												labels=['Drain Current', 'Gate Current'],
-												xValues=[timestamps[-1], timestamps[-1]], 
-												yValues=[id_data[-1], ig_data[-1]], 
-												xAxisTitle='Time (s)', 
-												yAxisTitle='Current (A)', 
-												yscale='linear', 
-												plotMode='lines',
-												enumerateLegend=False,
-												timeseries=True),
-			])
+			# Apply V_GS and V_DS (only issue commands that affect the voltage)
+			if(supplyGateVoltage and ((i == 0) or (gateVoltages[i] != gateVoltages[i-1]))):
+				smu_instance.setVgs(gateVoltages[i])
+			if(supplyDrainVoltage and ((i == 0) or (drainVoltages[i] != drainVoltages[i-1]))):
+				smu_instance.setVds(drainVoltages[i])
+
+			# Take Measurement and add it to the buffer
+			measurement = smu_instance.takeMeasurement()
+			timestamp = time.time()
+			measurement['timestamp'] = timestamp
+			
+			measurement_buffer.append(measurement)
+			
+			# Once the buffer reaches the desired number of measurements to average over, save the mean data and timestamp and reset the buffer
+			if(len(measurement_buffer) >= averageOverPoints):
+				vds_data.append(np.mean([entry['V_ds'] for entry in measurement_buffer]))
+				id_data.append(np.mean([entry['I_d'] for entry in measurement_buffer]))
+				vgs_data.append(np.mean([entry['V_gs'] for entry in measurement_buffer]))
+				ig_data.append(np.mean([entry['I_g'] for entry in measurement_buffer]))
+				timestamps.append(np.mean([entry['timestamp'] for entry in measurement_buffer]))
+				measurement_buffer = []
+				
+				# Send a data message
+				pipes.livePlotUpdate(share,plots=
+				[livePlotter.createLiveDataPoint(plotID='Current vs. Time', 
+													labels=['Drain Current', 'Gate Current'],
+													xValues=[timestamps[-1], timestamps[-1]], 
+													yValues=[id_data[-1], ig_data[-1]], 
+													xAxisTitle='Time (s)', 
+													yAxisTitle='Current (A)', 
+													yscale='linear', 
+													plotMode='lines',
+													enumerateLegend=False,
+													timeseries=True),
+				])
 		
 	return {
 		'Raw':{

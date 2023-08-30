@@ -128,6 +128,8 @@ default_parameters = {
 			'startGrounded': 			{'type':'bool',                                  'default': False,            'title':'Start Grounded',           'description':'When enabled, terminals start as grounded so that you can see all of the starting transients and miss nothing.'}, 
 			'supplyGateVoltage': 		{'type':'bool',                                  'default': True,             'title':'Supply Gate Voltage',      'description':'When disabled, gate channel enters a high-resistance state to measure the gate voltage.'},
 			'supplyDrainVoltage': 		{'type':'bool',                                  'default': True,             'title':'Supply Drain Voltage',     'description':'When disabled, drain channel enters a high-resistance state to measure the drain voltage.'},
+			'isFastSweep': 				{'type':'bool',                                  'default': False,            'title':'Fast Sweep',               'description':'Use internal SMU timer to measure a faster sweep.'},
+			'fastSweepSpeed':			{'type':'int',                     'units':'Hz', 'default': 1000,             'title':'Fast Sweep Speed',         'description':'Frequency of SMU internal timer.'},
 		},
 		'SmallSignal':{
 			'dependencies':				{'ignore':True, 'value':[]},
